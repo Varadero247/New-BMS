@@ -1,0 +1,443 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  avatar        String?
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  sessions         Session[]
+  assignedBuildings BuildingUser[]
+  alerts           Alert[]
+  maintenanceReports MaintenanceReport[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  TECHNICIAN
+  USER
+}
+
+// ============================================
+// BUILDING & ZONES
+// ============================================
+
+model Building {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  country     String   @default("USA")
+  latitude    Float?
+  longitude   Float?
+  totalArea   Float?   // in square feet/meters
+  floors      Int      @default(1)
+  yearBuilt   Int?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  zones       Zone[]
+  users       BuildingUser[]
+  devices     Device[]
+  alerts      Alert[]
+  schedules   Schedule[]
+  energyData  EnergyReading[]
+
+  @@map("buildings")
+}
+
+model BuildingUser {
+  id         String   @id @default(cuid())
+  buildingId String
+  userId     String
+  role       BuildingRole @default(VIEWER)
+  createdAt  DateTime @default(now())
+
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([buildingId, userId])
+  @@map("building_users")
+}
+
+enum BuildingRole {
+  OWNER
+  MANAGER
+  OPERATOR
+  VIEWER
+}
+
+model Zone {
+  id          String   @id @default(cuid())
+  buildingId  String
+  name        String
+  floor       Int      @default(1)
+  type        ZoneType
+  area        Float?   // in square feet/meters
+  capacity    Int?     // max occupancy
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  devices  Device[]
+  schedules Schedule[]
+
+  @@map("zones")
+}
+
+enum ZoneType {
+  OFFICE
+  CONFERENCE
+  LOBBY
+  HALLWAY
+  RESTROOM
+  KITCHEN
+  SERVER_ROOM
+  STORAGE
+  PARKING
+  MECHANICAL
+  OUTDOOR
+  OTHER
+}
+
+// ============================================
+// DEVICES & SENSORS
+// ============================================
+
+model Device {
+  id           String       @id @default(cuid())
+  buildingId   String
+  zoneId       String?
+  name         String
+  type         DeviceType
+  manufacturer String?
+  model        String?
+  serialNumber String?      @unique
+  ipAddress    String?
+  macAddress   String?
+  firmware     String?
+  status       DeviceStatus @default(OFFLINE)
+  lastSeen     DateTime?
+  installDate  DateTime?
+  warrantyEnd  DateTime?
+  metadata     Json?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  building    Building          @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  zone        Zone?             @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  readings    SensorReading[]
+  alerts      Alert[]
+  maintenance MaintenanceReport[]
+  controls    DeviceControl[]
+
+  @@map("devices")
+}
+
+enum DeviceType {
+  HVAC
+  THERMOSTAT
+  LIGHTING
+  MOTION_SENSOR
+  DOOR_SENSOR
+  WINDOW_SENSOR
+  SMOKE_DETECTOR
+  CO_DETECTOR
+  WATER_LEAK
+  ENERGY_METER
+  AIR_QUALITY
+  CAMERA
+  ACCESS_CONTROL
+  ELEVATOR
+  FIRE_ALARM
+  SPRINKLER
+  GENERATOR
+  UPS
+  OTHER
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  WARNING
+  ERROR
+  MAINTENANCE
+}
+
+model SensorReading {
+  id        String   @id @default(cuid())
+  deviceId  String
+  type      ReadingType
+  value     Float
+  unit      String
+  timestamp DateTime @default(now())
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, timestamp])
+  @@map("sensor_readings")
+}
+
+enum ReadingType {
+  TEMPERATURE
+  HUMIDITY
+  CO2
+  VOC
+  PM25
+  PM10
+  NOISE
+  LIGHT
+  MOTION
+  OCCUPANCY
+  POWER
+  VOLTAGE
+  CURRENT
+  WATER_FLOW
+  PRESSURE
+}
+
+model DeviceControl {
+  id         String   @id @default(cuid())
+  deviceId   String
+  command    String
+  parameters Json?
+  status     ControlStatus @default(PENDING)
+  result     Json?
+  executedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("device_controls")
+}
+
+enum ControlStatus {
+  PENDING
+  EXECUTING
+  SUCCESS
+  FAILED
+}
+
+// ============================================
+// ENERGY MANAGEMENT
+// ============================================
+
+model EnergyReading {
+  id          String   @id @default(cuid())
+  buildingId  String
+  type        EnergyType
+  value       Float
+  unit        String
+  cost        Float?
+  timestamp   DateTime @default(now())
+
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+
+  @@index([buildingId, timestamp])
+  @@map("energy_readings")
+}
+
+enum EnergyType {
+  ELECTRICITY
+  GAS
+  WATER
+  SOLAR
+  WIND
+}
+
+// ============================================
+// SCHEDULES & AUTOMATION
+// ============================================
+
+model Schedule {
+  id          String       @id @default(cuid())
+  buildingId  String
+  zoneId      String?
+  name        String
+  description String?
+  type        ScheduleType
+  config      Json         // stores schedule-specific configuration
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  zone     Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  @@map("schedules")
+}
+
+enum ScheduleType {
+  HVAC
+  LIGHTING
+  ACCESS
+  MAINTENANCE
+  CUSTOM
+}
+
+// ============================================
+// ALERTS & NOTIFICATIONS
+// ============================================
+
+model Alert {
+  id          String      @id @default(cuid())
+  buildingId  String
+  deviceId    String?
+  userId      String?
+  type        AlertType
+  severity    AlertSeverity
+  title       String
+  message     String
+  data        Json?
+  status      AlertStatus @default(ACTIVE)
+  acknowledgedAt DateTime?
+  resolvedAt  DateTime?
+  createdAt   DateTime    @default(now())
+
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  device   Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([buildingId, status])
+  @@map("alerts")
+}
+
+enum AlertType {
+  SYSTEM
+  DEVICE
+  SECURITY
+  ENVIRONMENTAL
+  MAINTENANCE
+  ENERGY
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+  EMERGENCY
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+// ============================================
+// MAINTENANCE
+// ============================================
+
+model MaintenanceReport {
+  id          String            @id @default(cuid())
+  deviceId    String
+  reportedBy  String
+  type        MaintenanceType
+  priority    MaintenancePriority
+  title       String
+  description String
+  status      MaintenanceStatus @default(OPEN)
+  notes       String?
+  cost        Float?
+  scheduledAt DateTime?
+  completedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  reporter User   @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_reports")
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  INSPECTION
+  EMERGENCY
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entity     String
+  entityId   String?
+  oldData    Json?
+  newData    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
