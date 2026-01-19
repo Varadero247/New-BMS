@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, AlertTriangle, Info, Check } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 const alerts = [
   {

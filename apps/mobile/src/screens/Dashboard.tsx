@@ -1,4 +1,4 @@
-import { Building, Cpu, Bell, Zap, TrendingUp, TrendingDown } from 'lucide-react';
+import { Building, Cpu, Bell, Zap, TrendingDown } from 'lucide-react';
 
 const stats = [
   { label: 'Buildings', value: '12', icon: Building, color: 'bg-blue-500' },
