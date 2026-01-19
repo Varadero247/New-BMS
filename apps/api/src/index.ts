@@ -13,6 +13,9 @@ import devicesRoutes from './routes/devices';
 import alertsRoutes from './routes/alerts';
 import energyRoutes from './routes/energy';
 import dashboardRoutes from './routes/dashboard';
+import usersRoutes from './routes/users';
+import schedulesRoutes from './routes/schedules';
+import maintenanceRoutes from './routes/maintenance';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -53,6 +56,9 @@ app.use('/api/devices', devicesRoutes);
 app.use('/api/alerts', alertsRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/schedules', schedulesRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Error handling
 app.use(notFoundHandler);
