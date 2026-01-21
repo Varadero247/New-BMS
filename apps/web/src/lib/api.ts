@@ -51,3 +51,5 @@ export async function del<T>(url: string): Promise<ApiResponse<T>> {
   const response = await api.delete<ApiResponse<T>>(url);
   return response.data;
 }
+
+export default api;

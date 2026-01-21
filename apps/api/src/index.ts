@@ -7,15 +7,26 @@ import rateLimit from 'express-rate-limit';
 
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
+
+// Auth routes
 import authRoutes from './routes/auth';
-import buildingsRoutes from './routes/buildings';
-import devicesRoutes from './routes/devices';
-import alertsRoutes from './routes/alerts';
-import energyRoutes from './routes/energy';
-import dashboardRoutes from './routes/dashboard';
 import usersRoutes from './routes/users';
-import schedulesRoutes from './routes/schedules';
-import maintenanceRoutes from './routes/maintenance';
+
+// IMS Core routes
+import risksRoutes from './routes/risks';
+import incidentsRoutes from './routes/incidents';
+import actionsRoutes from './routes/actions';
+import legalRoutes from './routes/legal';
+import objectivesRoutes from './routes/objectives';
+import trainingRoutes from './routes/training';
+
+// Analytics routes
+import analyticsRoutes from './routes/analytics';
+import aiRoutes from './routes/ai';
+import metricsRoutes from './routes/metrics';
+
+// Dashboard
+import dashboardRoutes from './routes/ims-dashboard';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,7 +41,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 500, // Increased limit for IMS operations
   message: { success: false, error: { code: 'RATE_LIMIT', message: 'Too many requests' } },
 });
 app.use('/api/', limiter);
@@ -46,27 +57,42 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'IMS API',
+    version: '2.0.0'
+  });
 });
 
-// API routes
+// API routes - Authentication
 app.use('/api/auth', authRoutes);
-app.use('/api/buildings', buildingsRoutes);
-app.use('/api/devices', devicesRoutes);
-app.use('/api/alerts', alertsRoutes);
-app.use('/api/energy', energyRoutes);
-app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/schedules', schedulesRoutes);
-app.use('/api/maintenance', maintenanceRoutes);
+
+// API routes - IMS Core
+app.use('/api/risks', risksRoutes);
+app.use('/api/incidents', incidentsRoutes);
+app.use('/api/actions', actionsRoutes);
+app.use('/api/legal-requirements', legalRoutes);
+app.use('/api/objectives', objectivesRoutes);
+app.use('/api/training', trainingRoutes);
+
+// API routes - Analytics & AI
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/metrics', metricsRoutes);
+
+// API routes - Dashboard
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`🚀 API server running on http://localhost:${PORT}`);
+  console.log(`🚀 IMS API server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`📋 ISO Standards: 45001 (H&S), 14001 (Environmental), 9001 (Quality)`);
 });
 
 export default app;

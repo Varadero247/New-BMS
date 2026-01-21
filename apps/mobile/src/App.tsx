@@ -7,9 +7,11 @@ import { useAuthStore } from './stores/auth';
 // Screens
 import LoginScreen from './screens/Login';
 import DashboardScreen from './screens/Dashboard';
-import BuildingsScreen from './screens/Buildings';
-import DevicesScreen from './screens/Devices';
-import AlertsScreen from './screens/Alerts';
+import HSScreen from './screens/HS';
+import EnvironmentScreen from './screens/Environment';
+import QualityScreen from './screens/Quality';
+import ActionsScreen from './screens/Actions';
+import ReportIncidentScreen from './screens/ReportIncident';
 import ProfileScreen from './screens/Profile';
 import TabBar from './components/TabBar';
 
@@ -31,7 +33,7 @@ export default function App() {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       StatusBar.setStyle({ style: Style.Light });
-      StatusBar.setBackgroundColor({ color: '#2563eb' });
+      StatusBar.setBackgroundColor({ color: '#6366f1' });
     }
   }, []);
 
@@ -50,31 +52,65 @@ export default function App() {
           }
         />
         <Route
-          path="/buildings"
+          path="/hs"
           element={
             <PrivateRoute>
               <AppLayout>
-                <BuildingsScreen />
+                <HSScreen />
               </AppLayout>
             </PrivateRoute>
           }
         />
         <Route
-          path="/devices"
+          path="/hs/report"
+          element={
+            <PrivateRoute>
+              <ReportIncidentScreen standard="ISO_45001" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/environment"
           element={
             <PrivateRoute>
               <AppLayout>
-                <DevicesScreen />
+                <EnvironmentScreen />
               </AppLayout>
             </PrivateRoute>
           }
         />
         <Route
-          path="/alerts"
+          path="/environment/report"
+          element={
+            <PrivateRoute>
+              <ReportIncidentScreen standard="ISO_14001" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/quality"
           element={
             <PrivateRoute>
               <AppLayout>
-                <AlertsScreen />
+                <QualityScreen />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/quality/report"
+          element={
+            <PrivateRoute>
+              <ReportIncidentScreen standard="ISO_9001" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/actions"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <ActionsScreen />
               </AppLayout>
             </PrivateRoute>
           }

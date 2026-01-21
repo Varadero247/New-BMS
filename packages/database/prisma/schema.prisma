@@ -20,29 +20,35 @@ model User {
   phone         String?
   avatar        String?
   role          UserRole  @default(USER)
+  department    String?
+  jobTitle      String?
   isActive      Boolean   @default(true)
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  sessions         Session[]
-  assignedBuildings BuildingUser[]
-  alerts           Alert[]
-  maintenanceReports MaintenanceReport[]
-  auditLogs        AuditLog[]
+  sessions              Session[]
+  auditLogs             AuditLog[]
+  assignedActions       Action[]          @relation("ActionOwner")
+  createdActions        Action[]          @relation("ActionCreator")
+  reportedIncidents     Incident[]        @relation("IncidentReporter")
+  investigatedIncidents Incident[]        @relation("IncidentInvestigator")
+  trainingRecords       TrainingRecord[]
+  aiAnalyses            AIAnalysis[]
+  objectives            Objective[]       @relation("ObjectiveOwner")
 
   @@map("users")
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  userId       String
-  token        String   @unique
-  expiresAt    DateTime
-  userAgent    String?
-  ipAddress    String?
-  createdAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -52,371 +58,842 @@ model Session {
 enum UserRole {
   ADMIN
   MANAGER
-  TECHNICIAN
+  AUDITOR
   USER
 }
 
 // ============================================
-// BUILDING & ZONES
+// ISO STANDARDS CONFIGURATION
 // ============================================
 
-model Building {
-  id          String   @id @default(cuid())
-  name        String
-  address     String
-  city        String
-  state       String
-  zipCode     String
-  country     String   @default("USA")
-  latitude    Float?
-  longitude   Float?
-  totalArea   Float?   // in square feet/meters
-  floors      Int      @default(1)
-  yearBuilt   Int?
-  imageUrl    String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum ISOStandard {
+  ISO_45001  // Health & Safety
+  ISO_14001  // Environmental
+  ISO_9001   // Quality
+}
+
+// ============================================
+// RISKS / ASPECTS / PROCESSES
+// ============================================
+
+model Risk {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+  title           String
+  description     String
+  category        String?
+  source          String?     // Where the risk originates
+
+  // Risk Assessment
+  likelihood      Int         @default(1) // 1-5
+  severity        Int         @default(1) // 1-5
+  detectability   Int         @default(1) // 1-5
+  riskScore       Int?        // Calculated: L × S × D
+  riskLevel       RiskLevel?
+
+  // For Environmental Aspects (ISO 14001)
+  aspectType      String?     // Emission, Waste, Energy, Water, etc.
+  environmentalImpact String?
+  scale           Int?        // 1-5
+  frequency       Int?        // 1-5
+  legalImpact     Int?        // 1-5
+  significanceScore Int?      // Calculated for aspects
+
+  // For Processes (ISO 9001)
+  processOwner    String?
+  processInputs   String?
+  processOutputs  String?
+  kpis            String?
+
+  // Control Measures
+  existingControls String?
+  additionalControls String?
+  residualRisk    Int?
+
+  // Status
+  status          RiskStatus  @default(ACTIVE)
+  reviewDate      DateTime?
+  lastReviewedAt  DateTime?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   // Relations
-  zones       Zone[]
-  users       BuildingUser[]
-  devices     Device[]
-  alerts      Alert[]
-  schedules   Schedule[]
-  energyData  EnergyReading[]
+  actions         Action[]
+  incidents       Incident[]
+  bowTieAnalyses  BowTieAnalysis[]
+  aiAnalyses      AIAnalysis[]
 
-  @@map("buildings")
+  @@index([standard, status])
+  @@map("risks")
 }
 
-model BuildingUser {
-  id         String   @id @default(cuid())
-  buildingId String
-  userId     String
-  role       BuildingRole @default(VIEWER)
-  createdAt  DateTime @default(now())
-
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([buildingId, userId])
-  @@map("building_users")
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
-enum BuildingRole {
-  OWNER
-  MANAGER
-  OPERATOR
-  VIEWER
-}
-
-model Zone {
-  id          String   @id @default(cuid())
-  buildingId  String
-  name        String
-  floor       Int      @default(1)
-  type        ZoneType
-  area        Float?   // in square feet/meters
-  capacity    Int?     // max occupancy
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  devices  Device[]
-  schedules Schedule[]
-
-  @@map("zones")
-}
-
-enum ZoneType {
-  OFFICE
-  CONFERENCE
-  LOBBY
-  HALLWAY
-  RESTROOM
-  KITCHEN
-  SERVER_ROOM
-  STORAGE
-  PARKING
-  MECHANICAL
-  OUTDOOR
-  OTHER
+enum RiskStatus {
+  ACTIVE
+  UNDER_REVIEW
+  MITIGATED
+  CLOSED
+  ACCEPTED
 }
 
 // ============================================
-// DEVICES & SENSORS
+// INCIDENTS / EVENTS / NON-CONFORMANCES
 // ============================================
 
-model Device {
-  id           String       @id @default(cuid())
-  buildingId   String
-  zoneId       String?
-  name         String
-  type         DeviceType
-  manufacturer String?
-  model        String?
-  serialNumber String?      @unique
-  ipAddress    String?
-  macAddress   String?
-  firmware     String?
-  status       DeviceStatus @default(OFFLINE)
-  lastSeen     DateTime?
-  installDate  DateTime?
-  warrantyEnd  DateTime?
-  metadata     Json?
-  isActive     Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+model Incident {
+  id              String        @id @default(cuid())
+  standard        ISOStandard
+  referenceNumber String        @unique @default(cuid())
+  title           String
+  description     String
 
-  building    Building          @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  zone        Zone?             @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  readings    SensorReading[]
-  alerts      Alert[]
-  maintenance MaintenanceReport[]
-  controls    DeviceControl[]
+  // Classification
+  type            IncidentType
+  severity        IncidentSeverity @default(MINOR)
+  category        String?
 
-  @@map("devices")
+  // Details
+  location        String?
+  dateOccurred    DateTime
+  dateReported    DateTime      @default(now())
+
+  // People Involved
+  reporterId      String
+  investigatorId  String?
+  personsInvolved String?
+
+  // For H&S Incidents
+  injuryType      String?
+  bodyPart        String?
+  daysLost        Int?
+  treatmentType   String?
+
+  // For Environmental Events
+  environmentalMedia String?    // Air, Water, Land
+  quantity        Float?
+  unit            String?
+  regulatoryReport Boolean      @default(false)
+
+  // For Quality NCs
+  productAffected String?
+  customerImpact  String?
+  costOfNonConformance Float?
+
+  // Investigation
+  immediateCause  String?
+  rootCauses      String?
+  contributingFactors String?
+
+  // Status
+  status          IncidentStatus @default(OPEN)
+  closedAt        DateTime?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  reporter        User          @relation("IncidentReporter", fields: [reporterId], references: [id])
+  investigator    User?         @relation("IncidentInvestigator", fields: [investigatorId], references: [id])
+  risk            Risk?         @relation(fields: [riskId], references: [id])
+  riskId          String?
+  actions         Action[]
+  fiveWhyAnalyses FiveWhyAnalysis[]
+  fishboneAnalyses FishboneAnalysis[]
+  paretoAnalyses  ParetoAnalysis[]
+  aiAnalyses      AIAnalysis[]
+
+  @@index([standard, status])
+  @@index([dateOccurred])
+  @@map("incidents")
 }
 
-enum DeviceType {
-  HVAC
-  THERMOSTAT
-  LIGHTING
-  MOTION_SENSOR
-  DOOR_SENSOR
-  WINDOW_SENSOR
-  SMOKE_DETECTOR
-  CO_DETECTOR
-  WATER_LEAK
-  ENERGY_METER
-  AIR_QUALITY
-  CAMERA
-  ACCESS_CONTROL
-  ELEVATOR
-  FIRE_ALARM
-  SPRINKLER
-  GENERATOR
-  UPS
+enum IncidentType {
+  // H&S (ISO 45001)
+  INJURY
+  NEAR_MISS
+  DANGEROUS_OCCURRENCE
+  OCCUPATIONAL_ILLNESS
+  PROPERTY_DAMAGE
+
+  // Environmental (ISO 14001)
+  SPILL
+  EMISSION
+  WASTE_INCIDENT
+  ENVIRONMENTAL_COMPLAINT
+  REGULATORY_BREACH
+
+  // Quality (ISO 9001)
+  NON_CONFORMANCE
+  CUSTOMER_COMPLAINT
+  SUPPLIER_ISSUE
+  PROCESS_DEVIATION
+  PRODUCT_DEFECT
+  AUDIT_FINDING
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum IncidentStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  AWAITING_ACTIONS
+  ACTIONS_IN_PROGRESS
+  VERIFICATION
+  CLOSED
+}
+
+// ============================================
+// LEGAL & OTHER REQUIREMENTS
+// ============================================
+
+model LegalRequirement {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+  title           String
+  description     String
+
+  // Classification
+  type            LegalType
+  jurisdiction    String?     // Country/State/Region
+  issuingBody     String?
+  referenceNumber String?
+
+  // Details
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  reviewFrequency String?     // Annual, Quarterly, etc.
+
+  // Compliance
+  complianceStatus ComplianceStatus @default(PENDING)
+  complianceEvidence String?
+  lastAssessedAt  DateTime?
+  nextAssessmentDate DateTime?
+
+  // Responsibility
+  responsiblePerson String?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  actions         Action[]
+
+  @@index([standard, complianceStatus])
+  @@map("legal_requirements")
+}
+
+enum LegalType {
+  LEGISLATION
+  REGULATION
+  CODE_OF_PRACTICE
+  PERMIT
+  LICENSE
+  STANDARD
+  CUSTOMER_REQUIREMENT
+  INTERNAL_REQUIREMENT
   OTHER
 }
 
-enum DeviceStatus {
-  ONLINE
-  OFFLINE
-  WARNING
-  ERROR
-  MAINTENANCE
-}
-
-model SensorReading {
-  id        String   @id @default(cuid())
-  deviceId  String
-  type      ReadingType
-  value     Float
-  unit      String
-  timestamp DateTime @default(now())
-
-  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-
-  @@index([deviceId, timestamp])
-  @@map("sensor_readings")
-}
-
-enum ReadingType {
-  TEMPERATURE
-  HUMIDITY
-  CO2
-  VOC
-  PM25
-  PM10
-  NOISE
-  LIGHT
-  MOTION
-  OCCUPANCY
-  POWER
-  VOLTAGE
-  CURRENT
-  WATER_FLOW
-  PRESSURE
-}
-
-model DeviceControl {
-  id         String   @id @default(cuid())
-  deviceId   String
-  command    String
-  parameters Json?
-  status     ControlStatus @default(PENDING)
-  result     Json?
-  executedAt DateTime?
-  createdAt  DateTime @default(now())
-
-  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-
-  @@map("device_controls")
-}
-
-enum ControlStatus {
+enum ComplianceStatus {
+  COMPLIANT
+  PARTIALLY_COMPLIANT
+  NON_COMPLIANT
   PENDING
-  EXECUTING
-  SUCCESS
+  NOT_APPLICABLE
+}
+
+// ============================================
+// OBJECTIVES & TARGETS
+// ============================================
+
+model Objective {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+  title           String
+  description     String
+
+  // Target Details
+  targetValue     Float?
+  currentValue    Float?
+  unit            String?
+  baselineValue   Float?
+
+  // Progress
+  progressPercent Float       @default(0)
+
+  // Timeline
+  startDate       DateTime?
+  targetDate      DateTime?
+
+  // Ownership
+  ownerId         String?
+  department      String?
+
+  // Status
+  status          ObjectiveStatus @default(NOT_STARTED)
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  owner           User?       @relation("ObjectiveOwner", fields: [ownerId], references: [id])
+  actions         Action[]
+  progressRecords ObjectiveProgress[]
+
+  @@index([standard, status])
+  @@map("objectives")
+}
+
+model ObjectiveProgress {
+  id          String    @id @default(cuid())
+  objectiveId String
+  value       Float
+  notes       String?
+  recordedAt  DateTime  @default(now())
+
+  objective   Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@map("objective_progress")
+}
+
+enum ObjectiveStatus {
+  NOT_STARTED
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  CANCELLED
+}
+
+// ============================================
+// CAPA / ACTIONS TRACKER
+// ============================================
+
+model Action {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+  referenceNumber String      @unique @default(cuid())
+  title           String
+  description     String
+
+  // Classification
+  type            ActionType
+  priority        ActionPriority @default(MEDIUM)
+
+  // Assignment
+  ownerId         String
+  createdById     String
+
+  // Timeline
+  dueDate         DateTime
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+
+  // Verification
+  verificationMethod String?
+  verificationNotes String?
+  effectivenessRating Int?    // 1-5
+
+  // Status
+  status          ActionStatus @default(OPEN)
+
+  // Cost tracking
+  estimatedCost   Float?
+  actualCost      Float?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  owner           User        @relation("ActionOwner", fields: [ownerId], references: [id])
+  createdBy       User        @relation("ActionCreator", fields: [createdById], references: [id])
+  risk            Risk?       @relation(fields: [riskId], references: [id])
+  riskId          String?
+  incident        Incident?   @relation(fields: [incidentId], references: [id])
+  incidentId      String?
+  legalRequirement LegalRequirement? @relation(fields: [legalRequirementId], references: [id])
+  legalRequirementId String?
+  objective       Objective?  @relation(fields: [objectiveId], references: [id])
+  objectiveId     String?
+  aiAnalysis      AIAnalysis? @relation(fields: [aiAnalysisId], references: [id])
+  aiAnalysisId    String?
+
+  @@index([status, dueDate])
+  @@index([ownerId, status])
+  @@map("actions")
+}
+
+enum ActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  IMMEDIATE
+  LONG_TERM
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// TRAINING & COMPETENCE MATRIX
+// ============================================
+
+model TrainingCourse {
+  id              String      @id @default(cuid())
+  standard        ISOStandard?
+  title           String
+  description     String?
+
+  // Details
+  provider        String?
+  duration        String?     // e.g., "2 hours", "1 day"
+  frequency       String?     // Refresh frequency
+
+  // Requirements
+  requiredForRoles String?    // Comma-separated roles
+  requiredForDepartments String?
+
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  trainingRecords TrainingRecord[]
+
+  @@map("training_courses")
+}
+
+model TrainingRecord {
+  id              String      @id @default(cuid())
+  userId          String
+  courseId        String
+
+  // Completion
+  completedAt     DateTime?
+  expiresAt       DateTime?
+  score           Float?      // If applicable
+
+  // Competence Assessment
+  competenceLevel CompetenceLevel?
+  assessedBy      String?
+  assessedAt      DateTime?
+
+  // Evidence
+  certificateUrl  String?
+  notes           String?
+
+  status          TrainingStatus @default(NOT_STARTED)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([status])
+  @@map("training_records")
+}
+
+enum CompetenceLevel {
+  AWARENESS
+  BASIC
+  PROFICIENT
+  EXPERT
+}
+
+enum TrainingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
   FAILED
 }
 
 // ============================================
-// ENERGY MANAGEMENT
+// ANALYTICS WORKFLOWS - 5 WHYS
 // ============================================
 
-model EnergyReading {
-  id          String   @id @default(cuid())
-  buildingId  String
-  type        EnergyType
-  value       Float
-  unit        String
-  cost        Float?
-  timestamp   DateTime @default(now())
+model FiveWhyAnalysis {
+  id          String    @id @default(cuid())
+  incidentId  String
 
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  why1        String?
+  why2        String?
+  why3        String?
+  why4        String?
+  why5        String?
 
-  @@index([buildingId, timestamp])
-  @@map("energy_readings")
-}
+  rootCause   String?
+  conclusion  String?
 
-enum EnergyType {
-  ELECTRICITY
-  GAS
-  WATER
-  SOLAR
-  WIND
-}
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-// ============================================
-// SCHEDULES & AUTOMATION
-// ============================================
+  incident    Incident  @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
-model Schedule {
-  id          String       @id @default(cuid())
-  buildingId  String
-  zoneId      String?
-  name        String
-  description String?
-  type        ScheduleType
-  config      Json         // stores schedule-specific configuration
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  zone     Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-
-  @@map("schedules")
-}
-
-enum ScheduleType {
-  HVAC
-  LIGHTING
-  ACCESS
-  MAINTENANCE
-  CUSTOM
+  @@map("five_why_analyses")
 }
 
 // ============================================
-// ALERTS & NOTIFICATIONS
+// ANALYTICS WORKFLOWS - FISHBONE / ISHIKAWA
 // ============================================
 
-model Alert {
-  id          String      @id @default(cuid())
-  buildingId  String
-  deviceId    String?
-  userId      String?
-  type        AlertType
-  severity    AlertSeverity
+model FishboneAnalysis {
+  id          String    @id @default(cuid())
+  incidentId  String
+
+  problemStatement String
+
+  // 6M Categories
+  manpower    String?   // People/Personnel
+  method      String?   // Process/Procedure
+  machine     String?   // Equipment/Technology
+  material    String?   // Materials/Supplies
+  measurement String?   // Data/Metrics
+  environment String?   // Milieu/Environment
+
+  conclusion  String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  incident    Incident  @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("fishbone_analyses")
+}
+
+// ============================================
+// ANALYTICS WORKFLOWS - PARETO
+// ============================================
+
+model ParetoAnalysis {
+  id          String    @id @default(cuid())
+  incidentId  String?
+  standard    ISOStandard?
+
   title       String
-  message     String
-  data        Json?
-  status      AlertStatus @default(ACTIVE)
-  acknowledgedAt DateTime?
-  resolvedAt  DateTime?
+  description String?
+
+  // Data stored as JSON array of {category, count, percentage, cumulative}
+  data        Json
+
+  // Analysis period
+  periodStart DateTime?
+  periodEnd   DateTime?
+
+  conclusion  String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  incident    Incident? @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("pareto_analyses")
+}
+
+// ============================================
+// ANALYTICS WORKFLOWS - BOW-TIE
+// ============================================
+
+model BowTieAnalysis {
+  id          String    @id @default(cuid())
+  riskId      String
+
+  // Top Event
+  topEvent    String
+
+  // Threats (causes) - JSON array
+  threats     Json      // [{id, description, likelihood}]
+
+  // Consequences - JSON array
+  consequences Json     // [{id, description, severity}]
+
+  // Controls
+  preventiveControls Json // [{id, description, effectiveness, threatId}]
+  mitigatingControls Json // [{id, description, effectiveness, consequenceId}]
+
+  // Barriers/Escalation Factors
+  escalationFactors Json?
+
+  notes       String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  risk        Risk      @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@map("bow_tie_analyses")
+}
+
+// ============================================
+// LEAN 8 WASTES
+// ============================================
+
+model LeanWasteAnalysis {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+
+  // 8 Wastes checklist (each has: identified (bool), description, estimatedCost)
+  defects           Json?
+  overproduction    Json?
+  waiting           Json?
+  nonUtilizedTalent Json?
+  transportation    Json?
+  inventory         Json?
+  motion            Json?
+  extraProcessing   Json?
+
+  // Totals
+  totalEstimatedCost Float?
+  totalIdentifiedWastes Int?
+
+  // Recommendations
+  recommendations String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("lean_waste_analyses")
+}
+
+// ============================================
+// AI ANALYSIS
+// ============================================
+
+model AISettings {
+  id          String    @id @default(cuid())
+  provider    AIProvider @default(OPENAI)
+  apiKey      String?   // Encrypted in production
+  model       String?
+
+  // Default prompts
+  defaultPrompt String?
+
+  // Usage tracking
+  totalTokensUsed Int     @default(0)
+  lastUsedAt  DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("ai_settings")
+}
+
+enum AIProvider {
+  OPENAI
+  ANTHROPIC
+  GROK
+}
+
+model AIAnalysis {
+  id              String      @id @default(cuid())
+  userId          String
+
+  // Source
+  sourceType      String      // risk, incident, aspect, etc.
+  sourceId        String
+  sourceData      Json        // Original data sent to AI
+
+  // Request
+  prompt          String
+  provider        AIProvider
+  model           String?
+
+  // Response
+  response        Json        // Full AI response
+  suggestedRootCause String?
+  suggestedActions Json?      // Array of suggested actions
+  complianceGaps  Json?       // Array of {clause, gap, recommendation}
+  highlights      Json?       // Text highlights with reasons
+
+  // Status
+  status          AIAnalysisStatus @default(PENDING)
+  acceptedAt      DateTime?
+  rejectedAt      DateTime?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id])
+  actions         Action[]
+
+  @@index([sourceType, sourceId])
+  @@map("ai_analyses")
+}
+
+enum AIAnalysisStatus {
+  PENDING
+  COMPLETED
+  ACCEPTED
+  PARTIALLY_ACCEPTED
+  REJECTED
+  ERROR
+}
+
+// ============================================
+// MONTHLY TREND DATA
+// ============================================
+
+model MonthlyTrend {
+  id          String      @id @default(cuid())
+  standard    ISOStandard
+  metric      String      // e.g., "incidents", "actions_closed", "compliance"
+  year        Int
+  month       Int
+  value       Float
+
   createdAt   DateTime    @default(now())
 
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  device   Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
-  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([buildingId, status])
-  @@map("alerts")
-}
-
-enum AlertType {
-  SYSTEM
-  DEVICE
-  SECURITY
-  ENVIRONMENTAL
-  MAINTENANCE
-  ENERGY
-}
-
-enum AlertSeverity {
-  INFO
-  WARNING
-  CRITICAL
-  EMERGENCY
-}
-
-enum AlertStatus {
-  ACTIVE
-  ACKNOWLEDGED
-  RESOLVED
-  DISMISSED
+  @@unique([standard, metric, year, month])
+  @@index([standard, metric])
+  @@map("monthly_trends")
 }
 
 // ============================================
-// MAINTENANCE
+// H&S SPECIFIC - SAFETY METRICS
 // ============================================
 
-model MaintenanceReport {
-  id          String            @id @default(cuid())
-  deviceId    String
-  reportedBy  String
-  type        MaintenanceType
-  priority    MaintenancePriority
-  title       String
-  description String
-  status      MaintenanceStatus @default(OPEN)
-  notes       String?
-  cost        Float?
-  scheduledAt DateTime?
-  completedAt DateTime?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+model SafetyMetric {
+  id                  String    @id @default(cuid())
+  year                Int
+  month               Int
 
-  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  reporter User   @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+  // Hours & Incidents
+  hoursWorked         Float     @default(0)
+  lostTimeInjuries    Int       @default(0)
+  totalRecordableInjuries Int   @default(0)
+  daysLost            Int       @default(0)
+  nearMisses          Int       @default(0)
+  firstAidCases       Int       @default(0)
 
-  @@map("maintenance_reports")
+  // Calculated Rates
+  ltifr               Float?    // Lost Time Injury Frequency Rate
+  trir                Float?    // Total Recordable Incident Rate
+  severityRate        Float?    // Severity Rate
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([year, month])
+  @@map("safety_metrics")
 }
 
-enum MaintenanceType {
-  PREVENTIVE
-  CORRECTIVE
-  INSPECTION
-  EMERGENCY
+// ============================================
+// QUALITY SPECIFIC - COPQ & METRICS
+// ============================================
+
+model QualityMetric {
+  id                  String    @id @default(cuid())
+  year                Int
+  month               Int
+
+  // COPQ - Cost of Poor Quality
+  preventionCost      Float     @default(0)
+  appraisalCost       Float     @default(0)
+  internalFailureCost Float     @default(0)
+  externalFailureCost Float     @default(0)
+  totalCOPQ           Float?
+
+  // Quality Metrics
+  totalUnits          Int       @default(0)
+  defectiveUnits      Int       @default(0)
+  defectOpportunities Int       @default(1)
+
+  // Calculated Metrics
+  dpmo                Float?    // Defects Per Million Opportunities
+  firstPassYield      Float?    // First Pass Yield %
+  processSigma        Float?    // Process Sigma Level
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([year, month])
+  @@map("quality_metrics")
 }
 
-enum MaintenancePriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
+// ============================================
+// DOCUMENT MANAGEMENT
+// ============================================
+
+model Document {
+  id              String      @id @default(cuid())
+  standard        ISOStandard?
+  title           String
+  description     String?
+
+  // Version Control
+  version         String      @default("1.0")
+  previousVersionId String?
+
+  // File
+  fileUrl         String?
+  fileType        String?
+  fileSize        Int?
+
+  // Classification
+  documentType    DocumentType
+  isoClause       String?     // e.g., "4.1", "6.1.2"
+
+  // Review
+  reviewDate      DateTime?
+  nextReviewDate  DateTime?
+  approvedBy      String?
+  approvedAt      DateTime?
+
+  status          DocumentStatus @default(DRAFT)
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([standard, documentType])
+  @@map("documents")
 }
 
-enum MaintenanceStatus {
-  OPEN
-  IN_PROGRESS
-  ON_HOLD
-  COMPLETED
-  CANCELLED
+enum DocumentType {
+  POLICY
+  PROCEDURE
+  WORK_INSTRUCTION
+  FORM
+  RECORD
+  MANUAL
+  PLAN
+  REPORT
+  CERTIFICATE
+  OTHER
+}
+
+enum DocumentStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  OBSOLETE
 }
 
 // ============================================
@@ -424,20 +901,50 @@ enum MaintenanceStatus {
 // ============================================
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  action     String
-  entity     String
-  entityId   String?
-  oldData    Json?
-  newData    Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ============================================
+// COMPLIANCE DASHBOARD CACHE
+// ============================================
+
+model ComplianceScore {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+
+  // Scores (0-100)
+  overallScore    Float       @default(0)
+
+  // Component scores
+  riskScore       Float?
+  incidentScore   Float?
+  legalScore      Float?
+  objectiveScore  Float?
+  actionScore     Float?
+  trainingScore   Float?
+  documentScore   Float?
+
+  // Counts
+  totalItems      Int         @default(0)
+  compliantItems  Int         @default(0)
+
+  calculatedAt    DateTime    @default(now())
+
+  @@unique([standard])
+  @@map("compliance_scores")
 }

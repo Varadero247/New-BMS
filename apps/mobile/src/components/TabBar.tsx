@@ -1,17 +1,17 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building, Cpu, Bell, User } from 'lucide-react';
+import { LayoutDashboard, HardHat, Leaf, Award, ClipboardCheck } from 'lucide-react';
 
 const tabs = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/buildings', icon: Building, label: 'Buildings' },
-  { to: '/devices', icon: Cpu, label: 'Devices' },
-  { to: '/alerts', icon: Bell, label: 'Alerts' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/hs', icon: HardHat, label: 'H&S', color: 'text-red-500' },
+  { to: '/environment', icon: Leaf, label: 'Environment', color: 'text-green-500' },
+  { to: '/quality', icon: Award, label: 'Quality', color: 'text-blue-500' },
+  { to: '/actions', icon: ClipboardCheck, label: 'Actions' },
 ];
 
 export default function TabBar() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-bottom z-50">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => (
           <NavLink
@@ -19,14 +19,14 @@ export default function TabBar() {
             to={tab.to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full h-full ${
-                isActive ? 'text-primary-600' : 'text-gray-500'
+                isActive ? (tab.color || 'text-primary-600') : 'text-gray-400'
               }`
             }
           >
             {({ isActive }) => (
               <>
                 <tab.icon className={`w-6 h-6 ${isActive ? 'stroke-2' : ''}`} />
-                <span className="text-xs mt-1">{tab.label}</span>
+                <span className="text-[10px] mt-1 font-medium">{tab.label}</span>
               </>
             )}
           </NavLink>
