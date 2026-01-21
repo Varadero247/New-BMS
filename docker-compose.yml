@@ -3,12 +3,12 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: bms-postgres
+    container_name: ims-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bms
+      POSTGRES_DB: ims
     ports:
       - '5432:5432'
     volumes:
@@ -21,7 +21,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: bms-redis
+    container_name: ims-redis
     restart: unless-stopped
     ports:
       - '6379:6379'
@@ -33,36 +33,171 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
+  # API Services
+  api-gateway:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
-    container_name: bms-api
+      dockerfile: ./apps/api-gateway/Dockerfile
+    container_name: ims-api-gateway
     restart: unless-stopped
     ports:
       - '4000:4000'
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bms?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      SERVICE_HEALTH_SAFETY_URL: http://api-health-safety:4001
+      SERVICE_ENVIRONMENT_URL: http://api-environment:4002
+      SERVICE_QUALITY_URL: http://api-quality:4003
+      SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api-health-safety:
+        condition: service_started
+      api-environment:
+        condition: service_started
+      api-quality:
+        condition: service_started
+      api-ai-analysis:
+        condition: service_started
+
+  api-health-safety:
+    build:
+      context: .
+      dockerfile: ./apps/api-health-safety/Dockerfile
+    container_name: ims-api-health-safety
+    restart: unless-stopped
+    ports:
+      - '4001:4001'
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       postgres:
         condition: service_healthy
 
-  web:
+  api-environment:
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile
-    container_name: bms-web
+      dockerfile: ./apps/api-environment/Dockerfile
+    container_name: ims-api-environment
+    restart: unless-stopped
+    ports:
+      - '4002:4002'
+    environment:
+      NODE_ENV: production
+      PORT: 4002
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-quality:
+    build:
+      context: .
+      dockerfile: ./apps/api-quality/Dockerfile
+    container_name: ims-api-quality
+    restart: unless-stopped
+    ports:
+      - '4003:4003'
+    environment:
+      NODE_ENV: production
+      PORT: 4003
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-ai-analysis:
+    build:
+      context: .
+      dockerfile: ./apps/api-ai-analysis/Dockerfile
+    container_name: ims-api-ai-analysis
+    restart: unless-stopped
+    ports:
+      - '4004:4004'
+    environment:
+      NODE_ENV: production
+      PORT: 4004
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Web Applications
+  web-dashboard:
+    build:
+      context: .
+      dockerfile: ./apps/web-dashboard/Dockerfile
+    container_name: ims-web-dashboard
     restart: unless-stopped
     ports:
       - '3000:3000'
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4000/api
+      NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
-      - api
+      - api-gateway
+
+  web-health-safety:
+    build:
+      context: .
+      dockerfile: ./apps/web-health-safety/Dockerfile
+    container_name: ims-web-health-safety
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+
+  web-environment:
+    build:
+      context: .
+      dockerfile: ./apps/web-environment/Dockerfile
+    container_name: ims-web-environment
+    restart: unless-stopped
+    ports:
+      - '3002:3002'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+
+  web-quality:
+    build:
+      context: .
+      dockerfile: ./apps/web-quality/Dockerfile
+    container_name: ims-web-quality
+    restart: unless-stopped
+    ports:
+      - '3003:3003'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+
+  web-settings:
+    build:
+      context: .
+      dockerfile: ./apps/web-settings/Dockerfile
+    container_name: ims-web-settings
+    restart: unless-stopped
+    ports:
+      - '3004:3004'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
 
 volumes:
   postgres_data:

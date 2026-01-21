@@ -1,26 +1,39 @@
-# BMS - Building Management System
+# IMS - Integrated Management System
 
-A full-stack Building Management System with real-time monitoring, device control, and energy management.
+A modular Integrated Management System for ISO compliance (ISO 45001, ISO 14001, ISO 9001) with separate applications for Health & Safety, Environmental, and Quality management.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
 - **Backend**: Express.js, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
 - **Mobile**: Capacitor (iOS/Android)
 - **Monorepo**: pnpm workspaces + Turborepo
+- **AI**: OpenAI, Anthropic, Grok integration for incident analysis
 
-## Project Structure
+## Architecture
 
 ```
-bms-monorepo/
+ims-monorepo/
 ├── apps/
-│   ├── web/          # Next.js frontend
-│   ├── api/          # Express backend
-│   └── mobile/       # Capacitor mobile app
+│   ├── web-dashboard/       # Main IMS Dashboard (Port 3000)
+│   ├── web-health-safety/   # ISO 45001 Module (Port 3001)
+│   ├── web-environment/     # ISO 14001 Module (Port 3002)
+│   ├── web-quality/         # ISO 9001 Module (Port 3003)
+│   ├── web-settings/        # Settings & Admin (Port 3004)
+│   ├── api-gateway/         # API Gateway (Port 4000)
+│   ├── api-health-safety/   # H&S API Service (Port 4001)
+│   ├── api-environment/     # Environmental API (Port 4002)
+│   ├── api-quality/         # Quality API (Port 4003)
+│   ├── api-ai-analysis/     # AI Analysis API (Port 4004)
+│   └── mobile/              # Capacitor mobile app
 ├── packages/
-│   ├── database/     # Prisma schema and client
-│   └── shared/       # Shared types and utilities
+│   ├── database/            # Prisma schema and client
+│   ├── types/               # Shared TypeScript types
+│   ├── ui/                  # Shared UI components
+│   ├── charts/              # Chart components
+│   ├── auth/                # Authentication middleware
+│   └── calculations/        # ISO calculation formulas
 ├── docker-compose.yml
 └── turbo.json
 ```
@@ -42,21 +55,24 @@ pnpm install
 
 ### 2. Setup Environment
 
-Copy the example env file and configure:
-
 ```bash
 cp .env.example .env
 ```
 
-### 3. Start Database
+Configure your environment variables:
 
-Using Docker:
-
-```bash
-docker-compose up -d postgres
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ims
+JWT_SECRET=your-secret-key
+OPENAI_API_KEY=your-openai-key (optional)
+ANTHROPIC_API_KEY=your-anthropic-key (optional)
 ```
 
-Or use your local PostgreSQL installation.
+### 3. Start Database
+
+```bash
+docker-compose up -d postgres redis
+```
 
 ### 4. Setup Database
 
@@ -68,7 +84,7 @@ pnpm db:generate
 pnpm db:push
 
 # Seed with demo data
-pnpm --filter @bms/database seed
+pnpm --filter @ims/database seed
 ```
 
 ### 5. Start Development
@@ -77,10 +93,18 @@ pnpm --filter @bms/database seed
 # Start all apps
 pnpm dev
 
-# Or start individually
-pnpm --filter @bms/api dev    # API on :4000
-pnpm --filter @bms/web dev    # Web on :3000
-pnpm --filter @bms/mobile dev # Mobile on :5173
+# Or start specific modules
+pnpm dev:dashboard      # Dashboard + Gateway
+pnpm dev:health-safety  # H&S Module + API + Gateway
+pnpm dev:environment    # Environmental Module + API + Gateway
+pnpm dev:quality        # Quality Module + API + Gateway
+pnpm dev:settings       # Settings + AI API + Gateway
+
+# Start APIs only
+pnpm dev:apis
+
+# Start web apps only
+pnpm dev:web
 ```
 
 ## Available Scripts
@@ -88,17 +112,120 @@ pnpm --filter @bms/mobile dev # Mobile on :5173
 | Command | Description |
 |---------|-------------|
 | `pnpm dev` | Start all apps in development mode |
+| `pnpm dev:dashboard` | Start dashboard with gateway |
+| `pnpm dev:health-safety` | Start H&S module with APIs |
+| `pnpm dev:environment` | Start Environmental module with APIs |
+| `pnpm dev:quality` | Start Quality module with APIs |
+| `pnpm dev:settings` | Start Settings module with APIs |
 | `pnpm build` | Build all apps |
+| `pnpm build:packages` | Build shared packages only |
 | `pnpm db:generate` | Generate Prisma client |
 | `pnpm db:push` | Push schema to database |
 | `pnpm db:migrate` | Run database migrations |
 | `pnpm db:studio` | Open Prisma Studio |
 
+## Module Overview
+
+### Health & Safety (ISO 45001)
+- Risk Register with 5x5 matrix
+- Incident reporting and investigation
+- Safety metrics (LTIFR, TRIR, Severity Rate)
+- Training management
+- Legal compliance tracking
+
+### Environmental (ISO 14001)
+- Aspects & Impacts Register
+- Environmental event tracking
+- Significance calculations
+- Environmental indicators
+- Compliance obligations
+
+### Quality (ISO 9001)
+- Process Register
+- Nonconformance management
+- Quality metrics (COPQ, DPMO, Sigma, FPY)
+- Customer complaints
+- Corrective actions
+
+### AI Analysis
+- 5 Whys analysis
+- Fishbone diagrams
+- Bow-Tie analysis
+- Pareto analysis
+- Root cause suggestions
+
+## API Gateway Routes
+
+| Route | Target |
+|-------|--------|
+| `/api/auth/*` | Local (Gateway) |
+| `/api/users/*` | Local (Gateway) |
+| `/api/dashboard/*` | Local (Gateway) |
+| `/api/health-safety/*` | api-health-safety:4001 |
+| `/api/environment/*` | api-environment:4002 |
+| `/api/quality/*` | api-quality:4003 |
+| `/api/ai/*` | api-ai-analysis:4004 |
+
 ## Demo Credentials
 
 ```
-Email: admin@bms.local
+Email: admin@ims.local
 Password: admin123
+```
+
+## Docker Deployment
+
+```bash
+# Build and start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Start specific services
+docker-compose up -d api-gateway web-dashboard
+```
+
+## Adding New Modules
+
+To add a new module (e.g., Sales CRM):
+
+1. Create web app: `apps/web-sales/`
+2. Create API service: `apps/api-sales/`
+3. Add routes to API gateway
+4. Add navigation links in dashboard sidebar
+5. Update docker-compose.yml
+6. Run `pnpm install`
+
+## Package Development
+
+### Building packages
+
+```bash
+# Build all packages
+pnpm build:packages
+
+# Build specific package
+pnpm --filter @ims/ui build
+```
+
+### Using shared packages
+
+```typescript
+// Import UI components
+import { Button, Card, Badge } from '@ims/ui';
+
+// Import charts
+import { ComplianceGauge, RiskMatrix } from '@ims/charts';
+
+// Import calculations
+import { calculateRiskScore, calculateLTIFR } from '@ims/calculations';
+
+// Import types
+import { Risk, Incident, Action } from '@ims/types';
 ```
 
 ## Mobile Development
@@ -119,31 +246,6 @@ cd apps/mobile
 pnpm build
 npx cap add android
 npx cap open android
-```
-
-## API Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `POST /api/auth/login` | User login |
-| `POST /api/auth/register` | User registration |
-| `GET /api/buildings` | List buildings |
-| `GET /api/devices` | List devices |
-| `GET /api/alerts` | List alerts |
-| `GET /api/energy/stats` | Energy statistics |
-| `GET /api/dashboard/stats` | Dashboard stats |
-
-## Docker Deployment
-
-```bash
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
 ```
 
 ## License
