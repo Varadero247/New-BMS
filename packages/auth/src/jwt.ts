@@ -13,7 +13,7 @@ export interface GenerateTokenOptions {
 
 export function generateToken(options: GenerateTokenOptions): string {
   const { userId, email, role, expiresIn = '7d' } = options;
-  return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn });
+  return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn } as jwt.SignOptions);
 }
 
 export function generateRefreshToken(userId: string): string {

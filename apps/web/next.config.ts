@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  transpilePackages: ['@bms/shared'],
+  transpilePackages: ['@ims/shared'],
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',

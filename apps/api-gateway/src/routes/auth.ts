@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import {
   generateToken,
@@ -10,7 +11,7 @@ import {
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: IRouter = Router();
 
 // Validation schemas
 const loginSchema = z.object({

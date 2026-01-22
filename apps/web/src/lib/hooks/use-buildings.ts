@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Building, CreateBuildingRequest, ApiResponse } from '@bms/shared';
+import type { Building, CreateBuildingRequest, ApiResponse } from '@ims/shared';
 
 export function useBuildings() {
   return useQuery({

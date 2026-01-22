@@ -21,11 +21,11 @@ COPY apps/api ./apps/api
 COPY tsconfig.base.json ./
 
 # Generate Prisma client
-RUN pnpm --filter @bms/database generate
+RUN pnpm --filter @ims/database generate
 
 # Build packages
-RUN pnpm --filter @bms/shared build
-RUN pnpm --filter @bms/api build
+RUN pnpm --filter @ims/shared build
+RUN pnpm --filter @ims/api build
 
 # Production stage
 FROM node:20-alpine AS runner

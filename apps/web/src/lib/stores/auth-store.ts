@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UserProfile } from '@bms/shared';
+import type { UserProfile } from '@ims/shared';
 import { api } from '@/lib/api';
 
 interface AuthState {

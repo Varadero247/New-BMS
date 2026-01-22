@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import type { Router as IRouter } from 'express';
 import { z } from 'zod';
-import { prisma } from '@new-bms/database';
+import { prisma } from '@ims/database';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: IRouter = Router();
 
 // ===== 5 WHYS =====
 

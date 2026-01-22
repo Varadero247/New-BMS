@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -10,7 +11,7 @@ import metricsRouter from './routes/metrics';
 
 dotenv.config();
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 4003;
 
 // Middleware

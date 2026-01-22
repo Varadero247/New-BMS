@@ -19,8 +19,8 @@ COPY apps/web ./apps/web
 COPY tsconfig.base.json ./
 
 # Build packages
-RUN pnpm --filter @bms/shared build
-RUN pnpm --filter @bms/web build
+RUN pnpm --filter @ims/shared build
+RUN pnpm --filter @ims/web build
 
 # Production stage
 FROM node:20-alpine AS runner

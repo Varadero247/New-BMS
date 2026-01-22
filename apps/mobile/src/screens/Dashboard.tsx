@@ -9,7 +9,6 @@ import {
   Clock,
   CheckCircle,
   ArrowRight,
-  Plus,
 } from 'lucide-react';
 import { api } from '../lib/api';
 

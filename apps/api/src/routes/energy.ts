@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { prisma } from '@bms/database';
+import type { Router as IRouter } from 'express';
+import { prisma } from '@ims/database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
-const router = Router();
+const router: IRouter = Router();
 
 // Get energy stats
 router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {

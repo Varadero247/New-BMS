@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import type { Router as IRouter } from 'express';
 import { z } from 'zod';
-import { prisma } from '@bms/database';
+import { prisma } from '@ims/database';
 import { validate } from '../middleware/validate';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/error-handler';
 
-const router = Router();
+const router: IRouter = Router();
 
 const createMaintenanceSchema = z.object({
   deviceId: z.string(),

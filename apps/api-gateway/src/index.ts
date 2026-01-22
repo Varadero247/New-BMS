@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -14,7 +15,7 @@ import { notFoundHandler } from './middleware/not-found';
 
 dotenv.config();
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
 // Service URLs

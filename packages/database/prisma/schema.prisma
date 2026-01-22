@@ -30,13 +30,13 @@ model User {
   // Relations
   sessions              Session[]
   auditLogs             AuditLog[]
-  assignedActions       Action[]          @relation("ActionOwner")
-  createdActions        Action[]          @relation("ActionCreator")
-  reportedIncidents     Incident[]        @relation("IncidentReporter")
-  investigatedIncidents Incident[]        @relation("IncidentInvestigator")
+  assignedActions       Action[]         @relation("ActionOwner")
+  createdActions        Action[]         @relation("ActionCreator")
+  reportedIncidents     Incident[]       @relation("IncidentReporter")
+  investigatedIncidents Incident[]       @relation("IncidentInvestigator")
   trainingRecords       TrainingRecord[]
   aiAnalyses            AIAnalysis[]
-  objectives            Objective[]       @relation("ObjectiveOwner")
+  objectives            Objective[]      @relation("ObjectiveOwner")
 
   @@map("users")
 }
@@ -67,9 +67,9 @@ enum UserRole {
 // ============================================
 
 enum ISOStandard {
-  ISO_45001  // Health & Safety
-  ISO_14001  // Environmental
-  ISO_9001   // Quality
+  ISO_45001 // Health & Safety
+  ISO_14001 // Environmental
+  ISO_9001 // Quality
 }
 
 // ============================================
@@ -77,52 +77,52 @@ enum ISOStandard {
 // ============================================
 
 model Risk {
-  id              String      @id @default(cuid())
-  standard        ISOStandard
-  title           String
-  description     String
-  category        String?
-  source          String?     // Where the risk originates
+  id          String      @id @default(cuid())
+  standard    ISOStandard
+  title       String
+  description String
+  category    String?
+  source      String? // Where the risk originates
 
   // Risk Assessment
-  likelihood      Int         @default(1) // 1-5
-  severity        Int         @default(1) // 1-5
-  detectability   Int         @default(1) // 1-5
-  riskScore       Int?        // Calculated: L × S × D
-  riskLevel       RiskLevel?
+  likelihood    Int        @default(1) // 1-5
+  severity      Int        @default(1) // 1-5
+  detectability Int        @default(1) // 1-5
+  riskScore     Int? // Calculated: L × S × D
+  riskLevel     RiskLevel?
 
   // For Environmental Aspects (ISO 14001)
-  aspectType      String?     // Emission, Waste, Energy, Water, etc.
+  aspectType          String? // Emission, Waste, Energy, Water, etc.
   environmentalImpact String?
-  scale           Int?        // 1-5
-  frequency       Int?        // 1-5
-  legalImpact     Int?        // 1-5
-  significanceScore Int?      // Calculated for aspects
+  scale               Int? // 1-5
+  frequency           Int? // 1-5
+  legalImpact         Int? // 1-5
+  significanceScore   Int? // Calculated for aspects
 
   // For Processes (ISO 9001)
-  processOwner    String?
-  processInputs   String?
-  processOutputs  String?
-  kpis            String?
+  processOwner   String?
+  processInputs  String?
+  processOutputs String?
+  kpis           String?
 
   // Control Measures
-  existingControls String?
+  existingControls   String?
   additionalControls String?
-  residualRisk    Int?
+  residualRisk       Int?
 
   // Status
-  status          RiskStatus  @default(ACTIVE)
-  reviewDate      DateTime?
-  lastReviewedAt  DateTime?
+  status         RiskStatus @default(ACTIVE)
+  reviewDate     DateTime?
+  lastReviewedAt DateTime?
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  actions         Action[]
-  incidents       Incident[]
-  bowTieAnalyses  BowTieAnalysis[]
-  aiAnalyses      AIAnalysis[]
+  actions        Action[]
+  incidents      Incident[]
+  bowTieAnalyses BowTieAnalysis[]
+  aiAnalyses     AIAnalysis[]
 
   @@index([standard, status])
   @@map("risks")
@@ -148,21 +148,21 @@ enum RiskStatus {
 // ============================================
 
 model Incident {
-  id              String        @id @default(cuid())
+  id              String      @id @default(cuid())
   standard        ISOStandard
-  referenceNumber String        @unique @default(cuid())
+  referenceNumber String      @unique @default(cuid())
   title           String
   description     String
 
   // Classification
-  type            IncidentType
-  severity        IncidentSeverity @default(MINOR)
-  category        String?
+  type     IncidentType
+  severity IncidentSeverity @default(MINOR)
+  category String?
 
   // Details
-  location        String?
-  dateOccurred    DateTime
-  dateReported    DateTime      @default(now())
+  location     String?
+  dateOccurred DateTime
+  dateReported DateTime @default(now())
 
   // People Involved
   reporterId      String
@@ -170,44 +170,44 @@ model Incident {
   personsInvolved String?
 
   // For H&S Incidents
-  injuryType      String?
-  bodyPart        String?
-  daysLost        Int?
-  treatmentType   String?
+  injuryType    String?
+  bodyPart      String?
+  daysLost      Int?
+  treatmentType String?
 
   // For Environmental Events
-  environmentalMedia String?    // Air, Water, Land
-  quantity        Float?
-  unit            String?
-  regulatoryReport Boolean      @default(false)
+  environmentalMedia String? // Air, Water, Land
+  quantity           Float?
+  unit               String?
+  regulatoryReport   Boolean @default(false)
 
   // For Quality NCs
-  productAffected String?
-  customerImpact  String?
+  productAffected      String?
+  customerImpact       String?
   costOfNonConformance Float?
 
   // Investigation
-  immediateCause  String?
-  rootCauses      String?
+  immediateCause      String?
+  rootCauses          String?
   contributingFactors String?
 
   // Status
-  status          IncidentStatus @default(OPEN)
-  closedAt        DateTime?
+  status   IncidentStatus @default(OPEN)
+  closedAt DateTime?
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  reporter        User          @relation("IncidentReporter", fields: [reporterId], references: [id])
-  investigator    User?         @relation("IncidentInvestigator", fields: [investigatorId], references: [id])
-  risk            Risk?         @relation(fields: [riskId], references: [id])
-  riskId          String?
-  actions         Action[]
-  fiveWhyAnalyses FiveWhyAnalysis[]
+  reporter         User               @relation("IncidentReporter", fields: [reporterId], references: [id])
+  investigator     User?              @relation("IncidentInvestigator", fields: [investigatorId], references: [id])
+  risk             Risk?              @relation(fields: [riskId], references: [id])
+  riskId           String?
+  actions          Action[]
+  fiveWhyAnalyses  FiveWhyAnalysis[]
   fishboneAnalyses FishboneAnalysis[]
-  paretoAnalyses  ParetoAnalysis[]
-  aiAnalyses      AIAnalysis[]
+  paretoAnalyses   ParetoAnalysis[]
+  aiAnalyses       AIAnalysis[]
 
   @@index([standard, status])
   @@index([dateOccurred])
@@ -260,36 +260,36 @@ enum IncidentStatus {
 // ============================================
 
 model LegalRequirement {
-  id              String      @id @default(cuid())
-  standard        ISOStandard
-  title           String
-  description     String
+  id          String      @id @default(cuid())
+  standard    ISOStandard
+  title       String
+  description String
 
   // Classification
   type            LegalType
-  jurisdiction    String?     // Country/State/Region
+  jurisdiction    String? // Country/State/Region
   issuingBody     String?
   referenceNumber String?
 
   // Details
   effectiveDate   DateTime?
   expiryDate      DateTime?
-  reviewFrequency String?     // Annual, Quarterly, etc.
+  reviewFrequency String? // Annual, Quarterly, etc.
 
   // Compliance
-  complianceStatus ComplianceStatus @default(PENDING)
+  complianceStatus   ComplianceStatus @default(PENDING)
   complianceEvidence String?
-  lastAssessedAt  DateTime?
+  lastAssessedAt     DateTime?
   nextAssessmentDate DateTime?
 
   // Responsibility
   responsiblePerson String?
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  actions         Action[]
+  actions Action[]
 
   @@index([standard, complianceStatus])
   @@map("legal_requirements")
@@ -320,36 +320,36 @@ enum ComplianceStatus {
 // ============================================
 
 model Objective {
-  id              String      @id @default(cuid())
-  standard        ISOStandard
-  title           String
-  description     String
+  id          String      @id @default(cuid())
+  standard    ISOStandard
+  title       String
+  description String
 
   // Target Details
-  targetValue     Float?
-  currentValue    Float?
-  unit            String?
-  baselineValue   Float?
+  targetValue   Float?
+  currentValue  Float?
+  unit          String?
+  baselineValue Float?
 
   // Progress
-  progressPercent Float       @default(0)
+  progressPercent Float @default(0)
 
   // Timeline
-  startDate       DateTime?
-  targetDate      DateTime?
+  startDate  DateTime?
+  targetDate DateTime?
 
   // Ownership
-  ownerId         String?
-  department      String?
+  ownerId    String?
+  department String?
 
   // Status
-  status          ObjectiveStatus @default(NOT_STARTED)
+  status ObjectiveStatus @default(NOT_STARTED)
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  owner           User?       @relation("ObjectiveOwner", fields: [ownerId], references: [id])
+  owner           User?               @relation("ObjectiveOwner", fields: [ownerId], references: [id])
   actions         Action[]
   progressRecords ObjectiveProgress[]
 
@@ -358,13 +358,13 @@ model Objective {
 }
 
 model ObjectiveProgress {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   objectiveId String
   value       Float
   notes       String?
-  recordedAt  DateTime  @default(now())
+  recordedAt  DateTime @default(now())
 
-  objective   Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  objective Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@map("objective_progress")
 }
@@ -390,46 +390,46 @@ model Action {
   description     String
 
   // Classification
-  type            ActionType
-  priority        ActionPriority @default(MEDIUM)
+  type     ActionType
+  priority ActionPriority @default(MEDIUM)
 
   // Assignment
-  ownerId         String
-  createdById     String
+  ownerId     String
+  createdById String
 
   // Timeline
-  dueDate         DateTime
-  completedAt     DateTime?
-  verifiedAt      DateTime?
+  dueDate     DateTime
+  completedAt DateTime?
+  verifiedAt  DateTime?
 
   // Verification
-  verificationMethod String?
-  verificationNotes String?
-  effectivenessRating Int?    // 1-5
+  verificationMethod  String?
+  verificationNotes   String?
+  effectivenessRating Int? // 1-5
 
   // Status
-  status          ActionStatus @default(OPEN)
+  status ActionStatus @default(OPEN)
 
   // Cost tracking
-  estimatedCost   Float?
-  actualCost      Float?
+  estimatedCost Float?
+  actualCost    Float?
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  owner           User        @relation("ActionOwner", fields: [ownerId], references: [id])
-  createdBy       User        @relation("ActionCreator", fields: [createdById], references: [id])
-  risk            Risk?       @relation(fields: [riskId], references: [id])
-  riskId          String?
-  incident        Incident?   @relation(fields: [incidentId], references: [id])
-  incidentId      String?
-  legalRequirement LegalRequirement? @relation(fields: [legalRequirementId], references: [id])
+  owner              User              @relation("ActionOwner", fields: [ownerId], references: [id])
+  createdBy          User              @relation("ActionCreator", fields: [createdById], references: [id])
+  risk               Risk?             @relation(fields: [riskId], references: [id])
+  riskId             String?
+  incident           Incident?         @relation(fields: [incidentId], references: [id])
+  incidentId         String?
+  legalRequirement   LegalRequirement? @relation(fields: [legalRequirementId], references: [id])
   legalRequirementId String?
-  objective       Objective?  @relation(fields: [objectiveId], references: [id])
-  objectiveId     String?
-  aiAnalysis      AIAnalysis? @relation(fields: [aiAnalysisId], references: [id])
-  aiAnalysisId    String?
+  objective          Objective?        @relation(fields: [objectiveId], references: [id])
+  objectiveId        String?
+  aiAnalysis         AIAnalysis?       @relation(fields: [aiAnalysisId], references: [id])
+  aiAnalysisId       String?
 
   @@index([status, dueDate])
   @@index([ownerId, status])
@@ -465,23 +465,23 @@ enum ActionStatus {
 // ============================================
 
 model TrainingCourse {
-  id              String      @id @default(cuid())
-  standard        ISOStandard?
-  title           String
-  description     String?
+  id          String       @id @default(cuid())
+  standard    ISOStandard?
+  title       String
+  description String?
 
   // Details
-  provider        String?
-  duration        String?     // e.g., "2 hours", "1 day"
-  frequency       String?     // Refresh frequency
+  provider  String?
+  duration  String? // e.g., "2 hours", "1 day"
+  frequency String? // Refresh frequency
 
   // Requirements
-  requiredForRoles String?    // Comma-separated roles
+  requiredForRoles       String? // Comma-separated roles
   requiredForDepartments String?
 
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   trainingRecords TrainingRecord[]
@@ -490,14 +490,14 @@ model TrainingCourse {
 }
 
 model TrainingRecord {
-  id              String      @id @default(cuid())
-  userId          String
-  courseId        String
+  id       String @id @default(cuid())
+  userId   String
+  courseId String
 
   // Completion
-  completedAt     DateTime?
-  expiresAt       DateTime?
-  score           Float?      // If applicable
+  completedAt DateTime?
+  expiresAt   DateTime?
+  score       Float? // If applicable
 
   // Competence Assessment
   competenceLevel CompetenceLevel?
@@ -505,15 +505,15 @@ model TrainingRecord {
   assessedAt      DateTime?
 
   // Evidence
-  certificateUrl  String?
-  notes           String?
+  certificateUrl String?
+  notes          String?
 
-  status          TrainingStatus @default(NOT_STARTED)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  status    TrainingStatus @default(NOT_STARTED)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course          TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([status])
@@ -540,22 +540,22 @@ enum TrainingStatus {
 // ============================================
 
 model FiveWhyAnalysis {
-  id          String    @id @default(cuid())
-  incidentId  String
+  id         String @id @default(cuid())
+  incidentId String
 
-  why1        String?
-  why2        String?
-  why3        String?
-  why4        String?
-  why5        String?
+  why1 String?
+  why2 String?
+  why3 String?
+  why4 String?
+  why5 String?
 
-  rootCause   String?
-  conclusion  String?
+  rootCause  String?
+  conclusion String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  incident    Incident  @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@map("five_why_analyses")
 }
@@ -565,25 +565,25 @@ model FiveWhyAnalysis {
 // ============================================
 
 model FishboneAnalysis {
-  id          String    @id @default(cuid())
-  incidentId  String
+  id         String @id @default(cuid())
+  incidentId String
 
   problemStatement String
 
   // 6M Categories
-  manpower    String?   // People/Personnel
-  method      String?   // Process/Procedure
-  machine     String?   // Equipment/Technology
-  material    String?   // Materials/Supplies
-  measurement String?   // Data/Metrics
-  environment String?   // Milieu/Environment
+  manpower    String? // People/Personnel
+  method      String? // Process/Procedure
+  machine     String? // Equipment/Technology
+  material    String? // Materials/Supplies
+  measurement String? // Data/Metrics
+  environment String? // Milieu/Environment
 
-  conclusion  String?
+  conclusion String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  incident    Incident  @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@map("fishbone_analyses")
 }
@@ -593,26 +593,26 @@ model FishboneAnalysis {
 // ============================================
 
 model ParetoAnalysis {
-  id          String    @id @default(cuid())
-  incidentId  String?
-  standard    ISOStandard?
+  id         String       @id @default(cuid())
+  incidentId String?
+  standard   ISOStandard?
 
   title       String
   description String?
 
   // Data stored as JSON array of {category, count, percentage, cumulative}
-  data        Json
+  data Json
 
   // Analysis period
   periodStart DateTime?
   periodEnd   DateTime?
 
-  conclusion  String?
+  conclusion String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  incident    Incident? @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incident Incident? @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@map("pareto_analyses")
 }
@@ -622,17 +622,17 @@ model ParetoAnalysis {
 // ============================================
 
 model BowTieAnalysis {
-  id          String    @id @default(cuid())
-  riskId      String
+  id     String @id @default(cuid())
+  riskId String
 
   // Top Event
-  topEvent    String
+  topEvent String
 
   // Threats (causes) - JSON array
-  threats     Json      // [{id, description, likelihood}]
+  threats Json // [{id, description, likelihood}]
 
   // Consequences - JSON array
-  consequences Json     // [{id, description, severity}]
+  consequences Json // [{id, description, severity}]
 
   // Controls
   preventiveControls Json // [{id, description, effectiveness, threatId}]
@@ -641,12 +641,12 @@ model BowTieAnalysis {
   // Barriers/Escalation Factors
   escalationFactors Json?
 
-  notes       String?
+  notes String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  risk        Risk      @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  risk Risk @relation(fields: [riskId], references: [id], onDelete: Cascade)
 
   @@map("bow_tie_analyses")
 }
@@ -656,7 +656,7 @@ model BowTieAnalysis {
 // ============================================
 
 model LeanWasteAnalysis {
-  id          String    @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   description String?
 
@@ -671,14 +671,14 @@ model LeanWasteAnalysis {
   extraProcessing   Json?
 
   // Totals
-  totalEstimatedCost Float?
+  totalEstimatedCost    Float?
   totalIdentifiedWastes Int?
 
   // Recommendations
   recommendations String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("lean_waste_analyses")
 }
@@ -688,20 +688,20 @@ model LeanWasteAnalysis {
 // ============================================
 
 model AISettings {
-  id          String    @id @default(cuid())
-  provider    AIProvider @default(OPENAI)
-  apiKey      String?   // Encrypted in production
-  model       String?
+  id       String     @id @default(cuid())
+  provider AIProvider @default(OPENAI)
+  apiKey   String? // Encrypted in production
+  model    String?
 
   // Default prompts
   defaultPrompt String?
 
   // Usage tracking
-  totalTokensUsed Int     @default(0)
-  lastUsedAt  DateTime?
+  totalTokensUsed Int       @default(0)
+  lastUsedAt      DateTime?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("ai_settings")
 }
@@ -713,36 +713,40 @@ enum AIProvider {
 }
 
 model AIAnalysis {
-  id              String      @id @default(cuid())
-  userId          String
+  id     String @id @default(cuid())
+  userId String
 
   // Source
-  sourceType      String      // risk, incident, aspect, etc.
-  sourceId        String
-  sourceData      Json        // Original data sent to AI
+  sourceType String // risk, incident, aspect, etc.
+  sourceId   String
+  sourceData Json // Original data sent to AI
 
   // Request
-  prompt          String
-  provider        AIProvider
-  model           String?
+  prompt   String
+  provider AIProvider
+  model    String?
 
   // Response
-  response        Json        // Full AI response
+  response           Json // Full AI response
   suggestedRootCause String?
-  suggestedActions Json?      // Array of suggested actions
-  complianceGaps  Json?       // Array of {clause, gap, recommendation}
-  highlights      Json?       // Text highlights with reasons
+  suggestedActions   Json? // Array of suggested actions
+  complianceGaps     Json? // Array of {clause, gap, recommendation}
+  highlights         Json? // Text highlights with reasons
 
   // Status
-  status          AIAnalysisStatus @default(PENDING)
-  acceptedAt      DateTime?
-  rejectedAt      DateTime?
+  status     AIAnalysisStatus @default(PENDING)
+  acceptedAt DateTime?
+  rejectedAt DateTime?
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user            User        @relation(fields: [userId], references: [id])
-  actions         Action[]
+  user       User      @relation(fields: [userId], references: [id])
+  actions    Action[]
+  Risk       Risk?     @relation(fields: [riskId], references: [id])
+  riskId     String?
+  Incident   Incident? @relation(fields: [incidentId], references: [id])
+  incidentId String?
 
   @@index([sourceType, sourceId])
   @@map("ai_analyses")
@@ -762,14 +766,14 @@ enum AIAnalysisStatus {
 // ============================================
 
 model MonthlyTrend {
-  id          String      @id @default(cuid())
-  standard    ISOStandard
-  metric      String      // e.g., "incidents", "actions_closed", "compliance"
-  year        Int
-  month       Int
-  value       Float
+  id       String      @id @default(cuid())
+  standard ISOStandard
+  metric   String // e.g., "incidents", "actions_closed", "compliance"
+  year     Int
+  month    Int
+  value    Float
 
-  createdAt   DateTime    @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([standard, metric, year, month])
   @@index([standard, metric])
@@ -781,25 +785,25 @@ model MonthlyTrend {
 // ============================================
 
 model SafetyMetric {
-  id                  String    @id @default(cuid())
-  year                Int
-  month               Int
+  id    String @id @default(cuid())
+  year  Int
+  month Int
 
   // Hours & Incidents
-  hoursWorked         Float     @default(0)
-  lostTimeInjuries    Int       @default(0)
+  hoursWorked             Float @default(0)
+  lostTimeInjuries        Int   @default(0)
   totalRecordableInjuries Int   @default(0)
-  daysLost            Int       @default(0)
-  nearMisses          Int       @default(0)
-  firstAidCases       Int       @default(0)
+  daysLost                Int   @default(0)
+  nearMisses              Int   @default(0)
+  firstAidCases           Int   @default(0)
 
   // Calculated Rates
-  ltifr               Float?    // Lost Time Injury Frequency Rate
-  trir                Float?    // Total Recordable Incident Rate
-  severityRate        Float?    // Severity Rate
+  ltifr        Float? // Lost Time Injury Frequency Rate
+  trir         Float? // Total Recordable Incident Rate
+  severityRate Float? // Severity Rate
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([year, month])
   @@map("safety_metrics")
@@ -810,29 +814,29 @@ model SafetyMetric {
 // ============================================
 
 model QualityMetric {
-  id                  String    @id @default(cuid())
-  year                Int
-  month               Int
+  id    String @id @default(cuid())
+  year  Int
+  month Int
 
   // COPQ - Cost of Poor Quality
-  preventionCost      Float     @default(0)
-  appraisalCost       Float     @default(0)
-  internalFailureCost Float     @default(0)
-  externalFailureCost Float     @default(0)
+  preventionCost      Float  @default(0)
+  appraisalCost       Float  @default(0)
+  internalFailureCost Float  @default(0)
+  externalFailureCost Float  @default(0)
   totalCOPQ           Float?
 
   // Quality Metrics
-  totalUnits          Int       @default(0)
-  defectiveUnits      Int       @default(0)
-  defectOpportunities Int       @default(1)
+  totalUnits          Int @default(0)
+  defectiveUnits      Int @default(0)
+  defectOpportunities Int @default(1)
 
   // Calculated Metrics
-  dpmo                Float?    // Defects Per Million Opportunities
-  firstPassYield      Float?    // First Pass Yield %
-  processSigma        Float?    // Process Sigma Level
+  dpmo           Float? // Defects Per Million Opportunities
+  firstPassYield Float? // First Pass Yield %
+  processSigma   Float? // Process Sigma Level
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([year, month])
   @@map("quality_metrics")
@@ -843,34 +847,34 @@ model QualityMetric {
 // ============================================
 
 model Document {
-  id              String      @id @default(cuid())
-  standard        ISOStandard?
-  title           String
-  description     String?
+  id          String       @id @default(cuid())
+  standard    ISOStandard?
+  title       String
+  description String?
 
   // Version Control
-  version         String      @default("1.0")
+  version           String  @default("1.0")
   previousVersionId String?
 
   // File
-  fileUrl         String?
-  fileType        String?
-  fileSize        Int?
+  fileUrl  String?
+  fileType String?
+  fileSize Int?
 
   // Classification
-  documentType    DocumentType
-  isoClause       String?     // e.g., "4.1", "6.1.2"
+  documentType DocumentType
+  isoClause    String? // e.g., "4.1", "6.1.2"
 
   // Review
-  reviewDate      DateTime?
-  nextReviewDate  DateTime?
-  approvedBy      String?
-  approvedAt      DateTime?
+  reviewDate     DateTime?
+  nextReviewDate DateTime?
+  approvedBy     String?
+  approvedAt     DateTime?
 
-  status          DocumentStatus @default(DRAFT)
+  status DocumentStatus @default(DRAFT)
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([standard, documentType])
   @@map("documents")
@@ -924,26 +928,26 @@ model AuditLog {
 // ============================================
 
 model ComplianceScore {
-  id              String      @id @default(cuid())
-  standard        ISOStandard
+  id       String      @id @default(cuid())
+  standard ISOStandard
 
   // Scores (0-100)
-  overallScore    Float       @default(0)
+  overallScore Float @default(0)
 
   // Component scores
-  riskScore       Float?
-  incidentScore   Float?
-  legalScore      Float?
-  objectiveScore  Float?
-  actionScore     Float?
-  trainingScore   Float?
-  documentScore   Float?
+  riskScore      Float?
+  incidentScore  Float?
+  legalScore     Float?
+  objectiveScore Float?
+  actionScore    Float?
+  trainingScore  Float?
+  documentScore  Float?
 
   // Counts
-  totalItems      Int         @default(0)
-  compliantItems  Int         @default(0)
+  totalItems     Int @default(0)
+  compliantItems Int @default(0)
 
-  calculatedAt    DateTime    @default(now())
+  calculatedAt DateTime @default(now())
 
   @@unique([standard])
   @@map("compliance_scores")

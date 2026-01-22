@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { prisma } from '@new-bms/database';
+import type { Router as IRouter } from 'express';
+import { prisma } from '@ims/database';
 import { authenticate } from '../middleware/auth';
 
-const router = Router();
+const router: IRouter = Router();
 
 // GET /api/dashboard/stats - Get IMS dashboard statistics
 router.get('/stats', authenticate, async (req, res, next) => {

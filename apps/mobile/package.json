@@ -14,6 +14,7 @@
     "clean": "rm -rf dist node_modules .turbo ios android"
   },
   "dependencies": {
+    "@ims/shared": "workspace:*",
     "@ims/types": "workspace:*",
     "@ims/ui": "workspace:*",
     "@ims/calculations": "workspace:*",

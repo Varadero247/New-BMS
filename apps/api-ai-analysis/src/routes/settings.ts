@@ -1,10 +1,11 @@
 import { Router, Response } from 'express';
+import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: IRouter = Router();
 
 router.use(authenticate);
 

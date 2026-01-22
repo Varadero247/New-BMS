@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -28,7 +29,7 @@ import metricsRoutes from './routes/metrics';
 // Dashboard
 import dashboardRoutes from './routes/ims-dashboard';
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
 // Security middleware

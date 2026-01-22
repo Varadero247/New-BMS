@@ -1,8 +1,9 @@
 import { Router, Response } from 'express';
+import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 
-const router = Router();
+const router: IRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);

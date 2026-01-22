@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
   ClipboardCheck,
-  Clock,
-  CheckCircle,
   AlertTriangle,
-  ChevronRight,
   HardHat,
   Leaf,
   Award,
-  Filter,
 } from 'lucide-react';
 import { api } from '../lib/api';
 

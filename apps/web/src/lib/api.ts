@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse } from '@bms/shared';
+import type { ApiResponse } from '@ims/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 

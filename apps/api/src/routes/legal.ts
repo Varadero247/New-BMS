@@ -1,10 +1,11 @@
 import { Router } from 'express';
+import type { Router as IRouter } from 'express';
 import { z } from 'zod';
-import { prisma } from '@new-bms/database';
+import { prisma } from '@ims/database';
 import { authenticate, requireRole } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 
-const router = Router();
+const router: IRouter = Router();
 
 // Validation schemas
 const createLegalSchema = z.object({

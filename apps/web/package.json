@@ -1,5 +1,5 @@
 {
-  "name": "@bms/web",
+  "name": "@ims/web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "clean": "rm -rf .next node_modules .turbo"
   },
   "dependencies": {
-    "@bms/shared": "workspace:*",
+    "@ims/shared": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
     "axios": "^1.6.0",
     "chart.js": "^4.4.0",

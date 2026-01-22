@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { Prisma } from '@bms/database';
+import { Prisma } from '@ims/database';
 
 export class AppError extends Error {
   constructor(
