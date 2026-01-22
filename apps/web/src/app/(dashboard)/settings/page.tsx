@@ -430,7 +430,7 @@ export default function SettingsPage() {
                       <div>
                         <p className="font-medium">Request AI Analysis</p>
                         <p className="text-sm text-muted-foreground">
-                          Click the "Analyze with AI" button to send the data to your configured AI provider
+                          Click the &quot;Analyze with AI&quot; button to send the data to your configured AI provider
                         </p>
                       </div>
                     </div>

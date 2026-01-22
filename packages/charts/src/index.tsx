@@ -81,13 +81,21 @@ export function ComplianceGauge({ value, label, color, size = 'md' }: Compliance
 
 // Risk Matrix Component
 interface RiskMatrixProps {
-  data: {
+  data?: {
     [key: string]: { id: string; title: string; riskScore?: number }[];
   };
+  risks?: { id: string; title: string; likelihood: number; severity: number }[];
   onCellClick?: (likelihood: number, severity: number) => void;
 }
 
-export function RiskMatrix({ data, onCellClick }: RiskMatrixProps) {
+export function RiskMatrix({ data, risks, onCellClick }: RiskMatrixProps) {
+  // Transform risks array to data format if provided
+  const matrixData = data ?? (risks ? risks.reduce((acc, risk) => {
+    const key = `${risk.likelihood}-${risk.severity}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({ id: risk.id, title: risk.title });
+    return acc;
+  }, {} as { [key: string]: { id: string; title: string }[] }) : {});
   const getCellColor = (likelihood: number, severity: number): string => {
     const score = likelihood * severity;
     if (score <= 4) return 'bg-green-100 hover:bg-green-200';
@@ -121,7 +129,7 @@ export function RiskMatrix({ data, onCellClick }: RiskMatrixProps) {
               <td className="p-2 text-xs text-center font-medium">{l}</td>
               {[1, 2, 3, 4, 5].map((s) => {
                 const key = `${l}-${s}`;
-                const cellData = data[key] || [];
+                const cellData = matrixData[key] || [];
                 return (
                   <td
                     key={s}
@@ -341,36 +349,52 @@ interface SafetyTrendChartProps {
     month: string;
     ltifr: number;
     trir: number;
-    severityRate: number;
+    severityRate?: number;
+    incidents?: number;
   }[];
+  height?: number;
 }
 
-export function SafetyTrendChart({ data }: SafetyTrendChartProps) {
+export function SafetyTrendChart({ data, height = 256 }: SafetyTrendChartProps) {
+  const datasets = [
+    {
+      label: 'LTIFR',
+      data: data.map((d) => d.ltifr),
+      borderColor: '#ef4444',
+      backgroundColor: 'transparent',
+      tension: 0.3,
+    },
+    {
+      label: 'TRIR',
+      data: data.map((d) => d.trir),
+      borderColor: '#f59e0b',
+      backgroundColor: 'transparent',
+      tension: 0.3,
+    },
+  ];
+
+  // Add severity rate or incidents if available
+  if (data.some((d) => d.severityRate !== undefined)) {
+    datasets.push({
+      label: 'Severity Rate',
+      data: data.map((d) => d.severityRate ?? 0),
+      borderColor: '#3b82f6',
+      backgroundColor: 'transparent',
+      tension: 0.3,
+    });
+  } else if (data.some((d) => d.incidents !== undefined)) {
+    datasets.push({
+      label: 'Incidents',
+      data: data.map((d) => d.incidents ?? 0),
+      borderColor: '#3b82f6',
+      backgroundColor: 'transparent',
+      tension: 0.3,
+    });
+  }
+
   const chartData = {
     labels: data.map((d) => d.month),
-    datasets: [
-      {
-        label: 'LTIFR',
-        data: data.map((d) => d.ltifr),
-        borderColor: '#ef4444',
-        backgroundColor: 'transparent',
-        tension: 0.3,
-      },
-      {
-        label: 'TRIR',
-        data: data.map((d) => d.trir),
-        borderColor: '#f59e0b',
-        backgroundColor: 'transparent',
-        tension: 0.3,
-      },
-      {
-        label: 'Severity Rate',
-        data: data.map((d) => d.severityRate),
-        borderColor: '#3b82f6',
-        backgroundColor: 'transparent',
-        tension: 0.3,
-      },
-    ],
+    datasets,
   };
 
   const options = {
@@ -385,7 +409,7 @@ export function SafetyTrendChart({ data }: SafetyTrendChartProps) {
   };
 
   return (
-    <div className="h-64">
+    <div style={{ height }}>
       <Line data={chartData} options={options} />
     </div>
   );
@@ -397,11 +421,13 @@ interface QualityTrendChartProps {
     month: string;
     dpmo: number;
     fpy: number;
-    sigma: number;
+    sigma?: number;
+    copq?: number;
   }[];
+  height?: number;
 }
 
-export function QualityTrendChart({ data }: QualityTrendChartProps) {
+export function QualityTrendChart({ data, height = 256 }: QualityTrendChartProps) {
   const chartData = {
     labels: data.map((d) => d.month),
     datasets: [
@@ -449,7 +475,7 @@ export function QualityTrendChart({ data }: QualityTrendChartProps) {
   };
 
   return (
-    <div className="h-64">
+    <div style={{ height }}>
       <Line data={chartData} options={options} />
     </div>
   );

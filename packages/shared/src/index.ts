@@ -956,6 +956,36 @@ export type DocumentType =
 export type DocumentStatus = 'DRAFT' | 'UNDER_REVIEW' | 'APPROVED' | 'OBSOLETE';
 
 // ============================================
+// Building Types
+// ============================================
+
+export interface Building {
+  id: string;
+  name: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  floors?: number;
+  totalArea?: number;
+  buildingType?: string;
+  yearBuilt?: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'UNDER_CONSTRUCTION';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBuildingRequest {
+  name: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  floors?: number;
+  totalArea?: number;
+  buildingType?: string;
+  yearBuilt?: number;
+}
+
+// ============================================
 // Dashboard Types
 // ============================================
 

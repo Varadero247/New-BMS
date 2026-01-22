@@ -285,7 +285,7 @@ export default function ParetoPage() {
             <div>
               <p className="text-sm text-muted-foreground mb-4">
                 The Pareto principle states that roughly 80% of effects come from 20% of causes.
-                In quality management, this helps identify the "vital few" issues that have the most significant impact.
+                In quality management, this helps identify the &quot;vital few&quot; issues that have the most significant impact.
               </p>
               <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">

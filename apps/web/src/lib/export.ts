@@ -182,6 +182,7 @@ export interface IncidentExportData {
   dateOccurred: string;
   location?: string;
   reportedBy?: string;
+  [key: string]: string | undefined;
 }
 
 export function exportIncidents(
@@ -248,6 +249,7 @@ export interface ActionExportData {
   dueDate: string;
   owner?: string;
   standard?: string;
+  [key: string]: string | undefined;
 }
 
 export function exportActions(actions: ActionExportData[], title: string = 'CAPA Actions Report'): void {
@@ -295,6 +297,7 @@ export interface RiskExportData {
   riskLevel: string;
   status: string;
   owner?: string;
+  [key: string]: string | number | undefined;
 }
 
 export function exportRisks(
@@ -362,6 +365,7 @@ export interface ComplianceSummaryData {
   compliant: number;
   nonCompliant: number;
   lastAuditDate?: string;
+  [key: string]: string | number | undefined;
 }
 
 export function exportComplianceSummary(data: ComplianceSummaryData[]): void {
@@ -415,6 +419,7 @@ export interface SafetyMetricsData {
   nearMisses: number;
   incidents: number;
   lostDays: number;
+  [key: string]: string | number | undefined;
 }
 
 export function exportSafetyMetrics(data: SafetyMetricsData[]): void {
@@ -472,6 +477,7 @@ export interface QualityMetricsData {
   copqInternal: number;
   copqExternal: number;
   copqTotal: number;
+  [key: string]: string | number | undefined;
 }
 
 export function exportQualityMetrics(data: QualityMetricsData[]): void {

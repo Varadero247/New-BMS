@@ -255,7 +255,7 @@ export function ParetoChart({ data }: ParetoChartProps) {
 
   return (
     <div className="h-80">
-      {/* @ts-ignore */}
+      {/* @ts-expect-error - mixed chart types */}
       <Bar data={chartData} options={options} />
     </div>
   );

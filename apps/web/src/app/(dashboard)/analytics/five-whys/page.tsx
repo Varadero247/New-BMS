@@ -266,7 +266,7 @@ export default function FiveWhysPage() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground text-center mt-4">
-            By asking "Why?" five times, you can peel away the layers of symptoms to reveal the root cause of a problem.
+            By asking &quot;Why?&quot; five times, you can peel away the layers of symptoms to reveal the root cause of a problem.
           </p>
         </CardContent>
       </Card>
