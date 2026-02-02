@@ -6,6 +6,7 @@ import {
   Shield,
   Leaf,
   Award,
+  Package,
   Settings,
   LogOut,
   ChevronRight,
@@ -41,6 +42,14 @@ const modules = [
     icon: Award,
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
+    external: true,
+  },
+  {
+    name: 'Inventory',
+    href: 'http://localhost:3005',
+    icon: Package,
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-100',
     external: true,
   },
   {

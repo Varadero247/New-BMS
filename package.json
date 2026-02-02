@@ -10,6 +10,7 @@
     "dev:environment": "turbo dev --filter=@ims/web-environment --filter=@ims/api-environment --filter=@ims/api-gateway",
     "dev:quality": "turbo dev --filter=@ims/web-quality --filter=@ims/api-quality --filter=@ims/api-gateway",
     "dev:settings": "turbo dev --filter=@ims/web-settings --filter=@ims/api-ai-analysis --filter=@ims/api-gateway",
+    "dev:inventory": "turbo dev --filter=@ims/web-inventory --filter=@ims/api-inventory --filter=@ims/api-gateway",
     "dev:apis": "turbo dev --filter=@ims/api-*",
     "dev:web": "turbo dev --filter=@ims/web-*",
     "build": "turbo build",

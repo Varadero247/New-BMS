@@ -7,6 +7,7 @@ import {
   Shield,
   Leaf,
   Award,
+  Package,
   AlertTriangle,
   Clock,
   Sparkles,
@@ -326,7 +327,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Module Links */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <a
               href="http://localhost:3001"
               className="flex items-center justify-between p-6 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
@@ -373,6 +374,22 @@ export default function DashboardPage() {
                 </div>
               </div>
               <ExternalLink className="h-5 w-5 text-blue-400" />
+            </a>
+
+            <a
+              href="http://localhost:3005"
+              className="flex items-center justify-between p-6 bg-sky-50 rounded-lg border border-sky-200 hover:bg-sky-100 transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-sky-100 rounded-full">
+                  <Package className="h-6 w-6 text-sky-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sky-900">Inventory</h3>
+                  <p className="text-sm text-sky-600">Stock Control</p>
+                </div>
+              </div>
+              <ExternalLink className="h-5 w-5 text-sky-400" />
             </a>
           </div>
         </div>

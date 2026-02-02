@@ -952,3 +952,307 @@ model ComplianceScore {
   @@unique([standard])
   @@map("compliance_scores")
 }
+
+// ============================================
+// INVENTORY CONTROL MODULE
+// ============================================
+
+// Product Categories (Hierarchical)
+model ProductCategory {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  code        String? @unique // Optional category code
+  sortOrder   Int     @default(0)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([parentId])
+  @@map("product_categories")
+}
+
+// Supplier
+model Supplier {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+
+  // Address stored as JSON
+  address Json? // {street, city, state, country, postalCode}
+
+  // Payment & Terms
+  paymentTerms String?
+  currency     String  @default("USD")
+  taxId        String?
+  notes        String?
+
+  // Rating & Status
+  rating   Float?         @default(0) // 0-5
+  status   SupplierStatus @default(ACTIVE)
+  isActive Boolean        @default(true)
+
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  products Product[]
+
+  @@index([status])
+  @@map("suppliers")
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  BLOCKED
+}
+
+// Product Master
+model Product {
+  id          String  @id @default(cuid())
+  sku         String  @unique
+  barcode     String? @unique
+  name        String
+  description String?
+
+  // Classification
+  categoryId String?
+  supplierId String?
+  brand      String?
+  model      String?
+
+  // Pricing
+  costPrice   Float  @default(0)
+  sellingPrice Float @default(0)
+  currency    String @default("USD")
+  taxRate     Float  @default(0) // Percentage
+
+  // Inventory Control
+  reorderPoint   Int @default(0)
+  reorderQuantity Int @default(0)
+  minStockLevel  Int @default(0)
+  maxStockLevel  Int @default(0)
+  leadTimeDays   Int @default(0)
+
+  // Physical Attributes (JSON for flexibility)
+  dimensions Json? // {length, width, height, unit}
+  weight     Float?
+  weightUnit String? // kg, lb, etc.
+
+  // Custom attributes for extensibility
+  customAttributes Json?
+
+  // Tracking settings
+  trackSerialNumbers Boolean @default(false)
+  trackLotNumbers    Boolean @default(false)
+  trackExpiryDates   Boolean @default(false)
+
+  // Status
+  status   ProductStatus @default(ACTIVE)
+  isActive Boolean       @default(true)
+
+  // Optimistic locking
+  version Int @default(1)
+
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  category       ProductCategory?       @relation(fields: [categoryId], references: [id])
+  supplier       Supplier?              @relation(fields: [supplierId], references: [id])
+  inventoryItems Inventory[]
+  transactions   InventoryTransaction[]
+
+  @@index([sku], map: "idx_product_sku")
+  @@index([barcode], map: "idx_product_barcode")
+  @@index([categoryId])
+  @@index([supplierId])
+  @@index([status])
+  @@map("products")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+  OUT_OF_STOCK
+}
+
+// Warehouse / Storage Location
+model Warehouse {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  name        String
+  description String?
+
+  // Address stored as JSON
+  address Json? // {street, city, state, country, postalCode}
+
+  // Capacity
+  totalCapacity Float? // in cubic units
+  usedCapacity  Float? @default(0)
+  capacityUnit  String @default("cubic_meters")
+
+  // Management
+  managerId String?
+  phone     String?
+  email     String?
+
+  // Operational settings
+  operatingHours Json? // {monday: {open, close}, ...}
+  isDefault      Boolean @default(false)
+  isActive       Boolean @default(true)
+
+  // Optimistic locking
+  version Int @default(1)
+
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  inventoryItems     Inventory[]
+  sourceTransfers    InventoryTransaction[] @relation("TransferSource")
+  destTransfers      InventoryTransaction[] @relation("TransferDestination")
+
+  @@map("warehouses")
+}
+
+// Inventory Stock Levels (per product per warehouse)
+model Inventory {
+  id          String @id @default(cuid())
+  productId   String
+  warehouseId String
+
+  // Stock Quantities
+  quantityOnHand   Int @default(0)
+  quantityReserved Int @default(0)
+  quantityOnOrder  Int @default(0)
+  // quantityAvailable is calculated: quantityOnHand - quantityReserved
+
+  // Location within warehouse
+  binLocation String?
+  zone        String?
+  aisle       String?
+  shelf       String?
+
+  // Lot/Serial/Expiry tracking (JSON arrays for multiple lots)
+  lotNumbers    Json? // [{lotNumber, quantity, expiryDate}]
+  serialNumbers Json? // [{serialNumber, status}]
+
+  // Valuation
+  averageCost    Float @default(0)
+  lastCost       Float @default(0)
+  inventoryValue Float @default(0)
+
+  // Audit
+  lastCountedAt DateTime?
+  lastReceivedAt DateTime?
+
+  // Optimistic locking
+  version Int @default(1)
+
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, warehouseId], map: "idx_product_warehouse")
+  @@index([warehouseId])
+  @@index([quantityOnHand])
+  @@map("inventory")
+}
+
+// Inventory Transactions (Audit Trail)
+model InventoryTransaction {
+  id        String @id @default(cuid())
+  productId String
+
+  // Transaction Type
+  transactionType TransactionType
+  referenceNumber String          @unique @default(cuid())
+  referenceType   String? // PO, SO, ADJUSTMENT, TRANSFER, etc.
+  referenceId     String? // Link to source document
+
+  // Quantities (before/after for audit trail)
+  quantityBefore Int
+  quantityAfter  Int
+  quantityChange Int // Can be positive or negative
+
+  // Warehouse info
+  warehouseId     String?
+  fromWarehouseId String?
+  toWarehouseId   String?
+
+  // Location details
+  binLocation String?
+  lotNumber   String?
+  serialNumber String?
+  expiryDate  DateTime?
+
+  // Costing
+  unitCost   Float @default(0)
+  totalCost  Float @default(0)
+
+  // Reason/Notes
+  reason String?
+  notes  String?
+
+  // User tracking
+  performedById String
+
+  // Timestamps
+  transactionDate DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  // Relations
+  product       Product    @relation(fields: [productId], references: [id])
+  warehouse     Warehouse? @relation("TransferDestination", fields: [warehouseId], references: [id])
+  fromWarehouse Warehouse? @relation("TransferSource", fields: [fromWarehouseId], references: [id])
+
+  @@index([productId])
+  @@index([transactionType])
+  @@index([transactionDate])
+  @@index([referenceType, referenceId])
+  @@map("inventory_transactions")
+}
+
+enum TransactionType {
+  RECEIPT           // Goods received
+  ISSUE             // Goods issued/consumed
+  ADJUSTMENT_IN     // Positive adjustment
+  ADJUSTMENT_OUT    // Negative adjustment
+  TRANSFER_OUT      // Transfer out of warehouse
+  TRANSFER_IN       // Transfer into warehouse
+  CYCLE_COUNT       // Cycle count adjustment
+  RETURN            // Customer/supplier return
+  DAMAGE            // Damaged goods write-off
+  EXPIRED           // Expired goods write-off
+  INITIAL           // Initial stock entry
+}

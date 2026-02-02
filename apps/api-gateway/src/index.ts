@@ -24,12 +24,13 @@ const SERVICES = {
   environment: process.env.ENVIRONMENT_URL || 'http://localhost:4002',
   quality: process.env.QUALITY_URL || 'http://localhost:4003',
   aiAnalysis: process.env.AI_ANALYSIS_URL || 'http://localhost:4004',
+  inventory: process.env.INVENTORY_URL || 'http://localhost:4005',
 };
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004'],
+  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
   credentials: true,
 }));
 app.use(morgan('combined'));
@@ -107,6 +108,19 @@ app.use('/api/ai', createProxyMiddleware({
   },
 }));
 
+app.use('/api/inventory', createProxyMiddleware({
+  target: SERVICES.inventory,
+  changeOrigin: true,
+  pathRewrite: { '^/api/inventory': '/api' },
+  onError: (err, req, res) => {
+    console.error('Inventory Proxy Error:', err);
+    (res as express.Response).status(502).json({
+      success: false,
+      error: { code: 'SERVICE_UNAVAILABLE', message: 'Inventory service unavailable' },
+    });
+  },
+}));
+
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -117,6 +131,7 @@ app.listen(PORT, () => {
   console.log(`Environment service: ${SERVICES.environment}`);
   console.log(`Quality service: ${SERVICES.quality}`);
   console.log(`AI Analysis service: ${SERVICES.aiAnalysis}`);
+  console.log(`Inventory service: ${SERVICES.inventory}`);
 });
 
 export default app;
