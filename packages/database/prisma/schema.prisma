@@ -1256,3 +1256,3292 @@ enum TransactionType {
   EXPIRED           // Expired goods write-off
   INITIAL           // Initial stock entry
 }
+
+// ============================================
+// ENTERPRISE QMS - DOCUMENT CONTROL & MANAGEMENT
+// ============================================
+
+model QMSDocument {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentNumber String @unique
+  title       String
+  description String?
+
+  // Classification
+  documentType    QMSDocumentType
+  category        String?
+  isoClause       String?              // e.g., "4.1", "6.1.2"
+  standard        ISOStandard?
+
+  // Ownership
+  ownerId         String?
+  departmentId    String?
+
+  // Lifecycle
+  status          QMSDocumentStatus    @default(DRAFT)
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  retentionPeriod Int?                 // In months
+
+  // Review cycle
+  reviewFrequency Int?                 // In months
+  nextReviewDate  DateTime?
+  lastReviewedAt  DateTime?
+
+  // Access control
+  confidentiality ConfidentialityLevel @default(INTERNAL)
+  accessRoles     Json?                // Array of roles that can access
+
+  // Current version info
+  currentVersionId String?             @db.Uuid
+
+  // Metadata
+  keywords        String[]
+  tags            String[]
+  metadata        Json?
+
+  // Audit fields
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  createdById     String?
+  updatedById     String?
+
+  // Relations
+  versions        QMSDocumentVersion[]
+  approvals       QMSDocumentApproval[]
+  distributions   QMSDocumentDistribution[]
+  accessLogs      QMSDocumentAccessLog[]
+  changeRequests  ChangeRequest[]      @relation("DocumentChangeRequests")
+
+  @@index([documentNumber])
+  @@index([status, documentType])
+  @@index([standard])
+  @@index([nextReviewDate])
+  @@map("qms_documents")
+}
+
+model QMSDocumentVersion {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId      String @db.Uuid
+
+  // Version info
+  versionNumber   String               // e.g., "1.0", "2.1"
+  majorVersion    Int                  @default(1)
+  minorVersion    Int                  @default(0)
+
+  // Content
+  fileUrl         String?
+  fileName        String?
+  fileSize        Int?
+  fileType        String?
+  content         String?              // For text-based documents
+
+  // Change tracking
+  changeReason    String?
+  changeSummary   String?
+
+  // Status
+  status          QMSDocumentVersionStatus @default(DRAFT)
+
+  // Approval
+  approvedAt      DateTime?
+  approvedById    String?
+  digitalSignature String?             // Base64 encoded signature
+
+  // Audit fields
+  createdAt       DateTime             @default(now())
+  createdById     String?
+
+  // Relations
+  document        QMSDocument          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, versionNumber])
+  @@index([documentId])
+  @@index([status])
+  @@map("qms_document_versions")
+}
+
+model QMSDocumentApproval {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId      String @db.Uuid
+  versionNumber   String?
+
+  // Approval workflow
+  approvalLevel   Int                  @default(1)
+  approverId      String
+  approverRole    String?
+
+  // Decision
+  status          ApprovalStatus       @default(PENDING)
+  decision        ApprovalDecision?
+  comments        String?
+
+  // Digital signature
+  digitalSignature String?
+  signedAt        DateTime?
+
+  // Timestamps
+  requestedAt     DateTime             @default(now())
+  respondedAt     DateTime?
+  dueDate         DateTime?
+
+  // Relations
+  document        QMSDocument          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([approverId, status])
+  @@map("qms_document_approvals")
+}
+
+model QMSDocumentDistribution {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId      String @db.Uuid
+
+  // Distribution details
+  recipientId     String
+  recipientType   RecipientType        @default(USER)
+  copyNumber      String?              // For controlled copies
+  distributionType DistributionType    @default(ELECTRONIC)
+
+  // Acknowledgment
+  acknowledgedAt  DateTime?
+  acknowledgementRequired Boolean      @default(true)
+
+  // Status
+  status          DistributionStatus   @default(PENDING)
+
+  // Timestamps
+  distributedAt   DateTime             @default(now())
+  recalledAt      DateTime?
+
+  // Relations
+  document        QMSDocument          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([recipientId])
+  @@map("qms_document_distributions")
+}
+
+model QMSDocumentAccessLog {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId      String @db.Uuid
+
+  // Access details
+  userId          String
+  action          DocumentAccessAction
+  versionNumber   String?
+
+  // Context
+  ipAddress       String?
+  userAgent       String?
+  metadata        Json?
+
+  // Timestamp
+  accessedAt      DateTime             @default(now())
+
+  // Relations
+  document        QMSDocument          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([userId])
+  @@index([accessedAt])
+  @@map("qms_document_access_logs")
+}
+
+enum QMSDocumentType {
+  POLICY
+  PROCEDURE
+  WORK_INSTRUCTION
+  FORM
+  RECORD
+  MANUAL
+  PLAN
+  SPECIFICATION
+  DRAWING
+  STANDARD
+  GUIDELINE
+  TEMPLATE
+  REPORT
+  CERTIFICATE
+  CONTRACT
+  OTHER
+}
+
+enum QMSDocumentStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  EFFECTIVE
+  OBSOLETE
+  ARCHIVED
+}
+
+enum QMSDocumentVersionStatus {
+  DRAFT
+  PENDING_REVIEW
+  UNDER_REVIEW
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
+enum ConfidentialityLevel {
+  PUBLIC
+  INTERNAL
+  CONFIDENTIAL
+  RESTRICTED
+  SECRET
+}
+
+enum ApprovalStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ESCALATED
+  EXPIRED
+}
+
+enum ApprovalDecision {
+  APPROVED
+  APPROVED_WITH_COMMENTS
+  REJECTED
+  RETURNED_FOR_REVISION
+}
+
+enum RecipientType {
+  USER
+  DEPARTMENT
+  ROLE
+  EXTERNAL
+}
+
+enum DistributionType {
+  ELECTRONIC
+  PRINTED_CONTROLLED
+  PRINTED_UNCONTROLLED
+  EXTERNAL
+}
+
+enum DistributionStatus {
+  PENDING
+  DISTRIBUTED
+  ACKNOWLEDGED
+  RECALLED
+}
+
+enum DocumentAccessAction {
+  VIEW
+  DOWNLOAD
+  PRINT
+  EDIT
+  APPROVE
+  REJECT
+  DISTRIBUTE
+  RECALL
+}
+
+// ============================================
+// ENTERPRISE QMS - INVESTIGATION MANAGEMENT & RCA
+// ============================================
+
+model Investigation {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referenceNumber   String @unique
+
+  // Basic info
+  title             String
+  description       String
+
+  // Classification
+  investigationType InvestigationType
+  category          String?
+  severity          InvestigationSeverity @default(MINOR)
+
+  // Source linkage
+  sourceType        String?              // 'incident', 'audit_finding', 'customer_complaint', etc.
+  sourceId          String?
+
+  // Event details
+  eventDate         DateTime
+  eventLocation     String?
+  reportedDate      DateTime             @default(now())
+
+  // Impact assessment
+  impactDescription String?
+  financialImpact   Float?
+  productionImpact  String?
+  customerImpact    String?
+  regulatoryImpact  String?
+
+  // Investigation ownership
+  leadInvestigatorId String?
+
+  // Status and timeline
+  status            InvestigationStatus  @default(INITIATED)
+  targetCompletionDate DateTime?
+  actualCompletionDate DateTime?
+
+  // Conclusions
+  rootCauseSummary  String?
+  conclusion        String?
+  lessonsLearned    String?
+
+  // Evidence and attachments
+  evidence          Json?                // Array of evidence items
+  attachments       Json?                // Array of attachment URLs
+
+  // Metadata
+  metadata          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+  updatedById       String?
+
+  // Relations
+  timeline          InvestigationTimeline[]
+  causes            InvestigationCause[]
+  recommendations   InvestigationRecommendation[]
+  teamMembers       InvestigationTeamMember[]
+
+  @@index([referenceNumber])
+  @@index([status])
+  @@index([investigationType])
+  @@index([eventDate])
+  @@map("investigations")
+}
+
+model InvestigationTimeline {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  investigationId   String @db.Uuid
+
+  // Event details
+  eventDateTime     DateTime
+  description       String
+  eventType         TimelineEventType
+
+  // Evidence
+  evidence          Json?                // Photos, documents, etc.
+  witnesses         String[]
+
+  // Source
+  source            String?
+  verified          Boolean              @default(false)
+  verifiedById      String?
+  verifiedAt        DateTime?
+
+  // Order
+  sequenceOrder     Int
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  createdById       String?
+
+  // Relations
+  investigation     Investigation        @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+
+  @@index([investigationId])
+  @@map("investigation_timelines")
+}
+
+model InvestigationCause {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  investigationId   String @db.Uuid
+
+  // Cause details
+  causeType         CauseType
+  category          String?              // Equipment, People, Process, etc.
+  description       String
+
+  // Analysis method used
+  analysisMethod    RCAMethod?
+
+  // For 5 Whys
+  whyLevel          Int?                 // 1-5 for 5 Whys
+  parentCauseId     String?              @db.Uuid
+
+  // For Fishbone
+  fishboneCategory  FishboneCategory?
+
+  // Evidence
+  evidence          Json?
+  verified          Boolean              @default(false)
+
+  // Contribution factor (0-100%)
+  contributionFactor Float?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  createdById       String?
+
+  // Relations
+  investigation     Investigation        @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  parentCause       InvestigationCause?  @relation("CauseHierarchy", fields: [parentCauseId], references: [id])
+  childCauses       InvestigationCause[] @relation("CauseHierarchy")
+
+  @@index([investigationId])
+  @@index([causeType])
+  @@map("investigation_causes")
+}
+
+model InvestigationRecommendation {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  investigationId   String @db.Uuid
+
+  // Recommendation details
+  description       String
+  recommendationType RecommendationType
+  priority          ActionPriority       @default(MEDIUM)
+
+  // Assignment
+  assignedToId      String?
+  department        String?
+
+  // Timeline
+  dueDate           DateTime?
+  completedDate     DateTime?
+
+  // Status tracking
+  status            RecommendationStatus @default(PROPOSED)
+
+  // Linked action
+  actionId          String?
+
+  // Verification
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+  effectivenessRating Int?               // 1-5
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  investigation     Investigation        @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+
+  @@index([investigationId])
+  @@index([status])
+  @@map("investigation_recommendations")
+}
+
+model InvestigationTeamMember {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  investigationId   String @db.Uuid
+
+  // Member details
+  userId            String
+  role              InvestigationRole
+  responsibilities  String?
+
+  // Timeline
+  assignedAt        DateTime             @default(now())
+  removedAt         DateTime?
+
+  // Status
+  isActive          Boolean              @default(true)
+
+  // Relations
+  investigation     Investigation        @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+
+  @@unique([investigationId, userId])
+  @@index([investigationId])
+  @@map("investigation_team_members")
+}
+
+enum InvestigationType {
+  INCIDENT
+  NEAR_MISS
+  QUALITY_EVENT
+  CUSTOMER_COMPLAINT
+  AUDIT_FINDING
+  REGULATORY_EVENT
+  PRODUCT_FAILURE
+  PROCESS_DEVIATION
+  ENVIRONMENTAL_EVENT
+  SAFETY_EVENT
+}
+
+enum InvestigationSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum InvestigationStatus {
+  INITIATED
+  DATA_COLLECTION
+  ANALYSIS_IN_PROGRESS
+  ROOT_CAUSE_IDENTIFIED
+  RECOMMENDATIONS_PENDING
+  ACTIONS_ASSIGNED
+  VERIFICATION_IN_PROGRESS
+  COMPLETED
+  CLOSED
+  REOPENED
+}
+
+enum TimelineEventType {
+  INITIAL_EVENT
+  CONTRIBUTING_FACTOR
+  RESPONSE_ACTION
+  ESCALATION
+  COMMUNICATION
+  EVIDENCE_COLLECTED
+  WITNESS_STATEMENT
+  SYSTEM_ALERT
+  OTHER
+}
+
+enum CauseType {
+  ROOT_CAUSE
+  CONTRIBUTING_CAUSE
+  IMMEDIATE_CAUSE
+  SYSTEMIC_CAUSE
+  DIRECT_CAUSE
+}
+
+enum RCAMethod {
+  FIVE_WHYS
+  FISHBONE
+  FAULT_TREE
+  CHANGE_ANALYSIS
+  BARRIER_ANALYSIS
+  EVENT_TREE
+  PARETO
+  FMEA
+}
+
+enum FishboneCategory {
+  MANPOWER
+  METHOD
+  MACHINE
+  MATERIAL
+  MEASUREMENT
+  ENVIRONMENT
+}
+
+enum RecommendationType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  TRAINING
+  PROCEDURE_UPDATE
+  EQUIPMENT_CHANGE
+  PROCESS_CHANGE
+  MONITORING
+}
+
+enum RecommendationStatus {
+  PROPOSED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  CLOSED
+}
+
+enum InvestigationRole {
+  LEAD_INVESTIGATOR
+  INVESTIGATOR
+  SUBJECT_MATTER_EXPERT
+  WITNESS
+  STAKEHOLDER
+  REVIEWER
+  APPROVER
+}
+
+// ============================================
+// ENTERPRISE QMS - ENHANCED CAPA (8D PROBLEM SOLVING)
+// ============================================
+
+model CAPA {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referenceNumber   String @unique
+
+  // Basic info
+  title             String
+  description       String
+
+  // Classification
+  capaType          CAPAType             @default(CORRECTIVE)
+  severity          CAPASeverity         @default(MINOR)
+  category          String?
+
+  // Source linkage
+  sourceType        String?              // 'nc', 'audit', 'investigation', 'customer_complaint'
+  sourceId          String?
+
+  // 8D Phase tracking
+  currentPhase      CAPAPhase            @default(D1_TEAM)
+  phaseHistory      Json?                // Array of phase transitions with dates
+
+  // Key dates
+  initiatedDate     DateTime             @default(now())
+  targetClosureDate DateTime?
+  actualClosureDate DateTime?
+
+  // Status
+  status            CAPAStatus           @default(OPEN)
+
+  // Effectiveness
+  effectivenessVerified Boolean          @default(false)
+  effectivenessScore   Int?              // 1-100
+
+  // Financial tracking
+  estimatedCost     Float?
+  actualCost        Float?
+  costAvoidance     Float?
+
+  // Metadata
+  metadata          Json?
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+  updatedById       String?
+  closedById        String?
+
+  // Relations
+  teamMembers       CAPATeamMember[]
+  problemStatement  CAPAProblemStatement?
+  containmentActions CAPAContainmentAction[]
+  rootCauses        CAPARootCause[]
+  correctiveActions CAPACorrectiveAction[]
+  implementations   CAPAImplementation[]
+  preventionActions CAPAPreventionAction[]
+  effectivenessChecks CAPAEffectivenessCheck[]
+  horizontalDeployments CAPAHorizontalDeployment[]
+
+  @@index([referenceNumber])
+  @@index([status, currentPhase])
+  @@index([capaType])
+  @@map("capas")
+}
+
+model CAPATeamMember {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D1: Team formation
+  userId            String
+  role              CAPATeamRole
+  department        String?
+  responsibilities  String?
+
+  // Participation
+  assignedAt        DateTime             @default(now())
+  removedAt         DateTime?
+  isActive          Boolean              @default(true)
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@unique([capaId, userId])
+  @@index([capaId])
+  @@map("capa_team_members")
+}
+
+model CAPAProblemStatement {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @unique @db.Uuid
+
+  // D2: 5W2H Problem Description
+  what              String               // What is the problem?
+  when              String?              // When did it occur?
+  whereLocation     String?              // Where was it discovered?
+  who               String?              // Who is affected?
+  why               String?              // Why is it a problem?
+  howDiscovered     String?              // How was it discovered?
+  howMany           String?              // How many/how much?
+
+  // Quantified impact
+  defectsCount      Int?
+  unitsAffected     Int?
+  customerAffected  String?
+  financialImpact   Float?
+
+  // Problem statement summary
+  problemSummary    String?
+
+  // Is/Is Not analysis
+  isIsNotAnalysis   Json?                // {is: [], isNot: []}
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@map("capa_problem_statements")
+}
+
+model CAPAContainmentAction {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D3: Interim Containment Actions
+  description       String
+  actionType        ContainmentActionType
+
+  // Assignment
+  assignedToId      String?
+
+  // Timeline
+  plannedDate       DateTime?
+  implementedDate   DateTime?
+
+  // Status
+  status            ActionStatus         @default(OPEN)
+
+  // Verification
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+  isEffective       Boolean?
+
+  // Evidence
+  evidence          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_containment_actions")
+}
+
+model CAPARootCause {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D4: Root Cause Analysis
+  causeDescription  String
+  causeType         RootCauseType
+  causeCategory     String?              // Equipment, People, Process, etc.
+
+  // Analysis method
+  analysisMethod    RCAMethod
+
+  // For 5 Whys
+  fiveWhysData      Json?                // Array of {level: 1-5, question: "", answer: ""}
+
+  // For Fishbone
+  fishboneData      Json?                // {category: "", causes: []}
+
+  // Verification
+  isVerified        Boolean              @default(false)
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+
+  // Evidence
+  evidence          Json?
+
+  // Contribution
+  contributionPercent Float?
+  isPrimary         Boolean              @default(false)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_root_causes")
+}
+
+model CAPACorrectiveAction {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D5: Permanent Corrective Actions
+  description       String
+  actionCategory    CorrectiveActionCategory
+
+  // Linkage to root cause
+  rootCauseId       String?              @db.Uuid
+
+  // Assignment
+  assignedToId      String?
+  department        String?
+
+  // Timeline
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Status
+  status            ActionStatus         @default(OPEN)
+  priority          ActionPriority       @default(MEDIUM)
+
+  // Resources
+  estimatedCost     Float?
+  actualCost        Float?
+  resourcesRequired String?
+
+  // Evidence
+  evidence          Json?
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_corrective_actions")
+}
+
+model CAPAImplementation {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D6: Implementation & Validation
+  description       String
+  implementationType ImplementationType
+
+  // Linked action
+  correctiveActionId String?             @db.Uuid
+
+  // Implementation details
+  implementedById   String?
+  implementedAt     DateTime?
+
+  // Validation
+  validationMethod  String?
+  validationCriteria String?
+  validatedById     String?
+  validatedAt       DateTime?
+  validationResult  ValidationResult?
+  validationNotes   String?
+
+  // Status
+  status            ImplementationStatus @default(PLANNED)
+
+  // Evidence
+  beforeData        Json?
+  afterData         Json?
+  evidence          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_implementations")
+}
+
+model CAPAPreventionAction {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D7: Prevention Actions
+  description       String
+  preventionType    PreventionType
+
+  // System/Process updates
+  affectedDocuments String[]             // Document IDs to update
+  affectedProcesses String[]             // Process IDs affected
+  trainingRequired  Boolean              @default(false)
+
+  // Assignment
+  assignedToId      String?
+
+  // Timeline
+  dueDate           DateTime?
+  completedDate     DateTime?
+
+  // Status
+  status            ActionStatus         @default(OPEN)
+
+  // Verification
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+
+  // Evidence
+  evidence          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_prevention_actions")
+}
+
+model CAPAEffectivenessCheck {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // D8: Effectiveness Verification
+  checkNumber       Int                  // 1, 2, 3... for multiple checks
+  checkType         EffectivenessCheckType
+
+  // Schedule
+  plannedDate       DateTime
+  actualDate        DateTime?
+
+  // Before/After comparison
+  beforeMetric      String?
+  beforeValue       Float?
+  afterMetric       String?
+  afterValue        Float?
+  targetValue       Float?
+
+  // Results
+  isEffective       Boolean?
+  effectivenessScore Int?                // 1-100
+  findings          String?
+
+  // Verification
+  verifiedById      String?
+  verificationMethod String?
+
+  // Evidence
+  evidence          Json?
+
+  // Follow-up
+  followUpRequired  Boolean              @default(false)
+  followUpNotes     String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_effectiveness_checks")
+}
+
+model CAPAHorizontalDeployment {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  capaId            String @db.Uuid
+
+  // Horizontal Deployment (D8 continuation)
+  targetArea        String               // Process, Product, Department
+  targetType        HorizontalDeploymentType
+
+  // Description
+  description       String
+  rationale         String?              // Why this area is included
+
+  // Assignment
+  assignedToId      String?
+
+  // Timeline
+  plannedDate       DateTime?
+  completedDate     DateTime?
+
+  // Status
+  status            DeploymentStatus     @default(IDENTIFIED)
+
+  // Results
+  deployed          Boolean              @default(false)
+  deploymentNotes   String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  capa              CAPA                 @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("capa_horizontal_deployments")
+}
+
+enum CAPAType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+}
+
+enum CAPASeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum CAPAPhase {
+  D1_TEAM
+  D2_PROBLEM
+  D3_CONTAINMENT
+  D4_ROOT_CAUSE
+  D5_CORRECTIVE_ACTION
+  D6_IMPLEMENTATION
+  D7_PREVENTION
+  D8_CLOSURE
+}
+
+enum CAPAStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_VERIFICATION
+  VERIFIED
+  CLOSED
+  CANCELLED
+}
+
+enum CAPATeamRole {
+  CHAMPION
+  TEAM_LEADER
+  TEAM_MEMBER
+  PROCESS_OWNER
+  QUALITY_REP
+  SUBJECT_MATTER_EXPERT
+  MANAGEMENT_REP
+  CUSTOMER_REP
+}
+
+enum ContainmentActionType {
+  QUARANTINE
+  SORTING
+  REWORK
+  REPLACEMENT
+  CUSTOMER_NOTIFICATION
+  PRODUCTION_STOP
+  PROCESS_ADJUSTMENT
+  OTHER
+}
+
+enum RootCauseType {
+  TECHNICAL
+  HUMAN
+  ORGANIZATIONAL
+  EXTERNAL
+  DESIGN
+  PROCESS
+  MATERIAL
+  EQUIPMENT
+  TRAINING
+  COMMUNICATION
+}
+
+enum CorrectiveActionCategory {
+  DESIGN_CHANGE
+  PROCESS_CHANGE
+  PROCEDURE_UPDATE
+  EQUIPMENT_MODIFICATION
+  TRAINING
+  SUPPLIER_CHANGE
+  INSPECTION_UPDATE
+  PREVENTIVE_MAINTENANCE
+  WORK_INSTRUCTION_UPDATE
+  OTHER
+}
+
+enum ImplementationType {
+  PROCESS_CHANGE
+  EQUIPMENT_INSTALLATION
+  TRAINING_DELIVERY
+  DOCUMENT_UPDATE
+  SYSTEM_CONFIGURATION
+  SUPPLIER_QUALIFICATION
+  OTHER
+}
+
+enum ImplementationStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  VALIDATED
+  FAILED
+}
+
+enum ValidationResult {
+  PASSED
+  PASSED_WITH_OBSERVATIONS
+  FAILED
+  INCONCLUSIVE
+}
+
+enum PreventionType {
+  FMEA_UPDATE
+  CONTROL_PLAN_UPDATE
+  PROCEDURE_REVISION
+  TRAINING_UPDATE
+  POKA_YOKE
+  SYSTEM_ENHANCEMENT
+  AUDIT_CHECKLIST_UPDATE
+  OTHER
+}
+
+enum EffectivenessCheckType {
+  INITIAL_VERIFICATION
+  THIRTY_DAY_CHECK
+  SIXTY_DAY_CHECK
+  NINETY_DAY_CHECK
+  SIX_MONTH_CHECK
+  ANNUAL_CHECK
+  CUSTOM
+}
+
+enum HorizontalDeploymentType {
+  SIMILAR_PROCESS
+  SIMILAR_PRODUCT
+  SIMILAR_EQUIPMENT
+  SAME_SUPPLIER
+  SAME_DEPARTMENT
+  SISTER_PLANT
+  CUSTOMER_NOTIFICATION
+}
+
+enum DeploymentStatus {
+  IDENTIFIED
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  NOT_APPLICABLE
+}
+
+// ============================================
+// ENTERPRISE QMS - AUDIT MANAGEMENT
+// ============================================
+
+model QMSAudit {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auditNumber       String @unique
+
+  // Basic info
+  title             String
+  description       String?
+
+  // Classification
+  auditType         AuditType
+  auditScope        String?
+  standard          ISOStandard?
+  clauses           String[]             // ISO clauses covered
+
+  // Schedule
+  plannedStartDate  DateTime
+  plannedEndDate    DateTime
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Auditee info
+  auditeeDepartment String?
+  auditeeLocation   String?
+  auditeeContact    String?
+
+  // Status
+  status            AuditStatus          @default(PLANNED)
+
+  // Summary
+  objectives        String?
+  conclusion        String?
+  overallRating     AuditRating?
+
+  // Statistics
+  totalFindings     Int                  @default(0)
+  majorNCs          Int                  @default(0)
+  minorNCs          Int                  @default(0)
+  observations      Int                  @default(0)
+  ofis              Int                  @default(0)
+
+  // Metadata
+  metadata          Json?
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  teamMembers       AuditTeamMember[]
+  checklists        AuditChecklist[]
+  findings          AuditFinding[]
+  schedule          AuditSchedule?       @relation(fields: [scheduleId], references: [id])
+  scheduleId        String?              @db.Uuid
+
+  @@index([auditNumber])
+  @@index([status])
+  @@index([auditType])
+  @@index([plannedStartDate])
+  @@map("qms_audits")
+}
+
+model AuditTeamMember {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auditId           String @db.Uuid
+
+  // Member details
+  userId            String
+  role              AuditTeamRole
+
+  // Qualification
+  isQualified       Boolean              @default(true)
+  qualificationNotes String?
+
+  // Assignment
+  assignedClauses   String[]             // Specific clauses assigned
+  assignedAreas     String[]             // Specific areas/departments
+
+  // Status
+  isActive          Boolean              @default(true)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+
+  // Relations
+  audit             QMSAudit             @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@unique([auditId, userId])
+  @@index([auditId])
+  @@map("audit_team_members")
+}
+
+model AuditChecklist {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auditId           String @db.Uuid
+
+  // Checklist info
+  title             String
+  description       String?
+  clause            String?              // ISO clause
+  area              String?              // Department/area
+
+  // Questions/Items
+  items             Json                 // Array of checklist items with conditional logic
+
+  // Completion
+  completedById     String?
+  completedAt       DateTime?
+
+  // Scoring
+  totalItems        Int                  @default(0)
+  compliantItems    Int                  @default(0)
+  nonCompliantItems Int                  @default(0)
+  notApplicable     Int                  @default(0)
+  compliancePercent Float?
+
+  // Status
+  status            ChecklistStatus      @default(NOT_STARTED)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relations
+  audit             QMSAudit             @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@map("audit_checklists")
+}
+
+model AuditFinding {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auditId           String @db.Uuid
+  findingNumber     String
+
+  // Finding details
+  title             String
+  description       String
+  findingType       AuditFindingType
+
+  // Classification
+  clause            String?              // ISO clause
+  area              String?
+  process           String?
+
+  // Evidence
+  objectiveEvidence String?
+  criteria          String?              // What requirement was not met
+
+  // Risk assessment
+  riskLevel         RiskLevel?
+
+  // Response tracking
+  auditeeResponse   String?
+  responseDate      DateTime?
+
+  // Status
+  status            FindingStatus        @default(OPEN)
+
+  // Linked CAPA
+  capaId            String?              @db.Uuid
+
+  // Closure
+  closedById        String?
+  closedAt          DateTime?
+  closureNotes      String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  audit             QMSAudit             @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@unique([auditId, findingNumber])
+  @@index([auditId])
+  @@index([findingType])
+  @@index([status])
+  @@map("audit_findings")
+}
+
+model AuditSchedule {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Schedule info
+  title             String
+  description       String?
+  year              Int
+
+  // Planning
+  plannedAudits     Json                 // Array of planned audits with timing
+
+  // Risk-based scheduling
+  riskCriteria      Json?                // Risk factors for audit frequency
+
+  // Status
+  status            ScheduleStatus       @default(DRAFT)
+  approvedById      String?
+  approvedAt        DateTime?
+
+  // Statistics
+  totalPlanned      Int                  @default(0)
+  totalCompleted    Int                  @default(0)
+  totalInProgress   Int                  @default(0)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  audits            QMSAudit[]
+
+  @@unique([year])
+  @@index([year])
+  @@map("audit_schedules")
+}
+
+enum AuditType {
+  INTERNAL
+  EXTERNAL
+  SUPPLIER
+  CUSTOMER
+  CERTIFICATION
+  SURVEILLANCE
+  PROCESS
+  PRODUCT
+  SYSTEM
+}
+
+enum AuditStatus {
+  PLANNED
+  PREPARATION
+  IN_PROGRESS
+  REPORTING
+  FINDINGS_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditRating {
+  EXCELLENT
+  SATISFACTORY
+  NEEDS_IMPROVEMENT
+  UNSATISFACTORY
+  NOT_RATED
+}
+
+enum AuditTeamRole {
+  LEAD_AUDITOR
+  AUDITOR
+  AUDITOR_IN_TRAINING
+  TECHNICAL_EXPERT
+  OBSERVER
+  TRANSLATOR
+}
+
+enum ChecklistStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum AuditFindingType {
+  MAJOR_NC
+  MINOR_NC
+  OBSERVATION
+  OFI
+  POSITIVE
+}
+
+enum FindingStatus {
+  OPEN
+  RESPONSE_PENDING
+  RESPONSE_RECEIVED
+  VERIFICATION_PENDING
+  VERIFIED_CLOSED
+  CLOSED
+}
+
+enum ScheduleStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ACTIVE
+  COMPLETED
+}
+
+// ============================================
+// ENTERPRISE QMS - RISK MANAGEMENT & FMEA
+// ============================================
+
+model QMSRisk {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  riskNumber        String @unique
+
+  // Basic info
+  title             String
+  description       String
+
+  // Classification
+  riskCategory      RiskCategory
+  riskType          QMSRiskType
+  standard          ISOStandard?
+
+  // Context
+  process           String?
+  department        String?
+  objective         String?              // Related strategic objective
+
+  // Risk ownership
+  ownerId           String?
+
+  // Current assessment (inherent risk)
+  likelihood        Int                  @default(1) // 1-5
+  impact            Int                  @default(1) // 1-5
+  currentRiskScore  Int?                 // L x I
+  currentRiskLevel  QMSRiskLevel?
+
+  // Residual risk (after controls)
+  residualLikelihood Int?
+  residualImpact    Int?
+  residualRiskScore Int?
+  residualRiskLevel QMSRiskLevel?
+
+  // Target risk (acceptable level)
+  targetRiskScore   Int?
+
+  // Status
+  status            QMSRiskStatus        @default(IDENTIFIED)
+
+  // Review cycle
+  reviewFrequency   Int?                 // In months
+  nextReviewDate    DateTime?
+  lastReviewedAt    DateTime?
+  lastReviewedById  String?
+
+  // Metadata
+  metadata          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+  updatedById       String?
+
+  // Relations
+  assessments       RiskAssessment[]
+  controls          RiskControl[]
+  treatments        RiskTreatment[]
+
+  @@index([riskNumber])
+  @@index([status])
+  @@index([currentRiskLevel])
+  @@map("qms_risks")
+}
+
+model RiskAssessment {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  riskId            String @db.Uuid
+
+  // Assessment info
+  assessmentDate    DateTime             @default(now())
+  assessmentType    RiskAssessmentType   @default(PERIODIC)
+  assessedById      String
+
+  // Scores
+  likelihood        Int                  // 1-5
+  impact            Int                  // 1-5
+  riskScore         Int                  // L x I
+  riskLevel         QMSRiskLevel
+
+  // Detailed scoring (optional)
+  likelihoodFactors Json?                // Breakdown of likelihood factors
+  impactFactors     Json?                // Breakdown of impact (financial, operational, etc.)
+
+  // Assessment notes
+  rationale         String?
+  assumptions       String?
+  uncertainties     String?
+
+  // Trend
+  trendDirection    TrendDirection?
+  previousScore     Int?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+
+  // Relations
+  risk              QMSRisk              @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@index([riskId])
+  @@index([assessmentDate])
+  @@map("risk_assessments")
+}
+
+model RiskControl {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  riskId            String @db.Uuid
+
+  // Control info
+  title             String
+  description       String
+  controlType       ControlType
+
+  // Control characteristics
+  controlCategory   ControlCategory      @default(MANUAL)
+  frequency         ControlFrequency     @default(CONTINUOUS)
+
+  // Ownership
+  ownerId           String?
+
+  // Effectiveness
+  designEffectiveness ControlEffectiveness @default(MODERATE)
+  operatingEffectiveness ControlEffectiveness?
+  lastTestedAt      DateTime?
+  lastTestedById    String?
+  testResults       String?
+
+  // Status
+  status            ControlStatus        @default(ACTIVE)
+
+  // Linkage to documentation
+  relatedDocuments  String[]             // Document IDs
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  risk              QMSRisk              @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@index([riskId])
+  @@map("risk_controls")
+}
+
+model RiskTreatment {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  riskId            String @db.Uuid
+
+  // Treatment info
+  title             String
+  description       String
+  treatmentStrategy TreatmentStrategy
+
+  // Assignment
+  ownerId           String?
+
+  // Timeline
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Status
+  status            TreatmentStatus      @default(PROPOSED)
+
+  // Expected impact
+  expectedLikelihood Int?
+  expectedImpact    Int?
+  expectedRiskScore Int?
+
+  // Resources
+  estimatedCost     Float?
+  actualCost        Float?
+  resourcesRequired String?
+
+  // Verification
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+  isEffective       Boolean?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  risk              QMSRisk              @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@index([riskId])
+  @@map("risk_treatments")
+}
+
+model FMEARecord {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fmeaNumber        String @unique
+
+  // Basic info
+  title             String
+  description       String?
+
+  // Classification
+  fmeaType          FMEAType
+
+  // Scope
+  product           String?
+  process           String?
+  subsystem         String?
+  function          String?
+
+  // Team
+  teamLeaderId      String?
+  teamMembers       String[]
+
+  // Dates
+  startDate         DateTime?
+  targetDate        DateTime?
+  completedDate     DateTime?
+
+  // Status
+  status            FMEAStatus           @default(IN_PROGRESS)
+
+  // Summary statistics
+  totalFailureModes Int                  @default(0)
+  highRPNCount      Int                  @default(0)
+  actionsPending    Int                  @default(0)
+
+  // Revision
+  revision          Int                  @default(1)
+  revisionDate      DateTime?
+  revisionNotes     String?
+
+  // Metadata
+  metadata          Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  actions           FMEAAction[]
+
+  @@index([fmeaNumber])
+  @@index([status])
+  @@index([fmeaType])
+  @@map("fmea_records")
+}
+
+model FMEAAction {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fmeaId            String @db.Uuid
+
+  // Failure mode
+  itemFunction      String
+  potentialFailureMode String
+  potentialEffects  String
+  potentialCauses   String
+
+  // Current state
+  currentControls   String?
+  currentDetection  String?
+
+  // Original RPN scores
+  originalSeverity  Int                  // 1-10
+  originalOccurrence Int                 // 1-10
+  originalDetection Int                  // 1-10
+  originalRPN       Int                  // S x O x D
+
+  // Classification
+  classification    FMEAClassification?
+
+  // Recommended action
+  recommendedAction String?
+  responsibleParty  String?
+  targetDate        DateTime?
+
+  // Action taken
+  actionTaken       String?
+  completedDate     DateTime?
+
+  // New RPN scores after action
+  newSeverity       Int?
+  newOccurrence     Int?
+  newDetection      Int?
+  newRPN            Int?
+
+  // Status
+  status            FMEAActionStatus     @default(OPEN)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  fmea              FMEARecord           @relation(fields: [fmeaId], references: [id], onDelete: Cascade)
+
+  @@index([fmeaId])
+  @@index([originalRPN])
+  @@map("fmea_actions")
+}
+
+enum RiskCategory {
+  STRATEGIC
+  OPERATIONAL
+  FINANCIAL
+  COMPLIANCE
+  REPUTATIONAL
+  TECHNICAL
+  MARKET
+  PROJECT
+  SUPPLY_CHAIN
+  ENVIRONMENTAL
+  SAFETY
+}
+
+enum QMSRiskType {
+  OPPORTUNITY
+  THREAT
+  BOTH
+}
+
+enum QMSRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  EXTREME
+}
+
+enum QMSRiskStatus {
+  IDENTIFIED
+  BEING_ASSESSED
+  ASSESSED
+  TREATMENT_PLANNED
+  TREATMENT_IN_PROGRESS
+  MONITORED
+  CLOSED
+  ACCEPTED
+}
+
+enum RiskAssessmentType {
+  INITIAL
+  PERIODIC
+  TRIGGERED
+  POST_INCIDENT
+  POST_TREATMENT
+}
+
+enum TrendDirection {
+  IMPROVING
+  STABLE
+  DETERIORATING
+}
+
+enum ControlType {
+  PREVENTIVE
+  DETECTIVE
+  CORRECTIVE
+  DIRECTIVE
+}
+
+enum ControlCategory {
+  MANUAL
+  AUTOMATED
+  SEMI_AUTOMATED
+  IT_DEPENDENT
+}
+
+enum ControlFrequency {
+  CONTINUOUS
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  AD_HOC
+}
+
+enum ControlEffectiveness {
+  EFFECTIVE
+  PARTIALLY_EFFECTIVE
+  MODERATE
+  WEAK
+  INEFFECTIVE
+}
+
+enum ControlStatus {
+  ACTIVE
+  UNDER_REVIEW
+  IMPROVEMENT_NEEDED
+  INACTIVE
+  PENDING_IMPLEMENTATION
+}
+
+enum TreatmentStrategy {
+  AVOID
+  REDUCE_LIKELIHOOD
+  REDUCE_IMPACT
+  TRANSFER
+  ACCEPT
+  EXPLOIT
+  ENHANCE
+}
+
+enum TreatmentStatus {
+  PROPOSED
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  REJECTED
+  DEFERRED
+}
+
+enum FMEAType {
+  DFMEA
+  PFMEA
+  SFMEA
+  MFMEA
+}
+
+enum FMEAStatus {
+  DRAFT
+  IN_PROGRESS
+  UNDER_REVIEW
+  APPROVED
+  IMPLEMENTED
+  CLOSED
+}
+
+enum FMEAClassification {
+  CRITICAL
+  SIGNIFICANT
+  MODERATE
+  MINOR
+}
+
+enum FMEAActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  CANCELLED
+}
+
+// ============================================
+// ENTERPRISE QMS - CONTINUOUS IMPROVEMENT
+// ============================================
+
+model ImprovementProject {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectNumber     String @unique
+
+  // Basic info
+  title             String
+  description       String
+
+  // Classification
+  projectType       ImprovementProjectType
+  methodology       ImprovementMethodology
+  category          String?
+
+  // Scope
+  department        String?
+  process           String?
+  product           String?
+
+  // Ownership
+  sponsorId         String?
+  leaderId          String?
+
+  // Current phase
+  currentPhase      ProjectPhase         @default(DEFINE)
+  phaseHistory      Json?                // Array of phase transitions
+
+  // Timeline
+  startDate         DateTime?
+  targetEndDate     DateTime?
+  actualEndDate     DateTime?
+
+  // Status
+  status            ProjectStatus        @default(PROPOSED)
+
+  // Targets & Results
+  problemStatement  String?
+  goalStatement     String?
+
+  baselineMetric    String?
+  baselineValue     Float?
+  targetValue       Float?
+  actualValue       Float?
+
+  // Financial
+  estimatedSavings  Float?
+  actualSavings     Float?
+  investmentRequired Float?
+  roi               Float?
+
+  // Risk assessment
+  risks             Json?
+
+  // Metadata
+  metadata          Json?
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([projectNumber])
+  @@index([status])
+  @@index([methodology])
+  @@map("improvement_projects")
+}
+
+model KaizenEvent {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventNumber       String @unique
+
+  // Basic info
+  title             String
+  description       String
+
+  // Scope
+  area              String
+  process           String?
+
+  // Ownership
+  facilitatorId     String?
+  teamMembers       String[]
+
+  // Schedule
+  startDate         DateTime
+  endDate           DateTime
+
+  // Status
+  status            KaizenStatus         @default(PLANNED)
+
+  // Focus area
+  wasteTypes        WasteType[]
+
+  // Results
+  improvements      Json?                // Array of improvements identified
+  actionsCompleted  Int                  @default(0)
+  actionsTotal      Int                  @default(0)
+
+  // Metrics
+  beforeMetrics     Json?
+  afterMetrics      Json?
+
+  // Financial
+  estimatedSavings  Float?
+  actualSavings     Float?
+
+  // Sustainability
+  followUpDate      DateTime?
+  sustainabilityStatus SustainabilityStatus?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([eventNumber])
+  @@index([status])
+  @@map("kaizen_events")
+}
+
+model EmployeeIdea {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ideaNumber        String @unique
+
+  // Submitter info
+  submittedById     String
+  submittedAt       DateTime             @default(now())
+  isAnonymous       Boolean              @default(false)
+
+  // Idea details
+  title             String
+  description       String
+  problemStatement  String?
+  proposedSolution  String?
+
+  // Classification
+  category          IdeaCategory
+  area              String?
+
+  // Expected benefits
+  expectedBenefits  String?
+  estimatedSavings  Float?
+
+  // Review process
+  reviewedById      String?
+  reviewedAt        DateTime?
+  reviewComments    String?
+
+  // Status
+  status            IdeaStatus           @default(SUBMITTED)
+
+  // Implementation
+  implementedById   String?
+  implementedAt     DateTime?
+  actualBenefits    String?
+  actualSavings     Float?
+
+  // Recognition
+  pointsAwarded     Int?
+  recognitionNotes  String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([ideaNumber])
+  @@index([status])
+  @@index([submittedById])
+  @@map("employee_ideas")
+}
+
+model StandardWork {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentNumber    String @unique
+
+  // Basic info
+  title             String
+  description       String?
+
+  // Scope
+  process           String
+  operation         String
+  workstation       String?
+
+  // Time elements
+  taktTime          Float?               // In seconds
+  cycleTime         Float?               // In seconds
+  standardWIP       Int?
+
+  // Sequence
+  workSequence      Json                 // Array of work elements
+  totalSteps        Int                  @default(0)
+
+  // Safety & Quality
+  safetyPoints      String[]
+  qualityCheckpoints Json?
+
+  // Version control
+  version           String               @default("1.0")
+
+  // Status
+  status            StandardWorkStatus   @default(DRAFT)
+
+  // Approvals
+  approvedById      String?
+  approvedAt        DateTime?
+
+  // Training linkage
+  trainingRequired  Boolean              @default(true)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([documentNumber])
+  @@index([process])
+  @@map("standard_work")
+}
+
+model ValueStreamMap {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vsmNumber         String @unique
+
+  // Basic info
+  title             String
+  description       String?
+
+  // Scope
+  productFamily     String?
+  process           String
+
+  // Map data
+  currentState      Json?                // Current state map data
+  futureState       Json?                // Future state map data
+
+  // Metrics - Current State
+  currentLeadTime   Float?               // In days
+  currentProcessTime Float?              // In hours
+  currentInventory  Float?               // In days of inventory
+  currentQuality    Float?               // First pass yield %
+
+  // Metrics - Future State
+  targetLeadTime    Float?
+  targetProcessTime Float?
+  targetInventory   Float?
+  targetQuality     Float?
+
+  // Waste identification
+  wastesIdentified  Json?                // Array of wastes by type
+
+  // Status
+  status            VSMStatus            @default(CURRENT_STATE)
+
+  // Implementation
+  implementationPlan Json?
+  implementationProgress Float?          @default(0)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([vsmNumber])
+  @@index([status])
+  @@map("value_stream_maps")
+}
+
+model FiveSAudit {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auditNumber       String @unique
+
+  // Basic info
+  area              String
+  department        String?
+
+  // Audit date
+  auditDate         DateTime             @default(now())
+  auditorId         String
+
+  // Scores (1-5 for each S)
+  sortScore         Int                  // Seiri
+  setInOrderScore   Int                  // Seiton
+  shineScore        Int                  // Seiso
+  standardizeScore  Int                  // Seiketsu
+  sustainScore      Int                  // Shitsuke
+  totalScore        Int                  // Sum of all
+  maxScore          Int                  @default(25)
+  percentScore      Float                // (total/max) * 100
+
+  // Detailed findings
+  sortFindings      Json?
+  setInOrderFindings Json?
+  shineFindings     Json?
+  standardizeFindings Json?
+  sustainFindings   Json?
+
+  // Actions
+  actionsRequired   Json?                // Array of required actions
+
+  // Photos
+  photos            Json?                // Before/after photos
+
+  // Follow-up
+  followUpDate      DateTime?
+  followUpCompleted Boolean              @default(false)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([auditNumber])
+  @@index([area])
+  @@index([auditDate])
+  @@map("five_s_audits")
+}
+
+enum ImprovementProjectType {
+  COST_REDUCTION
+  QUALITY_IMPROVEMENT
+  LEAD_TIME_REDUCTION
+  CAPACITY_INCREASE
+  SAFETY_IMPROVEMENT
+  CUSTOMER_SATISFACTION
+  PROCESS_OPTIMIZATION
+  OTHER
+}
+
+enum ImprovementMethodology {
+  DMAIC
+  DMADV
+  LEAN
+  KAIZEN
+  SIX_SIGMA
+  THEORY_OF_CONSTRAINTS
+  AGILE
+  OTHER
+}
+
+enum ProjectPhase {
+  DEFINE
+  MEASURE
+  ANALYZE
+  IMPROVE
+  CONTROL
+  CLOSED
+}
+
+enum ProjectStatus {
+  PROPOSED
+  APPROVED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum KaizenStatus {
+  PLANNED
+  PREPARATION
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  FOLLOW_UP
+}
+
+enum WasteType {
+  DEFECTS
+  OVERPRODUCTION
+  WAITING
+  NON_UTILIZED_TALENT
+  TRANSPORTATION
+  INVENTORY
+  MOTION
+  EXTRA_PROCESSING
+}
+
+enum SustainabilityStatus {
+  SUSTAINED
+  PARTIALLY_SUSTAINED
+  DECLINED
+  NOT_ASSESSED
+}
+
+enum IdeaCategory {
+  QUALITY
+  SAFETY
+  PRODUCTIVITY
+  COST_REDUCTION
+  ENVIRONMENT
+  EMPLOYEE_SATISFACTION
+  CUSTOMER_SATISFACTION
+  OTHER
+}
+
+enum IdeaStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  IMPLEMENTED
+  CLOSED
+}
+
+enum StandardWorkStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ACTIVE
+  REVISION_NEEDED
+  OBSOLETE
+}
+
+enum VSMStatus {
+  CURRENT_STATE
+  FUTURE_STATE_DESIGN
+  IMPLEMENTATION
+  COMPLETED
+}
+
+// ============================================
+// ENTERPRISE QMS - ENHANCED TRAINING MANAGEMENT
+// ============================================
+
+model QMSTrainingCourse {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseCode        String @unique
+
+  // Basic info
+  title             String
+  description       String?
+
+  // Classification
+  category          TrainingCategory
+  type              TrainingType
+  standard          ISOStandard?
+
+  // Content
+  objectives        String[]
+  content           Json?                // Course outline/modules
+  materials         Json?                // Training materials/resources
+
+  // Duration
+  durationHours     Float?
+  durationDays      Float?
+
+  // Delivery
+  deliveryMethod    DeliveryMethod
+  provider          String?              // Internal/External provider
+  location          String?
+
+  // Prerequisites
+  prerequisites     String[]             // Course codes
+
+  // Assessment
+  assessmentRequired Boolean             @default(false)
+  passingScore      Float?               // Minimum score to pass
+
+  // Validity
+  validityPeriod    Int?                 // In months
+
+  // Status
+  status            CourseStatus         @default(ACTIVE)
+
+  // Version
+  version           String               @default("1.0")
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  requirements      QMSTrainingRequirement[]
+  sessions          QMSTrainingSession[]
+  records           QMSTrainingRecord[]
+
+  @@index([courseCode])
+  @@index([category])
+  @@index([status])
+  @@map("qms_training_courses")
+}
+
+model QMSTrainingRequirement {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Target
+  targetType        TrainingTargetType
+  targetId          String?              // Role ID, Department ID, or User ID
+  targetDescription String?              // Role name, department name, etc.
+
+  // Course
+  courseId          String               @db.Uuid
+
+  // Requirement details
+  isMandatory       Boolean              @default(true)
+  priority          TrainingPriority     @default(MEDIUM)
+
+  // Timeline
+  dueWithinDays     Int?                 // Days from hire/role assignment
+
+  // Recurrence
+  isRecurring       Boolean              @default(false)
+  recurringInterval Int?                 // In months
+
+  // Status
+  isActive          Boolean              @default(true)
+
+  // Justification
+  rationale         String?
+  regulatoryRef     String?              // Regulatory reference if applicable
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  course            QMSTrainingCourse    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([targetType, targetId])
+  @@map("qms_training_requirements")
+}
+
+model QMSTrainingRecord {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Trainee
+  userId            String
+
+  // Course
+  courseId          String               @db.Uuid
+  sessionId         String?              @db.Uuid
+
+  // Completion
+  status            QMSTrainingStatus    @default(NOT_STARTED)
+  startedAt         DateTime?
+  completedAt       DateTime?
+
+  // Assessment
+  assessmentScore   Float?
+  assessmentPassed  Boolean?
+  assessmentDate    DateTime?
+
+  // Competency
+  competencyLevel   CompetenceLevel?
+  assessedById      String?
+  competencyNotes   String?
+
+  // Certification
+  certificateNumber String?
+  certificateUrl    String?
+  expiryDate        DateTime?
+
+  // Training method
+  trainingMethod    String?
+  trainerId         String?
+
+  // Feedback
+  effectivenessRating Int?               // 1-5
+  feedback          String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relations
+  course            QMSTrainingCourse    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  session           QMSTrainingSession?  @relation(fields: [sessionId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("qms_training_records")
+}
+
+model QMSTrainingSession {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionNumber     String @unique
+
+  // Course
+  courseId          String               @db.Uuid
+
+  // Schedule
+  scheduledDate     DateTime
+  startTime         String?              // HH:MM format
+  endTime           String?
+
+  // Location
+  location          String?
+  virtualLink       String?
+
+  // Trainer
+  trainerId         String?
+  trainerName       String?
+
+  // Capacity
+  maxParticipants   Int?
+  enrolledCount     Int                  @default(0)
+  attendedCount     Int                  @default(0)
+
+  // Status
+  status            SessionStatus        @default(SCHEDULED)
+
+  // Notes
+  notes             String?
+  materials         Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  // Relations
+  course            QMSTrainingCourse    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  records           QMSTrainingRecord[]
+
+  @@index([courseId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("qms_training_sessions")
+}
+
+model CompetencyMatrix {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Target
+  roleId            String?
+  roleName          String
+  department        String?
+
+  // Competencies
+  competencies      Json                 // Array of {competencyName, requiredLevel, courses[], description}
+
+  // Assessment
+  lastAssessedAt    DateTime?
+  assessedById      String?
+
+  // Gap analysis
+  gapAnalysis       Json?                // {competency, currentLevel, requiredLevel, gap, actions}
+
+  // Status
+  status            MatrixStatus         @default(ACTIVE)
+
+  // Version
+  version           Int                  @default(1)
+  effectiveDate     DateTime?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([roleId])
+  @@index([roleName])
+  @@map("competency_matrices")
+}
+
+enum TrainingCategory {
+  ONBOARDING
+  QUALITY_SYSTEM
+  SAFETY
+  TECHNICAL
+  COMPLIANCE
+  MANAGEMENT
+  SOFT_SKILLS
+  CERTIFICATION
+  REFRESHER
+}
+
+enum TrainingType {
+  REQUIRED
+  RECOMMENDED
+  OPTIONAL
+  JOB_SPECIFIC
+  DEVELOPMENT
+}
+
+enum DeliveryMethod {
+  CLASSROOM
+  ONLINE
+  BLENDED
+  ON_THE_JOB
+  SELF_PACED
+  VIRTUAL_INSTRUCTOR_LED
+}
+
+enum CourseStatus {
+  DRAFT
+  UNDER_REVIEW
+  ACTIVE
+  SUSPENDED
+  RETIRED
+}
+
+enum TrainingTargetType {
+  ROLE
+  DEPARTMENT
+  USER
+  ALL_EMPLOYEES
+  NEW_HIRES
+}
+
+enum TrainingPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum QMSTrainingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  PASSED
+  FAILED
+  EXPIRED
+  WAIVED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  OPEN_FOR_ENROLLMENT
+  FULL
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum MatrixStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  ARCHIVED
+}
+
+// ============================================
+// ENTERPRISE QMS - SUPPLIER QUALITY MANAGEMENT
+// ============================================
+
+model SupplierQualification {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplierId        String
+
+  // Qualification info
+  qualificationNumber String @unique
+  qualificationType SupplierQualificationType
+
+  // Scope
+  productCategories String[]
+  services          String[]
+
+  // Assessment
+  assessmentDate    DateTime?
+  assessedById      String?
+
+  // Criteria scores
+  qualityScore      Float?               // 0-100
+  deliveryScore     Float?               // 0-100
+  technicalScore    Float?               // 0-100
+  financialScore    Float?               // 0-100
+  complianceScore   Float?               // 0-100
+  overallScore      Float?               // 0-100
+
+  // Documentation
+  documentsReceived Json?                // {docType, received, verified, date}
+  certificationsVerified Json?           // {certType, number, expiryDate, verified}
+
+  // Decision
+  qualificationStatus QualificationStatus @default(PENDING)
+  approvedById      String?
+  approvedAt        DateTime?
+  approvalNotes     String?
+
+  // Validity
+  validFrom         DateTime?
+  validUntil        DateTime?
+
+  // Conditions
+  conditions        String[]             // Conditions of approval
+  restrictions      String[]             // Any restrictions
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([supplierId])
+  @@index([qualificationStatus])
+  @@map("supplier_qualifications")
+}
+
+model SupplierScorecard {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplierId        String
+
+  // Period
+  periodType        ScorecardPeriod
+  periodStart       DateTime
+  periodEnd         DateTime
+
+  // Quality metrics
+  qualityPPM        Float?               // Parts per million defective
+  qualityScore      Float?               // 0-100
+  ncCount           Int                  @default(0)
+  returnRate        Float?               // Percentage
+
+  // Delivery metrics
+  onTimeDelivery    Float?               // Percentage
+  deliveryScore     Float?               // 0-100
+  lateDeliveries    Int                  @default(0)
+
+  // Cost metrics
+  costVariance      Float?               // Percentage
+  costScore         Float?               // 0-100
+  priceStability    Float?               // Percentage
+
+  // Responsiveness
+  responseTime      Float?               // Average hours
+  responsivenessScore Float?             // 0-100
+  communicationScore Float?              // 0-100
+
+  // Overall
+  overallScore      Float?               // Weighted average
+  rating            SupplierRating?
+  trend             TrendDirection?
+
+  // Commentary
+  strengths         String[]
+  improvements      String[]
+  notes             String?
+
+  // Review
+  reviewedById      String?
+  reviewedAt        DateTime?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@unique([supplierId, periodType, periodStart])
+  @@index([supplierId])
+  @@map("supplier_scorecards")
+}
+
+model SupplierAudit {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplierId        String
+  auditNumber       String @unique
+
+  // Audit info
+  auditType         SupplierAuditType
+  auditDate         DateTime
+  location          String?
+
+  // Scope
+  scope             String
+  standard          ISOStandard?
+  clauses           String[]
+
+  // Team
+  leadAuditorId     String?
+  teamMembers       String[]
+
+  // Results
+  overallRating     AuditRating?
+  findings          Json?                // Array of findings
+  majorNCs          Int                  @default(0)
+  minorNCs          Int                  @default(0)
+  observations      Int                  @default(0)
+
+  // Report
+  reportUrl         String?
+
+  // Status
+  status            SupplierAuditStatus  @default(SCHEDULED)
+
+  // Follow-up
+  followUpRequired  Boolean              @default(false)
+  followUpDate      DateTime?
+  followUpNotes     String?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([supplierId])
+  @@index([auditDate])
+  @@map("supplier_audits")
+}
+
+model PPAPSubmission {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submissionNumber  String @unique
+
+  // Supplier & Part
+  supplierId        String
+  partNumber        String
+  partName          String
+  partRevision      String?
+
+  // Submission info
+  submissionLevel   PPAPLevel
+  submissionReason  PPAPReason
+
+  // Required elements (based on level)
+  elements          Json                 // {element, required, submitted, status, notes}
+
+  // Dates
+  submittedDate     DateTime?
+  requiredDate      DateTime?
+
+  // Review
+  reviewedById      String?
+  reviewedAt        DateTime?
+
+  // Decision
+  status            PPAPStatus           @default(PENDING)
+  dispositionDate   DateTime?
+  dispositionById   String?
+  dispositionNotes  String?
+
+  // Conditions
+  interimApproval   Boolean              @default(false)
+  interimConditions String?
+  interimExpiryDate DateTime?
+
+  // Attachments
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([submissionNumber])
+  @@index([supplierId])
+  @@index([partNumber])
+  @@index([status])
+  @@map("ppap_submissions")
+}
+
+model SupplierNCR {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ncrNumber         String @unique
+
+  // Supplier & Part
+  supplierId        String
+  partNumber        String?
+  poNumber          String?
+  lotNumber         String?
+
+  // Issue details
+  title             String
+  description       String
+  issueType         SupplierIssueType
+  severity          IssueSeverity        @default(MINOR)
+
+  // Quantities
+  quantityReceived  Int?
+  quantityDefective Int?
+
+  // Detection
+  detectedAt        String?              // Receiving, Production, Customer
+  detectedById      String?
+  detectedDate      DateTime             @default(now())
+
+  // Evidence
+  evidence          Json?
+  photos            Json?
+
+  // Containment
+  containmentAction String?
+  containedById     String?
+  containedAt       DateTime?
+
+  // Supplier response
+  supplierResponse  String?
+  supplierResponseDate DateTime?
+  rootCauseProvided String?
+  correctiveActionProvided String?
+
+  // 8D tracking
+  eightDRequired    Boolean              @default(false)
+  eightDReceived    Boolean              @default(false)
+  eightDAccepted    Boolean?
+
+  // Cost
+  materialCost      Float?
+  laborCost         Float?
+  additionalCosts   Float?
+  chargedToSupplier Boolean              @default(false)
+
+  // Status
+  status            SupplierNCRStatus    @default(OPEN)
+
+  // Closure
+  closedById        String?
+  closedAt          DateTime?
+  closureNotes      String?
+  effectivenessVerified Boolean          @default(false)
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  createdById       String?
+
+  @@index([ncrNumber])
+  @@index([supplierId])
+  @@index([status])
+  @@map("supplier_ncrs")
+}
+
+enum SupplierQualificationType {
+  INITIAL
+  REQUALIFICATION
+  SCOPE_EXTENSION
+  CHANGE_ASSESSMENT
+}
+
+enum QualificationStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  CONDITIONALLY_APPROVED
+  REJECTED
+  EXPIRED
+  SUSPENDED
+}
+
+enum ScorecardPeriod {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+}
+
+enum SupplierRating {
+  PREFERRED
+  APPROVED
+  CONDITIONAL
+  PROBATION
+  DISQUALIFIED
+}
+
+enum SupplierAuditType {
+  INITIAL
+  SURVEILLANCE
+  REQUALIFICATION
+  PROCESS
+  PRODUCT
+  SPECIAL
+}
+
+enum SupplierAuditStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  POSTPONED
+  CANCELLED
+}
+
+enum PPAPLevel {
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+  LEVEL_4
+  LEVEL_5
+}
+
+enum PPAPReason {
+  NEW_PART
+  ENGINEERING_CHANGE
+  TOOLING_CHANGE
+  PROCESS_CHANGE
+  LOCATION_CHANGE
+  SUBCONTRACTOR_CHANGE
+  REQUALIFICATION
+}
+
+enum PPAPStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  INTERIM_APPROVED
+  REJECTED
+  PENDING_RESUBMIT
+}
+
+enum SupplierIssueType {
+  QUALITY_DEFECT
+  DIMENSIONAL
+  MATERIAL
+  COSMETIC
+  DOCUMENTATION
+  PACKAGING
+  CONTAMINATION
+  WRONG_PART
+  SHORT_SHIPMENT
+  LATE_DELIVERY
+}
+
+enum IssueSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum SupplierNCRStatus {
+  OPEN
+  AWAITING_RESPONSE
+  RESPONSE_RECEIVED
+  UNDER_REVIEW
+  PENDING_VERIFICATION
+  CLOSED
+  ESCALATED
+}
+
+// ============================================
+// ENTERPRISE QMS - CHANGE MANAGEMENT
+// ============================================
+
+model ChangeRequest {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  changeNumber      String @unique
+
+  // Basic info
+  title             String
+  description       String
+  justification     String?
+
+  // Classification
+  changeType        ChangeType
+  category          ChangeCategory?
+  priority          ChangePriority       @default(MEDIUM)
+
+  // Scope
+  affectedItems     Json?                // Array of affected items with type
+
+  // Linked documents
+  documentId        String?              @db.Uuid
+
+  // Initiator
+  requestedById     String
+  requestedAt       DateTime             @default(now())
+  department        String?
+
+  // Risk assessment
+  riskLevel         RiskLevel?
+  riskAssessment    Json?
+
+  // Status
+  status            ChangeStatus         @default(DRAFT)
+
+  // Key dates
+  targetDate        DateTime?
+  effectiveDate     DateTime?
+  actualCompletionDate DateTime?
+
+  // Financial
+  estimatedCost     Float?
+  actualCost        Float?
+
+  // Metadata
+  metadata          Json?
+  attachments       Json?
+
+  // Audit fields
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relations
+  approvals         ChangeApproval[]
+  impacts           ChangeImpact[]
+  implementations   ChangeImplementation[]
+  document          QMSDocument?         @relation("DocumentChangeRequests", fields: [documentId], references: [id])
+
+  @@index([changeNumber])
+  @@index([status])
+  @@index([changeType])
+  @@map("change_requests")
+}
+
+model ChangeApproval {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  changeRequestId   String @db.Uuid
+
+  // Approval workflow
+  approvalLevel     Int                  @default(1)
+  approverId        String
+  approverRole      String?
+
+  // CCB (Change Control Board) info
+  isCCBMember       Boolean              @default(false)
+
+  // Decision
+  status            ApprovalStatus       @default(PENDING)
+  decision          ApprovalDecision?
+  comments          String?
+  conditions        String[]
+
+  // Timestamps
+  requestedAt       DateTime             @default(now())
+  respondedAt       DateTime?
+  dueDate           DateTime?
+
+  // Relations
+  changeRequest     ChangeRequest        @relation(fields: [changeRequestId], references: [id], onDelete: Cascade)
+
+  @@index([changeRequestId])
+  @@index([approverId])
+  @@map("change_approvals")
+}
+
+model ChangeImpact {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  changeRequestId   String @db.Uuid
+
+  // Impact details
+  impactArea        ImpactArea
+  impactDescription String
+  severity          ImpactSeverity       @default(MODERATE)
+
+  // Affected entities
+  affectedEntity    String?
+  affectedEntityId  String?
+
+  // Mitigation
+  mitigationRequired Boolean             @default(false)
+  mitigationPlan    String?
+
+  // Required actions
+  actionsRequired   Json?
+
+  // Training impact
+  trainingRequired  Boolean              @default(false)
+  trainingNotes     String?
+
+  // Documentation impact
+  documentationChanges String[]
+
+  // Assessment
+  assessedById      String?
+  assessedAt        DateTime?
+
+  // Relations
+  changeRequest     ChangeRequest        @relation(fields: [changeRequestId], references: [id], onDelete: Cascade)
+
+  @@index([changeRequestId])
+  @@map("change_impacts")
+}
+
+model ChangeImplementation {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  changeRequestId   String @db.Uuid
+
+  // Task info
+  taskNumber        Int
+  description       String
+
+  // Assignment
+  assignedToId      String?
+  department        String?
+
+  // Timeline
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Status
+  status            ImplementationStatus @default(PLANNED)
+
+  // Verification
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+  verificationResult String?
+
+  // Evidence
+  evidence          Json?
+
+  // Notes
+  notes             String?
+
+  // Relations
+  changeRequest     ChangeRequest        @relation(fields: [changeRequestId], references: [id], onDelete: Cascade)
+
+  @@index([changeRequestId])
+  @@map("change_implementations")
+}
+
+enum ChangeType {
+  PRODUCT
+  PROCESS
+  DOCUMENT
+  SYSTEM
+  SUPPLIER
+  EQUIPMENT
+  MATERIAL
+  ORGANIZATIONAL
+}
+
+enum ChangeCategory {
+  DESIGN
+  MANUFACTURING
+  QUALITY
+  SAFETY
+  REGULATORY
+  CUSTOMER_DRIVEN
+  COST_REDUCTION
+  IMPROVEMENT
+}
+
+enum ChangePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  EMERGENCY
+}
+
+enum ChangeStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  IMPACT_ASSESSMENT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  IN_IMPLEMENTATION
+  VERIFICATION
+  COMPLETED
+  CANCELLED
+}
+
+enum ImpactArea {
+  QUALITY
+  SAFETY
+  REGULATORY
+  FINANCIAL
+  OPERATIONAL
+  CUSTOMER
+  SUPPLY_CHAIN
+  DOCUMENTATION
+  TRAINING
+  EQUIPMENT
+  PERSONNEL
+}
+
+enum ImpactSeverity {
+  NEGLIGIBLE
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}

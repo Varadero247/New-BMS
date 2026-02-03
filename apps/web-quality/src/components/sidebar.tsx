@@ -13,23 +13,83 @@ import {
   BarChart3,
   Home,
   Settings,
+  FileText,
+  Search,
+  ClipboardCheck,
+  AlertTriangle,
+  FileSpreadsheet,
+  Lightbulb,
+  Truck,
+  GitBranch,
 } from 'lucide-react';
 
-const navigation = [
+// Core Quality Management
+const coreNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Processes', href: '/processes', icon: Workflow },
   { name: 'Nonconformances', href: '/nonconformances', icon: AlertOctagon },
+  { name: 'Actions', href: '/actions', icon: ClipboardList },
+  { name: 'Metrics', href: '/metrics', icon: BarChart3 },
+];
+
+// Enhanced QMS Modules
+const qmsNavigation = [
+  { name: 'Documents', href: '/documents', icon: FileText },
+  { name: 'Investigations', href: '/investigations', icon: Search },
+  { name: 'CAPA / 8D', href: '/capa', icon: Target },
+  { name: 'Audits', href: '/audits', icon: ClipboardCheck },
+  { name: 'Risk Register', href: '/risk-register', icon: AlertTriangle },
+  { name: 'FMEA', href: '/fmea', icon: FileSpreadsheet },
+  { name: 'Continuous Improvement', href: '/ci', icon: Lightbulb },
+  { name: 'Training', href: '/training', icon: GraduationCap },
+  { name: 'Supplier Quality', href: '/suppliers', icon: Truck },
+  { name: 'Change Management', href: '/changes', icon: GitBranch },
+];
+
+// Supporting
+const supportingNavigation = [
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },
-  { name: 'Actions', href: '/actions', icon: ClipboardList },
-  { name: 'Training', href: '/training', icon: GraduationCap },
-  { name: 'Metrics', href: '/metrics', icon: BarChart3 },
 ];
 
 const externalLinks = [
   { name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home },
   { name: 'Settings', href: 'http://localhost:3004', icon: Settings },
 ];
+
+function NavSection({ title, items, pathname }: { title?: string; items: typeof coreNavigation; pathname: string }) {
+  return (
+    <div className={title ? 'mt-4 pt-4 border-t border-gray-200' : ''}>
+      {title && (
+        <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          {title}
+        </p>
+      )}
+      <ul className="space-y-1">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+
+          return (
+            <li key={item.name}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-900'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                <span className="text-sm font-medium">{item.name}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -39,36 +99,17 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-gray-200 bg-blue-50">
         <h1 className="text-xl font-bold text-blue-900">Quality</h1>
-        <p className="text-xs text-blue-600 mt-1">ISO 9001 Management</p>
+        <p className="text-xs text-blue-600 mt-1">Enterprise QMS</p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-4 overflow-y-auto">
-        <ul className="space-y-1">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-
-            return (
-              <li key={item.name}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-900'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
-                  <span className="text-sm font-medium">{item.name}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <NavSection items={coreNavigation} pathname={pathname} />
+        <NavSection title="QMS Modules" items={qmsNavigation} pathname={pathname} />
+        <NavSection title="Supporting" items={supportingNavigation} pathname={pathname} />
 
         {/* External Links */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
             Quick Links
           </p>
