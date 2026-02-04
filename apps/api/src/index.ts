@@ -30,7 +30,7 @@ import metricsRoutes from './routes/metrics';
 import dashboardRoutes from './routes/ims-dashboard';
 
 const app: Express = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4009;
 
 // Security middleware
 app.use(helmet());
