@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
   async function loadStats() {
     try {
-      const response = await api.get('/api/dashboard/stats');
+      const response = await api.get('/dashboard/stats');
       setStats(response.data.data);
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
