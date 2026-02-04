@@ -1,0 +1,466 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '@ims/database';
+import { z } from 'zod';
+
+const router: Router = Router();
+
+// GET /api/recruitment/jobs - Get job postings
+router.get('/jobs', async (req: Request, res: Response) => {
+  try {
+    const { status, departmentId, isRemote, page = '1', limit = '20' } = req.query;
+
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const take = parseInt(limit as string);
+
+    const where: any = {};
+    if (status) where.status = status;
+    if (departmentId) where.departmentId = departmentId;
+    if (isRemote === 'true') where.isRemote = true;
+
+    const [jobs, total] = await Promise.all([
+      prisma.jobPosting.findMany({
+        where,
+        include: {
+          department: { select: { name: true } },
+          position: { select: { title: true } },
+          _count: { select: { applicants: true, interviews: true } },
+        },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.jobPosting.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: jobs,
+      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+    });
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch jobs' } });
+  }
+});
+
+// GET /api/recruitment/jobs/:id - Get single job
+router.get('/jobs/:id', async (req: Request, res: Response) => {
+  try {
+    const job = await prisma.jobPosting.findUnique({
+      where: { id: req.params.id },
+      include: {
+        department: true,
+        position: true,
+        applicants: {
+          include: {
+            _count: { select: { interviews: true, evaluations: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        _count: { select: { applicants: true, interviews: true } },
+      },
+    });
+
+    if (!job) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job not found' } });
+    }
+
+    res.json({ success: true, data: job });
+  } catch (error) {
+    console.error('Error fetching job:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch job' } });
+  }
+});
+
+// POST /api/recruitment/jobs - Create job posting
+router.post('/jobs', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      title: z.string().min(1),
+      departmentId: z.string().uuid(),
+      positionId: z.string().uuid().optional(),
+      description: z.string(),
+      responsibilities: z.string(),
+      requirements: z.string(),
+      preferredSkills: z.string().optional(),
+      benefits: z.string().optional(),
+      employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE']),
+      experienceMin: z.number().optional(),
+      experienceMax: z.number().optional(),
+      educationLevel: z.string().optional(),
+      location: z.string(),
+      isRemote: z.boolean().default(false),
+      remoteType: z.enum(['FULLY_REMOTE', 'HYBRID', 'OCCASIONAL']).optional(),
+      salaryMin: z.number().optional(),
+      salaryMax: z.number().optional(),
+      showSalary: z.boolean().default(false),
+      openings: z.number().default(1),
+      closeDate: z.string().optional(),
+      internalOnly: z.boolean().default(false),
+      hiringManagerId: z.string().optional(),
+      recruiterId: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    // Generate job code
+    const count = await prisma.jobPosting.count();
+    const jobCode = `JOB-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+
+    const job = await prisma.jobPosting.create({
+      data: {
+        jobCode,
+        ...data,
+        closeDate: data.closeDate ? new Date(data.closeDate) : undefined,
+        status: 'DRAFT',
+      },
+      include: { department: true },
+    });
+
+    res.status(201).json({ success: true, data: job });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating job:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create job' } });
+  }
+});
+
+// PUT /api/recruitment/jobs/:id - Update job
+router.put('/jobs/:id', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      status: z.enum(['DRAFT', 'PUBLISHED', 'ON_HOLD', 'CLOSED', 'FILLED', 'CANCELLED']).optional(),
+      publishDate: z.string().optional(),
+      closeDate: z.string().optional(),
+    }).passthrough();
+
+    const data = schema.parse(req.body);
+
+    const updateData: any = { ...data };
+    if (data.publishDate) updateData.publishDate = new Date(data.publishDate);
+    if (data.closeDate) updateData.closeDate = new Date(data.closeDate);
+
+    const job = await prisma.jobPosting.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
+
+    res.json({ success: true, data: job });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error updating job:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job' } });
+  }
+});
+
+// Applicants
+// GET /api/recruitment/applicants - Get applicants
+router.get('/applicants', async (req: Request, res: Response) => {
+  try {
+    const { jobPostingId, status, stage, page = '1', limit = '20' } = req.query;
+
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const take = parseInt(limit as string);
+
+    const where: any = {};
+    if (jobPostingId) where.jobPostingId = jobPostingId;
+    if (status) where.status = status;
+    if (stage) where.stage = stage;
+
+    const [applicants, total] = await Promise.all([
+      prisma.applicant.findMany({
+        where,
+        include: {
+          jobPosting: { select: { title: true, jobCode: true } },
+          _count: { select: { interviews: true, evaluations: true } },
+        },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.applicant.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: applicants,
+      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+    });
+  } catch (error) {
+    console.error('Error fetching applicants:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch applicants' } });
+  }
+});
+
+// GET /api/recruitment/applicants/:id - Get single applicant
+router.get('/applicants/:id', async (req: Request, res: Response) => {
+  try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id: req.params.id },
+      include: {
+        jobPosting: true,
+        interviews: {
+          include: { evaluations: true },
+          orderBy: { scheduledAt: 'asc' },
+        },
+        evaluations: true,
+      },
+    });
+
+    if (!applicant) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Applicant not found' } });
+    }
+
+    res.json({ success: true, data: applicant });
+  } catch (error) {
+    console.error('Error fetching applicant:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch applicant' } });
+  }
+});
+
+// POST /api/recruitment/applicants - Create applicant
+router.post('/applicants', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      jobPostingId: z.string().uuid(),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      email: z.string().email(),
+      phone: z.string().optional(),
+      linkedinUrl: z.string().url().optional(),
+      coverLetter: z.string().optional(),
+      resumeUrl: z.string().optional(),
+      portfolioUrl: z.string().url().optional(),
+      source: z.enum(['WEBSITE', 'LINKEDIN', 'INDEED', 'GLASSDOOR', 'REFERRAL', 'AGENCY', 'CAMPUS', 'INTERNAL', 'OTHER']),
+      referredBy: z.string().optional(),
+      currentCompany: z.string().optional(),
+      currentTitle: z.string().optional(),
+      yearsExperience: z.number().optional(),
+      noticePeriod: z.number().optional(),
+      expectedSalary: z.number().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    // Generate applicant number
+    const count = await prisma.applicant.count();
+    const applicantNumber = `APP-${new Date().getFullYear()}-${String(count + 1).padStart(5, '0')}`;
+
+    const applicant = await prisma.applicant.create({
+      data: {
+        applicantNumber,
+        ...data,
+        status: 'NEW',
+        stage: 'APPLICATION',
+      },
+      include: { jobPosting: { select: { title: true } } },
+    });
+
+    res.status(201).json({ success: true, data: applicant });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating applicant:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create applicant' } });
+  }
+});
+
+// PUT /api/recruitment/applicants/:id/status - Update applicant status
+router.put('/applicants/:id/status', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      status: z.enum(['NEW', 'SCREENING', 'SHORTLISTED', 'INTERVIEWING', 'OFFER', 'HIRED', 'REJECTED', 'WITHDRAWN']),
+      stage: z.enum(['APPLICATION', 'SCREENING', 'PHONE_INTERVIEW', 'TECHNICAL_ROUND', 'HR_ROUND', 'FINAL_ROUND', 'OFFER', 'BACKGROUND_CHECK', 'ONBOARDING']).optional(),
+      rejectionReason: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    const applicant = await prisma.applicant.update({
+      where: { id: req.params.id },
+      data,
+    });
+
+    res.json({ success: true, data: applicant });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error updating applicant:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update applicant' } });
+  }
+});
+
+// Interviews
+// POST /api/recruitment/interviews - Schedule interview
+router.post('/interviews', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      applicantId: z.string().uuid(),
+      jobPostingId: z.string().uuid(),
+      round: z.number().default(1),
+      interviewType: z.enum(['PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'BEHAVIORAL', 'PANEL', 'CASE_STUDY']),
+      scheduledAt: z.string(),
+      duration: z.number().default(60),
+      location: z.string().optional(),
+      meetingUrl: z.string().url().optional(),
+      interviewerIds: z.array(z.string()),
+      organizerId: z.string(),
+      agenda: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    const interview = await prisma.interview.create({
+      data: {
+        ...data,
+        scheduledAt: new Date(data.scheduledAt),
+        status: 'SCHEDULED',
+      },
+      include: {
+        applicant: { select: { firstName: true, lastName: true, email: true } },
+        jobPosting: { select: { title: true } },
+      },
+    });
+
+    res.status(201).json({ success: true, data: interview });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error scheduling interview:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to schedule interview' } });
+  }
+});
+
+// PUT /api/recruitment/interviews/:id - Update interview
+router.put('/interviews/:id', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      status: z.enum(['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED']).optional(),
+      scheduledAt: z.string().optional(),
+      cancelledReason: z.string().optional(),
+      notes: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    const updateData: any = { ...data };
+    if (data.scheduledAt) updateData.scheduledAt = new Date(data.scheduledAt);
+
+    const interview = await prisma.interview.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
+
+    res.json({ success: true, data: interview });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error updating interview:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update interview' } });
+  }
+});
+
+// POST /api/recruitment/interviews/:id/evaluate - Submit evaluation
+router.post('/interviews/:id/evaluate', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      evaluatorId: z.string(),
+      overallRating: z.number().min(1).max(5),
+      technicalRating: z.number().min(1).max(5).optional(),
+      communicationRating: z.number().min(1).max(5).optional(),
+      cultureFitRating: z.number().min(1).max(5).optional(),
+      leadershipRating: z.number().min(1).max(5).optional(),
+      strengths: z.string().optional(),
+      concerns: z.string().optional(),
+      additionalNotes: z.string().optional(),
+      recommendation: z.enum(['STRONG_HIRE', 'HIRE', 'MAYBE', 'NO_HIRE', 'STRONG_NO_HIRE']),
+      recommendedSalary: z.number().optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    const interview = await prisma.interview.findUnique({
+      where: { id: req.params.id },
+      select: { applicantId: true },
+    });
+
+    if (!interview) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Interview not found' } });
+    }
+
+    const evaluation = await prisma.interviewEvaluation.create({
+      data: {
+        interviewId: req.params.id,
+        applicantId: interview.applicantId,
+        ...data,
+      },
+    });
+
+    res.status(201).json({ success: true, data: evaluation });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error submitting evaluation:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit evaluation' } });
+  }
+});
+
+// GET /api/recruitment/stats - Recruitment statistics
+router.get('/stats', async (_req: Request, res: Response) => {
+  try {
+    const [
+      totalJobs,
+      activeJobs,
+      totalApplicants,
+      hiredThisMonth,
+      bySource,
+      byStage,
+    ] = await Promise.all([
+      prisma.jobPosting.count(),
+      prisma.jobPosting.count({ where: { status: 'PUBLISHED' } }),
+      prisma.applicant.count(),
+      prisma.applicant.count({
+        where: {
+          status: 'HIRED',
+          updatedAt: { gte: new Date(new Date().setDate(1)) },
+        },
+      }),
+      prisma.applicant.groupBy({
+        by: ['source'],
+        _count: true,
+      }),
+      prisma.applicant.groupBy({
+        by: ['stage'],
+        _count: true,
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalJobs,
+        activeJobs,
+        totalApplicants,
+        hiredThisMonth,
+        bySource,
+        byStage,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+  }
+});
+
+export default router;

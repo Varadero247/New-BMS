@@ -1,0 +1,30 @@
+{
+  "name": "@ims/web-workflows",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3008",
+    "build": "next build",
+    "start": "next start -p 3008",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ims/ui": "workspace:*",
+    "axios": "^1.6.2",
+    "chart.js": "^4.4.1",
+    "lucide-react": "^0.294.0",
+    "next": "15.1.3",
+    "react": "18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5"
+  }
+}

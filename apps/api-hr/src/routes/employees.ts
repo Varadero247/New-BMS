@@ -1,0 +1,322 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '@ims/database';
+import { z } from 'zod';
+
+const router: Router = Router();
+
+// Validation schemas
+const createEmployeeSchema = z.object({
+  employeeNumber: z.string().min(1),
+  firstName: z.string().min(1),
+  middleName: z.string().optional(),
+  lastName: z.string().min(1),
+  dateOfBirth: z.string().optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
+  personalEmail: z.string().email().optional(),
+  workEmail: z.string().email(),
+  phone: z.string().optional(),
+  mobilePhone: z.string().optional(),
+  departmentId: z.string().uuid(),
+  positionId: z.string().uuid().optional(),
+  managerId: z.string().uuid().optional(),
+  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE']).default('FULL_TIME'),
+  hireDate: z.string(),
+  jobTitle: z.string(),
+  jobGrade: z.string().optional(),
+  workLocation: z.string().optional(),
+  currency: z.string().default('USD'),
+  bankName: z.string().optional(),
+  accountNumber: z.string().optional(),
+});
+
+const updateEmployeeSchema = createEmployeeSchema.partial();
+
+// GET /api/employees - List all employees
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const {
+      page = '1',
+      limit = '20',
+      department,
+      status,
+      search,
+      managerId,
+      employmentType,
+    } = req.query;
+
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const take = parseInt(limit as string);
+
+    const where: any = {};
+
+    if (department) where.departmentId = department;
+    if (status) where.employmentStatus = status;
+    if (managerId) where.managerId = managerId;
+    if (employmentType) where.employmentType = employmentType;
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search as string, mode: 'insensitive' } },
+        { lastName: { contains: search as string, mode: 'insensitive' } },
+        { workEmail: { contains: search as string, mode: 'insensitive' } },
+        { employeeNumber: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [employees, total] = await Promise.all([
+      prisma.employee.findMany({
+        where,
+        include: {
+          department: true,
+          position: true,
+          manager: {
+            select: { id: true, firstName: true, lastName: true, employeeNumber: true },
+          },
+          _count: {
+            select: { subordinates: true },
+          },
+        },
+        skip,
+        take,
+        orderBy: { lastName: 'asc' },
+      }),
+      prisma.employee.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: employees,
+      meta: {
+        page: parseInt(page as string),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employees' } });
+  }
+});
+
+// GET /api/employees/org-chart - Get organization chart
+router.get('/org-chart', async (_req: Request, res: Response) => {
+  try {
+    const employees = await prisma.employee.findMany({
+      where: { employmentStatus: 'ACTIVE' },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        jobTitle: true,
+        departmentId: true,
+        managerId: true,
+        profilePhoto: true,
+        department: { select: { name: true } },
+      },
+    });
+
+    // Build hierarchical structure
+    const buildTree = (managerId: string | null): any[] => {
+      return employees
+        .filter(e => e.managerId === managerId)
+        .map(e => ({
+          ...e,
+          children: buildTree(e.id),
+        }));
+    };
+
+    const orgChart = buildTree(null);
+
+    res.json({ success: true, data: orgChart });
+  } catch (error) {
+    console.error('Error fetching org chart:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart' } });
+  }
+});
+
+// GET /api/employees/stats - Get employee statistics
+router.get('/stats', async (_req: Request, res: Response) => {
+  try {
+    const [
+      totalEmployees,
+      activeEmployees,
+      byDepartment,
+      byEmploymentType,
+      recentHires,
+      upcomingBirthdays,
+    ] = await Promise.all([
+      prisma.employee.count(),
+      prisma.employee.count({ where: { employmentStatus: 'ACTIVE' } }),
+      prisma.employee.groupBy({
+        by: ['departmentId'],
+        _count: true,
+        where: { employmentStatus: 'ACTIVE' },
+      }),
+      prisma.employee.groupBy({
+        by: ['employmentType'],
+        _count: true,
+        where: { employmentStatus: 'ACTIVE' },
+      }),
+      prisma.employee.count({
+        where: {
+          hireDate: { gte: new Date(new Date().setMonth(new Date().getMonth() - 1)) },
+        },
+      }),
+      prisma.employee.count({
+        where: {
+          dateOfBirth: {
+            gte: new Date(new Date().setDate(new Date().getDate())),
+            lte: new Date(new Date().setDate(new Date().getDate() + 7)),
+          },
+        },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalEmployees,
+        activeEmployees,
+        byDepartment,
+        byEmploymentType,
+        recentHires,
+        upcomingBirthdays,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching employee stats:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+  }
+});
+
+// GET /api/employees/:id - Get single employee
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const employee = await prisma.employee.findUnique({
+      where: { id: req.params.id },
+      include: {
+        department: true,
+        position: true,
+        manager: {
+          select: { id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true },
+        },
+        subordinates: {
+          select: { id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true },
+        },
+        leaveBalances: {
+          include: { leaveType: true },
+        },
+        documents: {
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
+        qualifications: true,
+        certifications: true,
+        assets: true,
+      },
+    });
+
+    if (!employee) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+    }
+
+    res.json({ success: true, data: employee });
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employee' } });
+  }
+});
+
+// POST /api/employees - Create new employee
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const data = createEmployeeSchema.parse(req.body);
+
+    const employee = await prisma.employee.create({
+      data: {
+        ...data,
+        hireDate: new Date(data.hireDate),
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+      },
+      include: {
+        department: true,
+        position: true,
+      },
+    });
+
+    res.status(201).json({ success: true, data: employee });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating employee:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create employee' } });
+  }
+});
+
+// PUT /api/employees/:id - Update employee
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const data = updateEmployeeSchema.parse(req.body);
+
+    const employee = await prisma.employee.update({
+      where: { id: req.params.id },
+      data: {
+        ...data,
+        hireDate: data.hireDate ? new Date(data.hireDate) : undefined,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+      },
+      include: {
+        department: true,
+        position: true,
+      },
+    });
+
+    res.json({ success: true, data: employee });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error updating employee:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update employee' } });
+  }
+});
+
+// DELETE /api/employees/:id - Delete (soft) employee
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    await prisma.employee.update({
+      where: { id: req.params.id },
+      data: {
+        employmentStatus: 'TERMINATED',
+        terminationDate: new Date(),
+      },
+    });
+
+    res.json({ success: true, message: 'Employee terminated' });
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete employee' } });
+  }
+});
+
+// GET /api/employees/:id/subordinates - Get direct reports
+router.get('/:id/subordinates', async (req: Request, res: Response) => {
+  try {
+    const subordinates = await prisma.employee.findMany({
+      where: { managerId: req.params.id, employmentStatus: 'ACTIVE' },
+      include: {
+        department: true,
+        position: true,
+        _count: { select: { subordinates: true } },
+      },
+    });
+
+    res.json({ success: true, data: subordinates });
+  } catch (error) {
+    console.error('Error fetching subordinates:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch subordinates' } });
+  }
+});
+
+export default router;

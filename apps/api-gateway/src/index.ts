@@ -25,12 +25,15 @@ const SERVICES = {
   quality: process.env.QUALITY_URL || 'http://localhost:4003',
   aiAnalysis: process.env.AI_ANALYSIS_URL || 'http://localhost:4004',
   inventory: process.env.INVENTORY_URL || 'http://localhost:4005',
+  hr: process.env.HR_URL || 'http://localhost:4006',
+  payroll: process.env.PAYROLL_URL || 'http://localhost:4007',
+  workflows: process.env.WORKFLOWS_URL || 'http://localhost:4008',
 };
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
+  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'],
   credentials: true,
 }));
 app.use(morgan('combined'));
@@ -121,6 +124,45 @@ app.use('/api/inventory', createProxyMiddleware({
   },
 }));
 
+app.use('/api/hr', createProxyMiddleware({
+  target: SERVICES.hr,
+  changeOrigin: true,
+  pathRewrite: { '^/api/hr': '/api' },
+  onError: (err, req, res) => {
+    console.error('HR Proxy Error:', err);
+    (res as express.Response).status(502).json({
+      success: false,
+      error: { code: 'SERVICE_UNAVAILABLE', message: 'HR service unavailable' },
+    });
+  },
+}));
+
+app.use('/api/payroll', createProxyMiddleware({
+  target: SERVICES.payroll,
+  changeOrigin: true,
+  pathRewrite: { '^/api/payroll': '/api' },
+  onError: (err, req, res) => {
+    console.error('Payroll Proxy Error:', err);
+    (res as express.Response).status(502).json({
+      success: false,
+      error: { code: 'SERVICE_UNAVAILABLE', message: 'Payroll service unavailable' },
+    });
+  },
+}));
+
+app.use('/api/workflows', createProxyMiddleware({
+  target: SERVICES.workflows,
+  changeOrigin: true,
+  pathRewrite: { '^/api/workflows': '/api' },
+  onError: (err, req, res) => {
+    console.error('Workflows Proxy Error:', err);
+    (res as express.Response).status(502).json({
+      success: false,
+      error: { code: 'SERVICE_UNAVAILABLE', message: 'Workflows service unavailable' },
+    });
+  },
+}));
+
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -132,6 +174,9 @@ app.listen(PORT, () => {
   console.log(`Quality service: ${SERVICES.quality}`);
   console.log(`AI Analysis service: ${SERVICES.aiAnalysis}`);
   console.log(`Inventory service: ${SERVICES.inventory}`);
+  console.log(`HR service: ${SERVICES.hr}`);
+  console.log(`Payroll service: ${SERVICES.payroll}`);
+  console.log(`Workflows service: ${SERVICES.workflows}`);
 });
 
 export default app;

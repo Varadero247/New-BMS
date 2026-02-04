@@ -13,6 +13,9 @@ import {
   Sparkles,
   Plus,
   ExternalLink,
+  Users,
+  Wallet,
+  GitBranch,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
@@ -327,70 +330,127 @@ export default function DashboardPage() {
           </div>
 
           {/* Module Links */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <a
-              href="http://localhost:3001"
-              className="flex items-center justify-between p-6 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-red-100 rounded-full">
-                  <Shield className="h-6 w-6 text-red-600" />
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Compliance Modules</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <a
+                href="http://localhost:3001"
+                className="flex items-center justify-between p-6 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-red-100 rounded-full">
+                    <Shield className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-900">Health & Safety</h3>
+                    <p className="text-sm text-red-600">ISO 45001</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-red-900">Health & Safety</h3>
-                  <p className="text-sm text-red-600">ISO 45001</p>
-                </div>
-              </div>
-              <ExternalLink className="h-5 w-5 text-red-400" />
-            </a>
+                <ExternalLink className="h-5 w-5 text-red-400" />
+              </a>
 
-            <a
-              href="http://localhost:3002"
-              className="flex items-center justify-between p-6 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Leaf className="h-6 w-6 text-green-600" />
+              <a
+                href="http://localhost:3002"
+                className="flex items-center justify-between p-6 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <Leaf className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-green-900">Environmental</h3>
+                    <p className="text-sm text-green-600">ISO 14001</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-green-900">Environmental</h3>
-                  <p className="text-sm text-green-600">ISO 14001</p>
-                </div>
-              </div>
-              <ExternalLink className="h-5 w-5 text-green-400" />
-            </a>
+                <ExternalLink className="h-5 w-5 text-green-400" />
+              </a>
 
-            <a
-              href="http://localhost:3003"
-              className="flex items-center justify-between p-6 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <Award className="h-6 w-6 text-blue-600" />
+              <a
+                href="http://localhost:3003"
+                className="flex items-center justify-between p-6 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <Award className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-blue-900">Quality</h3>
+                    <p className="text-sm text-blue-600">ISO 9001</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-blue-900">Quality</h3>
-                  <p className="text-sm text-blue-600">ISO 9001</p>
-                </div>
-              </div>
-              <ExternalLink className="h-5 w-5 text-blue-400" />
-            </a>
+                <ExternalLink className="h-5 w-5 text-blue-400" />
+              </a>
 
-            <a
-              href="http://localhost:3005"
-              className="flex items-center justify-between p-6 bg-sky-50 rounded-lg border border-sky-200 hover:bg-sky-100 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-sky-100 rounded-full">
-                  <Package className="h-6 w-6 text-sky-600" />
+              <a
+                href="http://localhost:3005"
+                className="flex items-center justify-between p-6 bg-sky-50 rounded-lg border border-sky-200 hover:bg-sky-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-sky-100 rounded-full">
+                    <Package className="h-6 w-6 text-sky-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sky-900">Inventory</h3>
+                    <p className="text-sm text-sky-600">Stock Control</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-sky-900">Inventory</h3>
-                  <p className="text-sm text-sky-600">Stock Control</p>
+                <ExternalLink className="h-5 w-5 text-sky-400" />
+              </a>
+            </div>
+          </div>
+
+          {/* HR, Payroll & Workflow Modules */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">HR & Operations</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <a
+                href="http://localhost:3006"
+                className="flex items-center justify-between p-6 bg-violet-50 rounded-lg border border-violet-200 hover:bg-violet-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-violet-100 rounded-full">
+                    <Users className="h-6 w-6 text-violet-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-violet-900">HR Management</h3>
+                    <p className="text-sm text-violet-600">Employee & Performance</p>
+                  </div>
                 </div>
-              </div>
-              <ExternalLink className="h-5 w-5 text-sky-400" />
-            </a>
+                <ExternalLink className="h-5 w-5 text-violet-400" />
+              </a>
+
+              <a
+                href="http://localhost:3007"
+                className="flex items-center justify-between p-6 bg-emerald-50 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-100 rounded-full">
+                    <Wallet className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-emerald-900">Payroll</h3>
+                    <p className="text-sm text-emerald-600">Compensation & Benefits</p>
+                  </div>
+                </div>
+                <ExternalLink className="h-5 w-5 text-emerald-400" />
+              </a>
+
+              <a
+                href="http://localhost:3008"
+                className="flex items-center justify-between p-6 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-indigo-100 rounded-full">
+                    <GitBranch className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-indigo-900">Workflows</h3>
+                    <p className="text-sm text-indigo-600">Process Automation</p>
+                  </div>
+                </div>
+                <ExternalLink className="h-5 w-5 text-indigo-400" />
+              </a>
+            </div>
           </div>
         </div>
       </main>

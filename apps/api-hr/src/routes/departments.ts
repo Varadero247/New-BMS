@@ -1,0 +1,220 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '@ims/database';
+import { z } from 'zod';
+
+const router: Router = Router();
+
+const createDepartmentSchema = z.object({
+  code: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  parentId: z.string().uuid().optional(),
+  headId: z.string().uuid().optional(),
+  costCenter: z.string().optional(),
+  budget: z.number().optional(),
+  budgetCurrency: z.string().default('USD'),
+});
+
+const updateDepartmentSchema = createDepartmentSchema.partial();
+
+// GET /api/departments - List all departments
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { includeInactive, tree } = req.query;
+
+    const where = includeInactive === 'true' ? {} : { isActive: true };
+
+    const departments = await prisma.hRDepartment.findMany({
+      where,
+      include: {
+        parent: { select: { id: true, name: true, code: true } },
+        _count: {
+          select: { employees: true, children: true, positions: true },
+        },
+      },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+    });
+
+    if (tree === 'true') {
+      // Build tree structure
+      const buildTree = (parentId: string | null): any[] => {
+        return departments
+          .filter(d => d.parentId === parentId)
+          .map(d => ({
+            ...d,
+            children: buildTree(d.id),
+          }));
+      };
+      const treeData = buildTree(null);
+      return res.json({ success: true, data: treeData });
+    }
+
+    res.json({ success: true, data: departments });
+  } catch (error) {
+    console.error('Error fetching departments:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch departments' } });
+  }
+});
+
+// GET /api/departments/:id - Get single department
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const department = await prisma.hRDepartment.findUnique({
+      where: { id: req.params.id },
+      include: {
+        parent: true,
+        children: true,
+        employees: {
+          where: { employmentStatus: 'ACTIVE' },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            jobTitle: true,
+            employeeNumber: true,
+          },
+        },
+        positions: true,
+        _count: {
+          select: { employees: true, children: true, positions: true },
+        },
+      },
+    });
+
+    if (!department) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Department not found' } });
+    }
+
+    res.json({ success: true, data: department });
+  } catch (error) {
+    console.error('Error fetching department:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch department' } });
+  }
+});
+
+// POST /api/departments - Create department
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const data = createDepartmentSchema.parse(req.body);
+
+    const department = await prisma.hRDepartment.create({
+      data,
+      include: { parent: true },
+    });
+
+    res.status(201).json({ success: true, data: department });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating department:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create department' } });
+  }
+});
+
+// PUT /api/departments/:id - Update department
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const data = updateDepartmentSchema.parse(req.body);
+
+    const department = await prisma.hRDepartment.update({
+      where: { id: req.params.id },
+      data,
+      include: { parent: true },
+    });
+
+    res.json({ success: true, data: department });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error updating department:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update department' } });
+  }
+});
+
+// DELETE /api/departments/:id - Soft delete department
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    // Check for employees
+    const employeeCount = await prisma.employee.count({
+      where: { departmentId: req.params.id, employmentStatus: 'ACTIVE' },
+    });
+
+    if (employeeCount > 0) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'HAS_EMPLOYEES', message: `Cannot delete department with ${employeeCount} active employees` },
+      });
+    }
+
+    await prisma.hRDepartment.update({
+      where: { id: req.params.id },
+      data: { isActive: false },
+    });
+
+    res.json({ success: true, message: 'Department deactivated' });
+  } catch (error) {
+    console.error('Error deleting department:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete department' } });
+  }
+});
+
+// Positions routes
+// GET /api/departments/positions - List all positions
+router.get('/positions/all', async (req: Request, res: Response) => {
+  try {
+    const { departmentId } = req.query;
+
+    const where: any = { isActive: true };
+    if (departmentId) where.departmentId = departmentId;
+
+    const positions = await prisma.position.findMany({
+      where,
+      include: {
+        department: { select: { id: true, name: true } },
+        _count: { select: { employees: true } },
+      },
+    });
+
+    res.json({ success: true, data: positions });
+  } catch (error) {
+    console.error('Error fetching positions:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch positions' } });
+  }
+});
+
+// POST /api/departments/positions - Create position
+router.post('/positions', async (req: Request, res: Response) => {
+  try {
+    const positionSchema = z.object({
+      code: z.string().min(1),
+      title: z.string().min(1),
+      description: z.string().optional(),
+      departmentId: z.string().uuid(),
+      jobGrade: z.string().optional(),
+      minSalary: z.number().optional(),
+      maxSalary: z.number().optional(),
+      headcount: z.number().default(1),
+      requirements: z.string().optional(),
+      responsibilities: z.string().optional(),
+    });
+
+    const data = positionSchema.parse(req.body);
+
+    const position = await prisma.position.create({
+      data,
+      include: { department: true },
+    });
+
+    res.status(201).json({ success: true, data: position });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating position:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create position' } });
+  }
+});
+
+export default router;

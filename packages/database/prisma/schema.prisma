@@ -895,9 +895,17 @@ enum DocumentType {
 
 enum DocumentStatus {
   DRAFT
+  PENDING_REVIEW
   UNDER_REVIEW
   APPROVED
+  REJECTED
+  EFFECTIVE
   OBSOLETE
+  ARCHIVED
+  ACTIVE
+  EXPIRED
+  PENDING_VERIFICATION
+  VERIFIED
 }
 
 // ============================================
@@ -1501,13 +1509,20 @@ enum ApprovalStatus {
   REJECTED
   ESCALATED
   EXPIRED
+  DELEGATED
+  CANCELLED
 }
 
 enum ApprovalDecision {
+  APPROVE
   APPROVED
   APPROVED_WITH_COMMENTS
+  REJECT
   REJECTED
   RETURNED_FOR_REVISION
+  REQUEST_CHANGES
+  DELEGATE
+  ABSTAIN
 }
 
 enum RecipientType {
@@ -3870,6 +3885,14 @@ enum DeliveryMethod {
   ON_THE_JOB
   SELF_PACED
   VIRTUAL_INSTRUCTOR_LED
+  VIRTUAL
+  E_LEARNING
+  WORKSHOP
+  SEMINAR
+  EMAIL
+  PORTAL
+  PRINT
+  IN_PERSON
 }
 
 enum CourseStatus {
@@ -4544,4 +4567,2987 @@ enum ImpactSeverity {
   MODERATE
   MAJOR
   CRITICAL
+}
+
+// ============================================
+// HR MANAGEMENT MODELS
+// ============================================
+
+model Employee {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeNumber      String @unique
+  userId              String? @unique  // Link to User for self-service portal
+
+  // Personal Information
+  firstName           String
+  middleName          String?
+  lastName            String
+  dateOfBirth         DateTime?
+  gender              Gender?
+  nationalId          String?
+  nationality         String?
+  maritalStatus       MaritalStatus?
+  bloodGroup          String?
+
+  // Contact Information
+  personalEmail       String?
+  workEmail           String @unique
+  phone               String?
+  mobilePhone         String?
+  emergencyContact    String?
+  emergencyPhone      String?
+
+  // Address
+  currentAddress      String?
+  permanentAddress    String?
+  city                String?
+  state               String?
+  country             String?
+  postalCode          String?
+
+  // Employment Details
+  departmentId        String @db.Uuid
+  positionId          String? @db.Uuid
+  managerId           String? @db.Uuid
+  employmentType      EmploymentType @default(FULL_TIME)
+  employmentStatus    EmploymentStatus @default(ACTIVE)
+  hireDate            DateTime
+  confirmationDate    DateTime?
+  terminationDate     DateTime?
+  terminationReason   String?
+
+  // Job Details
+  jobTitle            String
+  jobGrade            String?
+  workLocation        String?
+  costCenter          String?
+
+  // Compensation (basic info - detailed in Payroll)
+  currency            String @default("USD")
+  payFrequency        PayFrequency @default(MONTHLY)
+
+  // Bank Details
+  bankName            String?
+  bankBranch          String?
+  accountNumber       String?
+  accountName         String?
+  routingNumber       String?
+
+  // Documents
+  profilePhoto        String?
+  signatureFile       String?
+
+  // Probation
+  probationPeriod     Int? // months
+  probationEndDate    DateTime?
+
+  // Work Schedule
+  shiftId             String? @db.Uuid
+  workHoursPerWeek    Float @default(40)
+
+  // Metadata
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+  updatedBy           String?
+
+  // Relations
+  department          HRDepartment @relation(fields: [departmentId], references: [id])
+  position            Position? @relation(fields: [positionId], references: [id])
+  manager             Employee? @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates        Employee[] @relation("ManagerSubordinates")
+  shift               WorkShift? @relation(fields: [shiftId], references: [id])
+
+  attendances         Attendance[]
+  leaveRequests       LeaveRequest[]
+  leaveBalances       LeaveBalance[]
+  performanceReviews  PerformanceReview[] @relation("EmployeeReviews")
+  conductedReviews    PerformanceReview[] @relation("ReviewerReviews")
+  performanceGoals    PerformanceGoal[]
+  documents           EmployeeDocument[]
+  qualifications      EmployeeQualification[]
+  salaryRecords       EmployeeSalary[]
+  benefits            EmployeeBenefit[]
+  expenses            Expense[]
+  payslips            Payslip[]
+  loans               EmployeeLoan[]
+  disciplinaryActions DisciplinaryAction[]
+  trainingEnrollments HRTrainingEnrollment[]
+  certifications      EmployeeCertification[]
+  assets              EmployeeAsset[]
+
+  // Workflow relations
+  workflowInstances   WorkflowInstance[] @relation("WorkflowInitiator")
+  workflowApprovals   WorkflowStepApproval[]
+  workflowTasks       WorkflowTask[]
+
+  @@index([departmentId])
+  @@index([managerId])
+  @@index([employmentStatus])
+  @@index([workEmail])
+  @@map("hr_employees")
+}
+
+model HRDepartment {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  parentId            String? @db.Uuid
+  headId              String? @db.Uuid  // Department Head Employee ID
+  costCenter          String?
+  budget              Float?
+  budgetCurrency      String @default("USD")
+  isActive            Boolean @default(true)
+  sortOrder           Int @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  parent              HRDepartment? @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  children            HRDepartment[] @relation("DepartmentHierarchy")
+  employees           Employee[]
+  positions           Position[]
+  jobPostings         JobPosting[]
+
+  @@index([parentId])
+  @@map("hr_departments")
+}
+
+model Position {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  title               String
+  description         String?
+  departmentId        String @db.Uuid
+  jobGrade            String?
+  minSalary           Float?
+  maxSalary           Float?
+  currency            String @default("USD")
+  headcount           Int @default(1)
+  filledCount         Int @default(0)
+  requirements        String?
+  responsibilities    String?
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  department          HRDepartment @relation(fields: [departmentId], references: [id])
+  employees           Employee[]
+  jobPostings         JobPosting[]
+
+  @@index([departmentId])
+  @@map("hr_positions")
+}
+
+model WorkShift {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  code                String @unique
+  description         String?
+
+  // Timing
+  startTime           String  // HH:MM format
+  endTime             String
+  breakDuration       Int @default(60)  // minutes
+  workingHours        Float
+
+  // Days
+  monday              Boolean @default(true)
+  tuesday             Boolean @default(true)
+  wednesday           Boolean @default(true)
+  thursday            Boolean @default(true)
+  friday              Boolean @default(true)
+  saturday            Boolean @default(false)
+  sunday              Boolean @default(false)
+
+  // Overtime rules
+  overtimeThreshold   Float?  // hours
+  overtimeMultiplier  Float @default(1.5)
+
+  isActive            Boolean @default(true)
+  isNightShift        Boolean @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employees           Employee[]
+  attendances         Attendance[]
+
+  @@map("hr_work_shifts")
+}
+
+// ============================================
+// ATTENDANCE & TIME TRACKING
+// ============================================
+
+model Attendance {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  date                DateTime @db.Date
+  shiftId             String? @db.Uuid
+
+  // Clock Times
+  clockIn             DateTime?
+  clockOut            DateTime?
+  clockInLocation     String?
+  clockOutLocation    String?
+  clockInMethod       ClockMethod?
+  clockOutMethod      ClockMethod?
+
+  // Calculated Hours
+  scheduledHours      Float?
+  workedHours         Float?
+  overtimeHours       Float?
+  breakDuration       Int?  // minutes
+
+  // Late/Early tracking
+  lateMinutes         Int @default(0)
+  earlyDepartureMin   Int @default(0)
+
+  // Status
+  status              AttendanceStatus @default(PRESENT)
+  isHoliday           Boolean @default(false)
+  holidayName         String?
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+  approvalNotes       String?
+
+  // Notes
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  shift               WorkShift? @relation(fields: [shiftId], references: [id])
+  timesheetEntries    TimesheetEntry[]
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
+  @@index([status])
+  @@map("hr_attendances")
+}
+
+model TimesheetEntry {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attendanceId        String @db.Uuid
+  employeeId          String @db.Uuid
+
+  // Task/Project details
+  projectCode         String?
+  projectName         String?
+  taskDescription     String
+  category            String?
+
+  // Hours
+  hours               Float
+  startTime           DateTime?
+  endTime             DateTime?
+
+  // Billing
+  isBillable          Boolean @default(false)
+  billingRate         Float?
+  billingCurrency     String @default("USD")
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  attendance          Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  @@index([attendanceId])
+  @@index([employeeId])
+  @@map("hr_timesheet_entries")
+}
+
+// ============================================
+// LEAVE MANAGEMENT
+// ============================================
+
+model LeaveType {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  category            LeaveCategory
+  color               String?
+
+  // Entitlement settings
+  defaultDaysPerYear  Float @default(0)
+  maxCarryForward     Float @default(0)
+  maxAccumulation     Float?
+  minServiceDays      Int @default(0)  // days required before eligible
+
+  // Rules
+  isPaid              Boolean @default(true)
+  requiresApproval    Boolean @default(true)
+  requiresDocument    Boolean @default(false)
+  allowHalfDay        Boolean @default(true)
+  allowNegative       Boolean @default(false)
+  encashable          Boolean @default(false)
+
+  // Applicable to
+  applicableGenders   Gender[]
+  minNoticeDays       Int @default(0)
+
+  isActive            Boolean @default(true)
+  sortOrder           Int @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  leaveRequests       LeaveRequest[]
+  leaveBalances       LeaveBalance[]
+  policies            LeavePolicyRule[]
+
+  @@map("hr_leave_types")
+}
+
+model LeaveBalance {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  leaveTypeId         String @db.Uuid
+  year                Int
+
+  // Balance tracking
+  entitled            Float @default(0)
+  carryForward        Float @default(0)
+  adjustment          Float @default(0)
+  taken               Float @default(0)
+  pending             Float @default(0)
+  balance             Float @default(0)  // Calculated: entitled + carryForward + adjustment - taken - pending
+
+  // Encashment
+  encashed            Float @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType           LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@unique([employeeId, leaveTypeId, year])
+  @@index([employeeId])
+  @@map("hr_leave_balances")
+}
+
+model LeaveRequest {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestNumber       String @unique
+  employeeId          String @db.Uuid
+  leaveTypeId         String @db.Uuid
+
+  // Dates
+  startDate           DateTime @db.Date
+  endDate             DateTime @db.Date
+  days                Float
+  isHalfDay           Boolean @default(false)
+  halfDayPeriod       HalfDayPeriod?
+
+  // Details
+  reason              String?
+  contactDuring       String?
+  emergencyPhone      String?
+
+  // Handover
+  handoverToId        String? @db.Uuid
+  handoverNotes       String?
+
+  // Documents
+  attachments         Json?  // Array of file URLs
+
+  // Status
+  status              LeaveRequestStatus @default(PENDING)
+  cancelledAt         DateTime?
+  cancellationReason  String?
+
+  // Approval workflow
+  currentApprovalStep Int @default(1)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType           LeaveType @relation(fields: [leaveTypeId], references: [id])
+  approvals           LeaveApproval[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@map("hr_leave_requests")
+}
+
+model LeaveApproval {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  leaveRequestId      String @db.Uuid
+  approverEmployeeId  String @db.Uuid
+  step                Int @default(1)
+
+  // Decision
+  status              ApprovalStatus @default(PENDING)
+  decision            ApprovalDecision?
+  decidedAt           DateTime?
+  comments            String?
+
+  // Delegation
+  delegatedFromId     String? @db.Uuid
+  delegatedReason     String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  leaveRequest        LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+
+  @@index([leaveRequestId])
+  @@index([approverEmployeeId])
+  @@map("hr_leave_approvals")
+}
+
+model LeavePolicyRule {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  leaveTypeId         String @db.Uuid
+  name                String
+  description         String?
+
+  // Conditions
+  minServiceMonths    Int?
+  maxServiceMonths    Int?
+  employmentTypes     EmploymentType[]
+  departments         String[]  // Department IDs
+  jobGrades           String[]
+
+  // Entitlement
+  daysPerYear         Float
+  accrualType         AccrualType @default(ANNUAL)
+
+  isActive            Boolean @default(true)
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  leaveType           LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@index([leaveTypeId])
+  @@map("hr_leave_policy_rules")
+}
+
+model Holiday {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  date                DateTime @db.Date
+  year                Int
+  type                HolidayType
+  isFloating          Boolean @default(false)
+  applicableLocations String[]
+  description         String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([name, year])
+  @@index([year])
+  @@index([date])
+  @@map("hr_holidays")
+}
+
+// ============================================
+// PERFORMANCE MANAGEMENT
+// ============================================
+
+model PerformanceCycle {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  year                Int
+  cycleType           PerformanceCycleType
+  startDate           DateTime
+  endDate             DateTime
+
+  // Configuration
+  goalSettingStart    DateTime?
+  goalSettingEnd      DateTime?
+  midYearReviewStart  DateTime?
+  midYearReviewEnd    DateTime?
+  annualReviewStart   DateTime?
+  annualReviewEnd     DateTime?
+
+  // Rating scale
+  ratingScale         Int @default(5)  // 1-5 or 1-10
+  ratingLabels        Json?  // {"1": "Needs Improvement", "2": "Meets Expectations", ...}
+
+  status              CycleStatus @default(DRAFT)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  reviews             PerformanceReview[]
+  goals               PerformanceGoal[]
+
+  @@unique([name, year])
+  @@map("hr_performance_cycles")
+}
+
+model PerformanceReview {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cycleId             String @db.Uuid
+  employeeId          String @db.Uuid
+  reviewerId          String @db.Uuid
+  reviewType          ReviewType
+
+  // Review Period
+  periodStart         DateTime
+  periodEnd           DateTime
+
+  // Self Assessment
+  selfAssessment      String?
+  selfRating          Int?
+  selfRatingDate      DateTime?
+
+  // Manager Review
+  managerAssessment   String?
+  managerRating       Int?
+  managerRatingDate   DateTime?
+
+  // Competency Ratings
+  competencyRatings   Json?  // {"technical": 4, "communication": 5, ...}
+
+  // Goal Achievement
+  goalsAchievement    Float?  // percentage
+  goalsNotes          String?
+
+  // Overall
+  overallRating       Int?
+  overallComments     String?
+  strengths           String?
+  improvementAreas    String?
+  developmentPlan     String?
+
+  // Calibration
+  calibratedRating    Int?
+  calibrationNotes    String?
+  calibratedById      String?
+  calibratedAt        DateTime?
+
+  // Acknowledgment
+  employeeAcknowledged Boolean @default(false)
+  acknowledgedAt      DateTime?
+  employeeComments    String?
+
+  status              ReviewStatus @default(DRAFT)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  cycle               PerformanceCycle @relation(fields: [cycleId], references: [id])
+  employee            Employee @relation("EmployeeReviews", fields: [employeeId], references: [id])
+  reviewer            Employee @relation("ReviewerReviews", fields: [reviewerId], references: [id])
+  feedbacks           PerformanceFeedback[]
+
+  @@unique([cycleId, employeeId, reviewType])
+  @@index([cycleId])
+  @@index([employeeId])
+  @@index([reviewerId])
+  @@map("hr_performance_reviews")
+}
+
+model PerformanceGoal {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cycleId             String @db.Uuid
+  employeeId          String @db.Uuid
+
+  // Goal details
+  title               String
+  description         String
+  category            GoalCategory
+  weight              Float @default(0)  // percentage weight
+
+  // SMART criteria
+  measurementCriteria String
+  targetValue         String?
+  actualValue         String?
+  unit                String?
+
+  // Timeline
+  startDate           DateTime?
+  dueDate             DateTime
+
+  // Progress
+  progress            Float @default(0)  // 0-100
+  status              GoalStatus @default(NOT_STARTED)
+
+  // Rating
+  selfRating          Int?
+  managerRating       Int?
+  finalRating         Int?
+  ratingComments      String?
+
+  // Alignment
+  alignedToObjective  String?  // Company/Department objective
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  cycle               PerformanceCycle @relation(fields: [cycleId], references: [id])
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  updates             GoalUpdate[]
+
+  @@index([cycleId])
+  @@index([employeeId])
+  @@map("hr_performance_goals")
+}
+
+model GoalUpdate {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  goalId              String @db.Uuid
+  updatedById         String
+
+  progressBefore      Float
+  progressAfter       Float
+  updateNotes         String
+  evidence            Json?  // File attachments
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  goal                PerformanceGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId])
+  @@map("hr_goal_updates")
+}
+
+model PerformanceFeedback {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reviewId            String @db.Uuid
+  feedbackType        FeedbackType
+  providerId          String  // Who gave feedback
+
+  // Feedback content
+  relationship        String?  // Peer, Direct Report, Skip Level, etc.
+  ratings             Json?  // Competency ratings
+  strengths           String?
+  improvements        String?
+  additionalComments  String?
+
+  isAnonymous         Boolean @default(false)
+  submittedAt         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  review              PerformanceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("hr_performance_feedbacks")
+}
+
+// ============================================
+// RECRUITMENT & HIRING
+// ============================================
+
+model JobPosting {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobCode             String @unique
+  title               String
+  departmentId        String @db.Uuid
+  positionId          String? @db.Uuid
+
+  // Job Details
+  description         String
+  responsibilities    String
+  requirements        String
+  preferredSkills     String?
+  benefits            String?
+
+  // Employment
+  employmentType      EmploymentType
+  experienceMin       Int?
+  experienceMax       Int?
+  educationLevel      String?
+
+  // Location
+  location            String
+  isRemote            Boolean @default(false)
+  remoteType          RemoteType?
+
+  // Compensation
+  salaryMin           Float?
+  salaryMax           Float?
+  salaryCurrency      String @default("USD")
+  salaryPeriod        PayFrequency @default(MONTHLY)
+  showSalary          Boolean @default(false)
+
+  // Posting
+  openings            Int @default(1)
+  filled              Int @default(0)
+  status              JobPostingStatus @default(DRAFT)
+  publishDate         DateTime?
+  closeDate           DateTime?
+  internalOnly        Boolean @default(false)
+
+  // Workflow
+  hiringManagerId     String?
+  recruiterId         String?
+
+  // Channels
+  postingChannels     String[]  // LinkedIn, Indeed, Website, etc.
+  applicationUrl      String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  department          HRDepartment @relation(fields: [departmentId], references: [id])
+  position            Position? @relation(fields: [positionId], references: [id])
+  applicants          Applicant[]
+  interviews          Interview[]
+
+  @@index([departmentId])
+  @@index([status])
+  @@map("hr_job_postings")
+}
+
+model Applicant {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicantNumber     String @unique
+  jobPostingId        String @db.Uuid
+
+  // Personal Info
+  firstName           String
+  lastName            String
+  email               String
+  phone               String?
+  linkedinUrl         String?
+
+  // Application
+  coverLetter         String?
+  resumeUrl           String?
+  portfolioUrl        String?
+  source              ApplicationSource
+  referredBy          String?
+
+  // Experience
+  currentCompany      String?
+  currentTitle        String?
+  yearsExperience     Int?
+  noticePeriod        Int?  // days
+  expectedSalary      Float?
+  salaryCurrency      String @default("USD")
+
+  // Screening
+  screeningScore      Int?
+  screeningNotes      String?
+
+  // Status
+  status              ApplicantStatus @default(NEW)
+  stage               RecruitmentStage @default(APPLICATION)
+  rejectionReason     String?
+
+  // Assessment scores
+  assessmentScores    Json?  // {"technical": 80, "cultural": 90}
+
+  // Offer
+  offerExtended       DateTime?
+  offerAccepted       DateTime?
+  offerRejected       DateTime?
+  startDate           DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  jobPosting          JobPosting @relation(fields: [jobPostingId], references: [id])
+  interviews          Interview[]
+  evaluations         InterviewEvaluation[]
+
+  @@index([jobPostingId])
+  @@index([status])
+  @@index([email])
+  @@map("hr_applicants")
+}
+
+model Interview {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicantId         String @db.Uuid
+  jobPostingId        String @db.Uuid
+  round               Int @default(1)
+  interviewType       InterviewType
+
+  // Schedule
+  scheduledAt         DateTime
+  duration            Int @default(60)  // minutes
+  location            String?
+  meetingUrl          String?
+  timezone            String @default("UTC")
+
+  // Interviewers
+  interviewerIds      String[]
+  organizerId         String
+
+  // Status
+  status              InterviewStatus @default(SCHEDULED)
+  actualStartTime     DateTime?
+  actualEndTime       DateTime?
+  cancelledReason     String?
+
+  // Notes
+  agenda              String?
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  applicant           Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  jobPosting          JobPosting @relation(fields: [jobPostingId], references: [id])
+  evaluations         InterviewEvaluation[]
+
+  @@index([applicantId])
+  @@index([jobPostingId])
+  @@index([scheduledAt])
+  @@map("hr_interviews")
+}
+
+model InterviewEvaluation {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  interviewId         String @db.Uuid
+  applicantId         String @db.Uuid
+  evaluatorId         String
+
+  // Ratings
+  overallRating       Int  // 1-5
+  technicalRating     Int?
+  communicationRating Int?
+  cultureFitRating    Int?
+  leadershipRating    Int?
+
+  // Detailed assessment
+  strengths           String?
+  concerns            String?
+  additionalNotes     String?
+
+  // Recommendation
+  recommendation      HiringRecommendation
+  recommendedSalary   Float?
+
+  submittedAt         DateTime @default(now())
+
+  // Relations
+  interview           Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  applicant           Applicant @relation(fields: [applicantId], references: [id])
+
+  @@unique([interviewId, evaluatorId])
+  @@index([interviewId])
+  @@index([applicantId])
+  @@map("hr_interview_evaluations")
+}
+
+// ============================================
+// EMPLOYEE DOCUMENTS & QUALIFICATIONS
+// ============================================
+
+model EmployeeDocument {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  documentType        EmployeeDocumentType
+  title               String
+  description         String?
+
+  // File info
+  fileName            String
+  fileUrl             String
+  fileSize            Int?
+  mimeType            String?
+
+  // Version control
+  version             Int @default(1)
+  previousVersionId   String? @db.Uuid
+
+  // Validity
+  issueDate           DateTime?
+  expiryDate          DateTime?
+  issuingAuthority    String?
+  documentNumber      String?
+
+  // Status
+  status              DocumentStatus @default(ACTIVE)
+  verifiedById        String?
+  verifiedAt          DateTime?
+
+  // E-signature
+  requiresSignature   Boolean @default(false)
+  signedAt            DateTime?
+  signatureUrl        String?
+
+  // Privacy
+  isConfidential      Boolean @default(false)
+  accessRoles         String[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([documentType])
+  @@index([expiryDate])
+  @@map("hr_employee_documents")
+}
+
+model EmployeeQualification {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  qualificationType   QualificationType
+
+  // Education details
+  institution         String
+  degree              String?
+  fieldOfStudy        String?
+  grade               String?
+
+  // Dates
+  startDate           DateTime?
+  endDate             DateTime?
+  isOngoing           Boolean @default(false)
+
+  // Verification
+  documentUrl         String?
+  isVerified          Boolean @default(false)
+  verifiedById        String?
+  verifiedAt          DateTime?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("hr_employee_qualifications")
+}
+
+model EmployeeCertification {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  name                String
+  issuingOrganization String
+  credentialId        String?
+  credentialUrl       String?
+
+  issueDate           DateTime
+  expiryDate          DateTime?
+  doesNotExpire       Boolean @default(false)
+
+  // Renewal
+  renewalRequired     Boolean @default(false)
+  renewalReminderDays Int?
+
+  // Verification
+  certificateUrl      String?
+  status              CertificationStatus @default(ACTIVE)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([expiryDate])
+  @@map("hr_employee_certifications")
+}
+
+model EmployeeAsset {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  assetTag            String @unique
+  assetType           AssetType
+  name                String
+  description         String?
+  serialNumber        String?
+  model               String?
+  manufacturer        String?
+
+  // Assignment
+  assignedDate        DateTime
+  returnDate          DateTime?
+  returnCondition     String?
+
+  // Value
+  purchaseValue       Float?
+  currentValue        Float?
+  currency            String @default("USD")
+
+  // Condition
+  condition           AssetCondition @default(GOOD)
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@map("hr_employee_assets")
+}
+
+model DisciplinaryAction {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  caseNumber          String @unique
+
+  // Incident
+  incidentDate        DateTime
+  incidentDescription String
+  category            DisciplinaryCategory
+  severity            DisciplinarySeverity
+
+  // Investigation
+  investigatorId      String?
+  investigationNotes  String?
+  witnessStatements   Json?
+
+  // Action
+  actionType          DisciplinaryActionType
+  actionDescription   String
+  effectiveDate       DateTime
+  expiryDate          DateTime?
+
+  // Appeal
+  appealSubmitted     Boolean @default(false)
+  appealDate          DateTime?
+  appealOutcome       String?
+
+  status              DisciplinaryStatus @default(OPEN)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("hr_disciplinary_actions")
+}
+
+// ============================================
+// HR TRAINING & DEVELOPMENT
+// ============================================
+
+model HRTrainingCourse {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  category            String
+  provider            String?
+  instructorName      String?
+
+  // Course details
+  deliveryMethod      DeliveryMethod
+  duration            Int  // hours
+  maxParticipants     Int?
+  prerequisites       String[]
+  objectives          String?
+  syllabus            String?
+
+  // Certification
+  certificationAwarded Boolean @default(false)
+  certificationValidity Int?  // months
+
+  // Cost
+  costPerPerson       Float?
+  currency            String @default("USD")
+
+  // Materials
+  materialsUrl        String?
+
+  isActive            Boolean @default(true)
+  isMandatory         Boolean @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  sessions            HRTrainingSession[]
+  enrollments         HRTrainingEnrollment[]
+
+  @@map("hr_training_courses")
+}
+
+model HRTrainingSession {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId            String @db.Uuid
+  sessionCode         String @unique
+
+  // Schedule
+  startDate           DateTime
+  endDate             DateTime
+  location            String?
+  isVirtual           Boolean @default(false)
+  meetingUrl          String?
+
+  // Instructor
+  instructorId        String?
+  instructorName      String?
+
+  // Capacity
+  maxParticipants     Int
+  enrolledCount       Int @default(0)
+  waitlistCount       Int @default(0)
+
+  // Status
+  status              TrainingSessionStatus @default(SCHEDULED)
+  cancelledReason     String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  course              HRTrainingCourse @relation(fields: [courseId], references: [id])
+  enrollments         HRTrainingEnrollment[]
+
+  @@index([courseId])
+  @@index([startDate])
+  @@map("hr_training_sessions")
+}
+
+model HRTrainingEnrollment {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  courseId            String @db.Uuid
+  sessionId           String? @db.Uuid
+
+  // Status
+  status              EnrollmentStatus @default(ENROLLED)
+  enrolledAt          DateTime @default(now())
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+
+  // Attendance
+  attendancePercent   Float?
+
+  // Assessment
+  assessmentScore     Float?
+  assessmentDate      DateTime?
+  passed              Boolean?
+
+  // Certification
+  certificateIssued   Boolean @default(false)
+  certificateUrl      String?
+  certificateExpiry   DateTime?
+
+  // Feedback
+  feedbackRating      Int?
+  feedbackComments    String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  course              HRTrainingCourse @relation(fields: [courseId], references: [id])
+  session             HRTrainingSession? @relation(fields: [sessionId], references: [id])
+
+  @@unique([employeeId, courseId, sessionId])
+  @@index([employeeId])
+  @@index([courseId])
+  @@index([sessionId])
+  @@map("hr_training_enrollments")
+}
+
+// ============================================
+// PAYROLL MODELS
+// ============================================
+
+model EmployeeSalary {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+
+  // Base salary
+  baseSalary          Float
+  currency            String @default("USD")
+  payFrequency        PayFrequency @default(MONTHLY)
+
+  // Effective period
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+  isActive            Boolean @default(true)
+
+  // Components
+  components          SalaryComponent[]
+
+  // History
+  previousSalary      Float?
+  changeReason        String?
+  changeType          SalaryChangeType?
+  approvedById        String?
+  approvedAt          DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([effectiveFrom])
+  @@map("payroll_employee_salaries")
+}
+
+model SalaryComponent {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeSalaryId    String @db.Uuid
+  componentTypeId     String @db.Uuid
+
+  // Amount
+  amount              Float
+  percentage          Float?  // If calculated as % of base
+  calculationType     ComponentCalculationType @default(FIXED)
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employeeSalary      EmployeeSalary @relation(fields: [employeeSalaryId], references: [id], onDelete: Cascade)
+  componentType       SalaryComponentType @relation(fields: [componentTypeId], references: [id])
+
+  @@index([employeeSalaryId])
+  @@map("payroll_salary_components")
+}
+
+model SalaryComponentType {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  category            ComponentCategory
+  type                ComponentType  // EARNING or DEDUCTION
+
+  // Tax treatment
+  isTaxable           Boolean @default(true)
+  taxCategory         String?
+
+  // Rules
+  isRecurring         Boolean @default(true)
+  isStatutory         Boolean @default(false)
+  isMandatory         Boolean @default(false)
+
+  // Calculation
+  defaultCalculationType ComponentCalculationType @default(FIXED)
+  defaultPercentage   Float?
+
+  // Display
+  showInPayslip       Boolean @default(true)
+  sortOrder           Int @default(0)
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  components          SalaryComponent[]
+  payslipItems        PayslipItem[]
+
+  @@map("payroll_salary_component_types")
+}
+
+model PayrollRun {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  runNumber           String @unique
+  companyId           String?
+
+  // Period
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+  payDate             DateTime @db.Date
+  payFrequency        PayFrequency
+
+  // Employees
+  totalEmployees      Int @default(0)
+  processedEmployees  Int @default(0)
+  errorEmployees      Int @default(0)
+
+  // Totals
+  totalGross          Float @default(0)
+  totalDeductions     Float @default(0)
+  totalNet            Float @default(0)
+  totalEmployerCost   Float @default(0)
+  currency            String @default("USD")
+
+  // Status
+  status              PayrollRunStatus @default(DRAFT)
+  lockedAt            DateTime?
+  lockedById          String?
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+
+  // Payment
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentDate         DateTime?
+  paymentReference    String?
+  bankFileGenerated   Boolean @default(false)
+  bankFileUrl         String?
+
+  // Notes
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  payslips            Payslip[]
+  taxFilings          TaxFiling[]
+
+  @@index([periodStart, periodEnd])
+  @@index([status])
+  @@map("payroll_runs")
+}
+
+model Payslip {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payslipNumber       String @unique
+  payrollRunId        String @db.Uuid
+  employeeId          String @db.Uuid
+
+  // Period
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+  payDate             DateTime @db.Date
+
+  // Employee info snapshot
+  employeeName        String
+  employeeNumber      String
+  department          String?
+  position            String?
+  bankAccount         String?
+
+  // Working days
+  workingDays         Float
+  paidDays            Float
+  leaveDays           Float
+  unpaidLeaveDays     Float
+  overtimeHours       Float @default(0)
+
+  // Earnings
+  basicSalary         Float
+  grossEarnings       Float
+
+  // Deductions
+  totalDeductions     Float
+  statutoryDeductions Float @default(0)
+  voluntaryDeductions Float @default(0)
+  otherDeductions     Float @default(0)
+
+  // Net
+  netPay              Float
+  currency            String @default("USD")
+
+  // Tax
+  taxableIncome       Float
+  incomeTax           Float @default(0)
+  yearToDateEarnings  Float @default(0)
+  yearToDateTax       Float @default(0)
+
+  // Status
+  status              PayslipStatus @default(DRAFT)
+  publishedAt         DateTime?
+  viewedByEmployee    Boolean @default(false)
+  viewedAt            DateTime?
+
+  // Payment
+  paymentMethod       PaymentMethod @default(BANK_TRANSFER)
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentReference    String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  payrollRun          PayrollRun @relation(fields: [payrollRunId], references: [id])
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  items               PayslipItem[]
+
+  @@unique([payrollRunId, employeeId])
+  @@index([payrollRunId])
+  @@index([employeeId])
+  @@map("payroll_payslips")
+}
+
+model PayslipItem {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payslipId           String @db.Uuid
+  componentTypeId     String? @db.Uuid
+
+  // Item details
+  category            ComponentCategory
+  type                ComponentType
+  name                String
+  description         String?
+
+  // Amount
+  quantity            Float @default(1)
+  rate                Float?
+  amount              Float
+
+  // Tax
+  isTaxable           Boolean @default(true)
+
+  sortOrder           Int @default(0)
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  payslip             Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  componentType       SalaryComponentType? @relation(fields: [componentTypeId], references: [id])
+
+  @@index([payslipId])
+  @@map("payroll_payslip_items")
+}
+
+// ============================================
+// BENEFITS & DEDUCTIONS
+// ============================================
+
+model EmployeeBenefit {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId          String @db.Uuid
+  benefitPlanId       String @db.Uuid
+
+  // Enrollment
+  enrollmentDate      DateTime
+  terminationDate     DateTime?
+  status              BenefitStatus @default(ACTIVE)
+
+  // Coverage
+  coverageLevel       CoverageLevel
+  dependents          Json?  // Array of dependent info
+
+  // Contributions
+  employeeContribution Float @default(0)
+  employerContribution Float @default(0)
+  contributionFrequency PayFrequency @default(MONTHLY)
+
+  // Effective dates
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  benefitPlan         BenefitPlan @relation(fields: [benefitPlanId], references: [id])
+
+  @@index([employeeId])
+  @@index([benefitPlanId])
+  @@map("payroll_employee_benefits")
+}
+
+model BenefitPlan {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  category            BenefitCategory
+  provider            String?
+
+  // Coverage options
+  coverageLevels      CoverageLevel[]
+  dependentsCoverage  Boolean @default(false)
+
+  // Costs
+  employeeContribution Float?
+  employerContribution Float?
+  contributionType    ComponentCalculationType @default(FIXED)
+
+  // Eligibility
+  eligibilityRules    Json?
+  waitingPeriodDays   Int @default(0)
+
+  // Documents
+  planDocumentUrl     String?
+
+  isActive            Boolean @default(true)
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employeeBenefits    EmployeeBenefit[]
+
+  @@map("payroll_benefit_plans")
+}
+
+model EmployeeLoan {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanNumber          String @unique
+  employeeId          String @db.Uuid
+  loanType            LoanType
+
+  // Loan details
+  principalAmount     Float
+  interestRate        Float @default(0)
+  totalAmount         Float
+  currency            String @default("USD")
+
+  // Terms
+  termMonths          Int
+  startDate           DateTime
+  endDate             DateTime
+  installmentAmount   Float
+  paymentFrequency    PayFrequency @default(MONTHLY)
+
+  // Tracking
+  disbursedAmount     Float @default(0)
+  repaidAmount        Float @default(0)
+  remainingBalance    Float
+
+  // Status
+  status              LoanStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+  disbursedAt         DateTime?
+
+  // Notes
+  purpose             String?
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  repayments          LoanRepayment[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("payroll_employee_loans")
+}
+
+model LoanRepayment {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanId              String @db.Uuid
+  installmentNumber   Int
+  dueDate             DateTime @db.Date
+  amount              Float
+  principal           Float
+  interest            Float
+
+  // Payment
+  paidAmount          Float @default(0)
+  paidDate            DateTime?
+  paymentMethod       PaymentMethod?
+  payrollRunId        String?
+  status              RepaymentStatus @default(PENDING)
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  loan                EmployeeLoan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@unique([loanId, installmentNumber])
+  @@index([loanId])
+  @@index([dueDate])
+  @@map("payroll_loan_repayments")
+}
+
+// ============================================
+// EXPENSE MANAGEMENT
+// ============================================
+
+model Expense {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseNumber       String @unique
+  employeeId          String @db.Uuid
+
+  // Details
+  category            ExpenseCategory
+  subcategory         String?
+  description         String
+  merchant            String?
+
+  // Amount
+  amount              Float
+  currency            String @default("USD")
+  exchangeRate        Float @default(1)
+  amountInBaseCurrency Float
+
+  // Date
+  expenseDate         DateTime @db.Date
+  submittedAt         DateTime @default(now())
+
+  // Receipts
+  receiptUrls         String[]
+  hasReceipt          Boolean @default(false)
+
+  // Project/Cost center
+  projectCode         String?
+  costCenter          String?
+  isBillable          Boolean @default(false)
+  clientName          String?
+
+  // Status
+  status              ExpenseStatus @default(DRAFT)
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+  approvalNotes       String?
+
+  // Reimbursement
+  reimbursementStatus ReimbursementStatus @default(PENDING)
+  reimbursedAt        DateTime?
+  reimbursementMethod PaymentMethod?
+  payrollRunId        String?
+
+  // Policy
+  policyViolation     Boolean @default(false)
+  violationNotes      String?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  report              ExpenseReport? @relation(fields: [reportId], references: [id])
+  reportId            String? @db.Uuid
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([expenseDate])
+  @@map("payroll_expenses")
+}
+
+model ExpenseReport {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reportNumber        String @unique
+  employeeId          String
+  title               String
+  description         String?
+
+  // Period
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+
+  // Totals
+  totalAmount         Float @default(0)
+  currency            String @default("USD")
+  expenseCount        Int @default(0)
+
+  // Status
+  status              ExpenseReportStatus @default(DRAFT)
+  submittedAt         DateTime?
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+
+  // Payment
+  paymentStatus       PaymentStatus @default(PENDING)
+  paidAt              DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  expenses            Expense[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("payroll_expense_reports")
+}
+
+// ============================================
+// TAX & COMPLIANCE
+// ============================================
+
+model TaxFiling {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  payrollRunId        String? @db.Uuid
+  filingType          TaxFilingType
+  taxPeriod           String  // e.g., "2024-Q1", "2024-01"
+  taxYear             Int
+
+  // Amounts
+  grossWages          Float
+  taxableWages        Float
+  taxWithheld         Float
+  employerTax         Float
+  totalTax            Float
+  currency            String @default("USD")
+
+  // Filing
+  filingDeadline      DateTime
+  filedAt             DateTime?
+  filedById           String?
+  confirmationNumber  String?
+
+  // Payment
+  paymentDue          Float
+  paymentDate         DateTime?
+  paymentReference    String?
+  paymentStatus       PaymentStatus @default(PENDING)
+
+  // Documents
+  filingDocumentUrl   String?
+  supportingDocs      String[]
+
+  status              TaxFilingStatus @default(PENDING)
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  payrollRun          PayrollRun? @relation(fields: [payrollRunId], references: [id])
+
+  @@index([taxYear])
+  @@index([filingType])
+  @@map("payroll_tax_filings")
+}
+
+model TaxBracket {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taxYear             Int
+  country             String
+  region              String?
+  filingStatus        String?  // Single, Married, etc.
+
+  // Bracket
+  minIncome           Float
+  maxIncome           Float?
+  rate                Float  // percentage
+  fixedAmount         Float @default(0)
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([taxYear, country])
+  @@map("payroll_tax_brackets")
+}
+
+// ============================================
+// WORKFLOW ENGINE MODELS
+// ============================================
+
+model WorkflowTemplate {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+  category            WorkflowCategory
+  industryType        IndustryType?
+
+  // Template definition
+  version             Int @default(1)
+  isPublished         Boolean @default(false)
+  publishedAt         DateTime?
+
+  // Template metadata
+  estimatedDuration   Int?  // hours
+  complexity          WorkflowComplexity @default(MEDIUM)
+  requiredRoles       String[]
+
+  // Icon/visual
+  icon                String?
+  color               String?
+
+  isActive            Boolean @default(true)
+  isSystem            Boolean @default(false)  // Built-in templates
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  definitions         WorkflowDefinition[]
+
+  @@index([category])
+  @@index([industryType])
+  @@map("workflow_templates")
+}
+
+model WorkflowDefinition {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templateId          String? @db.Uuid
+  code                String @unique
+  name                String
+  description         String?
+
+  // Version control
+  version             Int @default(1)
+  status              WorkflowDefinitionStatus @default(DRAFT)
+  publishedVersion    Int?
+
+  // Trigger configuration
+  triggerType         WorkflowTriggerType
+  triggerConfig       Json?  // Conditions for auto-triggering
+
+  // Process definition (BPMN-like)
+  nodes               Json  // Array of workflow nodes
+  edges               Json  // Connections between nodes
+  variables           Json?  // Workflow variables schema
+
+  // SLA Configuration
+  defaultSLA          Int?  // hours
+  escalationRules     Json?
+
+  // Notifications
+  notificationConfig  Json?
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  template            WorkflowTemplate? @relation(fields: [templateId], references: [id])
+  instances           WorkflowInstance[]
+  rules               WorkflowRule[]
+  approvalChains      ApprovalChain[]
+
+  @@index([templateId])
+  @@index([status])
+  @@map("workflow_definitions")
+}
+
+model WorkflowInstance {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceNumber      String @unique
+  definitionId        String @db.Uuid
+  initiatorId         String @db.Uuid
+
+  // Context
+  title               String
+  description         String?
+  entityType          String?  // LeaveRequest, Expense, CAPA, etc.
+  entityId            String?  // ID of the linked entity
+  priority            WorkflowPriority @default(NORMAL)
+
+  // Variables/Data
+  variables           Json?
+  formData            Json?
+
+  // Status
+  status              WorkflowInstanceStatus @default(PENDING)
+  currentNodeId       String?
+  completedNodeIds    String[]
+
+  // Timing
+  startedAt           DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancelledById       String?
+  cancellationReason  String?
+
+  // SLA
+  dueDate             DateTime?
+  isOverdue           Boolean @default(false)
+  escalationLevel     Int @default(0)
+
+  // Outcome
+  outcome             WorkflowOutcome?
+  outcomeNotes        String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  definition          WorkflowDefinition @relation(fields: [definitionId], references: [id])
+  initiator           Employee @relation("WorkflowInitiator", fields: [initiatorId], references: [id])
+  steps               WorkflowStepInstance[]
+  tasks               WorkflowTask[]
+  history             WorkflowHistory[]
+  escalations         WorkflowEscalation[]
+
+  @@index([definitionId])
+  @@index([initiatorId])
+  @@index([status])
+  @@index([entityType, entityId])
+  @@map("workflow_instances")
+}
+
+model WorkflowStepInstance {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceId          String @db.Uuid
+  nodeId              String  // Reference to node in definition
+  stepNumber          Int
+
+  // Step details
+  name                String
+  stepType            WorkflowStepType
+  description         String?
+
+  // Assignment
+  assigneeType        AssigneeType
+  assigneeId          String?
+  assigneeRole        String?
+
+  // Status
+  status              WorkflowStepStatus @default(PENDING)
+  startedAt           DateTime?
+  completedAt         DateTime?
+
+  // Decision/Action
+  action              String?  // Approve, Reject, Complete, etc.
+  actionData          Json?
+  comments            String?
+
+  // SLA
+  dueDate             DateTime?
+  isOverdue           Boolean @default(false)
+
+  // Parallel execution
+  parallelBranchId    String?
+  isParallel          Boolean @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  instance            WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  approvals           WorkflowStepApproval[]
+
+  @@index([instanceId])
+  @@index([status])
+  @@map("workflow_step_instances")
+}
+
+model WorkflowStepApproval {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  stepInstanceId      String @db.Uuid
+  approverId          String @db.Uuid
+  approvalOrder       Int @default(1)
+
+  // Decision
+  decision            ApprovalDecision?
+  decidedAt           DateTime?
+  comments            String?
+
+  // Delegation
+  delegatedFromId     String?
+  delegatedReason     String?
+
+  // Reminder
+  reminderSentAt      DateTime?
+  reminderCount       Int @default(0)
+
+  status              ApprovalStatus @default(PENDING)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  stepInstance        WorkflowStepInstance @relation(fields: [stepInstanceId], references: [id], onDelete: Cascade)
+  approver            Employee @relation(fields: [approverId], references: [id])
+
+  @@unique([stepInstanceId, approverId])
+  @@index([stepInstanceId])
+  @@index([approverId])
+  @@map("workflow_step_approvals")
+}
+
+model WorkflowTask {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceId          String @db.Uuid
+  assigneeId          String @db.Uuid
+  taskNumber          String @unique
+
+  // Task details
+  title               String
+  description         String?
+  taskType            WorkflowTaskType
+  priority            WorkflowPriority @default(NORMAL)
+
+  // Assignment
+  assignedAt          DateTime @default(now())
+  dueDate             DateTime?
+
+  // Status
+  status              WorkflowTaskStatus @default(PENDING)
+  startedAt           DateTime?
+  completedAt         DateTime?
+
+  // Result
+  result              Json?
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  instance            WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  assignee            Employee @relation(fields: [assigneeId], references: [id])
+
+  @@index([instanceId])
+  @@index([assigneeId])
+  @@index([status])
+  @@map("workflow_tasks")
+}
+
+model WorkflowRule {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  definitionId        String @db.Uuid
+  name                String
+  description         String?
+  ruleType            WorkflowRuleType
+
+  // Condition
+  condition           Json  // Rule condition expression
+  conditionType       ConditionType @default(EXPRESSION)
+
+  // Action
+  action              Json  // Action to execute
+  actionType          WorkflowActionType
+
+  // Priority
+  priority            Int @default(0)
+  stopOnMatch         Boolean @default(false)
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  definition          WorkflowDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+
+  @@index([definitionId])
+  @@map("workflow_rules")
+}
+
+model ApprovalChain {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  definitionId        String? @db.Uuid
+  name                String
+  description         String?
+  chainType           ApprovalChainType
+
+  // Levels
+  levels              Json  // Array of approval levels configuration
+
+  // Rules
+  skipConditions      Json?  // Conditions to skip levels
+  escalationConfig    Json?
+
+  isActive            Boolean @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  definition          WorkflowDefinition? @relation(fields: [definitionId], references: [id])
+
+  @@index([definitionId])
+  @@map("workflow_approval_chains")
+}
+
+model WorkflowEscalation {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceId          String @db.Uuid
+  level               Int
+  reason              EscalationReason
+
+  // Escalation details
+  escalatedFromId     String?
+  escalatedToId       String?
+  escalatedToRole     String?
+
+  // Notification
+  notificationSent    Boolean @default(false)
+  notificationSentAt  DateTime?
+  notificationMethod  String[]
+
+  // Resolution
+  resolvedAt          DateTime?
+  resolution          String?
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  instance            WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@map("workflow_escalations")
+}
+
+model WorkflowHistory {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceId          String @db.Uuid
+  action              String
+  actionBy            String?
+  actionAt            DateTime @default(now())
+
+  // Details
+  nodeId              String?
+  fromStatus          String?
+  toStatus            String?
+  details             Json?
+  comments            String?
+
+  // Relations
+  instance            WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@index([actionAt])
+  @@map("workflow_history")
+}
+
+model WorkflowNotification {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  instanceId          String?
+  recipientId         String
+  recipientEmail      String
+
+  // Notification details
+  notificationType    NotificationType
+  channel             NotificationChannel
+  subject             String
+  body                String
+  templateId          String?
+
+  // Status
+  status              NotificationStatus @default(PENDING)
+  sentAt              DateTime?
+  failureReason       String?
+  retryCount          Int @default(0)
+
+  // Read tracking
+  readAt              DateTime?
+
+  createdAt           DateTime @default(now())
+
+  @@index([instanceId])
+  @@index([recipientId])
+  @@index([status])
+  @@map("workflow_notifications")
+}
+
+// ============================================
+// HR ENUMS
+// ============================================
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  SEPARATED
+  DOMESTIC_PARTNERSHIP
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+  INTERN
+  CONSULTANT
+  FREELANCE
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  PROBATION
+  NOTICE_PERIOD
+  TERMINATED
+  RETIRED
+}
+
+enum PayFrequency {
+  WEEKLY
+  BIWEEKLY
+  SEMI_MONTHLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum ClockMethod {
+  MANUAL
+  BIOMETRIC
+  CARD_SWIPE
+  MOBILE_APP
+  WEB_PORTAL
+  FACIAL_RECOGNITION
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  ON_LEAVE
+  HOLIDAY
+  WEEKEND
+  WORK_FROM_HOME
+  LATE
+}
+
+enum LeaveCategory {
+  ANNUAL
+  SICK
+  MATERNITY
+  PATERNITY
+  BEREAVEMENT
+  UNPAID
+  COMPENSATORY
+  STUDY
+  SABBATICAL
+  OTHER
+}
+
+enum LeaveRequestStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  PARTIALLY_APPROVED
+}
+
+enum HalfDayPeriod {
+  FIRST_HALF
+  SECOND_HALF
+}
+
+enum AccrualType {
+  ANNUAL
+  MONTHLY
+  PRORATED
+  MILESTONE
+}
+
+enum HolidayType {
+  PUBLIC
+  COMPANY
+  OPTIONAL
+  RESTRICTED
+}
+
+enum PerformanceCycleType {
+  ANNUAL
+  SEMI_ANNUAL
+  QUARTERLY
+  CONTINUOUS
+}
+
+enum CycleStatus {
+  DRAFT
+  GOAL_SETTING
+  IN_PROGRESS
+  REVIEW_PERIOD
+  CALIBRATION
+  COMPLETED
+  ARCHIVED
+}
+
+enum ReviewType {
+  ANNUAL
+  MID_YEAR
+  QUARTERLY
+  PROBATION
+  PROJECT_END
+  AD_HOC
+}
+
+enum ReviewStatus {
+  DRAFT
+  SELF_ASSESSMENT
+  MANAGER_REVIEW
+  CALIBRATION
+  ACKNOWLEDGED
+  COMPLETED
+}
+
+enum GoalCategory {
+  PERFORMANCE
+  DEVELOPMENT
+  BEHAVIORAL
+  STRATEGIC
+  OPERATIONAL
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  AT_RISK
+  COMPLETED
+  EXCEEDED
+  CANCELLED
+}
+
+enum FeedbackType {
+  PEER
+  DIRECT_REPORT
+  SKIP_LEVEL
+  EXTERNAL
+  SELF
+}
+
+enum JobPostingStatus {
+  DRAFT
+  PUBLISHED
+  ON_HOLD
+  CLOSED
+  FILLED
+  CANCELLED
+}
+
+enum RemoteType {
+  FULLY_REMOTE
+  HYBRID
+  OCCASIONAL
+}
+
+enum ApplicationSource {
+  WEBSITE
+  LINKEDIN
+  INDEED
+  GLASSDOOR
+  REFERRAL
+  AGENCY
+  CAMPUS
+  INTERNAL
+  OTHER
+}
+
+enum ApplicantStatus {
+  NEW
+  SCREENING
+  SHORTLISTED
+  INTERVIEWING
+  OFFER
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+enum RecruitmentStage {
+  APPLICATION
+  SCREENING
+  PHONE_INTERVIEW
+  TECHNICAL_ROUND
+  HR_ROUND
+  FINAL_ROUND
+  OFFER
+  BACKGROUND_CHECK
+  ONBOARDING
+}
+
+enum InterviewType {
+  PHONE
+  VIDEO
+  IN_PERSON
+  TECHNICAL
+  BEHAVIORAL
+  PANEL
+  CASE_STUDY
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum HiringRecommendation {
+  STRONG_HIRE
+  HIRE
+  MAYBE
+  NO_HIRE
+  STRONG_NO_HIRE
+}
+
+enum EmployeeDocumentType {
+  CONTRACT
+  OFFER_LETTER
+  NDA
+  POLICY_ACKNOWLEDGMENT
+  ID_PROOF
+  ADDRESS_PROOF
+  EDUCATION_CERTIFICATE
+  EXPERIENCE_LETTER
+  BACKGROUND_CHECK
+  MEDICAL_CERTIFICATE
+  TAX_FORM
+  BANK_DETAILS
+  PERFORMANCE_LETTER
+  WARNING_LETTER
+  TERMINATION_LETTER
+  OTHER
+}
+
+enum QualificationType {
+  HIGH_SCHOOL
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  DOCTORATE
+  DIPLOMA
+  CERTIFICATE
+  PROFESSIONAL
+  OTHER
+}
+
+enum CertificationStatus {
+  ACTIVE
+  EXPIRED
+  RENEWAL_PENDING
+  REVOKED
+}
+
+enum AssetType {
+  LAPTOP
+  DESKTOP
+  MOBILE
+  TABLET
+  MONITOR
+  KEYBOARD
+  MOUSE
+  HEADSET
+  ID_CARD
+  ACCESS_CARD
+  PARKING_PASS
+  FURNITURE
+  VEHICLE
+  OTHER
+}
+
+enum AssetCondition {
+  NEW
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+  LOST
+}
+
+enum DisciplinaryCategory {
+  ATTENDANCE
+  PERFORMANCE
+  MISCONDUCT
+  POLICY_VIOLATION
+  HARASSMENT
+  SAFETY_VIOLATION
+  THEFT
+  FRAUD
+  OTHER
+}
+
+enum DisciplinarySeverity {
+  MINOR
+  MODERATE
+  SERIOUS
+  GROSS
+}
+
+enum DisciplinaryActionType {
+  VERBAL_WARNING
+  WRITTEN_WARNING
+  FINAL_WARNING
+  SUSPENSION
+  DEMOTION
+  TERMINATION
+  PROBATION
+}
+
+enum DisciplinaryStatus {
+  OPEN
+  INVESTIGATING
+  PENDING_ACTION
+  ACTION_TAKEN
+  APPEAL_PENDING
+  CLOSED
+}
+
+enum TrainingSessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  WAITLISTED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+  NO_SHOW
+}
+
+// ============================================
+// PAYROLL ENUMS
+// ============================================
+
+enum SalaryChangeType {
+  PROMOTION
+  ANNUAL_INCREMENT
+  ADJUSTMENT
+  DEMOTION
+  TRANSFER
+  CORRECTION
+  INITIAL
+}
+
+enum ComponentCategory {
+  BASIC
+  ALLOWANCE
+  BONUS
+  COMMISSION
+  OVERTIME
+  REIMBURSEMENT
+  STATUTORY
+  DEDUCTION
+  OTHER
+}
+
+enum ComponentType {
+  EARNING
+  DEDUCTION
+}
+
+enum ComponentCalculationType {
+  FIXED
+  PERCENTAGE_OF_BASIC
+  PERCENTAGE_OF_GROSS
+  FORMULA
+  ATTENDANCE_BASED
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  CALCULATING
+  CALCULATED
+  UNDER_REVIEW
+  APPROVED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  ERROR
+}
+
+enum PayslipStatus {
+  DRAFT
+  GENERATED
+  PUBLISHED
+  VOID
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CHECK
+  CASH
+  DIRECT_DEPOSIT
+  MOBILE_WALLET
+}
+
+enum BenefitCategory {
+  HEALTH_INSURANCE
+  LIFE_INSURANCE
+  DENTAL
+  VISION
+  RETIREMENT
+  PENSION
+  HSA
+  FSA
+  TRANSPORTATION
+  WELLNESS
+  OTHER
+}
+
+enum BenefitStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  TERMINATED
+  EXPIRED
+}
+
+enum CoverageLevel {
+  EMPLOYEE_ONLY
+  EMPLOYEE_SPOUSE
+  EMPLOYEE_CHILDREN
+  FAMILY
+}
+
+enum LoanType {
+  SALARY_ADVANCE
+  PERSONAL_LOAN
+  EMERGENCY_LOAN
+  HOUSING_LOAN
+  VEHICLE_LOAN
+  EDUCATION_LOAN
+  OTHER
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DISBURSED
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+  CANCELLED
+}
+
+enum RepaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  OVERDUE
+  WAIVED
+}
+
+enum ExpenseCategory {
+  TRAVEL
+  MEALS
+  ACCOMMODATION
+  TRANSPORTATION
+  OFFICE_SUPPLIES
+  SOFTWARE
+  HARDWARE
+  TRAINING
+  COMMUNICATION
+  CLIENT_ENTERTAINMENT
+  MISCELLANEOUS
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REIMBURSED
+  CANCELLED
+}
+
+enum ExpenseReportStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  PARTIALLY_APPROVED
+  REJECTED
+  PAID
+  CANCELLED
+}
+
+enum ReimbursementStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+enum TaxFilingType {
+  WITHHOLDING
+  QUARTERLY
+  ANNUAL
+  AMENDMENT
+  SOCIAL_SECURITY
+  MEDICARE
+  STATE
+  LOCAL
+}
+
+enum TaxFilingStatus {
+  PENDING
+  PREPARED
+  REVIEWED
+  FILED
+  ACCEPTED
+  REJECTED
+  AMENDED
+}
+
+// ============================================
+// WORKFLOW ENUMS
+// ============================================
+
+enum WorkflowCategory {
+  HR
+  FINANCE
+  OPERATIONS
+  QUALITY
+  SAFETY
+  PROCUREMENT
+  SALES
+  CUSTOMER_SERVICE
+  IT
+  COMPLIANCE
+  GENERAL
+}
+
+enum IndustryType {
+  MANUFACTURING
+  HEALTHCARE
+  CONSTRUCTION
+  RETAIL
+  FINANCE
+  TECHNOLOGY
+  EDUCATION
+  HOSPITALITY
+  LOGISTICS
+  ENERGY
+  PHARMACEUTICAL
+  AUTOMOTIVE
+  AEROSPACE
+  FOOD_BEVERAGE
+  GENERAL
+}
+
+enum WorkflowComplexity {
+  SIMPLE
+  MEDIUM
+  COMPLEX
+}
+
+enum WorkflowDefinitionStatus {
+  DRAFT
+  ACTIVE
+  DEPRECATED
+  ARCHIVED
+}
+
+enum WorkflowTriggerType {
+  MANUAL
+  AUTOMATIC
+  SCHEDULED
+  EVENT
+  API
+}
+
+enum WorkflowInstanceStatus {
+  PENDING
+  IN_PROGRESS
+  WAITING_APPROVAL
+  PAUSED
+  COMPLETED
+  CANCELLED
+  ERROR
+  EXPIRED
+}
+
+enum WorkflowPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum WorkflowOutcome {
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  ERROR
+}
+
+enum WorkflowStepType {
+  START
+  END
+  TASK
+  APPROVAL
+  DECISION
+  PARALLEL_GATEWAY
+  EXCLUSIVE_GATEWAY
+  NOTIFICATION
+  AUTOMATION
+  SUBPROCESS
+  TIMER
+}
+
+enum WorkflowStepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  CANCELLED
+  ERROR
+}
+
+enum AssigneeType {
+  USER
+  ROLE
+  DEPARTMENT
+  MANAGER
+  INITIATOR
+  DYNAMIC
+}
+
+enum WorkflowTaskType {
+  REVIEW
+  APPROVE
+  COMPLETE_FORM
+  UPLOAD_DOCUMENT
+  VERIFICATION
+  DATA_ENTRY
+  NOTIFICATION
+  CUSTOM
+}
+
+enum WorkflowTaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum WorkflowRuleType {
+  ROUTING
+  ASSIGNMENT
+  VALIDATION
+  AUTOMATION
+  NOTIFICATION
+  ESCALATION
+}
+
+enum ConditionType {
+  EXPRESSION
+  SCRIPT
+  COMPARISON
+  ALWAYS
+}
+
+enum WorkflowActionType {
+  ASSIGN
+  NOTIFY
+  UPDATE_FIELD
+  CALL_API
+  EXECUTE_SCRIPT
+  ROUTE
+  ESCALATE
+  CANCEL
+}
+
+enum ApprovalChainType {
+  SEQUENTIAL
+  PARALLEL
+  HIERARCHICAL
+  DYNAMIC
+}
+
+enum EscalationReason {
+  SLA_BREACH
+  DEADLINE_APPROACHING
+  NO_RESPONSE
+  MANUAL
+  REJECTION
+  ERROR
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  APPROVAL_REQUIRED
+  TASK_COMPLETED
+  WORKFLOW_COMPLETED
+  DEADLINE_REMINDER
+  ESCALATION
+  STATUS_UPDATE
+  COMMENT_ADDED
+  CUSTOM
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  IN_APP
+  PUSH
+  WEBHOOK
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
 }
