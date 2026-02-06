@@ -1,0 +1,42 @@
+version: '3.8'
+
+# HashiCorp Vault for secrets management
+# Usage: docker-compose -f docker-compose.vault.yml up -d
+
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: ims-vault
+    restart: unless-stopped
+    ports:
+      - '8200:8200'
+    environment:
+      # Development mode - DO NOT USE IN PRODUCTION
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-root-token-for-development}
+      VAULT_DEV_LISTEN_ADDRESS: '0.0.0.0:8200'
+      VAULT_ADDR: 'http://0.0.0.0:8200'
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:/vault/data
+      - vault_logs:/vault/logs
+    command: server -dev
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '--quiet', 'http://localhost:8200/v1/sys/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # Vault UI is included in dev mode at http://localhost:8200/ui
+
+volumes:
+  vault_data:
+    driver: local
+  vault_logs:
+    driver: local
+
+networks:
+  default:
+    name: ims-network
+    external: true

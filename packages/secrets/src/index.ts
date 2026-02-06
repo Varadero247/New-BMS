@@ -13,6 +13,15 @@ export {
   type StartupValidationResult,
 } from './validators';
 
+export {
+  VaultClient,
+  createVaultClientFromEnv,
+  loadSecretsFromVault,
+  initializeSecretsFromVault,
+  type VaultConfig,
+  type VaultSecret,
+} from './vault';
+
 /**
  * SecretsManager - Manages secret retrieval with caching
  *
