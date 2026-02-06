@@ -60,8 +60,11 @@ router.get('/summary', async (req: Request, res: Response) => {
   try {
     const { startDate, endDate, departmentId } = req.query;
 
-    const start = startDate ? new Date(startDate as string) : new Date(new Date().setDate(1));
+    // Default to last 30 days if not provided
     const end = endDate ? new Date(endDate as string) : new Date();
+    const start = startDate
+      ? new Date(startDate as string)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const where: any = {
       date: { gte: start, lte: end },
@@ -71,25 +74,119 @@ router.get('/summary', async (req: Request, res: Response) => {
       where.employee = { departmentId };
     }
 
+    // Get attendance records grouped by status
     const summary = await prisma.attendance.groupBy({
       by: ['status'],
       where,
-      _count: true,
+      _count: { id: true },
     });
 
+    // Extract individual counts
+    const statusCounts: Record<string, number> = {};
+    summary.forEach(s => {
+      statusCounts[s.status] = s._count.id;
+    });
+
+    const present = statusCounts['PRESENT'] || 0;
+    const absent = statusCounts['ABSENT'] || 0;
+    const late = statusCounts['LATE'] || 0;
+    const halfDay = statusCounts['HALF_DAY'] || 0;
+    const leave = statusCounts['ON_LEAVE'] || 0;
+    const totalRecords = summary.reduce((acc, s) => acc + s._count.id, 0);
+
+    // Get total hours
     const totalHours = await prisma.attendance.aggregate({
       where,
       _sum: { workedHours: true, overtimeHours: true },
       _avg: { lateMinutes: true },
     });
 
+    // Today's attendance
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todaySummary = await prisma.attendance.groupBy({
+      by: ['status'],
+      where: {
+        date: { gte: today, lt: tomorrow },
+        ...(departmentId ? { employee: { departmentId: departmentId as string } } : {}),
+      },
+      _count: { id: true },
+    });
+
+    const todayStatusCounts: Record<string, number> = {};
+    todaySummary.forEach(s => {
+      todayStatusCounts[s.status] = s._count.id;
+    });
+
+    const todayPresent = (todayStatusCounts['PRESENT'] || 0) + (todayStatusCounts['LATE'] || 0);
+    const todayAbsent = todayStatusCounts['ABSENT'] || 0;
+
+    // Get total active employees
+    const totalEmployees = await prisma.employee.count({
+      where: {
+        employmentStatus: 'ACTIVE',
+        ...(departmentId ? { departmentId: departmentId as string } : {}),
+      },
+    });
+
+    // Get last 7 days trends
+    const trends = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const dayRecords = await prisma.attendance.groupBy({
+        by: ['status'],
+        where: {
+          date: { gte: date, lt: nextDay },
+          ...(departmentId ? { employee: { departmentId: departmentId as string } } : {}),
+        },
+        _count: { id: true },
+      });
+
+      const dayCounts: Record<string, number> = {};
+      dayRecords.forEach(r => {
+        dayCounts[r.status] = r._count.id;
+      });
+
+      trends.push({
+        date: date.toISOString().split('T')[0],
+        present: (dayCounts['PRESENT'] || 0) + (dayCounts['LATE'] || 0),
+        absent: dayCounts['ABSENT'] || 0,
+        late: dayCounts['LATE'] || 0,
+        leave: dayCounts['ON_LEAVE'] || 0,
+      });
+    }
+
     res.json({
       success: true,
       data: {
-        byStatus: summary,
-        totalWorkedHours: totalHours._sum.workedHours || 0,
-        totalOvertimeHours: totalHours._sum.overtimeHours || 0,
+        period: {
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
+        },
+        totalRecords,
+        present,
+        absent,
+        late,
+        halfDay,
+        leave,
+        presentPercentage: totalRecords > 0 ? Math.round((present / totalRecords) * 1000) / 10 : 0,
+        absentPercentage: totalRecords > 0 ? Math.round((absent / totalRecords) * 1000) / 10 : 0,
+        latePercentage: totalRecords > 0 ? Math.round((late / totalRecords) * 1000) / 10 : 0,
+        totalWorkedHours: Math.round((totalHours._sum.workedHours || 0) * 10) / 10,
+        totalOvertimeHours: Math.round((totalHours._sum.overtimeHours || 0) * 10) / 10,
         avgLateMinutes: Math.round(totalHours._avg.lateMinutes || 0),
+        todayPresent,
+        todayAbsent,
+        todayTotal: totalEmployees,
+        trends,
       },
     });
   } catch (error) {

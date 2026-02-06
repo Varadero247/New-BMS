@@ -420,41 +420,124 @@ router.post('/interviews/:id/evaluate', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [
-      totalJobs,
-      activeJobs,
-      totalApplicants,
-      hiredThisMonth,
+      openPositions,
+      totalApplications,
+      byStatus,
       bySource,
       byStage,
+      hiredThisMonth,
     ] = await Promise.all([
-      prisma.jobPosting.count(),
       prisma.jobPosting.count({ where: { status: 'PUBLISHED' } }),
       prisma.applicant.count(),
+      prisma.applicant.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+      prisma.applicant.groupBy({
+        by: ['source'],
+        _count: { id: true },
+      }),
+      prisma.applicant.groupBy({
+        by: ['stage'],
+        _count: { id: true },
+      }),
       prisma.applicant.count({
         where: {
           status: 'HIRED',
           updatedAt: { gte: new Date(new Date().setDate(1)) },
         },
       }),
-      prisma.applicant.groupBy({
-        by: ['source'],
-        _count: true,
-      }),
-      prisma.applicant.groupBy({
-        by: ['stage'],
-        _count: true,
-      }),
     ]);
+
+    // Extract individual status counts
+    const statusCounts: Record<string, number> = {};
+    byStatus.forEach(s => {
+      statusCounts[s.status] = s._count.id;
+    });
+
+    const pendingReview = statusCounts['NEW'] || 0;
+    const screening = statusCounts['SCREENING'] || 0;
+    const shortlisted = statusCounts['SHORTLISTED'] || 0;
+    const interviewing = statusCounts['INTERVIEWING'] || 0;
+    const offered = statusCounts['OFFER'] || 0;
+    const accepted = statusCounts['HIRED'] || 0;
+    const rejected = statusCounts['REJECTED'] || 0;
+    const withdrawn = statusCounts['WITHDRAWN'] || 0;
+
+    // Get top positions by application count
+    const topPositionsRaw = await prisma.applicant.groupBy({
+      by: ['jobPostingId'],
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5,
+    });
+
+    // Get job titles for top positions
+    const topPositions = await Promise.all(
+      topPositionsRaw.map(async (pos) => {
+        const job = await prisma.jobPosting.findUnique({
+          where: { id: pos.jobPostingId },
+          select: { title: true, jobCode: true },
+        });
+        return {
+          title: job?.title || 'Unknown',
+          jobCode: job?.jobCode || '',
+          applications: pos._count.id,
+        };
+      })
+    );
+
+    // Calculate conversion rate (hired / total applications)
+    const conversionRate = totalApplications > 0
+      ? Math.round((accepted / totalApplications) * 10000) / 100
+      : 0;
+
+    // Calculate average time to hire (for completed hires)
+    const hiredApplicants = await prisma.applicant.findMany({
+      where: { status: 'HIRED' },
+      select: { createdAt: true, updatedAt: true },
+      take: 50,
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    let avgTimeToHire = 0;
+    if (hiredApplicants.length > 0) {
+      const totalDays = hiredApplicants.reduce((acc, app) => {
+        const days = Math.round((app.updatedAt.getTime() - app.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        return acc + days;
+      }, 0);
+      avgTimeToHire = Math.round(totalDays / hiredApplicants.length);
+    }
 
     res.json({
       success: true,
       data: {
-        totalJobs,
-        activeJobs,
-        totalApplicants,
+        openPositions,
+        totalApplications,
+        pendingReview,
+        screening,
+        shortlisted,
+        interviewed: interviewing,
+        offered,
+        accepted,
+        rejected,
+        withdrawn,
         hiredThisMonth,
-        bySource,
-        byStage,
+        applicationsByStatus: byStatus.map(s => ({
+          status: s.status,
+          count: s._count.id,
+        })),
+        applicationsBySource: bySource.map(s => ({
+          source: s.source,
+          count: s._count.id,
+        })),
+        applicationsByStage: byStage.map(s => ({
+          stage: s.stage,
+          count: s._count.id,
+        })),
+        topPositions,
+        avgTimeToHire,
+        conversionRate,
       },
     });
   } catch (error) {

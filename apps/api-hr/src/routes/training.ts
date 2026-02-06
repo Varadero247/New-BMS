@@ -359,45 +359,135 @@ router.post('/certifications', async (req: Request, res: Response) => {
 // Training stats
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
+    const now = new Date();
+    const thirtyDaysLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
     const [
       totalCourses,
-      upcomingSessions,
-      activeEnrollments,
+      sessionsByStatus,
+      enrollmentsByStatus,
       completedThisMonth,
       expiringCertifications,
+      scoreStats,
     ] = await Promise.all([
       prisma.hRTrainingCourse.count({ where: { isActive: true } }),
-      prisma.hRTrainingSession.count({
-        where: { startDate: { gte: new Date() }, status: 'SCHEDULED' },
+      prisma.hRTrainingSession.groupBy({
+        by: ['status'],
+        _count: { id: true },
       }),
-      prisma.hRTrainingEnrollment.count({
-        where: { status: { in: ['ENROLLED', 'IN_PROGRESS'] } },
+      prisma.hRTrainingEnrollment.groupBy({
+        by: ['status'],
+        _count: { id: true },
       }),
       prisma.hRTrainingEnrollment.count({
         where: {
           status: 'COMPLETED',
-          completedAt: { gte: new Date(new Date().setDate(1)) },
+          completedAt: { gte: firstOfMonth },
         },
       }),
       prisma.employeeCertification.count({
         where: {
-          expiryDate: {
-            lte: new Date(new Date().setDate(new Date().getDate() + 30)),
-            gte: new Date(),
-          },
+          expiryDate: { lte: thirtyDaysLater, gte: now },
           status: 'ACTIVE',
         },
       }),
+      prisma.hRTrainingEnrollment.aggregate({
+        _avg: { assessmentScore: true },
+        where: { assessmentScore: { not: null } },
+      }),
     ]);
+
+    // Extract session counts by status
+    const sessionCounts: Record<string, number> = {};
+    sessionsByStatus.forEach(s => {
+      sessionCounts[s.status] = s._count.id;
+    });
+
+    const scheduledSessions = sessionCounts['SCHEDULED'] || 0;
+    const ongoingSessions = sessionCounts['IN_PROGRESS'] || 0;
+    const completedSessions = sessionCounts['COMPLETED'] || 0;
+    const cancelledSessions = sessionCounts['CANCELLED'] || 0;
+
+    // Extract enrollment counts by status
+    const enrollmentCounts: Record<string, number> = {};
+    enrollmentsByStatus.forEach(e => {
+      enrollmentCounts[e.status] = e._count.id;
+    });
+
+    const totalEnrollments = enrollmentsByStatus.reduce((acc, e) => acc + e._count.id, 0);
+    const activeEnrollments = (enrollmentCounts['ENROLLED'] || 0) + (enrollmentCounts['IN_PROGRESS'] || 0);
+    const completedEnrollments = enrollmentCounts['COMPLETED'] || 0;
+    const droppedEnrollments = enrollmentCounts['CANCELLED'] || 0;
+    const failedEnrollments = enrollmentCounts['FAILED'] || 0;
+
+    // Calculate completion rate
+    const completionRate = totalEnrollments > 0
+      ? Math.round((completedEnrollments / totalEnrollments) * 1000) / 10
+      : 0;
+
+    // Get upcoming courses (next 30 days)
+    const upcomingCourses = await prisma.hRTrainingSession.findMany({
+      where: {
+        startDate: { gte: now, lte: thirtyDaysLater },
+        status: 'SCHEDULED',
+      },
+      include: {
+        course: { select: { name: true, code: true } },
+        _count: { select: { enrollments: true } },
+      },
+      orderBy: { startDate: 'asc' },
+      take: 5,
+    });
+
+    // Get popular courses by enrollment count
+    const popularCoursesRaw = await prisma.hRTrainingEnrollment.groupBy({
+      by: ['courseId'],
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5,
+    });
+
+    const popularCourses = await Promise.all(
+      popularCoursesRaw.map(async (course) => {
+        const courseData = await prisma.hRTrainingCourse.findUnique({
+          where: { id: course.courseId },
+          select: { name: true, code: true },
+        });
+        return {
+          title: courseData?.name || 'Unknown',
+          code: courseData?.code || '',
+          enrollments: course._count.id,
+        };
+      })
+    );
 
     res.json({
       success: true,
       data: {
         totalCourses,
-        upcomingSessions,
+        scheduledSessions,
+        ongoingSessions,
+        completedSessions,
+        cancelledSessions,
+        totalEnrollments,
         activeEnrollments,
+        completedEnrollments,
+        droppedEnrollments,
+        failedEnrollments,
         completedThisMonth,
+        completionRate,
+        avgScore: Math.round((scoreStats._avg.assessmentScore || 0) * 10) / 10,
         expiringCertifications,
+        upcomingCourses: upcomingCourses.map(c => ({
+          id: c.id,
+          title: c.course.name,
+          code: c.course.code,
+          startDate: c.startDate.toISOString(),
+          enrollments: c._count.enrollments,
+          maxSeats: c.maxParticipants,
+        })),
+        popularCourses,
       },
     });
   } catch (error) {

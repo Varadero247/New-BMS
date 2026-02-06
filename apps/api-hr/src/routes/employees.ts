@@ -137,50 +137,81 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
 // GET /api/employees/stats - Get employee statistics
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
+    // Get counts by status
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     const [
-      totalEmployees,
-      activeEmployees,
-      byDepartment,
+      total,
+      active,
+      onLeave,
+      suspended,
+      probation,
+      terminated,
+      byDepartmentRaw,
       byEmploymentType,
       recentHires,
-      upcomingBirthdays,
+      departments,
+      salaryData,
     ] = await Promise.all([
       prisma.employee.count(),
       prisma.employee.count({ where: { employmentStatus: 'ACTIVE' } }),
+      prisma.employee.count({ where: { employmentStatus: 'ON_LEAVE' } }),
+      prisma.employee.count({ where: { employmentStatus: 'SUSPENDED' } }),
+      prisma.employee.count({ where: { employmentStatus: 'PROBATION' } }),
+      prisma.employee.count({ where: { employmentStatus: 'TERMINATED' } }),
       prisma.employee.groupBy({
         by: ['departmentId'],
-        _count: true,
+        _count: { id: true },
         where: { employmentStatus: 'ACTIVE' },
       }),
       prisma.employee.groupBy({
         by: ['employmentType'],
-        _count: true,
+        _count: { id: true },
         where: { employmentStatus: 'ACTIVE' },
       }),
       prisma.employee.count({
         where: {
-          hireDate: { gte: new Date(new Date().setMonth(new Date().getMonth() - 1)) },
+          hireDate: { gte: thirtyDaysAgo },
         },
       }),
-      prisma.employee.count({
-        where: {
-          dateOfBirth: {
-            gte: new Date(new Date().setDate(new Date().getDate())),
-            lte: new Date(new Date().setDate(new Date().getDate() + 7)),
-          },
-        },
+      prisma.hRDepartment.findMany({
+        select: { id: true, name: true },
+      }),
+      // Get salary data from EmployeeSalary table
+      prisma.employeeSalary.aggregate({
+        _avg: { baseSalary: true },
+        _sum: { baseSalary: true },
+        where: { isActive: true },
       }),
     ]);
+
+    // Map department IDs to names
+    const departmentMap = new Map(departments.map((d: { id: string; name: string }) => [d.id, d.name]));
+    const byDepartment = byDepartmentRaw.map((d: { departmentId: string; _count: { id: number } }) => ({
+      department: departmentMap.get(d.departmentId) || 'Unknown',
+      departmentId: d.departmentId,
+      count: d._count.id,
+    }));
 
     res.json({
       success: true,
       data: {
-        totalEmployees,
-        activeEmployees,
+        total,
+        active,
+        onLeave,
+        suspended,
+        probation,
+        terminated,
+        inactive: suspended + terminated, // Combined for backwards compatibility
         byDepartment,
-        byEmploymentType,
+        byEmploymentType: byEmploymentType.map((e: { employmentType: string; _count: { id: number } }) => ({
+          employmentType: e.employmentType,
+          count: e._count.id,
+        })),
         recentHires,
-        upcomingBirthdays,
+        avgSalary: Math.round(salaryData._avg.baseSalary || 0),
+        totalSalaryExpense: Math.round(salaryData._sum.baseSalary || 0),
       },
     });
   } catch (error) {
