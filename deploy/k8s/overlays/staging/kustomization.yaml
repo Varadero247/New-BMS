@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ims-staging
+
+namePrefix: staging-
+
+resources:
+  - ../../base
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+    target:
+      kind: Deployment
+      labelSelector: "tier=backend"
+
+configMapGenerator:
+  - name: ims-config
+    behavior: merge
+    literals:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+      - CORS_ORIGIN=https://staging.ims.example.com
+
+commonLabels:
+  environment: staging

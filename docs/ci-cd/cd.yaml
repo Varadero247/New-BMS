@@ -1,0 +1,141 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/**'
+      - '.github/workflows/cd.yaml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  KUSTOMIZE_VERSION: '5.0.0'
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: https://staging.ims.example.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Update image tags
+        run: |
+          cd deploy/k8s/overlays/staging
+          kustomize edit set image \
+            ims/api-gateway=${{ secrets.CONTAINER_REGISTRY }}/ims/api-gateway:${{ github.sha }} \
+            ims/api-health-safety=${{ secrets.CONTAINER_REGISTRY }}/ims/api-health-safety:${{ github.sha }} \
+            ims/api-environment=${{ secrets.CONTAINER_REGISTRY }}/ims/api-environment:${{ github.sha }} \
+            ims/api-quality=${{ secrets.CONTAINER_REGISTRY }}/ims/api-quality:${{ github.sha }} \
+            ims/api-ai=${{ secrets.CONTAINER_REGISTRY }}/ims/api-ai:${{ github.sha }} \
+            ims/api-inventory=${{ secrets.CONTAINER_REGISTRY }}/ims/api-inventory:${{ github.sha }} \
+            ims/api-hr=${{ secrets.CONTAINER_REGISTRY }}/ims/api-hr:${{ github.sha }} \
+            ims/api-payroll=${{ secrets.CONTAINER_REGISTRY }}/ims/api-payroll:${{ github.sha }} \
+            ims/api-workflows=${{ secrets.CONTAINER_REGISTRY }}/ims/api-workflows:${{ github.sha }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.STAGING_KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Deploy to staging
+        run: |
+          kustomize build deploy/k8s/overlays/staging | kubectl apply -f -
+          kubectl rollout status deployment -n ims-staging --timeout=300s
+
+      - name: Run smoke tests
+        run: |
+          # Wait for services to be ready
+          sleep 30
+          # Health check
+          curl -f https://api.staging.ims.example.com/health || exit 1
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+    environment:
+      name: production
+      url: https://ims.example.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Update image tags
+        run: |
+          cd deploy/k8s/overlays/prod
+          kustomize edit set image \
+            ims/api-gateway=${{ secrets.CONTAINER_REGISTRY }}/ims/api-gateway:${{ github.sha }} \
+            ims/api-health-safety=${{ secrets.CONTAINER_REGISTRY }}/ims/api-health-safety:${{ github.sha }} \
+            ims/api-environment=${{ secrets.CONTAINER_REGISTRY }}/ims/api-environment:${{ github.sha }} \
+            ims/api-quality=${{ secrets.CONTAINER_REGISTRY }}/ims/api-quality:${{ github.sha }} \
+            ims/api-ai=${{ secrets.CONTAINER_REGISTRY }}/ims/api-ai:${{ github.sha }} \
+            ims/api-inventory=${{ secrets.CONTAINER_REGISTRY }}/ims/api-inventory:${{ github.sha }} \
+            ims/api-hr=${{ secrets.CONTAINER_REGISTRY }}/ims/api-hr:${{ github.sha }} \
+            ims/api-payroll=${{ secrets.CONTAINER_REGISTRY }}/ims/api-payroll:${{ github.sha }} \
+            ims/api-workflows=${{ secrets.CONTAINER_REGISTRY }}/ims/api-workflows:${{ github.sha }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.PROD_KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Create backup before deploy
+        run: |
+          # Trigger database backup
+          kubectl exec -n ims postgresql-0 -- pg_dumpall -U postgres > backup-$(date +%Y%m%d-%H%M%S).sql
+          # Upload to S3 (configure AWS credentials)
+          # aws s3 cp backup-*.sql s3://ims-backups/
+
+      - name: Deploy to production (rolling update)
+        run: |
+          kustomize build deploy/k8s/overlays/prod | kubectl apply -f -
+          kubectl rollout status deployment -n ims --timeout=600s
+
+      - name: Run production smoke tests
+        run: |
+          sleep 30
+          curl -f https://api.ims.example.com/health || exit 1
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "Deployment to production successful"
+          # Add Slack/Teams notification here
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Deployment failed, rolling back..."
+          kubectl rollout undo deployment -n ims

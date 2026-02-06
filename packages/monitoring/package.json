@@ -16,6 +16,17 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.0",
+    "@opentelemetry/exporter-jaeger": "^1.19.0",
+    "@opentelemetry/exporter-prometheus": "^0.45.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.45.0",
+    "@opentelemetry/instrumentation-express": "^0.34.0",
+    "@opentelemetry/instrumentation-http": "^0.45.0",
+    "@opentelemetry/resources": "^1.19.0",
+    "@opentelemetry/sdk-node": "^0.45.0",
+    "@opentelemetry/sdk-trace-base": "^1.19.0",
+    "@opentelemetry/semantic-conventions": "^1.19.0",
     "prom-client": "^15.1.0",
     "winston": "^3.11.0",
     "uuid": "^9.0.1"

@@ -1,0 +1,153 @@
+groups:
+  - name: ims-availability
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"ims-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status=~"5.."}[5m])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has error rate > 5% for 5 minutes."
+
+      - alert: CriticalErrorRate
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status=~"5.."}[5m])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has error rate > 10% for 2 minutes."
+
+  - name: ims-latency
+    rules:
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} P95 latency > 2s for 5 minutes."
+
+      - alert: CriticalLatency
+        expr: |
+          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical latency on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} P99 latency > 5s for 2 minutes."
+
+  - name: ims-resources
+    rules:
+      - alert: HighMemoryUsage
+        expr: |
+          (process_resident_memory_bytes{job=~"ims-.*"} / 1024 / 1024) > 400
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} is using more than 400MB of memory."
+
+      - alert: HighCPUUsage
+        expr: |
+          rate(process_cpu_seconds_total{job=~"ims-.*"}[5m]) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} CPU usage > 80% for 10 minutes."
+
+  - name: ims-database
+    rules:
+      - alert: DatabaseConnectionPoolExhausted
+        expr: |
+          prisma_pool_connections_busy{job=~"ims-.*"} / prisma_pool_connections_total{job=~"ims-.*"} > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool exhausted on {{ $labels.job }}"
+          description: "More than 90% of database connections are busy."
+
+      - alert: DatabaseQueryErrors
+        expr: |
+          rate(prisma_queries_total{job=~"ims-.*", status="error"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database query errors on {{ $labels.job }}"
+          description: "Database query errors detected on {{ $labels.job }}."
+
+  - name: ims-security
+    rules:
+      - alert: HighAuthenticationFailures
+        expr: |
+          sum(rate(auth_failures_total{job=~"ims-.*"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failures"
+          description: "More than 10 auth failures per second detected."
+
+      - alert: RateLimitBreached
+        expr: |
+          sum(rate(rate_limit_exceeded_total{job=~"ims-.*"}[5m])) > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limit frequently exceeded"
+          description: "Rate limiting is being triggered frequently."
+
+      - alert: CircuitBreakerOpen
+        expr: |
+          circuit_breaker_state{job=~"ims-.*", state="open"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker open on {{ $labels.job }}"
+          description: "Circuit breaker for {{ $labels.name }} is open."
+
+  - name: ims-business
+    rules:
+      - alert: HighIncidentVolume
+        expr: |
+          increase(incidents_created_total{job=~"ims-.*"}[1h]) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High incident volume"
+          description: "More than 50 incidents created in the last hour."
+
+      - alert: PendingActionsBacklog
+        expr: |
+          actions_pending_total{job=~"ims-.*"} > 100
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Large pending actions backlog"
+          description: "More than 100 actions pending for over 30 minutes."
