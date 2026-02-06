@@ -16,6 +16,7 @@
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
     "@ims/secrets": "workspace:*",
+    "@ims/service-auth": "workspace:*",
     "@ims/types": "workspace:*",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",

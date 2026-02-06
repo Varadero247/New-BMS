@@ -13,6 +13,7 @@ import {
 } from '@ims/monitoring';
 import { validateStartupSecrets } from '@ims/secrets';
 import { prisma, createSessionCleanupJob } from '@ims/database';
+import { generateServiceToken } from '@ims/service-auth';
 
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
@@ -42,6 +43,37 @@ const SERVICES = {
   payroll: process.env.PAYROLL_URL || 'http://localhost:4007',
   workflows: process.env.WORKFLOWS_URL || 'http://localhost:4008',
 };
+
+// Generate service token for inter-service authentication
+// Token is generated once at startup and refreshed periodically
+let serviceToken = '';
+function getServiceToken(): string {
+  if (!serviceToken) {
+    try {
+      serviceToken = generateServiceToken('api-gateway');
+      // Refresh token every 50 minutes (before 1h expiry)
+      setInterval(() => {
+        try {
+          serviceToken = generateServiceToken('api-gateway');
+          logger.info('Service token refreshed');
+        } catch (error) {
+          logger.error('Failed to refresh service token', { error });
+        }
+      }, 50 * 60 * 1000);
+    } catch (error) {
+      logger.warn('Service token generation failed - inter-service auth disabled', { error });
+    }
+  }
+  return serviceToken;
+}
+
+// Add service token to proxy requests
+function addServiceToken(proxyReq: any): void {
+  const token = getServiceToken();
+  if (token) {
+    proxyReq.setHeader('X-Service-Token', token);
+  }
+}
 
 // Security middleware (Helmet with strict CSP, HSTS, etc.)
 createSecurityMiddleware().forEach((mw) => app.use(mw));
@@ -87,11 +119,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/sessions', sessionsRoutes);
 
-// Proxy routes to domain services
+// Proxy routes to domain services (with inter-service authentication)
 app.use('/api/health-safety', createProxyMiddleware({
   target: SERVICES.healthSafety,
   changeOrigin: true,
   pathRewrite: { '^/api/health-safety': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Health Safety Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -105,6 +138,7 @@ app.use('/api/environment', createProxyMiddleware({
   target: SERVICES.environment,
   changeOrigin: true,
   pathRewrite: { '^/api/environment': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Environment Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -118,6 +152,7 @@ app.use('/api/quality', createProxyMiddleware({
   target: SERVICES.quality,
   changeOrigin: true,
   pathRewrite: { '^/api/quality': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Quality Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -131,6 +166,7 @@ app.use('/api/ai', createProxyMiddleware({
   target: SERVICES.aiAnalysis,
   changeOrigin: true,
   pathRewrite: { '^/api/ai': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('AI Analysis Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -144,6 +180,7 @@ app.use('/api/inventory', createProxyMiddleware({
   target: SERVICES.inventory,
   changeOrigin: true,
   pathRewrite: { '^/api/inventory': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Inventory Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -157,6 +194,7 @@ app.use('/api/hr', createProxyMiddleware({
   target: SERVICES.hr,
   changeOrigin: true,
   pathRewrite: { '^/api/hr': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('HR Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -170,6 +208,7 @@ app.use('/api/payroll', createProxyMiddleware({
   target: SERVICES.payroll,
   changeOrigin: true,
   pathRewrite: { '^/api/payroll': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Payroll Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
@@ -183,6 +222,7 @@ app.use('/api/workflows', createProxyMiddleware({
   target: SERVICES.workflows,
   changeOrigin: true,
   pathRewrite: { '^/api/workflows': '/api' },
+  onProxyReq: addServiceToken,
   onError: (err, req, res) => {
     logger.error('Workflows Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
