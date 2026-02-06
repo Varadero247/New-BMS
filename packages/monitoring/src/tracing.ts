@@ -58,7 +58,9 @@ export function initTracing(config: TracingConfig): void {
 
   sdk = new NodeSDK({
     resource,
-    spanProcessor,
+    // Type assertion needed due to version mismatch between @opentelemetry packages
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spanProcessor: spanProcessor as any,
     instrumentations: [
       getNodeAutoInstrumentations({
         '@opentelemetry/instrumentation-fs': { enabled: false },
