@@ -20,7 +20,9 @@ jest.mock('@ims/database', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  generateToken: jest.fn().mockReturnValue('mock-jwt-token'),
+  generateToken: jest.fn().mockReturnValue('mock-access-token'),
+  generateRefreshToken: jest.fn().mockReturnValue('mock-refresh-token'),
+  verifyRefreshToken: jest.fn().mockReturnValue({ userId: 'user-123' }),
   hashPassword: jest.fn().mockResolvedValue('hashed-password'),
   comparePassword: jest.fn(),
   authenticate: jest.fn((req, res, next) => {
@@ -56,13 +58,15 @@ jest.mock('../src/middleware/account-lockout', () => ({
 }));
 
 import { prisma } from '@ims/database';
-import { comparePassword, hashPassword, generateToken, authenticate } from '@ims/auth';
+import { comparePassword, hashPassword, generateToken, generateRefreshToken, verifyRefreshToken, authenticate } from '@ims/auth';
 import authRoutes from '../src/routes/auth';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const mockComparePassword = comparePassword as jest.Mock;
 const mockHashPassword = hashPassword as jest.Mock;
 const mockGenerateToken = generateToken as jest.Mock;
+const mockGenerateRefreshToken = generateRefreshToken as jest.Mock;
+const mockVerifyRefreshToken = verifyRefreshToken as jest.Mock;
 
 describe('Auth API Routes', () => {
   let app: express.Express;
@@ -106,7 +110,10 @@ describe('Auth API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('token');
+      expect(response.body.data).toHaveProperty('accessToken');
+      expect(response.body.data).toHaveProperty('refreshToken');
+      expect(response.body.data).toHaveProperty('expiresAt');
+      expect(response.body.data).toHaveProperty('refreshExpiresAt');
       expect(response.body.data).toHaveProperty('user');
       expect(response.body.data.user.email).toBe(loginPayload.email);
     });
@@ -191,7 +198,7 @@ describe('Auth API Routes', () => {
       expect(mockPrisma.session.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           userId: mockUser.id,
-          token: 'mock-jwt-token',
+          token: 'mock-access-token',
         }),
       });
     });
@@ -234,7 +241,10 @@ describe('Auth API Routes', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('token');
+      expect(response.body.data).toHaveProperty('accessToken');
+      expect(response.body.data).toHaveProperty('refreshToken');
+      expect(response.body.data).toHaveProperty('expiresAt');
+      expect(response.body.data).toHaveProperty('refreshExpiresAt');
       expect(response.body.data).toHaveProperty('user');
     });
 
@@ -329,6 +339,112 @@ describe('Auth API Routes', () => {
           phone: '+1234567890',
           department: 'Engineering',
           jobTitle: 'Developer',
+        }),
+      });
+    });
+  });
+
+  describe('POST /api/auth/refresh', () => {
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      role: 'USER',
+      isActive: true,
+    };
+
+    it('should refresh tokens successfully with valid refresh token', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
+      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'valid-refresh-token' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('accessToken');
+      expect(response.body.data).toHaveProperty('refreshToken');
+      expect(response.body.data).toHaveProperty('expiresAt');
+      expect(response.body.data).toHaveProperty('refreshExpiresAt');
+    });
+
+    it('should return 401 for inactive user', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ ...mockUser, isActive: false } as any);
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'valid-refresh-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('USER_INACTIVE');
+    });
+
+    it('should return 401 for non-existent user', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'valid-refresh-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('USER_INACTIVE');
+    });
+
+    it('should return 400 for missing refresh token', async () => {
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 401 for invalid refresh token', async () => {
+      // Import jwt to use its error classes
+      const jwt = require('jsonwebtoken');
+      mockVerifyRefreshToken.mockImplementationOnce(() => {
+        throw new jwt.JsonWebTokenError('invalid token');
+      });
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'invalid-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('INVALID_REFRESH_TOKEN');
+    });
+
+    it('should return 401 for expired refresh token', async () => {
+      const jwt = require('jsonwebtoken');
+      mockVerifyRefreshToken.mockImplementationOnce(() => {
+        throw new jwt.TokenExpiredError('jwt expired', new Date());
+      });
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'expired-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('INVALID_REFRESH_TOKEN');
+    });
+
+    it('should create a new session on successful refresh', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
+      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'valid-refresh-token' });
+
+      expect(mockPrisma.session.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          userId: mockUser.id,
+          token: 'mock-access-token',
         }),
       });
     });

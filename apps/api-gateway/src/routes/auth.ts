@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@ims/database';
 import {
   generateToken,
+  generateRefreshToken,
+  verifyRefreshToken,
   hashPassword,
   comparePassword,
   authenticate,
@@ -92,16 +95,19 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     // Successful login - reset lockout counter
     await lockoutManager.reset(email);
 
-    const token = generateToken({ userId: user.id, email: user.email, role: user.role });
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    // Generate access token (15 minutes) and refresh token (7 days)
+    const accessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
+    const refreshToken = generateRefreshToken(user.id);
+    const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    // Create session
+    // Create session with access token
     await prisma.session.create({
       data: {
         id: uuidv4(),
         userId: user.id,
-        token,
-        expiresAt,
+        token: accessToken,
+        expiresAt: accessTokenExpiresAt,
         userAgent: req.headers['user-agent'] || null,
         ipAddress: req.ip || null,
       },
@@ -121,8 +127,10 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
           department: user.department,
           jobTitle: user.jobTitle,
         },
-        token,
-        expiresAt: expiresAt.toISOString(),
+        accessToken,
+        refreshToken,
+        expiresAt: accessTokenExpiresAt.toISOString(),
+        refreshExpiresAt: refreshTokenExpiresAt.toISOString(),
       },
     });
   } catch (error) {
@@ -173,15 +181,18 @@ router.post('/register', registerLimiter, async (req, res) => {
       },
     });
 
-    const token = generateToken({ userId: user.id, email: user.email, role: user.role });
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // Generate access token (15 minutes) and refresh token (7 days)
+    const accessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
+    const refreshToken = generateRefreshToken(user.id);
+    const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await prisma.session.create({
       data: {
         id: uuidv4(),
         userId: user.id,
-        token,
-        expiresAt,
+        token: accessToken,
+        expiresAt: accessTokenExpiresAt,
         userAgent: req.headers['user-agent'] || null,
         ipAddress: req.ip || null,
       },
@@ -199,8 +210,10 @@ router.post('/register', registerLimiter, async (req, res) => {
           lastName: user.lastName,
           role: user.role,
         },
-        token,
-        expiresAt: expiresAt.toISOString(),
+        accessToken,
+        refreshToken,
+        expiresAt: accessTokenExpiresAt.toISOString(),
+        refreshExpiresAt: refreshTokenExpiresAt.toISOString(),
       },
     });
   } catch (error) {
@@ -264,6 +277,79 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get user info' },
+    });
+  }
+});
+
+// POST /api/auth/refresh
+// Refresh access token using refresh token
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = z.object({ refreshToken: z.string().min(1) }).parse(req.body);
+
+    // Verify refresh token
+    const payload = verifyRefreshToken(refreshToken);
+
+    // Check if user still exists and is active
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
+
+    if (!user || !user.isActive) {
+      logger.warn('Token refresh failed - user inactive or not found', { userId: payload.userId });
+      return res.status(401).json({
+        success: false,
+        error: { code: 'USER_INACTIVE', message: 'User account is inactive or not found' },
+      });
+    }
+
+    // Generate new access token (15 minutes)
+    const newAccessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
+    const newRefreshToken = generateRefreshToken(user.id);
+    const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    // Create new session
+    await prisma.session.create({
+      data: {
+        id: uuidv4(),
+        userId: user.id,
+        token: newAccessToken,
+        expiresAt: accessTokenExpiresAt,
+        userAgent: req.headers['user-agent'] || null,
+        ipAddress: req.ip || null,
+      },
+    });
+
+    logger.info('Token refresh successful', { userId: user.id });
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        expiresAt: accessTokenExpiresAt.toISOString(),
+        refreshExpiresAt: refreshTokenExpiresAt.toISOString(),
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Refresh token is required' },
+      });
+    }
+    if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+      logger.warn('Token refresh failed - invalid token', { error: (error as Error).message });
+      return res.status(401).json({
+        success: false,
+        error: { code: 'INVALID_REFRESH_TOKEN', message: 'Invalid or expired refresh token' },
+      });
+    }
+    logger.error('Token refresh error', { error });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Token refresh failed' },
     });
   }
 });

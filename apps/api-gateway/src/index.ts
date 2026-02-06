@@ -52,16 +52,26 @@ app.use(cors({
 app.use(cookieParser());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-gateway'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Request size limits to prevent DoS attacks
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Request timeout (30 seconds)
+app.use((req, res, next) => {
+  req.setTimeout(30000);
+  res.setTimeout(30000);
+  next();
+});
 
 // Rate limiting (using Redis-backed limiter)
 app.use('/api', apiLimiter);
 
-// CSRF protection (enabled by CSRF_ENABLED env var, disabled by default for backward compatibility)
-if (process.env.CSRF_ENABLED === 'true') {
+// CSRF protection (enabled by default, can be disabled with CSRF_ENABLED=false)
+if (process.env.CSRF_ENABLED !== 'false') {
   app.use('/api', csrfProtection());
   logger.info('CSRF protection enabled');
+} else {
+  logger.warn('CSRF protection DISABLED - only disable for development/testing');
 }
 
 // Health check and metrics
