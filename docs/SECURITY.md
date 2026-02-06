@@ -14,6 +14,10 @@ This document describes the security measures implemented in the Integrated Mana
 8. [Audit Logging](#audit-logging)
 9. [Security Headers](#security-headers)
 10. [Security Checklist](#security-checklist)
+11. [Inter-Service Authentication](#inter-service-authentication)
+12. [API Versioning](#api-versioning)
+13. [Resilience Patterns](#resilience-patterns)
+14. [HashiCorp Vault Integration](#hashicorp-vault-integration)
 
 ---
 
@@ -526,12 +530,198 @@ If you suspect a security breach:
 
 ---
 
+## Inter-Service Authentication
+
+### Overview
+
+Microservices authenticate with each other using short-lived JWT tokens to prevent unauthorized access between services.
+
+### Package (`@ims/service-auth`)
+
+```typescript
+import { generateServiceToken, requireServiceAuth, addServiceTokenToProxy } from '@ims/service-auth';
+
+// Generate token for outbound requests
+const token = generateServiceToken('api-hr', ['hr:read', 'hr:write']);
+
+// Middleware to validate incoming service requests
+app.use('/internal', requireServiceAuth(['hr:read']));
+
+// Add token to proxy requests automatically
+createProxyMiddleware({
+  target: 'http://api-hr:4006',
+  onProxyReq: addServiceTokenToProxy('api-gateway'),
+});
+```
+
+### Token Structure
+
+| Field | Description |
+|-------|-------------|
+| `serviceId` | Unique service identifier |
+| `serviceName` | Human-readable service name |
+| `permissions` | Array of allowed operations |
+| `iat` | Issued at timestamp |
+| `exp` | Expiration (5 minutes default) |
+
+### Configuration
+
+```bash
+# Optional - falls back to JWT_SECRET
+SERVICE_SECRET=your-service-secret-at-least-32-chars
+```
+
+---
+
+## API Versioning
+
+### Overview
+
+APIs use URL-based versioning with deprecation headers to support graceful migrations.
+
+### Current Versions
+
+| Version | Status | Endpoints |
+|---------|--------|-----------|
+| v1 | Current | `/api/v1/*` |
+| (none) | Deprecated | `/api/*` (legacy) |
+
+### Deprecation Headers
+
+Deprecated endpoints return:
+
+```
+Deprecation: true
+X-API-Deprecation-Notice: This endpoint is deprecated. Please use /api/v1/auth
+Sunset: Sat, 01 Jan 2025 00:00:00 GMT
+```
+
+### Version Header
+
+All versioned responses include:
+
+```
+X-API-Version: v1
+```
+
+---
+
+## Resilience Patterns
+
+### Overview
+
+The `@ims/resilience` package provides circuit breakers, retries, and bulkhead patterns to handle service failures gracefully.
+
+### Circuit Breaker
+
+```typescript
+import { createCircuitBreaker } from '@ims/resilience';
+
+const breaker = createCircuitBreaker(fetchUserData, {
+  timeout: 5000,           // 5 second timeout
+  errorThresholdPercentage: 50,  // Open at 50% errors
+  resetTimeout: 30000,     // Try again after 30 seconds
+});
+
+const result = await breaker.fire(userId);
+```
+
+### Circuit States
+
+| State | Description |
+|-------|-------------|
+| Closed | Normal operation, requests pass through |
+| Open | Failures exceeded threshold, requests fail fast |
+| Half-Open | Testing if service recovered |
+
+### Retry with Backoff
+
+```typescript
+import { withRetry } from '@ims/resilience';
+
+const result = await withRetry(
+  () => callExternalApi(),
+  {
+    maxRetries: 3,
+    baseDelay: 100,     // 100ms
+    maxDelay: 5000,     // Max 5 second delay
+    backoffFactor: 2,   // Exponential backoff
+  }
+);
+```
+
+### Bulkhead Pattern
+
+```typescript
+import { Bulkhead } from '@ims/resilience';
+
+const bulkhead = new Bulkhead({ maxConcurrent: 10 });
+const result = await bulkhead.run(() => processSensitiveData());
+```
+
+---
+
+## HashiCorp Vault Integration
+
+### Overview
+
+Optional integration with HashiCorp Vault for centralized secrets management.
+
+### Configuration
+
+```bash
+USE_VAULT=true
+VAULT_ADDR=http://vault.internal:8200
+VAULT_TOKEN=s.abcdefghijklmnop
+VAULT_NAMESPACE=admin
+VAULT_SECRET_PATH=secret/data/ims
+VAULT_TIMEOUT=5000
+```
+
+### Usage
+
+```typescript
+import { VaultClient, initializeSecretsFromVault } from '@ims/secrets';
+
+// Initialize all secrets from Vault at startup
+await initializeSecretsFromVault({ path: 'ims/config', required: false });
+
+// Or use VaultClient directly
+const vault = new VaultClient({
+  address: process.env.VAULT_ADDR,
+  token: process.env.VAULT_TOKEN,
+});
+
+const secrets = await vault.getSecrets('ims/database');
+const password = secrets.password;
+```
+
+### Secret Caching
+
+Secrets are cached in-memory for 5 minutes to reduce Vault API calls:
+
+```typescript
+// Clear cache manually
+vault.clearCache();
+```
+
+### Health Check
+
+```typescript
+const healthy = await vault.healthCheck();
+if (!healthy) {
+  logger.warn('Vault is unavailable, using environment variables');
+}
+```
+
+---
+
 ## Future Improvements
 
+- [x] ~~API key authentication for service-to-service~~ (Implemented as JWT-based inter-service auth)
+- [x] ~~Secret rotation automation~~ (HashiCorp Vault integration provides this)
 - [ ] Multi-factor authentication (MFA)
-- [ ] API key authentication for service-to-service
 - [ ] IP allowlisting for admin endpoints
-- [ ] Secret rotation automation
 - [ ] Penetration testing
 - [ ] Web Application Firewall (WAF)
 - [ ] Security Information and Event Management (SIEM) integration
