@@ -110,3 +110,37 @@ describe('Rate Limiter Configuration', () => {
     expect(apiLimiter).toBeDefined();
   });
 });
+
+describe('getRedisClient', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    // Reset module to clear Redis client singleton
+    jest.resetModules();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('should return null when REDIS_URL is not set', async () => {
+    delete process.env.REDIS_URL;
+    const { getRedisClient } = await import('../src/middleware/rate-limiter');
+
+    const client = getRedisClient();
+
+    expect(client).toBeNull();
+  });
+});
+
+describe('closeRedisConnection', () => {
+  it('should handle case when Redis not initialized', async () => {
+    delete process.env.REDIS_URL;
+    jest.resetModules();
+    const { closeRedisConnection: close } = await import('../src/middleware/rate-limiter');
+
+    // Should not throw
+    await expect(close()).resolves.not.toThrow();
+  });
+});
