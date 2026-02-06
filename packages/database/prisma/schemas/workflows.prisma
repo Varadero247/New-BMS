@@ -628,3 +628,313 @@ enum NotificationStatus {
   FAILED
   READ
 }
+
+// ============================================
+// WORKFLOW STEP APPROVALS
+// ============================================
+
+model WorkflowStepApproval {
+  id                String   @id @default(cuid())
+  stepId            String
+  approverId        String
+  approverName      String?
+  approvalOrder     Int      @default(1)
+
+  // Decision
+  decision          ApprovalDecision?
+  decidedAt         DateTime?
+  comments          String?
+
+  // Delegation
+  delegatedFromId   String?
+  delegatedReason   String?
+
+  // Reminder
+  reminderSentAt    DateTime?
+  reminderCount     Int      @default(0)
+
+  status            ApprovalStatus @default(PENDING)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([stepId, approverId])
+  @@index([stepId])
+  @@index([approverId])
+  @@index([status])
+  @@map("wf_step_approvals")
+}
+
+enum ApprovalStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ESCALATED
+  EXPIRED
+  DELEGATED
+  CANCELLED
+}
+
+enum ApprovalDecision {
+  APPROVE
+  APPROVED
+  APPROVED_WITH_COMMENTS
+  REJECT
+  REJECTED
+  RETURNED_FOR_REVISION
+  REQUEST_CHANGES
+  DELEGATE
+  ABSTAIN
+}
+
+// ============================================
+// AUTOMATION RULES
+// ============================================
+
+model AutomationRule {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+  code              String   @unique
+
+  // Trigger configuration
+  triggerType       AutomationTriggerType
+  triggerEvent      String?  // Event name for EVENT trigger
+  triggerSchedule   String?  // Cron expression for SCHEDULED trigger
+  triggerCondition  Json?    // Conditions that must be met
+
+  // Action configuration
+  actionType        AutomationActionType
+  actionConfig      Json     // Action-specific configuration
+
+  // Scope
+  entityType        String?  // Entity type this rule applies to
+  workflowCategory  WorkflowCategory?
+
+  // Execution settings
+  priority          Int      @default(0)
+  maxRetries        Int      @default(3)
+  retryDelaySeconds Int      @default(60)
+  timeoutSeconds    Int      @default(300)
+
+  // Status
+  isActive          Boolean  @default(true)
+  lastExecutedAt    DateTime?
+  executionCount    Int      @default(0)
+  failureCount      Int      @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  // Relations
+  executions        AutomationExecution[]
+
+  @@index([triggerType])
+  @@index([isActive])
+  @@index([entityType])
+  @@map("wf_automation_rules")
+}
+
+enum AutomationTriggerType {
+  EVENT           // Triggered by system events
+  SCHEDULED       // Triggered by cron schedule
+  CONDITION       // Triggered when conditions are met
+  WORKFLOW_EVENT  // Triggered by workflow events
+  API             // Triggered via API call
+  WEBHOOK         // Triggered by external webhook
+}
+
+enum AutomationActionType {
+  CREATE_WORKFLOW    // Start a new workflow
+  UPDATE_ENTITY      // Update an entity
+  SEND_NOTIFICATION  // Send email/SMS/push
+  CALL_WEBHOOK       // Call external API
+  EXECUTE_SCRIPT     // Run custom script
+  ASSIGN_TASK        // Create and assign a task
+  ESCALATE           // Escalate to higher level
+  UPDATE_STATUS      // Change status of entity
+  GENERATE_REPORT    // Generate a report
+  CUSTOM             // Custom action handler
+}
+
+// ============================================
+// AUTOMATION EXECUTIONS
+// ============================================
+
+model AutomationExecution {
+  id                String   @id @default(cuid())
+  ruleId            String
+
+  // Execution context
+  triggeredBy       String?  // User ID or 'SYSTEM'
+  triggerType       AutomationTriggerType
+  triggerData       Json?    // Data that triggered the execution
+
+  // Target entity
+  entityType        String?
+  entityId          String?
+
+  // Execution details
+  status            AutomationExecutionStatus @default(PENDING)
+  startedAt         DateTime?
+  completedAt       DateTime?
+
+  // Result
+  result            Json?
+  output            String?
+  errorMessage      String?
+  errorStack        String?
+
+  // Retry info
+  attemptNumber     Int      @default(1)
+  nextRetryAt       DateTime?
+
+  // Performance
+  durationMs        Int?
+
+  createdAt         DateTime @default(now())
+
+  // Relations
+  rule              AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([status])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("wf_automation_executions")
+}
+
+enum AutomationExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  RETRYING
+  TIMEOUT
+}
+
+// ============================================
+// APPROVAL REQUESTS (Standalone)
+// ============================================
+
+model ApprovalRequest {
+  id                String   @id @default(cuid())
+  requestNumber     String   @unique
+
+  // Request details
+  title             String
+  description       String?
+  requestType       ApprovalRequestType
+  priority          WorkflowPriority @default(NORMAL)
+
+  // Requester
+  requesterId       String
+  requesterName     String?
+  departmentId      String?
+
+  // Entity reference
+  entityType        String?
+  entityId          String?
+  entityData        Json?    // Snapshot of entity at request time
+
+  // Approval chain
+  approvalChainId   String?
+  currentLevel      Int      @default(1)
+  totalLevels       Int      @default(1)
+
+  // Status
+  status            ApprovalRequestStatus @default(PENDING)
+
+  // Timeline
+  submittedAt       DateTime @default(now())
+  dueDate           DateTime?
+  decidedAt         DateTime?
+
+  // Outcome
+  outcome           ApprovalOutcome?
+  outcomeReason     String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  responses         ApprovalResponse[]
+
+  @@index([requesterId])
+  @@index([status])
+  @@index([requestType])
+  @@index([entityType, entityId])
+  @@map("wf_approval_requests")
+}
+
+enum ApprovalRequestType {
+  DOCUMENT_APPROVAL
+  PURCHASE_REQUEST
+  LEAVE_REQUEST
+  EXPENSE_CLAIM
+  CHANGE_REQUEST
+  ACCESS_REQUEST
+  POLICY_EXCEPTION
+  BUDGET_APPROVAL
+  CONTRACT_APPROVAL
+  CUSTOM
+}
+
+enum ApprovalRequestStatus {
+  DRAFT
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+  ON_HOLD
+}
+
+enum ApprovalOutcome {
+  APPROVED
+  REJECTED
+  APPROVED_WITH_CONDITIONS
+  PARTIALLY_APPROVED
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// APPROVAL RESPONSES
+// ============================================
+
+model ApprovalResponse {
+  id                String   @id @default(cuid())
+  requestId         String
+
+  // Approver
+  approverId        String
+  approverName      String?
+  approverRole      String?
+  level             Int      @default(1)
+
+  // Decision
+  decision          ApprovalDecision
+  comments          String?
+  conditions        String?  // For conditional approvals
+
+  // Delegation
+  delegatedFromId   String?
+  delegatedFromName String?
+
+  // Attachments
+  attachments       Json?
+
+  respondedAt       DateTime @default(now())
+
+  // Relations
+  request           ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@index([approverId])
+  @@map("wf_approval_responses")
+}

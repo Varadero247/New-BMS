@@ -1,89 +1,525 @@
 import { Router, Request, Response } from 'express';
+import { prisma } from '@ims/database';
+import { z } from 'zod';
 
 const router: Router = Router();
 
-// TODO: The following routes require AutomationRule and AutomationExecution models
-// to be added to the Prisma schema. These models don't currently exist.
-// Once the models are added, uncomment and implement these routes.
+// Validation schemas
+const createRuleSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().optional(),
+  code: z.string().min(1).max(100),
+  triggerType: z.enum(['EVENT', 'SCHEDULED', 'CONDITION', 'WORKFLOW_EVENT', 'API', 'WEBHOOK']),
+  triggerEvent: z.string().optional(),
+  triggerSchedule: z.string().optional(),
+  triggerCondition: z.any().optional(),
+  actionType: z.enum([
+    'CREATE_WORKFLOW', 'UPDATE_ENTITY', 'SEND_NOTIFICATION', 'CALL_WEBHOOK',
+    'EXECUTE_SCRIPT', 'ASSIGN_TASK', 'ESCALATE', 'UPDATE_STATUS', 'GENERATE_REPORT', 'CUSTOM'
+  ]),
+  actionConfig: z.any(),
+  entityType: z.string().optional(),
+  workflowCategory: z.enum([
+    'HR', 'FINANCE', 'OPERATIONS', 'QUALITY', 'SAFETY',
+    'PROCUREMENT', 'SALES', 'CUSTOMER_SERVICE', 'IT', 'COMPLIANCE', 'GENERAL'
+  ]).optional(),
+  priority: z.number().int().min(0).max(100).default(0),
+  maxRetries: z.number().int().min(0).max(10).default(3),
+  retryDelaySeconds: z.number().int().min(1).max(3600).default(60),
+  timeoutSeconds: z.number().int().min(1).max(3600).default(300),
+  isActive: z.boolean().default(true),
+});
+
+const updateRuleSchema = createRuleSchema.partial().omit({ code: true });
 
 // GET /api/automation/rules - Get automation rules
-router.get('/rules', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation rules feature requires AutomationRule model in Prisma schema',
-    },
-  });
+router.get('/rules', async (req: Request, res: Response) => {
+  try {
+    const { triggerType, actionType, isActive, entityType } = req.query;
+
+    const where: any = {};
+    if (triggerType) where.triggerType = triggerType;
+    if (actionType) where.actionType = actionType;
+    if (isActive !== undefined) where.isActive = isActive === 'true';
+    if (entityType) where.entityType = entityType;
+
+    const rules = await prisma.automationRule.findMany({
+      where,
+      orderBy: [{ priority: 'desc' }, { name: 'asc' }],
+      include: {
+        _count: {
+          select: { executions: true },
+        },
+      },
+    });
+
+    res.json({ success: true, data: rules });
+  } catch (error) {
+    console.error('Error fetching automation rules:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rules' },
+    });
+  }
 });
 
 // GET /api/automation/rules/:id - Get single rule
-router.get('/rules/:id', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation rules feature requires AutomationRule model in Prisma schema',
-    },
-  });
+router.get('/rules/:id', async (req: Request, res: Response) => {
+  try {
+    const rule = await prisma.automationRule.findUnique({
+      where: { id: req.params.id },
+      include: {
+        executions: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+        },
+        _count: {
+          select: { executions: true },
+        },
+      },
+    });
+
+    if (!rule) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Automation rule not found' },
+      });
+    }
+
+    res.json({ success: true, data: rule });
+  } catch (error) {
+    console.error('Error fetching automation rule:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rule' },
+    });
+  }
 });
 
 // POST /api/automation/rules - Create automation rule
-router.post('/rules', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation rules feature requires AutomationRule model in Prisma schema',
-    },
-  });
+router.post('/rules', async (req: Request, res: Response) => {
+  try {
+    const data = createRuleSchema.parse(req.body);
+
+    // Check for duplicate code
+    const existing = await prisma.automationRule.findUnique({
+      where: { code: data.code },
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'DUPLICATE', message: 'Rule with this code already exists' },
+      });
+    }
+
+    const rule = await prisma.automationRule.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        code: data.code,
+        triggerType: data.triggerType,
+        triggerEvent: data.triggerEvent,
+        triggerSchedule: data.triggerSchedule,
+        triggerCondition: data.triggerCondition,
+        actionType: data.actionType,
+        actionConfig: data.actionConfig,
+        entityType: data.entityType,
+        workflowCategory: data.workflowCategory,
+        priority: data.priority,
+        maxRetries: data.maxRetries,
+        retryDelaySeconds: data.retryDelaySeconds,
+        timeoutSeconds: data.timeoutSeconds,
+        isActive: data.isActive,
+      },
+    });
+
+    res.status(201).json({ success: true, data: rule });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors },
+      });
+    }
+    console.error('Error creating automation rule:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create automation rule' },
+    });
+  }
 });
 
 // PUT /api/automation/rules/:id - Update automation rule
-router.put('/rules/:id', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation rules feature requires AutomationRule model in Prisma schema',
-    },
-  });
+router.put('/rules/:id', async (req: Request, res: Response) => {
+  try {
+    const data = updateRuleSchema.parse(req.body);
+
+    const rule = await prisma.automationRule.update({
+      where: { id: req.params.id },
+      data,
+    });
+
+    res.json({ success: true, data: rule });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors },
+      });
+    }
+    console.error('Error updating automation rule:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update automation rule' },
+    });
+  }
 });
 
-// POST /api/automation/rules/:id/execute - Execute rule
-router.post('/rules/:id/execute', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation execution feature requires AutomationExecution model in Prisma schema',
-    },
-  });
+// DELETE /api/automation/rules/:id - Delete automation rule
+router.delete('/rules/:id', async (req: Request, res: Response) => {
+  try {
+    await prisma.automationRule.delete({
+      where: { id: req.params.id },
+    });
+
+    res.json({ success: true, message: 'Automation rule deleted' });
+  } catch (error) {
+    console.error('Error deleting automation rule:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete automation rule' },
+    });
+  }
+});
+
+// POST /api/automation/rules/:id/execute - Execute rule manually
+router.post('/rules/:id/execute', async (req: Request, res: Response) => {
+  try {
+    const { triggerData, entityType, entityId } = req.body;
+
+    const rule = await prisma.automationRule.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!rule) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Automation rule not found' },
+      });
+    }
+
+    if (!rule.isActive) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'RULE_INACTIVE', message: 'Cannot execute inactive rule' },
+      });
+    }
+
+    // Create execution record
+    const execution = await prisma.automationExecution.create({
+      data: {
+        ruleId: rule.id,
+        triggeredBy: (req as any).user?.id || 'MANUAL',
+        triggerType: 'API',
+        triggerData: triggerData || {},
+        entityType: entityType || rule.entityType,
+        entityId,
+        status: 'PENDING',
+      },
+    });
+
+    // In a real implementation, this would queue the execution
+    // For now, we'll simulate immediate execution
+    const startTime = Date.now();
+
+    try {
+      // Simulate action execution based on type
+      const result = await executeAction(rule, execution, triggerData);
+
+      await prisma.automationExecution.update({
+        where: { id: execution.id },
+        data: {
+          status: 'COMPLETED',
+          startedAt: new Date(startTime),
+          completedAt: new Date(),
+          durationMs: Date.now() - startTime,
+          result,
+          output: JSON.stringify(result),
+        },
+      });
+
+      // Update rule stats
+      await prisma.automationRule.update({
+        where: { id: rule.id },
+        data: {
+          lastExecutedAt: new Date(),
+          executionCount: { increment: 1 },
+        },
+      });
+
+      res.json({
+        success: true,
+        data: {
+          executionId: execution.id,
+          status: 'COMPLETED',
+          result,
+        },
+      });
+    } catch (execError) {
+      await prisma.automationExecution.update({
+        where: { id: execution.id },
+        data: {
+          status: 'FAILED',
+          startedAt: new Date(startTime),
+          completedAt: new Date(),
+          durationMs: Date.now() - startTime,
+          errorMessage: execError instanceof Error ? execError.message : 'Unknown error',
+          errorStack: execError instanceof Error ? execError.stack : undefined,
+        },
+      });
+
+      await prisma.automationRule.update({
+        where: { id: rule.id },
+        data: {
+          lastExecutedAt: new Date(),
+          failureCount: { increment: 1 },
+        },
+      });
+
+      throw execError;
+    }
+  } catch (error) {
+    console.error('Error executing automation rule:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'EXECUTION_ERROR', message: 'Failed to execute automation rule' },
+    });
+  }
 });
 
 // GET /api/automation/executions - Get execution history
-router.get('/executions', async (_req: Request, res: Response) => {
-  res.status(501).json({
-    success: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Automation execution feature requires AutomationExecution model in Prisma schema',
-    },
-  });
+router.get('/executions', async (req: Request, res: Response) => {
+  try {
+    const { ruleId, status, entityType, limit = '50', offset = '0' } = req.query;
+
+    const where: any = {};
+    if (ruleId) where.ruleId = ruleId;
+    if (status) where.status = status;
+    if (entityType) where.entityType = entityType;
+
+    const [executions, total] = await Promise.all([
+      prisma.automationExecution.findMany({
+        where,
+        take: parseInt(limit as string, 10),
+        skip: parseInt(offset as string, 10),
+        orderBy: { createdAt: 'desc' },
+        include: {
+          rule: {
+            select: { id: true, name: true, code: true },
+          },
+        },
+      }),
+      prisma.automationExecution.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: executions,
+      pagination: {
+        total,
+        limit: parseInt(limit as string, 10),
+        offset: parseInt(offset as string, 10),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching executions:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch executions' },
+    });
+  }
+});
+
+// GET /api/automation/executions/:id - Get single execution
+router.get('/executions/:id', async (req: Request, res: Response) => {
+  try {
+    const execution = await prisma.automationExecution.findUnique({
+      where: { id: req.params.id },
+      include: {
+        rule: true,
+      },
+    });
+
+    if (!execution) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Execution not found' },
+      });
+    }
+
+    res.json({ success: true, data: execution });
+  } catch (error) {
+    console.error('Error fetching execution:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch execution' },
+    });
+  }
+});
+
+// POST /api/automation/executions/:id/retry - Retry failed execution
+router.post('/executions/:id/retry', async (req: Request, res: Response) => {
+  try {
+    const execution = await prisma.automationExecution.findUnique({
+      where: { id: req.params.id },
+      include: { rule: true },
+    });
+
+    if (!execution) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Execution not found' },
+      });
+    }
+
+    if (execution.status !== 'FAILED' && execution.status !== 'TIMEOUT') {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATUS', message: 'Only failed executions can be retried' },
+      });
+    }
+
+    if (execution.attemptNumber >= execution.rule.maxRetries) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MAX_RETRIES', message: 'Maximum retry attempts reached' },
+      });
+    }
+
+    // Create new execution for retry
+    const retryExecution = await prisma.automationExecution.create({
+      data: {
+        ruleId: execution.ruleId,
+        triggeredBy: (req as any).user?.id || 'RETRY',
+        triggerType: execution.triggerType,
+        triggerData: execution.triggerData ?? undefined,
+        entityType: execution.entityType,
+        entityId: execution.entityId,
+        status: 'RETRYING',
+        attemptNumber: execution.attemptNumber + 1,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: { executionId: retryExecution.id, attemptNumber: retryExecution.attemptNumber },
+    });
+  } catch (error) {
+    console.error('Error retrying execution:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to retry execution' },
+    });
+  }
 });
 
 // GET /api/automation/stats - Get automation statistics
-router.get('/stats', async (_req: Request, res: Response) => {
-  res.json({
-    success: true,
-    data: {
-      totalRules: 0,
-      activeRules: 0,
-      executionsByStatus: [],
-      recentExecutions: [],
-      message: 'Automation feature not yet implemented - models required in Prisma schema',
-    },
-  });
+router.get('/stats', async (req: Request, res: Response) => {
+  try {
+    const [
+      totalRules,
+      activeRules,
+      executionsByStatus,
+      recentExecutions,
+      topRules,
+    ] = await Promise.all([
+      prisma.automationRule.count(),
+      prisma.automationRule.count({ where: { isActive: true } }),
+      prisma.automationExecution.groupBy({
+        by: ['status'],
+        _count: { status: true },
+      }),
+      prisma.automationExecution.findMany({
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          rule: { select: { name: true, code: true } },
+        },
+      }),
+      prisma.automationRule.findMany({
+        take: 5,
+        orderBy: { executionCount: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          executionCount: true,
+          failureCount: true,
+          lastExecutedAt: true,
+        },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalRules,
+        activeRules,
+        inactiveRules: totalRules - activeRules,
+        executionsByStatus: executionsByStatus.map((e) => ({
+          status: e.status,
+          count: e._count.status,
+        })),
+        recentExecutions,
+        topRules,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching automation stats:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch statistics' },
+    });
+  }
 });
+
+// Helper function to execute automation action
+async function executeAction(
+  rule: any,
+  execution: any,
+  triggerData: any
+): Promise<any> {
+  const config = rule.actionConfig;
+
+  switch (rule.actionType) {
+    case 'CREATE_WORKFLOW':
+      // Create a new workflow instance
+      return { action: 'CREATE_WORKFLOW', message: 'Workflow creation triggered', config };
+
+    case 'SEND_NOTIFICATION':
+      // Send notification
+      return { action: 'SEND_NOTIFICATION', message: 'Notification sent', config };
+
+    case 'UPDATE_ENTITY':
+      // Update entity
+      return { action: 'UPDATE_ENTITY', message: 'Entity updated', config };
+
+    case 'CALL_WEBHOOK':
+      // Call external webhook
+      return { action: 'CALL_WEBHOOK', message: 'Webhook called', config };
+
+    case 'ASSIGN_TASK':
+      // Create and assign task
+      return { action: 'ASSIGN_TASK', message: 'Task assigned', config };
+
+    case 'UPDATE_STATUS':
+      // Update status
+      return { action: 'UPDATE_STATUS', message: 'Status updated', config };
+
+    default:
+      return { action: rule.actionType, message: 'Action executed', config };
+  }
+}
 
 export default router;

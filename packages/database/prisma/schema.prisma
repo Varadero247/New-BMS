@@ -7555,3 +7555,246 @@ enum NotificationStatus {
   FAILED
   READ
 }
+
+// ============================================
+// AUTOMATION RULES
+// ============================================
+
+model AutomationRule {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  description         String?
+  code                String @unique
+
+  // Trigger configuration
+  triggerType         AutomationTriggerType
+  triggerEvent        String?
+  triggerSchedule     String?
+  triggerCondition    Json?
+
+  // Action configuration
+  actionType          AutomationActionType
+  actionConfig        Json
+
+  // Scope
+  entityType          String?
+  workflowCategory    WorkflowCategory?
+
+  // Execution settings
+  priority            Int @default(0)
+  maxRetries          Int @default(3)
+  retryDelaySeconds   Int @default(60)
+  timeoutSeconds      Int @default(300)
+
+  // Status
+  isActive            Boolean @default(true)
+  lastExecutedAt      DateTime?
+  executionCount      Int @default(0)
+  failureCount        Int @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdById         String? @db.Uuid
+
+  // Relations
+  executions          AutomationExecution[]
+
+  @@index([triggerType])
+  @@index([isActive])
+  @@index([entityType])
+  @@map("automation_rules")
+}
+
+enum AutomationTriggerType {
+  EVENT
+  SCHEDULED
+  CONDITION
+  WORKFLOW_EVENT
+  API
+  WEBHOOK
+}
+
+enum AutomationActionType {
+  CREATE_WORKFLOW
+  UPDATE_ENTITY
+  SEND_NOTIFICATION
+  CALL_WEBHOOK
+  EXECUTE_SCRIPT
+  ASSIGN_TASK
+  ESCALATE
+  UPDATE_STATUS
+  GENERATE_REPORT
+  CUSTOM
+}
+
+model AutomationExecution {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ruleId              String @db.Uuid
+
+  // Execution context
+  triggeredBy         String?
+  triggerType         AutomationTriggerType
+  triggerData         Json?
+
+  // Target entity
+  entityType          String?
+  entityId            String?
+
+  // Execution details
+  status              AutomationExecutionStatus @default(PENDING)
+  startedAt           DateTime?
+  completedAt         DateTime?
+
+  // Result
+  result              Json?
+  output              String?
+  errorMessage        String?
+  errorStack          String?
+
+  // Retry info
+  attemptNumber       Int @default(1)
+  nextRetryAt         DateTime?
+
+  // Performance
+  durationMs          Int?
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  rule                AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([status])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("automation_executions")
+}
+
+enum AutomationExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  RETRYING
+  TIMEOUT
+}
+
+// ============================================
+// APPROVAL REQUESTS (Standalone)
+// ============================================
+
+model ApprovalRequest {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestNumber       String @unique
+
+  // Request details
+  title               String
+  description         String?
+  requestType         ApprovalRequestType
+  priority            WorkflowPriority @default(NORMAL)
+
+  // Requester
+  requesterId         String @db.Uuid
+  requesterName       String?
+  departmentId        String? @db.Uuid
+
+  // Entity reference
+  entityType          String?
+  entityId            String?
+  entityData          Json?
+
+  // Approval chain
+  approvalChainId     String? @db.Uuid
+  currentLevel        Int @default(1)
+  totalLevels         Int @default(1)
+
+  // Status
+  status              ApprovalRequestStatus @default(PENDING)
+
+  // Timeline
+  submittedAt         DateTime @default(now())
+  dueDate             DateTime?
+  decidedAt           DateTime?
+
+  // Outcome
+  outcome             ApprovalOutcome?
+  outcomeReason       String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  responses           ApprovalResponse[]
+
+  @@index([requesterId])
+  @@index([status])
+  @@index([requestType])
+  @@index([entityType, entityId])
+  @@map("approval_requests")
+}
+
+enum ApprovalRequestType {
+  DOCUMENT_APPROVAL
+  PURCHASE_REQUEST
+  LEAVE_REQUEST
+  EXPENSE_CLAIM
+  CHANGE_REQUEST
+  ACCESS_REQUEST
+  POLICY_EXCEPTION
+  BUDGET_APPROVAL
+  CONTRACT_APPROVAL
+  CUSTOM
+}
+
+enum ApprovalRequestStatus {
+  DRAFT
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+  ON_HOLD
+}
+
+enum ApprovalOutcome {
+  APPROVED
+  REJECTED
+  APPROVED_WITH_CONDITIONS
+  PARTIALLY_APPROVED
+  CANCELLED
+  EXPIRED
+}
+
+model ApprovalResponse {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId           String @db.Uuid
+
+  // Approver
+  approverId          String @db.Uuid
+  approverName        String?
+  approverRole        String?
+  level               Int @default(1)
+
+  // Decision
+  decision            ApprovalDecision
+  comments            String?
+  conditions          String?
+
+  // Delegation
+  delegatedFromId     String? @db.Uuid
+  delegatedFromName   String?
+
+  // Attachments
+  attachments         Json?
+
+  respondedAt         DateTime @default(now())
+
+  // Relations
+  request             ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@index([approverId])
+  @@map("approval_responses")
+}
