@@ -10,23 +10,80 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./core": {
+      "import": "./generated/core/index.js",
+      "require": "./generated/core/index.js"
+    },
+    "./hr": {
+      "import": "./generated/hr/index.js",
+      "require": "./generated/hr/index.js"
+    },
+    "./payroll": {
+      "import": "./generated/payroll/index.js",
+      "require": "./generated/payroll/index.js"
+    },
+    "./quality": {
+      "import": "./generated/quality/index.js",
+      "require": "./generated/quality/index.js"
+    },
+    "./health-safety": {
+      "import": "./generated/health-safety/index.js",
+      "require": "./generated/health-safety/index.js"
+    },
+    "./environment": {
+      "import": "./generated/environment/index.js",
+      "require": "./generated/environment/index.js"
+    },
+    "./inventory": {
+      "import": "./generated/inventory/index.js",
+      "require": "./generated/inventory/index.js"
+    },
+    "./workflows": {
+      "import": "./generated/workflows/index.js",
+      "require": "./generated/workflows/index.js"
+    },
+    "./ai": {
+      "import": "./generated/ai/index.js",
+      "require": "./generated/ai/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai",
+    "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
+    "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
+    "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
+    "generate:quality": "prisma generate --schema=prisma/schemas/quality.prisma",
+    "generate:health-safety": "prisma generate --schema=prisma/schemas/health-safety.prisma",
+    "generate:environment": "prisma generate --schema=prisma/schemas/environment.prisma",
+    "generate:inventory": "prisma generate --schema=prisma/schemas/inventory.prisma",
+    "generate:workflows": "prisma generate --schema=prisma/schemas/workflows.prisma",
+    "generate:ai": "prisma generate --schema=prisma/schemas/ai.prisma",
     "push": "prisma db push",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai",
+    "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
+    "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
+    "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
+    "push:quality": "prisma db push --schema=prisma/schemas/quality.prisma",
+    "push:health-safety": "prisma db push --schema=prisma/schemas/health-safety.prisma",
+    "push:environment": "prisma db push --schema=prisma/schemas/environment.prisma",
+    "push:inventory": "prisma db push --schema=prisma/schemas/inventory.prisma",
+    "push:workflows": "prisma db push --schema=prisma/schemas/workflows.prisma",
+    "push:ai": "prisma db push --schema=prisma/schemas/ai.prisma",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "clean": "rm -rf dist node_modules .turbo"
+    "clean": "rm -rf dist node_modules .turbo generated"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "npm-run-all": "^4.1.5",
     "prisma": "^5.7.0",
     "tsup": "^8.0.0",
     "tsx": "^4.7.0",

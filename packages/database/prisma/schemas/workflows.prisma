@@ -1,0 +1,630 @@
+// Workflows Schema - Workflow Engine Domain
+// This schema is used by the Workflows microservice
+// Database: ims_workflows
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/workflows"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("WORKFLOWS_DATABASE_URL")
+}
+
+// ============================================
+// WORKFLOW DEFINITIONS
+// ============================================
+
+model WorkflowDefinition {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  name              String
+  description       String?
+  category          WorkflowCategory
+  version           Int      @default(1)
+
+  // Configuration
+  triggerType       WorkflowTriggerType @default(MANUAL)
+  triggerConfig     Json?    // Trigger-specific configuration
+
+  // Steps definition
+  steps             Json     // Array of step definitions
+
+  // Rules & routing
+  rules             Json?    // Conditional routing rules
+
+  // SLA settings
+  defaultSlaHours   Int?
+  escalationConfig  Json?
+
+  // Status
+  status            WorkflowDefinitionStatus @default(DRAFT)
+  isActive          Boolean  @default(true)
+
+  // Publishing
+  publishedAt       DateTime?
+  publishedById     String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  // Relations
+  instances         WorkflowInstance[]
+
+  @@index([status])
+  @@index([category])
+  @@map("wf_definitions")
+}
+
+enum WorkflowCategory {
+  APPROVAL
+  REVIEW
+  CHANGE_MANAGEMENT
+  INCIDENT
+  REQUEST
+  ONBOARDING
+  OFFBOARDING
+  PROCUREMENT
+  DOCUMENT_CONTROL
+  AUDIT
+  CAPA
+  TRAINING
+  CUSTOM
+}
+
+enum WorkflowTriggerType {
+  MANUAL
+  AUTOMATIC
+  SCHEDULED
+  EVENT
+  API
+}
+
+enum WorkflowDefinitionStatus {
+  DRAFT
+  ACTIVE
+  DEPRECATED
+  ARCHIVED
+}
+
+// ============================================
+// WORKFLOW INSTANCES
+// ============================================
+
+model WorkflowInstance {
+  id                String   @id @default(cuid())
+  definitionId      String
+  referenceNumber   String   @unique
+
+  // Source entity
+  entityType        String?  // 'incident', 'capa', 'document', etc.
+  entityId          String?
+
+  // Context data
+  contextData       Json?    // Form data and variables
+
+  // Initiator
+  initiatedById     String
+  initiatedAt       DateTime @default(now())
+
+  // Status
+  status            WorkflowInstanceStatus @default(PENDING)
+  currentStepId     String?
+  outcome           WorkflowOutcome?
+
+  // Priority
+  priority          WorkflowPriority @default(NORMAL)
+
+  // SLA
+  slaDeadline       DateTime?
+  slaBreach         Boolean  @default(false)
+
+  // Completion
+  completedAt       DateTime?
+  completedById     String?
+  cancellationReason String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  definition        WorkflowDefinition @relation(fields: [definitionId], references: [id])
+  steps             WorkflowStep[]
+  tasks             WorkflowTask[]
+  comments          WorkflowComment[]
+  history           WorkflowHistory[]
+
+  @@index([status])
+  @@index([definitionId])
+  @@index([entityType, entityId])
+  @@index([initiatedById])
+  @@map("wf_instances")
+}
+
+enum WorkflowInstanceStatus {
+  PENDING
+  IN_PROGRESS
+  WAITING_APPROVAL
+  PAUSED
+  COMPLETED
+  CANCELLED
+  ERROR
+  EXPIRED
+}
+
+enum WorkflowPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum WorkflowOutcome {
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  ERROR
+}
+
+// ============================================
+// WORKFLOW STEPS
+// ============================================
+
+model WorkflowStep {
+  id                String   @id @default(cuid())
+  instanceId        String
+  stepDefinitionId  String   // References step in definition.steps
+
+  // Step info
+  name              String
+  stepType          WorkflowStepType
+  sequenceNumber    Int
+
+  // Assignment
+  assigneeType      AssigneeType?
+  assigneeId        String?  // User ID or role/department name
+  assignedAt        DateTime?
+
+  // Status
+  status            WorkflowStepStatus @default(PENDING)
+  startedAt         DateTime?
+  completedAt       DateTime?
+
+  // Result
+  decision          String?  // For approval steps
+  notes             String?
+  formData          Json?    // Captured form data
+
+  // SLA
+  dueDate           DateTime?
+  slaBreached       Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@index([status])
+  @@map("wf_steps")
+}
+
+enum WorkflowStepType {
+  START
+  END
+  TASK
+  APPROVAL
+  DECISION
+  PARALLEL_GATEWAY
+  EXCLUSIVE_GATEWAY
+  NOTIFICATION
+  AUTOMATION
+  SUBPROCESS
+  TIMER
+}
+
+enum WorkflowStepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  CANCELLED
+  ERROR
+}
+
+enum AssigneeType {
+  USER
+  ROLE
+  DEPARTMENT
+  MANAGER
+  INITIATOR
+  DYNAMIC
+}
+
+// ============================================
+// WORKFLOW TASKS
+// ============================================
+
+model WorkflowTask {
+  id                String   @id @default(cuid())
+  instanceId        String
+  stepId            String?
+
+  // Task info
+  title             String
+  description       String?
+  taskType          WorkflowTaskType
+
+  // Assignment
+  assignedToId      String?
+  assignedToName    String?
+
+  // Timeline
+  dueDate           DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+
+  // Status
+  status            WorkflowTaskStatus @default(PENDING)
+
+  // Form & data
+  formDefinition    Json?    // Form schema for data capture
+  formData          Json?    // Submitted form data
+
+  // Result
+  outcome           String?
+  notes             String?
+
+  // Delegation
+  delegatedToId     String?
+  delegatedAt       DateTime?
+  delegationReason  String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@index([assignedToId])
+  @@index([status])
+  @@map("wf_tasks")
+}
+
+enum WorkflowTaskType {
+  REVIEW
+  APPROVE
+  COMPLETE_FORM
+  UPLOAD_DOCUMENT
+  VERIFICATION
+  DATA_ENTRY
+  NOTIFICATION
+  CUSTOM
+}
+
+enum WorkflowTaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+// ============================================
+// WORKFLOW COMMENTS
+// ============================================
+
+model WorkflowComment {
+  id                String   @id @default(cuid())
+  instanceId        String
+  stepId            String?
+  taskId            String?
+
+  // Comment
+  content           String
+  commentType       CommentType @default(GENERAL)
+
+  // Author
+  authorId          String
+  authorName        String?
+
+  // Visibility
+  isInternal        Boolean  @default(false)
+
+  // Attachments
+  attachments       Json?    // Array of attachment URLs
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@map("wf_comments")
+}
+
+enum CommentType {
+  GENERAL
+  APPROVAL
+  REJECTION
+  QUESTION
+  ANSWER
+  ESCALATION
+  SYSTEM
+}
+
+// ============================================
+// WORKFLOW HISTORY
+// ============================================
+
+model WorkflowHistory {
+  id                String   @id @default(cuid())
+  instanceId        String
+  stepId            String?
+  taskId            String?
+
+  // Event
+  eventType         WorkflowEventType
+  description       String?
+  previousStatus    String?
+  newStatus         String?
+
+  // Data changes
+  previousData      Json?
+  newData           Json?
+
+  // Actor
+  actorId           String?
+  actorName         String?
+  actorType         ActorType @default(USER)
+
+  // Metadata
+  metadata          Json?
+  ipAddress         String?
+
+  createdAt         DateTime @default(now())
+
+  // Relations
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("wf_history")
+}
+
+enum WorkflowEventType {
+  CREATED
+  STARTED
+  STEP_COMPLETED
+  TASK_ASSIGNED
+  TASK_COMPLETED
+  APPROVED
+  REJECTED
+  COMMENTED
+  ESCALATED
+  DELEGATED
+  PAUSED
+  RESUMED
+  CANCELLED
+  COMPLETED
+  ERROR
+  SLA_WARNING
+  SLA_BREACH
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  AUTOMATION
+  SCHEDULER
+}
+
+// ============================================
+// WORKFLOW TEMPLATES
+// ============================================
+
+model WorkflowTemplate {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  name              String
+  description       String?
+  category          WorkflowCategory
+  industryType      IndustryType?
+
+  // Template content
+  definitionTemplate Json    // Pre-configured workflow definition
+
+  // Form templates
+  formTemplates     Json?    // Associated form definitions
+
+  // Usage
+  usageCount        Int      @default(0)
+  lastUsedAt        DateTime?
+
+  // Status
+  isActive          Boolean  @default(true)
+  isSystem          Boolean  @default(false) // Built-in templates
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  @@index([category])
+  @@index([isActive])
+  @@map("wf_templates")
+}
+
+enum IndustryType {
+  MANUFACTURING
+  HEALTHCARE
+  CONSTRUCTION
+  RETAIL
+  FINANCE
+  TECHNOLOGY
+  EDUCATION
+  HOSPITALITY
+  LOGISTICS
+  ENERGY
+  PHARMACEUTICAL
+  AUTOMOTIVE
+  AEROSPACE
+  FOOD_BEVERAGE
+  GENERAL
+}
+
+// ============================================
+// APPROVAL CHAINS
+// ============================================
+
+model ApprovalChain {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+  chainType         ApprovalChainType
+
+  // Configuration
+  levels            Json     // Array of approval levels with approvers
+  requireAllLevels  Boolean  @default(true)
+  skipOnUnavailable Boolean  @default(false)
+
+  // Conditions
+  conditions        Json?    // Conditions for when this chain applies
+
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  @@map("wf_approval_chains")
+}
+
+enum ApprovalChainType {
+  SEQUENTIAL
+  PARALLEL
+  HIERARCHICAL
+  DYNAMIC
+}
+
+// ============================================
+// ESCALATION RULES
+// ============================================
+
+model EscalationRule {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+
+  // Trigger
+  triggerType       EscalationTrigger
+  triggerValue      Int      // Hours/days depending on trigger type
+
+  // Action
+  actionType        EscalationActionType
+  notifyUserIds     String[]
+  notifyRoles       String[]
+
+  // Scope
+  workflowCategories WorkflowCategory[]
+  priorityThreshold WorkflowPriority?
+
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("wf_escalation_rules")
+}
+
+enum EscalationTrigger {
+  HOURS_PENDING
+  HOURS_BEFORE_DUE
+  PERCENT_SLA_ELAPSED
+  NO_RESPONSE
+  REJECTION_COUNT
+}
+
+enum EscalationActionType {
+  NOTIFY
+  REASSIGN
+  ESCALATE_APPROVER
+  AUTO_APPROVE
+  AUTO_REJECT
+  CANCEL
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model WorkflowNotification {
+  id                String   @id @default(cuid())
+  instanceId        String?
+  taskId            String?
+
+  // Recipient
+  recipientId       String
+  recipientEmail    String?
+
+  // Notification
+  notificationType  NotificationType
+  channel           NotificationChannel
+  subject           String
+  content           String
+  metadata          Json?
+
+  // Status
+  status            NotificationStatus @default(PENDING)
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  failureReason     String?
+
+  // Retry
+  retryCount        Int      @default(0)
+  maxRetries        Int      @default(3)
+
+  createdAt         DateTime @default(now())
+
+  @@index([recipientId])
+  @@index([status])
+  @@index([notificationType])
+  @@map("wf_notifications")
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  APPROVAL_REQUIRED
+  TASK_COMPLETED
+  WORKFLOW_COMPLETED
+  DEADLINE_REMINDER
+  ESCALATION
+  STATUS_UPDATE
+  COMMENT_ADDED
+  CUSTOM
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  IN_APP
+  PUSH
+  WEBHOOK
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+}

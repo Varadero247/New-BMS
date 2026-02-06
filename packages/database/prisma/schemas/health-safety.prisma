@@ -1,0 +1,526 @@
+// Health & Safety Schema - Occupational Health & Safety Domain (ISO 45001)
+// This schema is used by the Health & Safety microservice
+// Database: ims_health_safety
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/health-safety"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("HEALTH_SAFETY_DATABASE_URL")
+}
+
+// ============================================
+// INCIDENTS
+// ============================================
+
+model Incident {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Classification
+  type            IncidentType
+  severity        IncidentSeverity @default(MINOR)
+  category        String?
+
+  // Details
+  location        String?
+  dateOccurred    DateTime
+  dateReported    DateTime @default(now())
+
+  // People
+  reporterId      String   // Reference to User in core DB
+  investigatorId  String?
+  personsInvolved String?
+
+  // H&S specific
+  injuryType      String?
+  bodyPart        String?
+  daysLost        Int?
+  treatmentType   String?
+
+  // Investigation
+  immediateCause      String?
+  rootCauses          String?
+  contributingFactors String?
+
+  // Status
+  status          IncidentStatus @default(OPEN)
+  closedAt        DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  risk            Risk?    @relation(fields: [riskId], references: [id])
+  riskId          String?
+  actions         HSAction[]
+  fiveWhyAnalyses FiveWhyAnalysis[]
+  fishboneAnalyses FishboneAnalysis[]
+
+  @@index([status])
+  @@index([type])
+  @@index([dateOccurred])
+  @@map("hs_incidents")
+}
+
+enum IncidentType {
+  INJURY
+  NEAR_MISS
+  DANGEROUS_OCCURRENCE
+  OCCUPATIONAL_ILLNESS
+  PROPERTY_DAMAGE
+  FIRST_AID
+  MEDICAL_TREATMENT
+  LOST_TIME
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum IncidentStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  AWAITING_ACTIONS
+  ACTIONS_IN_PROGRESS
+  VERIFICATION
+  CLOSED
+}
+
+// ============================================
+// RISK ASSESSMENTS
+// ============================================
+
+model Risk {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String?
+  source      String?
+
+  // Risk Assessment
+  likelihood    Int        @default(1) // 1-5
+  severity      Int        @default(1) // 1-5
+  detectability Int        @default(1) // 1-5
+  riskScore     Int?
+  riskLevel     RiskLevel?
+
+  // Control Measures
+  existingControls   String?
+  additionalControls String?
+  residualRisk       Int?
+
+  // Status
+  status         RiskStatus @default(ACTIVE)
+  reviewDate     DateTime?
+  lastReviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  incidents      Incident[]
+  actions        HSAction[]
+  hazards        Hazard[]
+  bowTieAnalyses BowTieAnalysis[]
+
+  @@index([status])
+  @@index([riskLevel])
+  @@map("hs_risks")
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  ACTIVE
+  UNDER_REVIEW
+  MITIGATED
+  CLOSED
+  ACCEPTED
+}
+
+// ============================================
+// HAZARDS
+// ============================================
+
+model Hazard {
+  id          String   @id @default(cuid())
+  riskId      String?
+  title       String
+  description String
+  category    HazardCategory
+  location    String?
+
+  // Assessment
+  potentialSeverity Int @default(1) // 1-5
+  exposureFrequency Int @default(1) // 1-5
+  numberOfExposed   Int @default(1)
+
+  // Controls
+  controlMeasures   String?
+  controlHierarchy  ControlHierarchy?
+  ppeRequired       String[]
+
+  // Status
+  status            HazardStatus @default(ACTIVE)
+  reviewDate        DateTime?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  risk              Risk? @relation(fields: [riskId], references: [id])
+
+  @@index([category])
+  @@index([status])
+  @@map("hs_hazards")
+}
+
+enum HazardCategory {
+  PHYSICAL
+  CHEMICAL
+  BIOLOGICAL
+  ERGONOMIC
+  PSYCHOSOCIAL
+  ELECTRICAL
+  FIRE
+  MECHANICAL
+  ENVIRONMENTAL
+  OTHER
+}
+
+enum HazardStatus {
+  ACTIVE
+  CONTROLLED
+  ELIMINATED
+  UNDER_REVIEW
+}
+
+enum ControlHierarchy {
+  ELIMINATION
+  SUBSTITUTION
+  ENGINEERING
+  ADMINISTRATIVE
+  PPE
+}
+
+// ============================================
+// ACTIONS
+// ============================================
+
+model HSAction {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Source
+  incidentId      String?
+  riskId          String?
+
+  // Classification
+  type            ActionType
+  priority        ActionPriority @default(MEDIUM)
+
+  // Assignment
+  ownerId         String
+  createdById     String
+
+  // Timeline
+  dueDate         DateTime
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+
+  // Verification
+  verificationMethod  String?
+  verificationNotes   String?
+  effectivenessRating Int?
+
+  // Status
+  status          ActionStatus @default(OPEN)
+
+  // Cost
+  estimatedCost   Decimal? @db.Decimal(14, 2)
+  actualCost      Decimal? @db.Decimal(14, 2)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  incident        Incident? @relation(fields: [incidentId], references: [id])
+  risk            Risk?     @relation(fields: [riskId], references: [id])
+
+  @@index([status, dueDate])
+  @@index([ownerId])
+  @@map("hs_actions")
+}
+
+enum ActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  IMMEDIATE
+  LONG_TERM
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// ROOT CAUSE ANALYSIS
+// ============================================
+
+model FiveWhyAnalysis {
+  id         String   @id @default(cuid())
+  incidentId String
+
+  why1       String?
+  why2       String?
+  why3       String?
+  why4       String?
+  why5       String?
+
+  rootCause  String?
+  conclusion String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("hs_five_why_analyses")
+}
+
+model FishboneAnalysis {
+  id               String   @id @default(cuid())
+  incidentId       String
+
+  problemStatement String
+
+  // 6M Categories
+  manpower         String?
+  method           String?
+  machine          String?
+  material         String?
+  measurement      String?
+  environment      String?
+
+  conclusion       String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  incident         Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("hs_fishbone_analyses")
+}
+
+model BowTieAnalysis {
+  id     String @id @default(cuid())
+  riskId String
+
+  // Top Event
+  topEvent           String
+
+  // Threats (causes) - JSON array
+  threats            Json // [{id, description, likelihood}]
+
+  // Consequences - JSON array
+  consequences       Json // [{id, description, severity}]
+
+  // Controls
+  preventiveControls Json // [{id, description, effectiveness, threatId}]
+  mitigatingControls Json // [{id, description, effectiveness, consequenceId}]
+
+  // Barriers
+  escalationFactors  Json?
+
+  notes              String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  risk               Risk @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@map("hs_bow_tie_analyses")
+}
+
+// ============================================
+// SAFETY METRICS
+// ============================================
+
+model SafetyMetric {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+
+  // Hours & Incidents
+  hoursWorked             Decimal @default(0) @db.Decimal(14, 2)
+  lostTimeInjuries        Int     @default(0)
+  totalRecordableInjuries Int     @default(0)
+  daysLost                Int     @default(0)
+  nearMisses              Int     @default(0)
+  firstAidCases           Int     @default(0)
+
+  // Calculated Rates
+  ltifr        Decimal? @db.Decimal(8, 4) // Lost Time Injury Frequency Rate
+  trir         Decimal? @db.Decimal(8, 4) // Total Recordable Incident Rate
+  severityRate Decimal? @db.Decimal(8, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("hs_safety_metrics")
+}
+
+// ============================================
+// PERMITS & INSPECTIONS
+// ============================================
+
+model SafetyPermit {
+  id            String   @id @default(cuid())
+  permitNumber  String   @unique
+  permitType    PermitType
+  title         String
+  description   String?
+
+  // Location & Work
+  location      String
+  workDescription String
+
+  // People
+  requestedById String
+  approvedById  String?
+  supervisorId  String?
+
+  // Timeline
+  requestedAt   DateTime @default(now())
+  approvedAt    DateTime?
+  validFrom     DateTime
+  validTo       DateTime
+
+  // Hazards & Controls
+  hazardsIdentified String[]
+  controlMeasures   String[]
+  ppeRequired       String[]
+
+  // Status
+  status        PermitStatus @default(REQUESTED)
+  closedAt      DateTime?
+  closureNotes  String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([permitType])
+  @@map("hs_safety_permits")
+}
+
+enum PermitType {
+  HOT_WORK
+  CONFINED_SPACE
+  WORKING_AT_HEIGHT
+  EXCAVATION
+  ELECTRICAL
+  LOCKOUT_TAGOUT
+  GENERAL
+}
+
+enum PermitStatus {
+  REQUESTED
+  APPROVED
+  ACTIVE
+  SUSPENDED
+  CLOSED
+  REJECTED
+  EXPIRED
+}
+
+model SafetyInspection {
+  id              String   @id @default(cuid())
+  inspectionNumber String  @unique
+  inspectionType  InspectionType
+  title           String
+  description     String?
+
+  // Location
+  location        String
+  area            String?
+  department      String?
+
+  // Schedule
+  scheduledDate   DateTime
+  conductedDate   DateTime?
+
+  // Inspector
+  inspectorId     String
+  inspectorName   String?
+
+  // Results
+  totalItems      Int @default(0)
+  compliantItems  Int @default(0)
+  nonCompliantItems Int @default(0)
+  complianceScore Decimal? @db.Decimal(5, 2)
+
+  // Status
+  status          InspectionStatus @default(SCHEDULED)
+
+  // Findings
+  findings        Json?  // Array of findings
+  recommendations String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([inspectionType])
+  @@map("hs_safety_inspections")
+}
+
+enum InspectionType {
+  WORKPLACE
+  EQUIPMENT
+  FIRE_SAFETY
+  PPE
+  ERGONOMIC
+  CHEMICAL
+  ELECTRICAL
+  HOUSEKEEPING
+  EMERGENCY_PREPAREDNESS
+}
+
+enum InspectionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}

@@ -1,0 +1,524 @@
+// Environment Schema - Environmental Management Domain (ISO 14001)
+// This schema is used by the Environment microservice
+// Database: ims_environment
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/environment"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ENVIRONMENT_DATABASE_URL")
+}
+
+// ============================================
+// ENVIRONMENTAL ASPECTS & IMPACTS
+// ============================================
+
+model Aspect {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    AspectCategory
+
+  // Source
+  activity    String?
+  process     String?
+  location    String?
+
+  // Assessment
+  aspectType          String?  // Emission, Waste, Energy, Water, etc.
+  environmentalImpact String?
+  scale               Int @default(1) // 1-5
+  frequency           Int @default(1) // 1-5
+  legalImpact         Int @default(1) // 1-5
+  significanceScore   Int?
+
+  // Control
+  controlMeasures   String?
+  operationalControl String?
+
+  // Status
+  status         AspectStatus @default(ACTIVE)
+  significance   SignificanceLevel?
+  reviewDate     DateTime?
+  lastReviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  impacts        Impact[]
+  incidents      EnvironmentalIncident[]
+  actions        EnvAction[]
+
+  @@index([status])
+  @@index([significance])
+  @@map("env_aspects")
+}
+
+enum AspectCategory {
+  EMISSIONS_TO_AIR
+  DISCHARGES_TO_WATER
+  RELEASES_TO_LAND
+  WASTE_GENERATION
+  ENERGY_USE
+  WATER_USE
+  RAW_MATERIAL_USE
+  NOISE
+  ODOUR
+  VISUAL
+  BIODIVERSITY
+  OTHER
+}
+
+enum AspectStatus {
+  ACTIVE
+  UNDER_REVIEW
+  CONTROLLED
+  CLOSED
+}
+
+enum SignificanceLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// IMPACTS
+// ============================================
+
+model Impact {
+  id          String   @id @default(cuid())
+  aspectId    String
+  title       String
+  description String
+  impactType  ImpactType
+
+  // Assessment
+  magnitude   Int @default(1) // 1-5
+  likelihood  Int @default(1) // 1-5
+  reversibility Reversibility?
+
+  // Receptor
+  environmentalMedia String? // Air, Water, Land, Biodiversity
+
+  // Control
+  mitigationMeasures String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  aspect      Aspect @relation(fields: [aspectId], references: [id], onDelete: Cascade)
+
+  @@index([aspectId])
+  @@map("env_impacts")
+}
+
+enum ImpactType {
+  POLLUTION
+  RESOURCE_DEPLETION
+  CLIMATE_CHANGE
+  HABITAT_DESTRUCTION
+  BIODIVERSITY_LOSS
+  HEALTH_EFFECT
+  NUISANCE
+  OTHER
+}
+
+enum Reversibility {
+  REVERSIBLE
+  PARTIALLY_REVERSIBLE
+  IRREVERSIBLE
+}
+
+// ============================================
+// ENVIRONMENTAL INCIDENTS
+// ============================================
+
+model EnvironmentalIncident {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Classification
+  type            EnvIncidentType
+  severity        IncidentSeverity @default(MINOR)
+  category        String?
+
+  // Details
+  location        String?
+  dateOccurred    DateTime
+  dateReported    DateTime @default(now())
+
+  // People
+  reporterId      String
+  investigatorId  String?
+
+  // Environmental specific
+  environmentalMedia String? // Air, Water, Land
+  quantity           Decimal? @db.Decimal(14, 4)
+  unit               String?
+  regulatoryReport   Boolean @default(false)
+
+  // Investigation
+  immediateCause      String?
+  rootCauses          String?
+  contributingFactors String?
+
+  // Status
+  status          IncidentStatus @default(OPEN)
+  closedAt        DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  aspect          Aspect? @relation(fields: [aspectId], references: [id])
+  aspectId        String?
+  actions         EnvAction[]
+
+  @@index([status])
+  @@index([type])
+  @@index([dateOccurred])
+  @@map("env_incidents")
+}
+
+enum EnvIncidentType {
+  SPILL
+  EMISSION
+  WASTE_INCIDENT
+  ENVIRONMENTAL_COMPLAINT
+  REGULATORY_BREACH
+  CONTAMINATION
+  RELEASE
+  OTHER
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum IncidentStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  AWAITING_ACTIONS
+  ACTIONS_IN_PROGRESS
+  VERIFICATION
+  CLOSED
+}
+
+// ============================================
+// COMPLIANCE OBLIGATIONS
+// ============================================
+
+model ComplianceObligation {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+
+  // Classification
+  type            ObligationType
+  jurisdiction    String?
+  issuingBody     String?
+  referenceNumber String?
+
+  // Details
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  reviewFrequency String?
+
+  // Compliance
+  complianceStatus   ComplianceStatus @default(PENDING)
+  complianceEvidence String?
+  lastAssessedAt     DateTime?
+  nextAssessmentDate DateTime?
+
+  // Responsibility
+  responsiblePerson  String?
+  responsibleDept    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  actions         EnvAction[]
+  monitoringData  MonitoringData[]
+
+  @@index([complianceStatus])
+  @@index([type])
+  @@map("env_compliance_obligations")
+}
+
+enum ObligationType {
+  LEGISLATION
+  REGULATION
+  PERMIT
+  LICENSE
+  CODE_OF_PRACTICE
+  STANDARD
+  CUSTOMER_REQUIREMENT
+  CORPORATE_REQUIREMENT
+  OTHER
+}
+
+enum ComplianceStatus {
+  COMPLIANT
+  PARTIALLY_COMPLIANT
+  NON_COMPLIANT
+  PENDING
+  NOT_APPLICABLE
+}
+
+// ============================================
+// ACTIONS
+// ============================================
+
+model EnvAction {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Source
+  aspectId               String?
+  incidentId             String?
+  complianceObligationId String?
+
+  // Classification
+  type            ActionType
+  priority        ActionPriority @default(MEDIUM)
+
+  // Assignment
+  ownerId         String
+  createdById     String
+
+  // Timeline
+  dueDate         DateTime
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+
+  // Verification
+  verificationMethod  String?
+  verificationNotes   String?
+  effectivenessRating Int?
+
+  // Status
+  status          ActionStatus @default(OPEN)
+
+  // Cost
+  estimatedCost   Decimal? @db.Decimal(14, 2)
+  actualCost      Decimal? @db.Decimal(14, 2)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  aspect               Aspect?               @relation(fields: [aspectId], references: [id])
+  incident             EnvironmentalIncident? @relation(fields: [incidentId], references: [id])
+  complianceObligation ComplianceObligation? @relation(fields: [complianceObligationId], references: [id])
+
+  @@index([status, dueDate])
+  @@index([ownerId])
+  @@map("env_actions")
+}
+
+enum ActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  IMMEDIATE
+  LONG_TERM
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// ENVIRONMENTAL MONITORING
+// ============================================
+
+model MonitoringData {
+  id                     String   @id @default(cuid())
+  complianceObligationId String?
+  monitoringPoint        String
+  parameter              String
+  unit                   String
+
+  // Measurement
+  value                  Decimal  @db.Decimal(14, 6)
+  limitValue             Decimal? @db.Decimal(14, 6)
+  measurementDate        DateTime
+
+  // Assessment
+  isCompliant            Boolean?
+  exceedancePercent      Decimal? @db.Decimal(6, 2)
+
+  // Quality
+  measuredById           String?
+  method                 String?
+  equipmentUsed          String?
+  calibrationDate        DateTime?
+
+  notes                  String?
+
+  createdAt              DateTime @default(now())
+
+  // Relations
+  complianceObligation   ComplianceObligation? @relation(fields: [complianceObligationId], references: [id])
+
+  @@index([monitoringPoint])
+  @@index([parameter])
+  @@index([measurementDate])
+  @@map("env_monitoring_data")
+}
+
+// ============================================
+// WASTE MANAGEMENT
+// ============================================
+
+model WasteRecord {
+  id              String   @id @default(cuid())
+  wasteType       WasteType
+  wasteCategory   WasteCategory
+  description     String?
+
+  // Source
+  sourceLocation  String?
+  sourceDepartment String?
+  sourceProcess   String?
+
+  // Quantity
+  quantity        Decimal  @db.Decimal(14, 4)
+  unit            String
+
+  // Handling
+  storageLocation String?
+  containerType   String?
+
+  // Disposal
+  disposalMethod  DisposalMethod
+  disposalDate    DateTime?
+  disposalContractor String?
+  wasteTransferNote String?
+
+  // Compliance
+  hazardousWaste  Boolean  @default(false)
+  ewcCode         String?  // European Waste Catalogue code
+
+  // Status
+  status          WasteStatus @default(GENERATED)
+
+  generatedDate   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([wasteType])
+  @@index([status])
+  @@index([generatedDate])
+  @@map("env_waste_records")
+}
+
+enum WasteType {
+  SOLID
+  LIQUID
+  GAS
+  SLUDGE
+  OTHER
+}
+
+enum WasteCategory {
+  GENERAL
+  RECYCLABLE
+  HAZARDOUS
+  ELECTRONIC
+  ORGANIC
+  MEDICAL
+  CONSTRUCTION
+  OTHER
+}
+
+enum DisposalMethod {
+  RECYCLING
+  LANDFILL
+  INCINERATION
+  TREATMENT
+  RECOVERY
+  REUSE
+  OTHER
+}
+
+enum WasteStatus {
+  GENERATED
+  STORED
+  COLLECTED
+  TRANSPORTED
+  DISPOSED
+}
+
+// ============================================
+// ENVIRONMENTAL METRICS
+// ============================================
+
+model EnvironmentalMetric {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+
+  // Energy
+  electricityKwh      Decimal @default(0) @db.Decimal(14, 2)
+  naturalGasM3        Decimal @default(0) @db.Decimal(14, 2)
+  fuelLiters          Decimal @default(0) @db.Decimal(14, 2)
+  renewableEnergyKwh  Decimal @default(0) @db.Decimal(14, 2)
+
+  // Water
+  waterConsumptionM3  Decimal @default(0) @db.Decimal(14, 2)
+  wastewaterM3        Decimal @default(0) @db.Decimal(14, 2)
+  recycledWaterM3     Decimal @default(0) @db.Decimal(14, 2)
+
+  // Waste
+  totalWasteKg        Decimal @default(0) @db.Decimal(14, 2)
+  recycledWasteKg     Decimal @default(0) @db.Decimal(14, 2)
+  hazardousWasteKg    Decimal @default(0) @db.Decimal(14, 2)
+  landfillWasteKg     Decimal @default(0) @db.Decimal(14, 2)
+
+  // Emissions
+  co2EmissionsTonnes  Decimal @default(0) @db.Decimal(14, 4)
+  scope1Emissions     Decimal @default(0) @db.Decimal(14, 4)
+  scope2Emissions     Decimal @default(0) @db.Decimal(14, 4)
+  scope3Emissions     Decimal @default(0) @db.Decimal(14, 4)
+
+  // Calculated
+  recyclingRate       Decimal? @db.Decimal(6, 4)
+  energyIntensity     Decimal? @db.Decimal(14, 4)
+  waterIntensity      Decimal? @db.Decimal(14, 4)
+  carbonIntensity     Decimal? @db.Decimal(14, 4)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("env_metrics")
+}

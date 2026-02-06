@@ -89,13 +89,24 @@ Each microservice has its own schema file:
 
 ## Migration Strategy
 
-### Phase 1: Schema Split (Current)
+### Phase 1: Schema Split (Complete)
 
 1. Create separate schema files for each domain
 2. Schema files are in `packages/database/prisma/schemas/`
 3. Each generates its own Prisma client
 
-### Phase 2: Database Creation
+**Available Schemas:**
+- `core.prisma` - Users, Sessions, Audit, API Keys
+- `hr.prisma` - Employees, Departments, Leave, Training
+- `payroll.prisma` - PayrollRuns, Payslips, Benefits, Loans
+- `quality.prisma` - Non-Conformances, CAPAs, Audits
+- `health-safety.prisma` - Incidents, Risks, Hazards, Permits
+- `environment.prisma` - Aspects, Impacts, Compliance, Waste
+- `inventory.prisma` - Products, Warehouses, Stock, POs
+- `workflows.prisma` - Definitions, Instances, Tasks
+- `ai.prisma` - Analyses, Insights, Embeddings
+
+### Phase 2: Database Creation (Complete)
 
 Run the database creation script:
 
@@ -114,27 +125,35 @@ This creates:
 - `ims_workflows`
 - `ims_ai_analysis`
 
-### Phase 3: Data Migration
+### Phase 3: Data Migration (Complete)
 
-For each service:
+**Generate all Prisma clients:**
+```bash
+cd packages/database
+pnpm generate:all
+```
 
-1. Generate the Prisma client:
-   ```bash
-   cd packages/database
-   npx prisma generate --schema=prisma/schemas/hr.prisma
-   ```
+**Or generate individual clients:**
+```bash
+pnpm generate:core
+pnpm generate:hr
+pnpm generate:payroll
+# etc.
+```
 
-2. Create the database tables:
-   ```bash
-   npx prisma db push --schema=prisma/schemas/hr.prisma
-   ```
+**Push schemas to databases:**
+```bash
+pnpm push:all
+```
 
-3. Migrate data from the monolithic database:
-   ```bash
-   ./scripts/migrate-data.sh hr
-   ```
+**Migrate data from monolithic database:**
+```bash
+./scripts/migrate-data.sh all    # Migrate all services
+./scripts/migrate-data.sh hr     # Migrate HR only
+./scripts/migrate-data.sh quality # Migrate Quality only
+```
 
-### Phase 4: Service Updates
+### Phase 4: Service Updates (In Progress)
 
 Update each microservice to use its specific database:
 

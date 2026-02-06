@@ -1,0 +1,508 @@
+// AI Schema - AI Analysis & Insights Domain
+// This schema is used by the AI Analysis microservice
+// Database: ims_ai_analysis
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/ai"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AI_DATABASE_URL")
+}
+
+// ============================================
+// AI SETTINGS
+// ============================================
+
+model AISettings {
+  id       String     @id @default(cuid())
+  provider AIProvider @default(OPENAI)
+  apiKey   String?    // Encrypted in production
+  model    String?
+
+  // Default prompts
+  defaultPrompt String?
+
+  // Usage tracking
+  totalTokensUsed Int       @default(0)
+  lastUsedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_settings")
+}
+
+enum AIProvider {
+  OPENAI
+  ANTHROPIC
+  GROK
+  AZURE_OPENAI
+  BEDROCK
+  GOOGLE
+  LOCAL
+}
+
+// ============================================
+// AI ANALYSES
+// ============================================
+
+model AIAnalysis {
+  id     String @id @default(cuid())
+  userId String // Reference to User in core DB
+
+  // Source
+  sourceType String  // risk, incident, aspect, capa, etc.
+  sourceId   String
+  sourceData Json    // Original data sent to AI
+
+  // Request
+  prompt      String
+  provider    AIProvider
+  model       String?
+  temperature Decimal? @db.Decimal(3, 2) // 0.00-2.00
+
+  // Response
+  response           Json     // Full AI response
+  suggestedRootCause String?
+  suggestedActions   Json?    // Array of suggested actions
+  complianceGaps     Json?    // Array of {clause, gap, recommendation}
+  highlights         Json?    // Text highlights with reasons
+  summary            String?
+
+  // Tokens & Cost
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  estimatedCost    Decimal? @db.Decimal(10, 6)
+
+  // Status
+  status     AIAnalysisStatus @default(PENDING)
+  error      String?
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+
+  // Processing time
+  processingTimeMs Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  actions    AIAction[]
+  feedback   AIFeedback[]
+
+  @@index([sourceType, sourceId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_analyses")
+}
+
+enum AIAnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  ACCEPTED
+  PARTIALLY_ACCEPTED
+  REJECTED
+  ERROR
+}
+
+// ============================================
+// AI-GENERATED ACTIONS
+// ============================================
+
+model AIAction {
+  id          String   @id @default(cuid())
+  analysisId  String
+
+  // Action details
+  title       String
+  description String
+  priority    ActionPriority @default(MEDIUM)
+  category    String?
+
+  // Assignment suggestion
+  suggestedAssignee String?
+  suggestedDueDate  DateTime?
+
+  // Status
+  accepted    Boolean  @default(false)
+  acceptedAt  DateTime?
+  acceptedById String?
+  linkedActionId String? // If converted to real action
+
+  // Reasoning
+  reasoning   String?
+  confidence  Decimal? @db.Decimal(5, 4) // 0.0000-1.0000
+
+  createdAt   DateTime @default(now())
+
+  // Relations
+  analysis    AIAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@map("ai_actions")
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// AI FEEDBACK
+// ============================================
+
+model AIFeedback {
+  id          String   @id @default(cuid())
+  analysisId  String
+  userId      String
+
+  // Rating
+  rating      Int      // 1-5
+  isHelpful   Boolean?
+
+  // Specific feedback
+  accuracyRating   Int? // 1-5
+  relevanceRating  Int? // 1-5
+  clarityRating    Int? // 1-5
+
+  // Comments
+  comment     String?
+  improvements String?
+
+  // Feedback type
+  feedbackType FeedbackType @default(GENERAL)
+
+  createdAt   DateTime @default(now())
+
+  // Relations
+  analysis    AIAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@index([userId])
+  @@map("ai_feedback")
+}
+
+enum FeedbackType {
+  GENERAL
+  ROOT_CAUSE
+  ACTIONS
+  COMPLIANCE
+  SUMMARY
+}
+
+// ============================================
+// AI PROMPTS
+// ============================================
+
+model AIPrompt {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  category    PromptCategory
+
+  // Prompt content
+  systemPrompt String?
+  userPromptTemplate String
+  variables    String[] // Required variables in template
+
+  // Configuration
+  provider    AIProvider?
+  model       String?
+  temperature Decimal? @db.Decimal(3, 2)
+  maxTokens   Int?
+
+  // Output format
+  outputFormat OutputFormat @default(TEXT)
+  outputSchema Json?        // JSON schema for structured output
+
+  // Status
+  isActive    Boolean  @default(true)
+  isSystem    Boolean  @default(false) // Built-in prompts
+
+  // Usage
+  usageCount  Int      @default(0)
+  lastUsedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([category])
+  @@index([isActive])
+  @@map("ai_prompts")
+}
+
+enum PromptCategory {
+  ROOT_CAUSE_ANALYSIS
+  ACTION_SUGGESTION
+  COMPLIANCE_CHECK
+  RISK_ASSESSMENT
+  DOCUMENT_SUMMARY
+  TREND_ANALYSIS
+  ANOMALY_DETECTION
+  REPORT_GENERATION
+  TRANSLATION
+  CUSTOM
+}
+
+enum OutputFormat {
+  TEXT
+  JSON
+  MARKDOWN
+  HTML
+}
+
+// ============================================
+// AI INSIGHTS
+// ============================================
+
+model AIInsight {
+  id          String   @id @default(cuid())
+
+  // Classification
+  insightType InsightType
+  category    String?
+  severity    InsightSeverity @default(INFO)
+
+  // Content
+  title       String
+  description String
+  details     Json?
+
+  // Source data
+  sourceType  String?  // What data generated this insight
+  sourceQuery String?  // Query or analysis that generated it
+  dataRange   Json?    // Time range of source data
+
+  // Metrics
+  confidence  Decimal? @db.Decimal(5, 4)
+  impact      ImpactLevel?
+
+  // Status
+  status      InsightStatus @default(NEW)
+  acknowledgedById String?
+  acknowledgedAt   DateTime?
+  dismissedById    String?
+  dismissedAt      DateTime?
+  dismissReason    String?
+
+  // Actions taken
+  actionTaken String?
+  linkedActionId String?
+
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+
+  @@index([insightType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_insights")
+}
+
+enum InsightType {
+  TREND
+  ANOMALY
+  PREDICTION
+  RECOMMENDATION
+  WARNING
+  CORRELATION
+  PATTERN
+  BENCHMARK
+}
+
+enum InsightSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ImpactLevel {
+  MINIMAL
+  LOW
+  MODERATE
+  HIGH
+  SEVERE
+}
+
+enum InsightStatus {
+  NEW
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+  EXPIRED
+}
+
+// ============================================
+// AI USAGE TRACKING
+// ============================================
+
+model AIUsage {
+  id          String   @id @default(cuid())
+  userId      String?
+
+  // Request details
+  provider    AIProvider
+  model       String
+  endpoint    String?  // chat, completion, embedding, etc.
+
+  // Tokens
+  promptTokens     Int @default(0)
+  completionTokens Int @default(0)
+  totalTokens      Int @default(0)
+
+  // Cost
+  estimatedCost Decimal @default(0) @db.Decimal(10, 6)
+
+  // Context
+  sourceType    String?
+  sourceId      String?
+  analysisId    String?
+
+  // Response
+  success       Boolean @default(true)
+  latencyMs     Int?
+  errorCode     String?
+  errorMessage  String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([provider, model])
+  @@index([createdAt])
+  @@map("ai_usage")
+}
+
+// ============================================
+// AI EMBEDDINGS
+// ============================================
+
+model AIEmbedding {
+  id          String   @id @default(cuid())
+
+  // Source
+  sourceType  String   // document, incident, risk, etc.
+  sourceId    String
+  chunkIndex  Int      @default(0) // For large documents split into chunks
+
+  // Content
+  content     String   // Text that was embedded
+  contentHash String   // Hash to detect changes
+
+  // Embedding
+  embedding   Json     // Vector as JSON array
+  dimensions  Int
+  model       String
+
+  // Metadata
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([sourceType, sourceId, chunkIndex])
+  @@index([sourceType, sourceId])
+  @@map("ai_embeddings")
+}
+
+// ============================================
+// AI CONVERSATION HISTORY
+// ============================================
+
+model AIConversation {
+  id          String   @id @default(cuid())
+  userId      String
+  sessionId   String?  // For grouping related conversations
+
+  // Context
+  contextType String?  // What the conversation is about
+  contextId   String?
+
+  // Status
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  messages    AIMessage[]
+
+  @@index([userId])
+  @@index([contextType, contextId])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+
+  // Message
+  role           MessageRole
+  content        String
+
+  // Tokens
+  tokens         Int?
+
+  // Metadata
+  metadata       Json?
+
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  FUNCTION
+  TOOL
+}
+
+// ============================================
+// AI MONTHLY TRENDS (AGGREGATED)
+// ============================================
+
+model AIMonthlyTrend {
+  id          String   @id @default(cuid())
+  year        Int
+  month       Int
+
+  // Usage
+  totalAnalyses     Int @default(0)
+  totalTokens       Int @default(0)
+  totalCost         Decimal @default(0) @db.Decimal(14, 2)
+
+  // By provider
+  usageByProvider   Json? // {openai: {analyses, tokens, cost}, anthropic: {...}}
+
+  // Quality
+  avgAccuracyRating Decimal? @db.Decimal(3, 2)
+  avgHelpfulRating  Decimal? @db.Decimal(3, 2)
+  acceptanceRate    Decimal? @db.Decimal(5, 4)
+
+  // Insights
+  insightsGenerated Int @default(0)
+  insightsActedOn   Int @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("ai_monthly_trends")
+}

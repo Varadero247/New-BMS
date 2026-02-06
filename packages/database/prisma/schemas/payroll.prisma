@@ -1,0 +1,596 @@
+// Payroll Schema - Payroll & Compensation Domain
+// This schema is used by the Payroll microservice
+// Database: ims_payroll
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/payroll"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYROLL_DATABASE_URL")
+}
+
+// ============================================
+// PAYROLL RUNS
+// ============================================
+
+model PayrollRun {
+  id                  String   @id @default(cuid())
+  runNumber           String   @unique
+  companyId           String?
+
+  // Period
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+  payDate             DateTime @db.Date
+  payFrequency        PayFrequency
+
+  // Employees
+  totalEmployees      Int      @default(0)
+  processedEmployees  Int      @default(0)
+  errorEmployees      Int      @default(0)
+
+  // Totals
+  totalGross          Decimal  @default(0) @db.Decimal(14, 2)
+  totalDeductions     Decimal  @default(0) @db.Decimal(14, 2)
+  totalNet            Decimal  @default(0) @db.Decimal(14, 2)
+  totalEmployerCost   Decimal  @default(0) @db.Decimal(14, 2)
+  currency            String   @default("USD")
+
+  // Status
+  status              PayrollRunStatus @default(DRAFT)
+  lockedAt            DateTime?
+  lockedById          String?
+
+  // Approval
+  approvalStatus      ApprovalStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+
+  // Payment
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentDate         DateTime?
+  paymentReference    String?
+  bankFileGenerated   Boolean  @default(false)
+  bankFileUrl         String?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String?
+
+  // Relations
+  payslips            Payslip[]
+  taxFilings          TaxFiling[]
+
+  @@index([periodStart, periodEnd])
+  @@index([status])
+  @@map("payroll_runs")
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  CALCULATING
+  CALCULATED
+  REVIEWING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  ERROR
+}
+
+enum PayFrequency {
+  WEEKLY
+  BI_WEEKLY
+  SEMI_MONTHLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum ApprovalStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ESCALATED
+  EXPIRED
+  DELEGATED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SCHEDULED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ============================================
+// PAYSLIPS
+// ============================================
+
+model Payslip {
+  id                  String   @id @default(cuid())
+  payslipNumber       String   @unique
+  payrollRunId        String
+  employeeId          String   // Reference to Employee in HR database
+
+  // Period
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+  payDate             DateTime @db.Date
+
+  // Employee info snapshot
+  employeeName        String
+  employeeNumber      String
+  department          String?
+  position            String?
+  bankAccount         String?
+
+  // Working days
+  workingDays         Decimal  @db.Decimal(5, 2)
+  paidDays            Decimal  @db.Decimal(5, 2)
+  leaveDays           Decimal  @db.Decimal(5, 2)
+  unpaidLeaveDays     Decimal  @db.Decimal(5, 2)
+  overtimeHours       Decimal  @default(0) @db.Decimal(6, 2)
+
+  // Earnings
+  basicSalary         Decimal  @db.Decimal(14, 2)
+  grossEarnings       Decimal  @db.Decimal(14, 2)
+
+  // Deductions
+  totalDeductions     Decimal  @db.Decimal(14, 2)
+  statutoryDeductions Decimal  @default(0) @db.Decimal(14, 2)
+  voluntaryDeductions Decimal  @default(0) @db.Decimal(14, 2)
+  otherDeductions     Decimal  @default(0) @db.Decimal(14, 2)
+
+  // Net
+  netPay              Decimal  @db.Decimal(14, 2)
+  currency            String   @default("USD")
+
+  // Tax
+  taxableIncome       Decimal  @db.Decimal(14, 2)
+  incomeTax           Decimal  @default(0) @db.Decimal(14, 2)
+  yearToDateEarnings  Decimal  @default(0) @db.Decimal(14, 2)
+  yearToDateTax       Decimal  @default(0) @db.Decimal(14, 2)
+
+  // Status
+  status              PayslipStatus @default(DRAFT)
+  publishedAt         DateTime?
+  viewedByEmployee    Boolean  @default(false)
+  viewedAt            DateTime?
+
+  // Payment
+  paymentMethod       PaymentMethod @default(BANK_TRANSFER)
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentReference    String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  payrollRun          PayrollRun @relation(fields: [payrollRunId], references: [id])
+  items               PayslipItem[]
+
+  @@unique([payrollRunId, employeeId])
+  @@index([payrollRunId])
+  @@index([employeeId])
+  @@map("payroll_payslips")
+}
+
+enum PayslipStatus {
+  DRAFT
+  CALCULATED
+  APPROVED
+  PUBLISHED
+  PAID
+  VOID
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CHECK
+  CASH
+  DIRECT_DEPOSIT
+  MOBILE_MONEY
+  OTHER
+}
+
+// ============================================
+// PAYSLIP ITEMS
+// ============================================
+
+model PayslipItem {
+  id                  String   @id @default(cuid())
+  payslipId           String
+  componentTypeId     String?
+
+  // Item details
+  category            ComponentCategory
+  type                ComponentType
+  name                String
+  description         String?
+
+  // Amount
+  quantity            Decimal  @default(1) @db.Decimal(8, 2)
+  rate                Decimal? @db.Decimal(14, 2)
+  amount              Decimal  @db.Decimal(14, 2)
+
+  // Tax
+  isTaxable           Boolean  @default(true)
+
+  sortOrder           Int      @default(0)
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  payslip             Payslip  @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  componentType       SalaryComponentType? @relation(fields: [componentTypeId], references: [id])
+
+  @@index([payslipId])
+  @@map("payroll_payslip_items")
+}
+
+enum ComponentCategory {
+  EARNING
+  DEDUCTION
+  EMPLOYER_CONTRIBUTION
+  REIMBURSEMENT
+}
+
+enum ComponentType {
+  BASIC_SALARY
+  ALLOWANCE
+  BONUS
+  COMMISSION
+  OVERTIME
+  STATUTORY_DEDUCTION
+  VOLUNTARY_DEDUCTION
+  LOAN_REPAYMENT
+  BENEFIT_CONTRIBUTION
+  TAX
+  OTHER
+}
+
+// ============================================
+// SALARY COMPONENT TYPES
+// ============================================
+
+model SalaryComponentType {
+  id                  String   @id @default(cuid())
+  code                String   @unique
+  name                String
+  description         String?
+  category            ComponentCategory
+  type                ComponentType
+
+  // Calculation
+  calculationType     ComponentCalculationType @default(FIXED)
+  defaultAmount       Decimal? @db.Decimal(14, 2)
+  defaultPercentage   Decimal? @db.Decimal(5, 2)
+
+  // Tax
+  isTaxable           Boolean  @default(true)
+  taxCode             String?
+
+  // Display
+  showInPayslip       Boolean  @default(true)
+  sortOrder           Int      @default(0)
+
+  isActive            Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  payslipItems        PayslipItem[]
+
+  @@map("payroll_salary_component_types")
+}
+
+enum ComponentCalculationType {
+  FIXED
+  PERCENTAGE_OF_BASIC
+  PERCENTAGE_OF_GROSS
+  HOURLY
+  DAILY
+  FORMULA
+  SLAB
+}
+
+// ============================================
+// BENEFIT PLANS
+// ============================================
+
+model BenefitPlan {
+  id                  String   @id @default(cuid())
+  code                String   @unique
+  name                String
+  description         String?
+  category            BenefitCategory
+  provider            String?
+
+  // Coverage options
+  coverageLevels      CoverageLevel[]
+  dependentsCoverage  Boolean  @default(false)
+
+  // Costs
+  employeeContribution Decimal? @db.Decimal(14, 2)
+  employerContribution Decimal? @db.Decimal(14, 2)
+  contributionType    ComponentCalculationType @default(FIXED)
+
+  // Eligibility
+  eligibilityRules    Json?
+  waitingPeriodDays   Int      @default(0)
+
+  // Documents
+  planDocumentUrl     String?
+
+  isActive            Boolean  @default(true)
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  employeeBenefits    EmployeeBenefit[]
+
+  @@map("payroll_benefit_plans")
+}
+
+enum BenefitCategory {
+  HEALTH
+  DENTAL
+  VISION
+  LIFE_INSURANCE
+  DISABILITY
+  RETIREMENT
+  PENSION
+  HSA
+  FSA
+  TRANSPORTATION
+  WELLNESS
+  OTHER
+}
+
+enum CoverageLevel {
+  EMPLOYEE_ONLY
+  EMPLOYEE_SPOUSE
+  EMPLOYEE_CHILDREN
+  FAMILY
+  CUSTOM
+}
+
+// ============================================
+// EMPLOYEE BENEFITS
+// ============================================
+
+model EmployeeBenefit {
+  id                  String   @id @default(cuid())
+  employeeId          String   // Reference to Employee in HR database
+  benefitPlanId       String
+
+  // Enrollment
+  enrollmentDate      DateTime
+  terminationDate     DateTime?
+  status              BenefitStatus @default(ACTIVE)
+
+  // Coverage
+  coverageLevel       CoverageLevel
+  dependents          Json?  // Array of dependent info
+
+  // Contributions
+  employeeContribution Decimal @default(0) @db.Decimal(14, 2)
+  employerContribution Decimal @default(0) @db.Decimal(14, 2)
+  contributionFrequency PayFrequency @default(MONTHLY)
+
+  // Effective dates
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  benefitPlan         BenefitPlan @relation(fields: [benefitPlanId], references: [id])
+
+  @@index([employeeId])
+  @@index([benefitPlanId])
+  @@map("payroll_employee_benefits")
+}
+
+enum BenefitStatus {
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+  PENDING
+}
+
+// ============================================
+// EMPLOYEE LOANS
+// ============================================
+
+model EmployeeLoan {
+  id                  String   @id @default(cuid())
+  loanNumber          String   @unique
+  employeeId          String   // Reference to Employee in HR database
+  loanType            LoanType
+
+  // Loan details
+  principalAmount     Decimal  @db.Decimal(14, 2)
+  interestRate        Decimal  @default(0) @db.Decimal(5, 4)
+  totalAmount         Decimal  @db.Decimal(14, 2)
+  currency            String   @default("USD")
+
+  // Terms
+  termMonths          Int
+  startDate           DateTime
+  endDate             DateTime
+  installmentAmount   Decimal  @db.Decimal(14, 2)
+  paymentFrequency    PayFrequency @default(MONTHLY)
+
+  // Tracking
+  disbursedAmount     Decimal  @default(0) @db.Decimal(14, 2)
+  repaidAmount        Decimal  @default(0) @db.Decimal(14, 2)
+  remainingBalance    Decimal  @db.Decimal(14, 2)
+
+  // Status
+  status              LoanStatus @default(PENDING)
+  approvedById        String?
+  approvedAt          DateTime?
+  disbursedAt         DateTime?
+
+  purpose             String?
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  repayments          LoanRepayment[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("payroll_employee_loans")
+}
+
+enum LoanType {
+  SALARY_ADVANCE
+  PERSONAL
+  EMERGENCY
+  EDUCATION
+  HOUSING
+  VEHICLE
+  EQUIPMENT
+  OTHER
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  ACTIVE
+  FULLY_PAID
+  DEFAULTED
+  CANCELLED
+  WRITTEN_OFF
+}
+
+// ============================================
+// LOAN REPAYMENTS
+// ============================================
+
+model LoanRepayment {
+  id                  String   @id @default(cuid())
+  loanId              String
+  payslipId           String?  // If deducted from payroll
+
+  // Payment details
+  installmentNumber   Int
+  dueDate             DateTime
+  paidDate            DateTime?
+
+  // Amounts
+  principalAmount     Decimal  @db.Decimal(14, 2)
+  interestAmount      Decimal  @db.Decimal(14, 2)
+  totalAmount         Decimal  @db.Decimal(14, 2)
+
+  // Balance
+  balanceAfter        Decimal  @db.Decimal(14, 2)
+
+  // Status
+  status              RepaymentStatus @default(PENDING)
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  loan                EmployeeLoan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@index([loanId])
+  @@map("payroll_loan_repayments")
+}
+
+enum RepaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  OVERDUE
+  WAIVED
+}
+
+// ============================================
+// TAX FILINGS
+// ============================================
+
+model TaxFiling {
+  id                  String   @id @default(cuid())
+  payrollRunId        String?
+  filingType          TaxFilingType
+  filingPeriod        String   // e.g., "2024-Q1", "2024-01"
+
+  // Filing details
+  filingNumber        String?  @unique
+  filingDate          DateTime?
+  dueDate             DateTime
+  totalTaxAmount      Decimal  @db.Decimal(14, 2)
+  totalEmployees      Int
+
+  // Status
+  status              TaxFilingStatus @default(DRAFT)
+  submittedAt         DateTime?
+  submittedById       String?
+  acknowledgedAt      DateTime?
+  acknowledgementRef  String?
+
+  // Payment
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentDate         DateTime?
+  paymentReference    String?
+
+  // Documents
+  fileUrl             String?
+  receiptUrl          String?
+
+  notes               String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  payrollRun          PayrollRun? @relation(fields: [payrollRunId], references: [id])
+
+  @@index([filingType, filingPeriod])
+  @@index([status])
+  @@map("payroll_tax_filings")
+}
+
+enum TaxFilingType {
+  INCOME_TAX
+  SOCIAL_SECURITY
+  PENSION
+  HEALTH_INSURANCE
+  WITHHOLDING
+  YEAR_END
+  QUARTERLY
+  MONTHLY
+}
+
+enum TaxFilingStatus {
+  DRAFT
+  READY
+  SUBMITTED
+  ACKNOWLEDGED
+  REJECTED
+  AMENDED
+}

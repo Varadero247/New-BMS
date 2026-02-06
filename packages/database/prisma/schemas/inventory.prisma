@@ -1,0 +1,626 @@
+// Inventory Schema - Inventory & Stock Management Domain
+// This schema is used by the Inventory microservice
+// Database: ims_inventory
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/inventory"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("INVENTORY_DATABASE_URL")
+}
+
+// ============================================
+// PRODUCT CATEGORIES
+// ============================================
+
+model ProductCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  code        String?  @unique
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parent      ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@index([parentId])
+  @@map("inv_product_categories")
+}
+
+// ============================================
+// SUPPLIERS
+// ============================================
+
+model Supplier {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+
+  // Address
+  address     Json?    // {street, city, state, country, postalCode}
+
+  // Payment & Terms
+  paymentTerms String?
+  currency     String  @default("USD")
+  taxId        String?
+  notes        String?
+
+  // Rating & Status
+  rating      Decimal? @default(0) @db.Decimal(3, 2) // 0-5
+  status      SupplierStatus @default(ACTIVE)
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  products    Product[]
+
+  @@index([status])
+  @@map("inv_suppliers")
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  BLOCKED
+}
+
+// ============================================
+// PRODUCTS
+// ============================================
+
+model Product {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  barcode     String?  @unique
+  name        String
+  description String?
+
+  // Classification
+  categoryId  String?
+  supplierId  String?
+  brand       String?
+  model       String?
+
+  // Pricing
+  costPrice    Decimal @default(0) @db.Decimal(14, 2)
+  sellingPrice Decimal @default(0) @db.Decimal(14, 2)
+  currency     String  @default("USD")
+  taxRate      Decimal @default(0) @db.Decimal(5, 2)
+
+  // Inventory Control
+  reorderPoint    Int @default(0)
+  reorderQuantity Int @default(0)
+  minStockLevel   Int @default(0)
+  maxStockLevel   Int @default(0)
+  leadTimeDays    Int @default(0)
+
+  // Physical Attributes
+  dimensions   Json?   // {length, width, height, unit}
+  weight       Decimal? @db.Decimal(10, 4)
+  weightUnit   String?
+
+  // Custom attributes
+  customAttributes Json?
+
+  // Tracking settings
+  trackSerialNumbers Boolean @default(false)
+  trackLotNumbers    Boolean @default(false)
+  trackExpiryDates   Boolean @default(false)
+
+  // Status
+  status      ProductStatus @default(ACTIVE)
+  isActive    Boolean       @default(true)
+
+  // Optimistic locking
+  version     Int @default(1)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  category       ProductCategory? @relation(fields: [categoryId], references: [id])
+  supplier       Supplier?        @relation(fields: [supplierId], references: [id])
+  inventoryItems Inventory[]
+  transactions   InventoryTransaction[]
+
+  @@index([sku])
+  @@index([barcode])
+  @@index([categoryId])
+  @@index([supplierId])
+  @@index([status])
+  @@map("inv_products")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+  OUT_OF_STOCK
+}
+
+// ============================================
+// WAREHOUSES
+// ============================================
+
+model Warehouse {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+
+  // Address
+  address     Json?    // {street, city, state, country, postalCode}
+
+  // Capacity
+  totalCapacity Decimal? @db.Decimal(14, 2)
+  usedCapacity  Decimal? @default(0) @db.Decimal(14, 2)
+  capacityUnit  String   @default("cubic_meters")
+
+  // Management
+  managerId   String?
+  phone       String?
+  email       String?
+
+  // Operational settings
+  operatingHours Json?   // {monday: {open, close}, ...}
+  isDefault      Boolean @default(false)
+  isActive       Boolean @default(true)
+
+  // Optimistic locking
+  version     Int @default(1)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  inventoryItems  Inventory[]
+  sourceTransfers InventoryTransaction[] @relation("TransferSource")
+  destTransfers   InventoryTransaction[] @relation("TransferDestination")
+
+  @@map("inv_warehouses")
+}
+
+// ============================================
+// INVENTORY STOCK LEVELS
+// ============================================
+
+model Inventory {
+  id          String   @id @default(cuid())
+  productId   String
+  warehouseId String
+
+  // Stock Quantities
+  quantityOnHand   Int @default(0)
+  quantityReserved Int @default(0)
+  quantityOnOrder  Int @default(0)
+
+  // Location within warehouse
+  binLocation String?
+  zone        String?
+  aisle       String?
+  shelf       String?
+
+  // Lot/Serial/Expiry tracking
+  lotNumbers    Json? // [{lotNumber, quantity, expiryDate}]
+  serialNumbers Json? // [{serialNumber, status}]
+
+  // Valuation
+  averageCost    Decimal @default(0) @db.Decimal(14, 4)
+  lastCost       Decimal @default(0) @db.Decimal(14, 4)
+  inventoryValue Decimal @default(0) @db.Decimal(14, 2)
+
+  // Audit
+  lastCountedAt  DateTime?
+  lastReceivedAt DateTime?
+
+  // Optimistic locking
+  version     Int @default(1)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  // Relations
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, warehouseId])
+  @@index([warehouseId])
+  @@index([quantityOnHand])
+  @@map("inv_inventory")
+}
+
+// ============================================
+// INVENTORY TRANSACTIONS
+// ============================================
+
+model InventoryTransaction {
+  id        String @id @default(cuid())
+  productId String
+
+  // Transaction Type
+  transactionType TransactionType
+  referenceNumber String          @unique @default(cuid())
+  referenceType   String?         // PO, SO, ADJUSTMENT, TRANSFER, etc.
+  referenceId     String?
+
+  // Quantities
+  quantityBefore Int
+  quantityAfter  Int
+  quantityChange Int
+
+  // Warehouse info
+  warehouseId     String?
+  fromWarehouseId String?
+  toWarehouseId   String?
+
+  // Location details
+  binLocation  String?
+  lotNumber    String?
+  serialNumber String?
+  expiryDate   DateTime?
+
+  // Costing
+  unitCost  Decimal @default(0) @db.Decimal(14, 4)
+  totalCost Decimal @default(0) @db.Decimal(14, 2)
+
+  // Reason/Notes
+  reason    String?
+  notes     String?
+
+  // User tracking
+  performedById String
+
+  transactionDate DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  // Relations
+  product       Product    @relation(fields: [productId], references: [id])
+  warehouse     Warehouse? @relation("TransferDestination", fields: [warehouseId], references: [id])
+  fromWarehouse Warehouse? @relation("TransferSource", fields: [fromWarehouseId], references: [id])
+
+  @@index([productId])
+  @@index([transactionType])
+  @@index([transactionDate])
+  @@index([referenceType, referenceId])
+  @@map("inv_transactions")
+}
+
+enum TransactionType {
+  RECEIPT
+  ISSUE
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
+  TRANSFER_OUT
+  TRANSFER_IN
+  CYCLE_COUNT
+  RETURN
+  DAMAGE
+  EXPIRED
+  INITIAL
+}
+
+// ============================================
+// STOCK COUNTS
+// ============================================
+
+model StockCount {
+  id            String   @id @default(cuid())
+  countNumber   String   @unique
+  countType     CountType
+  warehouseId   String?
+
+  // Schedule
+  scheduledDate DateTime
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Scope
+  countScope    CountScope @default(FULL)
+  categories    String[]   // Category IDs for partial count
+  locations     String[]   // Specific locations
+
+  // Status
+  status        CountStatus @default(PLANNED)
+
+  // Results
+  totalItems    Int @default(0)
+  countedItems  Int @default(0)
+  varianceItems Int @default(0)
+  varianceValue Decimal? @db.Decimal(14, 2)
+
+  // User
+  countedById   String?
+  approvedById  String?
+  approvedAt    DateTime?
+
+  notes         String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  items         StockCountItem[]
+
+  @@index([status])
+  @@index([scheduledDate])
+  @@map("inv_stock_counts")
+}
+
+enum CountType {
+  CYCLE
+  FULL
+  SPOT
+  ANNUAL
+}
+
+enum CountScope {
+  FULL
+  CATEGORY
+  LOCATION
+  PRODUCT_LIST
+}
+
+enum CountStatus {
+  PLANNED
+  IN_PROGRESS
+  PENDING_REVIEW
+  APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+model StockCountItem {
+  id           String   @id @default(cuid())
+  stockCountId String
+  productId    String
+  warehouseId  String
+
+  // Expected
+  systemQuantity Int
+
+  // Counted
+  countedQuantity Int?
+  variance        Int?
+
+  // Details
+  binLocation  String?
+  lotNumber    String?
+  serialNumber String?
+
+  // Status
+  status       CountItemStatus @default(PENDING)
+  countedAt    DateTime?
+  countedById  String?
+
+  notes        String?
+
+  // Relations
+  stockCount   StockCount @relation(fields: [stockCountId], references: [id], onDelete: Cascade)
+
+  @@index([stockCountId])
+  @@index([productId])
+  @@map("inv_stock_count_items")
+}
+
+enum CountItemStatus {
+  PENDING
+  COUNTED
+  VARIANCE
+  ADJUSTED
+  SKIPPED
+}
+
+// ============================================
+// PURCHASE ORDERS
+// ============================================
+
+model PurchaseOrder {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  supplierId      String
+  warehouseId     String?
+
+  // Dates
+  orderDate       DateTime @default(now())
+  expectedDate    DateTime?
+  receivedDate    DateTime?
+
+  // Totals
+  subtotal        Decimal  @default(0) @db.Decimal(14, 2)
+  taxAmount       Decimal  @default(0) @db.Decimal(14, 2)
+  shippingCost    Decimal  @default(0) @db.Decimal(14, 2)
+  totalAmount     Decimal  @default(0) @db.Decimal(14, 2)
+  currency        String   @default("USD")
+
+  // Status
+  status          POStatus @default(DRAFT)
+
+  // Approval
+  approvedById    String?
+  approvedAt      DateTime?
+
+  // Payment
+  paymentTerms    String?
+  paymentStatus   PaymentStatus @default(UNPAID)
+
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdById     String?
+
+  // Relations
+  items           PurchaseOrderItem[]
+  receipts        GoodsReceipt[]
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([orderDate])
+  @@map("inv_purchase_orders")
+}
+
+enum POStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+  CLOSED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(cuid())
+  purchaseOrderId String
+  productId       String
+  lineNumber      Int
+
+  // Quantities
+  orderedQuantity  Int
+  receivedQuantity Int @default(0)
+
+  // Pricing
+  unitPrice       Decimal @db.Decimal(14, 4)
+  taxRate         Decimal @default(0) @db.Decimal(5, 2)
+  lineTotal       Decimal @db.Decimal(14, 2)
+
+  // Status
+  status          POItemStatus @default(PENDING)
+
+  notes           String?
+
+  // Relations
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+  @@map("inv_purchase_order_items")
+}
+
+enum POItemStatus {
+  PENDING
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+// ============================================
+// GOODS RECEIPTS
+// ============================================
+
+model GoodsReceipt {
+  id              String   @id @default(cuid())
+  receiptNumber   String   @unique
+  purchaseOrderId String?
+  supplierId      String?
+  warehouseId     String
+
+  // Receipt details
+  receiptDate     DateTime @default(now())
+  deliveryNote    String?
+  carrier         String?
+
+  // Status
+  status          ReceiptStatus @default(DRAFT)
+
+  // Quality check
+  qualityChecked  Boolean @default(false)
+  qualityCheckedById String?
+  qualityNotes    String?
+
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  receivedById    String?
+
+  // Relations
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  items           GoodsReceiptItem[]
+
+  @@index([status])
+  @@index([purchaseOrderId])
+  @@map("inv_goods_receipts")
+}
+
+enum ReceiptStatus {
+  DRAFT
+  PENDING_QUALITY
+  QUALITY_APPROVED
+  QUALITY_REJECTED
+  POSTED
+  CANCELLED
+}
+
+model GoodsReceiptItem {
+  id              String   @id @default(cuid())
+  goodsReceiptId  String
+  productId       String
+  lineNumber      Int
+
+  // Quantities
+  expectedQuantity Int?
+  receivedQuantity Int
+  acceptedQuantity Int?
+  rejectedQuantity Int?
+
+  // Location
+  binLocation     String?
+  lotNumber       String?
+  serialNumbers   String[]
+  expiryDate      DateTime?
+
+  // Costing
+  unitCost        Decimal @db.Decimal(14, 4)
+
+  // Quality
+  qualityStatus   QualityStatus @default(PENDING)
+  rejectionReason String?
+
+  notes           String?
+
+  // Relations
+  goodsReceipt    GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+
+  @@index([goodsReceiptId])
+  @@map("inv_goods_receipt_items")
+}
+
+enum QualityStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PARTIAL
+}

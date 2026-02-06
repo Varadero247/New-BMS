@@ -1,0 +1,642 @@
+// Quality Schema - Quality Management Domain (ISO 9001)
+// This schema is used by the Quality microservice
+// Database: ims_quality
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/quality"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("QUALITY_DATABASE_URL")
+}
+
+// ============================================
+// QUALITY INCIDENTS / NON-CONFORMANCES
+// ============================================
+
+model NonConformance {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Classification
+  type            NCType
+  severity        NCSeverity @default(MINOR)
+  category        String?
+
+  // Details
+  location        String?
+  dateOccurred    DateTime
+  dateReported    DateTime @default(now())
+
+  // People
+  reporterId      String   // Reference to User in core DB
+  investigatorId  String?
+
+  // Quality-specific
+  productAffected      String?
+  customerImpact       String?
+  costOfNonConformance Decimal? @db.Decimal(14, 2)
+
+  // Investigation
+  immediateCause      String?
+  rootCauses          String?
+  contributingFactors String?
+
+  // Status
+  status          NCStatus @default(OPEN)
+  closedAt        DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  actions         NCAction[]
+  fiveWhyAnalyses FiveWhyAnalysis[]
+  fishboneAnalyses FishboneAnalysis[]
+  capas           CAPA[]
+
+  @@index([status])
+  @@index([type])
+  @@index([dateOccurred])
+  @@map("quality_non_conformances")
+}
+
+enum NCType {
+  NON_CONFORMANCE
+  CUSTOMER_COMPLAINT
+  SUPPLIER_ISSUE
+  PROCESS_DEVIATION
+  PRODUCT_DEFECT
+  AUDIT_FINDING
+  INTERNAL_ISSUE
+}
+
+enum NCSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum NCStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  AWAITING_ACTIONS
+  ACTIONS_IN_PROGRESS
+  VERIFICATION
+  CLOSED
+}
+
+// ============================================
+// CORRECTIVE/PREVENTIVE ACTIONS
+// ============================================
+
+model NCAction {
+  id              String   @id @default(cuid())
+  ncId            String
+  referenceNumber String   @unique
+  title           String
+  description     String
+
+  // Classification
+  type            ActionType
+  priority        ActionPriority @default(MEDIUM)
+
+  // Assignment
+  ownerId         String   // Reference to User in core DB
+  createdById     String
+
+  // Timeline
+  dueDate         DateTime
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+
+  // Verification
+  verificationMethod  String?
+  verificationNotes   String?
+  effectivenessRating Int?     // 1-5
+
+  // Status
+  status          ActionStatus @default(OPEN)
+
+  // Cost
+  estimatedCost   Decimal? @db.Decimal(14, 2)
+  actualCost      Decimal? @db.Decimal(14, 2)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  nonConformance  NonConformance @relation(fields: [ncId], references: [id])
+
+  @@index([ncId])
+  @@index([status, dueDate])
+  @@index([ownerId])
+  @@map("quality_actions")
+}
+
+enum ActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  IMMEDIATE
+  LONG_TERM
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// CAPA (8D PROBLEM SOLVING)
+// ============================================
+
+model CAPA {
+  id                String   @id @default(cuid())
+  referenceNumber   String   @unique
+  ncId              String?
+
+  title             String
+  description       String
+
+  // Classification
+  capaType          CAPAType @default(CORRECTIVE)
+  severity          CAPASeverity @default(MINOR)
+  category          String?
+
+  // 8D Phase tracking
+  currentPhase      CAPAPhase @default(D1_TEAM)
+  phaseHistory      Json?
+
+  // Key dates
+  initiatedDate     DateTime @default(now())
+  targetClosureDate DateTime?
+  actualClosureDate DateTime?
+
+  // Status
+  status            CAPAStatus @default(OPEN)
+
+  // Effectiveness
+  effectivenessVerified Boolean @default(false)
+  effectivenessScore    Int?
+
+  // Financial tracking
+  estimatedCost     Decimal? @db.Decimal(14, 2)
+  actualCost        Decimal? @db.Decimal(14, 2)
+  costAvoidance     Decimal? @db.Decimal(14, 2)
+
+  metadata          Json?
+  attachments       Json?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+  closedById        String?
+
+  // Relations
+  nonConformance    NonConformance? @relation(fields: [ncId], references: [id])
+  teamMembers       CAPATeamMember[]
+  rootCauses        CAPARootCause[]
+  correctiveActions CAPACorrectiveAction[]
+
+  @@index([status, currentPhase])
+  @@index([capaType])
+  @@map("quality_capas")
+}
+
+enum CAPAType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+}
+
+enum CAPASeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum CAPAPhase {
+  D1_TEAM
+  D2_PROBLEM
+  D3_CONTAINMENT
+  D4_ROOT_CAUSE
+  D5_CORRECTIVE_ACTION
+  D6_IMPLEMENTATION
+  D7_PREVENTION
+  D8_CLOSURE
+}
+
+enum CAPAStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_VERIFICATION
+  VERIFIED
+  CLOSED
+  CANCELLED
+}
+
+model CAPATeamMember {
+  id                String   @id @default(cuid())
+  capaId            String
+  userId            String
+  role              CAPATeamRole
+  department        String?
+  responsibilities  String?
+  assignedAt        DateTime @default(now())
+  removedAt         DateTime?
+  isActive          Boolean  @default(true)
+
+  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@unique([capaId, userId])
+  @@index([capaId])
+  @@map("quality_capa_team_members")
+}
+
+enum CAPATeamRole {
+  CHAMPION
+  TEAM_LEADER
+  TEAM_MEMBER
+  PROCESS_OWNER
+  QUALITY_REP
+  SUBJECT_MATTER_EXPERT
+  MANAGEMENT_REP
+  CUSTOMER_REP
+}
+
+model CAPARootCause {
+  id                String   @id @default(cuid())
+  capaId            String
+  causeDescription  String
+  causeType         RootCauseType
+  causeCategory     String?
+  analysisMethod    RCAMethod
+  fiveWhysData      Json?
+  fishboneData      Json?
+  isVerified        Boolean  @default(false)
+  verificationMethod String?
+  verifiedById      String?
+  verifiedAt        DateTime?
+  evidence          Json?
+  contributionPercent Decimal? @db.Decimal(5, 2)
+  isPrimary         Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("quality_capa_root_causes")
+}
+
+enum RootCauseType {
+  TECHNICAL
+  HUMAN
+  ORGANIZATIONAL
+  EXTERNAL
+  DESIGN
+  PROCESS
+  MATERIAL
+  EQUIPMENT
+  TRAINING
+  COMMUNICATION
+}
+
+enum RCAMethod {
+  FIVE_WHYS
+  FISHBONE
+  FAULT_TREE
+  CHANGE_ANALYSIS
+  BARRIER_ANALYSIS
+  EVENT_TREE
+  PARETO
+  FMEA
+}
+
+model CAPACorrectiveAction {
+  id                String   @id @default(cuid())
+  capaId            String
+  description       String
+  actionCategory    CorrectiveActionCategory
+  rootCauseId       String?
+  assignedToId      String?
+  department        String?
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+  status            ActionStatus @default(OPEN)
+  priority          ActionPriority @default(MEDIUM)
+  estimatedCost     Decimal? @db.Decimal(14, 2)
+  actualCost        Decimal? @db.Decimal(14, 2)
+  resourcesRequired String?
+  evidence          Json?
+  attachments       Json?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("quality_capa_corrective_actions")
+}
+
+enum CorrectiveActionCategory {
+  DESIGN_CHANGE
+  PROCESS_CHANGE
+  PROCEDURE_UPDATE
+  EQUIPMENT_MODIFICATION
+  TRAINING
+  SUPPLIER_CHANGE
+  INSPECTION_UPDATE
+  PREVENTIVE_MAINTENANCE
+  WORK_INSTRUCTION_UPDATE
+  OTHER
+}
+
+// ============================================
+// ROOT CAUSE ANALYSIS
+// ============================================
+
+model FiveWhyAnalysis {
+  id         String   @id @default(cuid())
+  ncId       String
+
+  why1       String?
+  why2       String?
+  why3       String?
+  why4       String?
+  why5       String?
+
+  rootCause  String?
+  conclusion String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  nonConformance NonConformance @relation(fields: [ncId], references: [id], onDelete: Cascade)
+
+  @@map("quality_five_why_analyses")
+}
+
+model FishboneAnalysis {
+  id               String   @id @default(cuid())
+  ncId             String
+
+  problemStatement String
+
+  // 6M Categories
+  manpower         String?
+  method           String?
+  machine          String?
+  material         String?
+  measurement      String?
+  environment      String?
+
+  conclusion       String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  nonConformance   NonConformance @relation(fields: [ncId], references: [id], onDelete: Cascade)
+
+  @@map("quality_fishbone_analyses")
+}
+
+// ============================================
+// QUALITY AUDITS
+// ============================================
+
+model QualityAudit {
+  id                String   @id @default(cuid())
+  auditNumber       String   @unique
+  title             String
+  description       String?
+
+  // Classification
+  auditType         AuditType
+  auditScope        String?
+  clauses           String[]  // ISO clauses covered
+
+  // Schedule
+  plannedStartDate  DateTime
+  plannedEndDate    DateTime
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Auditee info
+  auditeeDepartment String?
+  auditeeLocation   String?
+  auditeeContact    String?
+
+  // Status
+  status            AuditStatus @default(PLANNED)
+
+  // Summary
+  objectives        String?
+  conclusion        String?
+  overallRating     AuditRating?
+
+  // Statistics
+  totalFindings     Int      @default(0)
+  majorNCs          Int      @default(0)
+  minorNCs          Int      @default(0)
+  observations      Int      @default(0)
+
+  metadata          Json?
+  attachments       Json?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  // Relations
+  teamMembers       AuditTeamMember[]
+  findings          AuditFinding[]
+
+  @@index([status])
+  @@index([auditType])
+  @@index([plannedStartDate])
+  @@map("quality_audits")
+}
+
+enum AuditType {
+  INTERNAL
+  EXTERNAL
+  SUPPLIER
+  CUSTOMER
+  CERTIFICATION
+  SURVEILLANCE
+  PRODUCT
+  PROCESS
+  SYSTEM
+}
+
+enum AuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum AuditRating {
+  EXCELLENT
+  GOOD
+  SATISFACTORY
+  NEEDS_IMPROVEMENT
+  UNSATISFACTORY
+}
+
+model AuditTeamMember {
+  id                String   @id @default(cuid())
+  auditId           String
+  userId            String
+  role              AuditTeamRole
+  isQualified       Boolean  @default(true)
+  qualificationNotes String?
+  assignedClauses   String[]
+  assignedAreas     String[]
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+
+  audit             QualityAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@unique([auditId, userId])
+  @@index([auditId])
+  @@map("quality_audit_team_members")
+}
+
+enum AuditTeamRole {
+  LEAD_AUDITOR
+  AUDITOR
+  TECHNICAL_EXPERT
+  OBSERVER
+}
+
+model AuditFinding {
+  id                String   @id @default(cuid())
+  auditId           String
+  findingNumber     String
+  title             String
+  description       String
+  findingType       AuditFindingType
+
+  // Classification
+  clause            String?
+  area              String?
+  process           String?
+
+  // Evidence
+  objectiveEvidence String?
+  criteria          String?
+
+  // Risk assessment
+  riskLevel         RiskLevel?
+
+  // Response tracking
+  auditeeResponse   String?
+  responseDate      DateTime?
+
+  // Status
+  status            FindingStatus @default(OPEN)
+
+  // Linked CAPA
+  capaId            String?
+
+  // Closure
+  closedById        String?
+  closedAt          DateTime?
+  closureNotes      String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+
+  audit             QualityAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@unique([auditId, findingNumber])
+  @@index([auditId])
+  @@index([findingType])
+  @@index([status])
+  @@map("quality_audit_findings")
+}
+
+enum AuditFindingType {
+  MAJOR_NC
+  MINOR_NC
+  OBSERVATION
+  OFI
+  POSITIVE
+}
+
+enum FindingStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_VERIFICATION
+  CLOSED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// QUALITY METRICS
+// ============================================
+
+model QualityMetric {
+  id    String   @id @default(cuid())
+  year  Int
+  month Int
+
+  // COPQ - Cost of Poor Quality
+  preventionCost      Decimal  @default(0) @db.Decimal(14, 2)
+  appraisalCost       Decimal  @default(0) @db.Decimal(14, 2)
+  internalFailureCost Decimal  @default(0) @db.Decimal(14, 2)
+  externalFailureCost Decimal  @default(0) @db.Decimal(14, 2)
+  totalCOPQ           Decimal? @db.Decimal(14, 2)
+
+  // Quality Metrics
+  totalUnits          Int      @default(0)
+  defectiveUnits      Int      @default(0)
+  defectOpportunities Int      @default(1)
+
+  // Calculated Metrics
+  dpmo                Decimal? @db.Decimal(14, 4) // Defects Per Million Opportunities
+  firstPassYield      Decimal? @db.Decimal(6, 4)  // First Pass Yield %
+  processSigma        Decimal? @db.Decimal(4, 2)  // Process Sigma Level
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("quality_metrics")
+}
