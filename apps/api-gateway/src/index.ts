@@ -1,7 +1,6 @@
 import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
@@ -23,6 +22,7 @@ import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter } from './middleware/rate-limiter';
 import { csrfProtection, generateCsrfToken } from './middleware/csrf';
+import { createSecurityMiddleware } from './middleware/security-headers';
 
 dotenv.config();
 
@@ -43,8 +43,8 @@ const SERVICES = {
   workflows: process.env.WORKFLOWS_URL || 'http://localhost:4008',
 };
 
-// Middleware
-app.use(helmet());
+// Security middleware (Helmet with strict CSP, HSTS, etc.)
+createSecurityMiddleware().forEach((mw) => app.use(mw));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'],
   credentials: true,
