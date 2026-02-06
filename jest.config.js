@@ -55,6 +55,7 @@ module.exports = {
     '<rootDir>/apps/api-hr',
     '<rootDir>/apps/api-inventory',
     '<rootDir>/apps/api-payroll',
+    '<rootDir>/apps/api-workflows',
   ],
   moduleNameMapper: {
     '^@ims/(.*)$': '<rootDir>/packages/$1/src',

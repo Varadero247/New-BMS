@@ -1,0 +1,539 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('@ims/database', () => ({
+  prisma: {
+    workflowInstance: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+    },
+    workflowDefinition: {
+      findUnique: jest.fn(),
+    },
+    workflowHistory: {
+      create: jest.fn(),
+    },
+  },
+}));
+
+import { prisma } from '@ims/database';
+import instancesRoutes from '../src/routes/instances';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe('Workflow Instances API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/instances', instancesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/instances', () => {
+    const mockInstances = [
+      {
+        id: 'inst-1',
+        instanceNumber: 'WF-2024-000001',
+        title: 'Leave Request',
+        status: 'IN_PROGRESS',
+        priority: 'NORMAL',
+        definition: { name: 'Leave Approval' },
+        _count: { tasks: 2, history: 5 },
+      },
+      {
+        id: 'inst-2',
+        instanceNumber: 'WF-2024-000002',
+        title: 'Purchase Order',
+        status: 'COMPLETED',
+        priority: 'HIGH',
+        definition: { name: 'PO Approval' },
+        _count: { tasks: 3, history: 8 },
+      },
+    ];
+
+    it('should return list of workflow instances with pagination', async () => {
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce(mockInstances as any);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(2);
+
+      const response = await request(app).get('/api/instances');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.meta).toMatchObject({
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+      });
+    });
+
+    it('should support pagination parameters', async () => {
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([mockInstances[0]] as any);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(100);
+
+      const response = await request(app).get('/api/instances?page=3&limit=10');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.page).toBe(3);
+      expect(response.body.meta.limit).toBe(10);
+      expect(response.body.meta.totalPages).toBe(10);
+    });
+
+    it('should filter by status', async () => {
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
+
+      await request(app).get('/api/instances?status=COMPLETED');
+
+      expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'COMPLETED',
+          }),
+        })
+      );
+    });
+
+    it('should filter by definitionId', async () => {
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
+
+      await request(app).get('/api/instances?definitionId=def-1');
+
+      expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            definitionId: 'def-1',
+          }),
+        })
+      );
+    });
+
+    it('should filter by initiatorId', async () => {
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
+
+      await request(app).get('/api/instances?initiatorId=user-1');
+
+      expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            initiatorId: 'user-1',
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app).get('/api/instances');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/instances/stats/summary', () => {
+    it('should return instance statistics', async () => {
+      mockPrisma.workflowInstance.groupBy
+        .mockResolvedValueOnce([
+          { status: 'IN_PROGRESS', _count: 5 },
+          { status: 'COMPLETED', _count: 20 },
+        ] as any)
+        .mockResolvedValueOnce([
+          { priority: 'NORMAL', _count: 15 },
+          { priority: 'HIGH', _count: 10 },
+        ] as any);
+      mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([
+        { id: 'inst-1', definition: { name: 'Workflow 1' } },
+      ] as any);
+
+      const response = await request(app).get('/api/instances/stats/summary');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('byStatus');
+      expect(response.body.data).toHaveProperty('byPriority');
+      expect(response.body.data).toHaveProperty('recentActive');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.groupBy.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app).get('/api/instances/stats/summary');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/instances/:id', () => {
+    const mockInstance = {
+      id: 'inst-1',
+      instanceNumber: 'WF-2024-000001',
+      title: 'Leave Request',
+      status: 'IN_PROGRESS',
+      definition: { id: 'def-1', name: 'Leave Approval' },
+      tasks: [{ id: 'task-1' }],
+      history: [{ id: 'hist-1', action: 'STARTED' }],
+    };
+
+    it('should return single instance with tasks and history', async () => {
+      mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(mockInstance as any);
+
+      const response = await request(app).get('/api/instances/inst-1');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe('inst-1');
+      expect(response.body.data.tasks).toHaveLength(1);
+      expect(response.body.data.history).toHaveLength(1);
+    });
+
+    it('should return 404 for non-existent instance', async () => {
+      mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app).get('/api/instances/non-existent');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app).get('/api/instances/inst-1');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/instances', () => {
+    const createPayload = {
+      definitionId: '11111111-1111-1111-1111-111111111111',
+      initiatorId: '22222222-2222-2222-2222-222222222222',
+      title: 'New Workflow Instance',
+      priority: 'NORMAL',
+    };
+
+    it('should create a workflow instance successfully', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
+        id: createPayload.definitionId,
+        status: 'ACTIVE',
+      } as any);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(5);
+      mockPrisma.workflowInstance.create.mockResolvedValueOnce({
+        id: 'new-inst-123',
+        instanceNumber: 'WF-2024-000006',
+        ...createPayload,
+        status: 'IN_PROGRESS',
+        definition: { name: 'Approval' },
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.instanceNumber).toBe('WF-2024-000006');
+    });
+
+    it('should generate sequential instance number', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
+        id: createPayload.definitionId,
+        status: 'ACTIVE',
+      } as any);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(99);
+      mockPrisma.workflowInstance.create.mockResolvedValueOnce({
+        id: 'new-inst-123',
+        instanceNumber: 'WF-2024-000100',
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(mockPrisma.workflowInstance.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          instanceNumber: expect.stringMatching(/^WF-\d{4}-000100$/),
+        }),
+        include: expect.any(Object),
+      });
+    });
+
+    it('should create initial history entry', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
+        id: createPayload.definitionId,
+        status: 'ACTIVE',
+      } as any);
+      mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
+      mockPrisma.workflowInstance.create.mockResolvedValueOnce({
+        id: 'new-inst-123',
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          instanceId: 'new-inst-123',
+          action: 'STARTED',
+          actionBy: createPayload.initiatorId,
+        }),
+      });
+    });
+
+    it('should return 404 for non-existent definition', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for inactive definition', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
+        id: createPayload.definitionId,
+        status: 'DRAFT',
+      } as any);
+
+      const response = await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('INVALID_STATE');
+    });
+
+    it('should return 400 for missing definitionId', async () => {
+      const { definitionId, ...payload } = createPayload;
+
+      const response = await request(app)
+        .post('/api/instances')
+        .send(payload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid priority', async () => {
+      const response = await request(app)
+        .post('/api/instances')
+        .send({ ...createPayload, priority: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/instances')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/instances/:id/advance', () => {
+    it('should advance to next node', async () => {
+      mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
+        id: 'inst-1',
+        currentNodeId: 'node-1',
+        completedNodeIds: [],
+      } as any);
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({
+        id: 'inst-1',
+        currentNodeId: 'node-2',
+        completedNodeIds: ['node-1'],
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/advance')
+        .send({ nextNodeId: 'node-2', actionBy: 'user-1' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should add current node to completed list', async () => {
+      mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
+        id: 'inst-1',
+        currentNodeId: 'node-2',
+        completedNodeIds: ['node-1'],
+      } as any);
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({} as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .put('/api/instances/inst-1/advance')
+        .send({ nextNodeId: 'node-3', actionBy: 'user-1' });
+
+      expect(mockPrisma.workflowInstance.update).toHaveBeenCalledWith({
+        where: { id: 'inst-1' },
+        data: expect.objectContaining({
+          completedNodeIds: ['node-1', 'node-2'],
+        }),
+      });
+    });
+
+    it('should return 404 for non-existent instance', async () => {
+      mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/instances/non-existent/advance')
+        .send({ nextNodeId: 'node-2' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/advance')
+        .send({ nextNodeId: 'node-2' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/instances/:id/complete', () => {
+    it('should complete workflow instance', async () => {
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({
+        id: 'inst-1',
+        status: 'COMPLETED',
+        completedAt: new Date(),
+        outcome: 'APPROVED',
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/complete')
+        .send({ outcome: 'APPROVED', outcomeNotes: 'Approved by manager' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should record completion in history', async () => {
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: 'inst-1' } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .put('/api/instances/inst-1/complete')
+        .send({ outcome: 'REJECTED', outcomeNotes: 'Rejected' });
+
+      expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          instanceId: 'inst-1',
+          action: 'COMPLETED',
+          details: expect.objectContaining({
+            outcome: 'REJECTED',
+          }),
+        }),
+      });
+    });
+
+    it('should return 400 for invalid outcome', async () => {
+      const response = await request(app)
+        .put('/api/instances/inst-1/complete')
+        .send({ outcome: 'INVALID_OUTCOME' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.update.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/complete')
+        .send({});
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/instances/:id/cancel', () => {
+    it('should cancel workflow instance', async () => {
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({
+        id: 'inst-1',
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        cancelledById: 'user-1',
+        cancellationReason: 'No longer needed',
+      } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/cancel')
+        .send({
+          cancelledById: 'user-1',
+          cancellationReason: 'No longer needed',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should record cancellation in history', async () => {
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: 'inst-1' } as any);
+      mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
+
+      await request(app)
+        .put('/api/instances/inst-1/cancel')
+        .send({
+          cancelledById: 'user-1',
+          cancellationReason: 'Project cancelled',
+        });
+
+      expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          instanceId: 'inst-1',
+          action: 'CANCELLED',
+          actionBy: 'user-1',
+          details: { reason: 'Project cancelled' },
+        }),
+      });
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.workflowInstance.update.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/instances/inst-1/cancel')
+        .send({ cancelledById: 'user-1' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});
