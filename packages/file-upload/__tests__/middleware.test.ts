@@ -1,8 +1,27 @@
 import path from 'path';
+import multer from 'multer';
+import { Request, Response, NextFunction } from 'express';
 import {
   generateSecureFilename,
   getFileInfo,
+  createUploader,
+  uploadSingle,
+  uploadMultiple,
+  uploadFields,
+  validateUploadedFile,
+  handleUploadError,
 } from '../src/middleware';
+
+// Mock fs
+jest.mock('fs', () => ({
+  existsSync: jest.fn().mockReturnValue(true),
+  mkdirSync: jest.fn(),
+  readFileSync: jest.fn(),
+  unlinkSync: jest.fn(),
+}));
+
+import fs from 'fs';
+const mockFs = fs as jest.Mocked<typeof fs>;
 
 describe('File Upload Middleware', () => {
   describe('generateSecureFilename', () => {
@@ -102,6 +121,281 @@ describe('File Upload Middleware', () => {
       expect(info.url).toBe('https://cdn.example.com/files/abc123.pdf');
 
       process.env.FILE_BASE_URL = originalEnv;
+    });
+  });
+
+  describe('createUploader', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should create a multer instance', () => {
+      const uploader = createUploader();
+
+      expect(uploader).toBeDefined();
+      expect(typeof uploader.single).toBe('function');
+      expect(typeof uploader.array).toBe('function');
+    });
+
+    it('should create upload directory if it does not exist', () => {
+      mockFs.existsSync.mockReturnValueOnce(false);
+
+      createUploader({ destination: '/tmp/test-uploads' });
+
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith('/tmp/test-uploads', { recursive: true });
+    });
+
+    it('should accept custom options', () => {
+      const uploader = createUploader({
+        maxFileSize: 1024 * 1024,
+        maxFiles: 3,
+        allowedMimeTypes: ['image/jpeg'],
+      });
+
+      expect(uploader).toBeDefined();
+    });
+  });
+
+  describe('uploadSingle', () => {
+    it('should create single file upload middleware', () => {
+      const middleware = uploadSingle('avatar');
+
+      expect(typeof middleware).toBe('function');
+    });
+
+    it('should use default field name', () => {
+      const middleware = uploadSingle();
+
+      expect(typeof middleware).toBe('function');
+    });
+
+    it('should accept options', () => {
+      const middleware = uploadSingle('document', {
+        maxFileSize: 5 * 1024 * 1024,
+      });
+
+      expect(typeof middleware).toBe('function');
+    });
+  });
+
+  describe('uploadMultiple', () => {
+    it('should create multiple file upload middleware', () => {
+      const middleware = uploadMultiple('photos', 10);
+
+      expect(typeof middleware).toBe('function');
+    });
+
+    it('should use default field name and max count', () => {
+      const middleware = uploadMultiple();
+
+      expect(typeof middleware).toBe('function');
+    });
+  });
+
+  describe('uploadFields', () => {
+    it('should create fields upload middleware', () => {
+      const middleware = uploadFields([
+        { name: 'avatar', maxCount: 1 },
+        { name: 'documents', maxCount: 5 },
+      ]);
+
+      expect(typeof middleware).toBe('function');
+    });
+  });
+
+  describe('validateUploadedFile', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: NextFunction;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockReq = {};
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+      mockNext = jest.fn();
+    });
+
+    it('should call next when no file uploaded', async () => {
+      const middleware = validateUploadedFile();
+
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalled();
+    });
+
+    it('should validate file content and pass for safe file', async () => {
+      // PNG magic bytes
+      const pngBuffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+      mockFs.readFileSync.mockReturnValueOnce(pngBuffer);
+
+      mockReq.file = {
+        path: '/tmp/uploads/test.png',
+        originalname: 'test.png',
+        mimetype: 'image/png',
+      } as Express.Multer.File;
+
+      const middleware = validateUploadedFile();
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalled();
+    });
+
+    it('should reject file with dangerous content', async () => {
+      // Windows executable magic bytes (MZ)
+      const exeBuffer = Buffer.from([0x4d, 0x5a, 0x90, 0x00]);
+      mockFs.readFileSync.mockReturnValueOnce(exeBuffer);
+
+      mockReq.file = {
+        path: '/tmp/uploads/malicious.exe',
+        originalname: 'malicious.exe',
+        mimetype: 'application/octet-stream',
+      } as Express.Multer.File;
+
+      const middleware = validateUploadedFile();
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'INVALID_FILE',
+          message: expect.stringContaining('executable'),
+        },
+      });
+      expect(mockFs.unlinkSync).toHaveBeenCalledWith('/tmp/uploads/malicious.exe');
+    });
+
+    it('should not delete file when deleteOnFail is false', async () => {
+      const exeBuffer = Buffer.from([0x4d, 0x5a, 0x90, 0x00]);
+      mockFs.readFileSync.mockReturnValueOnce(exeBuffer);
+
+      mockReq.file = {
+        path: '/tmp/uploads/malicious.exe',
+        originalname: 'malicious.exe',
+        mimetype: 'application/octet-stream',
+      } as Express.Multer.File;
+
+      const middleware = validateUploadedFile({ deleteOnFail: false });
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockFs.unlinkSync).not.toHaveBeenCalled();
+    });
+
+    it('should handle read errors and delete file', async () => {
+      mockFs.readFileSync.mockImplementationOnce(() => {
+        throw new Error('Read error');
+      });
+      mockFs.existsSync.mockReturnValueOnce(true);
+
+      mockReq.file = {
+        path: '/tmp/uploads/test.png',
+        originalname: 'test.png',
+        mimetype: 'image/png',
+      } as Express.Multer.File;
+
+      const middleware = validateUploadedFile();
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockFs.unlinkSync).toHaveBeenCalledWith('/tmp/uploads/test.png');
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
+
+  describe('handleUploadError', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: NextFunction;
+
+    beforeEach(() => {
+      mockReq = {};
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+      mockNext = jest.fn();
+    });
+
+    it('should handle LIMIT_FILE_SIZE error', () => {
+      const err = new multer.MulterError('LIMIT_FILE_SIZE');
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: 'File is too large',
+        },
+      });
+    });
+
+    it('should handle LIMIT_FILE_COUNT error', () => {
+      const err = new multer.MulterError('LIMIT_FILE_COUNT');
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'TOO_MANY_FILES',
+          message: 'Too many files',
+        },
+      });
+    });
+
+    it('should handle LIMIT_UNEXPECTED_FILE error', () => {
+      const err = new multer.MulterError('LIMIT_UNEXPECTED_FILE');
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'UNEXPECTED_FIELD',
+          message: 'Unexpected field',
+        },
+      });
+    });
+
+    it('should handle "not allowed" validation error', () => {
+      const err = new Error("File type 'application/x-msdownload' is not allowed");
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'INVALID_FILE',
+          message: "File type 'application/x-msdownload' is not allowed",
+        },
+      });
+    });
+
+    it('should handle "Invalid" validation error', () => {
+      const err = new Error('Invalid filename');
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: {
+          code: 'INVALID_FILE',
+          message: 'Invalid filename',
+        },
+      });
+    });
+
+    it('should pass unknown errors to next', () => {
+      const err = new Error('Unknown error');
+
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(err);
+      expect(mockRes.status).not.toHaveBeenCalled();
     });
   });
 });
