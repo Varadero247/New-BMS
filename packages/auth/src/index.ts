@@ -5,10 +5,13 @@ export type { AuthRequest, JWTPayload, TokenPair } from './types';
 export {
   generateToken,
   generateRefreshToken,
+  generateTokenPair,
   verifyToken,
   verifyRefreshToken,
   decodeToken,
   getTokenExpiry,
+  refreshAccessToken,
+  type TokenPairResult,
 } from './jwt';
 
 // Password utilities

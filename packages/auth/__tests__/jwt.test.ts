@@ -1,10 +1,12 @@
 import {
   generateToken,
   generateRefreshToken,
+  generateTokenPair,
   verifyToken,
   verifyRefreshToken,
   decodeToken,
   getTokenExpiry,
+  refreshAccessToken,
 } from '../src/jwt';
 
 describe('JWT Utilities', () => {
@@ -46,6 +48,13 @@ describe('JWT Utilities', () => {
       expect(decoded?.role).toBe('ADMIN');
     });
 
+    it('should include issuer and audience claims', () => {
+      const token = generateToken({ userId: 'user-123' });
+      const decoded = decodeToken(token) as any;
+      expect(decoded?.iss).toBe('ims-api');
+      expect(decoded?.aud).toBe('ims-client');
+    });
+
     it('should set default expiration of 7 days', () => {
       const token = generateToken({ userId: 'user-123' });
       const decoded = decodeToken(token);
@@ -82,6 +91,38 @@ describe('JWT Utilities', () => {
       const thirtyDays = 30 * 24 * 60 * 60 * 1000;
       expect(expiresIn).toBe(thirtyDays);
     });
+
+    it('should include refresh type marker', () => {
+      const token = generateRefreshToken('user-123');
+      const decoded = decodeToken(token) as any;
+      expect(decoded?.type).toBe('refresh');
+    });
+
+    it('should include issuer and audience claims', () => {
+      const token = generateRefreshToken('user-123');
+      const decoded = decodeToken(token) as any;
+      expect(decoded?.iss).toBe('ims-api');
+      expect(decoded?.aud).toBe('ims-client');
+    });
+  });
+
+  describe('generateTokenPair', () => {
+    it('should generate both access and refresh tokens', () => {
+      const result = generateTokenPair({ userId: 'user-123' });
+      expect(result.accessToken).toBeDefined();
+      expect(result.refreshToken).toBeDefined();
+      expect(result.expiresAt).toBeInstanceOf(Date);
+    });
+
+    it('should generate valid tokens', () => {
+      const result = generateTokenPair({ userId: 'user-123', email: 'test@example.com' });
+
+      const accessPayload = verifyToken(result.accessToken);
+      expect(accessPayload.userId).toBe('user-123');
+
+      const refreshPayload = verifyRefreshToken(result.refreshToken);
+      expect(refreshPayload.userId).toBe('user-123');
+    });
   });
 
   describe('verifyToken', () => {
@@ -103,8 +144,28 @@ describe('JWT Utilities', () => {
 
     it('should throw for expired token', () => {
       const token = generateToken({ userId: 'user-123', expiresIn: '0s' });
-      // Small delay to ensure token expires
       expect(() => verifyToken(token)).toThrow();
+    });
+
+    it('should validate issuer claim', () => {
+      // Create a token with wrong issuer (manually)
+      const jwt = require('jsonwebtoken');
+      const wrongIssuerToken = jwt.sign(
+        { userId: 'user-123' },
+        process.env.JWT_SECRET,
+        { issuer: 'wrong-issuer', audience: 'ims-client' }
+      );
+      expect(() => verifyToken(wrongIssuerToken)).toThrow();
+    });
+
+    it('should validate audience claim', () => {
+      const jwt = require('jsonwebtoken');
+      const wrongAudienceToken = jwt.sign(
+        { userId: 'user-123' },
+        process.env.JWT_SECRET,
+        { issuer: 'ims-api', audience: 'wrong-audience' }
+      );
+      expect(() => verifyToken(wrongAudienceToken)).toThrow();
     });
   });
 
@@ -117,6 +178,34 @@ describe('JWT Utilities', () => {
 
     it('should throw for invalid token', () => {
       expect(() => verifyRefreshToken('invalid-token')).toThrow();
+    });
+
+    it('should throw if token is not a refresh token', () => {
+      // Access token should not work as refresh token (different secret or missing type)
+      const accessToken = generateToken({ userId: 'user-123' });
+      expect(() => verifyRefreshToken(accessToken)).toThrow();
+    });
+  });
+
+  describe('refreshAccessToken', () => {
+    it('should generate new access token from refresh token', () => {
+      const refreshToken = generateRefreshToken('user-123');
+      const result = refreshAccessToken(refreshToken);
+
+      expect(result.accessToken).toBeDefined();
+      expect(result.expiresAt).toBeInstanceOf(Date);
+
+      const payload = verifyToken(result.accessToken);
+      expect(payload.userId).toBe('user-123');
+    });
+
+    it('should throw for invalid refresh token', () => {
+      expect(() => refreshAccessToken('invalid-token')).toThrow();
+    });
+
+    it('should throw for access token used as refresh token', () => {
+      const accessToken = generateToken({ userId: 'user-123' });
+      expect(() => refreshAccessToken(accessToken)).toThrow();
     });
   });
 

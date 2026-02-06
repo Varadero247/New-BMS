@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import type { JWTPayload } from './types';
 
+// JWT Configuration
+const JWT_ISSUER = process.env.JWT_ISSUER || 'ims-api';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'ims-client';
+
 /**
  * Get JWT secret from environment
  * Throws in production if not properly configured
@@ -40,23 +44,84 @@ export interface GenerateTokenOptions {
   expiresIn?: string;
 }
 
+export interface TokenPairResult {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+}
+
+/**
+ * Generate an access token with issuer/audience claims
+ */
 export function generateToken(options: GenerateTokenOptions): string {
   const { userId, email, role, expiresIn = '7d' } = options;
-  return jwt.sign({ userId, email, role }, getJwtSecret(), { expiresIn } as jwt.SignOptions);
+  return jwt.sign(
+    { userId, email, role },
+    getJwtSecret(),
+    {
+      expiresIn,
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    } as jwt.SignOptions
+  );
 }
 
+/**
+ * Generate a refresh token
+ */
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ userId }, getJwtRefreshSecret(), { expiresIn: '30d' });
+  return jwt.sign(
+    { userId, type: 'refresh' },
+    getJwtRefreshSecret(),
+    {
+      expiresIn: '30d',
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    }
+  );
 }
 
+/**
+ * Generate both access and refresh tokens
+ */
+export function generateTokenPair(options: GenerateTokenOptions): TokenPairResult {
+  const accessToken = generateToken(options);
+  const refreshToken = generateRefreshToken(options.userId);
+  const expiresAt = getTokenExpiry(options.expiresIn || '7d');
+
+  return { accessToken, refreshToken, expiresAt };
+}
+
+/**
+ * Verify an access token with issuer/audience validation
+ */
 export function verifyToken(token: string): JWTPayload {
-  return jwt.verify(token, getJwtSecret()) as JWTPayload;
+  return jwt.verify(token, getJwtSecret(), {
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  }) as JWTPayload;
 }
 
+/**
+ * Verify a refresh token
+ */
 export function verifyRefreshToken(token: string): JWTPayload {
-  return jwt.verify(token, getJwtRefreshSecret()) as JWTPayload;
+  const payload = jwt.verify(token, getJwtRefreshSecret(), {
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  }) as JWTPayload & { type?: string };
+
+  // Ensure it's actually a refresh token
+  if (payload.type !== 'refresh') {
+    throw new Error('Invalid refresh token');
+  }
+
+  return payload;
 }
 
+/**
+ * Decode a token without verification (for debugging)
+ */
 export function decodeToken(token: string): JWTPayload | null {
   try {
     return jwt.decode(token) as JWTPayload;
@@ -65,6 +130,9 @@ export function decodeToken(token: string): JWTPayload | null {
   }
 }
 
+/**
+ * Calculate token expiry date from duration string
+ */
 export function getTokenExpiry(expiresIn: string = '7d'): Date {
   const now = new Date();
   const match = expiresIn.match(/^(\d+)([dhms])$/);
@@ -94,4 +162,22 @@ export function getTokenExpiry(expiresIn: string = '7d'): Date {
   }
 
   return now;
+}
+
+/**
+ * Refresh an access token using a refresh token
+ */
+export function refreshAccessToken(refreshToken: string): { accessToken: string; expiresAt: Date } {
+  const payload = verifyRefreshToken(refreshToken);
+
+  const accessToken = generateToken({
+    userId: payload.userId,
+    email: payload.email,
+    role: payload.role,
+  });
+
+  return {
+    accessToken,
+    expiresAt: getTokenExpiry('7d'),
+  };
 }

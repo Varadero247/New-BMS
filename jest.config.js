@@ -46,6 +46,7 @@ module.exports = {
   projects: [
     '<rootDir>/packages/secrets',
     '<rootDir>/packages/auth',
+    '<rootDir>/packages/validation',
     '<rootDir>/apps/api-gateway',
   ],
   moduleNameMapper: {

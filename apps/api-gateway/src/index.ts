@@ -2,6 +2,7 @@ import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
 import {
@@ -21,6 +22,7 @@ import sessionsRoutes from './routes/sessions';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter } from './middleware/rate-limiter';
+import { csrfProtection, generateCsrfToken } from './middleware/csrf';
 
 dotenv.config();
 
@@ -47,6 +49,7 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'],
   credentials: true,
 }));
+app.use(cookieParser());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-gateway'));
 app.use(express.json());
@@ -55,9 +58,18 @@ app.use(express.urlencoded({ extended: true }));
 // Rate limiting (using Redis-backed limiter)
 app.use('/api', apiLimiter);
 
+// CSRF protection (enabled by CSRF_ENABLED env var, disabled by default for backward compatibility)
+if (process.env.CSRF_ENABLED === 'true') {
+  app.use('/api', csrfProtection());
+  logger.info('CSRF protection enabled');
+}
+
 // Health check and metrics
 app.get('/health', createHealthCheck('api-gateway', undefined, '1.0.0'));
 app.get('/metrics', metricsHandler);
+
+// CSRF token endpoint (always available for clients to fetch tokens)
+app.get('/api/csrf-token', generateCsrfToken());
 
 // Local routes (handled by gateway)
 app.use('/api/auth', authRoutes);
