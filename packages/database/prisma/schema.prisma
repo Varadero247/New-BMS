@@ -29,6 +29,7 @@ model User {
 
   // Relations
   sessions              Session[]
+  passwordResetTokens   PasswordResetToken[]
   auditLogs             AuditLog[]
   assignedActions       Action[]         @relation("ActionOwner")
   createdActions        Action[]         @relation("ActionCreator")
@@ -57,6 +58,22 @@ model Session {
   @@index([expiresAt])
   @@index([lastActivityAt])
   @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 enum UserRole {

@@ -14,6 +14,7 @@
   "dependencies": {
     "@ims/auth": "workspace:*",
     "@ims/database": "workspace:*",
+    "@ims/email": "workspace:*",
     "@ims/monitoring": "workspace:*",
     "@ims/secrets": "workspace:*",
     "@ims/service-auth": "workspace:*",
