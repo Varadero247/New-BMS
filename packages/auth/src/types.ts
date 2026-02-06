@@ -3,6 +3,8 @@ import type { User } from '@ims/database';
 
 export interface AuthRequest extends Request {
   user?: User;
+  sessionId?: string;
+  token?: string;
 }
 
 export interface JWTPayload {

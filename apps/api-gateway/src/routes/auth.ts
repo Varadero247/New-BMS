@@ -10,8 +10,13 @@ import {
 } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+import { authLimiter, registerLimiter, passwordResetLimiter } from '../middleware/rate-limiter';
+import { getAccountLockoutManager, checkAccountLockout } from '../middleware/account-lockout';
 
+const logger = createLogger('auth-routes');
 const router: IRouter = Router();
+const lockoutManager = getAccountLockoutManager();
 
 // Validation schemas
 const loginSchema = z.object({
@@ -30,27 +35,62 @@ const registerSchema = z.object({
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+// Rate limited: 5 attempts per 15 min per IP+email
+// Account lockout: 5 failed attempts = 30 min lockout
+router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || !user.isActive) {
+      // Record failed attempt even if user doesn't exist (prevents enumeration)
+      await lockoutManager.recordFailedAttempt(email);
+      const remaining = await lockoutManager.getRemainingAttempts(email);
+
+      logger.info('Login failed - invalid credentials', { email, ip: req.ip });
+
       return res.status(401).json({
         success: false,
-        error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' },
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password',
+          remainingAttempts: remaining,
+        },
       });
     }
 
     const isValid = await comparePassword(password, user.password);
 
     if (!isValid) {
+      const { locked, remainingAttempts } = await lockoutManager.recordFailedAttempt(email);
+
+      logger.info('Login failed - wrong password', { email, ip: req.ip, locked });
+
+      if (locked) {
+        const timeRemaining = await lockoutManager.getLockoutTimeRemaining(email);
+        return res.status(423).json({
+          success: false,
+          error: {
+            code: 'ACCOUNT_LOCKED',
+            message: 'Account temporarily locked due to too many failed attempts.',
+            retryAfter: timeRemaining,
+          },
+        });
+      }
+
       return res.status(401).json({
         success: false,
-        error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' },
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password',
+          remainingAttempts,
+        },
       });
     }
+
+    // Successful login - reset lockout counter
+    await lockoutManager.reset(email);
 
     const token = generateToken({ userId: user.id, email: user.email, role: user.role });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -66,6 +106,8 @@ router.post('/login', async (req, res) => {
         ipAddress: req.ip || null,
       },
     });
+
+    logger.info('Login successful', { userId: user.id, email: user.email, ip: req.ip });
 
     res.json({
       success: true,
@@ -90,7 +132,7 @@ router.post('/login', async (req, res) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Login error:', error);
+    logger.error('Login error', { error });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Login failed' },
@@ -99,13 +141,15 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+// Rate limited: 3 registrations per hour per IP
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const data = registerSchema.parse(req.body);
 
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (existingUser) {
+      logger.info('Registration failed - user exists', { email: data.email, ip: req.ip });
       return res.status(409).json({
         success: false,
         error: { code: 'USER_EXISTS', message: 'User with this email already exists' },
@@ -143,6 +187,8 @@ router.post('/register', async (req, res) => {
       },
     });
 
+    logger.info('Registration successful', { userId: user.id, email: user.email, ip: req.ip });
+
     res.status(201).json({
       success: true,
       data: {
@@ -164,7 +210,7 @@ router.post('/register', async (req, res) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Registration error:', error);
+    logger.error('Registration error', { error });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Registration failed' },
@@ -180,11 +226,12 @@ router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => 
 
     if (token) {
       await prisma.session.deleteMany({ where: { token } });
+      logger.info('Logout successful', { userId: req.user?.id });
     }
 
     res.json({ success: true, data: { message: 'Logged out successfully' } });
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error', { error });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Logout failed' },
@@ -213,10 +260,40 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Get me error:', error);
+    logger.error('Get me error', { error });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get user info' },
+    });
+  }
+});
+
+// POST /api/auth/forgot-password
+// Rate limited: 3 attempts per 15 min per IP+email
+router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
+  try {
+    const { email } = z.object({ email: z.string().email() }).parse(req.body);
+
+    // Always return success to prevent email enumeration
+    logger.info('Password reset requested', { email, ip: req.ip });
+
+    // TODO: Implement actual password reset email sending
+
+    res.json({
+      success: true,
+      data: { message: 'If an account with that email exists, a reset link has been sent.' },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid email address' },
+      });
+    }
+    logger.error('Forgot password error', { error });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Request failed' },
     });
   }
 });

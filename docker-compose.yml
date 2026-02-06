@@ -6,9 +6,9 @@ services:
     container_name: ims-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ims
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-ims}
     ports:
       - '5432:5432'
     volumes:
@@ -27,6 +27,16 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+    command: >
+      sh -c '
+        if [ -n "$REDIS_PASSWORD" ]; then
+          redis-server --requirepass "$REDIS_PASSWORD"
+        else
+          redis-server
+        fi
+      '
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -45,8 +55,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       SERVICE_HEALTH_SAFETY_URL: http://api-health-safety:4001
       SERVICE_ENVIRONMENT_URL: http://api-environment:4002
@@ -54,6 +66,8 @@ services:
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       api-health-safety:
         condition: service_started
@@ -75,8 +89,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4001
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
         condition: service_healthy
@@ -92,8 +106,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4002
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,8 +123,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4003
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
         condition: service_healthy
@@ -126,7 +140,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4004
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ims?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     depends_on:

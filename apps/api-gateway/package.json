@@ -8,12 +8,14 @@
     "build": "tsup src/index.ts --format cjs --dts",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
+    "test": "jest",
     "clean": "rm -rf dist node_modules .turbo"
   },
   "dependencies": {
     "@ims/auth": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
+    "@ims/secrets": "workspace:*",
     "@ims/types": "workspace:*",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -22,8 +24,10 @@
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
     "http-proxy-middleware": "^2.0.6",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "rate-limit-redis": "^4.2.0",
     "uuid": "^9.0.0",
     "zod": "^3.22.0"
   },
@@ -35,6 +39,9 @@
     "@types/morgan": "^1.9.9",
     "@types/uuid": "^9.0.0",
     "@types/node": "^20.10.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "ts-jest": "^29.1.1",
     "tsup": "^8.0.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0"

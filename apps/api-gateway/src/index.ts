@@ -2,7 +2,6 @@ import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
 import {
@@ -12,12 +11,16 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
+import { validateStartupSecrets } from '@ims/secrets';
+import { prisma, createSessionCleanupJob } from '@ims/database';
 
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import dashboardRoutes from './routes/dashboard';
+import sessionsRoutes from './routes/sessions';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
+import { apiLimiter } from './middleware/rate-limiter';
 
 dotenv.config();
 
@@ -49,13 +52,8 @@ app.use(metricsMiddleware('api-gateway'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: { success: false, error: { code: 'RATE_LIMIT', message: 'Too many requests' } },
-});
-app.use('/api', limiter);
+// Rate limiting (using Redis-backed limiter)
+app.use('/api', apiLimiter);
 
 // Health check and metrics
 app.get('/health', createHealthCheck('api-gateway', undefined, '1.0.0'));
@@ -65,6 +63,7 @@ app.get('/metrics', metricsHandler);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/sessions', sessionsRoutes);
 
 // Proxy routes to domain services
 app.use('/api/health-safety', createProxyMiddleware({
@@ -175,9 +174,44 @@ app.use('/api/workflows', createProxyMiddleware({
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+// Validate secrets on startup
+const isProduction = process.env.NODE_ENV === 'production';
+const secretsValidation = validateStartupSecrets(process.env, isProduction);
+
+if (!secretsValidation.valid) {
+  logger.error('Startup failed - invalid secrets configuration', { errors: secretsValidation.errors });
+  if (isProduction) {
+    process.exit(1);
+  }
+}
+
+if (secretsValidation.warnings.length > 0) {
+  secretsValidation.warnings.forEach((warning) => {
+    logger.warn(warning);
+  });
+}
+
+// Start session cleanup job (runs every hour)
+const sessionCleanupJob = createSessionCleanupJob(prisma, logger);
+sessionCleanupJob.start(60 * 60 * 1000); // 1 hour
+
 app.listen(PORT, () => {
   logger.info(`API Gateway running on port ${PORT}`);
   logger.info('Proxied services configured', { services: SERVICES });
+  logger.info('Session cleanup job started');
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  sessionCleanupJob.stop();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  sessionCleanupJob.stop();
+  process.exit(0);
 });
 
 export default app;

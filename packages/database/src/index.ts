@@ -17,3 +17,12 @@ if (process.env.NODE_ENV !== 'production') {
 export * from '@prisma/client';
 export type { User } from '@prisma/client';
 export default prisma;
+
+// Session cleanup utilities
+export {
+  cleanupExpiredSessions,
+  cleanupInactiveSessions,
+  SessionCleanupJob,
+  createSessionCleanupJob,
+  type CleanupResult,
+} from './jobs/cleanup-sessions';

@@ -1,8 +1,37 @@
 import jwt from 'jsonwebtoken';
 import type { JWTPayload } from './types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
+/**
+ * Get JWT secret from environment
+ * Throws in production if not properly configured
+ */
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET environment variable is required in production');
+    }
+    // Development fallback with warning
+    console.warn(
+      '[SECURITY WARNING] JWT_SECRET not set - using insecure default. Do not use in production!'
+    );
+    return 'INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION';
+  }
+  return secret;
+}
+
+/**
+ * Get JWT refresh secret from environment
+ * Falls back to main JWT secret if not set
+ */
+function getJwtRefreshSecret(): string {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET;
+  if (refreshSecret) {
+    return refreshSecret;
+  }
+  // Fall back to main secret (not ideal but acceptable)
+  return getJwtSecret();
+}
 
 export interface GenerateTokenOptions {
   userId: string;
@@ -13,19 +42,19 @@ export interface GenerateTokenOptions {
 
 export function generateToken(options: GenerateTokenOptions): string {
   const { userId, email, role, expiresIn = '7d' } = options;
-  return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn } as jwt.SignOptions);
+  return jwt.sign({ userId, email, role }, getJwtSecret(), { expiresIn } as jwt.SignOptions);
 }
 
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ userId }, getJwtRefreshSecret(), { expiresIn: '30d' });
 }
 
 export function verifyToken(token: string): JWTPayload {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  return jwt.verify(token, getJwtSecret()) as JWTPayload;
 }
 
 export function verifyRefreshToken(token: string): JWTPayload {
-  return jwt.verify(token, JWT_REFRESH_SECRET) as JWTPayload;
+  return jwt.verify(token, getJwtRefreshSecret()) as JWTPayload;
 }
 
 export function decodeToken(token: string): JWTPayload | null {
