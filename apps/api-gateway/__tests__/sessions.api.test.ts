@@ -1,0 +1,236 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('@ims/database', () => ({
+  prisma: {
+    session: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req, res, next) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.sessionId = 'current-session-123';
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
+import { prisma } from '@ims/database';
+import sessionsRoutes from '../src/routes/sessions';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe('Sessions API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/sessions', () => {
+    const mockSessions = [
+      {
+        id: 'current-session-123',
+        userAgent: 'Mozilla/5.0',
+        ipAddress: '192.168.1.1',
+        createdAt: new Date('2024-01-01'),
+        lastActivityAt: new Date('2024-01-02'),
+        expiresAt: new Date('2024-01-08'),
+      },
+      {
+        id: 'other-session-456',
+        userAgent: 'Safari/17.0',
+        ipAddress: '192.168.1.2',
+        createdAt: new Date('2024-01-01'),
+        lastActivityAt: new Date('2024-01-01'),
+        expiresAt: new Date('2024-01-08'),
+      },
+    ];
+
+    it('should return list of active sessions', async () => {
+      mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
+
+      const response = await request(app)
+        .get('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(2);
+    });
+
+    it('should mark current session', async () => {
+      mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
+
+      const response = await request(app)
+        .get('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body.data[0].isCurrent).toBe(true);
+      expect(response.body.data[1].isCurrent).toBe(false);
+    });
+
+    it('should only return non-expired sessions', async () => {
+      mockPrisma.session.findMany.mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.session.findMany).toHaveBeenCalledWith({
+        where: {
+          userId: 'user-123',
+          expiresAt: { gte: expect.any(Date) },
+        },
+        select: expect.any(Object),
+        orderBy: { lastActivityAt: 'desc' },
+      });
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.session.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('DELETE /api/sessions/:id', () => {
+    it('should revoke a specific session', async () => {
+      mockPrisma.session.findFirst.mockResolvedValueOnce({
+        id: 'other-session-456',
+        userId: 'user-123',
+      } as any);
+      mockPrisma.session.delete.mockResolvedValueOnce({} as any);
+
+      const response = await request(app)
+        .delete('/api/sessions/other-session-456')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(mockPrisma.session.delete).toHaveBeenCalledWith({
+        where: { id: 'other-session-456' },
+      });
+    });
+
+    it('should not allow revoking current session', async () => {
+      const response = await request(app)
+        .delete('/api/sessions/current-session-123')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('CANNOT_REVOKE_CURRENT');
+    });
+
+    it('should return 404 for non-existent session', async () => {
+      mockPrisma.session.findFirst.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .delete('/api/sessions/non-existent-id')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('SESSION_NOT_FOUND');
+    });
+
+    it('should only allow revoking own sessions', async () => {
+      mockPrisma.session.findFirst.mockResolvedValueOnce(null);
+
+      await request(app)
+        .delete('/api/sessions/other-user-session')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.session.findFirst).toHaveBeenCalledWith({
+        where: { id: 'other-user-session', userId: 'user-123' },
+      });
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.session.findFirst.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/sessions/some-session')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('DELETE /api/sessions (revoke all)', () => {
+    it('should revoke all other sessions', async () => {
+      mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 3 });
+
+      const response = await request(app)
+        .delete('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.revokedCount).toBe(3);
+    });
+
+    it('should exclude current session from revocation', async () => {
+      mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
+
+      await request(app)
+        .delete('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
+        where: {
+          userId: 'user-123',
+          id: { not: 'current-session-123' },
+        },
+      });
+    });
+
+    it('should return 0 when no other sessions exist', async () => {
+      mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
+
+      const response = await request(app)
+        .delete('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.revokedCount).toBe(0);
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.session.deleteMany.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});
