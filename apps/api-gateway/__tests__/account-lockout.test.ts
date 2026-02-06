@@ -1,4 +1,10 @@
-import { AccountLockoutManager, resetAccountLockoutManager } from '../src/middleware/account-lockout';
+import { Request, Response, NextFunction } from 'express';
+import {
+  AccountLockoutManager,
+  getAccountLockoutManager,
+  checkAccountLockout,
+  resetAccountLockoutManager,
+} from '../src/middleware/account-lockout';
 
 describe('AccountLockoutManager', () => {
   let manager: AccountLockoutManager;
@@ -48,6 +54,28 @@ describe('AccountLockoutManager', () => {
       const result = await manager.recordFailedAttempt('test@example.com');
       expect(result.remainingAttempts).toBe(3); // Should be counted as same user
     });
+
+    it('should reset expired lockout on new attempt', async () => {
+      const shortManager = new AccountLockoutManager({
+        maxAttempts: 2,
+        lockoutDuration: 1,
+      });
+
+      // Lock the account
+      await shortManager.recordFailedAttempt('test@example.com');
+      await shortManager.recordFailedAttempt('test@example.com');
+      expect(await shortManager.isLocked('test@example.com')).toBe(true);
+
+      // Wait for expiry
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+
+      // New attempt should start fresh
+      const result = await shortManager.recordFailedAttempt('test@example.com');
+      expect(result.locked).toBe(false);
+      expect(result.remainingAttempts).toBe(1);
+
+      await shortManager.close();
+    });
   });
 
   describe('isLocked', () => {
@@ -85,6 +113,11 @@ describe('AccountLockoutManager', () => {
 
       await shortLockoutManager.close();
     });
+
+    it('should return false for account without lockout record', async () => {
+      const locked = await manager.isLocked('nonexistent@example.com');
+      expect(locked).toBe(false);
+    });
   });
 
   describe('reset', () => {
@@ -108,6 +141,11 @@ describe('AccountLockoutManager', () => {
       await manager.reset('test@example.com');
 
       expect(await manager.isLocked('test@example.com')).toBe(false);
+    });
+
+    it('should handle reset for non-existent account', async () => {
+      // Should not throw
+      await expect(manager.reset('nonexistent@example.com')).resolves.not.toThrow();
     });
   });
 
@@ -151,6 +189,43 @@ describe('AccountLockoutManager', () => {
       expect(time).toBeGreaterThan(0);
       expect(time).toBeLessThanOrEqual(60); // Should be less than lockout duration
     });
+
+    it('should return 0 for account without lockout', async () => {
+      const time = await manager.getLockoutTimeRemaining('nonexistent@example.com');
+      expect(time).toBe(0);
+    });
+
+    it('should return 0 after lockout expires', async () => {
+      const shortManager = new AccountLockoutManager({
+        maxAttempts: 1,
+        lockoutDuration: 1,
+      });
+
+      await shortManager.recordFailedAttempt('test@example.com');
+
+      // Wait for expiry
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+
+      const time = await shortManager.getLockoutTimeRemaining('test@example.com');
+      expect(time).toBe(0);
+
+      await shortManager.close();
+    });
+  });
+
+  describe('close', () => {
+    it('should clear memory store on close', async () => {
+      await manager.recordFailedAttempt('test@example.com');
+      await manager.recordFailedAttempt('test@example.com');
+
+      await manager.close();
+
+      // Create new manager to verify state was cleared
+      const newManager = new AccountLockoutManager({ maxAttempts: 5, lockoutDuration: 60 });
+      const remaining = await newManager.getRemainingAttempts('test@example.com');
+      expect(remaining).toBe(5); // Should be fresh
+      await newManager.close();
+    });
   });
 
   describe('configuration', () => {
@@ -179,5 +254,144 @@ describe('AccountLockoutManager', () => {
 
       await customManager.close();
     });
+  });
+});
+
+describe('getAccountLockoutManager', () => {
+  beforeEach(() => {
+    resetAccountLockoutManager();
+  });
+
+  afterEach(() => {
+    resetAccountLockoutManager();
+  });
+
+  it('should return a singleton instance', () => {
+    const manager1 = getAccountLockoutManager();
+    const manager2 = getAccountLockoutManager();
+    expect(manager1).toBe(manager2);
+  });
+
+  it('should create manager on first call', () => {
+    const manager = getAccountLockoutManager();
+    expect(manager).toBeInstanceOf(AccountLockoutManager);
+  });
+});
+
+describe('checkAccountLockout middleware', () => {
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: jest.Mock;
+  let manager: AccountLockoutManager;
+
+  beforeEach(() => {
+    resetAccountLockoutManager();
+    manager = new AccountLockoutManager({ maxAttempts: 3, lockoutDuration: 60 });
+
+    mockReq = {
+      body: { email: 'test@example.com' },
+    };
+    mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    mockNext = jest.fn();
+  });
+
+  afterEach(async () => {
+    await manager.close();
+    resetAccountLockoutManager();
+  });
+
+  it('should call next for unlocked account', async () => {
+    const middleware = checkAccountLockout(manager);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(mockRes.status).not.toHaveBeenCalled();
+  });
+
+  it('should return 423 for locked account', async () => {
+    // Lock the account
+    for (let i = 0; i < 3; i++) {
+      await manager.recordFailedAttempt('test@example.com');
+    }
+
+    const middleware = checkAccountLockout(manager);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockRes.status).toHaveBeenCalledWith(423);
+    expect(mockRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          code: 'ACCOUNT_LOCKED',
+        }),
+      })
+    );
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('should include retry time in lockout response', async () => {
+    // Lock the account
+    for (let i = 0; i < 3; i++) {
+      await manager.recordFailedAttempt('test@example.com');
+    }
+
+    const middleware = checkAccountLockout(manager);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          retryAfter: expect.any(Number),
+        }),
+      })
+    );
+  });
+
+  it('should call next when email is not provided', async () => {
+    mockReq.body = {};
+    const middleware = checkAccountLockout(manager);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(mockRes.status).not.toHaveBeenCalled();
+  });
+
+  it('should call next when body is undefined', async () => {
+    mockReq.body = undefined;
+    const middleware = checkAccountLockout(manager);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('should use default manager when none provided', async () => {
+    const middleware = checkAccountLockout();
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+});
+
+describe('resetAccountLockoutManager', () => {
+  it('should reset the singleton instance', () => {
+    const manager1 = getAccountLockoutManager();
+    resetAccountLockoutManager();
+    const manager2 = getAccountLockoutManager();
+
+    // Should be different instances after reset
+    expect(manager1).not.toBe(manager2);
+  });
+
+  it('should handle multiple resets', () => {
+    resetAccountLockoutManager();
+    resetAccountLockoutManager();
+    resetAccountLockoutManager();
+
+    // Should not throw
+    const manager = getAccountLockoutManager();
+    expect(manager).toBeInstanceOf(AccountLockoutManager);
   });
 });
