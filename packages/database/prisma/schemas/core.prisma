@@ -1,0 +1,110 @@
+// Core Schema - Authentication, Users, Sessions, Audit
+// This schema is used by the API Gateway and shared across all services
+// Database: ims_core
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/core"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CORE_DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  avatar        String?
+  role          UserRole  @default(USER)
+  department    String?
+  jobTitle      String?
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  sessions  Session[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String
+  token          String   @unique
+  expiresAt      DateTime
+  lastActivityAt DateTime @default(now())
+  userAgent      String?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([lastActivityAt])
+  @@map("sessions")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  AUDITOR
+  USER
+}
+
+// ============================================
+// AUDIT LOGGING
+// ============================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String // CREATE, UPDATE, DELETE, VIEW, LOGIN, LOGOUT, etc.
+  entity    String // User, Incident, Risk, etc.
+  entityId  String?
+  changes   Json? // Before/after values for updates
+  metadata  Json? // Additional context (IP, user agent, etc.)
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// API KEYS (for service-to-service auth)
+// ============================================
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique // Hashed API key
+  prefix      String // First 8 chars for identification
+  permissions String[] // List of allowed operations
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([keyHash])
+  @@index([prefix])
+  @@map("api_keys")
+}
