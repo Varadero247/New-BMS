@@ -1,6 +1,16 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import {
+  createLogger,
+  metricsMiddleware,
+  metricsHandler,
+  correlationIdMiddleware,
+  createHealthCheck,
+} from '@ims/monitoring';
+import { prisma } from '@ims/database';
+
+const logger = createLogger('api-workflows');
 
 import templatesRouter from './routes/templates';
 import definitionsRouter from './routes/definitions';
@@ -15,18 +25,13 @@ const PORT = process.env.PORT || 4008;
 // Middleware
 app.use(helmet());
 app.use(cors());
+app.use(correlationIdMiddleware());
+app.use(metricsMiddleware('api-workflows'));
 app.use(express.json());
 
-// Request logging
-app.use((req: Request, _res: Response, next: NextFunction) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
-  next();
-});
-
-// Health check
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'healthy', service: 'api-workflows', timestamp: new Date().toISOString() });
-});
+// Health check and metrics
+app.get('/health', createHealthCheck('api-workflows', prisma, '1.0.0'));
+app.get('/metrics', metricsHandler);
 
 // API Routes
 app.use('/api/templates', templatesRouter);
@@ -38,7 +43,7 @@ app.use('/api/automation', automationRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('Error:', err);
+  logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: err.message } });
 });
 
@@ -48,7 +53,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Workflows API running on port ${PORT}`);
+  logger.info(`Workflows API running on port ${PORT}`);
 });
 
 export default app;

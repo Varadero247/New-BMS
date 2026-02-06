@@ -4,7 +4,16 @@ dotenv.config();
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
+import {
+  createLogger,
+  metricsMiddleware,
+  metricsHandler,
+  correlationIdMiddleware,
+  createHealthCheck,
+} from '@ims/monitoring';
+import { prisma } from '@ims/database';
+
+const logger = createLogger('api-payroll');
 
 // Import routes
 import payrollRouter from './routes/payroll';
@@ -27,14 +36,14 @@ app.use(cors({
   ],
   credentials: true,
 }));
-app.use(morgan('dev'));
+app.use(correlationIdMiddleware());
+app.use(metricsMiddleware('api-payroll'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'healthy', service: 'api-payroll', timestamp: new Date().toISOString() });
-});
+// Health check and metrics
+app.get('/health', createHealthCheck('api-payroll', prisma, '1.0.0'));
+app.get('/metrics', metricsHandler);
 
 // API Routes
 app.use('/api/payroll', payrollRouter);
@@ -51,7 +60,7 @@ app.use((_req: Request, res: Response) => {
 
 // Error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('Error:', err);
+  logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(500).json({
     success: false,
     error: {
@@ -62,8 +71,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Payroll API server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+  logger.info(`Payroll API server running on port ${PORT}`);
 });
 
 export default app;

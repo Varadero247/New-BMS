@@ -2,14 +2,23 @@ import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import {
+  createLogger,
+  metricsMiddleware,
+  metricsHandler,
+  correlationIdMiddleware,
+  createHealthCheck,
+} from '@ims/monitoring';
+import { prisma } from '@ims/database';
+
+const logger = createLogger('api-ai-analysis');
 
 import analyseRouter from './routes/analyse';
 import analysesRouter from './routes/analyses';
 import settingsRouter from './routes/settings';
-
-dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 4004;
@@ -17,13 +26,13 @@ const PORT = process.env.PORT || 4004;
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(morgan('combined'));
+app.use(correlationIdMiddleware());
+app.use(metricsMiddleware('api-ai-analysis'));
 app.use(express.json());
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'api-ai-analysis', timestamp: new Date().toISOString() });
-});
+// Health check and metrics
+app.get('/health', createHealthCheck('api-ai-analysis', prisma, '1.0.0'));
+app.get('/metrics', metricsHandler);
 
 // Routes
 app.use('/api/analyse', analyseRouter);
@@ -32,7 +41,7 @@ app.use('/api/settings', settingsRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
+  logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(err.statusCode || 500).json({
     success: false,
     error: { code: err.code || 'INTERNAL_ERROR', message: err.message || 'An error occurred' },
@@ -40,7 +49,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 app.listen(PORT, () => {
-  console.log(`AI Analysis API running on port ${PORT}`);
+  logger.info(`AI Analysis API running on port ${PORT}`);
 });
 
 export default app;

@@ -2,10 +2,16 @@ import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
+import {
+  createLogger,
+  metricsMiddleware,
+  metricsHandler,
+  correlationIdMiddleware,
+  createHealthCheck,
+} from '@ims/monitoring';
 
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
@@ -14,6 +20,8 @@ import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 
 dotenv.config();
+
+const logger = createLogger('api-gateway');
 
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
@@ -36,7 +44,8 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'],
   credentials: true,
 }));
-app.use(morgan('combined'));
+app.use(correlationIdMiddleware());
+app.use(metricsMiddleware('api-gateway'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,10 +57,9 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'api-gateway', timestamp: new Date().toISOString() });
-});
+// Health check and metrics
+app.get('/health', createHealthCheck('api-gateway', undefined, '1.0.0'));
+app.get('/metrics', metricsHandler);
 
 // Local routes (handled by gateway)
 app.use('/api/auth', authRoutes);
@@ -64,7 +72,7 @@ app.use('/api/health-safety', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/health-safety': '/api' },
   onError: (err, req, res) => {
-    console.error('Health Safety Proxy Error:', err);
+    logger.error('Health Safety Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Health & Safety service unavailable' },
@@ -77,7 +85,7 @@ app.use('/api/environment', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/environment': '/api' },
   onError: (err, req, res) => {
-    console.error('Environment Proxy Error:', err);
+    logger.error('Environment Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Environment service unavailable' },
@@ -90,7 +98,7 @@ app.use('/api/quality', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/quality': '/api' },
   onError: (err, req, res) => {
-    console.error('Quality Proxy Error:', err);
+    logger.error('Quality Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Quality service unavailable' },
@@ -103,7 +111,7 @@ app.use('/api/ai', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/ai': '/api' },
   onError: (err, req, res) => {
-    console.error('AI Analysis Proxy Error:', err);
+    logger.error('AI Analysis Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'AI Analysis service unavailable' },
@@ -116,7 +124,7 @@ app.use('/api/inventory', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/inventory': '/api' },
   onError: (err, req, res) => {
-    console.error('Inventory Proxy Error:', err);
+    logger.error('Inventory Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Inventory service unavailable' },
@@ -129,7 +137,7 @@ app.use('/api/hr', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/hr': '/api' },
   onError: (err, req, res) => {
-    console.error('HR Proxy Error:', err);
+    logger.error('HR Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'HR service unavailable' },
@@ -142,7 +150,7 @@ app.use('/api/payroll', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/payroll': '/api' },
   onError: (err, req, res) => {
-    console.error('Payroll Proxy Error:', err);
+    logger.error('Payroll Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Payroll service unavailable' },
@@ -155,7 +163,7 @@ app.use('/api/workflows', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/api/workflows': '/api' },
   onError: (err, req, res) => {
-    console.error('Workflows Proxy Error:', err);
+    logger.error('Workflows Proxy Error', { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
       error: { code: 'SERVICE_UNAVAILABLE', message: 'Workflows service unavailable' },
@@ -168,15 +176,8 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`API Gateway running on port ${PORT}`);
-  console.log(`Health & Safety service: ${SERVICES.healthSafety}`);
-  console.log(`Environment service: ${SERVICES.environment}`);
-  console.log(`Quality service: ${SERVICES.quality}`);
-  console.log(`AI Analysis service: ${SERVICES.aiAnalysis}`);
-  console.log(`Inventory service: ${SERVICES.inventory}`);
-  console.log(`HR service: ${SERVICES.hr}`);
-  console.log(`Payroll service: ${SERVICES.payroll}`);
-  console.log(`Workflows service: ${SERVICES.workflows}`);
+  logger.info(`API Gateway running on port ${PORT}`);
+  logger.info('Proxied services configured', { services: SERVICES });
 });
 
 export default app;
