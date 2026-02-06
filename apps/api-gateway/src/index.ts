@@ -19,11 +19,13 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import dashboardRoutes from './routes/dashboard';
 import sessionsRoutes from './routes/sessions';
+import v1Routes from './routes/v1';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter } from './middleware/rate-limiter';
 import { csrfProtection, generateCsrfToken } from './middleware/csrf';
 import { createSecurityMiddleware } from './middleware/security-headers';
+import { addVersionHeader, deprecatedRoute } from './middleware/api-version';
 
 dotenv.config();
 
@@ -112,125 +114,65 @@ app.get('/metrics', metricsHandler);
 
 // CSRF token endpoint (always available for clients to fetch tokens)
 app.get('/api/csrf-token', generateCsrfToken());
+app.get('/api/v1/csrf-token', generateCsrfToken());
 
-// Local routes (handled by gateway)
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/sessions', sessionsRoutes);
+// ============================================
+// API v1 Routes (current version)
+// ============================================
+app.use('/api/v1', addVersionHeader('v1'), v1Routes);
 
-// Proxy routes to domain services (with inter-service authentication)
-app.use('/api/health-safety', createProxyMiddleware({
-  target: SERVICES.healthSafety,
+// ============================================
+// Legacy routes (deprecated, for backward compatibility)
+// These will be removed in future versions
+// ============================================
+app.use('/api/auth', deprecatedRoute('/api/v1/auth'), authRoutes);
+app.use('/api/users', deprecatedRoute('/api/v1/users'), userRoutes);
+app.use('/api/dashboard', deprecatedRoute('/api/v1/dashboard'), dashboardRoutes);
+app.use('/api/sessions', deprecatedRoute('/api/v1/sessions'), sessionsRoutes);
+
+// ============================================
+// API v1 Proxy Routes (current version)
+// ============================================
+const createServiceProxy = (
+  serviceName: string,
+  target: string,
+  basePath: string,
+  errorMessage: string
+) => createProxyMiddleware({
+  target,
   changeOrigin: true,
-  pathRewrite: { '^/api/health-safety': '/api' },
+  pathRewrite: { [`^${basePath}`]: '/api' },
   onProxyReq: addServiceToken,
   onError: (err, req, res) => {
-    logger.error('Health Safety Proxy Error', { error: err.message });
+    logger.error(`${serviceName} Proxy Error`, { error: err.message });
     (res as express.Response).status(502).json({
       success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Health & Safety service unavailable' },
+      error: { code: 'SERVICE_UNAVAILABLE', message: errorMessage },
     });
   },
-}));
+});
 
-app.use('/api/environment', createProxyMiddleware({
-  target: SERVICES.environment,
-  changeOrigin: true,
-  pathRewrite: { '^/api/environment': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('Environment Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Environment service unavailable' },
-    });
-  },
-}));
+// v1 proxy routes
+app.use('/api/v1/health-safety', addVersionHeader('v1'), createServiceProxy('Health Safety', SERVICES.healthSafety, '/api/v1/health-safety', 'Health & Safety service unavailable'));
+app.use('/api/v1/environment', addVersionHeader('v1'), createServiceProxy('Environment', SERVICES.environment, '/api/v1/environment', 'Environment service unavailable'));
+app.use('/api/v1/quality', addVersionHeader('v1'), createServiceProxy('Quality', SERVICES.quality, '/api/v1/quality', 'Quality service unavailable'));
+app.use('/api/v1/ai', addVersionHeader('v1'), createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/v1/ai', 'AI Analysis service unavailable'));
+app.use('/api/v1/inventory', addVersionHeader('v1'), createServiceProxy('Inventory', SERVICES.inventory, '/api/v1/inventory', 'Inventory service unavailable'));
+app.use('/api/v1/hr', addVersionHeader('v1'), createServiceProxy('HR', SERVICES.hr, '/api/v1/hr', 'HR service unavailable'));
+app.use('/api/v1/payroll', addVersionHeader('v1'), createServiceProxy('Payroll', SERVICES.payroll, '/api/v1/payroll', 'Payroll service unavailable'));
+app.use('/api/v1/workflows', addVersionHeader('v1'), createServiceProxy('Workflows', SERVICES.workflows, '/api/v1/workflows', 'Workflows service unavailable'));
 
-app.use('/api/quality', createProxyMiddleware({
-  target: SERVICES.quality,
-  changeOrigin: true,
-  pathRewrite: { '^/api/quality': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('Quality Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Quality service unavailable' },
-    });
-  },
-}));
-
-app.use('/api/ai', createProxyMiddleware({
-  target: SERVICES.aiAnalysis,
-  changeOrigin: true,
-  pathRewrite: { '^/api/ai': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('AI Analysis Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'AI Analysis service unavailable' },
-    });
-  },
-}));
-
-app.use('/api/inventory', createProxyMiddleware({
-  target: SERVICES.inventory,
-  changeOrigin: true,
-  pathRewrite: { '^/api/inventory': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('Inventory Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Inventory service unavailable' },
-    });
-  },
-}));
-
-app.use('/api/hr', createProxyMiddleware({
-  target: SERVICES.hr,
-  changeOrigin: true,
-  pathRewrite: { '^/api/hr': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('HR Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'HR service unavailable' },
-    });
-  },
-}));
-
-app.use('/api/payroll', createProxyMiddleware({
-  target: SERVICES.payroll,
-  changeOrigin: true,
-  pathRewrite: { '^/api/payroll': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('Payroll Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Payroll service unavailable' },
-    });
-  },
-}));
-
-app.use('/api/workflows', createProxyMiddleware({
-  target: SERVICES.workflows,
-  changeOrigin: true,
-  pathRewrite: { '^/api/workflows': '/api' },
-  onProxyReq: addServiceToken,
-  onError: (err, req, res) => {
-    logger.error('Workflows Proxy Error', { error: err.message });
-    (res as express.Response).status(502).json({
-      success: false,
-      error: { code: 'SERVICE_UNAVAILABLE', message: 'Workflows service unavailable' },
-    });
-  },
-}));
+// ============================================
+// Legacy Proxy Routes (deprecated)
+// ============================================
+app.use('/api/health-safety', deprecatedRoute('/api/v1/health-safety'), createServiceProxy('Health Safety', SERVICES.healthSafety, '/api/health-safety', 'Health & Safety service unavailable'));
+app.use('/api/environment', deprecatedRoute('/api/v1/environment'), createServiceProxy('Environment', SERVICES.environment, '/api/environment', 'Environment service unavailable'));
+app.use('/api/quality', deprecatedRoute('/api/v1/quality'), createServiceProxy('Quality', SERVICES.quality, '/api/quality', 'Quality service unavailable'));
+app.use('/api/ai', deprecatedRoute('/api/v1/ai'), createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/ai', 'AI Analysis service unavailable'));
+app.use('/api/inventory', deprecatedRoute('/api/v1/inventory'), createServiceProxy('Inventory', SERVICES.inventory, '/api/inventory', 'Inventory service unavailable'));
+app.use('/api/hr', deprecatedRoute('/api/v1/hr'), createServiceProxy('HR', SERVICES.hr, '/api/hr', 'HR service unavailable'));
+app.use('/api/payroll', deprecatedRoute('/api/v1/payroll'), createServiceProxy('Payroll', SERVICES.payroll, '/api/payroll', 'Payroll service unavailable'));
+app.use('/api/workflows', deprecatedRoute('/api/v1/workflows'), createServiceProxy('Workflows', SERVICES.workflows, '/api/workflows', 'Workflows service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);
