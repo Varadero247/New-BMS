@@ -21,6 +21,7 @@ import {
   Lightbulb,
   Truck,
   GitBranch,
+  LayoutTemplate,
 } from 'lucide-react';
 
 // Core Quality Management
@@ -29,6 +30,7 @@ const coreNavigation = [
   { name: 'Processes', href: '/processes', icon: Workflow },
   { name: 'Nonconformances', href: '/nonconformances', icon: AlertOctagon },
   { name: 'Actions', href: '/actions', icon: ClipboardList },
+  { name: 'Templates', href: '/templates', icon: LayoutTemplate },
   { name: 'Metrics', href: '/metrics', icon: BarChart3 },
 ];
 

@@ -19,6 +19,8 @@ const logger = createLogger('api-quality');
 // Existing routes
 import processesRouter from './routes/processes';
 import nonconformancesRouter from './routes/nonconformances';
+import actionsRouter from './routes/actions';
+import templatesRouter from './routes/templates';
 import metricsRouter from './routes/metrics';
 
 // Enhanced QMS routes
@@ -50,6 +52,8 @@ app.get('/metrics', metricsHandler);
 // Existing Routes - all filtered by ISO_9001
 app.use('/api/processes', processesRouter);  // Process risks stored as risks
 app.use('/api/nonconformances', nonconformancesRouter);  // Non-conformances stored as incidents
+app.use('/api/actions', actionsRouter);  // Quality actions (corrective, preventive, improvement)
+app.use('/api/templates', templatesRouter);  // ISO 9001 templates (no auth required)
 app.use('/api/metrics/quality', metricsRouter);
 
 // Enhanced QMS Routes
