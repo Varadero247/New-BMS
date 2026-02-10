@@ -51,10 +51,13 @@ export default function LoginPage() {
       });
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
+        const { accessToken, refreshToken, user } = response.data.data;
 
-        // Store token
-        localStorage.setItem('token', token);
+        // Store tokens
+        localStorage.setItem('token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
 
         // Store user info
         if (user) {

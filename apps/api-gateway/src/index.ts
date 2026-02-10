@@ -36,14 +36,14 @@ const PORT = process.env.PORT || 4000;
 
 // Service URLs
 const SERVICES = {
-  healthSafety: process.env.HEALTH_SAFETY_URL || 'http://localhost:4001',
-  environment: process.env.ENVIRONMENT_URL || 'http://localhost:4002',
-  quality: process.env.QUALITY_URL || 'http://localhost:4003',
-  aiAnalysis: process.env.AI_ANALYSIS_URL || 'http://localhost:4004',
-  inventory: process.env.INVENTORY_URL || 'http://localhost:4005',
-  hr: process.env.HR_URL || 'http://localhost:4006',
-  payroll: process.env.PAYROLL_URL || 'http://localhost:4007',
-  workflows: process.env.WORKFLOWS_URL || 'http://localhost:4008',
+  healthSafety: process.env.SERVICE_HEALTH_SAFETY_URL || process.env.HEALTH_SAFETY_URL || 'http://localhost:4001',
+  environment: process.env.SERVICE_ENVIRONMENT_URL || process.env.ENVIRONMENT_URL || 'http://localhost:4002',
+  quality: process.env.SERVICE_QUALITY_URL || process.env.QUALITY_URL || 'http://localhost:4003',
+  aiAnalysis: process.env.SERVICE_AI_URL || process.env.AI_ANALYSIS_URL || 'http://localhost:4004',
+  inventory: process.env.SERVICE_INVENTORY_URL || process.env.INVENTORY_URL || 'http://localhost:4005',
+  hr: process.env.SERVICE_HR_URL || process.env.HR_URL || 'http://localhost:4006',
+  payroll: process.env.SERVICE_PAYROLL_URL || process.env.PAYROLL_URL || 'http://localhost:4007',
+  workflows: process.env.SERVICE_WORKFLOWS_URL || process.env.WORKFLOWS_URL || 'http://localhost:4008',
 };
 
 // Generate service token for inter-service authentication

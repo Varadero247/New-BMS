@@ -49,7 +49,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
     "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai",

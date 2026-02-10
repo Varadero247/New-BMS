@@ -7,11 +7,12 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/types/package.json ./packages/types/
 COPY apps/web-settings/package.json ./apps/web-settings/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod=false
 
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web-settings/node_modules ./apps/web-settings/node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@ims/types build

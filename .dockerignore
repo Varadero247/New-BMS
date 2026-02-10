@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+.next
+**/.next
+dist
+**/dist
+build
+**/build
+
+# Turbo cache
+.turbo
+**/.turbo
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+logs
+
+# Environment files
+.env*.local
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db

@@ -260,7 +260,7 @@ describe('JWT Utilities', () => {
   describe('JWT_SECRET validation', () => {
     it('should throw in production without JWT_SECRET', () => {
       delete process.env.JWT_SECRET;
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV ='production';
 
       // Clear module cache to re-evaluate the module
       jest.resetModules();
@@ -272,7 +272,7 @@ describe('JWT Utilities', () => {
 
     it('should warn in development without JWT_SECRET', () => {
       delete process.env.JWT_SECRET;
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV ='development';
 
       jest.resetModules();
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();

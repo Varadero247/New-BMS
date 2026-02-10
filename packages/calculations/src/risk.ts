@@ -74,6 +74,18 @@ export function calculateResidualRisk(
 }
 
 /**
+ * Get risk color from L×S matrix score (max 25)
+ * For H&S 5×5 risk matrix (ISO 45001)
+ */
+export function getRiskColorFromMatrix(likelihood: number, severity: number): string {
+  const score = likelihood * severity;
+  if (score <= 4) return '#22c55e';   // green - LOW
+  if (score <= 9) return '#eab308';   // yellow - MEDIUM
+  if (score <= 16) return '#f97316';  // orange - HIGH
+  return '#ef4444';                    // red - CRITICAL
+}
+
+/**
  * Get risk matrix cell data
  * Returns a 5x5 matrix with cell properties
  */

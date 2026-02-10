@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
-
+import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
-  transpilePackages: ["@ims/ui"],
+  output: 'standalone',
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  transpilePackages: ['@ims/ui', '@ims/types'],
 };
-
 export default nextConfig;

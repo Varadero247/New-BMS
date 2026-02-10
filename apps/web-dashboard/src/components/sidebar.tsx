@@ -1,5 +1,4 @@
 'use client';
-
 import Link from 'next/link';
 import {
   LayoutDashboard,
@@ -10,8 +9,9 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Users,
+  DollarSign,
 } from 'lucide-react';
-
 const modules = [
   {
     name: 'Dashboard',
@@ -53,6 +53,22 @@ const modules = [
     external: true,
   },
   {
+    name: 'HR',
+    href: 'http://localhost:3006',
+    icon: Users,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
+    external: true,
+  },
+  {
+    name: 'Payroll',
+    href: 'http://localhost:3007',
+    icon: DollarSign,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-100',
+    external: true,
+  },
+  {
     name: 'Settings',
     href: 'http://localhost:3004',
     icon: Settings,
@@ -61,7 +77,6 @@ const modules = [
     external: true,
   },
 ];
-
 export function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -70,14 +85,12 @@ export function Sidebar() {
         <h1 className="text-xl font-bold text-gray-900">IMS</h1>
         <p className="text-xs text-gray-500 mt-1">Integrated Management System</p>
       </div>
-
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {modules.map((item) => {
             const Icon = item.icon;
             const Component = item.external ? 'a' : Link;
-
             return (
               <li key={item.name}>
                 <Component
@@ -100,7 +113,6 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
-
       {/* User section */}
       <div className="p-4 border-t border-gray-200">
         <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600">

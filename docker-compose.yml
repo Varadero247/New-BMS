@@ -56,10 +56,10 @@ services:
       NODE_ENV: production
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       SERVICE_HEALTH_SAFETY_URL: http://api-health-safety:4001
       SERVICE_ENVIRONMENT_URL: http://api-environment:4002
       SERVICE_QUALITY_URL: http://api-quality:4003
@@ -90,6 +90,8 @@ services:
       NODE_ENV: production
       PORT: 4001
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      HEALTH_SAFETY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
@@ -107,6 +109,8 @@ services:
       NODE_ENV: production
       PORT: 4002
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      ENVIRONMENT_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
@@ -124,6 +128,8 @@ services:
       NODE_ENV: production
       PORT: 4003
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      QUALITY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
@@ -141,6 +147,8 @@ services:
       NODE_ENV: production
       PORT: 4004
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      AI_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     depends_on:
@@ -171,6 +179,7 @@ services:
       - '3001:3001'
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     depends_on:
       - api-gateway
 
@@ -213,6 +222,30 @@ services:
     depends_on:
       - api-gateway
 
+  web-hr:
+    build:
+      context: .
+      dockerfile: ./apps/web-hr/Dockerfile
+    container_name: ims-web-hr
+    restart: unless-stopped
+    ports:
+      - '3006:3006'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+  web-payroll:
+    build:
+      context: .
+      dockerfile: ./apps/web-payroll/Dockerfile
+    container_name: ims-web-payroll
+    restart: unless-stopped
+    ports:
+      - '3007:3007'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
 volumes:
   postgres_data:
   redis_data:

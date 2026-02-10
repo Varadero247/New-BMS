@@ -8,11 +8,12 @@ COPY packages/ui/package.json ./packages/ui/
 COPY packages/charts/package.json ./packages/charts/
 COPY packages/types/package.json ./packages/types/
 COPY apps/web-environment/package.json ./apps/web-environment/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod=false
 
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web-environment/node_modules ./apps/web-environment/node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@ims/types build

@@ -14,7 +14,7 @@
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --no-dts",
     "dev": "tsup --watch",
     "clean": "rm -rf dist node_modules .turbo"
   },

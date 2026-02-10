@@ -49,8 +49,11 @@ export default function LoginPage() {
       });
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
-        localStorage.setItem('token', token);
+        const { accessToken, refreshToken, user } = response.data.data;
+        localStorage.setItem('token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
         }

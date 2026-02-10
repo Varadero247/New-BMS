@@ -4,6 +4,7 @@ export {
   getRiskLevel,
   getRiskColor,
   getRiskLevelFromMatrix,
+  getRiskColorFromMatrix,
   calculateResidualRisk,
   getRiskMatrixData,
   type RiskLevel,

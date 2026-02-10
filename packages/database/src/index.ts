@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/core';
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -14,8 +14,8 @@ if (process.env.NODE_ENV !== 'production') {
   global.prisma = prisma;
 }
 
-export * from '@prisma/client';
-export type { User } from '@prisma/client';
+export * from '../generated/core';
+export type { User } from '../generated/core';
 export default prisma;
 
 // Session cleanup utilities

@@ -172,14 +172,14 @@ describe('validateStartupSecrets', () => {
 
   it('should fail when JWT_SECRET is missing', () => {
     const env = { DATABASE_URL: 'postgresql://user:pass@localhost/db' };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, false);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, false);
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('JWT_SECRET environment variable is required');
   });
 
   it('should fail when DATABASE_URL is missing', () => {
     const env = { JWT_SECRET: 'a'.repeat(64) };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, false);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, false);
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('DATABASE_URL environment variable is required');
   });
@@ -189,7 +189,7 @@ describe('validateStartupSecrets', () => {
       JWT_SECRET: 'your-super-secret-jwt-key',
       DATABASE_URL: 'postgresql://user:securepassword123@localhost/db',
     };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, false);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, false);
     expect(result.warnings.some((w) => w.includes('placeholder'))).toBe(true);
   });
 
@@ -198,7 +198,7 @@ describe('validateStartupSecrets', () => {
       JWT_SECRET: 'your-super-secret-jwt-key',
       DATABASE_URL: 'postgresql://user:securepassword123@localhost/db',
     };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, true);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, true);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.includes('placeholder'))).toBe(true);
   });
@@ -208,7 +208,7 @@ describe('validateStartupSecrets', () => {
       JWT_SECRET: 'a'.repeat(64),
       DATABASE_URL: 'postgresql://postgres:postgres@localhost/db',
     };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, false);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, false);
     expect(result.warnings.some((w) => w.includes('weak password'))).toBe(true);
   });
 
@@ -217,7 +217,7 @@ describe('validateStartupSecrets', () => {
       JWT_SECRET: 'a'.repeat(64),
       DATABASE_URL: 'postgresql://postgres:postgres@localhost/db',
     };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, true);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, true);
     expect(result.valid).toBe(false);
   });
 
@@ -226,7 +226,7 @@ describe('validateStartupSecrets', () => {
       JWT_SECRET: 'xK9mN2pQ5rT8vW1yB4cF7hJ0lM3oP6sAzXcVbNmLkJhGfDsApOiUyTrEwQaZxSwCdEfVgBhNjMk',
       DATABASE_URL: 'postgresql://user:xK9mN2pQ5rT8vW1yB4cF7@localhost/db',
     };
-    const result = validateStartupSecrets(env as NodeJS.ProcessEnv, true);
+    const result = validateStartupSecrets(env as unknown as NodeJS.ProcessEnv, true);
     expect(result.valid).toBe(true);
   });
 });
@@ -295,7 +295,7 @@ describe('SecretsManager', () => {
 
     it('should return fallback in development when secret missing', async () => {
       delete process.env.TEST_SECRET;
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV ='development';
       const manager = new SecretsManager();
       const value = await manager.getSecretWithFallback('TEST_SECRET', 'fallback');
       expect(value).toBe('fallback');
@@ -303,7 +303,7 @@ describe('SecretsManager', () => {
 
     it('should throw in production when secret missing', async () => {
       delete process.env.TEST_SECRET;
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV ='production';
       const manager = new SecretsManager();
       await expect(manager.getSecretWithFallback('TEST_SECRET', 'fallback')).rejects.toThrow(
         'not configured in production'
@@ -347,7 +347,7 @@ describe('Convenience Functions', () => {
 
   it('getSecretWithFallback should work with default manager', async () => {
     delete process.env.MY_SECRET;
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV ='development';
     const value = await getSecretWithFallback('MY_SECRET', 'default');
     expect(value).toBe('default');
   });

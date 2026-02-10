@@ -112,6 +112,27 @@ model Risk {
   riskScore     Int? // Calculated: L × S × D
   riskLevel     RiskLevel?
 
+  // For Health & Safety Risk Register (ISO 45001)
+  referenceNumber         String?    @unique // HS-001, HS-002, etc.
+  whoAtRisk               String?
+  initialLikelihood       Int?               // 1-5 before controls
+  initialSeverity         Int?               // 1-5 before controls
+  initialRiskScore        Int?               // L × S (max 25)
+  initialRiskLevel        RiskLevel?
+  aiControlElimination    String?
+  aiControlSubstitution   String?
+  aiControlEngineering    String?
+  aiControlAdministrative String?
+  aiControlPPE            String?
+  aiControlsGenerated     Boolean    @default(false)
+  residualLikelihood      Int?
+  residualSeverity        Int?
+  residualRiskScore       Int?
+  residualRiskLevel       RiskLevel?
+  riskOwner               String?
+  legalReference          String?
+  createdBy               String?
+
   // For Environmental Aspects (ISO 14001)
   aspectType          String? // Emission, Waste, Energy, Water, etc.
   environmentalImpact String?

@@ -4,6 +4,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
   output   = "../../generated/health-safety"
 }
 
@@ -101,23 +102,43 @@ enum IncidentStatus {
 // ============================================
 
 model Risk {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    String?
-  source      String?
+  id              String   @id @default(cuid())
+  referenceNumber String?  @unique
+  title           String
+  description     String
+  category        String?
+  source          String?  // Activity / Location
+  whoAtRisk       String?
 
-  // Risk Assessment
-  likelihood    Int        @default(1) // 1-5
-  severity      Int        @default(1) // 1-5
-  detectability Int        @default(1) // 1-5
-  riskScore     Int?
-  riskLevel     RiskLevel?
+  // Initial Risk Assessment (before controls)
+  likelihood        Int        @default(1) // 1-5
+  severity          Int        @default(1) // 1-5
+  detectability     Int        @default(1) // 1-5
+  riskScore         Int?
+  riskLevel         RiskLevel?
 
-  // Control Measures
-  existingControls   String?
-  additionalControls String?
+  // AI-Generated Controls (Hierarchy of Controls)
+  existingControls        String?
+  aiControlElimination    String?
+  aiControlSubstitution   String?
+  aiControlEngineering    String?
+  aiControlAdministrative String?
+  aiControlPPE            String?
+  aiControlsGenerated     Boolean    @default(false)
+  additionalControls      String?
+
+  // Residual Risk Assessment (after controls)
+  residualLikelihood Int?
+  residualSeverity   Int?
+  residualRiskScore  Int?
+  residualRiskLevel  RiskLevel?
   residualRisk       Int?
+
+  // Management
+  riskOwner      String?
+  legalReference String?
+  responsible    String?
+  createdBy      String?
 
   // Status
   status         RiskStatus @default(ACTIVE)

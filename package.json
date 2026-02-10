@@ -4,7 +4,7 @@
   "private": true,
   "description": "Integrated Management System - ISO 45001, 14001, 9001 Compliance",
   "scripts": {
-    "dev": "turbo dev --concurrency=30",
+    "dev": "turbo dev --concurrency=50",
     "dev:dashboard": "turbo dev --filter=@ims/web-dashboard --filter=@ims/api-gateway",
     "dev:health-safety": "turbo dev --filter=@ims/web-health-safety --filter=@ims/api-health-safety --filter=@ims/api-gateway",
     "dev:environment": "turbo dev --filter=@ims/web-environment --filter=@ims/api-environment --filter=@ims/api-gateway",
@@ -41,7 +41,9 @@
     "prettier": "^3.1.0",
     "ts-jest": "^29.1.1",
     "turbo": "^2.0.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
