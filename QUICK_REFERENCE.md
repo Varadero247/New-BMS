@@ -1,30 +1,84 @@
 # IMS Quick Reference Card
 
-## 🚀 Start Everything
+## Start All Services (Docker)
 ```bash
 cd /home/dyl/New-BMS
-pnpm dev:dashboard  # Starts Gateway + Dashboard
+docker compose up -d                    # Start all 18 services
+docker compose logs -f web-health-safety  # Follow specific service logs
+docker compose down                     # Stop all services
 ```
 
-## 🔑 Login (Manual Workaround)
-1. Get token: `curl -X POST http://localhost:4000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@ims.local","password":"admin123"}'`
-2. Browser console (F12): `localStorage.setItem('token', 'YOUR_TOKEN');`
-3. Refresh page
-
-## ✅ Health Checks
+## Rebuild After Code Changes
 ```bash
-curl http://localhost:4000/health  # Gateway
-curl http://localhost:4006/health  # HR API
-curl http://localhost:4007/health  # Payroll API
+docker compose build --no-cache api-health-safety web-health-safety
+docker compose up -d api-health-safety web-health-safety
 ```
 
-## 📊 Current Status
-- ✅ PostgreSQL: Running
-- ✅ 6 Services: Running
-- ⚠️ Token Auth: Needs fix (30 mins)
-- ⚠️ Login Page: Missing (1 hour)
+## Login
+```
+URL:      http://localhost:3000 (Dashboard) or http://localhost:3001 (H&S)
+Email:    admin@ims.local
+Password: admin123
+```
 
-## 🎯 Next Steps
-1. Fix token auth (30 mins)
-2. Build login page (1 hour)
-3. Test all modules (2 hours)
+## Health Checks
+```bash
+curl http://localhost:4000/health        # API Gateway
+curl http://localhost:4001/health        # H&S API
+curl http://localhost:4002/health        # Environment API
+curl http://localhost:4003/health        # Quality API
+```
+
+## Service Ports
+| Service | API Port | Web Port |
+|---------|----------|----------|
+| Gateway/Dashboard | 4000 | 3000 |
+| Health & Safety | 4001 | 3001 |
+| Environment | 4002 | 3002 |
+| Quality | 4003 | 3003 |
+| AI Analysis | 4004 | — |
+| Inventory | 4005 | 3005 |
+| HR | 4006 | 3006 |
+| Payroll | 4007 | 3007 |
+| Workflows | 4008 | 3008 |
+| Settings | — | 3004 |
+
+## H&S API Endpoints (via Gateway)
+```bash
+# Risks
+curl http://localhost:4000/api/health-safety/risks
+# Incidents
+curl http://localhost:4000/api/health-safety/incidents
+# Legal Requirements
+curl http://localhost:4000/api/health-safety/legal
+# OHS Objectives
+curl http://localhost:4000/api/health-safety/objectives
+# CAPA
+curl http://localhost:4000/api/health-safety/capa
+```
+
+## Run Tests
+```bash
+pnpm test                                # All Jest tests (117)
+./scripts/test-hs-modules.sh             # Integration tests (70)
+./scripts/check-services.sh              # Service health checks
+```
+
+## Database
+```bash
+# Push schema changes
+cd packages/database
+npx prisma db push --schema=prisma/schemas/health-safety.prisma
+npx prisma generate --schema=prisma/schemas/health-safety.prisma
+
+# Open Prisma Studio
+npx prisma studio --schema=prisma/schemas/health-safety.prisma
+```
+
+## Current Status (Feb 10, 2026)
+- 18 Docker services running (9 APIs + 9 web apps)
+- H&S: 5 modules fully implemented (Risks, Incidents, Legal, Objectives, CAPA)
+- AI: 5 Claude Sonnet 4.5 routes for H&S analysis
+- Tests: 117 Jest unit tests + 70 integration tests passing
+- Auth: JWT + CSRF double-submit cookie
+- Login pages built for all web apps

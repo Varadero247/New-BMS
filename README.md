@@ -9,7 +9,8 @@ A modular Integrated Management System for ISO compliance (ISO 45001, ISO 14001,
 - **Database**: PostgreSQL with Prisma ORM
 - **Mobile**: Capacitor (iOS/Android)
 - **Monorepo**: pnpm workspaces + Turborepo
-- **AI**: OpenAI, Anthropic, Grok integration for incident analysis
+- **AI**: Anthropic Claude (Sonnet 4.5) for H&S analysis, OpenAI, Grok
+- **Deployment**: Docker Compose with 18 containerized services
 
 ## Architecture
 
@@ -28,12 +29,20 @@ ims-monorepo/
 │   ├── api-ai-analysis/     # AI Analysis API (Port 4004)
 │   └── mobile/              # Capacitor mobile app
 ├── packages/
-│   ├── database/            # Prisma schema and client
+│   ├── database/            # Prisma schemas and clients (core + H&S)
 │   ├── types/               # Shared TypeScript types
 │   ├── ui/                  # Shared UI components
 │   ├── charts/              # Chart components
-│   ├── auth/                # Authentication middleware
-│   └── calculations/        # ISO calculation formulas
+│   ├── auth/                # Authentication middleware (JWT)
+│   ├── calculations/        # ISO calculation formulas
+│   ├── monitoring/          # Winston logging, Prometheus metrics, health checks
+│   ├── validation/          # Zod validation schemas
+│   ├── resilience/          # Circuit breakers, retry logic
+│   ├── audit/               # Activity audit trail
+│   ├── secrets/             # HashiCorp Vault integration
+│   ├── email/               # Email templates and sending
+│   └── file-upload/         # Multi-format file handling
+├── scripts/                 # Service management & test scripts
 ├── docker-compose.yml
 └── turbo.json
 ```
@@ -126,12 +135,26 @@ pnpm dev:web
 
 ## Module Overview
 
-### Health & Safety (ISO 45001)
-- Risk Register with 5x5 matrix
-- Incident reporting and investigation
+### Health & Safety (ISO 45001) — Fully Implemented
+
+5 modules with full CRUD APIs, AI integration (Claude Sonnet 4.5), and interactive frontends:
+
+| Module | API Route | AI Feature |
+|--------|-----------|------------|
+| **Risk Register** | `/api/risks` | Hierarchy of Controls generation |
+| **Incident Register** | `/api/incidents` | 5-Why root cause analysis (ICAM) |
+| **Legal Register** | `/api/legal` | Compliance assessment (UK/EU legislation) |
+| **OHS Objectives** | `/api/objectives` | SMART objective + KPI generation |
+| **CAPA Management** | `/api/capa` | Root cause + corrective/preventive actions |
+
+Key features:
+- Auto reference numbers (HS-001, LR-001, OBJ-001, CAPA-001, INC-YYMM-XXXX)
+- Auto RIDDOR detection for Critical/Major incidents
+- Auto investigation due dates by severity
+- Auto CAPA target dates by priority
+- Milestone-based objective progress tracking
+- Real-time dashboard with stats from all 5 modules
 - Safety metrics (LTIFR, TRIR, Severity Rate)
-- Training management
-- Legal compliance tracking
 
 ### Environmental (ISO 14001)
 - Aspects & Impacts Register
@@ -147,12 +170,13 @@ pnpm dev:web
 - Customer complaints
 - Corrective actions
 
-### AI Analysis
-- 5 Whys analysis
-- Fishbone diagrams
-- Bow-Tie analysis
-- Pareto analysis
-- Root cause suggestions
+### AI Analysis (Claude Sonnet 4.5)
+- Risk controls generation (ISO 45001 Hierarchy of Controls)
+- Incident root cause analysis (5-Why, ICAM methodology)
+- Legal compliance assessment (UK/EU OHS legislation)
+- SMART objective generation with KPIs and milestones
+- CAPA root cause + corrective/preventive action generation
+- Fishbone diagrams, Bow-Tie analysis, Pareto analysis
 
 ## API Gateway Routes
 
@@ -161,7 +185,7 @@ pnpm dev:web
 | `/api/auth/*` | Local (Gateway) |
 | `/api/users/*` | Local (Gateway) |
 | `/api/dashboard/*` | Local (Gateway) |
-| `/api/health-safety/*` | api-health-safety:4001 |
+| `/api/health-safety/*` | api-health-safety:4001 (risks, incidents, legal, objectives, capa) |
 | `/api/environment/*` | api-environment:4002 |
 | `/api/quality/*` | api-quality:4003 |
 | `/api/ai/*` | api-ai-analysis:4004 |
@@ -225,7 +249,23 @@ import { ComplianceGauge, RiskMatrix } from '@ims/charts';
 import { calculateRiskScore, calculateLTIFR } from '@ims/calculations';
 
 // Import types
-import { Risk, Incident, Action } from '@ims/types';
+import { Risk, Incident, HSLegalRequirement, OhsObjective, Capa } from '@ims/types';
+
+// Import monitoring
+import { createLogger, metricsMiddleware, createHealthCheck } from '@ims/monitoring';
+```
+
+## Testing
+
+```bash
+# Run all Jest unit tests (117 tests across 5 suites)
+pnpm test
+
+# Run H&S integration tests (70 tests)
+./scripts/test-hs-modules.sh
+
+# Run specific test suite
+npx jest --config jest.config.js apps/api-health-safety/__tests__/risks.api.test.ts
 ```
 
 ## Mobile Development

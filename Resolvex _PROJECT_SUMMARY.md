@@ -7,7 +7,8 @@
 **Architecture**: Microservices Monorepo  
 **Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  
 **Technology Stack**: Next.js 15, React 19, TypeScript, Express.js, PostgreSQL, Prisma ORM  
-**Total Codebase**: 386 TypeScript files across 21 applications and 16 shared packages
+**Total Codebase**: 400+ TypeScript files across 21 applications and 16 shared packages
+**Last Updated**: February 10, 2026
 
 ---
 
@@ -34,10 +35,10 @@ ims-monorepo/
 | Service | Port | Purpose | Key Features |
 |---------|------|---------|--------------|
 | **api-gateway** | 4000 | Central API router | Authentication, JWT, rate limiting, request proxying |
-| **api-health-safety** | 4001 | ISO 45001 | Risk assessments, incident management, safety training |
+| **api-health-safety** | 4001 | ISO 45001 | Risk register, incidents, legal compliance, OHS objectives, CAPA |
 | **api-environment** | 4002 | ISO 14001 | Environmental aspects, legal requirements tracking |
 | **api-quality** | 4003 | ISO 9001 | NCRs, CAPAs, audits, document control, processes |
-| **api-ai-analysis** | 4004 | AI Integration | OpenAI/Anthropic/Grok for incident analysis |
+| **api-ai-analysis** | 4004 | AI Integration | OpenAI/Anthropic/Grok for analysis + H&S AI routes in web-health-safety |
 | **api-inventory** | 4005 | Stock Management | Products, warehouses, stock transactions |
 | **api-hr** | 4006 | Human Resources | Employees, attendance, recruitment, training |
 | **api-payroll** | 4007 | Payroll Processing | Salary, benefits, deductions, tax calculations |
@@ -177,11 +178,14 @@ Migration path prepared for microservices scaling:
 - Supplier (supplier management)
 
 #### Health & Safety (ISO 45001)
-- Incident (incident reporting and investigation)
-- RiskAssessment (hazard identification and risk scoring)
-- Hazard (hazard register)
-- SafetyTraining (training records)
-- Permit (permit-to-work system)
+- Risk (risk register with 5x5 L×S matrix, auto ref# HS-XXX, AI-generated controls)
+- Incident (reporting with RIDDOR auto-detection, auto investigation dates, AI root cause analysis)
+- LegalRequirement (compliance register with AI assessment, auto ref# LR-XXX, 8 categories)
+- OhsObjective (SMART objectives with milestones, auto progress recalculation, AI recommendations)
+- ObjectiveMilestone (linked to objectives, cascade delete, completion tracking)
+- Capa (corrective/preventive actions with nested action items, auto target dates, closure audit trail)
+- CapaAction (linked to CAPA, cascade delete, completion tracking)
+- 11 enums: LegalCategory, ComplianceStatus, LegalStatus, ObjectiveCategory, ObjectiveStatus, CapaType, CapaSource, CapaPriority, CapaStatus, CapaActionType, CapaActionStatus
 
 #### Environmental (ISO 14001)
 - Aspect (environmental aspects)
@@ -250,19 +254,49 @@ Migration path prepared for microservices scaling:
 - Process documentation templates
 - Audit checklists (editable)
 
-### 2. Health & Safety (ISO 45001)
+### 2. Health & Safety (ISO 45001) — FULLY IMPLEMENTED
 
-**Features**:
-- Risk register with 5x5 matrix scoring
-- Incident reporting and investigation
-- Root cause analysis (5 Whys, Fishbone)
-- Safety training management
-- Permit-to-work system
-- Hazard identification
-- Legal compliance tracking
-- Safety observations
-- Safety inspections
-- Emergency procedures
+**5 Implemented Modules** (each with full CRUD API, AI integration, and frontend):
+
+**Risk Register** (`/risks`):
+- 5x5 Likelihood × Severity matrix with auto risk scoring
+- Auto reference numbers (HS-001, HS-002, etc.)
+- AI-generated Hierarchy of Controls (Elimination → PPE)
+- Risk matrix visualization, filters by level/status/category
+- Auto review dates (HIGH=30d, MEDIUM=90d, LOW=180d)
+
+**Incident Register** (`/incidents`):
+- Multi-section form: Details, Persons Involved, AI Analysis, Regulatory
+- Auto RIDDOR detection (Critical/Catastrophic/Major → reportable)
+- Auto investigation due dates (CRITICAL=24hrs, MAJOR=3days, MODERATE=7days)
+- AI 5-Why root cause analysis (ICAM methodology)
+- Severity color badges, search, status/severity/type filters
+
+**Legal Register** (`/legal`):
+- Compliance tracking across 8 categories (Primary Legislation → Voluntary)
+- AI compliance assessment (obligations, gaps, required actions, penalties)
+- Auto `lastReviewedAt` timestamp on compliance status change
+- Auto reference numbers (LR-001, LR-002, etc.)
+- Compliance status colors (Compliant=green, Partial=yellow, Non-Compliant=red)
+
+**OHS Objectives** (`/objectives`):
+- SMART objective management with nested milestones
+- AI-assisted objective generation (KPIs, resources, milestones)
+- Auto progress recalculation from milestone completion
+- Card grid layout with progress bars, category badges
+- Auto reference numbers (OBJ-001, OBJ-002, etc.)
+
+**CAPA Management** (`/actions`):
+- Corrective/Preventive/Improvement actions with nested action items
+- AI root cause analysis with corrective and preventive action suggestions
+- Auto target dates from priority (CRITICAL=7d, HIGH=14d, MEDIUM=30d, LOW=60d)
+- Closure audit trail (closedDate, closedBy, effectivenessRating)
+- Auto reference numbers (CAPA-001, CAPA-002, etc.)
+
+**H&S Dashboard** (`/` — main page):
+- Real-time stats from all 5 modules + metrics endpoint
+- Legal compliance percentage, OHS objectives progress, CAPA overdue count
+- Recent incidents with RIDDOR badges and severity colors
 
 **Safety Metrics**:
 - LTIFR (Lost Time Injury Frequency Rate)
@@ -270,7 +304,7 @@ Migration path prepared for microservices scaling:
 - Severity Rate
 - Near-miss reporting
 - Days since last incident
-- Safety training completion %
+- Compliance percentage (from Legal Register)
 
 ### 3. Environmental Management (ISO 14001)
 
@@ -340,19 +374,25 @@ Migration path prepared for microservices scaling:
 
 ### 8. AI Analysis
 
-**AI Capabilities**:
-- Incident root cause analysis (5 Whys automation)
+**H&S AI Routes** (Next.js API routes, Claude Sonnet 4.5):
+| Route | Purpose | Output |
+|-------|---------|--------|
+| `/api/risks/generate-controls` | ISO 45001 Hierarchy of Controls | 5 control levels (Elimination → PPE) |
+| `/api/incidents/analyse` | 5-Why root cause (ICAM methodology) | Immediate/underlying/root cause, contributing factors |
+| `/api/legal/analyse` | UK/EU compliance assessment | Obligations, gaps, required actions, penalties |
+| `/api/objectives/assist` | SMART objective generation | KPIs, resources, suggested milestones |
+| `/api/capa/analyse` | Root cause + action generation | Corrective actions, preventive actions, success criteria |
+
+**General AI Capabilities** (via api-ai-analysis):
 - Fishbone diagram generation
 - Bow-Tie analysis
 - Pareto analysis
 - Trend prediction
 - Risk scoring suggestions
-- Natural language incident reporting
-- Automated CAPA suggestions
 
 **Supported AI Providers**:
+- Anthropic Claude (Sonnet 4.5 — primary, used for all H&S AI routes)
 - OpenAI (GPT-4)
-- Anthropic (Claude)
 - Grok (xAI)
 
 ---
@@ -379,7 +419,7 @@ Migration path prepared for microservices scaling:
 | `/api/auth/*` | Gateway (local) | Authentication endpoints |
 | `/api/users/*` | Gateway (local) | User management |
 | `/api/dashboard/*` | Gateway (local) | Dashboard data |
-| `/api/health-safety/*` | api-health-safety:4001 | Safety operations |
+| `/api/health-safety/*` | api-health-safety:4001 | H&S operations (risks, incidents, legal, objectives, capa) |
 | `/api/environment/*` | api-environment:4002 | Environmental operations |
 | `/api/quality/*` | api-quality:4003 | Quality operations |
 | `/api/ai/*` | api-ai-analysis:4004 | AI analysis |
@@ -515,15 +555,15 @@ All APIs follow consistent patterns:
 - Helmet.js security headers
 - Rate limiting (gateway level)
 - SQL injection protection (Prisma ORM)
-- Input sanitization
+- Input sanitization (Zod validation on all API routes)
+- CSRF protection (double-submit cookie pattern on gateway)
+- Login page with JWT token management
+- Password reset email functionality
 
 ⚠️ **Requires Configuration for Production**:
 - Change default JWT secret
 - Enable HTTPS/TLS
-- Implement input validation middleware
 - Add file upload security scanning
-- Enable XSS protection headers
-- Implement CSRF tokens
 - Configure security audit logging
 
 ### Service-to-Service Authentication
@@ -564,7 +604,7 @@ pnpm dev:health-safety      # H&S module
 | `pnpm dev` | Start all 30+ processes concurrently |
 | `pnpm build` | Build all apps and packages |
 | `pnpm build:packages` | Build shared packages only |
-| `pnpm test` | Run Jest tests (817 tests) |
+| `pnpm test` | Run Jest tests (117+ tests) |
 | `pnpm lint` | Run ESLint across codebase |
 | `pnpm db:generate` | Generate Prisma client |
 | `pnpm db:push` | Push schema to database |
@@ -646,29 +686,44 @@ docker-compose restart <service>  # Restart one
 
 ### Current Test Coverage
 
-**Test Suite**: Jest with ts-jest
-- **Total Tests**: 817 tests passing
-- **Test Files**: Distributed across packages and services
-- **Coverage**: Unit tests for business logic
+**Jest Unit Tests**: 117 tests across 5 suites
+- `risks.api.test.ts` — 24 tests (CRUD, matrix, filters, validation, error handling)
+- `incidents.api.test.ts` — 27 tests (CRUD, auto RIDDOR, investigation dates, AI fields)
+- `legal.api.test.ts` — 15 tests (CRUD, auto ref#, compliance filters, AI fields)
+- `objectives.api.test.ts` — 16 tests (CRUD, milestones, progress recalculation)
+- `capa.api.test.ts` — 18 tests (CRUD, actions, priority targets, closure audit)
+- Package tests: `@ims/auth`, `@ims/resilience`, `@ims/secrets`
+
+**Integration Tests**: 70 tests via automated bash script (`scripts/test-hs-modules.sh`)
+- Incidents: 16 tests (CRUD, auto RIDDOR, search, filters)
+- Legal: 11 tests (CRUD, compliance, lastReviewedAt)
+- Objectives: 11 tests (CRUD, milestones, progress)
+- CAPA: 16 tests (CRUD, actions, auto targets, closure)
+- Gateway: 4 tests (route proxying)
+- Frontend: 5 tests (page loads)
+- Delete: 7 tests (cascade deletes, 404 verification)
 
 ### Testing Commands
 
 ```bash
-pnpm test                # Run all tests
-pnpm test:coverage       # Generate coverage report
-pnpm test:watch          # Watch mode
+pnpm test                                    # Run all Jest tests
+npx jest --config jest.config.js             # Run H&S API tests
+./scripts/test-hs-modules.sh                 # Run integration tests
+pnpm test:coverage                           # Generate coverage report
 ```
 
 ### Test Structure
 
 ```
-packages/{package}/__tests__/
-apps/{app}/src/**/*.test.ts
+packages/{package}/__tests__/               # Package unit tests
+apps/api-health-safety/__tests__/           # H&S API route tests
+scripts/test-hs-modules.sh                  # Integration test suite
 ```
 
 ### Recommended Testing Additions
 
-- [ ] Integration tests for API endpoints
+- [x] Integration tests for API endpoints (70 tests)
+- [x] Unit tests for H&S API routes (117 tests)
 - [ ] E2E tests with Playwright/Cypress
 - [ ] Performance testing with k6
 - [ ] Security testing with OWASP ZAP
@@ -729,15 +784,16 @@ apps/{app}/src/**/*.test.ts
 
 ## Known Issues & Roadmap
 
-### Current Issues (As of Feb 2026)
+### Current Issues (As of Feb 10, 2026)
 
-| Issue | Severity | Status | ETA |
-|-------|----------|--------|-----|
-| Token auto-attachment in Next.js | Medium | Identified | 30 min |
-| Missing dashboard stats endpoints | Low | In Progress | 3 hours |
-| No login page UI | Low | Planned | 1 hour |
-| Hardcoded service URLs | Low | Workaround exists | 4 hours |
-| Limited error tracking | Low | Planned | 2 hours |
+| Issue | Severity | Status |
+|-------|----------|--------|
+| ~~Token auto-attachment in Next.js~~ | ~~Medium~~ | ✅ Resolved (CSRF double-submit cookie) |
+| ~~No login page UI~~ | ~~Low~~ | ✅ Resolved (login page built for all web apps) |
+| ~~Missing dashboard stats endpoints~~ | ~~Low~~ | ✅ Resolved (H&S dashboard fetches from 6 endpoints) |
+| Hardcoded service URLs in some places | Low | Workaround exists (env vars) |
+| Limited error tracking | Low | Planned (Sentry integration) |
+| Edit modals for H&S modules | Medium | Planned (reuse create modal with pre-populated data) |
 
 ### Roadmap
 
@@ -969,7 +1025,7 @@ Recommended maintenance schedule:
 - ✅ **Uptime**: 99.5%+ (target)
 - ✅ **Response Time**: <100ms average
 - ✅ **Error Rate**: <0.1%
-- ✅ **Test Coverage**: 817 passing tests
+- ✅ **Test Coverage**: 117 Jest unit tests + 70 integration tests (187 total)
 - ✅ **Build Time**: <5 minutes (full build)
 - ✅ **Deployment Time**: <10 minutes
 
@@ -1003,7 +1059,7 @@ The IMS (Integrated Management System) is a **production-ready, enterprise-grade
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: February 7, 2026  
-**Author**: System Architecture Team  
+**Document Version**: 1.1
+**Last Updated**: February 10, 2026
+**Author**: System Architecture Team
 **Status**: ✅ Complete & Operational
