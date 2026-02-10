@@ -40,8 +40,8 @@ ims-monorepo/
 | **api-quality** | 4003 | ISO 9001 | NCRs, CAPAs, audits, document control, processes |
 | **api-ai-analysis** | 4004 | AI Integration | OpenAI/Anthropic/Grok for analysis + H&S AI routes in web-health-safety |
 | **api-inventory** | 4005 | Stock Management | Products, warehouses, stock transactions |
-| **api-hr** | 4006 | Human Resources | Employees, attendance, recruitment, training |
-| **api-payroll** | 4007 | Payroll Processing | Salary, benefits, deductions, tax calculations |
+| **api-hr** | 4006 | Human Resources | Employees, attendance, leave, recruitment, training, performance, documents (40+ endpoints) |
+| **api-payroll** | 4007 | Payroll Processing | Payroll runs, salary, benefits, loans, expenses, tax (35+ endpoints) |
 | **api-workflows** | 4008 | Process Automation | Approvals, task management, workflow engine |
 
 #### Frontend Web Applications (9 Applications)
@@ -193,20 +193,28 @@ Migration path prepared for microservices scaling:
 - Compliance (legal compliance tracking)
 - WasteManagement (waste tracking)
 
-#### HR Management
-- Employee (employee master data)
-- Department (organizational structure)
-- Position (job positions)
-- Leave (leave management)
-- Attendance (time tracking)
-- Recruitment (hiring pipeline)
+#### HR Management (hr.prisma)
+- Employee (master data with department, position, manager relationships)
+- Department (hierarchical with parent/children)
+- Position (job positions linked to departments)
+- Attendance (clock-in/out with late calculation)
+- LeaveRequest (request workflow with approval)
+- LeaveType, LeaveBalance, Holiday
+- PerformanceReview, PerformanceCycle, Goal
+- TrainingCourse, TrainingSession, TrainingEnrollment, Certification
+- EmployeeDocument (with e-signature support)
+- JobPosting, Applicant, Interview
+- Qualification, AssetAssignment
 
-#### Payroll
-- PayrollRun (payroll cycles)
-- Payslip (salary slips)
-- Deduction (tax and other deductions)
-- Benefit (employee benefits)
-- Expense (expense claims)
+#### Payroll (payroll.prisma)
+- PayrollRun (lifecycle: created → calculated → approved)
+- Payslip (generated per employee per run)
+- PayslipItem (earnings/deductions line items)
+- SalaryComponentType (configurable salary components)
+- BenefitPlan, EmployeeBenefit (enrollment tracking)
+- EmployeeLoan, LoanRepayment (repayment schedule)
+- Expense, ExpenseReport (approval workflow)
+- TaxFiling, TaxBracket (tax management)
 
 #### Inventory
 - Product (product catalog)
@@ -319,35 +327,108 @@ Migration path prepared for microservices scaling:
 - Carbon footprint tracking
 - Legal requirements register
 
-### 4. HR Management
+### 4. HR Management — FULLY IMPLEMENTED
 
-**Features**:
-- Employee database
-- Organizational structure
-- Attendance tracking
-- Leave management
-- Recruitment pipeline
-- Performance reviews
-- Training records
-- Document management (contracts, certifications)
+**8 API Route Modules** (40+ endpoints):
 
-**HR Analytics**:
-- Headcount reports
-- Turnover rates
-- Attendance patterns
-- Training compliance
-- Recruitment funnel metrics
+**Employees** (`/api/employees`):
+- Full CRUD with pagination, search, department/status/manager filtering
+- Organization chart endpoint (`/org-chart`)
+- Employee statistics (`/stats`) — counts by status, department, type, salary data
+- Subordinate hierarchy (`/:id/subordinates`)
+- Soft delete (marks as TERMINATED)
 
-### 5. Payroll
+**Attendance** (`/api/attendance`):
+- Clock-in/clock-out with automatic late minute calculation
+- Attendance summary with 7-day trends
+- Manual corrections for missed punches
+- Shift management (create, list all shifts)
 
-**Features**:
-- Payroll run processing
-- Salary calculations
-- Tax deductions (automated)
-- Benefits management
-- Expense claims
-- Payslip generation
-- Year-end tax reporting
+**Departments** (`/api/departments`):
+- Hierarchical tree structure with parent/child departments
+- Position management (`/positions/all`, create position)
+- Soft delete with employee count validation (prevents deleting populated departments)
+
+**Leave Management** (`/api/leave`):
+- Leave types configuration (create, list)
+- Leave request workflow: submit → approve/reject
+- Leave balance tracking per employee
+- Leave calendar view and holiday management
+- Balance validation on request creation
+
+**Performance** (`/api/performance`):
+- Performance review cycles (create, list)
+- Individual reviews with ratings and assessments
+- Goal management with progress tracking
+- Goal progress updates with history
+
+**Recruitment** (`/api/recruitment`):
+- Job postings with filtering by status/department
+- Applicant tracking with stage progression
+- Interview scheduling and evaluation
+- Recruitment statistics and funnel metrics
+
+**Training** (`/api/training`):
+- Course management with session scheduling
+- Employee enrollment with capacity management
+- Completion tracking with scoring
+- Certification management with expiry tracking
+- Training statistics
+
+**Documents** (`/api/documents`):
+- Employee document upload and management
+- E-signature support (`/:id/sign`)
+- Expiry filtering for compliance
+- Qualifications tracking per employee
+- Asset assignment and return tracking
+
+**Web Pages** (8 pages at port 3006):
+- Dashboard with employee, attendance, recruitment, and training stats
+- Employees, Departments, Attendance, Leave, Recruitment, Training pages
+- Login page with JWT authentication
+
+### 5. Payroll — FULLY IMPLEMENTED
+
+**6 API Route Modules** (35+ endpoints):
+
+**Payroll Processing** (`/api/payroll`):
+- Payroll run lifecycle: create → calculate → approve
+- Automated payslip generation with detailed line items
+- Payslip listing and individual payslip with items breakdown
+- Payroll statistics and year filtering
+
+**Salary Management** (`/api/salary`):
+- Salary component types (create, list)
+- Employee salary records with component breakdown
+- Salary component updates
+
+**Benefits** (`/api/benefits`):
+- Benefit plan creation and management
+- Employee enrollment in benefit plans
+- Benefit termination with effective dates
+- Contribution tracking
+
+**Loans** (`/api/loans`):
+- Employee loan creation with repayment schedule generation
+- Loan approval workflow: create → approve → disburse
+- Automatic repayment schedule generation on approval
+- Individual repayment recording
+
+**Expenses** (`/api/expenses`):
+- Expense submission with approval workflow
+- Expense reports (group expenses into reports)
+- Approval/rejection/reimbursement tracking
+
+**Tax** (`/api/tax`):
+- Tax filing creation and submission
+- Tax payment recording
+- Tax bracket management (create, list)
+- Tax summary reporting
+
+**Web Pages** (7 pages at port 3007):
+- Dashboard with payroll stats and recent runs
+- Payroll, Salary, Benefits, Loans, Expenses, Tax pages
+- Login page with JWT authentication
 
 ### 6. Inventory Management
 

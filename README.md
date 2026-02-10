@@ -170,6 +170,34 @@ Key features:
 - Customer complaints
 - Corrective actions
 
+### HR Management — Fully Implemented
+
+8 route modules with 40+ API endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Employees** | `/api/employees` | CRUD, org chart, stats, subordinate hierarchy |
+| **Attendance** | `/api/attendance` | Clock-in/out, late calc, shift management |
+| **Departments** | `/api/departments` | Tree structure, positions, soft delete |
+| **Leave** | `/api/leave` | Types, requests, approval, balances, calendar |
+| **Performance** | `/api/performance` | Cycles, reviews, goals, progress tracking |
+| **Recruitment** | `/api/recruitment` | Jobs, applicants, interviews, evaluations |
+| **Training** | `/api/training` | Courses, sessions, enrollments, certifications |
+| **Documents** | `/api/documents` | Upload, e-sign, qualifications, assets |
+
+### Payroll — Fully Implemented
+
+6 route modules with 35+ API endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Payroll** | `/api/payroll` | Run lifecycle, payslip generation, stats |
+| **Salary** | `/api/salary` | Component types, employee salary records |
+| **Benefits** | `/api/benefits` | Plans, enrollment, termination |
+| **Loans** | `/api/loans` | Approval workflow, repayment schedules |
+| **Expenses** | `/api/expenses` | Submit, approve, reimburse, reports |
+| **Tax** | `/api/tax` | Filings, brackets, payments, summaries |
+
 ### AI Analysis (Claude Sonnet 4.5)
 - Risk controls generation (ISO 45001 Hierarchy of Controls)
 - Incident root cause analysis (5-Why, ICAM methodology)
@@ -189,6 +217,10 @@ Key features:
 | `/api/environment/*` | api-environment:4002 |
 | `/api/quality/*` | api-quality:4003 |
 | `/api/ai/*` | api-ai-analysis:4004 |
+| `/api/inventory/*` | api-inventory:4005 |
+| `/api/hr/*` | api-hr:4006 (employees, attendance, leave, recruitment, training, performance, documents) |
+| `/api/payroll/*` | api-payroll:4007 (payroll, salary, benefits, loans, expenses, tax) |
+| `/api/workflows/*` | api-workflows:4008 |
 
 ## Demo Credentials
 
