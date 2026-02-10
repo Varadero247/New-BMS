@@ -156,19 +156,66 @@ Key features:
 - Real-time dashboard with stats from all 5 modules
 - Safety metrics (LTIFR, TRIR, Severity Rate)
 
-### Environmental (ISO 14001)
-- Aspects & Impacts Register
-- Environmental event tracking
-- Significance calculations
-- Environmental indicators
-- Compliance obligations
+### Environmental (ISO 14001) — Fully Implemented
 
-### Quality (ISO 9001)
-- Process Register
-- Nonconformance management
-- Quality metrics (COPQ, DPMO, Sigma, FPY)
-- Customer complaints
-- Corrective actions
+4 API route modules with CRUD endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Aspects & Impacts** | `/api/risks` | Significance scoring (S×F×L), review tracking |
+| **Events** | `/api/incidents` | 5 event types, auto ref# ENV-YYMMDD-XXXX, investigation |
+| **Legal Register** | `/api/legal` | 9 obligation types, 5 compliance statuses |
+| **Objectives** | `/api/objectives` | Progress tracking, auto % calculation |
+
+Database: 8 models including WasteRecord and EnvironmentalMetric (energy, water, waste, CO2)
+
+### Quality (ISO 9001) — Fully Implemented
+
+15 API route modules with 100+ endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Non-conformances** | `/api/nonconformances` | 7 NC types, auto ref# NC-YYMM-XXXX |
+| **Actions** | `/api/actions` | Corrective/preventive, auto ref# ACT-YYMM-XXXX |
+| **Processes** | `/api/processes` | L×S×D scoring, KPIs |
+| **CAPA 8D** | `/api/capas` | Full 8D methodology (D1→D8) |
+| **Audits** | `/api/audits` | 9 types, checklists, findings, schedules |
+| **Investigations** | `/api/investigations` | Timeline, root causes, recommendations |
+| **Documents** | `/api/documents` | Version control, multi-level approval, distribution |
+| **Risk Register** | `/api/qms-risks` | 11 categories, assessments, controls, treatments |
+| **FMEA** | `/api/fmea` | DFMEA/PFMEA, RPN calculation |
+| **CI** | `/api/ci` | DMAIC, Kaizen, 5S, employee ideas, standard work |
+| **Training** | `/api/training` | Courses, competency matrix, certifications |
+| **Suppliers** | `/api/suppliers` | Qualification, scorecards, NCRs, PPAP |
+| **Change Mgmt** | `/api/change-requests` | CCB approval, impact assessment |
+| **Templates** | `/api/templates` | Pre-built ISO 9001 templates |
+| **Metrics** | `/api/metrics/quality` | COPQ, DPMO, FPY, Sigma |
+
+### Inventory — Fully Implemented
+
+6 route modules with 25+ API endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Products** | `/api/products` | SKU/barcode, low stock alerts, optimistic locking |
+| **Inventory** | `/api/inventory` | Adjustments, transfers, receive/issue goods |
+| **Warehouses** | `/api/warehouses` | Multi-warehouse, capacity tracking |
+| **Categories** | `/api/categories` | Hierarchical with circular reference prevention |
+| **Transactions** | `/api/inventory/transactions` | Full audit trail, 11 types |
+| **Suppliers** | `/api/suppliers` | Ratings, payment terms |
+
+### Workflows — Fully Implemented
+
+6 route modules with 57+ API endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Templates** | `/api/templates` | 11 categories, 15 industry types |
+| **Definitions** | `/api/definitions` | Nodes/edges, triggers, versioning |
+| **Instances** | `/api/instances` | Start/advance/complete, SLA tracking |
+| **Tasks** | `/api/tasks` | 8 types, claim/complete/reassign |
+| **Approvals** | `/api/approvals` | Multi-level chains, 10 request types |
+| **Automation** | `/api/automation` | Rules, 6 triggers, 10 actions, retry |
 
 ### HR Management — Fully Implemented
 
@@ -214,8 +261,8 @@ Key features:
 | `/api/users/*` | Local (Gateway) |
 | `/api/dashboard/*` | Local (Gateway) |
 | `/api/health-safety/*` | api-health-safety:4001 (risks, incidents, legal, objectives, capa) |
-| `/api/environment/*` | api-environment:4002 |
-| `/api/quality/*` | api-quality:4003 |
+| `/api/environment/*` | api-environment:4002 (aspects, events, legal, objectives) |
+| `/api/quality/*` | api-quality:4003 (NCRs, CAPA 8D, audits, documents, FMEA, CI, suppliers, 100+ endpoints) |
 | `/api/ai/*` | api-ai-analysis:4004 |
 | `/api/inventory/*` | api-inventory:4005 |
 | `/api/hr/*` | api-hr:4006 (employees, attendance, leave, recruitment, training, performance, documents) |

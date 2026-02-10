@@ -169,13 +169,23 @@ Migration path prepared for microservices scaling:
 - AuditLog (system-wide activity tracking)
 - ApiKey (service-to-service authentication)
 
-#### Quality Management (ISO 9001)
-- NonConformance (NCR tracking)
-- CAPA (Corrective & Preventive Actions)
-- QualityAudit (audit scheduling and findings)
-- Process (process documentation)
-- Document (document control)
-- Supplier (supplier management)
+#### Quality Management (quality.prisma) — 15 API route modules
+- NonConformance (NCR with 7 types, 5 severities, 6 status states, auto ref# NC-YYMM-XXXX)
+- NCAction (corrective/preventive/improvement, 6 statuses, auto ref# ACT-YYMM-XXXX)
+- CAPA (full 8D methodology: D1-D8 phases, team, containment, root causes, corrective actions, effectiveness)
+- CAPATeamMember, CAPARootCause, CAPACorrectiveAction, CAPAProblemStatement, CAPAContainment, CAPAPreventionAction, CAPAEffectivenessCheck, CAPAHorizontalDeployment
+- QualityAudit (9 audit types, 7 statuses, team, checklists, findings with 5 types)
+- AuditTeamMember, AuditChecklist, AuditFinding
+- QualityMetric (monthly COPQ, DPMO, FPY, Sigma calculations)
+- QMSDocument (16 document types, version control, multi-level approval, distribution tracking)
+- Investigation (10 investigation types, timeline, causes, recommendations, team)
+- QMSRisk (enterprise risk: 11 categories, assessments, controls, treatments)
+- FMEA (DFMEA/PFMEA/SFMEA/MFMEA, RPN calculation, action tracking)
+- ContinuousImprovement (DMAIC projects, Kaizen events, 5S audits, employee ideas, standard work)
+- TrainingCourse, TrainingSession, TrainingRecord, CompetencyMatrix
+- SupplierQualification, SupplierScorecard, SupplierAudit, SupplierNCR, PPAPSubmission
+- ChangeRequest (8 change types, multi-level CCB approval, impact assessment, implementation tracking)
+- FiveWhyAnalysis, FishboneAnalysis (root cause analysis tools)
 
 #### Health & Safety (ISO 45001)
 - Risk (risk register with 5x5 L×S matrix, auto ref# HS-XXX, AI-generated controls)
@@ -187,11 +197,15 @@ Migration path prepared for microservices scaling:
 - CapaAction (linked to CAPA, cascade delete, completion tracking)
 - 11 enums: LegalCategory, ComplianceStatus, LegalStatus, ObjectiveCategory, ObjectiveStatus, CapaType, CapaSource, CapaPriority, CapaStatus, CapaActionType, CapaActionStatus
 
-#### Environmental (ISO 14001)
-- Aspect (environmental aspects)
-- Impact (environmental impacts)
-- Compliance (legal compliance tracking)
-- WasteManagement (waste tracking)
+#### Environmental (environment.prisma)
+- Aspect (environmental aspects with significance scoring: scale × frequency × legal impact)
+- Impact (specific impacts per aspect: pollution, resource depletion, climate change, etc.)
+- EnvironmentalIncident (5 incident types, 6 status states, auto ref# ENV-YYMMDD-XXXX)
+- ComplianceObligation (9 obligation types, 5 compliance statuses, monitoring data)
+- EnvAction (corrective/preventive/improvement, 6 statuses, cost tracking)
+- MonitoringData (environmental measurements with compliance checking)
+- WasteRecord (5 waste types, 7 categories, 6 disposal methods, EWC codes)
+- EnvironmentalMetric (monthly KPIs: energy, water, waste, CO2 emissions, recycling rates)
 
 #### HR Management (hr.prisma)
 - Employee (master data with department, position, manager relationships)
@@ -216,51 +230,65 @@ Migration path prepared for microservices scaling:
 - Expense, ExpenseReport (approval workflow)
 - TaxFiling, TaxBracket (tax management)
 
-#### Inventory
-- Product (product catalog)
-- Warehouse (storage locations)
-- Stock (inventory levels)
-- StockMovement (transactions)
-- PurchaseOrder (procurement)
+#### Inventory (inventory.prisma)
+- ProductCategory (hierarchical with parent/children)
+- Supplier (contact, rating, payment terms, status)
+- Product (SKU/barcode, pricing, reorder points, serial/lot tracking, optimistic locking)
+- Warehouse (code, capacity tracking, operating hours, default flag)
+- Inventory (composite key product+warehouse, on-hand/reserved/on-order, bin location, valuation)
+- InventoryTransaction (11 transaction types, before/after quantities, cost tracking, audit trail)
+- StockCount (cycle/full/spot/annual, variance tracking)
+- StockCountItem (expected vs counted, adjustment tracking)
+- PurchaseOrder (8 statuses, payment tracking, line items)
+- PurchaseOrderItem (order/received quantities, unit pricing)
+- GoodsReceipt (quality check workflow, carrier info)
+- GoodsReceiptItem (accepted/rejected quantities, quality status)
 
-#### Workflows
-- WorkflowDefinition (process templates)
-- WorkflowInstance (active workflows)
-- WorkflowTask (individual tasks)
+#### Workflows (workflows.prisma) — 15 models
+- WorkflowDefinition (versioning, trigger types: manual/automatic/scheduled/event/API)
+- WorkflowInstance (5 priority levels, 8 statuses, SLA tracking)
+- WorkflowStep (11 step types, assignee types: user/role/department/manager/dynamic)
+- WorkflowTask (8 task types, delegation support, auto ref# TSK-YEAR-XXX)
+- WorkflowTemplate (11 categories, 15 industry types)
+- ApprovalChain (4 chain types: sequential/parallel/hierarchical/dynamic)
+- ApprovalRequest (10 request types, multi-level, auto ref# APR-TIMESTAMP-RANDOM)
+- ApprovalResponse (9 decision types including delegate/abstain)
+- WorkflowStepApproval (9 approval statuses)
+- AutomationRule (6 trigger types, 10 action types, retry/timeout config)
+- AutomationExecution (8 statuses, performance metrics)
+- EscalationRule (5 trigger types, 6 action types)
+- WorkflowNotification (5 channels, 11 notification types)
+- WorkflowComment (7 comment types, internal/external visibility)
+- WorkflowHistory (16 event types, full audit trail)
 
 ---
 
 ## Core Features by Module
 
-### 1. Quality Management (ISO 9001)
+### 1. Quality Management (ISO 9001) — FULLY IMPLEMENTED
 
-**Pages Available**:
-- Dashboard with quality metrics
-- Non-conformance reports (NCR)
-- CAPA management
-- Process register
-- Document control
-- Audit scheduling
-- Supplier management
-- Quality objectives
-- Risk register
-- FMEA (Failure Mode & Effects Analysis)
-- Change management
-- Continuous improvement tracking
+**15 API Route Modules** with 100+ endpoints:
 
-**Key Metrics**:
-- COPQ (Cost of Poor Quality)
-- DPMO (Defects Per Million Opportunities)
-- Sigma Level
-- FPY (First Pass Yield)
-- NCR trends
-- CAPA effectiveness
+**Non-Conformances** (`/api/nonconformances`): NCR management with 7 types (customer complaint, supplier issue, audit finding, etc.), auto ref# NC-YYMM-XXXX, 5 severity levels, investigation tracking
+**Quality Actions** (`/api/actions`): Corrective/preventive/improvement actions, auto ref# ACT-YYMM-XXXX, completion/verification tracking
+**Process Register** (`/api/processes`): Process risks with L×S×D scoring, process inputs/outputs, KPIs
+**CAPA 8D** (`/api/capas`): Full 8D problem-solving methodology (D1 Team → D8 Closure), team management, containment, root causes, corrective actions, effectiveness checks, horizontal deployment
+**Quality Audits** (`/api/audits`): 9 audit types, team assignment, checklists, findings management, audit schedules, auto ref# AUD-YYMM-XXX
+**Investigations** (`/api/investigations`): 10 investigation types, timeline events, root causes (5-Why, Fishbone, Fault Tree), recommendations, team management
+**QMS Documents** (`/api/documents`): 16 document types, version control, multi-level approval workflow, distribution tracking with acknowledgement, access logging
+**Enterprise Risk** (`/api/qms-risks`): 11 risk categories, assessments with trend analysis, controls (preventive/detective/corrective), treatment strategies
+**FMEA** (`/api/fmea`): Design/Process/System/Machinery FMEA, RPN calculation (S×O×D), action tracking with before/after RPN
+**Continuous Improvement** (`/api/ci`): DMAIC/Lean/Kaizen/Six Sigma projects, Kaizen events, employee ideas, 5S audits, standard work documents
+**Training** (`/api/training`): Courses, sessions, enrollment, competency matrix, certification tracking, gap analysis
+**Supplier Quality** (`/api/suppliers`): Qualification workflow, scorecards with weighted scoring, supplier audits, supplier NCRs, PPAP submissions (5 levels)
+**Change Management** (`/api/change-requests`): 8 change types, multi-level CCB approval, impact assessment, implementation tracking, auto ref# CR-YYMM-XXXX
+**Templates** (`/api/templates`): Pre-built ISO 9001 templates (6 process, 5 NC, 3 action templates)
+**Metrics** (`/api/metrics/quality`): Monthly COPQ, DPMO, FPY, Sigma calculations with upsert
 
-**Templates & Best Practices**:
-- NCR report templates
-- CAPA action templates
-- Process documentation templates
-- Audit checklists (editable)
+**20 Web Pages** at port 3003:
+Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, Documents, Metrics, Templates, Training, Suppliers, Continuous Improvement, Change Management, FMEA, Risk Register, Objectives, Legal
+
+**Key Metrics**: COPQ, DPMO, Sigma Level, FPY, NCR trends, CAPA effectiveness, audit findings, supplier PPM
 
 ### 2. Health & Safety (ISO 45001) — FULLY IMPLEMENTED
 
@@ -314,18 +342,19 @@ Migration path prepared for microservices scaling:
 - Days since last incident
 - Compliance percentage (from Legal Register)
 
-### 3. Environmental Management (ISO 14001)
+### 3. Environmental Management (ISO 14001) — FULLY IMPLEMENTED
 
-**Features**:
-- Aspects & Impacts register
-- Environmental event tracking
-- Significance calculations
-- Environmental indicators
-- Compliance obligations tracking
-- Waste management
-- Energy consumption monitoring
-- Carbon footprint tracking
-- Legal requirements register
+**4 API Route Modules** with CRUD endpoints:
+
+**Aspects & Impacts** (`/api/risks`): Environmental aspects with auto significance scoring (scale × frequency × legal impact), significance levels (Critical/High/Moderate/Low), review tracking
+**Environmental Events** (`/api/incidents`): 5 event types (Spill, Emission, Waste Incident, Complaint, Regulatory Breach), auto ref# ENV-YYMMDD-XXXX, 6 status states, investigation fields
+**Legal Register** (`/api/legal`): 9 obligation types (Legislation, Regulation, Permit, etc.), 5 compliance statuses, auto `lastAssessedAt` on status change
+**Objectives** (`/api/objectives`): Environmental objectives with progress tracking, auto percentage calculation from baseline/target, historical progress records
+
+**7 Web Pages** at port 3002:
+Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (significance filters), Events (status filters), Legal Register (compliance stats), Objectives (progress bars), Training, Actions
+
+**Database**: 8 models including WasteRecord (EWC codes, waste transfer notes) and EnvironmentalMetric (energy, water, waste, CO2 monthly KPIs)
 
 ### 4. HR Management — FULLY IMPLEMENTED
 
@@ -430,32 +459,41 @@ Migration path prepared for microservices scaling:
 - Payroll, Salary, Benefits, Loans, Expenses, Tax pages
 - Login page with JWT authentication
 
-### 6. Inventory Management
+### 6. Inventory Management — FULLY IMPLEMENTED
 
-**Features**:
-- Product catalog
-- Multi-warehouse support
-- Stock level tracking
-- Stock movements (in/out/transfer)
-- Purchase order management
-- Supplier integration
-- Low stock alerts
-- Inventory valuation
+**6 API Route Modules** with 25+ endpoints:
 
-### 7. Workflow Engine
+**Products** (`/api/products`): CRUD with SKU/barcode search, low stock alerts, duplicate validation, optimistic locking
+**Inventory** (`/api/inventory`): Stock levels (on-hand/reserved/on-order), adjustments (6 types), warehouse transfers (atomic), goods receipt with average cost calculation, goods issue
+**Warehouses** (`/api/warehouses`): Multi-warehouse with capacity tracking, inventory statistics per warehouse, default warehouse management
+**Categories** (`/api/categories`): Hierarchical product categories with circular reference prevention
+**Transactions** (`/api/inventory/transactions`): Full audit trail with 11 transaction types, daily trend summaries, product history
+**Suppliers** (`/api/suppliers`): Supplier management with ratings, payment terms, product associations
 
-**Features**:
-- Visual workflow designer
-- Approval routing
-- Task management
-- Process automation
-- SLA tracking
-- Notification system
-- Workflow templates
+**8 Web Pages** at port 3005:
+Dashboard (stats, low stock, warehouse overview), Products, Stock Levels, Adjustments (6 operation types), Transactions (audit trail), Warehouses, Reports (charts: movement trends, distribution, warehouse value)
 
-### 8. AI Analysis
+**Key Features**: Lot/serial tracking, bin location, average cost valuation, optimistic locking, purchase orders, goods receipts with quality checks
 
-**H&S AI Routes** (Next.js API routes, Claude Sonnet 4.5):
+### 7. Workflow Engine — FULLY IMPLEMENTED
+
+**6 API Route Modules** with 57+ endpoints:
+
+**Templates** (`/api/templates`): 11 categories (HR, Finance, Quality, Safety, etc.), 15 industry types, complexity levels, publish workflow
+**Definitions** (`/api/definitions`): Workflow design with nodes/edges, trigger types (Manual/Auto/Scheduled/Event/API), versioning, clone support
+**Instances** (`/api/instances`): Start/advance/complete/cancel workflows, 5 priority levels, 8 statuses, auto ref# WF-YEAR-XXX, SLA tracking, dashboard stats
+**Tasks** (`/api/tasks`): 8 task types (Review, Approve, Complete Form, Upload Doc, etc.), claim/complete/reassign, auto ref# TSK-YEAR-XXX, user task dashboard
+**Approvals** (`/api/approvals`): Approval chains (Sequential/Parallel/Hierarchical/Dynamic), multi-level approval requests (10 types), 9 decision options (approve/reject/delegate/abstain), auto ref# APR-TIMESTAMP-RANDOM
+**Automation** (`/api/automation`): Rules with 6 trigger types and 10 action types, manual execution, execution history with retry, priority/timeout/retry configuration
+
+**7 Web Pages** at port 3008:
+Dashboard (instance stats, task stats), Templates, Instances, Tasks, Approvals, Automation
+
+**Key Features**: Multi-level approval chains, SLA breach detection, escalation rules, 5 notification channels, full audit trail (16 event types)
+
+### 8. AI Analysis — FULLY IMPLEMENTED
+
+**H&S AI Routes** (Next.js API routes in web-health-safety, Claude Sonnet 4.5):
 | Route | Purpose | Output |
 |-------|---------|--------|
 | `/api/risks/generate-controls` | ISO 45001 Hierarchy of Controls | 5 control levels (Elimination → PPE) |
@@ -464,17 +502,56 @@ Migration path prepared for microservices scaling:
 | `/api/objectives/assist` | SMART objective generation | KPIs, resources, suggested milestones |
 | `/api/capa/analyse` | Root cause + action generation | Corrective actions, preventive actions, success criteria |
 
-**General AI Capabilities** (via api-ai-analysis):
-- Fishbone diagram generation
-- Bow-Tie analysis
-- Pareto analysis
-- Trend prediction
-- Risk scoring suggestions
+**Central AI Service** (api-ai-analysis, port 4004):
+- `POST /api/analyse` — Multi-source analysis (risk, incident, aspect, nonconformance) against ISO 45001/14001/9001
+- `GET /api/analyses` — List analyses with pagination and filtering
+- `GET /api/analyses/:id` — Single analysis with user info and actions
+- `POST /api/analyses/:id/accept` — Accept analysis (all or partial)
+- `POST /api/analyses/:id/reject` — Reject analysis
+- `DELETE /api/analyses/:id` — Delete analysis
+- `GET /api/settings` — Get AI provider configuration
+- `POST /api/settings` — Configure AI provider (admin only)
+- Extracts: root cause, suggested actions, compliance gaps, highlights
 
 **Supported AI Providers**:
 - Anthropic Claude (Sonnet 4.5 — primary, used for all H&S AI routes)
-- OpenAI (GPT-4)
-- Grok (xAI)
+- OpenAI (GPT-4 — configurable via settings)
+- Grok (xAI — configurable via settings)
+
+### 9. API Gateway — FULLY IMPLEMENTED
+
+**Central Entry Point**: Port 4000
+
+**Local Routes** (handled directly by gateway):
+- `POST /api/auth/login` — JWT auth with rate limiting (5/15min), account lockout (5 failures = 30min)
+- `POST /api/auth/register` — User registration with rate limiting (3/hour)
+- `POST /api/auth/logout`, `GET /api/auth/me`, `POST /api/auth/refresh`
+- `POST /api/auth/forgot-password`, `POST /api/auth/reset-password` — Email-based password reset
+- `GET/POST/PATCH/DELETE /api/users` — User CRUD (role-based: ADMIN, MANAGER, AUDITOR, USER)
+- `GET/DELETE /api/sessions` — Session management (list, revoke specific, revoke all others)
+- `GET /api/dashboard/stats` — Comprehensive dashboard stats (compliance, risks, incidents, actions, AI insights)
+- `GET /api/dashboard/compliance`, `GET /api/dashboard/trends` — Compliance scores and trend data
+- `GET /api/csrf-token` — CSRF token generation
+
+**Middleware Stack** (10 layers):
+Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics → Rate Limiter → CSRF → Account Lockout → Error Handler → 404 Handler
+
+### 10. Settings & Dashboard
+
+**Settings** (web-settings, port 3004, 5 pages):
+- Overview dashboard (users, sessions, AI analyses, system status)
+- User management (list, search, invite)
+- Roles & permissions matrix (Admin, Manager, User, Viewer)
+- AI configuration (OpenAI/Anthropic/Grok provider setup, analysis type toggles)
+- System settings (site name, timezone, date format, notifications, session timeout, password policy, database backup)
+
+**Main Dashboard** (web-dashboard, port 3000):
+- 4 ISO compliance gauges (H&S, Environmental, Quality, Overall)
+- Stats cards: Active Risks, Open Incidents, Overdue Actions, AI Insights
+- Top 5 risks and overdue CAPA tables
+- Latest AI insights grid
+- Module links: 7 compliance + operations modules
+- Quick Add FAB (Risk, Incident, Action, Objective)
 
 ---
 
@@ -485,13 +562,16 @@ Migration path prepared for microservices scaling:
 **Central Entry Point**: Port 4000
 
 **Gateway Responsibilities**:
-1. **Authentication & Authorization** (JWT validation)
-2. **Rate Limiting** (100 requests per 15 minutes)
-3. **Request Routing** (proxy to microservices)
-4. **CORS Configuration**
-5. **Security Headers** (Helmet.js)
-6. **Request/Response Logging**
-7. **Error Handling & Normalization**
+1. **Authentication & Authorization** (JWT validation, role-based access)
+2. **CSRF Protection** (double-submit cookie pattern)
+3. **Rate Limiting** (configurable per endpoint)
+4. **Account Lockout** (5 failed attempts = 30min lockout)
+5. **Request Routing** (proxy to 8 microservices)
+6. **CORS Configuration** (ports 3000-3008)
+7. **Security Headers** (Helmet.js with strict CSP, HSTS)
+8. **Correlation ID Tracking** (x-correlation-id propagation)
+9. **Request/Response Logging** (structured with Winston)
+10. **Error Handling & Normalization**
 
 ### API Routing Table
 

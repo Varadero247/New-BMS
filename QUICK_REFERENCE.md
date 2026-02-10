@@ -79,6 +79,63 @@ curl http://localhost:4000/api/tax/filings
 curl http://localhost:4000/api/tax/brackets
 ```
 
+## Environment API Endpoints (via Gateway)
+```bash
+curl http://localhost:4000/api/environment/risks        # Aspects & Impacts
+curl http://localhost:4000/api/environment/incidents     # Environmental Events
+curl http://localhost:4000/api/environment/legal         # Legal Register
+curl http://localhost:4000/api/environment/objectives    # Objectives
+```
+
+## Quality API Endpoints (via Gateway)
+```bash
+curl http://localhost:4000/api/quality/nonconformances
+curl http://localhost:4000/api/quality/actions
+curl http://localhost:4000/api/quality/processes
+curl http://localhost:4000/api/quality/capas             # 8D CAPA
+curl http://localhost:4000/api/quality/audits
+curl http://localhost:4000/api/quality/documents
+curl http://localhost:4000/api/quality/qms-risks
+curl http://localhost:4000/api/quality/fmea
+curl http://localhost:4000/api/quality/ci/projects       # Continuous Improvement
+curl http://localhost:4000/api/quality/suppliers/qualifications
+curl http://localhost:4000/api/quality/change-requests
+curl http://localhost:4000/api/quality/training/courses
+curl http://localhost:4000/api/quality/metrics/quality
+curl http://localhost:4000/api/quality/templates
+```
+
+## Inventory API Endpoints (via Gateway)
+```bash
+curl http://localhost:4000/api/inventory/products
+curl http://localhost:4000/api/inventory/products/low-stock
+curl http://localhost:4000/api/inventory/inventory
+curl http://localhost:4000/api/inventory/inventory/summary
+curl http://localhost:4000/api/inventory/warehouses
+curl http://localhost:4000/api/inventory/categories
+curl http://localhost:4000/api/inventory/inventory/transactions
+curl http://localhost:4000/api/inventory/suppliers
+```
+
+## Workflows API Endpoints (via Gateway)
+```bash
+curl http://localhost:4000/api/workflows/templates
+curl http://localhost:4000/api/workflows/definitions
+curl http://localhost:4000/api/workflows/instances
+curl http://localhost:4000/api/workflows/instances/stats/summary
+curl http://localhost:4000/api/workflows/tasks
+curl http://localhost:4000/api/workflows/approvals/requests
+curl http://localhost:4000/api/workflows/automation/rules
+```
+
+## Gateway Local Endpoints
+```bash
+curl http://localhost:4000/api/dashboard/stats           # Dashboard data
+curl http://localhost:4000/api/dashboard/compliance       # Compliance scores
+curl http://localhost:4000/api/csrf-token                 # CSRF token
+curl -X POST http://localhost:4000/api/auth/login         # Login
+```
+
 ## Run Tests
 ```bash
 pnpm test                                # All Jest tests (117)
@@ -99,10 +156,17 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 
 ## Current Status (Feb 10, 2026)
 - 18 Docker services running (9 APIs + 9 web apps)
-- H&S: 5 modules fully implemented (Risks, Incidents, Legal, Objectives, CAPA)
-- HR: 8 modules fully implemented (Employees, Attendance, Departments, Leave, Performance, Recruitment, Training, Documents) — 40+ endpoints
-- Payroll: 6 modules fully implemented (Payroll, Salary, Benefits, Loans, Expenses, Tax) — 35+ endpoints
-- AI: 5 Claude Sonnet 4.5 routes for H&S analysis
+- **All 9 modules fully implemented**:
+  - H&S: 5 sub-modules (Risks, Incidents, Legal, Objectives, CAPA) + 5 AI routes
+  - Environment: 4 sub-modules (Aspects, Events, Legal, Objectives) + 8 DB models
+  - Quality: 15 sub-modules (NCRs, CAPA 8D, Audits, Documents, FMEA, CI, Suppliers, etc.) — 100+ endpoints
+  - HR: 8 sub-modules (Employees, Attendance, Departments, Leave, Performance, Recruitment, Training, Documents) — 40+ endpoints
+  - Payroll: 6 sub-modules (Payroll, Salary, Benefits, Loans, Expenses, Tax) — 35+ endpoints
+  - Inventory: 6 sub-modules (Products, Inventory, Warehouses, Categories, Transactions, Suppliers) — 25+ endpoints
+  - Workflows: 6 sub-modules (Templates, Definitions, Instances, Tasks, Approvals, Automation) — 57+ endpoints
+  - AI Analysis: Central analysis service + 5 H&S-specific AI routes (Claude Sonnet 4.5)
+  - Gateway: Auth, users, sessions, dashboard, CSRF — 20+ local endpoints
 - Tests: 117 Jest unit tests + 70 integration tests passing
-- Auth: JWT + CSRF double-submit cookie
-- Login pages built for all web apps
+- Auth: JWT + CSRF double-submit cookie + account lockout
+- Login pages built for all 9 web apps
+- Total API endpoints: 350+
