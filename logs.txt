@@ -1,0 +1,2980 @@
+redis Pulling 
+bc1da058f299 Pulling fs layer 
+def98d582f1f Pulling fs layer 
+cca95a886512 Pulling fs layer 
+04e58ffa5f99 Pulling fs layer 
+b2e30ba0e4d5 Pulling fs layer 
+ffb88afeb5f0 Pulling fs layer 
+4f4fb700ef54 Pulling fs layer 
+9590d98bd1ae Pulling fs layer 
+ffb88afeb5f0 Waiting 
+9590d98bd1ae Waiting 
+4f4fb700ef54 Waiting 
+04e58ffa5f99 Waiting 
+b2e30ba0e4d5 Waiting 
+def98d582f1f Downloading [==================================================>]     949B/949B
+def98d582f1f Verifying Checksum 
+def98d582f1f Download complete 
+cca95a886512 Downloading [>                                                  ]   2.32kB/173.4kB
+bc1da058f299 Downloading [>                                                  ]  36.96kB/3.644MB
+cca95a886512 Downloading [==========================================>        ]  145.9kB/173.4kB
+cca95a886512 Downloading [==================================================>]  173.4kB/173.4kB
+cca95a886512 Download complete 
+bc1da058f299 Downloading [===>                                               ]  234.1kB/3.644MB
+bc1da058f299 Downloading [================================================>  ]  3.547MB/3.644MB
+bc1da058f299 Verifying Checksum 
+bc1da058f299 Download complete 
+bc1da058f299 Extracting [>                                                  ]  65.54kB/3.644MB
+bc1da058f299 Extracting [==================================>                ]   2.49MB/3.644MB
+bc1da058f299 Extracting [==================================================>]  3.644MB/3.644MB
+bc1da058f299 Extracting [==================================================>]  3.644MB/3.644MB
+bc1da058f299 Pull complete 
+def98d582f1f Extracting [==================================================>]     949B/949B
+def98d582f1f Extracting [==================================================>]     949B/949B
+def98d582f1f Pull complete 
+cca95a886512 Extracting [=========>                                         ]  32.77kB/173.4kB
+cca95a886512 Extracting [==================================================>]  173.4kB/173.4kB
+cca95a886512 Extracting [==================================================>]  173.4kB/173.4kB
+04e58ffa5f99 Downloading [>                                                  ]  10.53kB/1.003MB
+cca95a886512 Pull complete 
+04e58ffa5f99 Download complete 
+04e58ffa5f99 Extracting [=>                                                 ]  32.77kB/1.003MB
+b2e30ba0e4d5 Downloading [>                                                  ]  126.7kB/12.41MB
+04e58ffa5f99 Extracting [==================================================>]  1.003MB/1.003MB
+04e58ffa5f99 Extracting [==================================================>]  1.003MB/1.003MB
+04e58ffa5f99 Pull complete 
+b2e30ba0e4d5 Downloading [==============>                                    ]  3.531MB/12.41MB
+ffb88afeb5f0 Downloading [==================================================>]     100B/100B
+ffb88afeb5f0 Verifying Checksum 
+ffb88afeb5f0 Download complete 
+b2e30ba0e4d5 Downloading [===========================>                       ]  6.816MB/12.41MB
+b2e30ba0e4d5 Downloading [========================================>          ]  9.961MB/12.41MB
+b2e30ba0e4d5 Download complete 
+b2e30ba0e4d5 Extracting [>                                                  ]  131.1kB/12.41MB
+4f4fb700ef54 Downloading [==================================================>]      32B/32B
+4f4fb700ef54 Verifying Checksum 
+4f4fb700ef54 Download complete 
+b2e30ba0e4d5 Extracting [=============>                                     ]  3.408MB/12.41MB
+b2e30ba0e4d5 Extracting [===========================>                       ]  6.816MB/12.41MB
+9590d98bd1ae Downloading [==================================================>]     573B/573B
+9590d98bd1ae Verifying Checksum 
+9590d98bd1ae Download complete 
+b2e30ba0e4d5 Extracting [=========================================>         ]  10.35MB/12.41MB
+b2e30ba0e4d5 Extracting [==================================================>]  12.41MB/12.41MB
+b2e30ba0e4d5 Pull complete 
+ffb88afeb5f0 Extracting [==================================================>]     100B/100B
+ffb88afeb5f0 Extracting [==================================================>]     100B/100B
+ffb88afeb5f0 Pull complete 
+4f4fb700ef54 Extracting [==================================================>]      32B/32B
+4f4fb700ef54 Extracting [==================================================>]      32B/32B
+4f4fb700ef54 Pull complete 
+9590d98bd1ae Extracting [==================================================>]     573B/573B
+9590d98bd1ae Extracting [==================================================>]     573B/573B
+9590d98bd1ae Pull complete 
+redis Pulled 
+#1 [new-bms_web-quality internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.24kB done
+#1 DONE 0.0s
+
+#2 [new-bms_api-gateway internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.54kB done
+#2 DONE 0.0s
+
+#3 [new-bms_web-dashboard internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.26kB done
+#3 DONE 0.0s
+
+#4 [new-bms_api-ai-analysis internal] load build definition from Dockerfile
+#4 transferring dockerfile: 1.11kB done
+#4 DONE 0.0s
+
+#5 [new-bms_web-settings internal] load build definition from Dockerfile
+#5 transferring dockerfile: 1.16kB done
+#5 DONE 0.0s
+
+#6 [new-bms_api-quality internal] load build definition from Dockerfile
+#6 transferring dockerfile: 1.19kB done
+#6 DONE 0.0s
+
+#7 [new-bms_web-health-safety internal] load build definition from Dockerfile
+#7 transferring dockerfile: 1.30kB done
+#7 DONE 0.0s
+
+#8 [new-bms_api-health-safety internal] load build definition from Dockerfile
+#8 transferring dockerfile: 1.24kB done
+#8 DONE 0.0s
+
+#9 [new-bms_web-environment internal] load build definition from Dockerfile
+#9 transferring dockerfile: 1.28kB done
+#9 DONE 0.0s
+
+#10 [new-bms_api-environment internal] load build definition from Dockerfile
+#10 transferring dockerfile: 1.22kB done
+#10 DONE 0.0s
+
+#11 [new-bms_web-quality internal] load .dockerignore
+#11 transferring context:
+#11 transferring context: 2B done
+#11 DONE 0.0s
+
+#12 [new-bms_web-settings internal] load .dockerignore
+#12 transferring context: 2B done
+#12 DONE 0.0s
+
+#13 [new-bms_api-quality internal] load .dockerignore
+#13 transferring context: 2B done
+#13 DONE 0.0s
+
+#14 [new-bms_web-dashboard internal] load .dockerignore
+#14 transferring context: 2B done
+#14 DONE 0.0s
+
+#15 [new-bms_api-gateway internal] load .dockerignore
+#15 transferring context: 2B done
+#15 DONE 0.0s
+
+#16 [new-bms_api-environment internal] load .dockerignore
+#16 transferring context: 2B done
+#16 DONE 0.0s
+
+#17 [new-bms_api-ai-analysis internal] load .dockerignore
+#17 transferring context: 2B done
+#17 DONE 0.0s
+
+#18 [new-bms_web-health-safety internal] load .dockerignore
+#18 transferring context: 2B done
+#18 DONE 0.0s
+
+#19 [new-bms_api-health-safety internal] load .dockerignore
+#19 transferring context: 2B done
+#19 DONE 0.0s
+
+#20 [new-bms_web-environment internal] load .dockerignore
+#20 transferring context: 2B done
+#20 DONE 0.0s
+
+#21 [new-bms_web-quality internal] load metadata for docker.io/library/node:20-alpine
+#21 DONE 1.3s
+
+#22 [new-bms_api-gateway base 1/2] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#22 resolve docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8 done
+#22 sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8 7.67kB / 7.67kB done
+#22 sha256:c3324aa3efea082c8d294a93b97ba82adc5498a202bd48802f5a8af152e7dd9e 1.72kB / 1.72kB done
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 0B / 42.78MB 0.1s
+#22 sha256:eb87f4721c91769ed5206f34a9ab6ec98fc1d5235c12c2fc956665b1155e9ecb 0B / 1.26MB 0.1s
+#22 sha256:e31b2016552274339ed88ed4a438d78bf37e0f6bdf328d02207b2a598c1ef86d 0B / 445B 0.1s
+#22 sha256:458b0b7c1c6027b37124839bf527a5c54936ab27a9c9643051a3d801c4560a6c 6.52kB / 6.52kB done
+#22 sha256:458b0b7c1c6027b37124839bf527a5c54936ab27a9c9643051a3d801c4560a6c 6.52kB / 6.52kB done
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 5.24MB / 42.78MB 0.6s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 10.49MB / 42.78MB 0.7s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 13.63MB / 42.78MB 0.8s
+#22 sha256:e31b2016552274339ed88ed4a438d78bf37e0f6bdf328d02207b2a598c1ef86d 445B / 445B 0.8s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 17.83MB / 42.78MB 1.0s
+#22 sha256:eb87f4721c91769ed5206f34a9ab6ec98fc1d5235c12c2fc956665b1155e9ecb 1.26MB / 1.26MB 0.9s done
+#22 sha256:e31b2016552274339ed88ed4a438d78bf37e0f6bdf328d02207b2a598c1ef86d 445B / 445B 0.8s done
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 20.97MB / 42.78MB 1.2s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 24.12MB / 42.78MB 1.3s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 28.31MB / 42.78MB 1.5s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 31.46MB / 42.78MB 1.6s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 34.29MB / 42.78MB 1.7s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 38.80MB / 42.78MB 1.9s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 42.78MB / 42.78MB 2.1s
+#22 sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 42.78MB / 42.78MB 2.1s done
+#22 extracting sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80
+#22 extracting sha256:ad6d96c196e3198e14ea37df8bba4f54bf92fb525eb65e49fa4027c7dee13f80 2.8s done
+#22 extracting sha256:eb87f4721c91769ed5206f34a9ab6ec98fc1d5235c12c2fc956665b1155e9ecb
+#22 extracting sha256:eb87f4721c91769ed5206f34a9ab6ec98fc1d5235c12c2fc956665b1155e9ecb 0.1s done
+#22 extracting sha256:e31b2016552274339ed88ed4a438d78bf37e0f6bdf328d02207b2a598c1ef86d done
+#22 DONE 6.4s
+
+#23 [new-bms_web-quality base 2/2] RUN corepack enable && corepack prepare pnpm@latest --activate
+#23 1.305 Preparing pnpm@latest for immediate activation...
+#23 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 54.78MB 9.9s
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#23 [new-bms_api-gateway base 2/2] RUN corepack enable && corepack prepare pnpm@latest --activate
+#23 DONE 4.7s
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#31 [new-bms_api-quality deps 1/7] WORKDIR /app
+#31 DONE 0.3s
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#35 [new-bms_web-environment runner 2/6] RUN addgroup --system --gid 1001 nodejs
+#35 DONE 0.7s
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#36 [new-bms_web-settings runner 3/6] RUN adduser --system --uid 1001 nextjs
+#36 DONE 0.8s
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 288.27MB 14.9s
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 392.36MB 20.1s
+#32 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 296.44MB 25.2s
+#29 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 358.51MB 30.2s
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 587.18MB 35.3s
+#26 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 674.29MB 40.3s
+#26 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 346.91MB 45.4s
+#24 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 394.28MB 50.5s
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 389.87MB 55.4s
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 424.51MB 60.4s
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 779.80MB 65.6s
+#29 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 838.57MB 70.7s
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 530.85MB 75.7s
+#25 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 564.78MB 80.8s
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 1.47GB 85.9s
+#26 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 1.56GB 91.0s
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 1.13GB 96.1s
+#29 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 1.20GB 101.1s
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 1.95GB 106.1s
+#32 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 2.04GB 111.1s
+#32 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 799.15MB 116.2s
+#25 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 832.17MB 121.3s
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 transferring context: 2.31GB 126.1s
+#28 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 2.40GB 131.3s
+#32 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 2.45GB 136.4s
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 2.54GB 141.4s
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 1.30GB 146.5s
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 transferring context: 2.76GB 151.6s
+#30 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 2.86GB 156.6s
+#32 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 1.45GB 161.8s
+#24 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 2.99GB 166.7s
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 3.12GB 171.9s
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 1.59GB 177.0s
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 3.26GB 182.0s
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 transferring context: 3.40GB 187.1s
+#30 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 transferring context: 3.50GB 191.9s
+#28 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 3.52GB 197.1s
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 3.59GB 202.1s
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.40GB 207.3s
+#27 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 1.86GB 212.4s
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 3.76GB 217.3s
+#34 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 3.81GB 222.4s
+#34 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 2.48GB 227.5s
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 3.99GB 232.5s
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 transferring context: 4.11GB 237.3s
+#28 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.51GB 242.6s
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 4.12GB 247.6s
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 2.63GB 252.8s
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 1.73GB 257.8s
+#25 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 transferring context: 4.43GB 262.7s
+#28 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 2.73GB 268.0s
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 transferring context: 4.50GB 273.1s
+#33 ...
+
+#28 [new-bms_web-quality internal] load build context
+#28 transferring context: 4.58GB 272.4s done
+#28 DONE 274.1s
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 ...
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#37 [new-bms_web-quality deps 2/7] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#37 DONE 0.8s
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#38 [new-bms_web-quality deps 3/7] COPY packages/ui/package.json ./packages/ui/
+#38 DONE 0.2s
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 ...
+
+#39 [new-bms_web-quality deps 4/7] COPY packages/charts/package.json ./packages/charts/
+#39 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#40 [new-bms_web-quality deps 5/7] COPY packages/types/package.json ./packages/types/
+#40 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#41 [new-bms_web-quality deps 6/7] COPY apps/web-quality/package.json ./apps/web-quality/
+#41 DONE 0.2s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#30 [new-bms_api-environment internal] load build context
+#30 transferring context: 4.58GB 275.2s done
+#30 DONE 277.0s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#42 [new-bms_api-environment deps 2/8] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#42 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#43 [new-bms_api-environment deps 3/8] COPY packages/database/package.json ./packages/database/
+#43 DONE 0.7s
+
+#33 [new-bms_api-ai-analysis internal] load build context
+#33 transferring context: 4.58GB 277.8s done
+#33 DONE 279.9s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#44 [new-bms_api-environment deps 4/8] COPY packages/types/package.json ./packages/types/
+#44 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#45 [new-bms_api-environment deps 5/8] COPY packages/auth/package.json ./packages/auth/
+#45 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#46 [new-bms_api-environment deps 6/8] COPY packages/calculations/package.json ./packages/calculations/
+#46 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#47 [new-bms_api-environment deps 7/8] COPY apps/api-environment/package.json ./apps/api-environment/
+#47 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#48 [new-bms_api-ai-analysis deps 3/7] COPY packages/database/package.json ./packages/database/
+#48 CACHED
+
+#49 [new-bms_api-ai-analysis deps 2/7] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#49 CACHED
+
+#50 [new-bms_api-ai-analysis deps 5/7] COPY packages/auth/package.json ./packages/auth/
+#50 CACHED
+
+#51 [new-bms_api-ai-analysis deps 4/7] COPY packages/types/package.json ./packages/types/
+#51 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#52 [new-bms_api-ai-analysis deps 6/7] COPY apps/api-ai-analysis/package.json ./apps/api-ai-analysis/
+#52 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#34 [new-bms_api-gateway internal] load build context
+#34 transferring context: 4.58GB 280.0s done
+#34 DONE 282.2s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#32 [new-bms_api-quality internal] load build context
+#32 transferring context: 4.58GB 280.1s done
+#32 DONE 283.3s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#53 [new-bms_api-gateway deps 2/7] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#53 CACHED
+
+#54 [new-bms_api-gateway deps 4/7] COPY packages/types/package.json ./packages/types/
+#54 CACHED
+
+#55 [new-bms_api-gateway deps 5/7] COPY packages/auth/package.json ./packages/auth/
+#55 CACHED
+
+#56 [new-bms_api-gateway deps 3/7] COPY packages/database/package.json ./packages/database/
+#56 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.68GB 285.2s
+#27 ...
+
+#57 [new-bms_api-gateway deps 6/7] COPY apps/api-gateway/package.json ./apps/api-gateway/
+#57 DONE 0.2s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#58 [new-bms_api-quality deps 4/8] COPY packages/types/package.json ./packages/types/
+#58 CACHED
+
+#59 [new-bms_api-quality deps 6/8] COPY packages/calculations/package.json ./packages/calculations/
+#59 CACHED
+
+#60 [new-bms_api-quality deps 5/8] COPY packages/auth/package.json ./packages/auth/
+#60 CACHED
+
+#61 [new-bms_api-quality deps 3/8] COPY packages/database/package.json ./packages/database/
+#61 CACHED
+
+#62 [new-bms_api-quality deps 2/8] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#62 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#63 [new-bms_api-quality deps 7/8] COPY apps/api-quality/package.json ./apps/api-quality/
+#63 DONE 0.1s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#0 1.106 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#0 4.825 Scope: all 5 workspace projects
+#0 5.098 Lockfile is up to date, resolution step is skipped
+#0 5.376 Progress: resolved 1, reused 0, downloaded 0, added 0
+#0 5.727 Packages: +434
+#0 5.727 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#0 6.493 
+#0 6.493    ╭───────────────────────────────────────────────────────────────────╮
+#0 6.493    │                                                                   │
+#0 6.493    │                Update available! 9.0.0 → 10.29.2.                 │
+#0 6.493    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#0 6.493    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#0 6.493    │                                                                   │
+#0 6.493    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#0 6.493    │                                                                   │
+#0 6.493    ╰───────────────────────────────────────────────────────────────────╯
+#0 6.493 
+#0 6.531 Progress: resolved 434, reused 0, downloaded 1, added 1
+#0 7.549 Progress: resolved 434, reused 0, downloaded 42, added 42
+#0 8.572 Progress: resolved 434, reused 0, downloaded 72, added 60
+#0 9.629 Progress: resolved 434, reused 0, downloaded 118, added 105
+#64 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.71GB 290.3s
+#27 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#0 0.686 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#0 4.655 Scope: all 6 workspace projects
+#0 5.299 Lockfile is up to date, resolution step is skipped
+#0 5.762 Progress: resolved 1, reused 0, downloaded 0, added 0
+#0 7.008 Packages: +552
+#0 7.008 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#0 7.040 Progress: resolved 552, reused 0, downloaded 0, added 0
+#0 8.156 Progress: resolved 552, reused 0, downloaded 6, added 0
+#0 9.196 Progress: resolved 552, reused 0, downloaded 30, added 16
+#65 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#0 1.382 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#0 9.913 Scope: all 5 workspace projects
+#66 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 4.44GB 295.3s
+#26 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#0 1.114 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#67 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#0 1.442 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#68 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 10.70 Progress: resolved 434, reused 0, downloaded 152, added 141
+#64 11.80 Progress: resolved 434, reused 0, downloaded 196, added 195
+#64 12.88 Progress: resolved 434, reused 0, downloaded 228, added 221
+#64 13.93 Progress: resolved 434, reused 0, downloaded 253, added 250
+#64 15.05 Progress: resolved 434, reused 0, downloaded 264, added 261
+#64 16.12 Progress: resolved 434, reused 0, downloaded 273, added 264
+#64 17.12 Progress: resolved 434, reused 0, downloaded 285, added 273
+#64 18.19 Progress: resolved 434, reused 0, downloaded 297, added 283
+#64 19.43 Progress: resolved 434, reused 0, downloaded 302, added 291
+#64 20.45 Progress: resolved 434, reused 0, downloaded 304, added 297
+#64 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 4.53GB 300.4s
+#26 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#65 10.24 Progress: resolved 552, reused 0, downloaded 58, added 48
+#65 11.22 Progress: resolved 552, reused 0, downloaded 75, added 62
+#65 12.38 Progress: resolved 552, reused 0, downloaded 103, added 91
+#65 13.54 Progress: resolved 552, reused 0, downloaded 132, added 120
+#65 14.57 Progress: resolved 552, reused 0, downloaded 179, added 178
+#65 15.68 Progress: resolved 552, reused 0, downloaded 224, added 220
+#65 16.87 Progress: resolved 552, reused 0, downloaded 252, added 245
+#65 16.95 
+#65 16.95    ╭───────────────────────────────────────────────────────────────────╮
+#65 16.95    │                                                                   │
+#65 16.95    │                Update available! 9.0.0 → 10.29.2.                 │
+#65 16.95    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#65 16.95    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#65 16.95    │                                                                   │
+#65 16.95    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#65 16.95    │                                                                   │
+#65 16.95    ╰───────────────────────────────────────────────────────────────────╯
+#65 16.95 
+#65 17.94 Progress: resolved 552, reused 0, downloaded 264, added 257
+#65 19.05 Progress: resolved 552, reused 0, downloaded 267, added 259
+#65 20.13 Progress: resolved 552, reused 0, downloaded 275, added 264
+#65 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 10.83 Lockfile is up to date, resolution step is skipped
+#66 11.83 Progress: resolved 1, reused 0, downloaded 0, added 0
+#66 13.56 Packages: +573
+#66 13.56 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#66 13.70 Progress: resolved 573, reused 0, downloaded 0, added 0
+#66 14.78 Progress: resolved 573, reused 0, downloaded 1, added 0
+#66 15.93 Progress: resolved 573, reused 0, downloaded 21, added 7
+#66 16.95 Progress: resolved 573, reused 0, downloaded 42, added 31
+#66 17.95 Progress: resolved 573, reused 0, downloaded 53, added 41
+#66 19.00 Progress: resolved 573, reused 0, downloaded 67, added 52
+#66 20.01 Progress: resolved 573, reused 0, downloaded 79, added 68
+#66 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 21.28 Progress: resolved 573, reused 0, downloaded 105, added 104
+#66 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.81GB 305.4s
+#27 ...
+
+#26 [new-bms_web-environment internal] load build context
+#26 transferring context: 4.58GB 303.3s done
+#26 DONE 305.7s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#67 10.49 Scope: all 5 workspace projects
+#67 11.34 Lockfile is up to date, resolution step is skipped
+#67 12.37 Progress: resolved 1, reused 0, downloaded 0, added 0
+#67 13.92 Packages: +575
+#67 13.92 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#67 14.06 Progress: resolved 575, reused 0, downloaded 0, added 0
+#67 15.31 Progress: resolved 575, reused 0, downloaded 1, added 0
+#67 16.50 Progress: resolved 575, reused 0, downloaded 16, added 0
+#67 17.50 Progress: resolved 575, reused 0, downloaded 26, added 16
+#67 18.56 Progress: resolved 575, reused 0, downloaded 47, added 44
+#67 19.67 Progress: resolved 575, reused 0, downloaded 63, added 50
+#67 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 21.62 Progress: resolved 434, reused 0, downloaded 306, added 297
+#64 23.06 Progress: resolved 434, reused 0, downloaded 310, added 301
+#64 24.23 Progress: resolved 434, reused 0, downloaded 314, added 304
+#64 25.70 Progress: resolved 434, reused 0, downloaded 317, added 310
+#64 26.73 Progress: resolved 434, reused 0, downloaded 322, added 315
+#64 28.01 Progress: resolved 434, reused 0, downloaded 325, added 317
+#64 29.13 Progress: resolved 434, reused 0, downloaded 327, added 317
+#64 30.19 Progress: resolved 434, reused 0, downloaded 330, added 323
+#64 31.21 Progress: resolved 434, reused 0, downloaded 335, added 324
+#64 ...
+
+#69 [new-bms_web-environment deps 5/7] COPY packages/types/package.json ./packages/types/
+#69 CACHED
+
+#70 [new-bms_web-environment deps 2/7] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#70 CACHED
+
+#71 [new-bms_web-environment deps 4/7] COPY packages/charts/package.json ./packages/charts/
+#71 CACHED
+
+#72 [new-bms_web-environment deps 3/7] COPY packages/ui/package.json ./packages/ui/
+#72 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#73 [new-bms_web-environment deps 6/7] COPY apps/web-environment/package.json ./apps/web-environment/
+#73 DONE 0.3s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.82GB 308.4s
+#27 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#68 12.92 Scope: all 6 workspace projects
+#68 13.91 Lockfile is up to date, resolution step is skipped
+#68 15.66 Progress: resolved 1, reused 0, downloaded 0, added 0
+#68 18.07 Packages: +571
+#68 18.07 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#68 18.20 Progress: resolved 571, reused 0, downloaded 0, added 0
+#68 19.47 Progress: resolved 571, reused 0, downloaded 1, added 0
+#68 20.62 Progress: resolved 571, reused 0, downloaded 24, added 8
+#68 21.65 Progress: resolved 571, reused 0, downloaded 40, added 26
+#68 22.71 Progress: resolved 571, reused 0, downloaded 53, added 39
+#68 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#65 21.16 Progress: resolved 552, reused 0, downloaded 291, added 277
+#65 22.17 Progress: resolved 552, reused 0, downloaded 314, added 301
+#65 23.24 Progress: resolved 552, reused 0, downloaded 336, added 335
+#65 24.37 Progress: resolved 552, reused 0, downloaded 365, added 352
+#65 25.45 Progress: resolved 552, reused 0, downloaded 385, added 373
+#65 26.64 Progress: resolved 552, reused 0, downloaded 413, added 411
+#65 27.69 Progress: resolved 552, reused 0, downloaded 436, added 423
+#65 28.71 Progress: resolved 552, reused 0, downloaded 456, added 444
+#65 29.73 Progress: resolved 552, reused 0, downloaded 469, added 456
+#65 30.75 Progress: resolved 552, reused 0, downloaded 484, added 469
+#65 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.86GB 313.5s
+#27 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 22.45 Progress: resolved 573, reused 0, downloaded 139, added 138
+#66 23.42 
+#66 23.42    ╭───────────────────────────────────────────────────────────────────╮
+#66 23.42    │                                                                   │
+#66 23.42    │                Update available! 9.0.0 → 10.29.2.                 │
+#66 23.42    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#66 23.42    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#66 23.42    │                                                                   │
+#66 23.42    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#66 23.42    │                                                                   │
+#66 23.42    ╰───────────────────────────────────────────────────────────────────╯
+#66 23.42 
+#66 23.55 Progress: resolved 573, reused 0, downloaded 174, added 172
+#66 24.60 Progress: resolved 573, reused 0, downloaded 214, added 203
+#66 25.69 Progress: resolved 573, reused 0, downloaded 243, added 231
+#66 27.02 Progress: resolved 573, reused 0, downloaded 261, added 257
+#66 28.07 Progress: resolved 573, reused 0, downloaded 265, added 261
+#66 29.09 Progress: resolved 573, reused 0, downloaded 269, added 261
+#66 30.10 Progress: resolved 573, reused 0, downloaded 280, added 269
+#66 31.13 Progress: resolved 573, reused 0, downloaded 299, added 286
+#66 32.20 Progress: resolved 573, reused 0, downloaded 322, added 309
+#66 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#67 20.68 Progress: resolved 575, reused 0, downloaded 78, added 68
+#67 21.78 Progress: resolved 575, reused 0, downloaded 102, added 89
+#67 22.85 Progress: resolved 575, reused 0, downloaded 127, added 123
+#67 23.85 Progress: resolved 575, reused 0, downloaded 177, added 175
+#67 25.00 Progress: resolved 575, reused 0, downloaded 208, added 204
+#67 26.06 Progress: resolved 575, reused 0, downloaded 230, added 221
+#67 27.11 Progress: resolved 575, reused 0, downloaded 250, added 246
+#67 28.16 Progress: resolved 575, reused 0, downloaded 262, added 250
+#67 29.24 Progress: resolved 575, reused 0, downloaded 267, added 253
+#67 30.26 Progress: resolved 575, reused 0, downloaded 278, added 266
+#67 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#74 [new-bms_web-environment deps 7/7] RUN pnpm install --frozen-lockfile
+#0 1.819 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#74 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 32.21 Progress: resolved 434, reused 0, downloaded 341, added 328
+#64 33.22 Progress: resolved 434, reused 0, downloaded 341, added 330
+#64 34.23 Progress: resolved 434, reused 0, downloaded 349, added 340
+#64 35.26 Progress: resolved 434, reused 0, downloaded 360, added 348
+#64 36.27 Progress: resolved 434, reused 0, downloaded 368, added 356
+#64 37.28 Progress: resolved 434, reused 0, downloaded 376, added 364
+#64 38.28 Progress: resolved 434, reused 0, downloaded 381, added 369
+#64 39.30 Progress: resolved 434, reused 0, downloaded 394, added 382
+#64 40.30 Progress: resolved 434, reused 0, downloaded 399, added 388
+#64 41.31 Progress: resolved 434, reused 0, downloaded 407, added 395
+#64 42.36 Progress: resolved 434, reused 0, downloaded 418, added 406
+#64 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 1.90GB 318.7s
+#27 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#68 23.83 Progress: resolved 571, reused 0, downloaded 70, added 57
+#68 24.51 
+#68 24.51    ╭───────────────────────────────────────────────────────────────────╮
+#68 24.51    │                                                                   │
+#68 24.51    │                Update available! 9.0.0 → 10.29.2.                 │
+#68 24.51    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#68 24.51    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#68 24.51    │                                                                   │
+#68 24.51    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#68 24.51    │                                                                   │
+#68 24.51    ╰───────────────────────────────────────────────────────────────────╯
+#68 24.51 
+#68 25.09 Progress: resolved 571, reused 0, downloaded 79, added 71
+#68 26.38 Progress: resolved 571, reused 0, downloaded 99, added 90
+#68 27.60 Progress: resolved 571, reused 0, downloaded 126, added 125
+#68 28.69 Progress: resolved 571, reused 0, downloaded 159, added 151
+#68 29.83 Progress: resolved 571, reused 0, downloaded 207, added 206
+#68 31.06 Progress: resolved 571, reused 0, downloaded 245, added 245
+#68 32.35 Progress: resolved 571, reused 0, downloaded 263, added 253
+#68 33.43 Progress: resolved 571, reused 0, downloaded 264, added 262
+#68 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#65 31.82 Progress: resolved 552, reused 0, downloaded 502, added 489
+#65 32.92 Progress: resolved 552, reused 0, downloaded 527, added 513
+#65 33.93 Progress: resolved 552, reused 0, downloaded 548, added 538
+#65 34.46 Progress: resolved 552, reused 0, downloaded 552, added 552, done
+#65 36.59 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#65 36.70 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#65 37.60 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#65 38.48 .../node_modules/@prisma/engines postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#65 38.48 .../node_modules/@prisma/engines postinstall: Please manually install OpenSSL and try installing Prisma again.
+#65 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 2.97GB 323.7s
+#25 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 33.24 Progress: resolved 573, reused 0, downloaded 342, added 338
+#66 34.25 Progress: resolved 573, reused 0, downloaded 365, added 358
+#66 35.26 Progress: resolved 573, reused 0, downloaded 382, added 368
+#66 36.29 Progress: resolved 573, reused 0, downloaded 394, added 382
+#66 37.38 Progress: resolved 573, reused 0, downloaded 404, added 391
+#66 38.64 Progress: resolved 573, reused 0, downloaded 420, added 405
+#66 39.89 Progress: resolved 573, reused 0, downloaded 433, added 426
+#66 41.12 Progress: resolved 573, reused 0, downloaded 470, added 457
+#66 42.24 Progress: resolved 573, reused 0, downloaded 490, added 484
+#66 43.32 Progress: resolved 573, reused 0, downloaded 518, added 507
+#66 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#67 31.17 
+#67 31.17    ╭───────────────────────────────────────────────────────────────────╮
+#67 31.17    │                                                                   │
+#67 31.17    │                Update available! 9.0.0 → 10.29.2.                 │
+#67 31.17    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#67 31.17    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#67 31.17    │                                                                   │
+#67 31.17    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#67 31.17    │                                                                   │
+#67 31.17    ╰───────────────────────────────────────────────────────────────────╯
+#67 31.17 
+#67 31.38 Progress: resolved 575, reused 0, downloaded 301, added 289
+#67 32.45 Progress: resolved 575, reused 0, downloaded 316, added 304
+#67 33.60 Progress: resolved 575, reused 0, downloaded 341, added 334
+#67 34.68 Progress: resolved 575, reused 0, downloaded 356, added 351
+#67 35.87 Progress: resolved 575, reused 0, downloaded 388, added 374
+#67 36.98 Progress: resolved 575, reused 0, downloaded 401, added 389
+#67 38.08 Progress: resolved 575, reused 0, downloaded 416, added 405
+#67 39.11 Progress: resolved 575, reused 0, downloaded 434, added 421
+#67 40.20 Progress: resolved 575, reused 0, downloaded 452, added 438
+#67 41.23 Progress: resolved 575, reused 0, downloaded 476, added 472
+#67 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 3.13GB 328.7s
+#25 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 43.47 Progress: resolved 434, reused 0, downloaded 421, added 409
+#64 44.59 Progress: resolved 434, reused 0, downloaded 426, added 416
+#64 45.61 Progress: resolved 434, reused 0, downloaded 430, added 422
+#64 46.72 Progress: resolved 434, reused 0, downloaded 430, added 431
+#64 47.73 Progress: resolved 434, reused 0, downloaded 431, added 432
+#64 51.57 Progress: resolved 434, reused 0, downloaded 432, added 432
+#64 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#68 34.58 Progress: resolved 571, reused 0, downloaded 269, added 263
+#68 35.58 Progress: resolved 571, reused 0, downloaded 281, added 269
+#68 36.60 Progress: resolved 571, reused 0, downloaded 302, added 290
+#68 37.70 Progress: resolved 571, reused 0, downloaded 327, added 318
+#68 38.71 Progress: resolved 571, reused 0, downloaded 349, added 342
+#68 39.84 Progress: resolved 571, reused 0, downloaded 369, added 365
+#68 40.95 Progress: resolved 571, reused 0, downloaded 389, added 382
+#68 41.99 Progress: resolved 571, reused 0, downloaded 400, added 394
+#68 43.12 Progress: resolved 571, reused 0, downloaded 423, added 407
+#68 44.13 Progress: resolved 571, reused 0, downloaded 439, added 433
+#68 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 54.15 Progress: resolved 434, reused 0, downloaded 432, added 433
+#64 55.71 Progress: resolved 434, reused 0, downloaded 433, added 433
+#64 55.71 Progress: resolved 434, reused 0, downloaded 433, added 434, done
+#64 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#74 [new-bms_web-environment deps 7/7] RUN pnpm install --frozen-lockfile
+#74 15.42 Scope: all 5 workspace projects
+#74 16.66 Lockfile is up to date, resolution step is skipped
+#74 18.39 Progress: resolved 1, reused 0, downloaded 0, added 0
+#74 20.99 Packages: +433
+#74 20.99 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#74 21.39 Progress: resolved 433, reused 0, downloaded 0, added 0
+#74 22.93 Progress: resolved 433, reused 0, downloaded 1, added 0
+#74 24.02 Progress: resolved 433, reused 0, downloaded 18, added 1
+#74 25.07 Progress: resolved 433, reused 0, downloaded 27, added 18
+#74 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 3.28GB 333.8s
+#25 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#65 45.09 .../node_modules/@prisma/engines postinstall: Done
+#65 46.11 .../prisma@5.22.0/node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#65 46.65 .../prisma@5.22.0/node_modules/prisma preinstall: Done
+#65 47.23 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#65 51.23 .../node_modules/@prisma/client postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#65 51.23 .../node_modules/@prisma/client postinstall: Please manually install OpenSSL and try installing Prisma again.
+#65 52.44 .../node_modules/@prisma/client postinstall: prisma:warn We could not find your Prisma schema in the default locations (see: https://pris.ly/d/prisma-schema-location).
+#65 52.45 .../node_modules/@prisma/client postinstall: If you have a Prisma schema file in a custom path, you will need to run
+#65 52.45 .../node_modules/@prisma/client postinstall: `prisma generate --schema=./path/to/your/schema.prisma` to generate Prisma Client.
+#65 52.45 .../node_modules/@prisma/client postinstall: If you do not have a Prisma schema file yet, you can ignore this message.
+#65 52.63 .../node_modules/@prisma/client postinstall: Done
+#65 54.69 
+#65 54.69 devDependencies:
+#65 54.69 + @types/jest 29.5.14
+#65 54.69 + @types/node 20.19.30
+#65 54.69 + jest 29.7.0
+#65 54.69 + prettier 3.8.1
+#65 54.69 + ts-jest 29.4.6
+#65 54.69 + turbo 2.7.5
+#65 54.69 + typescript 5.9.3
+#65 54.69 
+#65 55.27 Done in 52.2s
+#65 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 44.34 Progress: resolved 573, reused 0, downloaded 538, added 532
+#66 45.47 Progress: resolved 573, reused 0, downloaded 553, added 546
+#66 46.47 Progress: resolved 573, reused 0, downloaded 572, added 572
+#66 46.78 Progress: resolved 573, reused 0, downloaded 573, added 573, done
+#66 49.61 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#66 49.78 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#66 50.65 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#66 51.71 .../node_modules/@prisma/engines postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#66 51.71 .../node_modules/@prisma/engines postinstall: Please manually install OpenSSL and try installing Prisma again.
+#66 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#65 [new-bms_api-environment deps 8/8] RUN pnpm install --frozen-lockfile
+#65 DONE 55.9s
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#67 42.35 Progress: resolved 575, reused 0, downloaded 496, added 487
+#67 43.38 Progress: resolved 575, reused 0, downloaded 521, added 514
+#67 44.47 Progress: resolved 575, reused 0, downloaded 540, added 531
+#67 45.48 Progress: resolved 575, reused 0, downloaded 569, added 554
+#67 46.19 Progress: resolved 575, reused 0, downloaded 575, added 575, done
+#67 48.91 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#67 49.09 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#67 49.91 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#67 51.07 .../node_modules/@prisma/engines postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#67 51.08 .../node_modules/@prisma/engines postinstall: Please manually install OpenSSL and try installing Prisma again.
+#67 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 3.47GB 338.9s
+#24 ...
+
+#64 [new-bms_web-quality deps 7/7] RUN pnpm install --frozen-lockfile
+#64 58.94 .../sharp@0.34.5/node_modules/sharp install$ node install/check.js || npm run build
+#64 58.94 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#64 60.01 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#64 60.19 .../sharp@0.34.5/node_modules/sharp install: Done
+#64 61.68 
+#64 61.68 devDependencies:
+#64 61.68 + @types/jest 29.5.14
+#64 61.68 + @types/node 20.19.30
+#64 61.68 + jest 29.7.0
+#64 61.68 + prettier 3.8.1
+#64 61.68 + ts-jest 29.4.6
+#64 61.68 + turbo 2.7.5
+#64 61.68 + typescript 5.9.3
+#64 61.68 
+#64 62.02 Done in 58.2s
+#64 DONE 62.9s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#68 45.18 Progress: resolved 571, reused 0, downloaded 465, added 450
+#68 46.22 Progress: resolved 571, reused 0, downloaded 489, added 475
+#68 47.37 Progress: resolved 571, reused 0, downloaded 522, added 509
+#68 48.49 Progress: resolved 571, reused 0, downloaded 553, added 540
+#68 49.49 Progress: resolved 571, reused 0, downloaded 559, added 556
+#68 50.40 Progress: resolved 571, reused 0, downloaded 571, added 571, done
+#68 52.94 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#68 52.94 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#68 53.42 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#68 53.87 .../node_modules/@prisma/engines postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#68 53.87 .../node_modules/@prisma/engines postinstall: Please manually install OpenSSL and try installing Prisma again.
+#68 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 3.58GB 344.0s
+#24 ...
+
+#74 [new-bms_web-environment deps 7/7] RUN pnpm install --frozen-lockfile
+#74 26.11 Progress: resolved 433, reused 0, downloaded 43, added 35
+#74 26.96 
+#74 26.96    ╭───────────────────────────────────────────────────────────────────╮
+#74 26.96    │                                                                   │
+#74 26.96    │                Update available! 9.0.0 → 10.29.2.                 │
+#74 26.96    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#74 26.96    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#74 26.96    │                                                                   │
+#74 26.96    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#74 26.96    │                                                                   │
+#74 26.96    ╰───────────────────────────────────────────────────────────────────╯
+#74 26.96 
+#74 27.20 Progress: resolved 433, reused 0, downloaded 54, added 44
+#74 28.27 Progress: resolved 433, reused 0, downloaded 76, added 64
+#74 29.34 Progress: resolved 433, reused 0, downloaded 94, added 81
+#74 30.43 Progress: resolved 433, reused 0, downloaded 132, added 132
+#74 31.49 Progress: resolved 433, reused 0, downloaded 187, added 186
+#74 32.62 Progress: resolved 433, reused 0, downloaded 245, added 244
+#74 33.88 Progress: resolved 433, reused 0, downloaded 264, added 263
+#74 35.34 Progress: resolved 433, reused 0, downloaded 274, added 264
+#74 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#66 [new-bms_api-ai-analysis deps 7/7] RUN pnpm install --frozen-lockfile
+#66 57.99 .../node_modules/@prisma/engines postinstall: Done
+#66 58.35 .../prisma@5.22.0/node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#66 58.50 .../prisma@5.22.0/node_modules/prisma preinstall: Done
+#66 59.01 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#66 61.38 .../node_modules/@prisma/client postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#66 61.38 .../node_modules/@prisma/client postinstall: Please manually install OpenSSL and try installing Prisma again.
+#66 62.59 .../node_modules/@prisma/client postinstall: prisma:warn We could not find your Prisma schema in the default locations (see: https://pris.ly/d/prisma-schema-location).
+#66 62.59 .../node_modules/@prisma/client postinstall: If you have a Prisma schema file in a custom path, you will need to run
+#66 62.59 .../node_modules/@prisma/client postinstall: `prisma generate --schema=./path/to/your/schema.prisma` to generate Prisma Client.
+#66 62.59 .../node_modules/@prisma/client postinstall: If you do not have a Prisma schema file yet, you can ignore this message.
+#66 62.76 .../node_modules/@prisma/client postinstall: Done
+#66 64.07 
+#66 64.07 devDependencies:
+#66 64.07 + @types/jest 29.5.14
+#66 64.07 + @types/node 20.19.30
+#66 64.07 + jest 29.7.0
+#66 64.07 + prettier 3.8.1
+#66 64.07 + ts-jest 29.4.6
+#66 64.07 + turbo 2.7.5
+#66 64.07 + typescript 5.9.3
+#66 64.07 
+#66 64.49 Done in 56.8s
+#66 DONE 65.0s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#67 [new-bms_api-gateway deps 7/7] RUN pnpm install --frozen-lockfile
+#67 56.02 .../node_modules/@prisma/engines postinstall: Done
+#67 56.63 .../prisma@5.22.0/node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#67 56.75 .../prisma@5.22.0/node_modules/prisma preinstall: Done
+#67 57.48 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#67 59.89 .../node_modules/@prisma/client postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#67 59.89 .../node_modules/@prisma/client postinstall: Please manually install OpenSSL and try installing Prisma again.
+#67 60.85 .../node_modules/@prisma/client postinstall: prisma:warn We could not find your Prisma schema in the default locations (see: https://pris.ly/d/prisma-schema-location).
+#67 60.85 .../node_modules/@prisma/client postinstall: If you have a Prisma schema file in a custom path, you will need to run
+#67 60.85 .../node_modules/@prisma/client postinstall: `prisma generate --schema=./path/to/your/schema.prisma` to generate Prisma Client.
+#67 60.85 .../node_modules/@prisma/client postinstall: If you do not have a Prisma schema file yet, you can ignore this message.
+#67 60.92 .../node_modules/@prisma/client postinstall: Done
+#67 61.78 
+#67 61.78 devDependencies:
+#67 61.78 + @types/jest 29.5.14
+#67 61.78 + @types/node 20.19.30
+#67 61.78 + jest 29.7.0
+#67 61.78 + prettier 3.8.1
+#67 61.78 + ts-jest 29.4.6
+#67 61.78 + turbo 2.7.5
+#67 61.78 + typescript 5.9.3
+#67 61.78 
+#67 62.07 Done in 53.8s
+#67 DONE 62.6s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#68 [new-bms_api-quality deps 8/8] RUN pnpm install --frozen-lockfile
+#68 57.60 .../node_modules/@prisma/engines postinstall: Done
+#68 58.14 .../prisma@5.22.0/node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#68 58.50 .../prisma@5.22.0/node_modules/prisma preinstall: Done
+#68 58.97 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#68 61.05 .../node_modules/@prisma/client postinstall: prisma:warn Prisma failed to detect the libssl/openssl version to use, and may not work as expected. Defaulting to "openssl-1.1.x".
+#68 61.05 .../node_modules/@prisma/client postinstall: Please manually install OpenSSL and try installing Prisma again.
+#68 61.50 .../node_modules/@prisma/client postinstall: prisma:warn We could not find your Prisma schema in the default locations (see: https://pris.ly/d/prisma-schema-location).
+#68 61.50 .../node_modules/@prisma/client postinstall: If you have a Prisma schema file in a custom path, you will need to run
+#68 61.50 .../node_modules/@prisma/client postinstall: `prisma generate --schema=./path/to/your/schema.prisma` to generate Prisma Client.
+#68 61.50 .../node_modules/@prisma/client postinstall: If you do not have a Prisma schema file yet, you can ignore this message.
+#68 61.55 .../node_modules/@prisma/client postinstall: Done
+#68 62.47 
+#68 62.47 devDependencies:
+#68 62.47 + @types/jest 29.5.14
+#68 62.47 + @types/node 20.19.30
+#68 62.47 + jest 29.7.0
+#68 62.47 + prettier 3.8.1
+#68 62.47 + ts-jest 29.4.6
+#68 62.47 + turbo 2.7.5
+#68 62.47 + typescript 5.9.3
+#68 62.47 
+#68 62.66 Done in 52.4s
+#68 DONE 63.0s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 3.68GB 349.0s
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 3.75GB 354.0s
+#24 ...
+
+#74 [new-bms_web-environment deps 7/7] RUN pnpm install --frozen-lockfile
+#74 36.34 Progress: resolved 433, reused 0, downloaded 277, added 266
+#74 37.49 Progress: resolved 433, reused 0, downloaded 300, added 288
+#74 38.53 Progress: resolved 433, reused 0, downloaded 305, added 297
+#74 39.62 Progress: resolved 433, reused 0, downloaded 312, added 302
+#74 40.62 Progress: resolved 433, reused 0, downloaded 323, added 315
+#74 41.62 Progress: resolved 433, reused 0, downloaded 359, added 348
+#74 42.61 Progress: resolved 433, reused 0, downloaded 398, added 389
+#74 43.62 Progress: resolved 433, reused 0, downloaded 429, added 421
+#74 44.62 Progress: resolved 433, reused 0, downloaded 430, added 431
+#74 46.02 Progress: resolved 433, reused 0, downloaded 431, added 431
+#74 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#74 [new-bms_web-environment deps 7/7] RUN pnpm install --frozen-lockfile
+#74 46.62 Progress: resolved 433, reused 0, downloaded 432, added 433, done
+#74 47.20 .../sharp@0.34.5/node_modules/sharp install$ node install/check.js || npm run build
+#74 47.20 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#74 47.44 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#74 47.53 .../sharp@0.34.5/node_modules/sharp install: Done
+#74 48.16 
+#74 48.16 devDependencies:
+#74 48.16 + @types/jest 29.5.14
+#74 48.16 + @types/node 20.19.30
+#74 48.16 + jest 29.7.0
+#74 48.16 + prettier 3.8.1
+#74 48.16 + ts-jest 29.4.6
+#74 48.16 + turbo 2.7.5
+#74 48.16 + typescript 5.9.3
+#74 48.16 
+#74 48.20 Done in 36.5s
+#74 DONE 48.7s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 3.80GB 359.0s
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 3.75GB 364.1s
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 3.81GB 369.1s
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#75 [new-bms_api-environment builder 2/8] COPY --from=deps /app/node_modules ./node_modules
+#75 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 4.03GB 374.1s
+#24 ...
+
+#76 [new-bms_api-gateway builder  2/11] COPY --from=deps /app/node_modules ./node_modules
+#76 ...
+
+#77 [new-bms_api-ai-analysis builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#77 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#78 [new-bms_api-quality builder 2/8] COPY --from=deps /app/node_modules ./node_modules
+#78 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 4.12GB 379.2s
+#24 ...
+
+#75 [new-bms_api-environment builder 2/8] COPY --from=deps /app/node_modules ./node_modules
+#75 DONE 16.9s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 4.21GB 384.3s
+#24 ...
+
+#76 [new-bms_api-gateway builder  2/11] COPY --from=deps /app/node_modules ./node_modules
+#76 DONE 18.2s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#78 [new-bms_api-quality builder 2/8] COPY --from=deps /app/node_modules ./node_modules
+#78 DONE 17.9s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#79 [new-bms_api-gateway builder  3/11] COPY --from=deps /app/packages/database/node_modules ./packages/database/node_modules
+#79 DONE 0.5s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#80 [new-bms_api-gateway builder  4/11] COPY --from=deps /app/packages/types/node_modules ./packages/types/node_modules
+#80 DONE 0.3s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#81 [new-bms_api-gateway builder  5/11] COPY --from=deps /app/packages/auth/node_modules ./packages/auth/node_modules
+#81 DONE 0.4s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#82 [new-bms_api-gateway builder  6/11] COPY --from=deps /app/apps/api-gateway/node_modules ./apps/api-gateway/node_modules
+#82 DONE 0.3s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#77 [new-bms_api-ai-analysis builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#77 DONE 19.9s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 4.28GB 389.4s
+#24 ...
+
+#83 [new-bms_api-environment builder 3/8] COPY . .
+#83 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#84 [new-bms_web-quality builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#84 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#85 [new-bms_web-environment builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#85 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.30GB 394.4s
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#86 [new-bms_api-quality builder 3/8] COPY . .
+#86 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#87 [new-bms_api-ai-analysis builder 3/7] COPY . .
+#87 ...
+
+#88 [new-bms_api-gateway builder  7/11] COPY . .
+#88 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 4.21GB 399.5s
+#29 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.42GB 404.6s
+#27 ...
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 transferring context: 4.58GB 408.2s done
+#24 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 transferring context: 4.58GB 407.0s done
+#25 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#25 [new-bms_api-health-safety internal] load build context
+#25 DONE 411.7s
+
+#24 [new-bms_web-health-safety internal] load build context
+#24 DONE 411.7s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.54GB 412.0s
+#27 ...
+
+#89 [new-bms_api-health-safety deps 6/8] COPY packages/calculations/package.json ./packages/calculations/
+#89 CACHED
+
+#90 [new-bms_api-health-safety deps 4/8] COPY packages/types/package.json ./packages/types/
+#90 CACHED
+
+#91 [new-bms_api-health-safety deps 3/8] COPY packages/database/package.json ./packages/database/
+#91 CACHED
+
+#92 [new-bms_api-health-safety deps 2/8] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#92 CACHED
+
+#93 [new-bms_api-health-safety deps 5/8] COPY packages/auth/package.json ./packages/auth/
+#93 CACHED
+
+#94 [new-bms_web-health-safety deps 2/7] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#94 CACHED
+
+#95 [new-bms_web-health-safety deps 3/7] COPY packages/ui/package.json ./packages/ui/
+#95 CACHED
+
+#96 [new-bms_web-health-safety deps 5/7] COPY packages/types/package.json ./packages/types/
+#96 CACHED
+
+#97 [new-bms_web-health-safety deps 4/7] COPY packages/charts/package.json ./packages/charts/
+#97 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#98 [new-bms_web-health-safety deps 6/7] COPY apps/web-health-safety/package.json ./apps/web-health-safety/
+#98 DONE 1.0s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#99 [new-bms_api-health-safety deps 7/8] COPY apps/api-health-safety/package.json ./apps/api-health-safety/
+#99 DONE 1.2s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.64GB 417.1s
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 transferring context: 4.58GB 420.9s done
+#29 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#29 [new-bms_web-settings internal] load build context
+#29 DONE 424.2s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.81GB 425.9s
+#27 ...
+
+#100 [new-bms_web-settings deps 2/6] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#100 CACHED
+
+#101 [new-bms_web-settings deps 3/6] COPY packages/ui/package.json ./packages/ui/
+#101 CACHED
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#102 [new-bms_web-health-safety deps 7/7] RUN pnpm install --frozen-lockfile
+#0 1.210 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#0 5.575 Scope: all 5 workspace projects
+#0 5.949 Lockfile is up to date, resolution step is skipped
+#0 6.480 Progress: resolved 1, reused 0, downloaded 0, added 0
+#0 7.017 Packages: +433
+#0 7.017 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#0 7.528 Progress: resolved 433, reused 0, downloaded 0, added 0
+#0 8.645 Progress: resolved 433, reused 0, downloaded 38, added 27
+#0 9.160 
+#0 9.160    ╭───────────────────────────────────────────────────────────────────╮
+#0 9.160    │                                                                   │
+#0 9.160    │                Update available! 9.0.0 → 10.29.2.                 │
+#0 9.160    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#0 9.160    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#0 9.160    │                                                                   │
+#0 9.160    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#0 9.160    │                                                                   │
+#0 9.160    ╰───────────────────────────────────────────────────────────────────╯
+#0 9.160 
+#0 9.646 Progress: resolved 433, reused 0, downloaded 76, added 69
+#102 ...
+
+#103 [new-bms_api-health-safety deps 8/8] RUN pnpm install --frozen-lockfile
+#0 1.054 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#0 5.374 Scope: all 6 workspace projects
+#0 5.719 Lockfile is up to date, resolution step is skipped
+#0 6.069 Progress: resolved 1, reused 0, downloaded 0, added 0
+#0 6.696 Packages: +571
+#0 6.696 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#0 7.092 Progress: resolved 571, reused 0, downloaded 0, added 0
+#0 8.116 Progress: resolved 571, reused 0, downloaded 35, added 25
+#0 9.123 Progress: resolved 571, reused 0, downloaded 78, added 70
+#103 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#104 [new-bms_web-settings deps 4/6] COPY packages/types/package.json ./packages/types/
+#104 DONE 0.5s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#105 [new-bms_web-settings deps 5/6] COPY apps/web-settings/package.json ./apps/web-settings/
+#105 DONE 0.2s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 2.93GB 431.0s
+#27 ...
+
+#85 [new-bms_web-environment builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#85 DONE 51.5s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#103 [new-bms_api-health-safety deps 8/8] RUN pnpm install --frozen-lockfile
+#103 10.13 Progress: resolved 571, reused 0, downloaded 145, added 132
+#103 11.25 Progress: resolved 571, reused 0, downloaded 243, added 232
+#103 12.30 Progress: resolved 571, reused 0, downloaded 262, added 262
+#103 13.33 Progress: resolved 571, reused 0, downloaded 274, added 262
+#103 13.99 
+#103 13.99    ╭───────────────────────────────────────────────────────────────────╮
+#103 13.99    │                                                                   │
+#103 13.99    │                Update available! 9.0.0 → 10.29.2.                 │
+#103 13.99    │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.29.2   │
+#103 13.99    │     Run "corepack prepare pnpm@10.29.2 --activate" to update.     │
+#103 13.99    │                                                                   │
+#103 13.99    │      Follow @pnpmjs for updates: https://twitter.com/pnpmjs       │
+#103 13.99    │                                                                   │
+#103 13.99    ╰───────────────────────────────────────────────────────────────────╯
+#103 13.99 
+#103 14.49 Progress: resolved 571, reused 0, downloaded 294, added 281
+#103 15.58 Progress: resolved 571, reused 0, downloaded 335, added 323
+#103 16.62 Progress: resolved 571, reused 0, downloaded 384, added 373
+#103 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 ...
+
+#84 [new-bms_web-quality builder 2/7] COPY --from=deps /app/node_modules ./node_modules
+#84 DONE 53.6s
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 3.06GB 436.0s
+#27 ...
+
+#106 [new-bms_web-settings deps 6/6] RUN pnpm install --frozen-lockfile
+#0 1.220 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.0.0.tgz
+#106 ...
+
+#102 [new-bms_web-health-safety deps 7/7] RUN pnpm install --frozen-lockfile
+#102 10.67 Progress: resolved 433, reused 0, downloaded 131, added 119
+#102 11.67 Progress: resolved 433, reused 0, downloaded 207, added 202
+#102 12.82 Progress: resolved 433, reused 0, downloaded 248, added 246
+#102 13.89 Progress: resolved 433, reused 0, downloaded 267, added 263
+#102 14.90 Progress: resolved 433, reused 0, downloaded 274, added 267
+#102 15.93 Progress: resolved 433, reused 0, downloaded 287, added 275
+#102 16.97 Progress: resolved 433, reused 0, downloaded 311, added 298
+#102 17.97 Progress: resolved 433, reused 0, downloaded 332, added 320
+#102 19.01 Progress: resolved 433, reused 0, downloaded 342, added 330
+#102 20.18 Progress: resolved 433, reused 0, downloaded 355, added 347
+#102 ...
+
+#27 [new-bms_web-dashboard internal] load build context
+#27 transferring context: 3.17GB 441.1s
+#27 transferring context: 3.20GB 443.2s done
+#27 ERROR: write /var/lib/docker/overlay2/viw1iqr81s2fkhxle839x4zaz/diff/node_modules/.pnpm/@next+swc-linux-x64-gnu@15.5.12/node_modules/@next/swc-linux-x64-gnu/next-swc.linux-x64-gnu.node: no space left on device
+
+#107 [new-bms_web-environment builder 3/7] COPY . .
+#107 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#108 [new-bms_web-quality builder 3/7] COPY . .
+#108 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#106 [new-bms_web-settings deps 6/6] RUN pnpm install --frozen-lockfile
+#106 11.65 Scope: all 4 workspace projects
+#106 12.36 Lockfile is up to date, resolution step is skipped
+#106 13.15 Progress: resolved 1, reused 0, downloaded 0, added 0
+#106 14.17 Packages: +424
+#106 14.17 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#106 14.39 Progress: resolved 424, reused 0, downloaded 0, added 0
+#106 15.52 Progress: resolved 424, reused 0, downloaded 1, added 0
+#106 15.89  WARN  GET https://registry.npmjs.org/jest-matcher-utils/-/jest-matcher-utils-29.7.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.89  WARN  GET https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.89  WARN  GET https://registry.npmjs.org/jest-get-type/-/jest-get-type-29.6.3.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.90  WARN  GET https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.90  WARN  GET https://registry.npmjs.org/jest-diff/-/jest-diff-29.7.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.90  ENOENT  ENOENT: no such file or directory, mkdir '/app/node_modules/.pnpm/has-symbols@1.1.0/node_modules'
+#106 15.90 
+#106 15.90 pnpm: ENOENT: no such file or directory, mkdir '/app/node_modules/.pnpm/has-symbols@1.1.0/node_modules'
+#106 15.90     at async Object.mkdir (node:internal/fs/promises:853:10)
+#106 15.90     at async Promise.all (index 314)
+#106 15.90     at async headlessInstall (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:173340:9)
+#106 15.90     at async _install (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:180962:33)
+#106 15.90     at async mutateModules (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:180828:23)
+#106 15.90     at async recursive (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:182367:50)
+#106 15.90     at async installDeps (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:182670:11)
+#106 15.90     at async /root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:211525:21
+#106 15.90     at async main (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:211488:34)
+#106 15.90     at async runPnpm (/root/.cache/node/corepack/v1/pnpm/9.0.0/dist/pnpm.cjs:211739:5)
+#106 15.91  WARN  GET https://registry.npmjs.org/supports-color/-/supports-color-7.2.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.92  WARN  GET https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.95  WARN  GET https://registry.npmjs.org/pretty-format/-/pretty-format-29.7.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.95  WARN  GET https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.95  WARN  GET https://registry.npmjs.org/@jest/schemas/-/schemas-29.6.3.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 15.95  WARN  GET https://registry.npmjs.org/ansi-styles/-/ansi-styles-5.2.0.tgz error (ERR_PNPM_ENOSPC). Will retry in 10 seconds. 2 retries left.
+#106 ...
+
+#88 [new-bms_api-gateway builder  7/11] COPY . .
+#88 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#103 [new-bms_api-health-safety deps 8/8] RUN pnpm install --frozen-lockfile
+#103 17.65 Progress: resolved 571, reused 0, downloaded 418, added 407
+#103 18.66 Progress: resolved 571, reused 0, downloaded 447, added 434
+#103 19.73 Progress: resolved 571, reused 0, downloaded 488, added 476
+#103 20.84 Progress: resolved 571, reused 0, downloaded 521, added 508
+#103 21.87 Progress: resolved 571, reused 0, downloaded 552, added 536
+#103 22.81 Progress: resolved 571, reused 0, downloaded 571, added 571, done
+#103 24.67 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#103 24.74 .../esbuild@0.27.2/node_modules/esbuild postinstall$ node install.js
+#103 25.46 .../esbuild@0.27.2/node_modules/esbuild postinstall: Done
+#103 26.24  WARN  An error occurred while uploading /app/node_modules/.pnpm/esbuild@0.27.2/node_modules/esbuild
+#103 26.28 .../node_modules/@prisma/engines postinstall: Done
+#103 26.30  WARN  An error occurred while uploading /app/node_modules/.pnpm/@prisma+engines@5.22.0/node_modules/@prisma/engines
+#103 ...
+
+#83 [new-bms_api-environment builder 3/8] COPY . .
+#83 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#86 [new-bms_api-quality builder 3/8] COPY . .
+#86 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#87 [new-bms_api-ai-analysis builder 3/7] COPY . .
+#87 ERROR: failed to copy files: copy file range failed: no space left on device
+
+#102 [new-bms_web-health-safety deps 7/7] RUN pnpm install --frozen-lockfile
+#102 21.51 Progress: resolved 433, reused 0, downloaded 359, added 354
+#102 22.89 Progress: resolved 433, reused 0, downloaded 367, added 359
+#102 24.10 Progress: resolved 433, reused 0, downloaded 370, added 365
+#102 25.37 Progress: resolved 433, reused 0, downloaded 382, added 371
+#102 26.37 Progress: resolved 433, reused 0, downloaded 387, added 380
+#102 ...
+
+#106 [new-bms_web-settings deps 6/6] RUN pnpm install --frozen-lockfile
+#106 CANCELED
+
+#102 [new-bms_web-health-safety deps 7/7] RUN pnpm install --frozen-lockfile
+#102 ...
+
+#103 [new-bms_api-health-safety deps 8/8] RUN pnpm install --frozen-lockfile
+#103 CANCELED
+
+#102 [new-bms_web-health-safety deps 7/7] RUN pnpm install --frozen-lockfile
+#102 CANCELED
+------
+ > [new-bms_web-dashboard internal] load build context:
+------
+------
+ > [new-bms_api-environment builder 3/8] COPY . .:
+------
+------
+ > [new-bms_api-quality builder 3/8] COPY . .:
+------
+------
+ > [new-bms_api-gateway builder  7/11] COPY . .:
+------
+------
+ > [new-bms_api-ai-analysis builder 3/7] COPY . .:
+------
+------
+ > [new-bms_web-environment builder 3/7] COPY . .:
+------
+------
+ > [new-bms_web-quality builder 3/7] COPY . .:
+------
+failed to solve: write /var/lib/docker/overlay2/viw1iqr81s2fkhxle839x4zaz/diff/node_modules/.pnpm/@next+swc-linux-x64-gnu@15.5.12/node_modules/@next/swc-linux-x64-gnu/next-swc.linux-x64-gnu.node: no space left on device
