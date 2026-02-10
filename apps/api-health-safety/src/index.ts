@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 4001;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-health-safety'));
 app.use(express.json());

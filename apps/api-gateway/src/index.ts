@@ -77,12 +77,35 @@ function addServiceToken(proxyReq: any): void {
   }
 }
 
+// Raw CORS headers - must be absolute first middleware
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const origin = req.headers.origin;
+  const allowed = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003','http://localhost:3004','http://localhost:3005','http://localhost:3006','http://localhost:3007','http://localhost:3008'];
+  if (origin && allowed.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-CSRF-Token,X-Correlation-ID');
+  if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+  next();
+});
+// CORS must run BEFORE security middleware
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin || '*');
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Correlation-ID'],
+}));
 // Security middleware (Helmet with strict CSP, HSTS, etc.)
 createSecurityMiddleware().forEach((mw) => app.use(mw));
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'],
-  credentials: true,
-}));
 app.use(cookieParser());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-gateway'));
@@ -143,6 +166,13 @@ const createServiceProxy = (
   changeOrigin: true,
   pathRewrite: { [`^${basePath}`]: '/api' },
   onProxyReq: addServiceToken,
+  onProxyRes: (proxyRes) => {
+    // Remove downstream CORS headers - gateway handles CORS
+    delete proxyRes.headers['access-control-allow-origin'];
+    delete proxyRes.headers['access-control-allow-credentials'];
+    delete proxyRes.headers['access-control-allow-methods'];
+    delete proxyRes.headers['access-control-allow-headers'];
+  },
   onError: (err, req, res) => {
     logger.error(`${serviceName} Proxy Error`, { error: err.message });
     (res as express.Response).status(502).json({

@@ -339,7 +339,7 @@ export default function IncidentRegisterClient() {
 
         {/* Modal */}
         {modalOpen && (
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Report Incident" size="lg">
+          <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Report Incident" size="lg">
             {/* Section Tabs */}
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (

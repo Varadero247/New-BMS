@@ -85,7 +85,7 @@ export const securityHeaders: RequestHandler = helmet({
   crossOriginOpenerPolicy: { policy: 'same-origin' },
 
   // Cross-Origin-Resource-Policy
-  crossOriginResourcePolicy: { policy: 'same-origin' },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 
   // DNS Prefetch Control - disable to prevent information leakage
   dnsPrefetchControl: { allow: false },

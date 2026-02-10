@@ -377,7 +377,7 @@ export default function CapaClient() {
 
         {/* Modal */}
         {modalOpen && (
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Create CAPA" size="lg">
+          <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create CAPA" size="lg">
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}

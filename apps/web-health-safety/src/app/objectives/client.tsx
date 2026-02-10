@@ -362,7 +362,7 @@ export default function ObjectivesClient() {
 
         {/* Modal */}
         {modalOpen && (
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Create Objective" size="lg">
+          <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create Objective" size="lg">
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}
