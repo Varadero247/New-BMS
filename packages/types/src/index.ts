@@ -189,11 +189,38 @@ export interface Incident {
   investigator?: UserProfile;
   personsInvolved?: string;
 
-  // H&S specific
+  // H&S specific - Person details
   injuryType?: string;
   bodyPart?: string;
   daysLost?: number;
   treatmentType?: string;
+  injuredPersonName?: string;
+  injuredPersonRole?: string;
+  employmentType?: string;
+  lostTime?: boolean;
+  witnesses?: string;
+
+  // RIDDOR
+  riddorReportable?: boolean;
+  regulatoryReference?: string;
+  reportedToAuthority?: boolean;
+  reportedToAuthorityDate?: string;
+
+  // Investigation
+  investigationRequired?: boolean;
+  investigationDueDate?: string;
+  reportedBy?: string;
+  immediateCause?: string;
+  rootCauses?: string;
+  contributingFactors?: string;
+
+  // AI Root Cause Analysis
+  aiImmediateCause?: string;
+  aiUnderlyingCause?: string;
+  aiRootCause?: string;
+  aiContributingFactors?: string;
+  aiRecurrencePrevention?: string;
+  aiAnalysisGenerated?: boolean;
 
   // Environmental specific
   environmentalMedia?: string;
@@ -206,11 +233,6 @@ export interface Incident {
   customerImpact?: string;
   costOfNonConformance?: number;
 
-  // Investigation
-  immediateCause?: string;
-  rootCauses?: string;
-  contributingFactors?: string;
-
   // Status
   status: IncidentStatus;
   closedAt?: string;
@@ -221,6 +243,7 @@ export interface Incident {
   // Relations
   riskId?: string;
   actions?: Action[];
+  capas?: Capa[];
 }
 
 export type IncidentType =
@@ -341,6 +364,57 @@ export interface CreateLegalRequirementRequest {
 }
 
 // ============================================
+// H&S Legal Requirement Types (ISO 45001)
+// ============================================
+
+export interface HSLegalRequirement {
+  id: string;
+  referenceNumber: string;
+  title: string;
+  description: string;
+  category: HSLegalCategory;
+  jurisdiction?: string;
+  legislationRef?: string;
+  section?: string;
+  applicableAreas?: string;
+  effectiveDate?: string;
+  reviewDate?: string;
+  lastReviewedAt?: string;
+  complianceStatus: HSComplianceStatus;
+  complianceNotes?: string;
+  responsiblePerson?: string;
+  // AI fields
+  aiKeyObligations?: string;
+  aiGapAnalysis?: string;
+  aiRequiredActions?: string;
+  aiEvidenceRequired?: string;
+  aiPenaltyForNonCompliance?: string;
+  aiAssessmentGenerated?: boolean;
+  status: HSLegalStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type HSLegalCategory =
+  | 'PRIMARY_LEGISLATION'
+  | 'SUBORDINATE_LEGISLATION'
+  | 'ACOP'
+  | 'HSE_GUIDANCE'
+  | 'INTERNATIONAL_STANDARD'
+  | 'INDUSTRY_STANDARD'
+  | 'CONTRACTUAL'
+  | 'VOLUNTARY';
+
+export type HSComplianceStatus =
+  | 'COMPLIANT'
+  | 'PARTIAL'
+  | 'NON_COMPLIANT'
+  | 'UNDER_REVIEW'
+  | 'NOT_ASSESSED';
+
+export type HSLegalStatus = 'ACTIVE' | 'REVIEW_DUE' | 'SUPERSEDED' | 'ARCHIVED';
+
+// ============================================
 // Objective & Target Types
 // ============================================
 
@@ -400,6 +474,70 @@ export interface CreateObjectiveRequest {
   ownerId?: string;
   department?: string;
 }
+
+// ============================================
+// H&S OHS Objective Types (ISO 45001)
+// ============================================
+
+export interface OhsObjective {
+  id: string;
+  referenceNumber: string;
+  title: string;
+  objectiveStatement?: string;
+  category: OhsObjectiveCategory;
+  ohsPolicyLink?: string;
+  department?: string;
+  owner?: string;
+  startDate?: string;
+  targetDate: string;
+  completedDate?: string;
+  kpiDescription?: string;
+  baselineValue?: number;
+  targetValue?: number;
+  currentValue: number;
+  unit?: string;
+  progressPercent: number;
+  monitoringFrequency?: string;
+  resourcesRequired?: string;
+  progressNotes?: string;
+  status: OhsObjectiveStatus;
+  aiRecommendations?: string;
+  aiGenerated?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  milestones?: ObjectiveMilestone[];
+}
+
+export interface ObjectiveMilestone {
+  id: string;
+  objectiveId: string;
+  title: string;
+  dueDate: string;
+  completed: boolean;
+  completedDate?: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OhsObjectiveCategory =
+  | 'INCIDENT_REDUCTION'
+  | 'HAZARD_ELIMINATION'
+  | 'TRAINING'
+  | 'AUDIT'
+  | 'LEGAL_COMPLIANCE'
+  | 'HEALTH_WELLBEING'
+  | 'RISK_REDUCTION'
+  | 'CONTRACTOR_MANAGEMENT'
+  | 'OTHER';
+
+export type OhsObjectiveStatus =
+  | 'ACTIVE'
+  | 'ON_TRACK'
+  | 'AT_RISK'
+  | 'BEHIND'
+  | 'ACHIEVED'
+  | 'CANCELLED';
 
 // ============================================
 // Action / CAPA Types
@@ -471,6 +609,89 @@ export interface CreateActionRequest {
   legalRequirementId?: string;
   objectiveId?: string;
 }
+
+// ============================================
+// H&S CAPA Types (ISO 45001)
+// ============================================
+
+export interface Capa {
+  id: string;
+  referenceNumber: string;
+  title: string;
+  capaType: CapaType;
+  source: CapaSource;
+  sourceReference?: string;
+  priority: CapaPriority;
+  targetCompletionDate?: string;
+  department?: string;
+  responsiblePerson?: string;
+  problemStatement?: string;
+  rootCauseAnalysis?: string;
+  containmentActions?: string;
+  successCriteria?: string;
+  verificationMethod?: string;
+  verificationDate?: string;
+  aiAnalysis?: string;
+  aiAnalysisGenerated?: boolean;
+  status: CapaStatus;
+  closureNotes?: string;
+  closedDate?: string;
+  closedBy?: string;
+  effectivenessRating?: string;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+  // Relations
+  incidentId?: string;
+  riskId?: string;
+  actions?: CapaAction[];
+}
+
+export interface CapaAction {
+  id: string;
+  capaId: string;
+  title: string;
+  description?: string;
+  type: CapaActionType;
+  owner?: string;
+  dueDate?: string;
+  completedAt?: string;
+  status: CapaActionStatus;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CapaType = 'CORRECTIVE' | 'PREVENTIVE' | 'IMPROVEMENT';
+
+export type CapaSource =
+  | 'INCIDENT'
+  | 'NEAR_MISS'
+  | 'AUDIT'
+  | 'RISK_ASSESSMENT'
+  | 'LEGAL'
+  | 'MANAGEMENT_REVIEW'
+  | 'WORKER_SUGGESTION'
+  | 'OTHER';
+
+export type CapaPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
+export type CapaStatus =
+  | 'OPEN'
+  | 'IN_PROGRESS'
+  | 'PENDING_VERIFICATION'
+  | 'CLOSED'
+  | 'OVERDUE';
+
+export type CapaActionType = 'IMMEDIATE' | 'CORRECTIVE' | 'PREVENTIVE';
+
+export type CapaActionStatus =
+  | 'OPEN'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'VERIFIED'
+  | 'OVERDUE'
+  | 'CANCELLED';
 
 // ============================================
 // Training & Competence Types
@@ -1065,6 +1286,32 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/actions/${id}`,
     COMPLETE: (id: string) => `/actions/${id}/complete`,
     VERIFY: (id: string) => `/actions/${id}/verify`,
+  },
+  // H&S-specific endpoints (via gateway: /api/health-safety/*)
+  HS_LEGAL: {
+    LIST: '/legal',
+    CREATE: '/legal',
+    GET: (id: string) => `/legal/${id}`,
+    UPDATE: (id: string) => `/legal/${id}`,
+    DELETE: (id: string) => `/legal/${id}`,
+  },
+  HS_OBJECTIVES: {
+    LIST: '/objectives',
+    CREATE: '/objectives',
+    GET: (id: string) => `/objectives/${id}`,
+    UPDATE: (id: string) => `/objectives/${id}`,
+    DELETE: (id: string) => `/objectives/${id}`,
+    MILESTONES: (id: string) => `/objectives/${id}/milestones`,
+    MILESTONE: (id: string, mid: string) => `/objectives/${id}/milestones/${mid}`,
+  },
+  HS_CAPA: {
+    LIST: '/capa',
+    CREATE: '/capa',
+    GET: (id: string) => `/capa/${id}`,
+    UPDATE: (id: string) => `/capa/${id}`,
+    DELETE: (id: string) => `/capa/${id}`,
+    ACTIONS: (id: string) => `/capa/${id}/actions`,
+    ACTION: (id: string, aid: string) => `/capa/${id}/actions/${aid}`,
   },
   TRAINING: {
     COURSES: '/training/courses',

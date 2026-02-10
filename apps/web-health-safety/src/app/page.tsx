@@ -3,14 +3,16 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import { ComplianceGauge, RiskMatrix, SafetyTrendChart } from '@ims/charts';
-import { AlertTriangle, FileWarning, Clock, TrendingUp, Users, Activity } from 'lucide-react';
+import { AlertTriangle, FileWarning, Clock, TrendingUp, Users, Activity, Scale, Target } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {
   compliance: number;
   risks: { total: number; high: number; critical: number };
   incidents: { total: number; open: number; thisMonth: number };
-  actions: { overdue: number; dueThisWeek: number };
+  actions: { overdue: number; dueThisWeek: number; total: number };
+  legal: { total: number; compliant: number; partial: number; nonCompliant: number };
+  objectives: { total: number; achieved: number; onTrack: number; atRisk: number };
   metrics: {
     ltifr: number;
     trir: number;
@@ -30,18 +32,42 @@ export default function HealthSafetyDashboard() {
 
   async function loadStats() {
     try {
-      const [risksRes, incidentsRes, metricsRes] = await Promise.all([
+      const [risksRes, incidentsRes, metricsRes, legalRes, objectivesRes, capaRes] = await Promise.all([
         api.get('/risks'),
         api.get('/incidents'),
         api.get('/metrics').catch(() => ({ data: { data: null } })),
+        api.get('/legal').catch(() => ({ data: { data: [] } })),
+        api.get('/objectives').catch(() => ({ data: { data: [] } })),
+        api.get('/capa').catch(() => ({ data: { data: [] } })),
       ]);
 
       const risks = risksRes.data.data || [];
       const incidents = incidentsRes.data.data || [];
       const metrics = metricsRes.data?.data;
+      const legal = legalRes.data?.data || [];
+      const objectives = objectivesRes.data?.data || [];
+      const capas = capaRes.data?.data || [];
+
+      // Calculate CAPA overdue count
+      const now = new Date();
+      const overdueCapas = capas.filter((c: any) =>
+        c.status !== 'CLOSED' && c.targetCompletionDate && new Date(c.targetCompletionDate) < now
+      ).length;
+
+      const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const dueThisWeek = capas.filter((c: any) =>
+        c.status !== 'CLOSED' && c.targetCompletionDate &&
+        new Date(c.targetCompletionDate) >= now &&
+        new Date(c.targetCompletionDate) <= oneWeekFromNow
+      ).length;
+
+      // Calculate legal compliance percentage
+      const legalTotal = legal.length;
+      const legalCompliant = legal.filter((l: any) => l.complianceStatus === 'COMPLIANT').length;
+      const compliancePercent = legalTotal > 0 ? Math.round((legalCompliant / legalTotal) * 100) : 0;
 
       setStats({
-        compliance: 78,
+        compliance: compliancePercent,
         risks: {
           total: risks.length,
           high: risks.filter((r: any) => r.riskLevel === 'HIGH').length,
@@ -49,14 +75,29 @@ export default function HealthSafetyDashboard() {
         },
         incidents: {
           total: incidents.length,
-          open: incidents.filter((i: any) => i.status === 'OPEN' || i.status === 'INVESTIGATING').length,
+          open: incidents.filter((i: any) => i.status === 'OPEN' || i.status === 'UNDER_INVESTIGATION').length,
           thisMonth: incidents.filter((i: any) => {
             const date = new Date(i.createdAt);
-            const now = new Date();
             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
           }).length,
         },
-        actions: { overdue: 3, dueThisWeek: 5 },
+        actions: {
+          total: capas.length,
+          overdue: overdueCapas,
+          dueThisWeek,
+        },
+        legal: {
+          total: legalTotal,
+          compliant: legalCompliant,
+          partial: legal.filter((l: any) => l.complianceStatus === 'PARTIAL').length,
+          nonCompliant: legal.filter((l: any) => l.complianceStatus === 'NON_COMPLIANT').length,
+        },
+        objectives: {
+          total: objectives.length,
+          achieved: objectives.filter((o: any) => o.status === 'ACHIEVED').length,
+          onTrack: objectives.filter((o: any) => o.status === 'ON_TRACK' || o.status === 'ACTIVE').length,
+          atRisk: objectives.filter((o: any) => o.status === 'AT_RISK' || o.status === 'BEHIND').length,
+        },
         metrics: metrics || { ltifr: 0, trir: 0, severityRate: 0 },
         topRisks: risks.slice(0, 5),
         recentIncidents: incidents.slice(0, 5),
@@ -151,7 +192,7 @@ export default function HealthSafetyDashboard() {
           </Card>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards Row 1 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
@@ -193,8 +234,10 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue Actions</p>
-                  <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
+                  <p className="text-sm text-gray-500">Overdue CAPAs</p>
+                  <p className={`text-2xl font-bold ${(stats?.actions.overdue || 0) > 0 ? 'text-red-600' : ''}`}>
+                    {stats?.actions.overdue || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <Clock className="h-6 w-6 text-orange-600" />
@@ -215,6 +258,81 @@ export default function HealthSafetyDashboard() {
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <FileWarning className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats Cards Row 2 — Legal & Objectives */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Legal Compliance</p>
+                  <p className="text-2xl font-bold">{stats?.legal.compliant || 0}<span className="text-sm text-gray-400 font-normal">/{stats?.legal.total || 0}</span></p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Scale className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <div className="mt-2 text-sm">
+                <span className="text-yellow-600 font-medium">{stats?.legal.partial || 0} partial</span>
+                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-red-600 font-medium">{stats?.legal.nonCompliant || 0} non-compliant</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">OHS Objectives</p>
+                  <p className="text-2xl font-bold">{stats?.objectives.total || 0}</p>
+                </div>
+                <div className="p-3 bg-indigo-100 rounded-full">
+                  <Target className="h-6 w-6 text-indigo-600" />
+                </div>
+              </div>
+              <div className="mt-2 text-sm">
+                <span className="text-green-600 font-medium">{stats?.objectives.achieved || 0} achieved</span>
+                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-blue-600 font-medium">{stats?.objectives.onTrack || 0} on track</span>
+                {(stats?.objectives.atRisk || 0) > 0 && (
+                  <>
+                    <span className="text-gray-400 mx-1">|</span>
+                    <span className="text-red-600 font-medium">{stats?.objectives.atRisk} at risk</span>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total CAPAs</p>
+                  <p className="text-2xl font-bold">{stats?.actions.total || 0}</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <Clock className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Legal Requirements</p>
+                  <p className="text-2xl font-bold">{stats?.legal.total || 0}</p>
+                </div>
+                <div className="p-3 bg-teal-100 rounded-full">
+                  <Scale className="h-6 w-6 text-teal-600" />
                 </div>
               </div>
             </CardContent>
@@ -275,11 +393,16 @@ export default function HealthSafetyDashboard() {
                           <span className="text-xs text-gray-500">{incident.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             incident.status === 'OPEN' ? 'bg-red-100 text-red-700' :
-                            incident.status === 'INVESTIGATING' ? 'bg-yellow-100 text-yellow-700' :
+                            incident.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
                             'bg-green-100 text-green-700'
                           }`}>
                             {incident.status}
                           </span>
+                          {incident.riddorReportable && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                              RIDDOR
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="text-sm text-gray-500">
