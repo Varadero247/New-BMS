@@ -49,6 +49,32 @@ model Incident {
   rootCauses          String?
   contributingFactors String?
 
+  // Person details (extended)
+  injuredPersonName   String?
+  injuredPersonRole   String?
+  employmentType      String?  // EMPLOYEE, CONTRACTOR, VISITOR, MEMBER_OF_PUBLIC
+  lostTime            Boolean  @default(false)
+  witnesses           String?
+
+  // RIDDOR / Regulatory
+  riddorReportable       Boolean  @default(false)
+  regulatoryReference    String?
+  reportedToAuthority    Boolean  @default(false)
+  reportedToAuthorityDate DateTime?
+  reportedBy             String?
+
+  // Investigation control
+  investigationRequired  Boolean  @default(false)
+  investigationDueDate   DateTime?
+
+  // AI root cause analysis
+  aiImmediateCause       String?
+  aiUnderlyingCause      String?
+  aiRootCause            String?
+  aiContributingFactors  String?
+  aiRecurrencePrevention String?
+  aiAnalysisGenerated    Boolean  @default(false)
+
   // Status
   status          IncidentStatus @default(OPEN)
   closedAt        DateTime?
@@ -62,6 +88,7 @@ model Incident {
   actions         HSAction[]
   fiveWhyAnalyses FiveWhyAnalysis[]
   fishboneAnalyses FishboneAnalysis[]
+  capas           Capa[]
 
   @@index([status])
   @@index([type])
@@ -153,6 +180,7 @@ model Risk {
   actions        HSAction[]
   hazards        Hazard[]
   bowTieAnalyses BowTieAnalysis[]
+  capas          Capa[]
 
   @@index([status])
   @@index([riskLevel])
@@ -543,5 +571,295 @@ enum InspectionStatus {
   SCHEDULED
   IN_PROGRESS
   COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// LEGAL REQUIREMENTS
+// ============================================
+
+model LegalRequirement {
+  id                String   @id @default(cuid())
+  referenceNumber   String   @unique
+  title             String
+  description       String
+
+  // Classification
+  category          LegalCategory
+  jurisdiction      String?
+  legislationRef    String?
+  section           String?
+  applicableAreas   String?
+
+  // Dates
+  effectiveDate     DateTime?
+  reviewDate        DateTime?
+  lastReviewedAt    DateTime?
+
+  // Compliance
+  complianceStatus  ComplianceStatus @default(NOT_ASSESSED)
+  complianceNotes   String?
+  responsiblePerson String?
+
+  // AI Compliance Assessment
+  aiKeyObligations        String?
+  aiGapAnalysis           String?
+  aiRequiredActions       String?
+  aiEvidenceRequired      String?
+  aiPenaltyForNonCompliance String?
+  aiAssessmentGenerated   Boolean  @default(false)
+
+  // Status
+  status            LegalStatus @default(ACTIVE)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([complianceStatus])
+  @@index([category])
+  @@map("hs_legal_requirements")
+}
+
+enum LegalCategory {
+  PRIMARY_LEGISLATION
+  SUBORDINATE_LEGISLATION
+  ACOP
+  HSE_GUIDANCE
+  INTERNATIONAL_STANDARD
+  INDUSTRY_STANDARD
+  CONTRACTUAL
+  VOLUNTARY
+}
+
+enum ComplianceStatus {
+  COMPLIANT
+  PARTIAL
+  NON_COMPLIANT
+  UNDER_REVIEW
+  NOT_ASSESSED
+}
+
+enum LegalStatus {
+  ACTIVE
+  REVIEW_DUE
+  SUPERSEDED
+  ARCHIVED
+}
+
+// ============================================
+// OHS OBJECTIVES
+// ============================================
+
+model OhsObjective {
+  id                String   @id @default(cuid())
+  referenceNumber   String   @unique
+  title             String
+  objectiveStatement String?
+
+  // Classification
+  category          ObjectiveCategory
+  ohsPolicyLink     String?
+  department        String?
+  owner             String?
+
+  // Timeline
+  startDate         DateTime?
+  targetDate        DateTime
+  completedDate     DateTime?
+
+  // Measurement
+  kpiDescription    String?
+  baselineValue     Float?
+  targetValue       Float?
+  currentValue      Float    @default(0)
+  unit              String?
+  progressPercent   Float    @default(0)
+  monitoringFrequency String?
+
+  // Resources
+  resourcesRequired String?
+  progressNotes     String?
+
+  // AI
+  aiRecommendations String?
+  aiGenerated       Boolean  @default(false)
+
+  // Status
+  status            ObjectiveStatus @default(ACTIVE)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  milestones        ObjectiveMilestone[]
+
+  @@index([status])
+  @@index([category])
+  @@map("hs_ohs_objectives")
+}
+
+model ObjectiveMilestone {
+  id            String   @id @default(cuid())
+  objectiveId   String
+  title         String
+  dueDate       DateTime
+  completed     Boolean  @default(false)
+  completedDate DateTime?
+  sortOrder     Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  objective     OhsObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@index([objectiveId])
+  @@map("hs_objective_milestones")
+}
+
+enum ObjectiveCategory {
+  INCIDENT_REDUCTION
+  HAZARD_ELIMINATION
+  TRAINING
+  AUDIT
+  LEGAL_COMPLIANCE
+  HEALTH_WELLBEING
+  RISK_REDUCTION
+  CONTRACTOR_MANAGEMENT
+  OTHER
+}
+
+enum ObjectiveStatus {
+  ACTIVE
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  CANCELLED
+}
+
+// ============================================
+// CAPA (Corrective & Preventive Actions)
+// ============================================
+
+model Capa {
+  id                    String   @id @default(cuid())
+  referenceNumber       String   @unique
+  title                 String
+
+  // Classification
+  capaType              CapaType
+  source                CapaSource
+  sourceReference       String?
+  priority              CapaPriority @default(MEDIUM)
+
+  // Timeline
+  raisedDate            DateTime @default(now())
+  targetCompletionDate  DateTime?
+  department            String?
+  responsiblePerson     String?
+
+  // Problem Analysis
+  problemStatement      String?
+  rootCauseAnalysis     String?
+  containmentActions    String?
+  successCriteria       String?
+  verificationMethod    String?
+  verificationDate      DateTime?
+
+  // AI
+  aiAnalysis            String?
+  aiAnalysisGenerated   Boolean  @default(false)
+
+  // Closure
+  status                CapaStatus @default(OPEN)
+  closureNotes          String?
+  closedDate            DateTime?
+  closedBy              String?
+  effectivenessRating   String?
+
+  // Audit
+  createdBy             String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  actions               CapaAction[]
+  incident              Incident? @relation(fields: [incidentId], references: [id])
+  incidentId            String?
+  risk                  Risk?     @relation(fields: [riskId], references: [id])
+  riskId                String?
+
+  @@index([status])
+  @@index([capaType])
+  @@index([priority])
+  @@map("hs_capas")
+}
+
+model CapaAction {
+  id              String   @id @default(cuid())
+  capaId          String
+  title           String
+  description     String?
+  type            CapaActionType
+  owner           String?
+  dueDate         DateTime?
+  completedAt     DateTime?
+  status          CapaActionStatus @default(OPEN)
+  sortOrder       Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  capa            Capa @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@map("hs_capa_actions")
+}
+
+enum CapaType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+}
+
+enum CapaSource {
+  INCIDENT
+  NEAR_MISS
+  AUDIT
+  RISK_ASSESSMENT
+  LEGAL
+  MANAGEMENT_REVIEW
+  WORKER_SUGGESTION
+  OTHER
+}
+
+enum CapaPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum CapaStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_VERIFICATION
+  CLOSED
+  OVERDUE
+}
+
+enum CapaActionType {
+  IMMEDIATE
+  CORRECTIVE
+  PREVENTIVE
+}
+
+enum CapaActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
   CANCELLED
 }

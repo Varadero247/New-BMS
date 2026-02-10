@@ -20,6 +20,9 @@ import risksRouter from './routes/risks';
 import incidentsRouter from './routes/incidents';
 import metricsRouter from './routes/metrics';
 import trainingRouter from './routes/training';
+import legalRouter from './routes/legal';
+import objectivesRouter from './routes/objectives';
+import capaRouter from './routes/capa';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4001;
@@ -40,6 +43,9 @@ app.use('/api/risks', risksRouter);
 app.use('/api/incidents', incidentsRouter);
 app.use('/api/metrics/safety', metricsRouter);
 app.use('/api/training', trainingRouter);
+app.use('/api/legal', legalRouter);
+app.use('/api/objectives', objectivesRouter);
+app.use('/api/capa', capaRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
