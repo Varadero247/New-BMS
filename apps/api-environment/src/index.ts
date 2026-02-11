@@ -12,7 +12,7 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
-import { prisma } from '@ims/database';
+import { prisma } from './prisma';
 
 const logger = createLogger('api-environment');
 
@@ -20,26 +20,30 @@ import aspectsRouter from './routes/aspects';
 import eventsRouter from './routes/events';
 import legalRouter from './routes/legal';
 import objectivesRouter from './routes/objectives';
+import actionsRouter from './routes/actions';
+import capaRouter from './routes/capa';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4002;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-environment'));
 app.use(express.json());
 
 // Health check and metrics
-app.get('/health', createHealthCheck('api-environment', prisma, '1.0.0'));
+app.get('/health', createHealthCheck('api-environment', prisma as any, '1.0.0'));
 app.get('/metrics', metricsHandler);
 
-// Routes - all filtered by ISO_14001
-app.use('/api/risks', aspectsRouter);  // Environmental aspects stored as risks
-app.use('/api/incidents', eventsRouter);  // Environmental events stored as incidents
+// Routes — gateway rewrites /api/environment/* → /api/*
+app.use('/api/aspects', aspectsRouter);
+app.use('/api/events', eventsRouter);
 app.use('/api/legal', legalRouter);
 app.use('/api/objectives', objectivesRouter);
+app.use('/api/actions', actionsRouter);
+app.use('/api/capa', capaRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

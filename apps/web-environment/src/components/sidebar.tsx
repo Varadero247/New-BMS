@@ -9,7 +9,7 @@ import {
   Scale,
   Target,
   ClipboardList,
-  GraduationCap,
+  RefreshCw,
   Home,
   Settings,
 } from 'lucide-react';
@@ -21,7 +21,7 @@ const navigation = [
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },
   { name: 'Actions', href: '/actions', icon: ClipboardList },
-  { name: 'Training', href: '/training', icon: GraduationCap },
+  { name: 'CAPA', href: '/capa', icon: RefreshCw },
 ];
 
 const externalLinks = [

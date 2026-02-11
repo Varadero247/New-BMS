@@ -1,11 +1,11 @@
-// Quality Schema - Quality Management Domain (ISO 9001)
-// This schema is used by the Quality microservice
-// Database: ims_quality
+// Quality Schema - Quality Management Domain (ISO 9001:2015)
+// 18 Qual-prefixed models for the Quality Management System
+// Database: ims (shared) or ims_quality (microservice mode)
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  output   = "../../generated/quality"
+  output        = "../../generated/quality"
 }
 
 datasource db {
@@ -14,66 +14,442 @@ datasource db {
 }
 
 // ============================================
-// QUALITY INCIDENTS / NON-CONFORMANCES
+// COTO LOG — INTERESTED PARTIES
 // ============================================
 
-model NonConformance {
+model QualInterestedParty {
   id              String   @id @default(cuid())
   referenceNumber String   @unique
-  title           String
-  description     String
+  partyName       String
+  partyType       PartyType
+  reasonForInclusion String
+  needsExpectations  String?
+  communicationMethod String?
+  reviewFrequency ReviewFrequency @default(ANNUALLY)
+  status          PartyStatus @default(ACTIVE)
+  notes           String?
 
-  // Classification
-  type            NCType
-  severity        NCSeverity @default(MINOR)
-  category        String?
-
-  // Details
-  location        String?
-  dateOccurred    DateTime
-  dateReported    DateTime @default(now())
-
-  // People
-  reporterId      String   // Reference to User in core DB
-  investigatorId  String?
-
-  // Quality-specific
-  productAffected      String?
-  customerImpact       String?
-  costOfNonConformance Decimal? @db.Decimal(14, 2)
-
-  // Investigation
-  immediateCause      String?
-  rootCauses          String?
-  contributingFactors String?
-
-  // Status
-  status          NCStatus @default(OPEN)
-  closedAt        DateTime?
+  // AI
+  aiAnalysis      String?
+  aiGenerated     Boolean  @default(false)
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   // Relations
-  actions         NCAction[]
-  fiveWhyAnalyses FiveWhyAnalysis[]
-  fishboneAnalyses FishboneAnalysis[]
-  capas           CAPA[]
+  issues          QualIssue[]
 
+  @@index([partyType])
   @@index([status])
-  @@index([type])
-  @@index([dateOccurred])
-  @@map("quality_non_conformances")
+  @@map("qual_interested_parties")
+}
+
+enum PartyType {
+  INTERNAL
+  EXTERNAL
+}
+
+enum PartyStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ReviewFrequency {
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  BI_ANNUALLY
+  ON_CHANGE
+}
+
+// ============================================
+// COTO LOG — ISSUES REGISTER
+// ============================================
+
+model QualIssue {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  partyId         String?
+  issueOfConcern  String
+  bias            IssueBias
+  processesAffected String?
+  priority        IssuePriority @default(MEDIUM)
+  treatmentMethod String
+  recordReference String?
+  status          IssueStatus @default(OPEN)
+  notes           String?
+
+  // AI
+  aiAnalysis      String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  party           QualInterestedParty? @relation(fields: [partyId], references: [id])
+
+  @@index([bias])
+  @@index([priority])
+  @@index([status])
+  @@map("qual_issues")
+}
+
+enum IssueBias {
+  RISK
+  OPPORTUNITY
+  MIXED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueStatus {
+  OPEN
+  UNDER_REVIEW
+  TREATED
+  MONITORED
+  CLOSED
+}
+
+// ============================================
+// COTO LOG — RISK REGISTER
+// ============================================
+
+model QualRisk {
+  id                String   @id @default(cuid())
+  referenceNumber   String   @unique
+  process           QualRiskProcess
+  riskDescription   String
+  reportedBy        String?
+
+  // Probability Assessment
+  likelihood        Int      @default(1) // 1-6
+  previousOccurrences String?
+  probabilityRating Int      @default(1) // auto = likelihood
+
+  // Consequence Assessment (each 0-5)
+  lossOfContracts         Int @default(0)
+  harmToUser              Int @default(0)
+  unableToMeetTerms       Int @default(0)
+  violationOfRegulations  Int @default(0)
+  reputationImpact        Int @default(0)
+  costOfCorrection        Int @default(0)
+  consequenceRating       Int @default(0) // auto = max of above
+
+  // Risk Scoring
+  riskFactor        Int      @default(0) // auto = probability × consequence
+  riskLevel         RiskLevel @default(LOW)
+
+  // Treatment
+  treatmentOption   TreatmentOption @default(ACCEPT)
+  treatmentActions  String?
+  responsiblePerson String?
+  dueDate           DateTime?
+  reviewDate        DateTime?
+  status            RiskStatus @default(OPEN)
+
+  // AI
+  aiAnalysis        String?
+  aiRootCauses      String?
+  aiWarningIndicators String?
+  aiTreatmentOptions String?
+  aiResidualRisk    String?
+  aiIsoClause       String?
+  aiLinkedOpportunities String?
+  aiGenerated       Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([riskLevel])
+  @@index([status])
+  @@index([process])
+  @@map("qual_risks")
+}
+
+enum QualRiskProcess {
+  STRATEGIC
+  FINANCE
+  HR
+  OPERATIONS
+  MARKETING_SALES
+  IT
+  COMPLIANCE_LEGAL
+  ALL_PROCESSES
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TreatmentOption {
+  ACCEPT
+  REDUCE
+  TRANSFER
+  AVOID
+  CONTINGENCY
+}
+
+enum RiskStatus {
+  OPEN
+  BEING_TREATED
+  MONITORED
+  CLOSED
+  ACCEPTED
+}
+
+// ============================================
+// COTO LOG — OPPORTUNITY REGISTER
+// ============================================
+
+model QualOpportunity {
+  id                  String   @id @default(cuid())
+  referenceNumber     String   @unique
+  process             QualRiskProcess
+  interestedParties   String?
+  opportunityDescription String
+  reportedBy          String?
+
+  // Probability Assessment
+  likelihood          Int      @default(1) // 1-6
+  previousOccurrences String?
+  probabilityRating   Int      @default(1)
+
+  // Benefit Assessment (each 0-4)
+  newBusiness          Int @default(0)
+  expansionOfCurrent   Int @default(0)
+  satisfyingRegs       Int @default(0)
+  internalQmsImprovement Int @default(0)
+  reputationImprovement Int @default(0)
+  costOfImplementation Int @default(0)
+
+  benefitRating       Int      @default(0) // auto = max of above
+  opportunityScore    Int      @default(0) // auto = probability × benefit
+  priorityLevel       RiskLevel @default(LOW) // reuses LOW/MEDIUM/HIGH/CRITICAL
+
+  // Action
+  actionToExploit     String?
+  responsiblePerson   String?
+  targetDate          DateTime?
+  status              OpportunityStatus @default(IDENTIFIED)
+
+  // AI
+  aiAnalysis          String?
+  aiExploitationStrategy String?
+  aiResourceRequirements String?
+  aiKpis              String?
+  aiRisksOfPursuing   String?
+  aiGenerated         Boolean  @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([priorityLevel])
+  @@index([status])
+  @@map("qual_opportunities")
+}
+
+enum OpportunityStatus {
+  IDENTIFIED
+  BEING_EXPLOITED
+  ACHIEVED
+  MISSED
+  DEFERRED
+}
+
+// ============================================
+// PROCESS REGISTER
+// ============================================
+
+model QualProcess {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  processName     String
+  processType     ProcessType
+  isoClause       String?
+  department      String
+  processOwner    String
+  version         String   @default("1.0")
+  status          ProcessStatus @default(DRAFT)
+
+  // Turtle Diagram
+  purposeScope    String
+  inputs          String
+  outputs         String
+  customerOfOutput String?
+  resourcesRequired String?
+  competenceNeeded String?
+  keyActivities   String?
+  controlsMethods String?
+
+  // Performance KPIs
+  kpi1Description String?
+  kpi1Target      String?
+  kpi2Description String?
+  kpi2Target      String?
+  kpi3Description String?
+  kpi3Target      String?
+  monitoringMethod String?
+  measurementFrequency MeasurementFrequency?
+
+  // Linkage
+  precedingProcesses String?
+  followingProcesses String?
+  relatedDocuments   String?
+  relatedRiskRef     String?
+  relatedLegalRef    String?
+
+  // Review
+  reviewFrequency ReviewFrequency @default(ANNUALLY)
+  lastReviewed    DateTime?
+  nextReviewDate  DateTime?
+  reviewNotes     String?
+
+  // AI
+  aiAnalysis      String?
+  aiProcessGaps   String?
+  aiRiskPoints    String?
+  aiKpiSuggestions String?
+  aiIsoAlignment  String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([processType])
+  @@index([status])
+  @@map("qual_processes")
+}
+
+enum ProcessType {
+  MANAGEMENT
+  CORE
+  SUPPORT
+}
+
+enum ProcessStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  RETIRED
+}
+
+enum MeasurementFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+// ============================================
+// NON-CONFORMANCE REPORT
+// ============================================
+
+model QualNonConformance {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  ncType          NCType
+  source          NCSource
+  severity        NCSeverity @default(MINOR)
+  isoClause       String?
+  dateReported    DateTime @default(now())
+  reportedBy      String
+  department      String
+
+  // Description
+  title           String
+  description     String
+  evidenceRef     String?
+  whereDetected   String?
+  quantityAffected Int?
+  quantityUnit    String?
+  customerImpact  Boolean  @default(false)
+  customerImpactDesc String?
+
+  // Containment
+  containmentRequired Boolean @default(false)
+  containmentActions  String?
+  productsQuarantined Boolean @default(false)
+  customersNotified   Boolean @default(false)
+  containmentEffectiveBy String?
+  containmentDate     DateTime?
+
+  // Root Cause
+  rcaMethod       RCAMethod?
+  why1            String?
+  why2            String?
+  why3            String?
+  why4            String?
+  why5            String?
+  rootCause       String?
+  rootCauseCategory RootCauseCategory?
+
+  // CAPA
+  capaRequired    Boolean  @default(false)
+  capaReference   String?
+  correctiveActions String?
+  preventiveActions String?
+  recurrencePrevention String?
+
+  // Closure
+  status          NCStatus @default(REPORTED)
+  closedBy        String?
+  closureDate     DateTime?
+  effectivenessVerified EffectivenessStatus @default(PENDING)
+  lessonsLearned  String?
+
+  // Cross-module links
+  linkedProcess   String?
+  linkedFmea      String?
+  linkedHsIncident String?
+  linkedEnvEvent  String?
+
+  // AI
+  aiAnalysis      String?
+  aiRootCauseSuggestions String?
+  aiContainmentAdequacy String?
+  aiCapaRecommendations String?
+  aiIsoClause     String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ncType])
+  @@index([status])
+  @@index([severity])
+  @@map("qual_nonconformances")
 }
 
 enum NCType {
-  NON_CONFORMANCE
+  INTERNAL
   CUSTOMER_COMPLAINT
-  SUPPLIER_ISSUE
-  PROCESS_DEVIATION
-  PRODUCT_DEFECT
+  SUPPLIER
+  REGULATORY
   AUDIT_FINDING
-  INTERNAL_ISSUE
+  PROCESS_FAILURE
+  PRODUCT_DEFECT
+  SERVICE_FAILURE
+}
+
+enum NCSource {
+  INTERNAL_AUDIT
+  CUSTOMER_FEEDBACK
+  SUPPLIER_AUDIT
+  PROCESS_MONITORING
+  MANAGEMENT_REVIEW
+  THIRD_PARTY_AUDIT
+  INSPECTION
+  OBSERVATION
 }
 
 enum NCSeverity {
@@ -81,72 +457,116 @@ enum NCSeverity {
   MODERATE
   MAJOR
   CRITICAL
-  CATASTROPHIC
+}
+
+enum RCAMethod {
+  FIVE_WHY
+  FISHBONE
+  IS_IS_NOT
+  EIGHT_D
+  FAULT_TREE
+  OTHER
+}
+
+enum RootCauseCategory {
+  HUMAN_ERROR
+  PROCESS_FAILURE
+  EQUIPMENT
+  MATERIAL
+  MEASUREMENT
+  ENVIRONMENT
+  MANAGEMENT_SYSTEM
+  SUPPLIER
 }
 
 enum NCStatus {
-  OPEN
-  UNDER_INVESTIGATION
-  AWAITING_ACTIONS
-  ACTIONS_IN_PROGRESS
+  REPORTED
+  UNDER_REVIEW
+  CONTAINED
+  ROOT_CAUSE
+  CAPA_RAISED
   VERIFICATION
   CLOSED
 }
 
+enum EffectivenessStatus {
+  YES
+  NO
+  PENDING
+}
+
 // ============================================
-// CORRECTIVE/PREVENTIVE ACTIONS
+// QUALITY ACTIONS
 // ============================================
 
-model NCAction {
+model QualAction {
   id              String   @id @default(cuid())
-  ncId            String
   referenceNumber String   @unique
   title           String
-  description     String
-
-  // Classification
-  type            ActionType
+  actionType      QualActionType
   priority        ActionPriority @default(MEDIUM)
-
-  // Assignment
-  ownerId         String   // Reference to User in core DB
-  createdById     String
-
-  // Timeline
+  source          ActionSource
+  sourceReference String?
+  description     String
+  expectedOutcome String
+  assignedTo      String
+  department      String
   dueDate         DateTime
-  completedAt     DateTime?
-  verifiedAt      DateTime?
-
-  // Verification
-  verificationMethod  String?
-  verificationNotes   String?
-  effectivenessRating Int?     // 1-5
-
-  // Status
   status          ActionStatus @default(OPEN)
+  progressNotes   String?
+  completionDate  DateTime?
+  percentComplete Int      @default(0)
+  verificationMethod VerificationMethod?
+  verifiedBy      String?
+  verificationDate DateTime?
+  effective       EffectivenessStatus?
 
-  // Cost
-  estimatedCost   Decimal? @db.Decimal(14, 2)
-  actualCost      Decimal? @db.Decimal(14, 2)
+  // Cross-links
+  linkedNc        String?
+  linkedCapa      String?
+  linkedProcess   String?
+  linkedFmea      String?
+
+  // AI
+  aiAnalysis      String?
+  aiActionPlan    String?
+  aiResourceEstimate String?
+  aiSuccessCriteria String?
+  aiGenerated     Boolean  @default(false)
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  // Relations
-  nonConformance  NonConformance @relation(fields: [ncId], references: [id])
-
-  @@index([ncId])
-  @@index([status, dueDate])
-  @@index([ownerId])
-  @@map("quality_actions")
+  @@index([status])
+  @@index([priority])
+  @@index([actionType])
+  @@index([dueDate])
+  @@map("qual_actions")
 }
 
-enum ActionType {
+enum QualActionType {
   CORRECTIVE
   PREVENTIVE
   IMPROVEMENT
-  IMMEDIATE
-  LONG_TERM
+  AUDIT_FINDING
+  RISK_TREATMENT
+  OBJECTIVE_SUPPORT
+  LEGAL_COMPLIANCE
+  OTHER
+}
+
+enum ActionSource {
+  NC_REPORT
+  CAPA
+  INTERNAL_AUDIT
+  MANAGEMENT_REVIEW
+  RISK_REGISTER
+  FMEA
+  CUSTOMER_COMPLAINT
+  SUPPLIER_AUDIT
+  CONTINUAL_IMPROVEMENT
+  OBJECTIVE
+  OTHER
 }
 
 enum ActionPriority {
@@ -165,61 +585,218 @@ enum ActionStatus {
   CANCELLED
 }
 
+enum VerificationMethod {
+  DOCUMENT_REVIEW
+  INSPECTION
+  AUDIT
+  TEST
+  SIGN_OFF
+}
+
 // ============================================
-// CAPA (8D PROBLEM SOLVING)
+// DOCUMENT CONTROL
 // ============================================
 
-model CAPA {
-  id                String   @id @default(cuid())
-  referenceNumber   String   @unique
-  ncId              String?
+model QualDocument {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  documentType    DocumentType
+  isoClause       String?
+  linkedProcess   String?
+  version         String   @default("1.0")
+  status          DocumentStatus @default(DRAFT)
+  language        String   @default("English")
 
-  title             String
-  description       String
+  // Content
+  purpose         String?
+  scope           String?
+  summary         String?
+  keyChanges      String?
 
-  // Classification
-  capaType          CAPAType @default(CORRECTIVE)
-  severity          CAPASeverity @default(MINOR)
-  category          String?
+  // Ownership
+  author          String
+  ownerCustodian  String
+  reviewer        String?
+  approvedBy      String?
+  issueDate       DateTime?
+  effectiveDate   DateTime?
+  nextReviewDate  DateTime?
 
-  // 8D Phase tracking
-  currentPhase      CAPAPhase @default(D1_TEAM)
-  phaseHistory      Json?
+  // Distribution
+  distributionList String?
+  accessLevel     AccessLevel @default(UNRESTRICTED)
+  locationUrl     String?
+  controlledCopies Int      @default(0)
 
-  // Key dates
-  initiatedDate     DateTime @default(now())
+  // Related
+  supersedesDocument String?
+  relatedProcedures  String?
+  relatedForms       String?
+  relatedRecords     String?
+
+  // AI
+  aiAnalysis      String?
+  aiGapAnalysis   String?
+  aiContentSuggestions String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([documentType])
+  @@index([status])
+  @@map("qual_documents")
+}
+
+enum DocumentType {
+  POLICY
+  PROCEDURE
+  WORK_INSTRUCTION
+  FORM
+  RECORD
+  SPECIFICATION
+  DRAWING
+  EXTERNAL
+  PLAN
+  REPORT
+}
+
+enum DocumentStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ISSUED
+  OBSOLETE
+  SUPERSEDED
+  EXTERNAL
+}
+
+enum AccessLevel {
+  UNRESTRICTED
+  CONTROLLED
+  CONFIDENTIAL
+  RESTRICTED
+}
+
+// ============================================
+// CAPA MANAGEMENT
+// ============================================
+
+model QualCapa {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  capaType        CAPAType
+  title           String
+  severity        NCSeverity @default(MINOR)
+  triggerSource   CAPATriggerSource
+  sourceReference String?
+  description     String
+  isoClause       String?
+
+  // Containment
+  immediateActionRequired Boolean @default(false)
+  actionsTaken    String?
+  containmentVerifiedBy String?
+  containmentDate DateTime?
+
+  // Root Cause Analysis
+  rcaMethod       RCAMethod?
+  problemStatement String?
+  why1            String?
+  why2            String?
+  why3            String?
+  why4            String?
+  why5            String?
+  rootCauseStatement String?
+  // Fishbone
+  fishbonePeople  String?
+  fishboneMethod  String?
+  fishboneMachine String?
+  fishboneMaterial String?
+  fishboneMeasurement String?
+  fishboneEnvironment String?
+  // 8D
+  d0EmergencyResponse String?
+  d1Team          String?
+  d2ProblemDescription String?
+  d3Containment   String?
+  d4RootCause     String?
+  d5CorrectiveActions String?
+  d6Implementation String?
+  d7Prevention    String?
+  d8CongratulateTeam String?
+
+  rootCauseCategory RootCauseCategory?
+
+  // Effectiveness
+  effectivenessCriteria String?
+  effectivenessKpi String?
+  effectivenessTarget String?
+  effectivenessMeasureMethod String?
+
+  // Status
+  status          CAPAStatus @default(INITIATED)
+  progressNotes   String?
+  percentComplete Int      @default(0)
   targetClosureDate DateTime?
   actualClosureDate DateTime?
 
-  // Status
-  status            CAPAStatus @default(OPEN)
+  // Verification & Closure
+  reviewDate      DateTime?
+  verifiedBy      String?
+  effectivenessAssessment String?
+  recurrenceCheck Boolean?
+  actionsEffective EffectivenessStatus?
+  lessonsLearned  String?
 
-  // Effectiveness
-  effectivenessVerified Boolean @default(false)
-  effectivenessScore    Int?
+  // Cross-module links
+  linkedNc        String?
+  linkedProcess   String?
+  linkedFmea      String?
+  linkedDocument  String?
+  linkedHsCapa    String?
+  linkedEnvCapa   String?
 
-  // Financial tracking
-  estimatedCost     Decimal? @db.Decimal(14, 2)
-  actualCost        Decimal? @db.Decimal(14, 2)
-  costAvoidance     Decimal? @db.Decimal(14, 2)
+  // AI
+  aiAnalysis      String?
+  aiRootCauseValidation String?
+  aiActionSuggestions String?
+  aiEffectivenessCriteria String?
+  aiSystemicImplications String?
+  aiGenerated     Boolean  @default(false)
 
-  metadata          Json?
-  attachments       Json?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  createdById       String?
-  closedById        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  nonConformance    NonConformance? @relation(fields: [ncId], references: [id])
-  teamMembers       CAPATeamMember[]
-  rootCauses        CAPARootCause[]
-  correctiveActions CAPACorrectiveAction[]
+  capaActions     QualCapaAction[]
 
-  @@index([status, currentPhase])
   @@index([capaType])
-  @@map("quality_capas")
+  @@index([status])
+  @@index([severity])
+  @@map("qual_capas")
+}
+
+model QualCapaAction {
+  id              String   @id @default(cuid())
+  capaId          String
+  action          String
+  assignedTo      String
+  dueDate         DateTime
+  priority        ActionPriority @default(MEDIUM)
+  status          ActionStatus @default(OPEN)
+  notes           String?
+  completedDate   DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  capa            QualCapa @relation(fields: [capaId], references: [id], onDelete: Cascade)
+
+  @@index([capaId])
+  @@index([status])
+  @@map("qual_capa_actions")
 }
 
 enum CAPAType {
@@ -228,416 +805,684 @@ enum CAPAType {
   IMPROVEMENT
 }
 
-enum CAPASeverity {
-  MINOR
-  MODERATE
-  MAJOR
-  CRITICAL
-}
-
-enum CAPAPhase {
-  D1_TEAM
-  D2_PROBLEM
-  D3_CONTAINMENT
-  D4_ROOT_CAUSE
-  D5_CORRECTIVE_ACTION
-  D6_IMPLEMENTATION
-  D7_PREVENTION
-  D8_CLOSURE
-}
-
-enum CAPAStatus {
-  OPEN
-  IN_PROGRESS
-  PENDING_VERIFICATION
-  VERIFIED
-  CLOSED
-  CANCELLED
-}
-
-model CAPATeamMember {
-  id                String   @id @default(cuid())
-  capaId            String
-  userId            String
-  role              CAPATeamRole
-  department        String?
-  responsibilities  String?
-  assignedAt        DateTime @default(now())
-  removedAt         DateTime?
-  isActive          Boolean  @default(true)
-
-  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
-
-  @@unique([capaId, userId])
-  @@index([capaId])
-  @@map("quality_capa_team_members")
-}
-
-enum CAPATeamRole {
-  CHAMPION
-  TEAM_LEADER
-  TEAM_MEMBER
-  PROCESS_OWNER
-  QUALITY_REP
-  SUBJECT_MATTER_EXPERT
-  MANAGEMENT_REP
-  CUSTOMER_REP
-}
-
-model CAPARootCause {
-  id                String   @id @default(cuid())
-  capaId            String
-  causeDescription  String
-  causeType         RootCauseType
-  causeCategory     String?
-  analysisMethod    RCAMethod
-  fiveWhysData      Json?
-  fishboneData      Json?
-  isVerified        Boolean  @default(false)
-  verificationMethod String?
-  verifiedById      String?
-  verifiedAt        DateTime?
-  evidence          Json?
-  contributionPercent Decimal? @db.Decimal(5, 2)
-  isPrimary         Boolean  @default(false)
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  createdById       String?
-
-  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
-
-  @@index([capaId])
-  @@map("quality_capa_root_causes")
-}
-
-enum RootCauseType {
-  TECHNICAL
-  HUMAN
-  ORGANIZATIONAL
-  EXTERNAL
-  DESIGN
-  PROCESS
-  MATERIAL
-  EQUIPMENT
-  TRAINING
-  COMMUNICATION
-}
-
-enum RCAMethod {
-  FIVE_WHYS
-  FISHBONE
-  FAULT_TREE
-  CHANGE_ANALYSIS
-  BARRIER_ANALYSIS
-  EVENT_TREE
-  PARETO
+enum CAPATriggerSource {
+  NC_REPORT
+  CUSTOMER_COMPLAINT
+  INTERNAL_AUDIT
+  EXTERNAL_AUDIT
+  MANAGEMENT_REVIEW
+  SUPPLIER_AUDIT
+  PROCESS_FAILURE
   FMEA
-}
-
-model CAPACorrectiveAction {
-  id                String   @id @default(cuid())
-  capaId            String
-  description       String
-  actionCategory    CorrectiveActionCategory
-  rootCauseId       String?
-  assignedToId      String?
-  department        String?
-  plannedStartDate  DateTime?
-  plannedEndDate    DateTime?
-  actualStartDate   DateTime?
-  actualEndDate     DateTime?
-  status            ActionStatus @default(OPEN)
-  priority          ActionPriority @default(MEDIUM)
-  estimatedCost     Decimal? @db.Decimal(14, 2)
-  actualCost        Decimal? @db.Decimal(14, 2)
-  resourcesRequired String?
-  evidence          Json?
-  attachments       Json?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  createdById       String?
-
-  capa              CAPA     @relation(fields: [capaId], references: [id], onDelete: Cascade)
-
-  @@index([capaId])
-  @@map("quality_capa_corrective_actions")
-}
-
-enum CorrectiveActionCategory {
-  DESIGN_CHANGE
-  PROCESS_CHANGE
-  PROCEDURE_UPDATE
-  EQUIPMENT_MODIFICATION
-  TRAINING
-  SUPPLIER_CHANGE
-  INSPECTION_UPDATE
-  PREVENTIVE_MAINTENANCE
-  WORK_INSTRUCTION_UPDATE
+  RISK_REGISTER
   OTHER
 }
 
-// ============================================
-// ROOT CAUSE ANALYSIS
-// ============================================
-
-model FiveWhyAnalysis {
-  id         String   @id @default(cuid())
-  ncId       String
-
-  why1       String?
-  why2       String?
-  why3       String?
-  why4       String?
-  why5       String?
-
-  rootCause  String?
-  conclusion String?
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  nonConformance NonConformance @relation(fields: [ncId], references: [id], onDelete: Cascade)
-
-  @@map("quality_five_why_analyses")
-}
-
-model FishboneAnalysis {
-  id               String   @id @default(cuid())
-  ncId             String
-
-  problemStatement String
-
-  // 6M Categories
-  manpower         String?
-  method           String?
-  machine          String?
-  material         String?
-  measurement      String?
-  environment      String?
-
-  conclusion       String?
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  nonConformance   NonConformance @relation(fields: [ncId], references: [id], onDelete: Cascade)
-
-  @@map("quality_fishbone_analyses")
+enum CAPAStatus {
+  INITIATED
+  ROOT_CAUSE_ANALYSIS
+  ACTIONS_DEFINED
+  IMPLEMENTATION
+  VERIFICATION
+  CLOSED
+  CANCELLED
 }
 
 // ============================================
-// QUALITY AUDITS
+// QUALITY LEGAL REGISTER
 // ============================================
 
-model QualityAudit {
-  id                String   @id @default(cuid())
-  auditNumber       String   @unique
-  title             String
-  description       String?
+model QualLegal {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  obligationType  LegalObligationType
+  issuingBody     String?
+  referenceDoc    String?
+  description     String
+  requirements    String?
+  applicableScope String?
 
-  // Classification
-  auditType         AuditType
-  auditScope        String?
-  clauses           String[]  // ISO clauses covered
+  // Quality-specific
+  customerName    String?
+  contractNumber  String?
+  productServiceScope String?
+  certificationBody String?
 
-  // Schedule
-  plannedStartDate  DateTime
-  plannedEndDate    DateTime
-  actualStartDate   DateTime?
-  actualEndDate     DateTime?
+  // Compliance
+  complianceStatus ComplianceStatus @default(NOT_ASSESSED)
+  complianceNotes  String?
+  gapAnalysis      String?
+  lastAssessmentDate DateTime?
+  nextAssessmentDate DateTime?
 
-  // Auditee info
-  auditeeDepartment String?
-  auditeeLocation   String?
-  auditeeContact    String?
+  // Monitoring
+  responsiblePerson String?
+  reviewFrequency ReviewFrequency @default(ANNUALLY)
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  status          LegalStatus @default(ACTIVE)
 
-  // Status
-  status            AuditStatus @default(PLANNED)
+  // IMS cross-links
+  trackedInHs     Boolean  @default(false)
+  trackedInEnv    Boolean  @default(false)
 
-  // Summary
-  objectives        String?
-  conclusion        String?
-  overallRating     AuditRating?
+  // AI
+  aiAnalysis      String?
+  aiComplianceChecklist String?
+  aiGapAnalysis   String?
+  aiGenerated     Boolean  @default(false)
 
-  // Statistics
-  totalFindings     Int      @default(0)
-  majorNCs          Int      @default(0)
-  minorNCs          Int      @default(0)
-  observations      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  metadata          Json?
-  attachments       Json?
+  @@index([obligationType])
+  @@index([complianceStatus])
+  @@index([status])
+  @@map("qual_legal")
+}
+
+enum LegalObligationType {
+  PRODUCT_STANDARD
+  CUSTOMER_CONTRACT
+  REGULATORY
+  INDUSTRY_CODE
+  CERTIFICATION_REQUIREMENT
+  VOLUNTARY_COMMITMENT
+}
+
+enum ComplianceStatus {
+  COMPLIANT
+  PARTIALLY_COMPLIANT
+  NON_COMPLIANT
+  NOT_ASSESSED
+  UNDER_REVIEW
+}
+
+enum LegalStatus {
+  ACTIVE
+  PENDING
+  EXPIRED
+  SUPERSEDED
+  WITHDRAWN
+}
+
+// ============================================
+// FMEA
+// ============================================
+
+model QualFmea {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  fmeaType        FMEAType
+  title           String
+  productProcess  String
+  partNumberRev   String?
+  customer        String?
+  teamMembers     String?
+  scopeDescription String?
+  linkedProcess   String?
+  status          FMEAStatus @default(DRAFT)
+  dateInitiated   DateTime @default(now())
+  nextReviewDate  DateTime?
+
+  // AI
+  aiAnalysis      String?
+  aiMissingFailureModes String?
+  aiControlGaps   String?
+  aiTopPriorityActions String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  rows            QualFmeaRow[]
+
+  @@index([fmeaType])
+  @@index([status])
+  @@map("qual_fmeas")
+}
+
+model QualFmeaRow {
+  id              String   @id @default(cuid())
+  fmeaId          String
+  sortOrder       Int      @default(0)
+
+  // Analysis
+  itemProcessStep String?
+  functionRequirement String?
+  failureMode     String
+  effectOfFailure String
+  severity        Int      @default(1) // 1-10
+  potentialCauses String
+  currentPreventionControls String?
+  occurrence      Int      @default(1) // 1-10
+  currentDetectionControls String?
+  detection       Int      @default(1) // 1-10
+
+  // Scoring
+  rpn             Int      @default(0) // auto S×O×D
+  actionPriority  FMEAActionPriority @default(LOW)
+
+  // Actions
+  recommendedActions String?
+  assignedTo      String?
+  dueDate         DateTime?
+  actionsTaken    String?
+
+  // Revised scores
+  revisedSeverity   Int?
+  revisedOccurrence Int?
+  revisedDetection  Int?
+  revisedRpn        Int? // auto
+  status          FMEARowStatus @default(OPEN)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fmea            QualFmea @relation(fields: [fmeaId], references: [id], onDelete: Cascade)
+
+  @@index([fmeaId])
+  @@index([rpn])
+  @@map("qual_fmea_rows")
+}
+
+enum FMEAType {
+  DFMEA
+  PFMEA
+  SFMEA
+}
+
+enum FMEAStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  ACTIVE
+  ARCHIVED
+}
+
+enum FMEAActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum FMEARowStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  ACCEPTED
+}
+
+// ============================================
+// CONTINUAL IMPROVEMENT
+// ============================================
+
+model QualImprovement {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  category        ImprovementCategory
+  source          ImprovementSource
+  submittedBy     String
+  department      String?
+  dateSubmitted   DateTime @default(now())
+
+  // Description
+  description     String
+  currentState    String?
+  proposedSolution String
+  expectedBenefits String
+
+  // Impact Assessment
+  estimatedCost   Decimal? @db.Decimal(14, 2)
+  estimatedTime   String?
+  estimatedSaving Decimal? @db.Decimal(14, 2)
+  qualityImpact   ImpactLevel @default(NONE)
+  customerImpact  ImpactLevel @default(NONE)
+  processImpact   ImpactLevel @default(NONE)
+  environmentalImpact ImpactLevel @default(NONE)
+  priorityScore   Int      @default(0) // auto-calculated
+
+  // Evaluation
+  status          ImprovementStatus @default(IDEA_SUBMITTED)
+  evaluationNotes String?
+  approvedBy      String?
+  approvalDate    DateTime?
+  pdcaStage       PDCAStage @default(PLAN)
+
+  // Implementation
+  linkedActions   String?
+  pilotRequired   Boolean  @default(false)
+  pilotResults    String?
+  implementationDate DateTime?
+  implementedBy   String?
+  kpiToMeasure    String?
+  baselineMetric  String?
+  targetMetric    String?
+
+  // Benefits Realisation
+  actualCost      Decimal? @db.Decimal(14, 2)
+  actualSaving    Decimal? @db.Decimal(14, 2)
+  qualityImprovement String?
+  lessonsLearned  String?
+  shareAcrossIms  Boolean  @default(false)
+
+  // AI
+  aiAnalysis      String?
+  aiFeasibility   String?
+  aiImplementationPlan String?
+  aiKpiSuggestions String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([pdcaStage])
+  @@map("qual_improvements")
+}
+
+enum ImprovementCategory {
+  PROCESS_IMPROVEMENT
+  PRODUCT_ENHANCEMENT
+  CUSTOMER_EXPERIENCE
+  COST_REDUCTION
+  EFFICIENCY
+  QUALITY_IMPROVEMENT
+  SAFETY
+  ENVIRONMENTAL
+  DIGITAL_TRANSFORMATION
+  INNOVATION
+  OTHER
+}
+
+enum ImprovementSource {
+  EMPLOYEE_SUGGESTION
+  CUSTOMER_FEEDBACK
+  AUDIT
+  MANAGEMENT_REVIEW
+  BENCHMARKING
+  NEAR_MISS
+  DATA_ANALYSIS
+  EXTERNAL_RESEARCH
+  OTHER
+}
+
+enum ImpactLevel {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ImprovementStatus {
+  IDEA_SUBMITTED
+  UNDER_EVALUATION
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  IMPLEMENTED
+  BENEFITS_REALISED
+}
+
+enum PDCAStage {
+  PLAN
+  DO
+  CHECK
+  ACT
+}
+
+// ============================================
+// SUPPLIER QUALITY
+// ============================================
+
+model QualSupplier {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  supplierName    String
+  supplierCode    String?
+  category        SupplierCategory
+  countryOfOrigin String?
+  primaryContact  String?
+  contactEmail    String?
+  contactPhone    String?
+  accountManager  String?
+  approvedStatus  ApprovedStatus @default(PENDING_EVALUATION)
+
+  // Quality Assessment
+  iso9001Certified  CertStatus @default(NO)
+  certificationBody String?
+  certificateExpiry DateTime?
+  qmsEvidence       String?
+  onTimeDeliveryPct Decimal? @db.Decimal(5, 2)
+  qualityRejectPct  Decimal? @db.Decimal(5, 2)
+  ncrsRaised        Int      @default(0)
+  capaCompletionPct Decimal? @db.Decimal(5, 2)
+  qualityScore      Int      @default(0) // 0-100
+  qualityRating     SupplierRating?
+
+  // H&S Assessment
+  iso45001Certified CertStatus @default(NO)
+  riddorLtiRate     Decimal? @db.Decimal(10, 4)
+  hsPolicyInPlace   Boolean  @default(false)
+  methodStatements  Boolean  @default(false)
+  hsAuditScore      Int      @default(0)
+  hsComments        String?
+  hsRating          SupplierRating?
+
+  // Environmental Assessment
+  iso14001Certified CertStatus @default(NO)
+  envPolicyInPlace  Boolean  @default(false)
+  carbonFootprintData CertStatus @default(NO)
+  wasteManagementPlan Boolean @default(false)
+  envIncidents      Int      @default(0)
+  envAuditScore     Int      @default(0)
+  envComments       String?
+  envRating         SupplierRating?
+
+  // Overall IMS Rating
+  overallImsScore   Int      @default(0) // auto = Quality 50% + H&S 30% + Env 20%
+  overallRating     OverallSupplierRating?
+  riskLevel         RiskLevel @default(LOW)
+
+  // Audit & Review
+  lastAuditDate     DateTime?
+  nextAuditDue      DateTime?
+  auditType         SupplierAuditType?
+  auditFindings     String?
+  openNcrs          Int      @default(0)
+  correctiveActionsDue DateTime?
+  reviewFrequency   ReviewFrequency @default(ANNUALLY)
+
+  // AI
+  aiAnalysis        String?
+  aiKeyRisks        String?
+  aiImprovementAreas String?
+  aiApprovalRecommendation String?
+  aiGenerated       Boolean  @default(false)
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  createdById       String?
 
-  // Relations
-  teamMembers       AuditTeamMember[]
-  findings          AuditFinding[]
-
-  @@index([status])
-  @@index([auditType])
-  @@index([plannedStartDate])
-  @@map("quality_audits")
+  @@index([approvedStatus])
+  @@index([category])
+  @@index([overallRating])
+  @@map("qual_suppliers")
 }
 
-enum AuditType {
-  INTERNAL
-  EXTERNAL
-  SUPPLIER
-  CUSTOMER
-  CERTIFICATION
-  SURVEILLANCE
-  PRODUCT
-  PROCESS
-  SYSTEM
+enum SupplierCategory {
+  MATERIALS
+  SERVICES
+  EQUIPMENT
+  LABOUR
+  SUBCONTRACT
+  UTILITIES
+  PROFESSIONAL_SERVICES
+  OTHER
 }
 
-enum AuditStatus {
-  PLANNED
+enum CertStatus {
+  YES
+  NO
   IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  ON_HOLD
 }
 
-enum AuditRating {
+enum ApprovedStatus {
+  APPROVED
+  CONDITIONALLY_APPROVED
+  PROBATIONARY
+  SUSPENDED
+  DISQUALIFIED
+  PENDING_EVALUATION
+}
+
+enum SupplierRating {
   EXCELLENT
   GOOD
   SATISFACTORY
-  NEEDS_IMPROVEMENT
-  UNSATISFACTORY
+  REQUIRES_IMPROVEMENT
+  POOR
 }
 
-model AuditTeamMember {
-  id                String   @id @default(cuid())
-  auditId           String
-  userId            String
-  role              AuditTeamRole
-  isQualified       Boolean  @default(true)
-  qualificationNotes String?
-  assignedClauses   String[]
-  assignedAreas     String[]
-  isActive          Boolean  @default(true)
-
-  createdAt         DateTime @default(now())
-
-  audit             QualityAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
-
-  @@unique([auditId, userId])
-  @@index([auditId])
-  @@map("quality_audit_team_members")
+enum OverallSupplierRating {
+  PREFERRED
+  APPROVED
+  CONDITIONAL
+  PROBATIONARY
+  SUSPENDED
+  DISQUALIFIED
 }
 
-enum AuditTeamRole {
-  LEAD_AUDITOR
-  AUDITOR
-  TECHNICAL_EXPERT
-  OBSERVER
+enum SupplierAuditType {
+  DESK
+  ON_SITE
+  REMOTE
+  THIRD_PARTY
 }
 
-model AuditFinding {
-  id                String   @id @default(cuid())
-  auditId           String
-  findingNumber     String
-  title             String
-  description       String
-  findingType       AuditFindingType
+// ============================================
+// CHANGE MANAGEMENT
+// ============================================
 
-  // Classification
-  clause            String?
-  area              String?
-  process           String?
+model QualChange {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  changeType      ChangeType
+  priority        ChangePriority @default(ROUTINE)
+  isoClause       String?
+  requestedBy     String
+  department      String
+  dateRequested   DateTime @default(now())
 
-  // Evidence
-  objectiveEvidence String?
-  criteria          String?
+  // Description
+  currentState    String
+  proposedChange  String
+  reasonForChange String
+  linkedDocument  String?
+  linkedProcess   String?
+  linkedNcCapa    String?
 
-  // Risk assessment
-  riskLevel         RiskLevel?
+  // Impact Assessment
+  qualityImpact   ImpactLevelExtended @default(NONE)
+  customerImpact  ImpactLevelExtended @default(NONE)
+  processImpact   ImpactLevelExtended @default(NONE)
+  hsImpact        ImpactLevel @default(NONE)
+  envImpact       ImpactLevel @default(NONE)
+  regulatoryImpact ImpactLevel @default(NONE)
+  financialImpact ImpactLevel @default(NONE)
+  estimatedCost   Decimal? @db.Decimal(14, 2)
+  affectedProcesses String?
+  affectedDocuments String?
+  stakeholdersToNotify String?
+  trainingRequired Boolean @default(false)
+  trainingDescription String?
+  validationRequired Boolean @default(false)
+  validationDescription String?
 
-  // Response tracking
-  auditeeResponse   String?
-  responseDate      DateTime?
+  // Approval
+  status          ChangeStatus @default(REQUESTED)
+  reviewedBy      String?
+  approvalAuthority String?
+  approvedBy      String?
+  approvalDate    DateTime?
+  approvalNotes   String?
+  rejectionReason String?
 
-  // Status
-  status            FindingStatus @default(OPEN)
+  // Implementation
+  implementationPlan String?
+  targetDate      DateTime?
+  actualDate      DateTime?
+  implementedBy   String?
+  docVersionUpdated String?
+  communicationSent Boolean @default(false)
+  trainingCompleted Boolean @default(false)
 
-  // Linked CAPA
-  capaId            String?
+  // Verification
+  verificationMethod String?
+  verificationDate DateTime?
+  verifiedBy      String?
+  effective       EffectivenessStatus?
+  lessonsLearned  String?
 
-  // Closure
-  closedById        String?
-  closedAt          DateTime?
-  closureNotes      String?
+  // AI
+  aiAnalysis      String?
+  aiHiddenRisks   String?
+  aiAffectedProcesses String?
+  aiImplementationSteps String?
+  aiGenerated     Boolean  @default(false)
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  createdById       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  audit             QualityAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
-
-  @@unique([auditId, findingNumber])
-  @@index([auditId])
-  @@index([findingType])
+  @@index([changeType])
   @@index([status])
-  @@map("quality_audit_findings")
+  @@index([priority])
+  @@map("qual_changes")
 }
 
-enum AuditFindingType {
-  MAJOR_NC
-  MINOR_NC
-  OBSERVATION
-  OFI
-  POSITIVE
+enum ChangeType {
+  DOCUMENT_UPDATE
+  PROCESS_CHANGE
+  PRODUCT_CHANGE
+  SYSTEM_CHANGE
+  REGULATORY_RESPONSE
+  CUSTOMER_REQUIREMENT
+  CORRECTIVE_ACTION
+  IMPROVEMENT
+  EMERGENCY_CHANGE
 }
 
-enum FindingStatus {
-  OPEN
-  IN_PROGRESS
-  PENDING_VERIFICATION
-  CLOSED
+enum ChangePriority {
+  ROUTINE
+  URGENT
+  EMERGENCY
 }
 
-enum RiskLevel {
+enum ImpactLevelExtended {
+  NONE
   LOW
   MEDIUM
   HIGH
   CRITICAL
 }
 
+enum ChangeStatus {
+  REQUESTED
+  IMPACT_ASSESSED
+  APPROVED
+  REJECTED
+  IMPLEMENTATION
+  VERIFICATION
+  CLOSED
+  CANCELLED
+}
+
 // ============================================
-// QUALITY METRICS
+// QUALITY OBJECTIVES
 // ============================================
 
-model QualityMetric {
-  id    String   @id @default(cuid())
-  year  Int
-  month Int
+model QualObjective {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  title           String
+  objectiveStatement String
+  category        ObjectiveCategory
+  status          ObjectiveStatus @default(NOT_STARTED)
 
-  // COPQ - Cost of Poor Quality
-  preventionCost      Decimal  @default(0) @db.Decimal(14, 2)
-  appraisalCost       Decimal  @default(0) @db.Decimal(14, 2)
-  internalFailureCost Decimal  @default(0) @db.Decimal(14, 2)
-  externalFailureCost Decimal  @default(0) @db.Decimal(14, 2)
-  totalCOPQ           Decimal? @db.Decimal(14, 2)
+  policyCommitment String?
+  isoClause       String?
+  linkedProcesses String?
+  linkedRisks     String?
+  linkedOpportunities String?
 
-  // Quality Metrics
-  totalUnits          Int      @default(0)
-  defectiveUnits      Int      @default(0)
-  defectOpportunities Int      @default(1)
+  // KPI
+  kpiDescription  String
+  baselineValue   Decimal  @db.Decimal(14, 4)
+  targetValue     Decimal  @db.Decimal(14, 4)
+  currentValue    Decimal? @db.Decimal(14, 4)
+  unit            String
 
-  // Calculated Metrics
-  dpmo                Decimal? @db.Decimal(14, 4) // Defects Per Million Opportunities
-  firstPassYield      Decimal? @db.Decimal(6, 4)  // First Pass Yield %
-  processSigma        Decimal? @db.Decimal(4, 2)  // Process Sigma Level
+  // Ownership
+  owner           String
+  department      String
+  targetDate      DateTime
+  resourcesRequired String?
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  // Progress
+  progressNotes   String?
+  progressPercent Int      @default(0)
 
-  @@unique([year, month])
-  @@map("quality_metrics")
+  // AI
+  aiAnalysis      String?
+  aiSmartScore    String?
+  aiKpiSuggestions String?
+  aiMilestones    String?
+  aiGenerated     Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  milestones      QualMilestone[]
+
+  @@index([category])
+  @@index([status])
+  @@map("qual_objectives")
+}
+
+model QualMilestone {
+  id              String   @id @default(cuid())
+  objectiveId     String
+  title           String
+  targetDate      DateTime
+  status          MilestoneStatus @default(PENDING)
+  notes           String?
+  completedDate   DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  objective       QualObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@index([objectiveId])
+  @@map("qual_milestones")
+}
+
+enum ObjectiveCategory {
+  CUSTOMER_SATISFACTION
+  PRODUCT_QUALITY
+  PROCESS_EFFICIENCY
+  SUPPLIER_PERFORMANCE
+  COMPLIANCE
+  DEFECT_REDUCTION
+  ON_TIME_DELIVERY
+  AUDIT_PERFORMANCE
+  IMPROVEMENT
+  REVENUE
+  CERTIFICATION
+  TRAINING
+  OTHER
+}
+
+enum ObjectiveStatus {
+  NOT_STARTED
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  CANCELLED
+  DEFERRED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+  CANCELLED
 }

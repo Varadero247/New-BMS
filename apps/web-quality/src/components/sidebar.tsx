@@ -9,48 +9,36 @@ import {
   Scale,
   Target,
   ClipboardList,
-  GraduationCap,
   BarChart3,
   Home,
   Settings,
   FileText,
-  Search,
   ClipboardCheck,
   AlertTriangle,
   FileSpreadsheet,
   Lightbulb,
   Truck,
   GitBranch,
-  LayoutTemplate,
 } from 'lucide-react';
 
-// Core Quality Management
-const coreNavigation = [
+// Quality Section
+const qualityNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Risks & Opportunities', href: '/risks', icon: AlertTriangle },
   { name: 'Processes', href: '/processes', icon: Workflow },
-  { name: 'Nonconformances', href: '/nonconformances', icon: AlertOctagon },
+  { name: 'Non-Conformance', href: '/nonconformances', icon: AlertOctagon },
   { name: 'Actions', href: '/actions', icon: ClipboardList },
-  { name: 'Templates', href: '/templates', icon: LayoutTemplate },
-  { name: 'Metrics', href: '/metrics', icon: BarChart3 },
 ];
 
-// Enhanced QMS Modules
-const qmsNavigation = [
+// Modules Section
+const modulesNavigation = [
   { name: 'Documents', href: '/documents', icon: FileText },
-  { name: 'Investigations', href: '/investigations', icon: Search },
-  { name: 'CAPA / 8D', href: '/capa', icon: Target },
-  { name: 'Audits', href: '/audits', icon: ClipboardCheck },
-  { name: 'Risk Register', href: '/risk-register', icon: AlertTriangle },
+  { name: 'CAPA', href: '/capa', icon: ClipboardCheck },
+  { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'FMEA', href: '/fmea', icon: FileSpreadsheet },
-  { name: 'Continuous Improvement', href: '/ci', icon: Lightbulb },
-  { name: 'Training', href: '/training', icon: GraduationCap },
+  { name: 'Continual Improvement', href: '/improvements', icon: Lightbulb },
   { name: 'Supplier Quality', href: '/suppliers', icon: Truck },
   { name: 'Change Management', href: '/changes', icon: GitBranch },
-];
-
-// Supporting
-const supportingNavigation = [
-  { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },
 ];
 
@@ -59,7 +47,7 @@ const externalLinks = [
   { name: 'Settings', href: 'http://localhost:3004', icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof coreNavigation; pathname: string }) {
+function NavSection({ title, items, pathname }: { title?: string; items: typeof qualityNavigation; pathname: string }) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-gray-200' : ''}>
       {title && (
@@ -70,7 +58,7 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
       <ul className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
           return (
             <li key={item.name}>
@@ -101,14 +89,13 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-gray-200 bg-blue-50">
         <h1 className="text-xl font-bold text-blue-900">Quality</h1>
-        <p className="text-xs text-blue-600 mt-1">Enterprise QMS</p>
+        <p className="text-xs text-blue-600 mt-1">ISO 9001:2015 QMS</p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-4 overflow-y-auto">
-        <NavSection items={coreNavigation} pathname={pathname} />
-        <NavSection title="QMS Modules" items={qmsNavigation} pathname={pathname} />
-        <NavSection title="Supporting" items={supportingNavigation} pathname={pathname} />
+        <NavSection items={qualityNavigation} pathname={pathname} />
+        <NavSection title="Modules" items={modulesNavigation} pathname={pathname} />
 
         {/* External Links */}
         <div className="mt-4 pt-4 border-t border-gray-200">

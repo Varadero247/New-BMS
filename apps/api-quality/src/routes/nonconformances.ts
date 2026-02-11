@@ -1,84 +1,105 @@
 import { Router, Response } from 'express';
-import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 
-const router: IRouter = Router();
-const STANDARD = 'ISO_9001';
-
-// Quality incident types
-const QUALITY_INCIDENT_TYPES = [
-  'NON_CONFORMANCE',
-  'CUSTOMER_COMPLAINT',
-  'SUPPLIER_ISSUE',
-  'PROCESS_DEVIATION',
-  'PRODUCT_DEFECT',
-  'AUDIT_FINDING',
-] as const;
+const router = Router();
 
 router.use(authenticate);
 
 // Generate reference number
-function generateReferenceNumber(): string {
-  const date = new Date();
-  const year = date.getFullYear().toString().slice(-2);
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `NC-${year}${month}-${random}`;
+async function generateRefNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = 'QMS-NC';
+  const count = await prisma.qualNonConformance.count({
+    where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
+  });
+  return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
 }
 
-// GET /api/incidents - List non-conformances
+// GET / - List non-conformances
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', status, type, severity } = req.query;
+    const { page = '1', limit = '20', ncType, status, severity, search } = req.query;
 
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { standard: STANDARD };
+    const where: any = {};
+    if (ncType) where.ncType = ncType;
     if (status) where.status = status;
-    if (type) where.type = type;
     if (severity) where.severity = severity;
+    if (search) {
+      where.title = { contains: search as string, mode: 'insensitive' };
+    }
 
-    const [ncs, total] = await Promise.all([
-      prisma.incident.findMany({
+    const [items, total] = await Promise.all([
+      prisma.qualNonConformance.findMany({
         where,
         skip,
         take: limitNum,
-        orderBy: { dateOccurred: 'desc' },
-        include: {
-          reporter: { select: { id: true, firstName: true, lastName: true } },
-        },
+        orderBy: { createdAt: 'desc' },
       }),
-      prisma.incident.count({ where }),
+      prisma.qualNonConformance.count({ where }),
     ]);
 
     res.json({
       success: true,
-      data: ncs,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      data: {
+        items,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error) {
-    console.error('List NCs error:', error);
+    console.error('List non-conformances error:', error);
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list non-conformances' } });
   }
 });
 
-// GET /api/incidents/:id - Get single NC
+// GET /stats - Non-conformance statistics
+router.get('/stats', async (req: AuthRequest, res: Response) => {
+  try {
+    const [byStatus, bySeverity, total] = await Promise.all([
+      prisma.qualNonConformance.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+      prisma.qualNonConformance.groupBy({
+        by: ['severity'],
+        _count: { id: true },
+      }),
+      prisma.qualNonConformance.count(),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        total,
+        byStatus: byStatus.reduce((acc: any, item) => {
+          acc[item.status] = item._count.id;
+          return acc;
+        }, {}),
+        bySeverity: bySeverity.reduce((acc: any, item) => {
+          acc[item.severity] = item._count.id;
+          return acc;
+        }, {}),
+      },
+    });
+  } catch (error) {
+    console.error('NC stats error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance statistics' } });
+  }
+});
+
+// GET /:id - Get single non-conformance
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const nc = await prisma.incident.findFirst({
-      where: { id: req.params.id, standard: STANDARD },
-      include: {
-        reporter: { select: { id: true, firstName: true, lastName: true, email: true } },
-        investigator: { select: { id: true, firstName: true, lastName: true, email: true } },
-        actions: true,
-        fiveWhyAnalysis: true,
-        fishboneAnalysis: true,
-      },
+    const nc = await prisma.qualNonConformance.findUnique({
+      where: { id: req.params.id },
     });
 
     if (!nc) {
@@ -92,35 +113,60 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/incidents - Create NC
+// POST / - Create non-conformance
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
+      ncType: z.enum(['INTERNAL', 'CUSTOMER_COMPLAINT', 'SUPPLIER', 'REGULATORY', 'AUDIT_FINDING', 'PROCESS_FAILURE', 'PRODUCT_DEFECT', 'SERVICE_FAILURE']),
+      source: z.enum(['INTERNAL_AUDIT', 'CUSTOMER_FEEDBACK', 'SUPPLIER_AUDIT', 'PROCESS_MONITORING', 'MANAGEMENT_REVIEW', 'THIRD_PARTY_AUDIT', 'INSPECTION', 'OBSERVATION']),
+      severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).default('MINOR'),
+      isoClause: z.string().optional(),
+      dateReported: z.string().optional(),
+      reportedBy: z.string().min(1),
+      department: z.string().min(1),
       title: z.string().min(1),
       description: z.string().min(1),
-      type: z.enum(QUALITY_INCIDENT_TYPES),
-      severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC']).default('MODERATE'),
-      category: z.string().optional(),
-      location: z.string().optional(),
-      dateOccurred: z.string(),
-      productAffected: z.string().optional(),
-      customerImpact: z.string().optional(),
-      costOfNonConformance: z.number().optional(),
-      riskId: z.string().optional(),
+      evidenceRef: z.string().optional(),
+      whereDetected: z.string().optional(),
+      quantityAffected: z.number().optional(),
+      quantityUnit: z.string().optional(),
+      customerImpact: z.boolean().default(false),
+      customerImpactDesc: z.string().optional(),
+      containmentRequired: z.boolean().default(false),
+      containmentActions: z.string().optional(),
+      productsQuarantined: z.boolean().default(false),
+      customersNotified: z.boolean().default(false),
+      containmentEffectiveBy: z.string().optional(),
+      containmentDate: z.string().optional(),
+      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).optional(),
+      why1: z.string().optional(),
+      why2: z.string().optional(),
+      why3: z.string().optional(),
+      why4: z.string().optional(),
+      why5: z.string().optional(),
+      rootCause: z.string().optional(),
+      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).optional(),
+      capaRequired: z.boolean().default(false),
+      capaReference: z.string().optional(),
+      correctiveActions: z.string().optional(),
+      preventiveActions: z.string().optional(),
+      recurrencePrevention: z.string().optional(),
+      linkedProcess: z.string().optional(),
+      linkedFmea: z.string().optional(),
+      linkedHsIncident: z.string().optional(),
+      linkedEnvEvent: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
+    const referenceNumber = await generateRefNumber();
 
-    const nc = await prisma.incident.create({
+    const nc = await prisma.qualNonConformance.create({
       data: {
-        id: uuidv4(),
-        standard: STANDARD,
-        referenceNumber: generateReferenceNumber(),
         ...data,
-        dateOccurred: new Date(data.dateOccurred),
-        dateReported: new Date(),
-        reporterId: req.user!.id,
-        status: 'OPEN',
+        referenceNumber,
+        dateReported: data.dateReported ? new Date(data.dateReported) : new Date(),
+        containmentDate: data.containmentDate ? new Date(data.containmentDate) : undefined,
+        status: 'REPORTED',
       },
     });
 
@@ -134,39 +180,82 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PATCH /api/incidents/:id - Update NC
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+// PUT /:id - Update non-conformance
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.incident.findFirst({ where: { id: req.params.id, standard: STANDARD } });
+    const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
     }
 
     const schema = z.object({
+      ncType: z.enum(['INTERNAL', 'CUSTOMER_COMPLAINT', 'SUPPLIER', 'REGULATORY', 'AUDIT_FINDING', 'PROCESS_FAILURE', 'PRODUCT_DEFECT', 'SERVICE_FAILURE']).optional(),
+      source: z.enum(['INTERNAL_AUDIT', 'CUSTOMER_FEEDBACK', 'SUPPLIER_AUDIT', 'PROCESS_MONITORING', 'MANAGEMENT_REVIEW', 'THIRD_PARTY_AUDIT', 'INSPECTION', 'OBSERVATION']).optional(),
+      severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
+      isoClause: z.string().nullable().optional(),
+      reportedBy: z.string().optional(),
+      department: z.string().optional(),
       title: z.string().min(1).optional(),
       description: z.string().optional(),
-      type: z.enum(QUALITY_INCIDENT_TYPES).optional(),
-      severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC']).optional(),
-      category: z.string().optional(),
-      location: z.string().optional(),
-      productAffected: z.string().optional(),
-      customerImpact: z.string().optional(),
-      costOfNonConformance: z.number().optional(),
-      immediateCause: z.string().optional(),
-      rootCauses: z.string().optional(),
-      contributingFactors: z.string().optional(),
-      investigatorId: z.string().optional(),
-      status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'AWAITING_ACTIONS', 'ACTIONS_IN_PROGRESS', 'VERIFICATION', 'CLOSED']).optional(),
+      evidenceRef: z.string().nullable().optional(),
+      whereDetected: z.string().nullable().optional(),
+      quantityAffected: z.number().nullable().optional(),
+      quantityUnit: z.string().nullable().optional(),
+      customerImpact: z.boolean().optional(),
+      customerImpactDesc: z.string().nullable().optional(),
+      containmentRequired: z.boolean().optional(),
+      containmentActions: z.string().nullable().optional(),
+      productsQuarantined: z.boolean().optional(),
+      customersNotified: z.boolean().optional(),
+      containmentEffectiveBy: z.string().nullable().optional(),
+      containmentDate: z.string().nullable().optional(),
+      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).nullable().optional(),
+      why1: z.string().nullable().optional(),
+      why2: z.string().nullable().optional(),
+      why3: z.string().nullable().optional(),
+      why4: z.string().nullable().optional(),
+      why5: z.string().nullable().optional(),
+      rootCause: z.string().nullable().optional(),
+      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).nullable().optional(),
+      capaRequired: z.boolean().optional(),
+      capaReference: z.string().nullable().optional(),
+      correctiveActions: z.string().nullable().optional(),
+      preventiveActions: z.string().nullable().optional(),
+      recurrencePrevention: z.string().nullable().optional(),
+      status: z.enum(['REPORTED', 'UNDER_REVIEW', 'CONTAINED', 'ROOT_CAUSE', 'CAPA_RAISED', 'VERIFICATION', 'CLOSED']).optional(),
+      closedBy: z.string().nullable().optional(),
+      closureDate: z.string().nullable().optional(),
+      effectivenessVerified: z.enum(['YES', 'NO', 'PENDING']).optional(),
+      lessonsLearned: z.string().nullable().optional(),
+      linkedProcess: z.string().nullable().optional(),
+      linkedFmea: z.string().nullable().optional(),
+      linkedHsIncident: z.string().nullable().optional(),
+      linkedEnvEvent: z.string().nullable().optional(),
+      // AI fields
+      aiAnalysis: z.string().nullable().optional(),
+      aiRootCauseSuggestions: z.string().nullable().optional(),
+      aiContainmentAdequacy: z.string().nullable().optional(),
+      aiCapaRecommendations: z.string().nullable().optional(),
+      aiIsoClause: z.string().nullable().optional(),
+      aiGenerated: z.boolean().optional(),
     });
 
     const data = schema.parse(req.body);
 
-    const nc = await prisma.incident.update({
+    // Auto-set closure fields when status changes to CLOSED
+    const updateData: any = {
+      ...data,
+      containmentDate: data.containmentDate ? new Date(data.containmentDate) : data.containmentDate === null ? null : undefined,
+      closureDate: data.closureDate
+        ? new Date(data.closureDate)
+        : data.status === 'CLOSED' && !existing.closureDate
+          ? new Date()
+          : undefined,
+    };
+
+    const nc = await prisma.qualNonConformance.update({
       where: { id: req.params.id },
-      data: {
-        ...data,
-        closedAt: data.status === 'CLOSED' ? new Date() : existing.closedAt,
-      },
+      data: updateData,
     });
 
     res.json({ success: true, data: nc });
@@ -179,15 +268,15 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// DELETE /api/incidents/:id - Delete NC
+// DELETE /:id - Delete non-conformance
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.incident.findFirst({ where: { id: req.params.id, standard: STANDARD } });
+    const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
     }
 
-    await prisma.incident.delete({ where: { id: req.params.id } });
+    await prisma.qualNonConformance.delete({ where: { id: req.params.id } });
 
     res.json({ success: true, data: { message: 'Non-conformance deleted successfully' } });
   } catch (error) {

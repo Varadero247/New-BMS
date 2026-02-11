@@ -71,6 +71,29 @@ All API responses wrap data in `{ success: true, data: ... }`. Frontend must acc
 
 Use `title` (not `incidentTitle`), `dateOccurred` (not `incidentDate`), `severity` values are UPPERCASE (`MINOR`, `MODERATE`, `MAJOR`, `CRITICAL`, `CATASTROPHIC`).
 
+## Startup Issues
+
+These issues occur when restarting the system after a shutdown. The automated fix is `./scripts/startup.sh`.
+
+### 8. Port Conflicts on Restart
+Host PostgreSQL/Redis may still occupy ports 5432/6379. Kill them before starting Docker:
+```bash
+sudo systemctl stop postgresql redis 2>/dev/null
+sudo fuser -k 5432/tcp 6379/tcp 2>/dev/null
+```
+
+### 9. Fresh PostgreSQL Container Loses All Data
+When Docker recreates the postgres container, all data (admin user, hs_* tables, added columns) is lost. The startup script re-seeds the admin user and recreates missing tables automatically.
+
+### 10. Health-Safety Tables Missing After Restart
+The 15 hs_* tables must be recreated from the HOST (not container) using `prisma migrate diff` piped to `psql`. This is because Prisma inside Alpine containers fails due to OpenSSL 1.1 incompatibility. After table creation, missing columns on `hs_legal_requirements` and `hs_ohs_objectives` must be added manually. See `docs/DATABASE_SCHEMA_NOTES.md`.
+
+### 11. Prisma OpenSSL in Containers
+All Prisma schema `generator` blocks MUST include `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]`. Without this, containers crash with `Error loading shared library libssl.so.1.1`.
+
+### 12. Docker API Version Mismatch
+All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or the env var set globally. The Docker client (1.53) is newer than the daemon (1.41).
+
 ## Architecture Quick Reference
 
 ### Service Ports
@@ -106,11 +129,36 @@ pnpm test                        # 117 Jest unit tests
 ./scripts/check-services.sh      # Service health checks
 ```
 
+## Environment Module (ISO 14001:2015)
+
+### Schema
+- `packages/database/prisma/schemas/environment.prisma` — 8 models (EnvAspect, EnvEvent, EnvLegal, EnvObjective, EnvMilestone, EnvAction, EnvCapa, EnvCapaAction) + 3 kept models + 30+ enums
+- Domain-specific Prisma client: `apps/api-environment/src/prisma.ts` imports from `@ims/database/environment`
+
+### API Routes (port 4002)
+- Gateway: `/api/environment/*` → rewritten to `/api/*` via `pathRewrite`
+- 6 routes: `/api/aspects`, `/api/events`, `/api/legal`, `/api/objectives`, `/api/actions`, `/api/capa`
+- Reference numbers: `ENV-ASP-YYYY-NNN`, `ENV-EVT-YYYY-NNN`, etc.
+- Significance scoring: `severity*1.5 + probability*1.5 + duration + extent + reversibility + regulatory + stakeholder` (>= 15 = significant)
+
+### Frontend (port 3002)
+- 6 modules with page.tsx + client.tsx each (~7,100 lines total)
+- All use `<Modal isOpen={...}>` and `response.data.data` pattern
+- Green theme, AI analysis panels, significance scoring, filter bars
+
+### Multi-Schema DB Push
+Use `prisma migrate diff` + `psql` instead of `prisma db push` for environment schema (avoids dropping tables from other schemas):
+```bash
+npx prisma migrate diff --from-empty --to-schema-datamodel=prisma/schemas/environment.prisma --script | \
+  PGPASSWORD=... psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
+```
+
 ## Documentation
-- `docs/FIXES_LOG.md` — Detailed log of all 6 critical fixes
-- `docs/API_REFERENCE.md` — Full API reference with field names
-- `docs/DEPLOYMENT_CHECKLIST.md` — Step-by-step deployment guide
+- `docs/FIXES_LOG.md` — Detailed log of all changes (Session 1: 6 critical fixes, Session 2: 5 startup fixes, Session 3: Environment modules)
+- `docs/API_REFERENCE.md` — Full API reference (H&S + Environment + AI + Gateway)
+- `docs/DEPLOYMENT_CHECKLIST.md` — Step-by-step deployment guide + restart procedure
 - `docs/SYSTEM-ARCHITECTURE.md` — System architecture overview
 - `docs/SECURITY.md` — Security implementation details
 - `docs/DATABASE_ARCHITECTURE.md` — Database design
+- `docs/DATABASE_SCHEMA_NOTES.md` — Schema recreation, missing columns, OpenSSL issues
 - `QUICK_REFERENCE.md` — Quick reference card

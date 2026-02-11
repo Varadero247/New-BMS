@@ -80,9 +80,9 @@ Each microservice has its own schema file:
 |---------|-------------|----------|------------|
 | HR | `hr.prisma` | `ims_hr` | Employee, Department, Position, Leave, Training |
 | Payroll | `payroll.prisma` | `ims_payroll` | PayrollRun, Payslip, Deduction, Benefit |
-| Quality | `quality.prisma` | `ims_quality` | NCR, CAPA, QualityAudit |
+| Quality | `quality.prisma` | `ims_quality` | QualInterestedParty, QualIssue, QualRisk, QualOpportunity, QualProcess, QualNonConformance, QualAction, QualDocument, QualCapa, QualCapaAction, QualLegal, QualFmea, QualFmeaRow, QualImprovement, QualSupplier, QualChange, QualObjective, QualMilestone (18 models, 50+ enums) |
 | Health & Safety | `health-safety.prisma` | `ims_health_safety` | Incident, Hazard, RiskAssessment |
-| Environment | `environment.prisma` | `ims_environment` | Aspect, Impact, Compliance |
+| Environment | `environment.prisma` | `ims_environment` | EnvAspect, EnvEvent, EnvLegal, EnvObjective, EnvMilestone, EnvAction, EnvCapa, EnvCapaAction, WasteRecord, MonitoringData, EnvironmentalMetric |
 | Inventory | `inventory.prisma` | `ims_inventory` | Item, Stock, Movement |
 | Workflows | `workflows.prisma` | `ims_workflows` | Definition, Instance, Task |
 | AI Analysis | `ai.prisma` | `ims_ai_analysis` | Analysis, Insight, Metric |
@@ -99,9 +99,9 @@ Each microservice has its own schema file:
 - `core.prisma` - Users, Sessions, Audit, API Keys
 - `hr.prisma` - Employees, Departments, Leave, Training
 - `payroll.prisma` - PayrollRuns, Payslips, Benefits, Loans
-- `quality.prisma` - Non-Conformances, CAPAs, Audits
+- `quality.prisma` - 18 Qual-prefixed models (Parties, Issues, Risks, Opportunities, Processes, NCRs, Actions, Documents, CAPAs, Legal, FMEA, Improvements, Suppliers, Changes, Objectives + Milestones + CAPA Actions + FMEA Rows)
 - `health-safety.prisma` - Incidents, Risks, Hazards, Permits
-- `environment.prisma` - Aspects, Impacts, Compliance, Waste
+- `environment.prisma` - Aspects, Events, Legal, Objectives, Milestones, Actions, CAPA, CapaActions, Waste, Monitoring, Metrics (11 models, 30+ enums)
 - `inventory.prisma` - Products, Warehouses, Stock, POs
 - `workflows.prisma` - Definitions, Instances, Tasks
 - `ai.prisma` - Analyses, Insights, Embeddings

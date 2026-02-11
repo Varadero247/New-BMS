@@ -81,28 +81,36 @@ curl http://localhost:4000/api/tax/brackets
 
 ## Environment API Endpoints (via Gateway)
 ```bash
-curl http://localhost:4000/api/environment/risks        # Aspects & Impacts
-curl http://localhost:4000/api/environment/incidents     # Environmental Events
-curl http://localhost:4000/api/environment/legal         # Legal Register
-curl http://localhost:4000/api/environment/objectives    # Objectives
+curl http://localhost:4000/api/environment/aspects       # Aspects & Impacts (ISO 14001 Clause 6.1.2)
+curl http://localhost:4000/api/environment/events        # Environmental Events
+curl http://localhost:4000/api/environment/legal         # Legal Register (ISO 14001 Clause 6.1.3)
+curl http://localhost:4000/api/environment/objectives    # Objectives & Targets (ISO 14001 Clause 6.2)
+curl http://localhost:4000/api/environment/actions       # Environmental Actions
+curl http://localhost:4000/api/environment/capa          # CAPA Management (ISO 14001 Clause 10.2)
 ```
 
-## Quality API Endpoints (via Gateway)
+## Quality API Endpoints (via Gateway) — ISO 9001:2015
 ```bash
-curl http://localhost:4000/api/quality/nonconformances
-curl http://localhost:4000/api/quality/actions
-curl http://localhost:4000/api/quality/processes
-curl http://localhost:4000/api/quality/capas             # 8D CAPA
-curl http://localhost:4000/api/quality/audits
-curl http://localhost:4000/api/quality/documents
-curl http://localhost:4000/api/quality/qms-risks
-curl http://localhost:4000/api/quality/fmea
-curl http://localhost:4000/api/quality/ci/projects       # Continuous Improvement
-curl http://localhost:4000/api/quality/suppliers/qualifications
-curl http://localhost:4000/api/quality/change-requests
-curl http://localhost:4000/api/quality/training/courses
-curl http://localhost:4000/api/quality/metrics/quality
-curl http://localhost:4000/api/quality/templates
+# COTO Log (Context of the Organisation)
+curl http://localhost:4000/api/quality/parties            # Interested Parties
+curl http://localhost:4000/api/quality/issues             # Internal/External Issues
+curl http://localhost:4000/api/quality/risks              # Risk Register
+curl http://localhost:4000/api/quality/opportunities      # Opportunity Register
+
+# Core QMS
+curl http://localhost:4000/api/quality/processes          # Process Register (Turtle Diagram)
+curl http://localhost:4000/api/quality/nonconformances    # NCR with RCA
+curl http://localhost:4000/api/quality/actions            # Action Register
+curl http://localhost:4000/api/quality/documents          # Document Control
+curl http://localhost:4000/api/quality/capa               # CAPA (5-Why/Fishbone/8D)
+
+# Module Routes
+curl http://localhost:4000/api/quality/legal              # Legal/Compliance Register
+curl http://localhost:4000/api/quality/fmea               # FMEA (RPN: S×O×D)
+curl http://localhost:4000/api/quality/improvements       # Continual Improvement (PDCA)
+curl http://localhost:4000/api/quality/suppliers           # Supplier Quality (IMS Scoring)
+curl http://localhost:4000/api/quality/changes            # Change Management
+curl http://localhost:4000/api/quality/objectives         # Quality Objectives + Milestones
 ```
 
 ## Inventory API Endpoints (via Gateway)
@@ -150,16 +158,28 @@ cd packages/database
 npx prisma db push --schema=prisma/schemas/health-safety.prisma
 npx prisma generate --schema=prisma/schemas/health-safety.prisma
 
+# Environment schema (use migrate diff for multi-schema safety)
+ENVIRONMENT_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  npx prisma migrate diff --from-empty \
+  --to-schema-datamodel=prisma/schemas/environment.prisma --script | \
+  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims
+
+# Quality schema (use migrate diff for multi-schema safety)
+QUALITY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  npx prisma migrate diff --from-empty \
+  --to-schema-datamodel=prisma/schemas/quality.prisma --script | \
+  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims
+
 # Open Prisma Studio
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
-## Current Status (Feb 10, 2026)
+## Current Status (Feb 11, 2026)
 - 18 Docker services running (9 APIs + 9 web apps)
 - **All 9 modules fully implemented**:
   - H&S: 5 sub-modules (Risks, Incidents, Legal, Objectives, CAPA) + 5 AI routes
-  - Environment: 4 sub-modules (Aspects, Events, Legal, Objectives) + 8 DB models
-  - Quality: 15 sub-modules (NCRs, CAPA 8D, Audits, Documents, FMEA, CI, Suppliers, etc.) — 100+ endpoints
+  - Environment: 6 sub-modules (Aspects, Events, Legal, Objectives, Actions, CAPA) + 11 DB tables + AI analysis panels — fully rewritten with ISO 14001:2015 compliance
+  - Quality: 12 frontend modules + 15 API endpoints — Parties, Issues, Risks, Opportunities, Processes, NCRs, Actions, Documents, CAPA (5-Why/Fishbone/8D), Legal, FMEA (S×O×D RPN), Improvements (PDCA), Suppliers (IMS scoring), Changes, Objectives — 18 Qual-prefixed DB models, ~13,157 lines frontend code, fully rewritten with ISO 9001:2015 compliance
   - HR: 8 sub-modules (Employees, Attendance, Departments, Leave, Performance, Recruitment, Training, Documents) — 40+ endpoints
   - Payroll: 6 sub-modules (Payroll, Salary, Benefits, Loans, Expenses, Tax) — 35+ endpoints
   - Inventory: 6 sub-modules (Products, Inventory, Warehouses, Categories, Transactions, Suppliers) — 25+ endpoints
@@ -169,4 +189,4 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 - Tests: 117 Jest unit tests + 70 integration tests passing
 - Auth: JWT + CSRF double-submit cookie + account lockout
 - Login pages built for all 9 web apps
-- Total API endpoints: 350+
+- Total API endpoints: 370+

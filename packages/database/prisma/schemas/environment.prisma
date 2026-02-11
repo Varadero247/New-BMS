@@ -1,11 +1,10 @@
-// Environment Schema - Environmental Management Domain (ISO 14001)
+// Environment Schema - Environmental Management Domain (ISO 14001:2015 + 2024 Climate Amendment)
 // This schema is used by the Environment microservice
-// Database: ims_environment
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  output   = "../../generated/environment"
+  output        = "../../generated/environment"
 }
 
 datasource db {
@@ -14,381 +13,434 @@ datasource db {
 }
 
 // ============================================
-// ENVIRONMENTAL ASPECTS & IMPACTS
+// ENVIRONMENTAL ASPECTS (ISO 14001 Clause 6.1.2)
 // ============================================
 
-model Aspect {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    AspectCategory
-
-  // Source
-  activity    String?
-  process     String?
-  location    String?
-
-  // Assessment
-  aspectType          String?  // Emission, Waste, Energy, Water, etc.
-  environmentalImpact String?
-  scale               Int @default(1) // 1-5
-  frequency           Int @default(1) // 1-5
-  legalImpact         Int @default(1) // 1-5
-  significanceScore   Int?
-
-  // Control
-  controlMeasures   String?
-  operationalControl String?
-
-  // Status
-  status         AspectStatus @default(ACTIVE)
-  significance   SignificanceLevel?
-  reviewDate     DateTime?
-  lastReviewedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  impacts        Impact[]
-  incidents      EnvironmentalIncident[]
-  actions        EnvAction[]
+model EnvAspect {
+  id                  String   @id @default(cuid())
+  referenceNumber     String   @unique
+  activityProcess     String
+  activityCategory    EnvActivityCategory
+  department          String
+  location            String?
+  lifecyclePhases     String[]
+  operatingCondition  EnvOperatingCondition
+  description         String?
+  aspect              String
+  impact              String
+  impactDirection     EnvImpactDirection
+  environmentalMedia  String[]
+  scaleOfImpact       EnvScale
+  // Significance Scoring (7 factors, each 1-5)
+  scoreSeverity       Int       @default(1)
+  scoreProbability    Int       @default(1)
+  scoreDuration       Int       @default(1)
+  scoreExtent         Int       @default(1)
+  scoreReversibility  Int       @default(1)
+  scoreRegulatory     Int       @default(1)
+  scoreStakeholder    Int       @default(1)
+  significanceScore   Int       @default(0)
+  isSignificant       Boolean   @default(false)
+  significanceOverride Boolean  @default(false)
+  overrideReason      String?
+  // Controls
+  existingControls    String?
+  controlHierarchy    EnvControlHierarchy?
+  residualScore       Int?
+  targetScore         Int?
+  // Legal linkage
+  legalReferences     String?
+  permitReference     String?
+  applicableStandards String?
+  // Ownership
+  responsiblePerson   String?
+  reviewFrequency     EnvReviewFrequency?
+  nextReviewDate      DateTime?
+  status              EnvAspectStatus @default(ACTIVE)
+  // AI
+  aiSignificanceJustification  String?
+  aiControlRecommendations     String?
+  aiLegalObligations           String?
+  aiBenchmarkComparison        String?
+  aiImprovementOpportunities   String?
+  aiClimateRelevance           String?
+  aiGenerated                  Boolean @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@index([status])
-  @@index([significance])
+  @@index([isSignificant])
   @@map("env_aspects")
 }
 
-enum AspectCategory {
-  EMISSIONS_TO_AIR
-  DISCHARGES_TO_WATER
-  RELEASES_TO_LAND
-  WASTE_GENERATION
-  ENERGY_USE
-  WATER_USE
-  RAW_MATERIAL_USE
-  NOISE
-  ODOUR
-  VISUAL
-  BIODIVERSITY
-  OTHER
-}
-
-enum AspectStatus {
-  ACTIVE
-  UNDER_REVIEW
-  CONTROLLED
-  CLOSED
-}
-
-enum SignificanceLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
 // ============================================
-// IMPACTS
+// ENVIRONMENTAL EVENTS (Spills, Near Misses, Exceedances, etc.)
 // ============================================
 
-model Impact {
-  id          String   @id @default(cuid())
-  aspectId    String
-  title       String
-  description String
-  impactType  ImpactType
-
-  // Assessment
-  magnitude   Int @default(1) // 1-5
-  likelihood  Int @default(1) // 1-5
-  reversibility Reversibility?
-
-  // Receptor
-  environmentalMedia String? // Air, Water, Land, Biodiversity
-
-  // Control
-  mitigationMeasures String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  aspect      Aspect @relation(fields: [aspectId], references: [id], onDelete: Cascade)
-
-  @@index([aspectId])
-  @@map("env_impacts")
-}
-
-enum ImpactType {
-  POLLUTION
-  RESOURCE_DEPLETION
-  CLIMATE_CHANGE
-  HABITAT_DESTRUCTION
-  BIODIVERSITY_LOSS
-  HEALTH_EFFECT
-  NUISANCE
-  OTHER
-}
-
-enum Reversibility {
-  REVERSIBLE
-  PARTIALLY_REVERSIBLE
-  IRREVERSIBLE
-}
-
-// ============================================
-// ENVIRONMENTAL INCIDENTS
-// ============================================
-
-model EnvironmentalIncident {
-  id              String   @id @default(cuid())
-  referenceNumber String   @unique
-  title           String
-  description     String
-
-  // Classification
-  type            EnvIncidentType
-  severity        IncidentSeverity @default(MINOR)
-  category        String?
-
-  // Details
-  location        String?
-  dateOccurred    DateTime
-  dateReported    DateTime @default(now())
-
-  // People
-  reporterId      String
-  investigatorId  String?
-
-  // Environmental specific
-  environmentalMedia String? // Air, Water, Land
-  quantity           Decimal? @db.Decimal(14, 4)
-  unit               String?
-  regulatoryReport   Boolean @default(false)
-
-  // Investigation
-  immediateCause      String?
-  rootCauses          String?
-  contributingFactors String?
-
-  // Status
-  status          IncidentStatus @default(OPEN)
-  closedAt        DateTime?
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  aspect          Aspect? @relation(fields: [aspectId], references: [id])
-  aspectId        String?
-  actions         EnvAction[]
+model EnvEvent {
+  id                       String   @id @default(cuid())
+  referenceNumber          String   @unique
+  eventType                EnvEventType
+  severity                 EnvEventSeverity
+  regulatoryNotification   Boolean  @default(false)
+  regulatoryBody           String?
+  notificationReference    String?
+  dateOfEvent              DateTime
+  dateReported             DateTime @default(now())
+  location                 String
+  gpsCoordinates           String?
+  department               String
+  reportedBy               String
+  description              String
+  immediateCause           String?
+  contributingFactors      String?
+  mediaAffected            String[]
+  substanceInvolved        String?
+  quantityReleased         Float?
+  quantityUnit             String?
+  concentration            String?
+  receptorDistance          String?
+  areaSecured              Boolean?
+  immediateActions         String?
+  spillKitUsed             Boolean?
+  emergencyServicesCalled  Boolean?
+  materialsUsed            String?
+  cleanupDuration          String?
+  rcaMethod                EnvRCAMethod?
+  rootCause                String?
+  linkedAspectId           String?
+  investigationLead        String?
+  investigationDueDate     DateTime?
+  investigationCompleted   DateTime?
+  environmentalDamage      String?
+  biodiversityImpact       Boolean?
+  biodiversityDescription  String?
+  waterCourseImpact        Boolean?
+  waterCourseName          String?
+  airQualityImpact         Boolean?
+  remediationCost          Float?
+  reputationalImpact       EnvReputationalImpact?
+  capaRequired             Boolean?
+  capaReference            String?
+  preventiveMeasures       String?
+  monitoringRequired       Boolean?
+  monitoringDescription    String?
+  followUpDate             DateTime?
+  status                   EnvEventStatus @default(REPORTED)
+  closedBy                 String?
+  closureDate              DateTime?
+  lessonsLearned           String?
+  sharedWithTeam           Boolean?
+  // AI
+  aiRootCauseAnalysis      String?
+  aiImmediateActions       String?
+  aiRegulatoryObligations  String?
+  aiEnvironmentalImpact    String?
+  aiPreventiveMeasures     String?
+  aiCAPARecommendations    String?
+  aiLessonsLearned         String?
+  aiGenerated              Boolean @default(false)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
   @@index([status])
-  @@index([type])
-  @@index([dateOccurred])
-  @@map("env_incidents")
-}
-
-enum EnvIncidentType {
-  SPILL
-  EMISSION
-  WASTE_INCIDENT
-  ENVIRONMENTAL_COMPLAINT
-  REGULATORY_BREACH
-  CONTAMINATION
-  RELEASE
-  OTHER
-}
-
-enum IncidentSeverity {
-  MINOR
-  MODERATE
-  MAJOR
-  CRITICAL
-  CATASTROPHIC
-}
-
-enum IncidentStatus {
-  OPEN
-  UNDER_INVESTIGATION
-  AWAITING_ACTIONS
-  ACTIONS_IN_PROGRESS
-  VERIFICATION
-  CLOSED
+  @@index([eventType])
+  @@index([dateOfEvent])
+  @@map("env_events")
 }
 
 // ============================================
-// COMPLIANCE OBLIGATIONS
+// LEGAL REGISTER (ISO 14001 Clause 6.1.3)
 // ============================================
 
-model ComplianceObligation {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-
-  // Classification
-  type            ObligationType
-  jurisdiction    String?
-  issuingBody     String?
-  referenceNumber String?
-
-  // Details
-  effectiveDate   DateTime?
-  expiryDate      DateTime?
-  reviewFrequency String?
-
-  // Compliance
-  complianceStatus   ComplianceStatus @default(PENDING)
-  complianceEvidence String?
-  lastAssessedAt     DateTime?
-  nextAssessmentDate DateTime?
-
-  // Responsibility
-  responsiblePerson  String?
-  responsibleDept    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  actions         EnvAction[]
-  monitoringData  MonitoringData[]
+model EnvLegal {
+  id                      String   @id @default(cuid())
+  referenceNumber         String   @unique
+  obligationType          EnvObligationType
+  title                   String
+  jurisdiction            EnvJurisdiction
+  regulatoryBody          String
+  legislationReference    String
+  relevantSection         String?
+  effectiveDate           DateTime?
+  expiryReviewDate        DateTime?
+  status                  EnvLegalStatus @default(ACTIVE)
+  description             String
+  applicableActivities    String
+  applicableSites         String?
+  linkedAspects           String[]
+  penalties               String?
+  complianceStatus        EnvComplianceStatus @default(NOT_ASSESSED)
+  complianceEvidence      String?
+  evidenceReference       String?
+  lastAssessedDate        DateTime?
+  assessedBy              String?
+  assessmentMethod        EnvAssessmentMethod?
+  complianceGaps          String?
+  requiredActions         String?
+  actionPriority          EnvPriority?
+  actionsDueDate          DateTime?
+  responsiblePerson       String?
+  capaRequired            Boolean?
+  monitoringRequirements  String?
+  reportingRequirements   String?
+  reportingFrequency      EnvReportingFrequency?
+  nextReportingDue        DateTime?
+  permitConditions        String?
+  // AI
+  aiKeyObligations        String?
+  aiComplianceChecklist   String?
+  aiGapAnalysis           String?
+  aiRequiredActions       String?
+  aiEvidenceRequired      String?
+  aiMonitoring            String?
+  aiPenalty               String?
+  aiRecentChanges         String?
+  aiGenerated             Boolean @default(false)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   @@index([complianceStatus])
-  @@index([type])
-  @@map("env_compliance_obligations")
-}
-
-enum ObligationType {
-  LEGISLATION
-  REGULATION
-  PERMIT
-  LICENSE
-  CODE_OF_PRACTICE
-  STANDARD
-  CUSTOMER_REQUIREMENT
-  CORPORATE_REQUIREMENT
-  OTHER
-}
-
-enum ComplianceStatus {
-  COMPLIANT
-  PARTIALLY_COMPLIANT
-  NON_COMPLIANT
-  PENDING
-  NOT_APPLICABLE
+  @@index([obligationType])
+  @@map("env_legal")
 }
 
 // ============================================
-// ACTIONS
+// ENVIRONMENTAL OBJECTIVES (ISO 14001 Clause 6.2)
+// ============================================
+
+model EnvObjective {
+  id                     String   @id @default(cuid())
+  referenceNumber        String   @unique
+  title                  String
+  objectiveStatement     String
+  category               EnvObjectiveCategory
+  status                 EnvObjectiveStatus @default(NOT_STARTED)
+  policyCommitment       String?
+  iso14001Clause         String?
+  linkedAspects          String[]
+  sdgAlignment           String[]
+  netZeroTarget          Boolean  @default(false)
+  netZeroDescription     String?
+  kpiDescription         String?
+  baselineValue          Float?
+  baselineDate           DateTime?
+  targetValue            Float?
+  currentValue           Float    @default(0)
+  unit                   String?
+  measurementMethod      String?
+  dataSource             String?
+  startDate              DateTime?
+  targetDate             DateTime
+  department             String?
+  owner                  String
+  resourcesRequired      String?
+  estimatedCost          Float?
+  actionsRequired        Boolean  @default(false)
+  reviewFrequency        EnvReviewFrequency?
+  progressNotes          String?
+  lastReviewDate         DateTime?
+  progressPercent        Float    @default(0)
+  // AI
+  aiSmartAnalysis        String?
+  aiImprovedStatement    String?
+  aiSuggestedKPIs        String?
+  aiSuggestedMilestones  String?
+  aiBenchmarks           String?
+  aiRisks                String?
+  aiGenerated            Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  // Relations
+  milestones             EnvMilestone[]
+
+  @@index([status])
+  @@index([category])
+  @@map("env_objectives")
+}
+
+model EnvMilestone {
+  id            String       @id @default(cuid())
+  objectiveId   String
+  title         String
+  dueDate       DateTime
+  completed     Boolean      @default(false)
+  completedDate DateTime?
+  notes         String?
+  sortOrder     Int          @default(0)
+  objective     EnvObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@index([objectiveId])
+  @@map("env_milestones")
+}
+
+// ============================================
+// ENVIRONMENTAL ACTIONS
 // ============================================
 
 model EnvAction {
-  id              String   @id @default(cuid())
-  referenceNumber String   @unique
-  title           String
-  description     String
-
-  // Source
-  aspectId               String?
-  incidentId             String?
-  complianceObligationId String?
-
-  // Classification
-  type            ActionType
-  priority        ActionPriority @default(MEDIUM)
-
-  // Assignment
-  ownerId         String
-  createdById     String
-
-  // Timeline
-  dueDate         DateTime
-  completedAt     DateTime?
-  verifiedAt      DateTime?
-
-  // Verification
-  verificationMethod  String?
-  verificationNotes   String?
-  effectivenessRating Int?
-
-  // Status
-  status          ActionStatus @default(OPEN)
-
-  // Cost
-  estimatedCost   Decimal? @db.Decimal(14, 2)
-  actualCost      Decimal? @db.Decimal(14, 2)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  aspect               Aspect?               @relation(fields: [aspectId], references: [id])
-  incident             EnvironmentalIncident? @relation(fields: [incidentId], references: [id])
-  complianceObligation ComplianceObligation? @relation(fields: [complianceObligationId], references: [id])
+  id               String    @id @default(cuid())
+  referenceNumber  String    @unique
+  title            String
+  actionType       EnvActionType
+  priority         EnvPriority
+  source           EnvActionSource
+  sourceReference  String?
+  description      String
+  expectedOutcome  String?
+  linkedAspectId   String?
+  linkedEventId    String?
+  linkedLegalId    String?
+  linkedObjectiveId String?
+  assignedTo       String
+  department       String?
+  dueDate          DateTime
+  estimatedHours   Float?
+  estimatedCost    Float?
+  resourcesRequired String?
+  status           EnvActionStatus @default(OPEN)
+  progressNotes    String?
+  completionDate   DateTime?
+  percentComplete  Int       @default(0)
+  evidenceRefs     String?
+  verificationMethod EnvVerificationMethod?
+  verifiedBy       String?
+  verificationDate DateTime?
+  verificationNotes String?
+  effective        EnvEffectiveness?
+  // AI
+  aiActionPlan     String?
+  aiPriorityJustification String?
+  aiResourceEstimate      String?
+  aiObstacles      String?
+  aiSuccessCriteria String?
+  aiGenerated      Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([status, dueDate])
-  @@index([ownerId])
+  @@index([assignedTo])
   @@map("env_actions")
 }
 
-enum ActionType {
-  CORRECTIVE
-  PREVENTIVE
-  IMPROVEMENT
-  IMMEDIATE
-  LONG_TERM
+// ============================================
+// CAPA MANAGEMENT (ISO 14001 Clause 10.2)
+// ============================================
+
+model EnvCapa {
+  id                     String    @id @default(cuid())
+  referenceNumber        String    @unique
+  capaType               EnvCapaType
+  title                  String
+  severity               EnvCapaSeverity
+  triggerSource          EnvCapaTrigger
+  sourceReference        String?
+  description            String
+  dateInitiated          DateTime  @default(now())
+  initiatedBy            String
+  iso14001Clause         String?
+  immediateActionRequired Boolean  @default(false)
+  immediateActions       String?
+  containmentVerifiedBy  String?
+  containmentDate        DateTime?
+  rcaMethod              EnvRCAMethod?
+  // 5 Why fields
+  problemStatement       String?
+  why1                   String?
+  why2                   String?
+  why3                   String?
+  why4                   String?
+  why5                   String?
+  // Fishbone fields
+  fishbonePeople         String?
+  fishboneProcess        String?
+  fishbonePlant          String?
+  fishbonePolicy         String?
+  fishboneEnvironment    String?
+  fishboneMeasurement    String?
+  // Bowtie fields
+  bowtieHazard           String?
+  bowtieThreats          String?
+  bowtiePreventive       String?
+  bowtieConsequences     String?
+  bowtieMitigating       String?
+  rootCauseStatement     String?
+  rootCauseCategory      EnvRootCauseCategory?
+  effectivenessCriteria  String?
+  effectivenessKPI       String?
+  effectivenessTarget    String?
+  effectivenessMethod    String?
+  status                 EnvCapaStatus @default(INITIATED)
+  progressNotes          String?
+  percentComplete        Int       @default(0)
+  responsiblePerson      String
+  targetClosureDate      DateTime
+  verificationDate       DateTime?
+  verifiedBy             String?
+  effectivenessAssessment String?
+  recurrenceCheck        Boolean?
+  actionsEffective       EnvEffectiveness?
+  furtherActions         String?
+  managementSignoff      String?
+  closureDate            DateTime?
+  lessonsLearned         String?
+  sharedLessonsLearned   Boolean   @default(false)
+  // AI
+  aiRootCauseValidation  String?
+  aiFiveWhyAnalysis      String?
+  aiFishboneAnalysis     String?
+  aiActionSufficiency    String?
+  aiEffectivenessCriteria String?
+  aiRecurrenceRisk       String?
+  aiSystemicImplications String?
+  aiLessonsLearned       String?
+  aiGenerated            Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  // Relations
+  capaActions            EnvCapaAction[]
+
+  @@index([status])
+  @@index([capaType])
+  @@map("env_capas")
 }
 
-enum ActionPriority {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
+model EnvCapaAction {
+  id          String   @id @default(cuid())
+  capaId      String
+  description String
+  assignedTo  String
+  dueDate     DateTime
+  priority    EnvPriority @default(MEDIUM)
+  status      EnvActionStatus @default(OPEN)
+  notes       String?
+  completedDate DateTime?
+  capa        EnvCapa  @relation(fields: [capaId], references: [id], onDelete: Cascade)
 
-enum ActionStatus {
-  OPEN
-  IN_PROGRESS
-  COMPLETED
-  VERIFIED
-  OVERDUE
-  CANCELLED
+  @@index([capaId])
+  @@map("env_capa_actions")
 }
 
 // ============================================
-// ENVIRONMENTAL MONITORING
+// ENVIRONMENTAL MONITORING (kept from original)
 // ============================================
 
 model MonitoringData {
   id                     String   @id @default(cuid())
-  complianceObligationId String?
   monitoringPoint        String
   parameter              String
   unit                   String
-
-  // Measurement
   value                  Decimal  @db.Decimal(14, 6)
   limitValue             Decimal? @db.Decimal(14, 6)
   measurementDate        DateTime
-
-  // Assessment
   isCompliant            Boolean?
   exceedancePercent      Decimal? @db.Decimal(6, 2)
-
-  // Quality
   measuredById           String?
   method                 String?
   equipmentUsed          String?
   calibrationDate        DateTime?
-
   notes                  String?
-
   createdAt              DateTime @default(now())
-
-  // Relations
-  complianceObligation   ComplianceObligation? @relation(fields: [complianceObligationId], references: [id])
 
   @@index([monitoringPoint])
   @@index([parameter])
@@ -397,7 +449,7 @@ model MonitoringData {
 }
 
 // ============================================
-// WASTE MANAGEMENT
+// WASTE MANAGEMENT (kept from original)
 // ============================================
 
 model WasteRecord {
@@ -405,33 +457,20 @@ model WasteRecord {
   wasteType       WasteType
   wasteCategory   WasteCategory
   description     String?
-
-  // Source
   sourceLocation  String?
   sourceDepartment String?
   sourceProcess   String?
-
-  // Quantity
   quantity        Decimal  @db.Decimal(14, 4)
   unit            String
-
-  // Handling
   storageLocation String?
   containerType   String?
-
-  // Disposal
   disposalMethod  DisposalMethod
   disposalDate    DateTime?
   disposalContractor String?
   wasteTransferNote String?
-
-  // Compliance
   hazardousWaste  Boolean  @default(false)
-  ewcCode         String?  // European Waste Catalogue code
-
-  // Status
+  ewcCode         String?
   status          WasteStatus @default(GENERATED)
-
   generatedDate   DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -442,6 +481,332 @@ model WasteRecord {
   @@map("env_waste_records")
 }
 
+// ============================================
+// ENVIRONMENTAL METRICS (kept from original)
+// ============================================
+
+model EnvironmentalMetric {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+  electricityKwh      Decimal @default(0) @db.Decimal(14, 2)
+  naturalGasM3        Decimal @default(0) @db.Decimal(14, 2)
+  fuelLiters          Decimal @default(0) @db.Decimal(14, 2)
+  renewableEnergyKwh  Decimal @default(0) @db.Decimal(14, 2)
+  waterConsumptionM3  Decimal @default(0) @db.Decimal(14, 2)
+  wastewaterM3        Decimal @default(0) @db.Decimal(14, 2)
+  recycledWaterM3     Decimal @default(0) @db.Decimal(14, 2)
+  totalWasteKg        Decimal @default(0) @db.Decimal(14, 2)
+  recycledWasteKg     Decimal @default(0) @db.Decimal(14, 2)
+  hazardousWasteKg    Decimal @default(0) @db.Decimal(14, 2)
+  landfillWasteKg     Decimal @default(0) @db.Decimal(14, 2)
+  co2EmissionsTonnes  Decimal @default(0) @db.Decimal(14, 4)
+  scope1Emissions     Decimal @default(0) @db.Decimal(14, 4)
+  scope2Emissions     Decimal @default(0) @db.Decimal(14, 4)
+  scope3Emissions     Decimal @default(0) @db.Decimal(14, 4)
+  recyclingRate       Decimal? @db.Decimal(6, 4)
+  energyIntensity     Decimal? @db.Decimal(14, 4)
+  waterIntensity      Decimal? @db.Decimal(14, 4)
+  carbonIntensity     Decimal? @db.Decimal(14, 4)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("env_metrics")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum EnvActivityCategory {
+  ENERGY_USE
+  WATER_USE
+  WASTE_GENERATION
+  EMISSIONS_TO_AIR
+  DISCHARGES_TO_WATER
+  LAND_CONTAMINATION
+  RESOURCE_USE
+  NOISE_VIBRATION
+  BIODIVERSITY
+  TRANSPORT
+  PROCUREMENT
+  PRODUCT_DESIGN
+  OTHER
+}
+
+enum EnvOperatingCondition {
+  NORMAL
+  ABNORMAL
+  EMERGENCY
+}
+
+enum EnvImpactDirection {
+  ADVERSE
+  BENEFICIAL
+}
+
+enum EnvScale {
+  LOCAL
+  REGIONAL
+  NATIONAL
+  GLOBAL
+}
+
+enum EnvControlHierarchy {
+  ELIMINATION
+  SUBSTITUTION
+  ENGINEERING
+  ADMINISTRATIVE
+  MONITORING
+}
+
+enum EnvReviewFrequency {
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum EnvAspectStatus {
+  ACTIVE
+  UNDER_REVIEW
+  CONTROLLED
+  CLOSED
+}
+
+enum EnvEventType {
+  SPILL_RELEASE
+  NEAR_MISS
+  REGULATORY_EXCEEDANCE
+  STAKEHOLDER_COMPLAINT
+  NON_CONFORMANCE
+  ENVIRONMENTAL_EMERGENCY
+  PERMIT_BREACH
+  WASTE_MISMANAGEMENT
+  NOISE_COMPLAINT
+  OTHER
+}
+
+enum EnvEventSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum EnvEventStatus {
+  REPORTED
+  UNDER_INVESTIGATION
+  CONTAINED
+  REMEDIATED
+  CLOSED
+  REGULATORY_REVIEW
+}
+
+enum EnvReputationalImpact {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EnvRCAMethod {
+  FIVE_WHY
+  FISHBONE
+  FAULT_TREE
+  BOWTIE
+  TIMELINE
+  BARRIER_ANALYSIS
+  OTHER
+}
+
+enum EnvObligationType {
+  LEGISLATION
+  REGULATION
+  PERMIT
+  LICENCE
+  PLANNING_CONDITION
+  INDUSTRY_STANDARD
+  VOLUNTARY_COMMITMENT
+  CONTRACTUAL
+  ACOP
+  GUIDANCE
+}
+
+enum EnvJurisdiction {
+  UK
+  EU
+  INTERNATIONAL
+  LOCAL_AUTHORITY
+  OTHER
+}
+
+enum EnvLegalStatus {
+  ACTIVE
+  REVIEW_DUE
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum EnvComplianceStatus {
+  COMPLIANT
+  PARTIALLY_COMPLIANT
+  NON_COMPLIANT
+  NOT_ASSESSED
+  NOT_APPLICABLE
+}
+
+enum EnvAssessmentMethod {
+  INTERNAL_AUDIT
+  THIRD_PARTY_AUDIT
+  SELF_ASSESSMENT
+  REGULATORY_INSPECTION
+  CONTINUOUS_MONITORING
+}
+
+enum EnvReportingFrequency {
+  CONTINUOUS
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  AS_REQUIRED
+}
+
+enum EnvObjectiveCategory {
+  ENERGY_REDUCTION
+  WATER_REDUCTION
+  WASTE_REDUCTION
+  EMISSIONS_REDUCTION
+  BIODIVERSITY
+  POLLUTION_PREVENTION
+  LEGAL_COMPLIANCE
+  SUPPLY_CHAIN
+  CIRCULAR_ECONOMY
+  NET_ZERO
+  NATURE_POSITIVE
+  COMMUNITY
+  OTHER
+}
+
+enum EnvObjectiveStatus {
+  NOT_STARTED
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  CANCELLED
+  DEFERRED
+}
+
+enum EnvActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  LEGAL_COMPLIANCE
+  OBJECTIVE_SUPPORT
+  ASPECT_CONTROL
+  EMERGENCY_RESPONSE
+  MONITORING
+}
+
+enum EnvPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum EnvActionSource {
+  ASPECT_REGISTER
+  EVENT_REPORT
+  LEGAL_REGISTER
+  OBJECTIVE
+  AUDIT_FINDING
+  MANAGEMENT_REVIEW
+  STAKEHOLDER
+  REGULATORY_REQUIREMENT
+  OTHER
+}
+
+enum EnvActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+  DEFERRED
+}
+
+enum EnvVerificationMethod {
+  DOCUMENT_REVIEW
+  PHYSICAL_INSPECTION
+  AUDIT
+  MONITORING_DATA
+  MANAGEMENT_SIGN_OFF
+}
+
+enum EnvEffectiveness {
+  YES
+  PARTIALLY
+  NO
+}
+
+enum EnvCapaType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+}
+
+enum EnvCapaSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum EnvCapaTrigger {
+  ENVIRONMENTAL_EVENT
+  LEGAL_NON_CONFORMANCE
+  INTERNAL_AUDIT
+  EXTERNAL_AUDIT
+  MANAGEMENT_REVIEW
+  CUSTOMER_COMPLAINT
+  REGULATORY_INSPECTION
+  NEAR_MISS
+  SIGNIFICANT_ASPECT
+  OBJECTIVE_FAILURE
+  OTHER
+}
+
+enum EnvCapaStatus {
+  INITIATED
+  ROOT_CAUSE_ANALYSIS
+  ACTIONS_DEFINED
+  IMPLEMENTATION
+  VERIFICATION
+  CLOSED
+  CANCELLED
+}
+
+enum EnvRootCauseCategory {
+  HUMAN_ERROR
+  PROCEDURE_FAILURE
+  EQUIPMENT_FAILURE
+  MANAGEMENT_SYSTEM_FAILURE
+  ENVIRONMENTAL_CONDITION
+  DESIGN_FAILURE
+  TRAINING_GAP
+  COMMUNICATION_FAILURE
+  SUPPLIER_FAILURE
+  REGULATORY_CHANGE
+  OTHER
+}
+
+// Kept from original schema
 enum WasteType {
   SOLID
   LIQUID
@@ -477,49 +842,4 @@ enum WasteStatus {
   COLLECTED
   TRANSPORTED
   DISPOSED
-}
-
-// ============================================
-// ENVIRONMENTAL METRICS
-// ============================================
-
-model EnvironmentalMetric {
-  id    String @id @default(cuid())
-  year  Int
-  month Int
-
-  // Energy
-  electricityKwh      Decimal @default(0) @db.Decimal(14, 2)
-  naturalGasM3        Decimal @default(0) @db.Decimal(14, 2)
-  fuelLiters          Decimal @default(0) @db.Decimal(14, 2)
-  renewableEnergyKwh  Decimal @default(0) @db.Decimal(14, 2)
-
-  // Water
-  waterConsumptionM3  Decimal @default(0) @db.Decimal(14, 2)
-  wastewaterM3        Decimal @default(0) @db.Decimal(14, 2)
-  recycledWaterM3     Decimal @default(0) @db.Decimal(14, 2)
-
-  // Waste
-  totalWasteKg        Decimal @default(0) @db.Decimal(14, 2)
-  recycledWasteKg     Decimal @default(0) @db.Decimal(14, 2)
-  hazardousWasteKg    Decimal @default(0) @db.Decimal(14, 2)
-  landfillWasteKg     Decimal @default(0) @db.Decimal(14, 2)
-
-  // Emissions
-  co2EmissionsTonnes  Decimal @default(0) @db.Decimal(14, 4)
-  scope1Emissions     Decimal @default(0) @db.Decimal(14, 4)
-  scope2Emissions     Decimal @default(0) @db.Decimal(14, 4)
-  scope3Emissions     Decimal @default(0) @db.Decimal(14, 4)
-
-  // Calculated
-  recyclingRate       Decimal? @db.Decimal(6, 4)
-  energyIntensity     Decimal? @db.Decimal(14, 4)
-  waterIntensity      Decimal? @db.Decimal(14, 4)
-  carbonIntensity     Decimal? @db.Decimal(14, 4)
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@unique([year, month])
-  @@map("env_metrics")
 }

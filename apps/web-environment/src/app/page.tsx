@@ -43,11 +43,11 @@ export default function EnvironmentalDashboard() {
         compliance: 82,
         aspects: {
           total: aspects.length,
-          significant: aspects.filter((a: any) => a.significanceLevel === 'SIGNIFICANT').length,
+          significant: aspects.filter((a: any) => a.isSignificant).length,
         },
         events: {
           total: events.length,
-          open: events.filter((e: any) => e.status === 'OPEN' || e.status === 'INVESTIGATING').length,
+          open: events.filter((e: any) => e.status === 'REPORTED' || e.status === 'UNDER_INVESTIGATION' || e.status === 'CONTAINED').length,
         },
         actions: { overdue: 2, dueThisWeek: 4 },
         indicators: {
@@ -56,7 +56,7 @@ export default function EnvironmentalDashboard() {
           wasteGenerated: 2340,
           carbonEmissions: 156,
         },
-        topAspects: aspects.filter((a: any) => a.significanceLevel === 'SIGNIFICANT').slice(0, 5),
+        topAspects: aspects.filter((a: any) => a.isSignificant).slice(0, 5),
         recentEvents: events.slice(0, 5),
       });
     } catch (error) {
@@ -248,8 +248,8 @@ export default function EnvironmentalDashboard() {
                   {stats.topAspects.map((aspect: any) => (
                     <div key={aspect.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{aspect.title}</p>
-                        <p className="text-xs text-gray-500 mt-1">{aspect.impact}</p>
+                        <p className="font-medium text-sm">{aspect.activityProcess}</p>
+                        <p className="text-xs text-gray-500 mt-1">{aspect.aspect} — {aspect.impact}</p>
                       </div>
                       <div className="text-2xl font-bold text-gray-400">{aspect.significanceScore}</div>
                     </div>
@@ -275,15 +275,16 @@ export default function EnvironmentalDashboard() {
                   {stats.recentEvents.map((event: any) => (
                     <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{event.title}</p>
+                        <p className="font-medium text-sm">{event.description?.slice(0, 80)}{event.description?.length > 80 ? '...' : ''}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500">{event.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            event.status === 'OPEN' ? 'bg-red-100 text-red-700' :
-                            event.status === 'INVESTIGATING' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
+                            event.status === 'REPORTED' ? 'bg-red-100 text-red-700' :
+                            event.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
+                            event.status === 'CLOSED' ? 'bg-green-100 text-green-700' :
+                            'bg-blue-100 text-blue-700'
                           }`}>
-                            {event.status}
+                            {event.status?.replace(/_/g, ' ')}
                           </span>
                         </div>
                       </div>

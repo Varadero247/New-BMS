@@ -8,6 +8,8 @@
 ```env
 DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
 HEALTH_SAFETY_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
+ENVIRONMENT_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
+QUALITY_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
 REDIS_URL=redis://redis:6379
 JWT_SECRET=<strong-random-string>
 JWT_REFRESH_SECRET=<strong-random-string>
@@ -154,18 +156,20 @@ done
 ### Other Module Endpoints
 ```bash
 # Environment
-for ep in risks incidents legal objectives; do
+for ep in aspects events legal objectives actions capa; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" \
     http://localhost:4000/api/environment/$ep \
-    -H "Authorization: Bearer $TOKEN")
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Origin: http://localhost:3002")
   echo "environment/$ep: $CODE"
 done
 
-# Quality
-for ep in nonconformances actions processes capas audits documents; do
+# Quality (15 endpoints)
+for ep in parties issues risks opportunities processes nonconformances actions documents capa legal fmea improvements suppliers changes objectives; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" \
     http://localhost:4000/api/quality/$ep \
-    -H "Authorization: Bearer $TOKEN")
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Origin: http://localhost:3003")
   echo "quality/$ep: $CODE"
 done
 
@@ -276,6 +280,85 @@ postgresql://postgres:password@postgres:5432/ims
 
 ---
 
+## Restart Procedure
+
+After a system shutdown or Docker restart, use the automated startup script:
+
+```bash
+cd ~/New-BMS
+./scripts/startup.sh
+```
+
+This script handles all 5 known restart issues automatically:
+
+1. **Kills conflicting host services** — Stops host PostgreSQL/Redis and frees ports 3000-4008
+2. **Starts all Docker containers** — `docker compose up -d` with a 30s warm-up wait
+3. **Waits for PostgreSQL** — Polls until the database accepts connections
+4. **Seeds admin user** — Adds missing columns to users/sessions and ensures admin account exists
+5. **Recreates HS tables if missing** — Checks hs_* table count; if < 13, runs `prisma migrate diff` from the host and adds missing columns
+
+**Environment tables:** If env_* tables are missing after restart, recreate from host:
+```bash
+cd ~/New-BMS/packages/database
+ENVIRONMENT_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  npx prisma migrate diff --from-empty \
+  --to-schema-datamodel=prisma/schemas/environment.prisma --script | \
+  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
+```
+
+**Quality tables:** If qual_* tables are missing after restart, recreate from host:
+```bash
+cd ~/New-BMS/packages/database
+QUALITY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  npx prisma migrate diff --from-empty \
+  --to-schema-datamodel=prisma/schemas/quality.prisma --script | \
+  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
+```
+
+### Manual Restart (If Script Fails)
+
+```bash
+export DOCKER_API_VERSION=1.41
+
+# 1. Kill conflicting ports
+sudo systemctl stop postgresql 2>/dev/null || true
+sudo systemctl stop redis 2>/dev/null || true
+for port in 5432 6379 4000 4001 4002 4003 3000 3001 3002 3003 3004 3005 3006 3007; do
+  sudo fuser -k ${port}/tcp 2>/dev/null || true
+done
+sleep 3
+
+# 2. Start containers
+cd ~/New-BMS && docker compose up -d
+sleep 30
+
+# 3. Verify postgres
+docker exec ims-postgres psql -U postgres -d ims -c "SELECT 1"
+
+# 4. Check HS tables
+docker exec ims-postgres psql -U postgres -d ims -t -c \
+  "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'hs_%';"
+# Expected: 15
+
+# 5. If tables missing, recreate from host
+cd ~/New-BMS/packages/database
+HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  node_modules/.bin/prisma migrate diff \
+  --from-empty \
+  --to-schema-datamodel prisma/schemas/health-safety.prisma \
+  --script 2>/dev/null | \
+  docker exec -i ims-postgres psql -U postgres -d ims
+```
+
+### Docker API Version Note
+
+If you see `client version 1.53 is too new`, prefix all docker commands with:
+```bash
+export DOCKER_API_VERSION=1.41
+```
+
+---
+
 ## Service Port Reference
 
 | Service | Container Port | Host Port |
@@ -312,7 +395,7 @@ postgresql://postgres:password@postgres:5432/ims
 `hs_incidents`, `hs_risks`, `hs_legal_requirements`, `hs_ohs_objectives`, `hs_objective_milestones`, `hs_capas`, `hs_capa_actions`, `hs_hazards`, `hs_safety_inspections`, `hs_safety_metrics`, `hs_safety_permits`, `hs_five_why_analyses`, `hs_fishbone_analyses`, `hs_bow_tie_analyses`
 
 ### Environment
-`env_aspects`, `env_events`, `env_legal_requirements`, `env_objectives`, `env_objective_milestones`, `env_waste_records`, `env_metrics`, `env_monitoring_data`
+`env_aspects`, `env_events`, `env_legal`, `env_objectives`, `env_milestones`, `env_actions`, `env_capas`, `env_capa_actions`, `env_waste_records`, `env_metrics`, `env_monitoring_data`
 
 ### Quality
-`qms_nonconformances`, `qms_actions`, `qms_processes`, `qms_capas`, `qms_audits`, `qms_documents`, `qms_risks`, `qms_fmea`, `qms_ci_projects`, `qms_suppliers`, `qms_change_requests`, `qms_training_courses`, `qms_templates`
+`qual_interested_parties`, `qual_issues`, `qual_risks`, `qual_opportunities`, `qual_processes`, `qual_nonconformances`, `qual_actions`, `qual_documents`, `qual_capas`, `qual_capa_actions`, `qual_legal`, `qual_fmeas`, `qual_fmea_rows`, `qual_improvements`, `qual_suppliers`, `qual_changes`, `qual_objectives`, `qual_milestones`

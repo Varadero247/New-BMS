@@ -1,166 +1,212 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 
 const router: IRouter = Router();
-const STANDARD = 'ISO_14001';
-
 router.use(authenticate);
 
-// GET /api/legal - List environmental legal requirements
+async function generateRefNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await prisma.envLegal.count({
+    where: { referenceNumber: { startsWith: `ENV-LEG-${year}` } },
+  });
+  return `ENV-LEG-${year}-${String(count + 1).padStart(3, '0')}`;
+}
+
+// GET / - List legal obligations
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', complianceStatus, type } = req.query;
-
+    const { page = '1', limit = '50', complianceStatus, obligationType, jurisdiction, status, search } = req.query;
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { standard: STANDARD };
+    const where: any = {};
     if (complianceStatus) where.complianceStatus = complianceStatus;
-    if (type) where.type = type;
+    if (obligationType) where.obligationType = obligationType;
+    if (jurisdiction) where.jurisdiction = jurisdiction;
+    if (status) where.status = status;
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: 'insensitive' } },
+        { description: { contains: search as string, mode: 'insensitive' } },
+        { referenceNumber: { contains: search as string, mode: 'insensitive' } },
+        { legislationReference: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
 
-    const [requirements, total] = await Promise.all([
-      prisma.legalRequirement.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { effectiveDate: 'desc' },
-      }),
-      prisma.legalRequirement.count({ where }),
+    const [obligations, total] = await Promise.all([
+      prisma.envLegal.findMany({ where, skip, take: limitNum, orderBy: { createdAt: 'desc' } }),
+      prisma.envLegal.count({ where }),
     ]);
 
     res.json({
       success: true,
-      data: requirements,
+      data: obligations,
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List legal requirements error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal requirements' } });
+    console.error('List legal obligations error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal obligations' } });
   }
 });
 
-// GET /api/legal/:id - Get single legal requirement
+// GET /:id
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const requirement = await prisma.legalRequirement.findFirst({
-      where: { id: req.params.id, standard: STANDARD },
-      include: { actions: true },
-    });
-
-    if (!requirement) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
-    }
-
-    res.json({ success: true, data: requirement });
+    const obligation = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
+    if (!obligation) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+    res.json({ success: true, data: obligation });
   } catch (error) {
-    console.error('Get legal requirement error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal requirement' } });
+    console.error('Get legal obligation error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal obligation' } });
   }
 });
 
-// POST /api/legal - Create legal requirement
+// POST /
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
+      obligationType: z.string().min(1),
       title: z.string().min(1),
+      jurisdiction: z.string().min(1),
+      regulatoryBody: z.string().min(1),
+      legislationReference: z.string().min(1),
       description: z.string().min(1),
-      type: z.enum(['LEGISLATION', 'REGULATION', 'CODE_OF_PRACTICE', 'PERMIT', 'LICENSE', 'STANDARD', 'CUSTOMER_REQUIREMENT', 'INTERNAL_REQUIREMENT', 'OTHER']),
-      jurisdiction: z.string().optional(),
-      issuingBody: z.string().optional(),
-      referenceNumber: z.string().optional(),
+      applicableActivities: z.string().min(1),
+      responsiblePerson: z.string().min(1),
+      relevantSection: z.string().optional(),
       effectiveDate: z.string().optional(),
-      expiryDate: z.string().optional(),
-      reviewFrequency: z.string().optional(),
-      responsiblePerson: z.string().optional(),
-      complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'NOT_APPLICABLE']).default('PENDING'),
-    });
-
-    const data = schema.parse(req.body);
-
-    const requirement = await prisma.legalRequirement.create({
-      data: {
-        id: uuidv4(),
-        standard: STANDARD,
-        ...data,
-        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
-        expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-      },
-    });
-
-    res.status(201).json({ success: true, data: requirement });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
-    }
-    console.error('Create legal requirement error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal requirement' } });
-  }
-});
-
-// PATCH /api/legal/:id - Update legal requirement
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.legalRequirement.findFirst({ where: { id: req.params.id, standard: STANDARD } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
-    }
-
-    const schema = z.object({
-      title: z.string().min(1).optional(),
-      description: z.string().optional(),
-      type: z.enum(['LEGISLATION', 'REGULATION', 'CODE_OF_PRACTICE', 'PERMIT', 'LICENSE', 'STANDARD', 'CUSTOMER_REQUIREMENT', 'INTERNAL_REQUIREMENT', 'OTHER']).optional(),
-      jurisdiction: z.string().optional(),
-      issuingBody: z.string().optional(),
-      referenceNumber: z.string().optional(),
-      effectiveDate: z.string().optional(),
-      expiryDate: z.string().optional(),
-      reviewFrequency: z.string().optional(),
-      responsiblePerson: z.string().optional(),
-      complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'NOT_APPLICABLE']).optional(),
+      expiryReviewDate: z.string().optional(),
+      status: z.string().optional(),
+      applicableSites: z.string().optional(),
+      linkedAspects: z.array(z.string()).optional().default([]),
+      penalties: z.string().optional(),
+      complianceStatus: z.string().optional(),
       complianceEvidence: z.string().optional(),
+      evidenceReference: z.string().optional(),
+      lastAssessedDate: z.string().optional(),
+      assessedBy: z.string().optional(),
+      assessmentMethod: z.string().optional(),
+      complianceGaps: z.string().optional(),
+      requiredActions: z.string().optional(),
+      actionPriority: z.string().optional(),
+      actionsDueDate: z.string().optional(),
+      capaRequired: z.boolean().optional(),
+      monitoringRequirements: z.string().optional(),
+      reportingRequirements: z.string().optional(),
+      reportingFrequency: z.string().optional(),
+      nextReportingDue: z.string().optional(),
+      permitConditions: z.string().optional(),
+      aiKeyObligations: z.string().optional(),
+      aiComplianceChecklist: z.string().optional(),
+      aiGapAnalysis: z.string().optional(),
+      aiRequiredActions: z.string().optional(),
+      aiEvidenceRequired: z.string().optional(),
+      aiMonitoring: z.string().optional(),
+      aiPenalty: z.string().optional(),
+      aiRecentChanges: z.string().optional(),
+      aiGenerated: z.boolean().optional(),
     });
 
     const data = schema.parse(req.body);
+    const referenceNumber = await generateRefNumber();
 
-    const requirement = await prisma.legalRequirement.update({
-      where: { id: req.params.id },
+    const obligation = await prisma.envLegal.create({
       data: {
-        ...data,
-        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : existing.effectiveDate,
-        expiryDate: data.expiryDate ? new Date(data.expiryDate) : existing.expiryDate,
-        lastAssessedAt: data.complianceStatus ? new Date() : existing.lastAssessedAt,
+        referenceNumber,
+        obligationType: data.obligationType as any,
+        title: data.title,
+        jurisdiction: data.jurisdiction as any,
+        regulatoryBody: data.regulatoryBody,
+        legislationReference: data.legislationReference,
+        description: data.description,
+        applicableActivities: data.applicableActivities,
+        responsiblePerson: data.responsiblePerson,
+        relevantSection: data.relevantSection,
+        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
+        expiryReviewDate: data.expiryReviewDate ? new Date(data.expiryReviewDate) : null,
+        status: (data.status as any) || 'ACTIVE',
+        applicableSites: data.applicableSites,
+        linkedAspects: data.linkedAspects,
+        penalties: data.penalties,
+        complianceStatus: (data.complianceStatus as any) || 'NOT_ASSESSED',
+        complianceEvidence: data.complianceEvidence,
+        evidenceReference: data.evidenceReference,
+        lastAssessedDate: data.lastAssessedDate ? new Date(data.lastAssessedDate) : null,
+        assessedBy: data.assessedBy,
+        assessmentMethod: data.assessmentMethod as any,
+        complianceGaps: data.complianceGaps,
+        requiredActions: data.requiredActions,
+        actionPriority: data.actionPriority as any,
+        actionsDueDate: data.actionsDueDate ? new Date(data.actionsDueDate) : null,
+        capaRequired: data.capaRequired,
+        monitoringRequirements: data.monitoringRequirements,
+        reportingRequirements: data.reportingRequirements,
+        reportingFrequency: data.reportingFrequency as any,
+        nextReportingDue: data.nextReportingDue ? new Date(data.nextReportingDue) : null,
+        permitConditions: data.permitConditions,
+        aiKeyObligations: data.aiKeyObligations,
+        aiComplianceChecklist: data.aiComplianceChecklist,
+        aiGapAnalysis: data.aiGapAnalysis,
+        aiRequiredActions: data.aiRequiredActions,
+        aiEvidenceRequired: data.aiEvidenceRequired,
+        aiMonitoring: data.aiMonitoring,
+        aiPenalty: data.aiPenalty,
+        aiRecentChanges: data.aiRecentChanges,
+        aiGenerated: data.aiGenerated ?? false,
       },
     });
 
-    res.json({ success: true, data: requirement });
+    res.status(201).json({ success: true, data: obligation });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update legal requirement error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal requirement' } });
+    console.error('Create legal obligation error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal obligation' } });
   }
 });
 
-// DELETE /api/legal/:id - Delete legal requirement
+// PUT /:id
+router.put('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+
+    const data = req.body;
+
+    // Convert date strings to Date objects
+    if (data.effectiveDate) data.effectiveDate = new Date(data.effectiveDate);
+    if (data.expiryReviewDate) data.expiryReviewDate = new Date(data.expiryReviewDate);
+    if (data.lastAssessedDate) data.lastAssessedDate = new Date(data.lastAssessedDate);
+    if (data.actionsDueDate) data.actionsDueDate = new Date(data.actionsDueDate);
+    if (data.nextReportingDue) data.nextReportingDue = new Date(data.nextReportingDue);
+
+    const obligation = await prisma.envLegal.update({
+      where: { id: req.params.id },
+      data,
+    });
+
+    res.json({ success: true, data: obligation });
+  } catch (error) {
+    console.error('Update legal obligation error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal obligation' } });
+  }
+});
+
+// DELETE /:id
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.legalRequirement.findFirst({ where: { id: req.params.id, standard: STANDARD } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
-    }
-
-    await prisma.legalRequirement.delete({ where: { id: req.params.id } });
-
-    res.json({ success: true, data: { message: 'Legal requirement deleted successfully' } });
+    const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+    await prisma.envLegal.delete({ where: { id: req.params.id } });
+    res.json({ success: true, data: { message: 'Legal obligation deleted successfully' } });
   } catch (error) {
-    console.error('Delete legal requirement error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal requirement' } });
+    console.error('Delete legal obligation error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal obligation' } });
   }
 });
 

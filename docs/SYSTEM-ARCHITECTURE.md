@@ -67,8 +67,8 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 |---------|------|-------------|--------------|
 | **API Gateway** | 4000 | Central entry point | Auth, routing, rate limiting, proxying |
 | **Health & Safety** | 4001 | ISO 45001 compliance | Risk assessments, incidents, safety training |
-| **Environment** | 4002 | ISO 14001 compliance | Environmental aspects, legal requirements |
-| **Quality** | 4003 | ISO 9001 compliance | NCRs, CAPAs, audits, document control |
+| **Environment** | 4002 | ISO 14001 compliance | Aspects & Impacts, Events, Legal Register, Objectives, Actions, CAPA (6 modules, 11 DB tables) |
+| **Quality** | 4003 | ISO 9001 compliance | 18 Qual-prefixed models, 15 API routes: Parties, Issues, Risks, Opportunities, Processes, NCRs, Actions, Documents, CAPA (5-Why/Fishbone/8D), Legal, FMEA (RPN calc), Improvements (PDCA), Suppliers (IMS scoring), Changes, Objectives |
 | **AI Analysis** | 4004 | AI-powered insights | OpenAI integration, trend analysis |
 | **Inventory** | 4005 | Stock management | Products, warehouses, transactions |
 | **HR** | 4006 | Human resources | Employees, attendance, recruitment |
@@ -340,10 +340,21 @@ GET    /api/{resource}/stats    # Statistics
 - `GET /api/training/stats` - Training statistics
 
 #### Quality API (4003)
-- `GET /api/nonconformances` - List NCRs
-- `GET /api/capas` - CAPA management
-- `GET /api/audits` - Audit schedule
-- `GET /api/documents` - Document control
+- `GET /api/parties` - Interested parties register
+- `GET /api/issues` - Internal/external issues
+- `GET /api/risks` - Risk register (probability × consequence)
+- `GET /api/opportunities` - Opportunity register
+- `GET /api/processes` - Process register (turtle diagram)
+- `GET /api/nonconformances` - NCR with containment & RCA
+- `GET /api/actions` - Action register with verification
+- `GET /api/documents` - Document control with versioning
+- `GET /api/capa` - CAPA with 5-Why/Fishbone/8D + nested actions
+- `GET /api/legal` - Legal/compliance register
+- `GET /api/fmea` - FMEA with nested rows (S×O×D RPN)
+- `GET /api/improvements` - Continual improvement (PDCA)
+- `GET /api/suppliers` - Supplier quality (IMS 3-ring scoring)
+- `GET /api/changes` - Change management (impact assessment)
+- `GET /api/objectives` - Objectives with nested milestones
 
 ## Environment Configuration
 
@@ -478,4 +489,4 @@ psql $DATABASE_URL -c "SELECT 1"
 
 ---
 
-*Last Updated: February 06, 2026*
+*Last Updated: February 11, 2026*

@@ -12,61 +12,57 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
-import { prisma } from '@ims/database';
+import { prisma } from './prisma';
 
 const logger = createLogger('api-quality');
 
-// Existing routes
+// Route imports
+import partiesRouter from './routes/parties';
+import issuesRouter from './routes/issues';
+import risksRouter from './routes/risks';
+import opportunitiesRouter from './routes/opportunities';
 import processesRouter from './routes/processes';
 import nonconformancesRouter from './routes/nonconformances';
 import actionsRouter from './routes/actions';
-import templatesRouter from './routes/templates';
-import metricsRouter from './routes/metrics';
-
-// Enhanced QMS routes
 import documentsRouter from './routes/documents';
-import investigationsRouter from './routes/investigations';
-import capasRouter from './routes/capas';
-import auditsRouter from './routes/audits';
-import risksRouter from './routes/risks';
+import capaRouter from './routes/capa';
+import legalRouter from './routes/legal';
 import fmeaRouter from './routes/fmea';
-import continuousImprovementRouter from './routes/continuous-improvement';
-import trainingRouter from './routes/training';
-import supplierQualityRouter from './routes/supplier-quality';
-import changeManagementRouter from './routes/change-management';
+import improvementsRouter from './routes/improvements';
+import suppliersRouter from './routes/suppliers';
+import changesRouter from './routes/changes';
+import objectivesRouter from './routes/objectives';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
 
 // Middleware
-app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-quality'));
 app.use(express.json());
 
 // Health check and metrics
-app.get('/health', createHealthCheck('api-quality', prisma, '1.0.0'));
+app.get('/health', createHealthCheck('api-quality', prisma as any, '1.0.0'));
 app.get('/metrics', metricsHandler);
 
-// Existing Routes - all filtered by ISO_9001
-app.use('/api/processes', processesRouter);  // Process risks stored as risks
-app.use('/api/nonconformances', nonconformancesRouter);  // Non-conformances stored as incidents
-app.use('/api/actions', actionsRouter);  // Quality actions (corrective, preventive, improvement)
-app.use('/api/templates', templatesRouter);  // ISO 9001 templates (no auth required)
-app.use('/api/metrics/quality', metricsRouter);
-
-// Enhanced QMS Routes
+// Routes — gateway rewrites /api/quality/* → /api/*
+app.use('/api/parties', partiesRouter);
+app.use('/api/issues', issuesRouter);
+app.use('/api/risks', risksRouter);
+app.use('/api/opportunities', opportunitiesRouter);
+app.use('/api/processes', processesRouter);
+app.use('/api/nonconformances', nonconformancesRouter);
+app.use('/api/actions', actionsRouter);
 app.use('/api/documents', documentsRouter);
-app.use('/api/investigations', investigationsRouter);
-app.use('/api/capas', capasRouter);
-app.use('/api/audits', auditsRouter);
-app.use('/api/qms-risks', risksRouter);  // Enterprise risk management (separate from process risks)
+app.use('/api/capa', capaRouter);
+app.use('/api/legal', legalRouter);
 app.use('/api/fmea', fmeaRouter);
-app.use('/api/ci', continuousImprovementRouter);  // Continuous Improvement (projects, kaizen, ideas, 5S, standard work)
-app.use('/api/training', trainingRouter);
-app.use('/api/suppliers', supplierQualityRouter);
-app.use('/api/change-requests', changeManagementRouter);
+app.use('/api/improvements', improvementsRouter);
+app.use('/api/suppliers', suppliersRouter);
+app.use('/api/changes', changesRouter);
+app.use('/api/objectives', objectivesRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

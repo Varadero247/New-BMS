@@ -1,59 +1,59 @@
 import { Router, Response } from 'express';
-import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 
-const router: IRouter = Router();
-const STANDARD = 'ISO_9001';
-
-const ACTION_TYPES = ['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'IMMEDIATE', 'LONG_TERM'] as const;
-const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
-const STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'] as const;
+const router = Router();
 
 router.use(authenticate);
 
-function generateReferenceNumber(): string {
-  const date = new Date();
-  const year = date.getFullYear().toString().slice(-2);
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `ACT-${year}${month}-${random}`;
+// Generate reference number
+async function generateRefNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = 'QMS-ACT';
+  const count = await prisma.qualAction.count({
+    where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
+  });
+  return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
 }
 
-// GET /api/actions - List actions
+// GET / - List actions
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', status, priority, incidentId } = req.query;
+    const { page = '1', limit = '20', actionType, status, priority, source, search } = req.query;
 
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { standard: STANDARD };
+    const where: any = {};
+    if (actionType) where.actionType = actionType;
     if (status) where.status = status;
     if (priority) where.priority = priority;
-    if (incidentId) where.incidentId = incidentId;
+    if (source) where.source = source;
+    if (search) {
+      where.title = { contains: search as string, mode: 'insensitive' };
+    }
 
-    const [actions, total] = await Promise.all([
-      prisma.action.findMany({
+    const [items, total] = await Promise.all([
+      prisma.qualAction.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
-        include: {
-          incident: { select: { id: true, title: true, referenceNumber: true } },
-          owner: { select: { id: true, firstName: true, lastName: true } },
-        },
       }),
-      prisma.action.count({ where }),
+      prisma.qualAction.count({ where }),
     ]);
 
     res.json({
       success: true,
-      data: actions,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      data: {
+        items,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error) {
     console.error('List actions error:', error);
@@ -61,15 +61,54 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/actions/:id - Get single action
+// GET /stats - Action statistics
+router.get('/stats', async (req: AuthRequest, res: Response) => {
+  try {
+    const [byStatus, byPriority, byActionType, total] = await Promise.all([
+      prisma.qualAction.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+      prisma.qualAction.groupBy({
+        by: ['priority'],
+        _count: { id: true },
+      }),
+      prisma.qualAction.groupBy({
+        by: ['actionType'],
+        _count: { id: true },
+      }),
+      prisma.qualAction.count(),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        total,
+        byStatus: byStatus.reduce((acc: any, item) => {
+          acc[item.status] = item._count.id;
+          return acc;
+        }, {}),
+        byPriority: byPriority.reduce((acc: any, item) => {
+          acc[item.priority] = item._count.id;
+          return acc;
+        }, {}),
+        byActionType: byActionType.reduce((acc: any, item) => {
+          acc[item.actionType] = item._count.id;
+          return acc;
+        }, {}),
+      },
+    });
+  } catch (error) {
+    console.error('Action stats error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action statistics' } });
+  }
+});
+
+// GET /:id - Get single action
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const action = await prisma.action.findFirst({
-      where: { id: req.params.id, standard: STANDARD },
-      include: {
-        incident: { select: { id: true, title: true, referenceNumber: true, status: true } },
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
+    const action = await prisma.qualAction.findUnique({
+      where: { id: req.params.id },
     });
 
     if (!action) {
@@ -83,35 +122,38 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/actions - Create action
+// POST / - Create action
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().min(1),
+      actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']),
+      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
+      source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']),
+      sourceReference: z.string().optional(),
       description: z.string().min(1),
-      type: z.enum(ACTION_TYPES).default('CORRECTIVE'),
-      priority: z.enum(PRIORITIES).default('MEDIUM'),
+      expectedOutcome: z.string().min(1),
+      assignedTo: z.string().min(1),
+      department: z.string().min(1),
       dueDate: z.string(),
-      incidentId: z.string().optional(),
-      ownerId: z.string().optional(),
+      progressNotes: z.string().optional(),
+      verificationMethod: z.enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF']).optional(),
+      linkedNc: z.string().optional(),
+      linkedCapa: z.string().optional(),
+      linkedProcess: z.string().optional(),
+      linkedFmea: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
+    const referenceNumber = await generateRefNumber();
 
-    const action = await prisma.action.create({
+    const action = await prisma.qualAction.create({
       data: {
-        id: uuidv4(),
-        standard: STANDARD,
-        referenceNumber: generateReferenceNumber(),
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        priority: data.priority,
+        ...data,
+        referenceNumber,
         dueDate: new Date(data.dueDate),
         status: 'OPEN',
-        incidentId: data.incidentId || null,
-        ownerId: data.ownerId || req.user!.id,
-        createdById: req.user!.id,
+        percentComplete: 0,
       },
     });
 
@@ -125,35 +167,65 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PATCH /api/actions/:id - Update action
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+// PUT /:id - Update action
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.action.findFirst({ where: { id: req.params.id, standard: STANDARD } });
+    const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     }
 
     const schema = z.object({
       title: z.string().min(1).optional(),
+      actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']).optional(),
+      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+      source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']).optional(),
+      sourceReference: z.string().nullable().optional(),
       description: z.string().optional(),
-      type: z.enum(ACTION_TYPES).optional(),
-      priority: z.enum(PRIORITIES).optional(),
-      status: z.enum(STATUSES).optional(),
+      expectedOutcome: z.string().optional(),
+      assignedTo: z.string().optional(),
+      department: z.string().optional(),
       dueDate: z.string().optional(),
-      ownerId: z.string().optional(),
-      verificationNotes: z.string().optional(),
+      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
+      progressNotes: z.string().nullable().optional(),
+      completionDate: z.string().nullable().optional(),
+      percentComplete: z.number().min(0).max(100).optional(),
+      verificationMethod: z.enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF']).nullable().optional(),
+      verifiedBy: z.string().nullable().optional(),
+      verificationDate: z.string().nullable().optional(),
+      effective: z.enum(['YES', 'NO', 'PENDING']).nullable().optional(),
+      linkedNc: z.string().nullable().optional(),
+      linkedCapa: z.string().nullable().optional(),
+      linkedProcess: z.string().nullable().optional(),
+      linkedFmea: z.string().nullable().optional(),
+      // AI fields
+      aiAnalysis: z.string().nullable().optional(),
+      aiActionPlan: z.string().nullable().optional(),
+      aiResourceEstimate: z.string().nullable().optional(),
+      aiSuccessCriteria: z.string().nullable().optional(),
+      aiGenerated: z.boolean().optional(),
     });
 
     const data = schema.parse(req.body);
 
-    const action = await prisma.action.update({
+    const updateData: any = {
+      ...data,
+      dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+      completionDate: data.completionDate
+        ? new Date(data.completionDate)
+        : data.status === 'COMPLETED' && !existing.completionDate
+          ? new Date()
+          : data.completionDate === null ? null : undefined,
+      verificationDate: data.verificationDate
+        ? new Date(data.verificationDate)
+        : data.status === 'VERIFIED' && !existing.verificationDate
+          ? new Date()
+          : data.verificationDate === null ? null : undefined,
+    };
+
+    const action = await prisma.qualAction.update({
       where: { id: req.params.id },
-      data: {
-        ...data,
-        dueDate: data.dueDate ? new Date(data.dueDate) : existing.dueDate,
-        completedAt: data.status === 'COMPLETED' ? new Date() : existing.completedAt,
-        verifiedAt: data.status === 'VERIFIED' ? new Date() : existing.verifiedAt,
-      },
+      data: updateData,
     });
 
     res.json({ success: true, data: action });
@@ -166,15 +238,15 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// DELETE /api/actions/:id - Delete action
+// DELETE /:id - Delete action
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.action.findFirst({ where: { id: req.params.id, standard: STANDARD } });
+    const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     }
 
-    await prisma.action.delete({ where: { id: req.params.id } });
+    await prisma.qualAction.delete({ where: { id: req.params.id } });
 
     res.json({ success: true, data: { message: 'Action deleted successfully' } });
   } catch (error) {

@@ -495,6 +495,517 @@ Authorization: Bearer <token>
 
 ---
 
+## Environment API (ISO 14001:2015)
+
+All Environment endpoints are proxied: `GET /api/environment/*` → `api-environment:4002/api/*`
+
+### Aspects & Impacts (Clause 6.1.2)
+
+#### List Aspects
+```http
+GET /api/environment/aspects
+```
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | number | Page number (default: 1) |
+| `limit` | number | Items per page (default: 50) |
+| `search` | string | Search activity/aspect/impact/reference |
+| `status` | string | Filter: `ACTIVE \| UNDER_REVIEW \| CONTROLLED \| CLOSED` |
+| `significant` | string | Filter: `true \| false` |
+
+#### Get Single Aspect
+```http
+GET /api/environment/aspects/:id
+```
+
+#### Create Aspect
+```http
+POST /api/environment/aspects
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "activityProcess": "string (required)",
+  "activityCategory": "ENERGY_USE | WATER_USE | WASTE_GENERATION | EMISSIONS_TO_AIR | DISCHARGES_TO_WATER | LAND_CONTAMINATION | RESOURCE_USE | NOISE_VIBRATION | BIODIVERSITY | TRANSPORT | PROCUREMENT | PRODUCT_DESIGN | OTHER",
+  "department": "string (required)",
+  "location": "string",
+  "lifecyclePhases": ["string"],
+  "operatingCondition": "NORMAL | ABNORMAL | EMERGENCY",
+  "description": "string",
+  "aspect": "string (required)",
+  "impact": "string (required)",
+  "impactDirection": "ADVERSE | BENEFICIAL",
+  "environmentalMedia": ["string"],
+  "scaleOfImpact": "LOCAL | REGIONAL | NATIONAL | GLOBAL",
+  "scoreSeverity": 1-5,
+  "scoreProbability": 1-5,
+  "scoreDuration": 1-5,
+  "scoreExtent": 1-5,
+  "scoreReversibility": 1-5,
+  "scoreRegulatory": 1-5,
+  "scoreStakeholder": 1-5,
+  "existingControls": "string",
+  "controlHierarchy": "ELIMINATION | SUBSTITUTION | ENGINEERING | ADMINISTRATIVE | MONITORING",
+  "residualScore": number,
+  "targetScore": number,
+  "responsiblePerson": "string",
+  "reviewFrequency": "MONTHLY | QUARTERLY | ANNUALLY",
+  "nextReviewDate": "YYYY-MM-DD",
+  "status": "ACTIVE | UNDER_REVIEW | CONTROLLED | CLOSED"
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-ASP-YYYY-NNN` (e.g., `ENV-ASP-2026-001`)
+- Significance score: `severity*1.5 + probability*1.5 + duration + extent + reversibility + regulatory + stakeholder`
+- `isSignificant`: `true` when score >= 15
+
+#### Update Aspect
+```http
+PUT /api/environment/aspects/:id
+Authorization: Bearer <token>
+```
+
+#### Delete Aspect
+```http
+DELETE /api/environment/aspects/:id
+Authorization: Bearer <token>
+```
+
+---
+
+### Environmental Events
+
+#### List Events
+```http
+GET /api/environment/events
+```
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | number | Page number |
+| `limit` | number | Items per page |
+| `search` | string | Search description/location/reference/reportedBy |
+| `status` | string | Filter: `REPORTED \| UNDER_INVESTIGATION \| CONTAINED \| REMEDIATED \| CLOSED \| REGULATORY_REVIEW` |
+| `eventType` | string | Filter by event type |
+| `severity` | string | Filter: `MINOR \| MODERATE \| MAJOR \| CRITICAL \| CATASTROPHIC` |
+
+#### Create Event
+```http
+POST /api/environment/events
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "eventType": "SPILL_RELEASE | NEAR_MISS | REGULATORY_EXCEEDANCE | STAKEHOLDER_COMPLAINT | NON_CONFORMANCE | ENVIRONMENTAL_EMERGENCY | PERMIT_BREACH | WASTE_MISMANAGEMENT | NOISE_COMPLAINT | OTHER (required)",
+  "severity": "MINOR | MODERATE | MAJOR | CRITICAL | CATASTROPHIC (required)",
+  "dateOfEvent": "YYYY-MM-DD (required)",
+  "location": "string (required)",
+  "department": "string (required)",
+  "reportedBy": "string (required)",
+  "description": "string (required, min 10 chars)",
+  "substanceInvolved": "string",
+  "quantityReleased": number,
+  "rcaMethod": "FIVE_WHY | FISHBONE | FAULT_TREE | BOWTIE | TIMELINE | BARRIER_ANALYSIS | OTHER",
+  "rootCause": "string",
+  "immediateActions": "string"
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-EVT-YYYY-NNN`
+- `closureDate` auto-set when status changes to `CLOSED`
+
+---
+
+### Legal Register (Clause 6.1.3)
+
+#### List Legal Requirements
+```http
+GET /api/environment/legal
+```
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `search` | string | Search title/description/reference/legislation |
+| `complianceStatus` | string | `COMPLIANT \| PARTIALLY_COMPLIANT \| NON_COMPLIANT \| NOT_ASSESSED \| NOT_APPLICABLE` |
+| `obligationType` | string | Filter by type |
+| `jurisdiction` | string | `UK \| EU \| INTERNATIONAL \| LOCAL_AUTHORITY \| OTHER` |
+| `status` | string | `ACTIVE \| REVIEW_DUE \| SUPERSEDED \| ARCHIVED` |
+
+#### Create Legal Requirement
+```http
+POST /api/environment/legal
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "obligationType": "LEGISLATION | REGULATION | PERMIT | LICENCE | PLANNING_CONDITION | INDUSTRY_STANDARD | VOLUNTARY_COMMITMENT | CONTRACTUAL | ACOP | GUIDANCE (required)",
+  "title": "string (required)",
+  "jurisdiction": "UK | EU | INTERNATIONAL | LOCAL_AUTHORITY | OTHER (required)",
+  "regulatoryBody": "string (required)",
+  "legislationReference": "string (required)",
+  "description": "string (required)",
+  "applicableActivities": "string (required)",
+  "responsiblePerson": "string (required)",
+  "effectiveDate": "YYYY-MM-DD",
+  "reviewDate": "YYYY-MM-DD",
+  "complianceStatus": "COMPLIANT | PARTIALLY_COMPLIANT | NON_COMPLIANT | NOT_ASSESSED | NOT_APPLICABLE"
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-LEG-YYYY-NNN`
+
+---
+
+### Objectives & Targets (Clause 6.2)
+
+#### List Objectives
+```http
+GET /api/environment/objectives
+```
+
+Response includes nested `milestones` array.
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `search` | string | Search title/statement/reference/owner |
+| `status` | string | `NOT_STARTED \| ON_TRACK \| AT_RISK \| BEHIND \| ACHIEVED \| CANCELLED \| DEFERRED` |
+| `category` | string | `ENERGY_REDUCTION \| WATER_REDUCTION \| WASTE_REDUCTION \| EMISSIONS_REDUCTION \| BIODIVERSITY \| POLLUTION_PREVENTION \| etc.` |
+
+#### Create Objective
+```http
+POST /api/environment/objectives
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "title": "string (required)",
+  "objectiveStatement": "string (required)",
+  "category": "ENERGY_REDUCTION | WATER_REDUCTION | WASTE_REDUCTION | EMISSIONS_REDUCTION | ... (required)",
+  "targetDate": "YYYY-MM-DD (required)",
+  "owner": "string (required)",
+  "baselineValue": number,
+  "targetValue": number,
+  "currentValue": number,
+  "milestones": [
+    { "title": "string", "dueDate": "YYYY-MM-DD" }
+  ]
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-OBJ-YYYY-NNN`
+
+#### Update Milestone
+```http
+PATCH /api/environment/objectives/:id/milestones/:milestoneId
+Authorization: Bearer <token>
+
+{
+  "completed": true
+}
+```
+
+Auto-sets `completedDate` when `completed` is `true`.
+
+---
+
+### Environmental Actions
+
+#### List Actions
+```http
+GET /api/environment/actions
+```
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `search` | string | Search title/description/reference/assignedTo |
+| `status` | string | `OPEN \| IN_PROGRESS \| COMPLETED \| VERIFIED \| OVERDUE \| CANCELLED \| DEFERRED` |
+| `priority` | string | `CRITICAL \| HIGH \| MEDIUM \| LOW` |
+| `actionType` | string | Filter by type |
+| `source` | string | Filter by source |
+
+#### Create Action
+```http
+POST /api/environment/actions
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "title": "string (required)",
+  "actionType": "CORRECTIVE | PREVENTIVE | IMPROVEMENT | LEGAL_COMPLIANCE | OBJECTIVE_SUPPORT | ASPECT_CONTROL | EMERGENCY_RESPONSE | MONITORING (required)",
+  "priority": "CRITICAL | HIGH | MEDIUM | LOW (required)",
+  "source": "ASPECT_REGISTER | EVENT_REPORT | LEGAL_REGISTER | OBJECTIVE | AUDIT_FINDING | MANAGEMENT_REVIEW | STAKEHOLDER | REGULATORY_REQUIREMENT | OTHER (required)",
+  "description": "string (required)",
+  "assignedTo": "string (required)",
+  "dueDate": "YYYY-MM-DD (required)"
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-ACT-YYYY-NNN`
+- `completionDate` auto-set when status changes to `COMPLETED`
+
+---
+
+### CAPA Management (Clause 10.2)
+
+#### List CAPAs
+```http
+GET /api/environment/capa
+```
+
+Response includes nested `capaActions` array.
+
+Query parameters:
+| Param | Type | Description |
+|-------|------|-------------|
+| `search` | string | Search title/description/reference |
+| `status` | string | `INITIATED \| ROOT_CAUSE_ANALYSIS \| ACTIONS_DEFINED \| IMPLEMENTATION \| VERIFICATION \| CLOSED \| CANCELLED` |
+| `capaType` | string | `CORRECTIVE \| PREVENTIVE \| IMPROVEMENT` |
+| `severity` | string | `MINOR \| MODERATE \| MAJOR \| CRITICAL` |
+
+#### Create CAPA
+```http
+POST /api/environment/capa
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "capaType": "CORRECTIVE | PREVENTIVE | IMPROVEMENT (required)",
+  "title": "string (required)",
+  "severity": "MINOR | MODERATE | MAJOR | CRITICAL (required)",
+  "triggerSource": "ENVIRONMENTAL_EVENT | LEGAL_NON_CONFORMANCE | INTERNAL_AUDIT | EXTERNAL_AUDIT | MANAGEMENT_REVIEW | ... (required)",
+  "description": "string (required)",
+  "initiatedBy": "string (required)",
+  "responsiblePerson": "string (required)",
+  "targetClosureDate": "YYYY-MM-DD (required)",
+  "rcaMethod": "FIVE_WHY | FISHBONE | FAULT_TREE | BOWTIE | TIMELINE | BARRIER_ANALYSIS | OTHER",
+  "why1": "string", "why2": "string", "why3": "string", "why4": "string", "why5": "string",
+  "fishbonePeople": "string", "fishboneProcess": "string", "fishbonePlant": "string",
+  "fishbonePolicy": "string", "fishboneEnvironment": "string", "fishboneMeasurement": "string",
+  "capaActions": [
+    { "description": "string", "assignedTo": "string", "dueDate": "YYYY-MM-DD", "priority": "HIGH" }
+  ]
+}
+```
+
+**Auto-generated fields:**
+- Reference number: `ENV-CAPA-YYYY-NNN`
+
+#### Add CAPA Action
+```http
+POST /api/environment/capa/:id/actions
+Authorization: Bearer <token>
+
+{
+  "description": "string (required)",
+  "assignedTo": "string (required)",
+  "dueDate": "YYYY-MM-DD (required)",
+  "priority": "CRITICAL | HIGH | MEDIUM | LOW"
+}
+```
+
+#### Update CAPA Action
+```http
+PUT /api/environment/capa/:id/actions/:actionId
+Authorization: Bearer <token>
+
+{
+  "status": "OPEN | IN_PROGRESS | COMPLETED | VERIFIED | OVERDUE | CANCELLED"
+}
+```
+
+Auto-sets `completedDate` when status changes to `COMPLETED`.
+
+---
+
+## Quality API (ISO 9001:2015)
+
+All Quality endpoints are proxied: `GET /api/quality/*` → `api-quality:4003/api/*`
+
+### COTO Log (Context of the Organisation)
+
+#### Interested Parties
+```http
+GET /api/quality/parties
+POST /api/quality/parties
+GET /api/quality/parties/:id
+PUT /api/quality/parties/:id
+DELETE /api/quality/parties/:id
+```
+
+#### Issues
+```http
+GET /api/quality/issues
+POST /api/quality/issues
+GET /api/quality/issues/:id
+PUT /api/quality/issues/:id
+DELETE /api/quality/issues/:id
+```
+
+#### Risks
+```http
+GET /api/quality/risks
+POST /api/quality/risks
+GET /api/quality/risks/:id
+PUT /api/quality/risks/:id
+DELETE /api/quality/risks/:id
+```
+
+Query parameters: `search`, `status` (OPEN|BEING_TREATED|MONITORED|CLOSED|ACCEPTED), `riskLevel`, `process`
+
+**Auto-generated fields:**
+- Reference number: `QMS-RSK-YYYY-NNN`
+- Risk scoring: Probability Rating × Consequence Rating → risk level
+
+#### Opportunities
+```http
+GET /api/quality/opportunities
+POST /api/quality/opportunities
+GET /api/quality/opportunities/:id
+PUT /api/quality/opportunities/:id
+DELETE /api/quality/opportunities/:id
+```
+
+### Core QMS
+
+#### Processes
+```http
+GET /api/quality/processes
+POST /api/quality/processes
+GET /api/quality/processes/:id
+PUT /api/quality/processes/:id
+DELETE /api/quality/processes/:id
+```
+
+Turtle diagram fields: inputs, outputs, resources, competence, activities, controls, KPIs.
+
+#### Non-Conformances
+```http
+GET /api/quality/nonconformances
+POST /api/quality/nonconformances
+GET /api/quality/nonconformances/:id
+PUT /api/quality/nonconformances/:id
+DELETE /api/quality/nonconformances/:id
+```
+
+Query parameters: `search`, `status` (OPEN|CONTAINED|RCA_IN_PROGRESS|CORRECTIVE_ACTION|PREVENTIVE_ACTION|VERIFICATION|CLOSED), `ncType`, `severity`, `source`
+
+#### Actions
+```http
+GET /api/quality/actions
+POST /api/quality/actions
+GET /api/quality/actions/:id
+PUT /api/quality/actions/:id
+DELETE /api/quality/actions/:id
+```
+
+#### Documents
+```http
+GET /api/quality/documents
+POST /api/quality/documents
+GET /api/quality/documents/:id
+PUT /api/quality/documents/:id
+DELETE /api/quality/documents/:id
+```
+
+#### CAPA
+```http
+GET /api/quality/capa
+POST /api/quality/capa
+GET /api/quality/capa/:id
+PUT /api/quality/capa/:id
+DELETE /api/quality/capa/:id
+POST /api/quality/capa/:id/actions
+PUT /api/quality/capa/:id/actions/:actionId
+DELETE /api/quality/capa/:id/actions/:actionId
+```
+
+Supports 5-Why, Fishbone (6M), and 8D (d0-d8) root cause analysis methods.
+
+### Module Routes
+
+#### Legal Register
+```http
+GET /api/quality/legal
+POST /api/quality/legal
+GET /api/quality/legal/:id
+PUT /api/quality/legal/:id
+DELETE /api/quality/legal/:id
+```
+
+#### FMEA
+```http
+GET /api/quality/fmea
+POST /api/quality/fmea
+GET /api/quality/fmea/:id
+PUT /api/quality/fmea/:id
+DELETE /api/quality/fmea/:id
+POST /api/quality/fmea/:id/rows
+PUT /api/quality/fmea/:id/rows/:rowId
+DELETE /api/quality/fmea/:id/rows/:rowId
+```
+
+RPN calculation: Severity × Occurrence × Detection. Color-coded: green <80, amber 80-200, red >200.
+
+#### Continual Improvement
+```http
+GET /api/quality/improvements
+POST /api/quality/improvements
+GET /api/quality/improvements/:id
+PUT /api/quality/improvements/:id
+DELETE /api/quality/improvements/:id
+```
+
+PDCA stage tracking (Plan/Do/Check/Act).
+
+#### Supplier Quality
+```http
+GET /api/quality/suppliers
+POST /api/quality/suppliers
+GET /api/quality/suppliers/:id
+PUT /api/quality/suppliers/:id
+DELETE /api/quality/suppliers/:id
+```
+
+IMS Score calculation: Quality 50% + H&S 30% + Environmental 20%.
+
+#### Change Management
+```http
+GET /api/quality/changes
+POST /api/quality/changes
+GET /api/quality/changes/:id
+PUT /api/quality/changes/:id
+DELETE /api/quality/changes/:id
+```
+
+Impact assessment grid: quality, customer, process, H&S, environmental, regulatory, financial.
+
+#### Objectives
+```http
+GET /api/quality/objectives
+POST /api/quality/objectives
+GET /api/quality/objectives/:id
+PUT /api/quality/objectives/:id
+DELETE /api/quality/objectives/:id
+POST /api/quality/objectives/:id/milestones
+PUT /api/quality/objectives/:id/milestones/:milestoneId
+DELETE /api/quality/objectives/:id/milestones/:milestoneId
+```
+
+KPI tracking with baseline/current/target values and nested milestones.
+
+---
+
 ## AI Analysis Endpoints
 
 AI routes are Next.js API routes on the web-health-safety app (port 3001), calling Claude Sonnet 4.5.
@@ -704,6 +1215,25 @@ for endpoint in risks incidents legal objectives capa; do
     -H "Authorization: Bearer $TOKEN" \
     -H "Origin: http://localhost:3001")
   echo "$endpoint: $CODE"
+done
+
+# Environment endpoints
+for endpoint in aspects events legal objectives actions capa; do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    http://localhost:4000/api/environment/$endpoint \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Origin: http://localhost:3002")
+  echo "environment/$endpoint: $CODE"
+done
+
+# Quality endpoints
+for endpoint in parties issues risks opportunities processes nonconformances \
+  actions documents capa legal fmea improvements suppliers changes objectives; do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    http://localhost:4000/api/quality/$endpoint \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Origin: http://localhost:3003")
+  echo "quality/$endpoint: $CODE"
 done
 
 # CORS verification

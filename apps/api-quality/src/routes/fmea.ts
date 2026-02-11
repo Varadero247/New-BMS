@@ -1,23 +1,33 @@
 import { Router, Response } from 'express';
-import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 
-const router: IRouter = Router();
+const router = Router();
 
 router.use(authenticate);
 
-// Generate FMEA number
-function generateFMEANumber(type: string): string {
-  const prefix = type === 'DFMEA' ? 'DF' : type === 'PFMEA' ? 'PF' : 'FM';
-  const date = new Date();
-  const year = date.getFullYear().toString().slice(-2);
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `${prefix}-${year}-${random}`;
+// Generate reference number
+async function generateRefNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await prisma.qualFmea.count({
+    where: { referenceNumber: { startsWith: `QMS-FMEA-${year}` } },
+  });
+  return `QMS-FMEA-${year}-${String(count + 1).padStart(3, '0')}`;
 }
 
-// GET /api/fmea - List FMEAs
+// Determine action priority from RPN
+function getActionPriority(rpn: number): 'LOW' | 'MEDIUM' | 'HIGH' {
+  if (rpn > 200) return 'HIGH';
+  if (rpn >= 80) return 'MEDIUM';
+  return 'LOW';
+}
+
+// ============================================
+// FMEA CRUD
+// ============================================
+
+// GET / — List FMEAs (paginated)
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, fmeaType } = req.query;
@@ -30,23 +40,26 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (status) where.status = status;
     if (fmeaType) where.fmeaType = fmeaType;
 
-    const [fmeas, total] = await Promise.all([
-      prisma.fMEARecord.findMany({
+    const [items, total] = await Promise.all([
+      prisma.qualFmea.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
-        include: {
-          _count: { select: { actions: true } },
-        },
+        include: { rows: { orderBy: { sortOrder: 'asc' } } },
       }),
-      prisma.fMEARecord.count({ where }),
+      prisma.qualFmea.count({ where }),
     ]);
 
     res.json({
       success: true,
-      data: fmeas,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      data: {
+        items,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error) {
     console.error('List FMEAs error:', error);
@@ -54,14 +67,36 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/fmea/:id - Get single FMEA
+// GET /stats — FMEA statistics
+router.get('/stats', async (_req: AuthRequest, res: Response) => {
+  try {
+    const totalFmeas = await prisma.qualFmea.count();
+
+    const allRows = await prisma.qualFmeaRow.findMany({
+      select: { rpn: true },
+    });
+
+    const highRpnCount = allRows.filter(r => r.rpn > 200).length;
+    const avgRpn = allRows.length > 0
+      ? Math.round(allRows.reduce((sum, r) => sum + r.rpn, 0) / allRows.length)
+      : 0;
+
+    res.json({
+      success: true,
+      data: { totalFmeas, highRpnCount, avgRpn },
+    });
+  } catch (error) {
+    console.error('FMEA stats error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA stats' } });
+  }
+});
+
+// GET /:id — Get single FMEA
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const fmea = await prisma.fMEARecord.findUnique({
+    const fmea = await prisma.qualFmea.findUnique({
       where: { id: req.params.id },
-      include: {
-        actions: { orderBy: { originalRPN: 'desc' } },
-      },
+      include: { rows: { orderBy: { sortOrder: 'asc' } } },
     });
 
     if (!fmea) {
@@ -75,34 +110,52 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/fmea - Create FMEA
+// POST / — Create FMEA
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
+      fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']),
       title: z.string().min(1),
-      description: z.string().optional(),
-      fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA', 'MFMEA']),
-      product: z.string().optional(),
-      process: z.string().optional(),
-      subsystem: z.string().optional(),
-      function: z.string().optional(),
-      teamLeaderId: z.string().optional(),
-      teamMembers: z.array(z.string()).default([]),
-      startDate: z.string().optional(),
-      targetDate: z.string().optional(),
+      productProcess: z.string().min(1),
+      partNumberRev: z.string().optional(),
+      customer: z.string().optional(),
+      teamMembers: z.string().optional(),
+      scopeDescription: z.string().optional(),
+      linkedProcess: z.string().optional(),
+      status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
+      dateInitiated: z.string().optional(),
+      nextReviewDate: z.string().optional(),
+      aiAnalysis: z.string().optional(),
+      aiMissingFailureModes: z.string().optional(),
+      aiControlGaps: z.string().optional(),
+      aiTopPriorityActions: z.string().optional(),
+      aiGenerated: z.boolean().optional(),
     });
 
     const data = schema.parse(req.body);
+    const referenceNumber = await generateRefNumber();
 
-    const fmea = await prisma.fMEARecord.create({
+    const fmea = await prisma.qualFmea.create({
       data: {
-        ...data,
-        fmeaNumber: generateFMEANumber(data.fmeaType),
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        targetDate: data.targetDate ? new Date(data.targetDate) : undefined,
-        status: 'IN_PROGRESS',
-        createdById: req.user!.id,
+        referenceNumber,
+        fmeaType: data.fmeaType,
+        title: data.title,
+        productProcess: data.productProcess,
+        partNumberRev: data.partNumberRev,
+        customer: data.customer,
+        teamMembers: data.teamMembers,
+        scopeDescription: data.scopeDescription,
+        linkedProcess: data.linkedProcess,
+        status: data.status || 'DRAFT',
+        dateInitiated: data.dateInitiated ? new Date(data.dateInitiated) : new Date(),
+        nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
+        aiAnalysis: data.aiAnalysis,
+        aiMissingFailureModes: data.aiMissingFailureModes,
+        aiControlGaps: data.aiControlGaps,
+        aiTopPriorityActions: data.aiTopPriorityActions,
+        aiGenerated: data.aiGenerated,
       },
+      include: { rows: { orderBy: { sortOrder: 'asc' } } },
     });
 
     res.status(201).json({ success: true, data: fmea });
@@ -115,39 +168,41 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PATCH /api/fmea/:id - Update FMEA
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+// PUT /:id — Update FMEA
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.fMEARecord.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
     const schema = z.object({
+      fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']).optional(),
       title: z.string().min(1).optional(),
-      description: z.string().optional(),
-      product: z.string().optional(),
-      process: z.string().optional(),
-      subsystem: z.string().optional(),
-      function: z.string().optional(),
-      teamLeaderId: z.string().optional(),
-      teamMembers: z.array(z.string()).optional(),
-      targetDate: z.string().optional(),
-      status: z.enum(['DRAFT', 'IN_PROGRESS', 'UNDER_REVIEW', 'APPROVED', 'IMPLEMENTED', 'CLOSED']).optional(),
-      revision: z.number().optional(),
-      revisionNotes: z.string().optional(),
+      productProcess: z.string().optional(),
+      partNumberRev: z.string().optional(),
+      customer: z.string().optional(),
+      teamMembers: z.string().optional(),
+      scopeDescription: z.string().optional(),
+      linkedProcess: z.string().optional(),
+      status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
+      nextReviewDate: z.string().optional(),
+      aiAnalysis: z.string().optional(),
+      aiMissingFailureModes: z.string().optional(),
+      aiControlGaps: z.string().optional(),
+      aiTopPriorityActions: z.string().optional(),
+      aiGenerated: z.boolean().optional(),
     });
 
     const data = schema.parse(req.body);
 
-    const fmea = await prisma.fMEARecord.update({
+    const fmea = await prisma.qualFmea.update({
       where: { id: req.params.id },
       data: {
         ...data,
-        targetDate: data.targetDate ? new Date(data.targetDate) : undefined,
-        completedDate: data.status === 'CLOSED' ? new Date() : undefined,
-        revisionDate: data.revision ? new Date() : undefined,
+        nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
       },
+      include: { rows: { orderBy: { sortOrder: 'asc' } } },
     });
 
     res.json({ success: true, data: fmea });
@@ -160,123 +215,228 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/fmea/:id/actions - Add failure mode/action
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
-  try {
-    const schema = z.object({
-      itemFunction: z.string().min(1),
-      potentialFailureMode: z.string().min(1),
-      potentialEffects: z.string().min(1),
-      potentialCauses: z.string().min(1),
-      currentControls: z.string().optional(),
-      currentDetection: z.string().optional(),
-      originalSeverity: z.number().min(1).max(10),
-      originalOccurrence: z.number().min(1).max(10),
-      originalDetection: z.number().min(1).max(10),
-      classification: z.enum(['CRITICAL', 'SIGNIFICANT', 'MODERATE', 'MINOR']).optional(),
-      recommendedAction: z.string().optional(),
-      responsibleParty: z.string().optional(),
-      targetDate: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
-    const originalRPN = data.originalSeverity * data.originalOccurrence * data.originalDetection;
-
-    const action = await prisma.fMEAAction.create({
-      data: {
-        ...data,
-        fmeaId: req.params.id,
-        originalRPN,
-        targetDate: data.targetDate ? new Date(data.targetDate) : undefined,
-        status: 'OPEN',
-        createdById: req.user!.id,
-      },
-    });
-
-    // Update FMEA statistics
-    await updateFMEAStats(req.params.id);
-
-    res.status(201).json({ success: true, data: action });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
-    }
-    console.error('Add FMEA action error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add FMEA action' } });
-  }
-});
-
-// PATCH /api/fmea/:id/actions/:actionId - Update action (complete with new RPN)
-router.patch('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
-  try {
-    const schema = z.object({
-      actionTaken: z.string().optional(),
-      newSeverity: z.number().min(1).max(10).optional(),
-      newOccurrence: z.number().min(1).max(10).optional(),
-      newDetection: z.number().min(1).max(10).optional(),
-      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'CANCELLED']).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    // Calculate new RPN if all values provided
-    let newRPN: number | undefined;
-    if (data.newSeverity && data.newOccurrence && data.newDetection) {
-      newRPN = data.newSeverity * data.newOccurrence * data.newDetection;
-    }
-
-    const action = await prisma.fMEAAction.update({
-      where: { id: req.params.actionId },
-      data: {
-        ...data,
-        newRPN,
-        completedDate: data.status === 'COMPLETED' || data.status === 'VERIFIED' ? new Date() : undefined,
-      },
-    });
-
-    // Update FMEA statistics
-    await updateFMEAStats(req.params.id);
-
-    res.json({ success: true, data: action });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
-    }
-    console.error('Update FMEA action error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA action' } });
-  }
-});
-
-// Helper to update FMEA stats
-async function updateFMEAStats(fmeaId: string): Promise<void> {
-  const actions = await prisma.fMEAAction.findMany({ where: { fmeaId } });
-
-  const stats = {
-    totalFailureModes: actions.length,
-    highRPNCount: actions.filter(a => a.originalRPN >= 100).length, // RPN >= 100 is typically high
-    actionsPending: actions.filter(a => a.status === 'OPEN' || a.status === 'IN_PROGRESS').length,
-  };
-
-  await prisma.fMEARecord.update({
-    where: { id: fmeaId },
-    data: stats,
-  });
-}
-
-// DELETE /api/fmea/:id - Delete FMEA
+// DELETE /:id — Delete FMEA
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.fMEARecord.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
-    await prisma.fMEARecord.delete({ where: { id: req.params.id } });
+    await prisma.qualFmea.delete({ where: { id: req.params.id } });
 
     res.json({ success: true, data: { message: 'FMEA deleted successfully' } });
   } catch (error) {
     console.error('Delete FMEA error:', error);
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA' } });
+  }
+});
+
+// ============================================
+// FMEA ROWS (nested under /:id/rows)
+// ============================================
+
+// POST /:id/rows — Create FMEA row with auto RPN
+router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
+  try {
+    const fmea = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
+    if (!fmea) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
+    }
+
+    const schema = z.object({
+      sortOrder: z.number().optional(),
+      itemProcessStep: z.string().optional(),
+      functionRequirement: z.string().optional(),
+      failureMode: z.string().min(1),
+      effectOfFailure: z.string().min(1),
+      severity: z.number().min(1).max(10).default(1),
+      potentialCauses: z.string().min(1),
+      currentPreventionControls: z.string().optional(),
+      occurrence: z.number().min(1).max(10).default(1),
+      currentDetectionControls: z.string().optional(),
+      detection: z.number().min(1).max(10).default(1),
+      recommendedActions: z.string().optional(),
+      assignedTo: z.string().optional(),
+      dueDate: z.string().optional(),
+      actionsTaken: z.string().optional(),
+      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'ACCEPTED']).optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    // Auto-calculate RPN
+    const rpn = data.severity * data.occurrence * data.detection;
+    const actionPriority = getActionPriority(rpn);
+
+    // Default sortOrder to next in sequence
+    let sortOrder = data.sortOrder;
+    if (sortOrder === undefined) {
+      const maxRow = await prisma.qualFmeaRow.findFirst({
+        where: { fmeaId: req.params.id },
+        orderBy: { sortOrder: 'desc' },
+        select: { sortOrder: true },
+      });
+      sortOrder = (maxRow?.sortOrder ?? -1) + 1;
+    }
+
+    const row = await prisma.qualFmeaRow.create({
+      data: {
+        fmeaId: req.params.id,
+        sortOrder,
+        itemProcessStep: data.itemProcessStep,
+        functionRequirement: data.functionRequirement,
+        failureMode: data.failureMode,
+        effectOfFailure: data.effectOfFailure,
+        severity: data.severity,
+        potentialCauses: data.potentialCauses,
+        currentPreventionControls: data.currentPreventionControls,
+        occurrence: data.occurrence,
+        currentDetectionControls: data.currentDetectionControls,
+        detection: data.detection,
+        rpn,
+        actionPriority,
+        recommendedActions: data.recommendedActions,
+        assignedTo: data.assignedTo,
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        actionsTaken: data.actionsTaken,
+        status: data.status || 'OPEN',
+      },
+    });
+
+    res.status(201).json({ success: true, data: row });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Create FMEA row error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA row' } });
+  }
+});
+
+// PUT /:id/rows/:rowId — Update FMEA row, recalc RPN
+router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
+  try {
+    const existingRow = await prisma.qualFmeaRow.findFirst({
+      where: { id: req.params.rowId, fmeaId: req.params.id },
+    });
+    if (!existingRow) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
+    }
+
+    const schema = z.object({
+      sortOrder: z.number().optional(),
+      itemProcessStep: z.string().optional(),
+      functionRequirement: z.string().optional(),
+      failureMode: z.string().optional(),
+      effectOfFailure: z.string().optional(),
+      severity: z.number().min(1).max(10).optional(),
+      potentialCauses: z.string().optional(),
+      currentPreventionControls: z.string().optional(),
+      occurrence: z.number().min(1).max(10).optional(),
+      currentDetectionControls: z.string().optional(),
+      detection: z.number().min(1).max(10).optional(),
+      recommendedActions: z.string().optional(),
+      assignedTo: z.string().optional(),
+      dueDate: z.string().optional(),
+      actionsTaken: z.string().optional(),
+      revisedSeverity: z.number().min(1).max(10).optional(),
+      revisedOccurrence: z.number().min(1).max(10).optional(),
+      revisedDetection: z.number().min(1).max(10).optional(),
+      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'ACCEPTED']).optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    // Recalculate RPN with current or updated values
+    const s = data.severity ?? existingRow.severity;
+    const o = data.occurrence ?? existingRow.occurrence;
+    const d = data.detection ?? existingRow.detection;
+    const rpn = s * o * d;
+    const actionPriority = getActionPriority(rpn);
+
+    // Calculate revised RPN if revised scores are provided
+    let revisedRpn: number | undefined = existingRow.revisedRpn ?? undefined;
+    const rs = data.revisedSeverity ?? existingRow.revisedSeverity;
+    const ro = data.revisedOccurrence ?? existingRow.revisedOccurrence;
+    const rd = data.revisedDetection ?? existingRow.revisedDetection;
+    if (rs !== null && ro !== null && rd !== null && rs !== undefined && ro !== undefined && rd !== undefined) {
+      revisedRpn = rs * ro * rd;
+    }
+
+    const row = await prisma.qualFmeaRow.update({
+      where: { id: req.params.rowId },
+      data: {
+        ...data,
+        rpn,
+        actionPriority,
+        revisedRpn,
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+      },
+    });
+
+    res.json({ success: true, data: row });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Update FMEA row error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA row' } });
+  }
+});
+
+// DELETE /:id/rows/:rowId — Delete FMEA row
+router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
+  try {
+    const existingRow = await prisma.qualFmeaRow.findFirst({
+      where: { id: req.params.rowId, fmeaId: req.params.id },
+    });
+    if (!existingRow) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
+    }
+
+    await prisma.qualFmeaRow.delete({ where: { id: req.params.rowId } });
+
+    res.json({ success: true, data: { message: 'FMEA row deleted successfully' } });
+  } catch (error) {
+    console.error('Delete FMEA row error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA row' } });
+  }
+});
+
+// POST /:id/rows/reorder — Bulk update sortOrder
+router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      rows: z.array(z.object({
+        id: z.string(),
+        sortOrder: z.number(),
+      })),
+    });
+
+    const { rows } = schema.parse(req.body);
+
+    await Promise.all(
+      rows.map(row =>
+        prisma.qualFmeaRow.update({
+          where: { id: row.id },
+          data: { sortOrder: row.sortOrder },
+        })
+      )
+    );
+
+    const updatedFmea = await prisma.qualFmea.findUnique({
+      where: { id: req.params.id },
+      include: { rows: { orderBy: { sortOrder: 'asc' } } },
+    });
+
+    res.json({ success: true, data: updatedFmea });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Reorder FMEA rows error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reorder FMEA rows' } });
   }
 });
 

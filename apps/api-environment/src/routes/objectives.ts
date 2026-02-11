@@ -1,38 +1,43 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 
 const router: IRouter = Router();
-const STANDARD = 'ISO_14001';
-
 router.use(authenticate);
 
-// GET /api/objectives - List environmental objectives
+async function generateRefNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await prisma.envObjective.count({
+    where: { referenceNumber: { startsWith: `ENV-OBJ-${year}` } },
+  });
+  return `ENV-OBJ-${year}-${String(count + 1).padStart(3, '0')}`;
+}
+
+// GET / - List objectives
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', status } = req.query;
-
+    const { page = '1', limit = '50', status, category, search } = req.query;
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { standard: STANDARD };
+    const where: any = {};
     if (status) where.status = status;
+    if (category) where.category = category;
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: 'insensitive' } },
+        { objectiveStatement: { contains: search as string, mode: 'insensitive' } },
+        { referenceNumber: { contains: search as string, mode: 'insensitive' } },
+        { owner: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
 
     const [objectives, total] = await Promise.all([
-      prisma.objective.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { targetDate: 'asc' },
-        include: {
-          owner: { select: { id: true, firstName: true, lastName: true } },
-        },
-      }),
-      prisma.objective.count({ where }),
+      prisma.envObjective.findMany({ where, skip, take: limitNum, orderBy: { createdAt: 'desc' }, include: { milestones: true } }),
+      prisma.envObjective.count({ where }),
     ]);
 
     res.json({
@@ -46,22 +51,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/objectives/:id - Get single objective
+// GET /:id
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const objective = await prisma.objective.findFirst({
-      where: { id: req.params.id, standard: STANDARD },
-      include: {
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-        progressRecords: { orderBy: { recordedAt: 'desc' } },
-        actions: true,
-      },
-    });
-
-    if (!objective) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
-    }
-
+    const objective = await prisma.envObjective.findUnique({ where: { id: req.params.id }, include: { milestones: true } });
+    if (!objective) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     res.json({ success: true, data: objective });
   } catch (error) {
     console.error('Get objective error:', error);
@@ -69,34 +63,103 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/objectives - Create objective
+// POST /
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().min(1),
-      description: z.string().min(1),
-      targetValue: z.number().optional(),
-      unit: z.string().optional(),
+      objectiveStatement: z.string().min(1),
+      category: z.string().min(1),
+      targetDate: z.string().min(1),
+      owner: z.string().min(1),
+      status: z.string().optional(),
+      policyCommitment: z.string().optional(),
+      iso14001Clause: z.string().optional(),
+      linkedAspects: z.array(z.string()).optional().default([]),
+      sdgAlignment: z.array(z.string()).optional().default([]),
+      netZeroTarget: z.boolean().optional(),
+      netZeroDescription: z.string().optional(),
+      kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
+      baselineDate: z.string().optional(),
+      targetValue: z.number().optional(),
+      currentValue: z.number().optional(),
+      unit: z.string().optional(),
+      measurementMethod: z.string().optional(),
+      dataSource: z.string().optional(),
       startDate: z.string().optional(),
-      targetDate: z.string().optional(),
-      ownerId: z.string().optional(),
       department: z.string().optional(),
+      resourcesRequired: z.string().optional(),
+      estimatedCost: z.number().optional(),
+      actionsRequired: z.boolean().optional(),
+      reviewFrequency: z.string().optional(),
+      progressNotes: z.string().optional(),
+      progressPercent: z.number().optional(),
+      aiSmartAnalysis: z.string().optional(),
+      aiImprovedStatement: z.string().optional(),
+      aiSuggestedKPIs: z.string().optional(),
+      aiSuggestedMilestones: z.string().optional(),
+      aiBenchmarks: z.string().optional(),
+      aiRisks: z.string().optional(),
+      aiGenerated: z.boolean().optional(),
+      milestones: z.array(z.object({
+        title: z.string().min(1),
+        dueDate: z.string().min(1),
+      })).optional(),
     });
 
     const data = schema.parse(req.body);
+    const referenceNumber = await generateRefNumber();
 
-    const objective = await prisma.objective.create({
+    const objective = await prisma.envObjective.create({
       data: {
-        id: uuidv4(),
-        standard: STANDARD,
-        ...data,
-        currentValue: data.baselineValue,
-        progressPercent: 0,
+        referenceNumber,
+        title: data.title,
+        objectiveStatement: data.objectiveStatement,
+        category: data.category as any,
+        targetDate: new Date(data.targetDate),
+        owner: data.owner,
+        status: (data.status as any) || 'NOT_STARTED',
+        policyCommitment: data.policyCommitment,
+        iso14001Clause: data.iso14001Clause,
+        linkedAspects: data.linkedAspects,
+        sdgAlignment: data.sdgAlignment,
+        netZeroTarget: data.netZeroTarget ?? false,
+        netZeroDescription: data.netZeroDescription,
+        kpiDescription: data.kpiDescription,
+        baselineValue: data.baselineValue,
+        baselineDate: data.baselineDate ? new Date(data.baselineDate) : null,
+        targetValue: data.targetValue,
+        currentValue: data.currentValue ?? 0,
+        unit: data.unit,
+        measurementMethod: data.measurementMethod,
+        dataSource: data.dataSource,
         startDate: data.startDate ? new Date(data.startDate) : null,
-        targetDate: data.targetDate ? new Date(data.targetDate) : null,
-        status: 'NOT_STARTED',
+        department: data.department,
+        resourcesRequired: data.resourcesRequired,
+        estimatedCost: data.estimatedCost,
+        actionsRequired: data.actionsRequired ?? false,
+        reviewFrequency: data.reviewFrequency as any,
+        progressNotes: data.progressNotes,
+        progressPercent: data.progressPercent ?? 0,
+        aiSmartAnalysis: data.aiSmartAnalysis,
+        aiImprovedStatement: data.aiImprovedStatement,
+        aiSuggestedKPIs: data.aiSuggestedKPIs,
+        aiSuggestedMilestones: data.aiSuggestedMilestones,
+        aiBenchmarks: data.aiBenchmarks,
+        aiRisks: data.aiRisks,
+        aiGenerated: data.aiGenerated ?? false,
+        milestones: data.milestones && data.milestones.length > 0
+          ? {
+              create: data.milestones.map((m, index) => ({
+                title: m.title,
+                dueDate: new Date(m.dueDate),
+                sortOrder: index,
+              })),
+            }
+          : undefined,
       },
+      include: { milestones: true },
     });
 
     res.status(201).json({ success: true, data: objective });
@@ -109,120 +172,90 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/objectives/:id/progress - Add progress record
-router.post('/:id/progress', async (req: AuthRequest, res: Response) => {
+// PUT /:id
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.objective.findFirst({ where: { id: req.params.id, standard: STANDARD } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
-    }
+    const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
 
-    const schema = z.object({
-      value: z.number(),
-      notes: z.string().optional(),
-    });
+    const data = req.body;
 
-    const data = schema.parse(req.body);
+    // Convert date strings to Date objects
+    if (data.targetDate) data.targetDate = new Date(data.targetDate);
+    if (data.baselineDate) data.baselineDate = new Date(data.baselineDate);
+    if (data.startDate) data.startDate = new Date(data.startDate);
 
-    // Calculate progress percentage
-    let progressPercent = 0;
-    if (existing.targetValue && existing.baselineValue !== null) {
-      const range = existing.targetValue - (existing.baselineValue || 0);
-      if (range !== 0) {
-        progressPercent = Math.min(100, Math.max(0,
-          ((data.value - (existing.baselineValue || 0)) / range) * 100
-        ));
-      }
-    }
+    // Remove milestones from the update data (handle separately if needed)
+    delete data.milestones;
 
-    // Determine status
-    let status = existing.status;
-    if (progressPercent >= 100) {
-      status = 'ACHIEVED';
-    } else if (progressPercent > 0) {
-      status = 'ON_TRACK';
-    }
-
-    // Create progress record and update objective
-    const [progress] = await Promise.all([
-      prisma.objectiveProgress.create({
-        data: {
-          id: uuidv4(),
-          objectiveId: req.params.id,
-          value: data.value,
-          notes: data.notes,
-          recordedAt: new Date(),
-        },
-      }),
-      prisma.objective.update({
-        where: { id: req.params.id },
-        data: {
-          currentValue: data.value,
-          progressPercent: Math.round(progressPercent),
-          status,
-        },
-      }),
-    ]);
-
-    res.status(201).json({ success: true, data: progress });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
-    }
-    console.error('Add progress error:', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add progress' } });
-  }
-});
-
-// PATCH /api/objectives/:id - Update objective
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.objective.findFirst({ where: { id: req.params.id, standard: STANDARD } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
-    }
-
-    const schema = z.object({
-      title: z.string().min(1).optional(),
-      description: z.string().optional(),
-      targetValue: z.number().optional(),
-      unit: z.string().optional(),
-      targetDate: z.string().optional(),
-      ownerId: z.string().optional(),
-      department: z.string().optional(),
-      status: z.enum(['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED']).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const objective = await prisma.objective.update({
+    const objective = await prisma.envObjective.update({
       where: { id: req.params.id },
-      data: {
-        ...data,
-        targetDate: data.targetDate ? new Date(data.targetDate) : existing.targetDate,
-      },
+      data,
+      include: { milestones: true },
     });
 
     res.json({ success: true, data: objective });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
-    }
     console.error('Update objective error:', error);
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update objective' } });
   }
 });
 
-// DELETE /api/objectives/:id - Delete objective
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+// PATCH /:id/milestones/:milestoneId - Update milestone completion
+router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.objective.findFirst({ where: { id: req.params.id, standard: STANDARD } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+    const objective = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
+    if (!objective) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+
+    const milestone = await prisma.envMilestone.findUnique({ where: { id: req.params.milestoneId } });
+    if (!milestone || milestone.objectiveId !== req.params.id) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
     }
 
-    await prisma.objective.delete({ where: { id: req.params.id } });
+    const schema = z.object({
+      completed: z.boolean().optional(),
+      completedDate: z.string().optional(),
+      title: z.string().optional(),
+      dueDate: z.string().optional(),
+      notes: z.string().optional(),
+      sortOrder: z.number().optional(),
+    });
 
+    const data = schema.parse(req.body);
+
+    const updateData: any = { ...data };
+    if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
+    if (data.completedDate) updateData.completedDate = new Date(data.completedDate);
+    // Auto-set completedDate when marking as completed
+    if (data.completed === true && !milestone.completed && !data.completedDate) {
+      updateData.completedDate = new Date();
+    }
+    // Clear completedDate when marking as not completed
+    if (data.completed === false) {
+      updateData.completedDate = null;
+    }
+
+    const updated = await prisma.envMilestone.update({
+      where: { id: req.params.milestoneId },
+      data: updateData,
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Update milestone error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update milestone' } });
+  }
+});
+
+// DELETE /:id
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+    await prisma.envObjective.delete({ where: { id: req.params.id } });
     res.json({ success: true, data: { message: 'Objective deleted successfully' } });
   } catch (error) {
     console.error('Delete objective error:', error);
