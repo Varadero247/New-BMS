@@ -336,8 +336,7 @@ describe('Project Issues API Routes', () => {
         .delete('/api/issues/issue-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.projectIssue.delete).toHaveBeenCalledWith({
         where: { id: 'issue-1' },
       });

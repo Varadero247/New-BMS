@@ -1,15 +1,20 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-payroll');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/benefits/plans - Get benefit plans
 router.get('/plans', async (req: Request, res: Response) => {
   try {
     const { category } = req.query;
 
-    const where: any = { isActive: true };
+    const where: Prisma.BenefitPlanWhereInput = { isActive: true };
     if (category) where.category = category;
 
     const plans = await prisma.benefitPlan.findMany({
@@ -21,7 +26,7 @@ router.get('/plans', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: plans });
   } catch (error) {
-    console.error('Error fetching benefit plans:', error);
+    logger.error('Error fetching benefit plans', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch plans' } });
   }
 });
@@ -57,7 +62,7 @@ router.post('/plans', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating plan:', error);
+    logger.error('Error creating plan', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create plan' } });
   }
 });
@@ -74,7 +79,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: benefits });
   } catch (error) {
-    console.error('Error fetching employee benefits:', error);
+    logger.error('Error fetching employee benefits', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch benefits' } });
   }
 });
@@ -113,7 +118,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error enrolling employee:', error);
+    logger.error('Error enrolling employee', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to enroll employee' } });
   }
 });
@@ -134,7 +139,7 @@ router.put('/:id/terminate', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: benefit });
   } catch (error) {
-    console.error('Error terminating benefit:', error);
+    logger.error('Error terminating benefit', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to terminate benefit' } });
   }
 });

@@ -4,6 +4,9 @@ import { prisma } from '../prisma';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-ai-analysis');
 
 const router: IRouter = Router();
 
@@ -44,7 +47,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Get AI settings error:', error);
+    logger.error('Get AI settings error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get AI settings' },
@@ -119,7 +122,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Update AI settings error:', error);
+    logger.error('Update AI settings error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update AI settings' },
@@ -132,9 +135,9 @@ router.delete('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response)
   try {
     await prisma.aISettings.deleteMany();
 
-    res.json({ success: true, data: { message: 'AI settings deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete AI settings error:', error);
+    logger.error('Delete AI settings error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete AI settings' },

@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -16,11 +19,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { projectId: projectId as string };
+    const where: Prisma.ProjectSprintWhereInput = { projectId: projectId as string };
 
     const [sprints, total] = await Promise.all([
       prisma.projectSprint.findMany({
@@ -43,7 +46,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List sprints error:', error);
+    logger.error('List sprints error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sprints' } });
   }
 });
@@ -63,7 +66,7 @@ router.get('/:id/stories', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: stories });
   } catch (error) {
-    console.error('Get sprint stories error:', error);
+    logger.error('Get sprint stories error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get sprint stories' } });
   }
 });
@@ -108,7 +111,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create sprint error:', error);
+    logger.error('Create sprint error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create sprint' } });
   }
 });
@@ -134,7 +137,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: sprint });
   } catch (error) {
-    console.error('Update sprint error:', error);
+    logger.error('Update sprint error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update sprint' } });
   }
 });
@@ -148,9 +151,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.projectSprint.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Sprint deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete sprint error:', error);
+    logger.error('Delete sprint error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete sprint' } });
   }
 });

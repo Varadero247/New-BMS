@@ -1,17 +1,22 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/training/courses - Get all courses
 router.get('/courses', async (req: Request, res: Response) => {
   try {
     const { category, deliveryMethod, isMandatory } = req.query;
 
-    const where: any = { isActive: true };
-    if (category) where.category = category;
-    if (deliveryMethod) where.deliveryMethod = deliveryMethod;
+    const where: Prisma.HRTrainingCourseWhereInput = { isActive: true };
+    if (category) where.category = category as string;
+    if (deliveryMethod) where.deliveryMethod = deliveryMethod as string;
     if (isMandatory === 'true') where.isMandatory = true;
 
     const courses = await prisma.hRTrainingCourse.findMany({
@@ -24,7 +29,7 @@ router.get('/courses', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: courses });
   } catch (error) {
-    console.error('Error fetching courses:', error);
+    logger.error('Error fetching courses', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch courses' } });
   }
 });
@@ -51,7 +56,7 @@ router.get('/courses/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: course });
   } catch (error) {
-    console.error('Error fetching course:', error);
+    logger.error('Error fetching course', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch course' } });
   }
 });
@@ -87,7 +92,7 @@ router.post('/courses', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating course:', error);
+    logger.error('Error creating course', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create course' } });
   }
 });
@@ -98,9 +103,9 @@ router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const { courseId, status, startDate, endDate } = req.query;
 
-    const where: any = {};
-    if (courseId) where.courseId = courseId;
-    if (status) where.status = status;
+    const where: Prisma.HRTrainingSessionWhereInput = {};
+    if (courseId) where.courseId = courseId as string;
+    if (status) where.status = status as string;
     if (startDate || endDate) {
       where.startDate = {};
       if (startDate) where.startDate.gte = new Date(startDate as string);
@@ -118,7 +123,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: sessions });
   } catch (error) {
-    console.error('Error fetching sessions:', error);
+    logger.error('Error fetching sessions', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sessions' } });
   }
 });
@@ -160,7 +165,7 @@ router.post('/sessions', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating session:', error);
+    logger.error('Error creating session', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create session' } });
   }
 });
@@ -171,11 +176,11 @@ router.get('/enrollments', async (req: Request, res: Response) => {
   try {
     const { employeeId, courseId, sessionId, status } = req.query;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (courseId) where.courseId = courseId;
-    if (sessionId) where.sessionId = sessionId;
-    if (status) where.status = status;
+    const where: Prisma.HRTrainingEnrollmentWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (courseId) where.courseId = courseId as string;
+    if (sessionId) where.sessionId = sessionId as string;
+    if (status) where.status = status as string;
 
     const enrollments = await prisma.hRTrainingEnrollment.findMany({
       where,
@@ -189,7 +194,7 @@ router.get('/enrollments', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: enrollments });
   } catch (error) {
-    console.error('Error fetching enrollments:', error);
+    logger.error('Error fetching enrollments', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch enrollments' } });
   }
 });
@@ -243,7 +248,7 @@ router.post('/enrollments', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating enrollment:', error);
+    logger.error('Error creating enrollment', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create enrollment' } });
   }
 });
@@ -281,7 +286,7 @@ router.put('/enrollments/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating enrollment:', error);
+    logger.error('Error updating enrollment', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update enrollment' } });
   }
 });
@@ -292,9 +297,9 @@ router.get('/certifications', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, expiringWithin } = req.query;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
+    const where: Prisma.EmployeeCertificationWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (status) where.status = status as string;
     if (expiringWithin) {
       const daysAhead = parseInt(expiringWithin as string);
       const futureDate = new Date();
@@ -313,7 +318,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: certifications });
   } catch (error) {
-    console.error('Error fetching certifications:', error);
+    logger.error('Error fetching certifications', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certifications' } });
   }
 });
@@ -351,7 +356,7 @@ router.post('/certifications', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating certification:', error);
+    logger.error('Error creating certification', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' } });
   }
 });
@@ -491,7 +496,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching training stats:', error);
+    logger.error('Error fetching training stats', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
   }
 });

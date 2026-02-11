@@ -32,6 +32,13 @@ jest.mock('@ims/database', () => ({
   },
 }));
 
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
@@ -254,8 +261,7 @@ describe('Workflows Approvals API Routes', () => {
 
       const response = await request(app).delete('/api/approvals/chains/chain-1');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
     });
 
     it('should handle database errors', async () => {

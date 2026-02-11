@@ -1,7 +1,10 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
@@ -22,11 +25,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       performedById,
     } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.InventoryTransactionWhereInput = {};
 
     if (productId) where.productId = productId;
     if (warehouseId) where.warehouseId = warehouseId;
@@ -62,7 +65,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List transactions error:', error);
+    logger.error('List transactions error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' } });
   }
 });
@@ -72,7 +75,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { startDate, endDate, warehouseId } = req.query;
 
-    const where: any = {};
+    const where: Prisma.InventoryTransactionWhereInput = {};
     if (warehouseId) where.warehouseId = warehouseId;
 
     // Default to last 30 days if no date range specified
@@ -129,7 +132,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Transaction summary error:', error);
+    logger.error('Transaction summary error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction summary' } });
   }
 });
@@ -139,8 +142,8 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50' } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [transactions, total, product] = await Promise.all([
@@ -174,7 +177,7 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Product transaction history error:', error);
+    logger.error('Product transaction history error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get product transaction history' } });
   }
 });
@@ -197,7 +200,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: transaction });
   } catch (error) {
-    console.error('Get transaction error:', error);
+    logger.error('Get transaction error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction' } });
   }
 });

@@ -384,7 +384,11 @@ model Employee {
 
   @@index([departmentId])
   @@index([managerId])
+  @@index([positionId])
+  @@index([shiftId])
   @@index([employmentStatus])
+  @@index([employmentType])
+  @@index([hireDate])
   @@map("hr_employees")
 }
 
@@ -414,6 +418,8 @@ model HRDepartment {
   positions   Position[]
   jobPostings JobPosting[]
 
+  @@index([parentId])
+  @@index([isActive])
   @@map("hr_departments")
 }
 
@@ -438,6 +444,8 @@ model Position {
   employees   Employee[]
   jobPostings JobPosting[]
 
+  @@index([departmentId])
+  @@index([isActive])
   @@map("hr_positions")
 }
 
@@ -555,6 +563,8 @@ model LeaveRequest {
   approvals  LeaveApproval[]
 
   @@index([employeeId])
+  @@index([leaveTypeId])
+  @@index([handoverToId])
   @@index([status])
   @@index([startDate, endDate])
   @@map("hr_leave_requests")
@@ -578,6 +588,8 @@ model LeaveBalance {
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
 
   @@unique([employeeId, leaveTypeId, year])
+  @@index([employeeId])
+  @@index([leaveTypeId])
   @@map("hr_leave_balances")
 }
 
@@ -595,6 +607,9 @@ model LeaveApproval {
 
   leaveRequest LeaveRequest @relation(fields: [leaveRequestId], references: [id])
 
+  @@index([leaveRequestId])
+  @@index([approverEmployeeId])
+  @@index([status])
   @@map("hr_leave_approvals")
 }
 
@@ -610,6 +625,9 @@ model Holiday {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 
+  @@index([year])
+  @@index([date])
+  @@index([type])
   @@map("hr_holidays")
 }
 
@@ -639,6 +657,8 @@ model PerformanceCycle {
   reviews PerformanceReview[]
   goals   PerformanceGoal[]
 
+  @@index([status])
+  @@index([year])
   @@map("hr_performance_cycles")
 }
 
@@ -673,6 +693,7 @@ model PerformanceReview {
   reviewer  Employee              @relation("ReviewReviewer", fields: [reviewerId], references: [id])
   feedbacks PerformanceFeedback[]
 
+  @@index([cycleId])
   @@index([employeeId])
   @@index([reviewerId])
   @@index([status])
@@ -690,6 +711,8 @@ model PerformanceFeedback {
 
   review PerformanceReview @relation(fields: [reviewId], references: [id])
 
+  @@index([reviewId])
+  @@index([fromId])
   @@map("hr_performance_feedbacks")
 }
 
@@ -723,6 +746,8 @@ model PerformanceGoal {
 
   @@index([employeeId])
   @@index([cycleId])
+  @@index([status])
+  @@index([dueDate])
   @@map("hr_performance_goals")
 }
 
@@ -738,6 +763,7 @@ model GoalUpdate {
 
   goal PerformanceGoal @relation(fields: [goalId], references: [id])
 
+  @@index([goalId])
   @@map("hr_goal_updates")
 }
 
@@ -783,6 +809,9 @@ model JobPosting {
 
   @@index([status])
   @@index([departmentId])
+  @@index([positionId])
+  @@index([hiringManagerId])
+  @@index([recruiterId])
   @@map("hr_job_postings")
 }
 
@@ -844,6 +873,10 @@ model Interview {
   jobPosting  JobPosting            @relation(fields: [jobPostingId], references: [id])
   evaluations InterviewEvaluation[]
 
+  @@index([applicantId])
+  @@index([jobPostingId])
+  @@index([status])
+  @@index([scheduledAt])
   @@map("hr_interviews")
 }
 
@@ -868,6 +901,9 @@ model InterviewEvaluation {
   interview Interview @relation(fields: [interviewId], references: [id])
   applicant Applicant @relation(fields: [applicantId], references: [id])
 
+  @@index([interviewId])
+  @@index([applicantId])
+  @@index([evaluatorId])
   @@map("hr_interview_evaluations")
 }
 
@@ -923,6 +959,9 @@ model HRTrainingSession {
   course      HRTrainingCourse     @relation(fields: [courseId], references: [id])
   enrollments HRTrainingEnrollment[]
 
+  @@index([courseId])
+  @@index([status])
+  @@index([startDate])
   @@map("hr_training_sessions")
 }
 
@@ -948,6 +987,10 @@ model HRTrainingEnrollment {
   course   HRTrainingCourse  @relation(fields: [courseId], references: [id])
   session  HRTrainingSession? @relation(fields: [sessionId], references: [id])
 
+  @@index([employeeId])
+  @@index([courseId])
+  @@index([sessionId])
+  @@index([status])
   @@map("hr_training_enrollments")
 }
 

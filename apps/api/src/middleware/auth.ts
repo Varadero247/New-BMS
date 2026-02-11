@@ -34,7 +34,7 @@ export async function authenticate(
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, getJwtSecret()) as { userId: string };
+    const decoded = jwt.verify(token, getJwtSecret(), { algorithms: ['HS256'] }) as { userId: string };
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -78,5 +78,5 @@ export function requireRole(...roles: string[]) {
 }
 
 export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, getJwtSecret(), { expiresIn: '7d' });
+  return jwt.sign({ userId }, getJwtSecret(), { expiresIn: '15m' });
 }

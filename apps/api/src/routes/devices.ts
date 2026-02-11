@@ -40,7 +40,7 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     const { page = 1, limit = 50, buildingId, zoneId, type, status, search } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = { isActive: true };
+    const where: Record<string, unknown> = { isActive: true };
 
     if (buildingId) where.buildingId = buildingId;
     if (zoneId) where.zoneId = zoneId;
@@ -220,7 +220,7 @@ router.get('/:id/readings', authenticate, async (req: AuthRequest, res, next) =>
     const { id } = req.params;
     const { limit = 100, type, from, to } = req.query;
 
-    const where: any = { deviceId: id };
+    const where: Record<string, unknown> = { deviceId: id };
 
     if (type) where.type = type;
     if (from || to) {

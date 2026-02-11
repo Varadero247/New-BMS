@@ -1,15 +1,20 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-payroll');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/salary/component-types - Get salary component types
 router.get('/component-types', async (req: Request, res: Response) => {
   try {
     const { type, category } = req.query;
 
-    const where: any = { isActive: true };
+    const where: Prisma.SalaryComponentTypeWhereInput = { isActive: true };
     if (type) where.type = type;
     if (category) where.category = category;
 
@@ -20,7 +25,7 @@ router.get('/component-types', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: componentTypes });
   } catch (error) {
-    console.error('Error fetching component types:', error);
+    logger.error('Error fetching component types', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch component types' } });
   }
 });
@@ -51,7 +56,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating component type:', error);
+    logger.error('Error creating component type', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create component type' } });
   }
 });
@@ -71,7 +76,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: salaries });
   } catch (error) {
-    console.error('Error fetching salary:', error);
+    logger.error('Error fetching salary', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch salary' } });
   }
 });
@@ -139,7 +144,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error setting salary:', error);
+    logger.error('Error setting salary', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to set salary' } });
   }
 });
@@ -188,7 +193,7 @@ router.put('/:id/components', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating components:', error);
+    logger.error('Error updating components', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update components' } });
   }
 });

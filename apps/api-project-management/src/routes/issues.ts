@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -16,11 +19,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { projectId: projectId as string };
+    const where: Prisma.ProjectIssueWhereInput = { projectId: projectId as string };
     if (status) where.status = status;
     if (severity) where.severity = severity;
 
@@ -40,7 +43,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List issues error:', error);
+    logger.error('List issues error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list issues' } });
   }
 });
@@ -92,7 +95,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create issue error:', error);
+    logger.error('Create issue error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create issue' } });
   }
 });
@@ -119,7 +122,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: issue });
   } catch (error) {
-    console.error('Update issue error:', error);
+    logger.error('Update issue error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update issue' } });
   }
 });
@@ -147,7 +150,7 @@ router.put('/:id/resolve', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: issue });
   } catch (error) {
-    console.error('Resolve issue error:', error);
+    logger.error('Resolve issue error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve issue' } });
   }
 });
@@ -161,9 +164,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.projectIssue.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Issue deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete issue error:', error);
+    logger.error('Delete issue error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete issue' } });
   }
 });

@@ -471,8 +471,7 @@ describe('Quality Processes API Routes', () => {
         .delete('/api/processes/proc-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualProcess.delete).toHaveBeenCalledWith({
         where: { id: 'proc-1' },
       });

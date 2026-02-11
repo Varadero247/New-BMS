@@ -81,6 +81,9 @@ model Incident {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   risk            Risk?    @relation(fields: [riskId], references: [id])
@@ -92,6 +95,10 @@ model Incident {
 
   @@index([status])
   @@index([type])
+  @@index([severity])
+  @@index([reporterId])
+  @@index([investigatorId])
+  @@index([riskId])
   @@index([dateOccurred])
   @@map("hs_incidents")
 }
@@ -174,6 +181,8 @@ model Risk {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  updatedBy String?
 
   // Relations
   incidents      Incident[]
@@ -230,10 +239,14 @@ model Hazard {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   // Relations
   risk              Risk? @relation(fields: [riskId], references: [id])
 
+  @@index([riskId])
   @@index([category])
   @@index([status])
   @@map("hs_hazards")
@@ -308,13 +321,18 @@ model HSAction {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
 
   // Relations
   incident        Incident? @relation(fields: [incidentId], references: [id])
   risk            Risk?     @relation(fields: [riskId], references: [id])
 
+  @@index([incidentId])
+  @@index([riskId])
   @@index([status, dueDate])
   @@index([ownerId])
+  @@index([type])
+  @@index([priority])
   @@map("hs_actions")
 }
 
@@ -364,6 +382,7 @@ model FiveWhyAnalysis {
 
   incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
+  @@index([incidentId])
   @@map("hs_five_why_analyses")
 }
 
@@ -388,6 +407,7 @@ model FishboneAnalysis {
 
   incident         Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
+  @@index([incidentId])
   @@map("hs_fishbone_analyses")
 }
 
@@ -418,6 +438,7 @@ model BowTieAnalysis {
 
   risk               Risk @relation(fields: [riskId], references: [id], onDelete: Cascade)
 
+  @@index([riskId])
   @@map("hs_bow_tie_analyses")
 }
 
@@ -488,6 +509,9 @@ model SafetyPermit {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
 
   @@index([status])
   @@index([permitType])
@@ -549,6 +573,9 @@ model SafetyInspection {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([status])
   @@index([inspectionType])
@@ -614,6 +641,9 @@ model LegalRequirement {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   @@index([complianceStatus])
   @@index([category])
@@ -689,6 +719,9 @@ model OhsObjective {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   // Relations
   milestones        ObjectiveMilestone[]
@@ -782,6 +815,8 @@ model Capa {
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  deletedAt             DateTime?
+  updatedBy             String?
 
   // Relations
   actions               CapaAction[]
@@ -793,6 +828,9 @@ model Capa {
   @@index([status])
   @@index([capaType])
   @@index([priority])
+  @@index([incidentId])
+  @@index([riskId])
+  @@index([targetCompletionDate])
   @@map("hs_capas")
 }
 

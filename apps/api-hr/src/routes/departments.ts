@@ -1,8 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 const createDepartmentSchema = z.object({
   code: z.string().min(1),
@@ -51,7 +56,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: departments });
   } catch (error) {
-    console.error('Error fetching departments:', error);
+    logger.error('Error fetching departments', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch departments' } });
   }
 });
@@ -87,7 +92,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: department });
   } catch (error) {
-    console.error('Error fetching department:', error);
+    logger.error('Error fetching department', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch department' } });
   }
 });
@@ -107,7 +112,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating department:', error);
+    logger.error('Error creating department', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create department' } });
   }
 });
@@ -128,7 +133,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating department:', error);
+    logger.error('Error updating department', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update department' } });
   }
 });
@@ -153,9 +158,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: { isActive: false },
     });
 
-    res.json({ success: true, message: 'Department deactivated' });
+    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting department:', error);
+    logger.error('Error deleting department', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete department' } });
   }
 });
@@ -166,8 +171,8 @@ router.get('/positions/all', async (req: Request, res: Response) => {
   try {
     const { departmentId } = req.query;
 
-    const where: any = { isActive: true };
-    if (departmentId) where.departmentId = departmentId;
+    const where: Prisma.PositionWhereInput = { isActive: true };
+    if (departmentId) where.departmentId = departmentId as string;
 
     const positions = await prisma.position.findMany({
       where,
@@ -179,7 +184,7 @@ router.get('/positions/all', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: positions });
   } catch (error) {
-    console.error('Error fetching positions:', error);
+    logger.error('Error fetching positions', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch positions' } });
   }
 });
@@ -212,7 +217,7 @@ router.post('/positions', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating position:', error);
+    logger.error('Error creating position', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create position' } });
   }
 });

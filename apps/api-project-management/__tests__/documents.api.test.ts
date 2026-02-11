@@ -266,9 +266,7 @@ describe('Documents API Routes', () => {
         .delete('/api/documents/doc-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.message).toBe('Document deleted successfully');
+      expect(response.status).toBe(204);
       expect(mockPrisma.projectDocument.delete).toHaveBeenCalledWith({
         where: { id: 'doc-1' },
       });

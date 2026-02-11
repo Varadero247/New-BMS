@@ -320,8 +320,7 @@ describe('Project Risks API Routes', () => {
         .delete('/api/risks/risk-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.projectRisk.delete).toHaveBeenCalledWith({
         where: { id: 'risk-1' },
       });

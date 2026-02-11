@@ -132,8 +132,7 @@ describe('Sessions API Routes', () => {
         .delete('/api/sessions/other-session-456')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.session.delete).toHaveBeenCalledWith({
         where: { id: 'other-session-456' },
       });
@@ -191,9 +190,7 @@ describe('Sessions API Routes', () => {
         .delete('/api/sessions')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.revokedCount).toBe(3);
+      expect(response.status).toBe(204);
     });
 
     it('should exclude current session from revocation', async () => {
@@ -218,8 +215,7 @@ describe('Sessions API Routes', () => {
         .delete('/api/sessions')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.data.revokedCount).toBe(0);
+      expect(response.status).toBe(204);
     });
 
     it('should handle database errors', async () => {

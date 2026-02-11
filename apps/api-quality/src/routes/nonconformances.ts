@@ -1,7 +1,10 @@
 import { Router, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-quality');
 
 const router = Router();
 
@@ -22,11 +25,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', ncType, status, severity, search } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.QualNonConformanceWhereInput = {};
     if (ncType) where.ncType = ncType;
     if (status) where.status = status;
     if (severity) where.severity = severity;
@@ -55,7 +58,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('List non-conformances error:', error);
+    logger.error('List non-conformances error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list non-conformances' } });
   }
 });
@@ -90,7 +93,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('NC stats error:', error);
+    logger.error('NC stats error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance statistics' } });
   }
 });
@@ -108,7 +111,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: nc });
   } catch (error) {
-    console.error('Get NC error:', error);
+    logger.error('Get NC error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance' } });
   }
 });
@@ -175,7 +178,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create NC error:', error);
+    logger.error('Create NC error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create non-conformance' } });
   }
 });
@@ -263,7 +266,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update NC error:', error);
+    logger.error('Update NC error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update non-conformance' } });
   }
 });
@@ -278,9 +281,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.qualNonConformance.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Non-conformance deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete NC error:', error);
+    logger.error('Delete NC error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete non-conformance' } });
   }
 });

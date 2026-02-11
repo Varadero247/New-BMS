@@ -394,8 +394,7 @@ describe('Quality Nonconformances API Routes', () => {
         .delete('/api/nonconformances/nc-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualNonConformance.delete).toHaveBeenCalledWith({
         where: { id: 'nc-1' },
       });

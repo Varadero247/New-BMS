@@ -28,6 +28,9 @@ model ProductCategory {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
 
   // Relations
   parent      ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -67,6 +70,7 @@ model Supplier {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
   createdById String?
   updatedById String?
 
@@ -136,6 +140,7 @@ model Product {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
   createdById String?
   updatedById String?
 
@@ -193,6 +198,7 @@ model Warehouse {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
   createdById String?
   updatedById String?
 
@@ -201,6 +207,8 @@ model Warehouse {
   sourceTransfers InventoryTransaction[] @relation("TransferSource")
   destTransfers   InventoryTransaction[] @relation("TransferDestination")
 
+  @@index([managerId])
+  @@index([isActive])
   @@map("warehouses")
 }
 
@@ -242,6 +250,7 @@ model Inventory {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
   createdById String?
   updatedById String?
 
@@ -305,6 +314,8 @@ model InventoryTransaction {
   fromWarehouse Warehouse? @relation("TransferSource", fields: [fromWarehouseId], references: [id])
 
   @@index([productId])
+  @@index([warehouseId])
+  @@index([fromWarehouseId])
   @@index([transactionType])
   @@index([transactionDate])
   @@index([referenceType, referenceId])
@@ -363,10 +374,14 @@ model StockCount {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
 
   // Relations
   items         StockCountItem[]
 
+  @@index([warehouseId])
   @@index([status])
   @@index([scheduledDate])
   @@map("stock_counts")
@@ -473,6 +488,7 @@ model PurchaseOrder {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
   createdById     String?
 
   // Relations
@@ -481,6 +497,7 @@ model PurchaseOrder {
 
   @@index([status])
   @@index([supplierId])
+  @@index([warehouseId])
   @@index([orderDate])
   @@map("purchase_orders")
 }
@@ -527,6 +544,8 @@ model PurchaseOrderItem {
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
 
   @@index([purchaseOrderId])
+  @@index([productId])
+  @@index([status])
   @@map("purchase_order_items")
 }
 
@@ -565,6 +584,9 @@ model GoodsReceipt {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
   receivedById    String?
 
   // Relations
@@ -573,6 +595,9 @@ model GoodsReceipt {
 
   @@index([status])
   @@index([purchaseOrderId])
+  @@index([supplierId])
+  @@index([warehouseId])
+  @@index([receiptDate])
   @@map("goods_receipts")
 }
 
@@ -616,6 +641,8 @@ model GoodsReceiptItem {
   goodsReceipt    GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
 
   @@index([goodsReceiptId])
+  @@index([productId])
+  @@index([qualityStatus])
   @@map("goods_receipt_items")
 }
 

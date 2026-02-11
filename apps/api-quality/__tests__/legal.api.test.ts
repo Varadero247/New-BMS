@@ -431,8 +431,7 @@ describe('Quality Legal Obligations API Routes', () => {
         .delete('/api/legal/leg-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualLegal.delete).toHaveBeenCalledWith({
         where: { id: 'leg-1' },
       });

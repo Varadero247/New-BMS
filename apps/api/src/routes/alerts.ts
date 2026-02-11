@@ -24,7 +24,7 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     const { page = 1, limit = 50, buildingId, status, severity, type } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (buildingId) where.buildingId = buildingId;
     if (status) where.status = status;

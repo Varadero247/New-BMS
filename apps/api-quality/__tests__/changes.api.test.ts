@@ -492,8 +492,7 @@ describe('Quality Changes API Routes', () => {
         .delete('/api/changes/chg-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualChange.delete).toHaveBeenCalledWith({
         where: { id: 'chg-1' },
       });

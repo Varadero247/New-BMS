@@ -493,8 +493,7 @@ describe('Quality Opportunities API Routes', () => {
         .delete('/api/opportunities/opp-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualOpportunity.delete).toHaveBeenCalledWith({
         where: { id: 'opp-1' },
       });

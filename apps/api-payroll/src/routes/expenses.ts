@@ -1,27 +1,33 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-payroll');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/expenses - Get expenses
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, category, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
-    if (category) where.category = category;
+    const where: Prisma.ExpenseWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (status) where.status = status as string;
+    if (category) where.category = category as string;
 
     const [expenses, total] = await Promise.all([
       prisma.expense.findMany({
         where,
         skip,
-        take,
+        take: limitNum,
         orderBy: { expenseDate: 'desc' },
       }),
       prisma.expense.count({ where }),
@@ -30,10 +36,10 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: expenses,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching expenses:', error);
+    logger.error('Error fetching expenses', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expenses' } });
   }
 });
@@ -54,7 +60,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: expense });
   } catch (error) {
-    console.error('Error fetching expense:', error);
+    logger.error('Error fetching expense', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expense' } });
   }
 });
@@ -101,7 +107,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating expense:', error);
+    logger.error('Error creating expense', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create expense' } });
   }
 });
@@ -124,7 +130,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: expense });
   } catch (error) {
-    console.error('Error approving expense:', error);
+    logger.error('Error approving expense', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve expense' } });
   }
 });
@@ -147,7 +153,7 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: expense });
   } catch (error) {
-    console.error('Error rejecting expense:', error);
+    logger.error('Error rejecting expense', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject expense' } });
   }
 });
@@ -169,7 +175,7 @@ router.put('/:id/reimburse', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: expense });
   } catch (error) {
-    console.error('Error reimbursing expense:', error);
+    logger.error('Error reimbursing expense', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reimburse expense' } });
   }
 });
@@ -180,9 +186,9 @@ router.get('/reports/all', async (req: Request, res: Response) => {
   try {
     const { employeeId, status } = req.query;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
+    const where: Prisma.ExpenseReportWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (status) where.status = status as string;
 
     const reports = await prisma.expenseReport.findMany({
       where,
@@ -194,7 +200,7 @@ router.get('/reports/all', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: reports });
   } catch (error) {
-    console.error('Error fetching expense reports:', error);
+    logger.error('Error fetching expense reports', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reports' } });
   }
 });
@@ -249,7 +255,7 @@ router.post('/reports', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating report:', error);
+    logger.error('Error creating report', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
   }
 });

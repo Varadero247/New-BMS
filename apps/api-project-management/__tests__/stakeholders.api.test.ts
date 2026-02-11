@@ -305,9 +305,7 @@ describe('Stakeholders API Routes', () => {
         .delete('/api/stakeholders/stakeholder-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.message).toBe('Stakeholder deleted successfully');
+      expect(response.status).toBe(204);
       expect(mockPrisma.projectStakeholder.delete).toHaveBeenCalledWith({
         where: { id: 'stakeholder-1' },
       });

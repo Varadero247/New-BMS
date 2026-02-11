@@ -55,14 +55,14 @@ describe('JWT Utilities', () => {
       expect(decoded?.aud).toBe('ims-client');
     });
 
-    it('should set default expiration of 7 days', () => {
+    it('should set default expiration of 15 minutes', () => {
       const token = generateToken({ userId: 'user-123' });
       const decoded = decodeToken(token);
       expect(decoded?.exp).toBeDefined();
 
       const expiresIn = (decoded!.exp! - decoded!.iat!) * 1000;
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
-      expect(expiresIn).toBe(sevenDays);
+      const fifteenMinutes = 15 * 60 * 1000;
+      expect(expiresIn).toBe(fifteenMinutes);
     });
 
     it('should allow custom expiration', () => {
@@ -83,13 +83,13 @@ describe('JWT Utilities', () => {
       expect(token.split('.')).toHaveLength(3);
     });
 
-    it('should have 30 day expiration', () => {
+    it('should have 7 day expiration', () => {
       const token = generateRefreshToken('user-123');
       const decoded = decodeToken(token);
 
       const expiresIn = (decoded!.exp! - decoded!.iat!) * 1000;
-      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-      expect(expiresIn).toBe(thirtyDays);
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      expect(expiresIn).toBe(sevenDays);
     });
 
     it('should include refresh type marker', () => {
@@ -248,12 +248,12 @@ describe('JWT Utilities', () => {
       expect(Math.abs(diff - thirtyMin)).toBeLessThan(1000);
     });
 
-    it('should default to 7 days for invalid format', () => {
+    it('should default to 15 minutes for invalid format', () => {
       const now = new Date();
       const expiry = getTokenExpiry('invalid');
       const diff = expiry.getTime() - now.getTime();
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
-      expect(Math.abs(diff - sevenDays)).toBeLessThan(1000);
+      const fifteenMinutes = 15 * 60 * 1000;
+      expect(Math.abs(diff - fifteenMinutes)).toBeLessThan(1000);
     });
   });
 

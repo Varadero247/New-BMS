@@ -1,4 +1,5 @@
-import { PrismaClient } from '@ims/database/quality';
+import { PrismaClient, Prisma } from '@ims/database/quality';
+export { Prisma };
 
 declare global {
   var qualPrisma: InstanceType<typeof PrismaClient> | undefined;

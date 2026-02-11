@@ -53,10 +53,10 @@ router.get('/courses', authenticate, async (req, res, next) => {
     } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (standard) where.standard = standard;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -231,10 +231,10 @@ router.get('/records', authenticate, async (req, res, next) => {
     } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (userId) where.userId = userId;
     if (courseId) where.courseId = courseId;

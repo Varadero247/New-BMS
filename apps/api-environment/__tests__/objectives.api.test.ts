@@ -482,8 +482,7 @@ describe('Environment Objectives API Routes', () => {
         .delete('/api/objectives/obj-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.envObjective.delete).toHaveBeenCalledWith({
         where: { id: 'obj-1' },
       });

@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-environment');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -19,11 +22,11 @@ async function generateRefNumber(): Promise<string> {
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', status, priority, actionType, source, search } = req.query;
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.EnvActionWhereInput = {};
     if (status) where.status = status;
     if (priority) where.priority = priority;
     if (actionType) where.actionType = actionType;
@@ -48,7 +51,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List actions error:', error);
+    logger.error('List actions error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list actions' } });
   }
 });
@@ -60,7 +63,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     if (!action) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     res.json({ success: true, data: action });
   } catch (error) {
-    console.error('Get action error:', error);
+    logger.error('Get action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action' } });
   }
 });
@@ -151,7 +154,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create action error:', error);
+    logger.error('Create action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create action' } });
   }
 });
@@ -181,7 +184,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: action });
   } catch (error) {
-    console.error('Update action error:', error);
+    logger.error('Update action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update action' } });
   }
 });
@@ -192,9 +195,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     await prisma.envAction.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Action deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete action error:', error);
+    logger.error('Delete action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete action' } });
   }
 });

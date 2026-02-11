@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // Valid WorkflowPriority enum values
 const priorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']);
@@ -15,10 +21,11 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, definitionId, initiatorId, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.WorkflowInstanceWhereInput = {};
     if (status) where.status = status;
     if (definitionId) where.definitionId = definitionId;
     if (initiatorId) where.initiatorId = initiatorId;
@@ -31,7 +38,7 @@ router.get('/', async (req: Request, res: Response) => {
           _count: { select: { tasks: true, history: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.workflowInstance.count({ where }),
@@ -40,10 +47,10 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: instances,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching instances:', error);
+    logger.error('Error fetching instances', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch instances' } });
   }
 });
@@ -79,7 +86,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    logger.error('Error fetching stats', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
   }
 });
@@ -106,7 +113,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: instance });
   } catch (error) {
-    console.error('Error fetching instance:', error);
+    logger.error('Error fetching instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch instance' } });
   }
 });
@@ -183,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating instance:', error);
+    logger.error('Error creating instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create instance' } });
   }
 });
@@ -204,28 +211,32 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
       completedNodeIds.push(current.currentNodeId);
     }
 
-    const instance = await prisma.workflowInstance.update({
-      where: { id: req.params.id },
-      data: {
-        currentNodeId: nextNodeId,
-        completedNodeIds,
-      },
-    });
+    const instance = await prisma.$transaction(async (tx) => {
+      const updated = await tx.workflowInstance.update({
+        where: { id: req.params.id },
+        data: {
+          currentNodeId: nextNodeId,
+          completedNodeIds,
+        },
+      });
 
-    // Record history
-    await prisma.workflowHistory.create({
-      data: {
-        instanceId: req.params.id,
-        action: 'NODE_COMPLETED',
-        actionBy,
-        nodeId: current.currentNodeId,
-        details: { nextNodeId, comments },
-      },
+      // Record history
+      await tx.workflowHistory.create({
+        data: {
+          instanceId: req.params.id,
+          action: 'NODE_COMPLETED',
+          actionBy,
+          nodeId: current.currentNodeId,
+          details: { nextNodeId, comments },
+        },
+      });
+
+      return updated;
     });
 
     res.json({ success: true, data: instance });
   } catch (error) {
-    console.error('Error advancing instance:', error);
+    logger.error('Error advancing instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to advance instance' } });
   }
 });
@@ -241,23 +252,27 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const instance = await prisma.workflowInstance.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'COMPLETED',
-        completedAt: new Date(),
-        outcome: data.outcome,
-        outcomeNotes: data.outcomeNotes,
-      },
-    });
+    const instance = await prisma.$transaction(async (tx) => {
+      const updated = await tx.workflowInstance.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date(),
+          outcome: data.outcome,
+          outcomeNotes: data.outcomeNotes,
+        },
+      });
 
-    await prisma.workflowHistory.create({
-      data: {
-        instanceId: req.params.id,
-        action: 'COMPLETED',
-        actionBy: data.actionBy,
-        details: { outcome: data.outcome, outcomeNotes: data.outcomeNotes },
-      },
+      await tx.workflowHistory.create({
+        data: {
+          instanceId: req.params.id,
+          action: 'COMPLETED',
+          actionBy: data.actionBy,
+          details: { outcome: data.outcome, outcomeNotes: data.outcomeNotes },
+        },
+      });
+
+      return updated;
     });
 
     res.json({ success: true, data: instance });
@@ -265,7 +280,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error completing instance:', error);
+    logger.error('Error completing instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete instance' } });
   }
 });
@@ -275,28 +290,32 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
   try {
     const { cancelledById, cancellationReason } = req.body;
 
-    const instance = await prisma.workflowInstance.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'CANCELLED',
-        cancelledAt: new Date(),
-        cancelledById,
-        cancellationReason,
-      },
-    });
+    const instance = await prisma.$transaction(async (tx) => {
+      const updated = await tx.workflowInstance.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'CANCELLED',
+          cancelledAt: new Date(),
+          cancelledById,
+          cancellationReason,
+        },
+      });
 
-    await prisma.workflowHistory.create({
-      data: {
-        instanceId: req.params.id,
-        action: 'CANCELLED',
-        actionBy: cancelledById,
-        details: { reason: cancellationReason },
-      },
+      await tx.workflowHistory.create({
+        data: {
+          instanceId: req.params.id,
+          action: 'CANCELLED',
+          actionBy: cancelledById,
+          details: { reason: cancellationReason },
+        },
+      });
+
+      return updated;
     });
 
     res.json({ success: true, data: instance });
   } catch (error) {
-    console.error('Error cancelling instance:', error);
+    logger.error('Error cancelling instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel instance' } });
   }
 });

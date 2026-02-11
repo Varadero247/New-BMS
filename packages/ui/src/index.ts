@@ -1,6 +1,9 @@
 // Utility functions
 export { cn, formatDate, formatNumber, formatCurrency } from './utils';
 
+// Login Page
+export { LoginPage, type LoginPageProps } from './login-page';
+
 // Button
 export { Button, buttonVariants, type ButtonProps } from './button';
 

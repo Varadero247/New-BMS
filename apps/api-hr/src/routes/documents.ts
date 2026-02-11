@@ -1,18 +1,24 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/documents - Get employee documents
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { employeeId, documentType, status, expiringWithin, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.EmployeeDocumentWhereInput = {};
     if (employeeId) where.employeeId = employeeId;
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
@@ -30,7 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
           employee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.employeeDocument.count({ where }),
@@ -39,10 +45,10 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: documents,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching documents:', error);
+    logger.error('Error fetching documents', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch documents' } });
   }
 });
@@ -63,7 +69,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: document });
   } catch (error) {
-    console.error('Error fetching document:', error);
+    logger.error('Error fetching document', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' } });
   }
 });
@@ -111,7 +117,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating document:', error);
+    logger.error('Error creating document', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
   }
 });
@@ -143,7 +149,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating document:', error);
+    logger.error('Error updating document', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
   }
 });
@@ -163,7 +169,7 @@ router.post('/:id/sign', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: document });
   } catch (error) {
-    console.error('Error signing document:', error);
+    logger.error('Error signing document', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to sign document' } });
   }
 });
@@ -176,9 +182,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: { status: 'ARCHIVED' },
     });
 
-    res.json({ success: true, message: 'Document archived' });
+    res.status(204).send();
   } catch (error) {
-    console.error('Error archiving document:', error);
+    logger.error('Error archiving document', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to archive document' } });
   }
 });
@@ -194,7 +200,7 @@ router.get('/qualifications/:employeeId', async (req: Request, res: Response) =>
 
     res.json({ success: true, data: qualifications });
   } catch (error) {
-    console.error('Error fetching qualifications:', error);
+    logger.error('Error fetching qualifications', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch qualifications' } });
   }
 });
@@ -231,7 +237,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating qualification:', error);
+    logger.error('Error creating qualification', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create qualification' } });
   }
 });
@@ -247,7 +253,7 @@ router.get('/assets/:employeeId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: assets });
   } catch (error) {
-    console.error('Error fetching assets:', error);
+    logger.error('Error fetching assets', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch assets' } });
   }
 });
@@ -285,7 +291,7 @@ router.post('/assets', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error assigning asset:', error);
+    logger.error('Error assigning asset', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assign asset' } });
   }
 });
@@ -306,7 +312,7 @@ router.put('/assets/:id/return', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: asset });
   } catch (error) {
-    console.error('Error returning asset:', error);
+    logger.error('Error returning asset', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to return asset' } });
   }
 });

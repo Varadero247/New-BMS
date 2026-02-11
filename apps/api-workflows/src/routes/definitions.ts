@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // Valid WorkflowTriggerType enum values
 const triggerTypeEnum = z.enum(['MANUAL', 'AUTOMATIC', 'SCHEDULED', 'EVENT', 'API']);
@@ -15,7 +21,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, templateId, createdBy } = req.query;
 
-    const where: any = {};
+    const where: Prisma.WorkflowDefinitionWhereInput = {};
     if (status) where.status = status;
     if (templateId) where.templateId = templateId;
     if (createdBy) where.createdBy = createdBy;
@@ -31,7 +37,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: definitions });
   } catch (error) {
-    console.error('Error fetching definitions:', error);
+    logger.error('Error fetching definitions', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definitions' } });
   }
 });
@@ -56,7 +62,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: definition });
   } catch (error) {
-    console.error('Error fetching definition:', error);
+    logger.error('Error fetching definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definition' } });
   }
 });
@@ -110,7 +116,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating definition:', error);
+    logger.error('Error creating definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create definition' } });
   }
 });
@@ -152,7 +158,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating definition:', error);
+    logger.error('Error updating definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update definition' } });
   }
 });
@@ -175,7 +181,7 @@ router.put('/:id/activate', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: definition });
   } catch (error) {
-    console.error('Error activating definition:', error);
+    logger.error('Error activating definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to activate definition' } });
   }
 });
@@ -190,7 +196,7 @@ router.put('/:id/archive', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: definition });
   } catch (error) {
-    console.error('Error archiving definition:', error);
+    logger.error('Error archiving definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to archive definition' } });
   }
 });
@@ -227,7 +233,7 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: clone });
   } catch (error) {
-    console.error('Error cloning definition:', error);
+    logger.error('Error cloning definition', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clone definition' } });
   }
 });

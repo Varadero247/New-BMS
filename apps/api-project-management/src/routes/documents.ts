@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -16,11 +19,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { projectId: projectId as string };
+    const where: Prisma.ProjectDocumentWhereInput = { projectId: projectId as string };
 
     const [documents, total] = await Promise.all([
       prisma.projectDocument.findMany({
@@ -38,7 +41,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List documents error:', error);
+    logger.error('List documents error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
   }
 });
@@ -88,7 +91,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create document error:', error);
+    logger.error('Create document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
   }
 });
@@ -114,7 +117,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: document });
   } catch (error) {
-    console.error('Update document error:', error);
+    logger.error('Update document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
   }
 });
@@ -128,9 +131,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.projectDocument.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Document deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete document error:', error);
+    logger.error('Delete document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' } });
   }
 });

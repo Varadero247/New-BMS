@@ -55,10 +55,10 @@ router.get('/safety', authenticate, async (req, res, next) => {
     const { year, page = '1', limit = '12' } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (year) where.year = parseInt(year as string);
 
     const [metrics, total] = await Promise.all([
@@ -264,10 +264,10 @@ router.get('/quality', authenticate, async (req, res, next) => {
     const { year, page = '1', limit = '12' } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (year) where.year = parseInt(year as string);
 
     const [metrics, total] = await Promise.all([

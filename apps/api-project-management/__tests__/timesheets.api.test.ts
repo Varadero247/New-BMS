@@ -356,9 +356,7 @@ describe('Timesheets API Routes', () => {
 
       const res = await request(app).delete('/api/timesheets/ts-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Timesheet deleted successfully');
+      expect(res.status).toBe(204);
       expect(mockPrisma.projectTimesheet.delete).toHaveBeenCalledWith({ where: { id: 'ts-001' } });
     });
 

@@ -1,20 +1,26 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/recruitment/jobs - Get job postings
 router.get('/jobs', async (req: Request, res: Response) => {
   try {
     const { status, departmentId, isRemote, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (status) where.status = status;
-    if (departmentId) where.departmentId = departmentId;
+    const where: Prisma.JobPostingWhereInput = {};
+    if (status) where.status = status as string;
+    if (departmentId) where.departmentId = departmentId as string;
     if (isRemote === 'true') where.isRemote = true;
 
     const [jobs, total] = await Promise.all([
@@ -26,7 +32,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
           _count: { select: { applicants: true, interviews: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.jobPosting.count({ where }),
@@ -35,10 +41,10 @@ router.get('/jobs', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: jobs,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching jobs:', error);
+    logger.error('Error fetching jobs', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch jobs' } });
   }
 });
@@ -67,7 +73,7 @@ router.get('/jobs/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: job });
   } catch (error) {
-    console.error('Error fetching job:', error);
+    logger.error('Error fetching job', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch job' } });
   }
 });
@@ -122,7 +128,7 @@ router.post('/jobs', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating job:', error);
+    logger.error('Error creating job', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create job' } });
   }
 });
@@ -154,7 +160,7 @@ router.put('/jobs/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating job:', error);
+    logger.error('Error updating job', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job' } });
   }
 });
@@ -165,13 +171,14 @@ router.get('/applicants', async (req: Request, res: Response) => {
   try {
     const { jobPostingId, status, stage, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (jobPostingId) where.jobPostingId = jobPostingId;
-    if (status) where.status = status;
-    if (stage) where.stage = stage;
+    const where: Prisma.ApplicantWhereInput = {};
+    if (jobPostingId) where.jobPostingId = jobPostingId as string;
+    if (status) where.status = status as string;
+    if (stage) where.stage = stage as string;
 
     const [applicants, total] = await Promise.all([
       prisma.applicant.findMany({
@@ -181,7 +188,7 @@ router.get('/applicants', async (req: Request, res: Response) => {
           _count: { select: { interviews: true, evaluations: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.applicant.count({ where }),
@@ -190,10 +197,10 @@ router.get('/applicants', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: applicants,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching applicants:', error);
+    logger.error('Error fetching applicants', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch applicants' } });
   }
 });
@@ -219,7 +226,7 @@ router.get('/applicants/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: applicant });
   } catch (error) {
-    console.error('Error fetching applicant:', error);
+    logger.error('Error fetching applicant', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch applicant' } });
   }
 });
@@ -267,7 +274,7 @@ router.post('/applicants', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating applicant:', error);
+    logger.error('Error creating applicant', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create applicant' } });
   }
 });
@@ -293,7 +300,7 @@ router.put('/applicants/:id/status', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating applicant:', error);
+    logger.error('Error updating applicant', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update applicant' } });
   }
 });
@@ -335,7 +342,7 @@ router.post('/interviews', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error scheduling interview:', error);
+    logger.error('Error scheduling interview', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to schedule interview' } });
   }
 });
@@ -365,7 +372,7 @@ router.put('/interviews/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating interview:', error);
+    logger.error('Error updating interview', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update interview' } });
   }
 });
@@ -411,7 +418,7 @@ router.post('/interviews/:id/evaluate', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error submitting evaluation:', error);
+    logger.error('Error submitting evaluation', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit evaluation' } });
   }
 });
@@ -541,7 +548,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    logger.error('Error fetching stats', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
   }
 });

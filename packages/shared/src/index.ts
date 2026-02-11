@@ -1,3 +1,58 @@
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
+
+// ============================================
+// Shared Utilities
+// ============================================
+
+/**
+ * Wraps an async route handler to catch errors and forward them to Express error handler.
+ * Eliminates the need for try/catch in every route handler.
+ */
+export function asyncHandler(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+): RequestHandler {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
+/**
+ * Parse pagination parameters from query string with safe defaults and max limit cap.
+ */
+export function parsePagination(query: Record<string, any>): {
+  page: number;
+  limit: number;
+  skip: number;
+} {
+  const page = Math.max(1, parseInt(query.page as string, 10) || 1);
+  const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || 20), 100);
+  const skip = (page - 1) * limit;
+  return { page, limit, skip };
+}
+
+/**
+ * Build a standard pagination meta response object.
+ */
+export function paginationMeta(page: number, limit: number, total: number): PaginationMeta {
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
+/**
+ * Generate a reference number with format: PREFIX-YYYY-NNN
+ * @param prefix - e.g. 'ENV-ASP', 'HS-RISK', 'QMS-NC'
+ * @param currentCount - current count of records with this prefix for the year
+ */
+export function formatRefNumber(prefix: string, currentCount: number): string {
+  const year = new Date().getFullYear();
+  const seq = String(currentCount + 1).padStart(3, '0');
+  return `${prefix}-${year}-${seq}`;
+}
+
 // ============================================
 // API Response Types
 // ============================================

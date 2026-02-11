@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -16,11 +19,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId or employeeId query parameter is required' } });
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.ProjectTimesheetWhereInput = {};
     if (projectId) where.projectId = projectId as string;
     if (employeeId) where.employeeId = employeeId as string;
 
@@ -43,7 +46,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List timesheets error:', error);
+    logger.error('List timesheets error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list timesheets' } });
   }
 });
@@ -94,7 +97,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create timesheet error:', error);
+    logger.error('Create timesheet error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create timesheet' } });
   }
 });
@@ -126,7 +129,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: timesheet });
   } catch (error) {
-    console.error('Update timesheet error:', error);
+    logger.error('Update timesheet error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update timesheet' } });
   }
 });
@@ -150,7 +153,7 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: timesheet });
   } catch (error) {
-    console.error('Approve timesheet error:', error);
+    logger.error('Approve timesheet error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve timesheet' } });
   }
 });
@@ -164,9 +167,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.projectTimesheet.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Timesheet deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete timesheet error:', error);
+    logger.error('Delete timesheet error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete timesheet' } });
   }
 });

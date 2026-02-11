@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
@@ -20,12 +23,12 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       lowStock,
     } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (warehouseId) where.warehouseId = warehouseId;
+    const where: Prisma.InventoryWhereInput = {};
+    if (warehouseId) where.warehouseId = warehouseId as string;
     if (productId) where.productId = productId;
 
     // Low stock filter
@@ -59,7 +62,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List inventory error:', error);
+    logger.error('List inventory error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list inventory' } });
   }
 });
@@ -68,7 +71,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId } = req.query;
-    const where: any = warehouseId ? { warehouseId: warehouseId as string } : {};
+    const where: Prisma.InventoryWhereInput = warehouseId ? { warehouseId: warehouseId as string } : {};
 
     const [
       totalProducts,
@@ -113,7 +116,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Inventory summary error:', error);
+    logger.error('Inventory summary error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get inventory summary' } });
   }
 });
@@ -159,7 +162,7 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
       },
     });
   } catch (error) {
-    console.error('Check availability error:', error);
+    logger.error('Check availability error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to check availability' } });
   }
 });
@@ -271,7 +274,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Stock adjustment error:', error);
+    logger.error('Stock adjustment error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to adjust stock' } });
   }
 });
@@ -430,7 +433,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Transfer error:', error);
+    logger.error('Transfer error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to transfer stock' } });
   }
 });
@@ -537,7 +540,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Receive goods error:', error);
+    logger.error('Receive goods error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to receive goods' } });
   }
 });
@@ -630,7 +633,7 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Issue goods error:', error);
+    logger.error('Issue goods error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to issue goods' } });
   }
 });

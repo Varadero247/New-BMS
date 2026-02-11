@@ -239,6 +239,7 @@ model PayslipItem {
   componentType       SalaryComponentType? @relation(fields: [componentTypeId], references: [id])
 
   @@index([payslipId])
+  @@index([componentTypeId])
   @@map("payroll_payslip_items")
 }
 
@@ -524,6 +525,8 @@ model LoanRepayment {
   loan                EmployeeLoan @relation(fields: [loanId], references: [id], onDelete: Cascade)
 
   @@index([loanId])
+  @@index([status])
+  @@index([dueDate])
   @@map("payroll_loan_repayments")
 }
 
@@ -583,6 +586,7 @@ model TaxFiling {
   // Relations
   payrollRun          PayrollRun? @relation(fields: [payrollRunId], references: [id])
 
+  @@index([payrollRunId])
   @@index([filingType, taxPeriod])
   @@index([status])
   @@index([taxYear])
@@ -691,6 +695,7 @@ model SalaryComponent {
   componentType       SalaryComponentType @relation(fields: [componentTypeId], references: [id])
 
   @@index([employeeSalaryId])
+  @@index([componentTypeId])
   @@map("payroll_salary_components")
 }
 
@@ -744,6 +749,8 @@ model Expense {
   @@index([employeeId])
   @@index([status])
   @@index([reportId])
+  @@index([expenseDate])
+  @@index([category])
   @@map("payroll_expenses")
 }
 

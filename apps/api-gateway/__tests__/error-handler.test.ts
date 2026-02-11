@@ -1,14 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { errorHandler, AppError } from '../src/middleware/error-handler';
 
-// Mock console.error to avoid noisy output during tests
-const originalConsoleError = console.error;
-beforeAll(() => {
-  console.error = jest.fn();
-});
-afterAll(() => {
-  console.error = originalConsoleError;
-});
+// Mock @ims/monitoring - must be before import of error-handler
+const mockLogger = { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() };
+jest.mock('@ims/monitoring', () => ({
+  createLogger: jest.fn(() => mockLogger),
+}));
+
+import { errorHandler, AppError } from '../src/middleware/error-handler';
 
 const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
   method: 'GET',
@@ -248,8 +246,8 @@ describe('Error Handler Middleware', () => {
     });
   });
 
-  describe('console.error logging', () => {
-    it('should log the error to console.error', () => {
+  describe('structured error logging', () => {
+    it('should log the error using structured logger', () => {
       const err: AppError = new Error('Logged error');
       err.statusCode = 503;
 
@@ -258,7 +256,11 @@ describe('Error Handler Middleware', () => {
 
       errorHandler(err, req as Request, res as Response, mockNext);
 
-      expect(console.error).toHaveBeenCalledWith('Error:', err);
+      expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error', {
+        error: 'Logged error',
+        code: undefined,
+        statusCode: 503,
+      });
     });
   });
 

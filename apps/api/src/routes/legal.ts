@@ -46,10 +46,10 @@ router.get('/', authenticate, async (req, res, next) => {
     } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (standard) where.standard = standard;
     if (type) where.type = type;
@@ -95,7 +95,7 @@ router.get('/', authenticate, async (req, res, next) => {
 router.get('/compliance', authenticate, async (req, res, next) => {
   try {
     const { standard } = req.query;
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (standard) where.standard = standard;
 
     const [total, byStatus, byStandard] = await Promise.all([

@@ -85,6 +85,7 @@ export function verifyServiceToken(token: string): ServicePayload {
 
   try {
     const payload = jwt.verify(token, secret, {
+      algorithms: ['HS256'],
       issuer: config.issuer,
       audience: config.audience,
     }) as ServicePayload;

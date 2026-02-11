@@ -4,6 +4,9 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-health-safety');
 
 const router: IRouter = Router();
 const STANDARD = 'ISO_45001';
@@ -23,7 +26,7 @@ router.get('/courses', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: courses });
   } catch (error) {
-    console.error('List training courses error:', error);
+    logger.error('List training courses error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training courses' } });
   }
 });
@@ -33,7 +36,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
   try {
     const { userId, courseId, status } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (userId) where.userId = userId;
     if (courseId) where.courseId = courseId;
     if (status) where.status = status;
@@ -54,7 +57,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: hsRecords });
   } catch (error) {
-    console.error('List training records error:', error);
+    logger.error('List training records error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' } });
   }
 });
@@ -88,7 +91,7 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create training course error:', error);
+    logger.error('Create training course error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training course' } });
   }
 });
@@ -126,7 +129,7 @@ router.post('/records', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create training record error:', error);
+    logger.error('Create training record error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' } });
   }
 });

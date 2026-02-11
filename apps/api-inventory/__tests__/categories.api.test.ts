@@ -345,8 +345,7 @@ describe('Inventory Categories API Routes', () => {
         .delete('/api/categories/cat-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.productCategory.delete).toHaveBeenCalledWith({
         where: { id: 'cat-1' },
       });

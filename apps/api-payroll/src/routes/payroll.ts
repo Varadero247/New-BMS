@@ -1,19 +1,25 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-payroll');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/payroll/runs - Get payroll runs
 router.get('/runs', async (req: Request, res: Response) => {
   try {
     const { status, year, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (status) where.status = status;
+    const where: Prisma.PayrollRunWhereInput = {};
+    if (status) where.status = status as string;
     if (year) {
       const startOfYear = new Date(parseInt(year as string), 0, 1);
       const endOfYear = new Date(parseInt(year as string), 11, 31);
@@ -27,7 +33,7 @@ router.get('/runs', async (req: Request, res: Response) => {
           _count: { select: { payslips: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { periodStart: 'desc' },
       }),
       prisma.payrollRun.count({ where }),
@@ -36,10 +42,10 @@ router.get('/runs', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: runs,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching payroll runs:', error);
+    logger.error('Error fetching payroll runs', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll runs' } });
   }
 });
@@ -61,7 +67,7 @@ router.get('/runs/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: run });
   } catch (error) {
-    console.error('Error fetching payroll run:', error);
+    logger.error('Error fetching payroll run', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll run' } });
   }
 });
@@ -106,13 +112,14 @@ router.post('/runs', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating payroll run:', error);
+    logger.error('Error creating payroll run', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create payroll run' } });
   }
 });
 
 // POST /api/payroll/runs/:id/calculate - Calculate payroll
 router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
+  let statusNeedsReset = false;
   try {
     const run = await prisma.payrollRun.findUnique({
       where: { id: req.params.id },
@@ -127,6 +134,7 @@ router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: { status: 'CALCULATING' },
     });
+    statusNeedsReset = true;
 
     // TODO: Payroll calculation requires cross-service employee data integration.
     // The payroll schema does not have an Employee model - employee data lives in the HR service.
@@ -137,16 +145,23 @@ router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: { status: 'DRAFT' },
     });
+    statusNeedsReset = false;
 
     res.status(501).json({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Payroll calculation requires cross-service employee data integration' } });
   } catch (error) {
-    console.error('Error calculating payroll:', error);
-    // Reset status on error
-    await prisma.payrollRun.update({
-      where: { id: req.params.id },
-      data: { status: 'ERROR' },
-    });
+    logger.error('Error calculating payroll', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate payroll' } });
+  } finally {
+    if (statusNeedsReset) {
+      try {
+        await prisma.payrollRun.update({
+          where: { id: req.params.id },
+          data: { status: 'ERROR' },
+        });
+      } catch (resetError) {
+        logger.error('Failed to reset payroll run status to ERROR', { error: (resetError as Error).message });
+      }
+    }
   }
 });
 
@@ -155,25 +170,29 @@ router.put('/runs/:id/approve', async (req: Request, res: Response) => {
   try {
     const { approvedById } = req.body;
 
-    const run = await prisma.payrollRun.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'APPROVED',
-        approvalStatus: 'APPROVED',
-        approvedById,
-        approvedAt: new Date(),
-      },
-    });
+    const run = await prisma.$transaction(async (tx) => {
+      const updatedRun = await tx.payrollRun.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'APPROVED',
+          approvalStatus: 'APPROVED',
+          approvedById,
+          approvedAt: new Date(),
+        },
+      });
 
-    // Publish all payslips
-    await prisma.payslip.updateMany({
-      where: { payrollRunId: req.params.id },
-      data: { status: 'PUBLISHED', publishedAt: new Date() },
+      // Publish all payslips
+      await tx.payslip.updateMany({
+        where: { payrollRunId: req.params.id },
+        data: { status: 'PUBLISHED', publishedAt: new Date() },
+      });
+
+      return updatedRun;
     });
 
     res.json({ success: true, data: run });
   } catch (error) {
-    console.error('Error approving payroll:', error);
+    logger.error('Error approving payroll', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve payroll' } });
   }
 });
@@ -184,18 +203,19 @@ router.get('/payslips', async (req: Request, res: Response) => {
   try {
     const { employeeId, payrollRunId, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (payrollRunId) where.payrollRunId = payrollRunId;
+    const where: Prisma.PayslipWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (payrollRunId) where.payrollRunId = payrollRunId as string;
 
     const [payslips, total] = await Promise.all([
       prisma.payslip.findMany({
         where,
         skip,
-        take,
+        take: limitNum,
         orderBy: { payDate: 'desc' },
       }),
       prisma.payslip.count({ where }),
@@ -204,10 +224,10 @@ router.get('/payslips', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: payslips,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching payslips:', error);
+    logger.error('Error fetching payslips', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslips' } });
   }
 });
@@ -229,7 +249,7 @@ router.get('/payslips/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: payslip });
   } catch (error) {
-    console.error('Error fetching payslip:', error);
+    logger.error('Error fetching payslip', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslip' } });
   }
 });
@@ -281,7 +301,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    logger.error('Error fetching stats', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
   }
 });

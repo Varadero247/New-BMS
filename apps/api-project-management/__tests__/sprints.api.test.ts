@@ -314,9 +314,7 @@ describe('Sprints API Routes', () => {
 
       const res = await request(app).delete('/api/sprints/sprint-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Sprint deleted successfully');
+      expect(res.status).toBe(204);
       expect(mockPrisma.projectSprint.delete).toHaveBeenCalledWith({ where: { id: 'sprint-001' } });
     });
 

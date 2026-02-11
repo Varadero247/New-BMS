@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-environment');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -19,11 +22,11 @@ async function generateRefNumber(): Promise<string> {
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', status, category, search } = req.query;
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.EnvObjectiveWhereInput = {};
     if (status) where.status = status;
     if (category) where.category = category;
     if (search) {
@@ -46,7 +49,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List objectives error:', error);
+    logger.error('List objectives error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list objectives' } });
   }
 });
@@ -58,7 +61,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     if (!objective) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     res.json({ success: true, data: objective });
   } catch (error) {
-    console.error('Get objective error:', error);
+    logger.error('Get objective error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get objective' } });
   }
 });
@@ -167,7 +170,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create objective error:', error);
+    logger.error('Create objective error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create objective' } });
   }
 });
@@ -196,7 +199,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: objective });
   } catch (error) {
-    console.error('Update objective error:', error);
+    logger.error('Update objective error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update objective' } });
   }
 });
@@ -245,7 +248,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update milestone error:', error);
+    logger.error('Update milestone error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update milestone' } });
   }
 });
@@ -256,9 +259,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     await prisma.envObjective.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Objective deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete objective error:', error);
+    logger.error('Delete objective error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete objective' } });
   }
 });

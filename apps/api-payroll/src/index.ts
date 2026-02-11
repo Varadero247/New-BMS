@@ -1,6 +1,18 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Validate required configuration
+const requiredEnvVars = ['JWT_SECRET'];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`FATAL: Required environment variable ${envVar} is not set`);
+    process.exit(1);
+  }
+}
+if (process.env.JWT_SECRET === 'your-super-secret-jwt-key-change-in-production') {
+  console.warn('[SECURITY WARNING] Using placeholder JWT_SECRET. Change in production!');
+}
+
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -11,6 +23,7 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
+import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-payroll');
@@ -38,11 +51,21 @@ app.use(cors({
 }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-payroll'));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(sanitizeMiddleware());
+app.use(sanitizeQueryMiddleware());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check and metrics
+// Health check, readiness, and metrics
 app.get('/health', createHealthCheck('api-payroll', prisma, '1.0.0'));
+app.get('/ready', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ready' });
+  } catch {
+    res.status(503).json({ status: 'not ready' });
+  }
+});
 app.get('/metrics', metricsHandler);
 
 // API Routes
@@ -70,8 +93,27 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`Payroll API server running on port ${PORT}`);
+});
+
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`${signal} received, shutting down gracefully`);
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+  setTimeout(() => { process.exit(1); }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled rejection', { reason: String(reason) });
+});
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception', { error: error.message });
+  process.exit(1);
 });
 
 export default app;

@@ -5,6 +5,9 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { calculateSafetyMetrics } from '@ims/calculations';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-health-safety');
 
 const router: IRouter = Router();
 
@@ -23,7 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: metrics });
   } catch (error) {
-    console.error('List safety metrics error:', error);
+    logger.error('List safety metrics error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety metrics' } });
   }
 });
@@ -85,7 +88,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Safety metrics summary error:', error);
+    logger.error('Safety metrics summary error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get safety metrics summary' } });
   }
 });
@@ -140,7 +143,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create safety metric error:', error);
+    logger.error('Create safety metric error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety metric' } });
   }
 });

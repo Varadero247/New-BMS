@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
@@ -22,11 +25,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       lowStock
     } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     if (status) where.status = status;
     if (categoryId) where.categoryId = categoryId;
@@ -82,7 +85,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List products error:', error);
+    logger.error('List products error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' } });
   }
 });
@@ -116,7 +119,7 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: lowStockProducts });
   } catch (error) {
-    console.error('Low stock error:', error);
+    logger.error('Low stock error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get low stock products' } });
   }
 });
@@ -151,7 +154,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: product });
   } catch (error) {
-    console.error('Search product error:', error);
+    logger.error('Search product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to search product' } });
   }
 });
@@ -176,7 +179,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: product });
   } catch (error) {
-    console.error('Get product error:', error);
+    logger.error('Get product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get product' } });
   }
 });
@@ -246,7 +249,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create product error:', error);
+    logger.error('Create product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' } });
   }
 });
@@ -334,7 +337,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update product error:', error);
+    logger.error('Update product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' } });
   }
 });
@@ -362,9 +365,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.product.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Product deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete product error:', error);
+    logger.error('Delete product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' } });
   }
 });

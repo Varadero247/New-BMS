@@ -564,8 +564,7 @@ describe('Health & Safety Incidents API Routes', () => {
         .delete('/api/incidents/incident-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.incident.delete).toHaveBeenCalledWith({
         where: { id: 'incident-1' },
       });

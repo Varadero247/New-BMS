@@ -38,10 +38,10 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     const { buildingId, type, active, page = '1', limit = '20' } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (buildingId) {
       where.buildingId = buildingId;

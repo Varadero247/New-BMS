@@ -35,6 +35,9 @@ model QualInterestedParty {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   issues          QualIssue[]
@@ -86,10 +89,14 @@ model QualIssue {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   party           QualInterestedParty? @relation(fields: [partyId], references: [id])
 
+  @@index([partyId])
   @@index([bias])
   @@index([priority])
   @@index([status])
@@ -166,10 +173,14 @@ model QualRisk {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   @@index([riskLevel])
   @@index([status])
   @@index([process])
+  @@index([dueDate])
   @@map("qual_risks")
 }
 
@@ -252,6 +263,9 @@ model QualOpportunity {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+  createdBy           String?
+  updatedBy           String?
 
   @@index([priorityLevel])
   @@index([status])
@@ -324,6 +338,9 @@ model QualProcess {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([processType])
   @@index([status])
@@ -423,10 +440,15 @@ model QualNonConformance {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([ncType])
   @@index([status])
   @@index([severity])
+  @@index([dateReported])
+  @@index([department])
   @@map("qual_nonconformances")
 }
 
@@ -536,10 +558,14 @@ model QualAction {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([status])
   @@index([priority])
   @@index([actionType])
+  @@index([assignedTo])
   @@index([dueDate])
   @@map("qual_actions")
 }
@@ -643,6 +669,9 @@ model QualDocument {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([documentType])
   @@index([status])
@@ -768,6 +797,9 @@ model QualCapa {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   capaActions     QualCapaAction[]
@@ -796,6 +828,7 @@ model QualCapaAction {
 
   @@index([capaId])
   @@index([status])
+  @@index([dueDate])
   @@map("qual_capa_actions")
 }
 
@@ -875,6 +908,9 @@ model QualLegal {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([obligationType])
   @@index([complianceStatus])
@@ -935,6 +971,9 @@ model QualFmea {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   rows            QualFmeaRow[]
@@ -1079,6 +1118,9 @@ model QualImprovement {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([category])
   @@index([status])
@@ -1207,6 +1249,9 @@ model QualSupplier {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   @@index([approvedStatus])
   @@index([category])
@@ -1338,6 +1383,9 @@ model QualChange {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([changeType])
   @@index([status])
@@ -1426,6 +1474,9 @@ model QualObjective {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   // Relations
   milestones      QualMilestone[]

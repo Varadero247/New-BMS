@@ -3,6 +3,9 @@ import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-ai-analysis');
 
 const router: IRouter = Router();
 
@@ -734,7 +737,7 @@ Return ONLY valid JSON:
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Quick analyze error:', error);
+    logger.error('Quick analyze error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' },

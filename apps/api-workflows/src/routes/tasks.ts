@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // Valid WorkflowTaskType enum values
 const taskTypeEnum = z.enum(['REVIEW', 'APPROVE', 'COMPLETE_FORM', 'UPLOAD_DOCUMENT', 'VERIFICATION', 'DATA_ENTRY', 'NOTIFICATION', 'CUSTOM']);
@@ -18,11 +24,11 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { assigneeId, status, priority, instanceId } = req.query;
 
-    const where: any = {};
-    if (assigneeId) where.assigneeId = assigneeId;
-    if (status) where.status = status;
-    if (priority) where.priority = priority;
-    if (instanceId) where.instanceId = instanceId;
+    const where: Prisma.WorkflowTaskWhereInput = {};
+    if (assigneeId) where.assigneeId = assigneeId as string;
+    if (status) where.status = status as string;
+    if (priority) where.priority = priority as string;
+    if (instanceId) where.instanceId = instanceId as string;
 
     const tasks = await prisma.workflowTask.findMany({
       where,
@@ -36,7 +42,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: tasks });
   } catch (error) {
-    console.error('Error fetching tasks:', error);
+    logger.error('Error fetching tasks', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' } });
   }
 });
@@ -71,7 +77,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching task stats:', error);
+    logger.error('Error fetching task stats', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
   }
 });
@@ -81,7 +87,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
 
-    const where: any = {
+    const where: Prisma.WorkflowTaskWhereInput = {
       assigneeId: req.params.userId,
     };
     if (status) where.status = status;
@@ -98,7 +104,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: tasks });
   } catch (error) {
-    console.error('Error fetching my tasks:', error);
+    logger.error('Error fetching my tasks', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' } });
   }
 });
@@ -121,7 +127,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: task });
   } catch (error) {
-    console.error('Error fetching task:', error);
+    logger.error('Error fetching task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch task' } });
   }
 });
@@ -167,7 +173,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating task:', error);
+    logger.error('Error creating task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' } });
   }
 });
@@ -188,7 +194,7 @@ router.put('/:id/claim', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: task });
   } catch (error) {
-    console.error('Error claiming task:', error);
+    logger.error('Error claiming task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to claim task' } });
   }
 });
@@ -229,7 +235,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error completing task:', error);
+    logger.error('Error completing task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete task' } });
   }
 });
@@ -268,7 +274,7 @@ router.put('/:id/reassign', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: task });
   } catch (error) {
-    console.error('Error reassigning task:', error);
+    logger.error('Error reassigning task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reassign task' } });
   }
 });

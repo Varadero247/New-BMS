@@ -1,4 +1,5 @@
-import { PrismaClient } from '@ims/database/health-safety';
+import { PrismaClient, Prisma } from '@ims/database/health-safety';
+export { Prisma };
 
 declare global {
   var hsPrisma: InstanceType<typeof PrismaClient> | undefined;

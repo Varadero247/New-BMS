@@ -2,8 +2,8 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('../src/prisma', () => ({
-  prisma: {
+jest.mock('../src/prisma', () => {
+  const p: any = {
     payrollRun: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -22,7 +22,16 @@ jest.mock('../src/prisma', () => ({
     employee: {
       findMany: jest.fn(),
     },
-  },
+  };
+  p.$transaction = jest.fn((cb: any) => cb(p));
+  return { prisma: p };
+});
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
 }));
 
 import { prisma } from '../src/prisma';

@@ -1,4 +1,5 @@
-import { PrismaClient } from '@ims/database/inventory';
+import { PrismaClient, Prisma } from '@ims/database/inventory';
+export { Prisma };
 
 declare global {
   var inventoryPrisma: InstanceType<typeof PrismaClient> | undefined;

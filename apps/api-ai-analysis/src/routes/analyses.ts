@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-ai-analysis');
 
 const router: IRouter = Router();
 
@@ -13,11 +16,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', sourceType, status } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.AIAnalysisWhereInput = {};
     if (sourceType) where.sourceType = sourceType;
     if (status) where.status = status;
 
@@ -40,7 +43,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List analyses error:', error);
+    logger.error('List analyses error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list analyses' },
@@ -68,7 +71,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: analysis });
   } catch (error) {
-    console.error('Get analysis error:', error);
+    logger.error('Get analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get analysis' },
@@ -113,7 +116,7 @@ router.post('/:id/accept', async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Accept analysis error:', error);
+    logger.error('Accept analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to accept analysis' },
@@ -143,7 +146,7 @@ router.post('/:id/reject', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: analysis });
   } catch (error) {
-    console.error('Reject analysis error:', error);
+    logger.error('Reject analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to reject analysis' },
@@ -156,9 +159,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     await prisma.aIAnalysis.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Analysis deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete analysis error:', error);
+    logger.error('Delete analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete analysis' },

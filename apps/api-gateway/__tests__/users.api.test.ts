@@ -377,8 +377,7 @@ describe('Users API Routes', () => {
         .delete('/api/users/other-user')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
     });
 
     it('should return 403 for non-admin', async () => {

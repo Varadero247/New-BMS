@@ -266,9 +266,7 @@ describe('Reports API Routes', () => {
 
       const res = await request(app).delete('/api/reports/rpt-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Report deleted successfully');
+      expect(res.status).toBe(204);
       expect(mockPrisma.projectStatusReport.delete).toHaveBeenCalledWith({ where: { id: 'rpt-001' } });
     });
 

@@ -318,8 +318,7 @@ describe('Health & Safety Objectives API', () => {
         .delete('/api/objectives/obj-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
     });
 
     it('should return 404 for non-existent objective', async () => {

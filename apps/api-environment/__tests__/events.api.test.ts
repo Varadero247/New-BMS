@@ -422,8 +422,7 @@ describe('Environment Events API Routes', () => {
         .delete('/api/events/event-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.envEvent.delete).toHaveBeenCalledWith({
         where: { id: 'event-1' },
       });

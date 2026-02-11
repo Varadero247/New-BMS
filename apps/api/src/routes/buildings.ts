@@ -44,7 +44,7 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     const { page = 1, limit = 20, search } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = { isActive: true };
+    const where: Record<string, unknown> = { isActive: true };
 
     if (search) {
       where.OR = [

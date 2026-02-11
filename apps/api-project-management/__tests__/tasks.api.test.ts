@@ -377,9 +377,7 @@ describe('Tasks API Routes', () => {
 
       const res = await request(app).delete('/api/tasks/task-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Task deleted successfully');
+      expect(res.status).toBe(204);
     });
 
     it('should return 404 if task not found', async () => {

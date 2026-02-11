@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
@@ -14,11 +17,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', search, status, isActive } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.SupplierWhereInput = {};
     if (status) where.status = status;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -50,7 +53,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List suppliers error:', error);
+    logger.error('List suppliers error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
   }
 });
@@ -75,7 +78,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: supplier });
   } catch (error) {
-    console.error('Get supplier error:', error);
+    logger.error('Get supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' } });
   }
 });
@@ -122,7 +125,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create supplier error:', error);
+    logger.error('Create supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
   }
 });
@@ -175,7 +178,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update supplier error:', error);
+    logger.error('Update supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
   }
 });
@@ -202,9 +205,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.supplier.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Supplier deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete supplier error:', error);
+    logger.error('Delete supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
   }
 });

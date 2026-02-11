@@ -593,8 +593,7 @@ describe('Inventory Products API Routes', () => {
         .delete('/api/products/prod-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
     });
 
     it('should return 404 for non-existent product', async () => {
@@ -633,7 +632,7 @@ describe('Inventory Products API Routes', () => {
         .delete('/api/products/prod-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(204);
     });
 
     it('should handle database errors', async () => {

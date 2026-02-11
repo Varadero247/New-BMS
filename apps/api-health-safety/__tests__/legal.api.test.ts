@@ -369,8 +369,7 @@ describe('Health & Safety Legal Requirements API', () => {
         .delete('/api/legal/legal-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
     });
 
     it('should return 404 for non-existent requirement', async () => {

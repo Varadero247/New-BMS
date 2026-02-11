@@ -1,8 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/attendance - Get attendance records
 router.get('/', async (req: Request, res: Response) => {
@@ -16,12 +21,13 @@ router.get('/', async (req: Request, res: Response) => {
       limit = '50',
     } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
+    const where: Prisma.AttendanceWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (status) where.status = status as string;
     if (startDate || endDate) {
       where.date = {};
       if (startDate) where.date.gte = new Date(startDate as string);
@@ -38,7 +44,7 @@ router.get('/', async (req: Request, res: Response) => {
           shift: true,
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { date: 'desc' },
       }),
       prisma.attendance.count({ where }),
@@ -47,10 +53,10 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: attendances,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching attendance:', error);
+    logger.error('Error fetching attendance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch attendance' } });
   }
 });
@@ -66,7 +72,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       ? new Date(startDate as string)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const where: any = {
+    const where: Prisma.AttendanceWhereInput = {
       date: { gte: start, lte: end },
     };
 
@@ -190,7 +196,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching attendance summary:', error);
+    logger.error('Error fetching attendance summary', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch summary' } });
   }
 });
@@ -265,7 +271,7 @@ router.post('/clock-in', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error clocking in:', error);
+    logger.error('Error clocking in', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock in' } });
   }
 });
@@ -326,7 +332,7 @@ router.post('/clock-out', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error clocking out:', error);
+    logger.error('Error clocking out', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock out' } });
   }
 });
@@ -363,7 +369,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating attendance:', error);
+    logger.error('Error updating attendance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update attendance' } });
   }
 });
@@ -430,7 +436,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating manual attendance:', error);
+    logger.error('Error creating manual attendance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create attendance record' } });
   }
 });
@@ -446,7 +452,7 @@ router.get('/shifts/all', async (_req: Request, res: Response) => {
 
     res.json({ success: true, data: shifts });
   } catch (error) {
-    console.error('Error fetching shifts:', error);
+    logger.error('Error fetching shifts', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch shifts' } });
   }
 });
@@ -481,7 +487,7 @@ router.post('/shifts', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating shift:', error);
+    logger.error('Error creating shift', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create shift' } });
   }
 });

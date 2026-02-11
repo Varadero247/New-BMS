@@ -301,9 +301,7 @@ describe('AI Settings API Routes', () => {
       .delete('/api/settings')
       .set('Authorization', 'Bearer test-token');
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.data.message).toBe('AI settings deleted successfully');
+    expect(response.status).toBe(204);
     expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalled();
   });
 

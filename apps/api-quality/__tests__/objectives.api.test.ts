@@ -497,8 +497,7 @@ describe('Quality Objectives API Routes', () => {
         .delete('/api/objectives/obj-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualObjective.delete).toHaveBeenCalledWith({
         where: { id: 'obj-1' },
       });
@@ -701,8 +700,7 @@ describe('Quality Objectives API Routes', () => {
         .delete('/api/objectives/obj-1/milestones/ms-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualMilestone.delete).toHaveBeenCalledWith({
         where: { id: 'ms-1' },
       });

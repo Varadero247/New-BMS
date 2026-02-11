@@ -1,4 +1,5 @@
-import { PrismaClient } from '@ims/database/payroll';
+import { PrismaClient, Prisma } from '@ims/database/payroll';
+export { Prisma };
 
 declare global {
   var payrollPrisma: InstanceType<typeof PrismaClient> | undefined;

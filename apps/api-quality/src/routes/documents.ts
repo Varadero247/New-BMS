@@ -1,7 +1,10 @@
 import { Router, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-quality');
 
 const router = Router();
 
@@ -22,11 +25,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', documentType, status, accessLevel, search } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.QualDocumentWhereInput = {};
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
     if (accessLevel) where.accessLevel = accessLevel;
@@ -55,7 +58,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('List documents error:', error);
+    logger.error('List documents error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
   }
 });
@@ -73,7 +76,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: document });
   } catch (error) {
-    console.error('Get document error:', error);
+    logger.error('Get document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get document' } });
   }
 });
@@ -128,7 +131,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create document error:', error);
+    logger.error('Create document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
   }
 });
@@ -194,7 +197,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update document error:', error);
+    logger.error('Update document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
   }
 });
@@ -209,9 +212,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.qualDocument.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Document deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete document error:', error);
+    logger.error('Delete document error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' } });
   }
 });

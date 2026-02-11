@@ -132,8 +132,35 @@ if (process.env.CSRF_ENABLED !== 'false') {
   logger.warn('CSRF protection DISABLED - only disable for development/testing');
 }
 
-// Health check and metrics
-app.get('/health', createHealthCheck('api-gateway', undefined, '1.0.0'));
+// Health check, readiness, and metrics
+app.get('/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: 'healthy',
+      service: 'api-gateway',
+      version: '1.0.0',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    res.status(503).json({
+      status: 'unhealthy',
+      service: 'api-gateway',
+      version: '1.0.0',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+app.get('/ready', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ready' });
+  } catch {
+    res.status(503).json({ status: 'not ready' });
+  }
+});
 app.get('/metrics', metricsHandler);
 
 // CSRF token endpoint (always available for clients to fetch tokens)
@@ -168,6 +195,11 @@ const createServiceProxy = (
   pathRewrite: { [`^${basePath}`]: '/api' },
   onProxyReq: (proxyReq, req) => {
     addServiceToken(proxyReq);
+    // Forward correlation ID to downstream services
+    const correlationId = (req as any).correlationId || req.headers['x-correlation-id'];
+    if (correlationId) {
+      proxyReq.setHeader('x-correlation-id', correlationId);
+    }
     // Re-serialize body for POST/PUT/PATCH — express.json() consumed the stream
     if (req.body && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
       const bodyData = JSON.stringify(req.body);

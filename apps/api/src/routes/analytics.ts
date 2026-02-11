@@ -26,10 +26,10 @@ router.get('/five-why', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (incidentId) where.incidentId = incidentId;
 
     const [analyses, total] = await Promise.all([
@@ -134,10 +134,10 @@ router.get('/fishbone', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (incidentId) where.incidentId = incidentId;
 
     const [analyses, total] = await Promise.all([
@@ -248,10 +248,10 @@ router.get('/pareto', authenticate, async (req, res, next) => {
   try {
     const { incidentId, standard, page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (incidentId) where.incidentId = incidentId;
     if (standard) where.standard = standard;
 
@@ -283,7 +283,7 @@ router.get('/pareto/auto-generate', authenticate, async (req, res, next) => {
   try {
     const { standard, groupBy = 'type', startDate, endDate } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (standard) where.standard = standard;
     if (startDate || endDate) {
       where.dateOccurred = {};
@@ -414,10 +414,10 @@ router.get('/bow-tie', authenticate, async (req, res, next) => {
   try {
     const { riskId, page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (riskId) where.riskId = riskId;
 
     const [analyses, total] = await Promise.all([
@@ -565,7 +565,7 @@ router.get('/lean-waste', authenticate, async (req, res, next) => {
   try {
     const { page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [analyses, total] = await Promise.all([
@@ -696,7 +696,7 @@ router.get('/trends', authenticate, async (req, res, next) => {
   try {
     const { standard, metric, year } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (standard) where.standard = standard;
     if (metric) where.metric = metric;
     if (year) where.year = parseInt(year as string);
@@ -725,7 +725,7 @@ router.post('/trends/calculate', authenticate, async (req, res, next) => {
       const startDate = new Date(targetYear, month - 1, 1);
       const endDate = new Date(targetYear, month, 0);
 
-      const where: any = {
+      const where: Record<string, unknown> = {
         dateOccurred: { gte: startDate, lte: endDate },
       };
       if (standard) where.standard = standard;

@@ -2,6 +2,9 @@ import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-gateway');
 
 const router: IRouter = Router();
 
@@ -150,7 +153,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Dashboard stats error:', error);
+    logger.error('Dashboard stats error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard stats' },
@@ -167,7 +170,7 @@ router.get('/compliance', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: complianceScores });
   } catch (error) {
-    console.error('Compliance error:', error);
+    logger.error('Compliance error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance data' },
@@ -181,9 +184,9 @@ router.get('/trends', async (req: AuthRequest, res: Response) => {
     const { standard, metric, year } = req.query;
     const currentYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
-    const where: any = { year: currentYear };
-    if (standard) where.standard = standard;
-    if (metric) where.metric = metric;
+    const where: { year: number; standard?: string; metric?: string } = { year: currentYear };
+    if (standard) where.standard = standard as string;
+    if (metric) where.metric = metric as string;
 
     const trends = await prisma.monthlyTrend.findMany({
       where,
@@ -192,7 +195,7 @@ router.get('/trends', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: trends });
   } catch (error) {
-    console.error('Trends error:', error);
+    logger.error('Trends error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get trends data' },

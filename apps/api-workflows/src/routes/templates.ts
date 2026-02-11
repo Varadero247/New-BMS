@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // Valid WorkflowCategory enum values
 const workflowCategoryEnum = z.enum([
@@ -25,7 +31,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, industryType, isActive } = req.query;
 
-    const where: any = {};
+    const where: Prisma.WorkflowTemplateWhereInput = {};
     if (category) where.category = category;
     if (industryType) where.industryType = industryType;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -40,7 +46,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: templates });
   } catch (error) {
-    console.error('Error fetching templates:', error);
+    logger.error('Error fetching templates', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch templates' } });
   }
 });
@@ -55,7 +61,7 @@ router.get('/categories/list', async (_req: Request, res: Response) => {
 
     res.json({ success: true, data: categories });
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    logger.error('Error fetching categories', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch categories' } });
   }
 });
@@ -76,7 +82,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: template });
   } catch (error) {
-    console.error('Error fetching template:', error);
+    logger.error('Error fetching template', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch template' } });
   }
 });
@@ -120,7 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating template:', error);
+    logger.error('Error creating template', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create template' } });
   }
 });
@@ -153,7 +159,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating template:', error);
+    logger.error('Error updating template', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update template' } });
   }
 });
@@ -171,7 +177,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: template });
   } catch (error) {
-    console.error('Error publishing template:', error);
+    logger.error('Error publishing template', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to publish template' } });
   }
 });

@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // Validation schemas
 const createRuleSchema = z.object({
@@ -37,9 +43,9 @@ router.get('/rules', async (req: Request, res: Response) => {
   try {
     const { triggerType, actionType, isActive, entityType } = req.query;
 
-    const where: any = {};
-    if (triggerType) where.triggerType = triggerType;
-    if (actionType) where.actionType = actionType;
+    const where: Prisma.AutomationRuleWhereInput = {};
+    if (triggerType) where.triggerType = triggerType as string;
+    if (actionType) where.actionType = actionType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (entityType) where.entityType = entityType;
 
@@ -55,7 +61,7 @@ router.get('/rules', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: rules });
   } catch (error) {
-    console.error('Error fetching automation rules:', error);
+    logger.error('Error fetching automation rules', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rules' },
@@ -88,7 +94,7 @@ router.get('/rules/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: rule });
   } catch (error) {
-    console.error('Error fetching automation rule:', error);
+    logger.error('Error fetching automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rule' },
@@ -142,7 +148,7 @@ router.post('/rules', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error creating automation rule:', error);
+    logger.error('Error creating automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create automation rule' },
@@ -168,7 +174,7 @@ router.put('/rules/:id', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error updating automation rule:', error);
+    logger.error('Error updating automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update automation rule' },
@@ -183,9 +189,9 @@ router.delete('/rules/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
     });
 
-    res.json({ success: true, message: 'Automation rule deleted' });
+    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting automation rule:', error);
+    logger.error('Error deleting automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete automation rule' },
@@ -275,7 +281,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
           completedAt: new Date(),
           durationMs: Date.now() - startTime,
           errorMessage: execError instanceof Error ? execError.message : 'Unknown error',
-          errorStack: execError instanceof Error ? execError.stack : undefined,
+          errorStack: process.env.NODE_ENV !== 'production' ? (execError instanceof Error ? execError.stack : undefined) : undefined,
         },
       });
 
@@ -290,7 +296,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
       throw execError;
     }
   } catch (error) {
-    console.error('Error executing automation rule:', error);
+    logger.error('Error executing automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'EXECUTION_ERROR', message: 'Failed to execute automation rule' },
@@ -303,16 +309,16 @@ router.get('/executions', async (req: Request, res: Response) => {
   try {
     const { ruleId, status, entityType, limit = '50', offset = '0' } = req.query;
 
-    const where: any = {};
-    if (ruleId) where.ruleId = ruleId;
-    if (status) where.status = status;
-    if (entityType) where.entityType = entityType;
+    const where: Prisma.AutomationExecutionWhereInput = {};
+    if (ruleId) where.ruleId = ruleId as string;
+    if (status) where.status = status as string;
+    if (entityType) where.entityType = entityType as string;
 
     const [executions, total] = await Promise.all([
       prisma.automationExecution.findMany({
         where,
-        take: parseInt(limit as string, 10),
-        skip: parseInt(offset as string, 10),
+        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
         include: {
           rule: {
@@ -328,12 +334,12 @@ router.get('/executions', async (req: Request, res: Response) => {
       data: executions,
       pagination: {
         total,
-        limit: parseInt(limit as string, 10),
-        offset: parseInt(offset as string, 10),
+        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });
   } catch (error) {
-    console.error('Error fetching executions:', error);
+    logger.error('Error fetching executions', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch executions' },
@@ -360,7 +366,7 @@ router.get('/executions/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: execution });
   } catch (error) {
-    console.error('Error fetching execution:', error);
+    logger.error('Error fetching execution', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch execution' },
@@ -416,7 +422,7 @@ router.post('/executions/:id/retry', async (req: Request, res: Response) => {
       data: { executionId: retryExecution.id, attemptNumber: retryExecution.attemptNumber },
     });
   } catch (error) {
-    console.error('Error retrying execution:', error);
+    logger.error('Error retrying execution', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to retry execution' },
@@ -476,7 +482,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching automation stats:', error);
+    logger.error('Error fetching automation stats', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch statistics' },

@@ -424,9 +424,7 @@ describe('Analyses CRUD API', () => {
         .delete('/api/analyses/analysis-1')
         .set('Authorization', 'Bearer test-token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.message).toBe('Analysis deleted successfully');
+      expect(response.status).toBe(204);
 
       expect(mockPrisma.aIAnalysis.delete).toHaveBeenCalledWith({
         where: { id: 'analysis-1' },

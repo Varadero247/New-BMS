@@ -21,6 +21,13 @@ jest.mock('../src/prisma', () => ({
   },
 }));
 
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
 import { prisma } from '../src/prisma';
 import employeesRoutes from '../src/routes/employees';
 
@@ -486,8 +493,7 @@ describe('HR Employees API Routes', () => {
 
       const response = await request(app).delete('/api/employees/emp-1');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.employee.update).toHaveBeenCalledWith({
         where: { id: 'emp-1' },
         data: expect.objectContaining({

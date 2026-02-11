@@ -1,15 +1,20 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-payroll');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/loans - Get all loans
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, loanType } = req.query;
 
-    const where: any = {};
+    const where: Prisma.EmployeeLoanWhereInput = {};
     if (employeeId) where.employeeId = employeeId;
     if (status) where.status = status;
     if (loanType) where.loanType = loanType;
@@ -26,7 +31,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: loans });
   } catch (error) {
-    console.error('Error fetching loans:', error);
+    logger.error('Error fetching loans', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch loans' } });
   }
 });
@@ -49,7 +54,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: loan });
   } catch (error) {
-    console.error('Error fetching loan:', error);
+    logger.error('Error fetching loan', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch loan' } });
   }
 });
@@ -110,7 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating loan:', error);
+    logger.error('Error creating loan', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create loan' } });
   }
 });
@@ -166,7 +171,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: loan });
   } catch (error) {
-    console.error('Error approving loan:', error);
+    logger.error('Error approving loan', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve loan' } });
   }
 });
@@ -185,7 +190,7 @@ router.put('/:id/disburse', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: loan });
   } catch (error) {
-    console.error('Error disbursing loan:', error);
+    logger.error('Error disbursing loan', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to disburse loan' } });
   }
 });
@@ -223,7 +228,7 @@ router.post('/:id/repayments/:repaymentId/pay', async (req: Request, res: Respon
 
     res.json({ success: true, data: repayment });
   } catch (error) {
-    console.error('Error recording repayment:', error);
+    logger.error('Error recording repayment', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record repayment' } });
   }
 });

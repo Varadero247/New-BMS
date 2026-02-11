@@ -4,6 +4,39 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+import { createCircuitBreaker } from '@ims/resilience';
+
+const logger = createLogger('api-ai-analysis');
+
+// Circuit breakers for AI providers
+const openAIBreaker = createCircuitBreaker(
+  async (apiKey: string, model: string, prompt: string) => callOpenAIImpl(apiKey, model, prompt),
+  { timeout: 30000, errorThresholdPercentage: 50, resetTimeout: 60000, name: 'openai' },
+  {
+    onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
+    onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
+    onHalfOpen: (name) => logger.info(`Circuit breaker ${name} half-open`),
+  }
+);
+
+const anthropicBreaker = createCircuitBreaker(
+  async (apiKey: string, model: string, prompt: string) => callAnthropicImpl(apiKey, model, prompt),
+  { timeout: 30000, errorThresholdPercentage: 50, resetTimeout: 60000, name: 'anthropic' },
+  {
+    onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
+    onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
+  }
+);
+
+const grokBreaker = createCircuitBreaker(
+  async (apiKey: string, prompt: string) => callGrokImpl(apiKey, prompt),
+  { timeout: 30000, errorThresholdPercentage: 50, resetTimeout: 60000, name: 'grok' },
+  {
+    onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
+    onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
+  }
+);
 
 const router: IRouter = Router();
 
@@ -66,11 +99,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     try {
       if (settings.provider === 'OPENAI') {
-        aiResponse = await callOpenAI(settings.apiKey, settings.model || 'gpt-4', fullPrompt);
+        aiResponse = await openAIBreaker.fire(settings.apiKey, settings.model || 'gpt-4', fullPrompt);
       } else if (settings.provider === 'ANTHROPIC') {
-        aiResponse = await callAnthropic(settings.apiKey, settings.model || 'claude-3-sonnet-20240229', fullPrompt);
+        aiResponse = await anthropicBreaker.fire(settings.apiKey, settings.model || 'claude-3-sonnet-20240229', fullPrompt);
       } else if (settings.provider === 'GROK') {
-        aiResponse = await callGrok(settings.apiKey, fullPrompt);
+        aiResponse = await grokBreaker.fire(settings.apiKey, fullPrompt);
       }
     } catch (aiError: any) {
       return res.status(502).json({
@@ -119,7 +152,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('AI analysis error:', error);
+    logger.error('AI analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' },
@@ -128,8 +161,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // Helper functions for AI providers
-async function callOpenAI(apiKey: string, model: string, prompt: string) {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+async function callOpenAIImpl(apiKey: string, model: string, prompt: string) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -147,23 +183,30 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
       temperature: 0.7,
       max_tokens: 2000,
     }),
+    signal: controller.signal,
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'OpenAI API error');
-  }
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'OpenAI API error');
+    }
 
-  const data = await response.json();
-  return {
-    content: data.choices[0].message.content,
-    tokensUsed: data.usage?.total_tokens || 0,
-    model: data.model,
-  };
+    const data = await response.json();
+    return {
+      content: data.choices[0].message.content,
+      tokensUsed: data.usage?.total_tokens || 0,
+      model: data.model,
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
-async function callAnthropic(apiKey: string, model: string, prompt: string) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+async function callAnthropicImpl(apiKey: string, model: string, prompt: string) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -176,24 +219,31 @@ async function callAnthropic(apiKey: string, model: string, prompt: string) {
       system: 'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
       messages: [{ role: 'user', content: prompt }],
     }),
+    signal: controller.signal,
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Anthropic API error');
-  }
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Anthropic API error');
+    }
 
-  const data = await response.json();
-  return {
-    content: data.content[0].text,
-    tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
-    model: data.model,
-  };
+    const data = await response.json();
+    return {
+      content: data.content[0].text,
+      tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
+      model: data.model,
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
-async function callGrok(apiKey: string, prompt: string) {
+async function callGrokImpl(apiKey: string, prompt: string) {
   // Grok API (X.AI) - placeholder implementation
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -209,19 +259,23 @@ async function callGrok(apiKey: string, prompt: string) {
         { role: 'user', content: prompt },
       ],
     }),
+    signal: controller.signal,
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Grok API error');
-  }
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Grok API error');
+    }
 
-  const data = await response.json();
-  return {
-    content: data.choices[0].message.content,
-    tokensUsed: data.usage?.total_tokens || 0,
-    model: 'grok-beta',
-  };
+    const data = await response.json();
+    return {
+      content: data.choices[0].message.content,
+      tokensUsed: data.usage?.total_tokens || 0,
+      model: 'grok-beta',
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 function parseAIResponse(response: any): {

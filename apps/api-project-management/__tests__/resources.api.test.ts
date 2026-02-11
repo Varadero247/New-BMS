@@ -284,9 +284,7 @@ describe('Resources API Routes', () => {
         .delete('/api/resources/resource-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.message).toBe('Resource deleted successfully');
+      expect(response.status).toBe(204);
       expect(mockPrisma.projectResource.delete).toHaveBeenCalledWith({
         where: { id: 'resource-1' },
       });

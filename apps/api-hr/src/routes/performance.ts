@@ -1,17 +1,22 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/performance/cycles - Get performance cycles
 router.get('/cycles', async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
 
-    const where: any = {};
+    const where: Prisma.PerformanceCycleWhereInput = {};
     if (year) where.year = parseInt(year as string);
-    if (status) where.status = status;
+    if (status) where.status = status as string;
 
     const cycles = await prisma.performanceCycle.findMany({
       where,
@@ -23,7 +28,7 @@ router.get('/cycles', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: cycles });
   } catch (error) {
-    console.error('Error fetching performance cycles:', error);
+    logger.error('Error fetching performance cycles', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch cycles' } });
   }
 });
@@ -68,7 +73,7 @@ router.post('/cycles', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating cycle:', error);
+    logger.error('Error creating cycle', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create cycle' } });
   }
 });
@@ -78,14 +83,15 @@ router.get('/reviews', async (req: Request, res: Response) => {
   try {
     const { cycleId, employeeId, reviewerId, status, page = '1', limit = '20' } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (cycleId) where.cycleId = cycleId;
-    if (employeeId) where.employeeId = employeeId;
-    if (reviewerId) where.reviewerId = reviewerId;
-    if (status) where.status = status;
+    const where: Prisma.PerformanceReviewWhereInput = {};
+    if (cycleId) where.cycleId = cycleId as string;
+    if (employeeId) where.employeeId = employeeId as string;
+    if (reviewerId) where.reviewerId = reviewerId as string;
+    if (status) where.status = status as string;
 
     const [reviews, total] = await Promise.all([
       prisma.performanceReview.findMany({
@@ -96,7 +102,7 @@ router.get('/reviews', async (req: Request, res: Response) => {
           reviewer: { select: { id: true, firstName: true, lastName: true } },
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.performanceReview.count({ where }),
@@ -105,10 +111,10 @@ router.get('/reviews', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: reviews,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    logger.error('Error fetching reviews', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reviews' } });
   }
 });
@@ -143,7 +149,7 @@ router.get('/reviews/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { ...review, goals } });
   } catch (error) {
-    console.error('Error fetching review:', error);
+    logger.error('Error fetching review', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch review' } });
   }
 });
@@ -181,7 +187,7 @@ router.post('/reviews', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating review:', error);
+    logger.error('Error creating review', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create review' } });
   }
 });
@@ -220,7 +226,7 @@ router.put('/reviews/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating review:', error);
+    logger.error('Error updating review', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update review' } });
   }
 });
@@ -231,11 +237,11 @@ router.get('/goals', async (req: Request, res: Response) => {
   try {
     const { employeeId, cycleId, status, category } = req.query;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (cycleId) where.cycleId = cycleId;
-    if (status) where.status = status;
-    if (category) where.category = category;
+    const where: Prisma.PerformanceGoalWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (cycleId) where.cycleId = cycleId as string;
+    if (status) where.status = status as string;
+    if (category) where.category = category as string;
 
     const goals = await prisma.performanceGoal.findMany({
       where,
@@ -249,7 +255,7 @@ router.get('/goals', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: goals });
   } catch (error) {
-    console.error('Error fetching goals:', error);
+    logger.error('Error fetching goals', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goals' } });
   }
 });
@@ -289,7 +295,7 @@ router.post('/goals', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating goal:', error);
+    logger.error('Error creating goal', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create goal' } });
   }
 });
@@ -321,7 +327,7 @@ router.put('/goals/:id', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating goal:', error);
+    logger.error('Error updating goal', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update goal' } });
   }
 });
@@ -368,7 +374,7 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error adding goal update:', error);
+    logger.error('Error adding goal update', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add update' } });
   }
 });

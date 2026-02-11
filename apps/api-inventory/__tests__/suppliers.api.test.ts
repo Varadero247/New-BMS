@@ -422,8 +422,7 @@ describe('Inventory Suppliers API Routes', () => {
         .delete('/api/suppliers/sup-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.supplier.delete).toHaveBeenCalledWith({
         where: { id: 'sup-1' },
       });

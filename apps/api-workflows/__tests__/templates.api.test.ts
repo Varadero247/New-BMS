@@ -14,6 +14,13 @@ jest.mock('@ims/database', () => ({
   },
 }));
 
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));

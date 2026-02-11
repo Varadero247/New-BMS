@@ -1,84 +1,89 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { BatchSpanProcessor, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { trace, context, SpanStatusCode, Span, SpanKind } from '@opentelemetry/api';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
+import { trace, SpanStatusCode, Span, SpanKind } from '@opentelemetry/api';
 
 export interface TracingConfig {
   serviceName: string;
   serviceVersion?: string;
   environment?: string;
-  jaegerEndpoint?: string;
   otlpEndpoint?: string;
   enabled?: boolean;
-  debug?: boolean;
 }
 
 let sdk: NodeSDK | null = null;
 
 /**
- * Initialize OpenTelemetry tracing
- * Call this BEFORE any other imports in your application entry point
+ * Initialize OpenTelemetry distributed tracing.
+ *
+ * Tracing is **opt-in**. It only activates when one of the following is true:
+ *   - `config.enabled` is explicitly `true`
+ *   - `config.otlpEndpoint` is provided
+ *   - The `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable is set
+ *   - The `OTEL_TRACING_ENABLED` environment variable is `'true'`
+ *
+ * When none of these conditions are met, tracing is a no-op (returns null).
+ *
+ * Call this BEFORE any other imports in your application entry point:
+ * ```ts
+ * import { initTracing } from '@ims/monitoring';
+ * initTracing({ serviceName: 'api-gateway' });
+ * ```
+ *
+ * For cross-service trace propagation (gateway -> downstream), the
+ * auto-instrumentations automatically inject and extract W3C Trace Context
+ * headers (`traceparent` / `tracestate`) on outgoing HTTP requests.
  */
-export function initTracing(config: TracingConfig): void {
-  if (!config.enabled && config.enabled !== undefined) {
-    console.log('Tracing disabled');
-    return;
+export function initTracing(config: TracingConfig): NodeSDK | null {
+  const otlpEndpoint = config.otlpEndpoint || process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+  const isEnabled =
+    config.enabled === true ||
+    !!otlpEndpoint ||
+    process.env.OTEL_TRACING_ENABLED === 'true';
+
+  if (!isEnabled) {
+    return null;
   }
 
   const resource = new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: config.serviceName,
-    [SemanticResourceAttributes.SERVICE_VERSION]: config.serviceVersion || '1.0.0',
-    [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: config.environment || process.env.NODE_ENV || 'development',
+    [ATTR_SERVICE_NAME]: config.serviceName,
+    [ATTR_SERVICE_VERSION]: config.serviceVersion || '1.0.0',
+    'deployment.environment': config.environment || process.env.NODE_ENV || 'development',
   });
 
-  // Choose exporter based on configuration
-  let spanProcessor;
-  if (config.otlpEndpoint) {
-    const exporter = new OTLPTraceExporter({
-      url: config.otlpEndpoint,
-    });
-    spanProcessor = new BatchSpanProcessor(exporter);
-  } else if (config.jaegerEndpoint) {
-    const exporter = new JaegerExporter({
-      endpoint: config.jaegerEndpoint,
-    });
-    spanProcessor = config.debug
-      ? new SimpleSpanProcessor(exporter)
-      : new BatchSpanProcessor(exporter);
-  } else {
-    // Default to OTLP endpoint from environment
-    const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
-    const exporter = new OTLPTraceExporter({ url: endpoint });
-    spanProcessor = new BatchSpanProcessor(exporter);
-  }
+  const traceExporter = new OTLPTraceExporter({
+    url: otlpEndpoint ? `${otlpEndpoint}/v1/traces` : undefined,
+  });
 
   sdk = new NodeSDK({
     resource,
-    // Type assertion needed due to version mismatch between @opentelemetry packages
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    spanProcessor: spanProcessor as any,
+    traceExporter,
     instrumentations: [
       getNodeAutoInstrumentations({
+        // Disable noisy low-level instrumentations
         '@opentelemetry/instrumentation-fs': { enabled: false },
         '@opentelemetry/instrumentation-dns': { enabled: false },
+        // Enable the ones we care about for cross-service tracing
+        '@opentelemetry/instrumentation-http': { enabled: true },
+        '@opentelemetry/instrumentation-express': { enabled: true },
+        '@opentelemetry/instrumentation-pg': { enabled: true },
       }),
     ],
   });
 
   sdk.start();
 
-  // Handle shutdown
+  // Graceful shutdown on SIGTERM
   process.on('SIGTERM', () => {
     sdk?.shutdown()
-      .then(() => console.log('Tracing terminated'))
+      .then(() => console.log(`Tracing terminated for ${config.serviceName}`))
       .catch((error) => console.error('Error terminating tracing', error));
   });
 
-  console.log(`Tracing initialized for ${config.serviceName}`);
+  console.log(`Tracing initialized for ${config.serviceName} (endpoint: ${otlpEndpoint || 'default'})`);
+  return sdk;
 }
 
 /**

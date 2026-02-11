@@ -1,8 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
+import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-workflows');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // ============================================
 // APPROVAL CHAINS
@@ -13,8 +19,8 @@ router.get('/chains', async (req: Request, res: Response) => {
   try {
     const { chainType, isActive } = req.query;
 
-    const where: any = {};
-    if (chainType) where.chainType = chainType;
+    const where: Prisma.ApprovalChainWhereInput = {};
+    if (chainType) where.chainType = chainType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const chains = await prisma.approvalChain.findMany({
@@ -24,7 +30,7 @@ router.get('/chains', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: chains });
   } catch (error) {
-    console.error('Error fetching approval chains:', error);
+    logger.error('Error fetching approval chains', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch chains' },
@@ -48,7 +54,7 @@ router.get('/chains/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: chain });
   } catch (error) {
-    console.error('Error fetching chain:', error);
+    logger.error('Error fetching chain', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch chain' },
@@ -91,7 +97,7 @@ router.post('/chains', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error creating chain:', error);
+    logger.error('Error creating chain', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create chain' },
@@ -127,7 +133,7 @@ router.put('/chains/:id', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error updating chain:', error);
+    logger.error('Error updating chain', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update chain' },
@@ -142,9 +148,9 @@ router.delete('/chains/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
     });
 
-    res.json({ success: true, message: 'Approval chain deleted' });
+    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting chain:', error);
+    logger.error('Error deleting chain', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete chain' },
@@ -175,17 +181,17 @@ router.get('/requests', async (req: Request, res: Response) => {
       offset = '0',
     } = req.query;
 
-    const where: any = {};
-    if (status) where.status = status;
-    if (requestType) where.requestType = requestType;
-    if (requesterId) where.requesterId = requesterId;
-    if (entityType) where.entityType = entityType;
+    const where: Prisma.ApprovalRequestWhereInput = {};
+    if (status) where.status = status as string;
+    if (requestType) where.requestType = requestType as string;
+    if (requesterId) where.requesterId = requesterId as string;
+    if (entityType) where.entityType = entityType as string;
 
     const [requests, total] = await Promise.all([
       prisma.approvalRequest.findMany({
         where,
-        take: parseInt(limit as string, 10),
-        skip: parseInt(offset as string, 10),
+        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
         include: {
           responses: {
@@ -205,12 +211,12 @@ router.get('/requests', async (req: Request, res: Response) => {
       data: requests,
       pagination: {
         total,
-        limit: parseInt(limit as string, 10),
-        offset: parseInt(offset as string, 10),
+        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });
   } catch (error) {
-    console.error('Error fetching approval requests:', error);
+    logger.error('Error fetching approval requests', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch requests' },
@@ -258,7 +264,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching pending approvals:', error);
+    logger.error('Error fetching pending approvals', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch approvals' },
@@ -287,7 +293,7 @@ router.get('/requests/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: request });
   } catch (error) {
-    console.error('Error fetching approval request:', error);
+    logger.error('Error fetching approval request', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch request' },
@@ -348,7 +354,7 @@ router.post('/requests', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error creating approval request:', error);
+    logger.error('Error creating approval request', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create request' },
@@ -475,7 +481,7 @@ router.put('/requests/:id/respond', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error responding to approval request:', error);
+    logger.error('Error responding to approval request', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to respond' },
@@ -500,7 +506,7 @@ router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: request });
   } catch (error) {
-    console.error('Error cancelling approval request:', error);
+    logger.error('Error cancelling approval request', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel request' },
@@ -546,7 +552,7 @@ router.put('/step/:id/respond', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error responding to approval:', error);
+    logger.error('Error responding to approval', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to respond' },
@@ -559,16 +565,16 @@ router.get('/step', async (req: Request, res: Response) => {
   try {
     const { stepInstanceId, approverId, status, limit = '50', offset = '0' } = req.query;
 
-    const where: any = {};
-    if (stepInstanceId) where.stepInstanceId = stepInstanceId;
-    if (approverId) where.approverId = approverId;
-    if (status) where.status = status;
+    const where: Prisma.WorkflowStepApprovalWhereInput = {};
+    if (stepInstanceId) where.stepInstanceId = stepInstanceId as string;
+    if (approverId) where.approverId = approverId as string;
+    if (status) where.status = status as string;
 
     const [approvals, total] = await Promise.all([
       prisma.workflowStepApproval.findMany({
         where,
-        take: parseInt(limit as string, 10),
-        skip: parseInt(offset as string, 10),
+        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
       }),
       prisma.workflowStepApproval.count({ where }),
@@ -579,12 +585,12 @@ router.get('/step', async (req: Request, res: Response) => {
       data: approvals,
       pagination: {
         total,
-        limit: parseInt(limit as string, 10),
-        offset: parseInt(offset as string, 10),
+        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });
   } catch (error) {
-    console.error('Error fetching step approvals:', error);
+    logger.error('Error fetching step approvals', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch approvals' },
@@ -623,7 +629,7 @@ router.post('/step', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: error.errors },
       });
     }
-    console.error('Error creating step approval:', error);
+    logger.error('Error creating step approval', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create approval' },
@@ -686,7 +692,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching approval stats:', error);
+    logger.error('Error fetching approval stats', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch statistics' },

@@ -20,6 +20,13 @@ jest.mock('../src/prisma', () => ({
   },
 }));
 
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
 import { prisma } from '../src/prisma';
 import departmentsRoutes from '../src/routes/departments';
 
@@ -313,8 +320,7 @@ describe('HR Departments API Routes', () => {
 
       const response = await request(app).delete('/api/departments/dept-1');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.hRDepartment.update).toHaveBeenCalledWith({
         where: { id: 'dept-1' },
         data: { isActive: false },

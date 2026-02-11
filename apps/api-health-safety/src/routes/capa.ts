@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-health-safety');
 
 const router: IRouter = Router();
 
@@ -47,11 +50,11 @@ function getTargetDate(priority: string): Date {
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, capaType, source, priority, search } = req.query;
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.CapaWhereInput = {};
     if (status) where.status = status;
     if (capaType) where.capaType = capaType;
     if (source) where.source = source;
@@ -81,7 +84,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List CAPAs error:', error);
+    logger.error('List CAPAs error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
   }
 });
@@ -100,7 +103,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: capa });
   } catch (error) {
-    console.error('Get CAPA error:', error);
+    logger.error('Get CAPA error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
   }
 });
@@ -190,7 +193,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create CAPA error:', error);
+    logger.error('Create CAPA error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' } });
   }
 });
@@ -244,7 +247,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update CAPA error:', error);
+    logger.error('Update CAPA error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' } });
   }
 });
@@ -258,9 +261,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.capa.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'CAPA deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete CAPA error:', error);
+    logger.error('Delete CAPA error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' } });
   }
 });
@@ -305,7 +308,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Add CAPA action error:', error);
+    logger.error('Add CAPA action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add CAPA action' } });
   }
 });
@@ -345,7 +348,7 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update CAPA action error:', error);
+    logger.error('Update CAPA action error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA action' } });
   }
 });

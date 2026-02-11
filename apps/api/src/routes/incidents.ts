@@ -76,10 +76,10 @@ router.get('/', authenticate, async (req, res, next) => {
     } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (standard) where.standard = standard;
     if (status) where.status = status;
@@ -135,7 +135,7 @@ router.get('/stats', authenticate, async (req, res, next) => {
   try {
     const { standard, year, month } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (standard) where.standard = standard;
 
     // Filter by date if provided

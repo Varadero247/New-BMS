@@ -117,6 +117,13 @@ model Project {
   timesheets               ProjectTimesheet[]
   expenses                 ProjectExpense[]
 
+  @@index([status])
+  @@index([projectManagerId])
+  @@index([projectSponsorId])
+  @@index([priority])
+  @@index([healthStatus])
+  @@index([methodology])
+  @@index([createdAt])
   @@map("projects")
 }
 
@@ -201,6 +208,13 @@ model ProjectTask {
   timesheets         ProjectTimesheet[]
 
   @@unique([projectId, taskCode])
+  @@index([projectId, status])
+  @@index([assignedToId])
+  @@index([parentTaskId])
+  @@index([status])
+  @@index([priority])
+  @@index([plannedEndDate])
+  @@index([isCriticalPath])
   @@map("project_tasks")
 }
 
@@ -241,6 +255,11 @@ model ProjectMilestone {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  @@index([projectId, status])
+  @@index([projectId])
+  @@index([status])
+  @@index([plannedDate])
+  @@index([isCritical])
   @@map("project_milestones")
 }
 
@@ -299,6 +318,10 @@ model ProjectRisk {
   updatedAt             DateTime  @updatedAt
 
   @@unique([projectId, riskCode])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([riskLevel])
+  @@index([responseOwner])
   @@map("project_risks")
 }
 
@@ -354,6 +377,11 @@ model ProjectIssue {
   updatedAt             DateTime  @updatedAt
 
   @@unique([projectId, issueCode])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([severity])
+  @@index([priority])
+  @@index([assignedTo])
   @@map("project_issues")
 }
 
@@ -412,6 +440,10 @@ model ProjectChange {
   updatedAt           DateTime  @updatedAt
 
   @@unique([projectId, changeCode])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([priority])
+  @@index([requestedBy])
   @@map("project_changes")
 }
 
@@ -455,6 +487,10 @@ model ProjectResource {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  @@index([projectId, status])
+  @@index([projectId])
+  @@index([resourceType])
+  @@index([status])
   @@map("project_resources")
 }
 
@@ -501,6 +537,9 @@ model ProjectStakeholder {
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
+  @@index([projectId])
+  @@index([status])
+  @@index([stakeholderType])
   @@map("project_stakeholders")
 }
 
@@ -548,6 +587,9 @@ model ProjectDocument {
   updatedBy         String?
 
   @@unique([projectId, documentCode])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([documentType])
   @@map("project_documents")
 }
 
@@ -593,6 +635,9 @@ model ProjectSprint {
   userStories           ProjectUserStory[]
 
   @@unique([projectId, sprintNumber])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([startDate, endDate])
   @@map("project_sprints")
 }
 
@@ -644,6 +689,12 @@ model ProjectUserStory {
   updatedAt          DateTime  @updatedAt
 
   @@unique([projectId, storyCode])
+  @@index([sprintId])
+  @@index([projectId, status])
+  @@index([status])
+  @@index([assignedTo])
+  @@index([backlogPriority])
+  @@index([epicId])
   @@map("project_user_stories")
 }
 
@@ -684,6 +735,12 @@ model ProjectTimesheet {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+  @@index([projectId, employeeId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([employeeId])
+  @@index([status])
+  @@index([workDate])
   @@map("project_timesheets")
 }
 
@@ -719,6 +776,11 @@ model ProjectExpense {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  @@index([projectId, status])
+  @@index([projectId])
+  @@index([employeeId])
+  @@index([status])
+  @@index([expenseDate])
   @@map("project_expenses")
 }
 
@@ -774,5 +836,8 @@ model ProjectStatusReport {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
+  @@index([projectId])
+  @@index([reportDate])
+  @@index([reportType])
   @@map("project_status_reports")
 }

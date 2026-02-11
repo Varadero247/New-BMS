@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
@@ -14,7 +17,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { flat, isActive } = req.query;
 
-    const where: any = {};
+    const where: Prisma.ProductCategoryWhereInput = {};
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const categories = await prisma.productCategory.findMany({
@@ -46,7 +49,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: rootCategories });
   } catch (error) {
-    console.error('List categories error:', error);
+    logger.error('List categories error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' } });
   }
 });
@@ -73,7 +76,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: category });
   } catch (error) {
-    console.error('Get category error:', error);
+    logger.error('Get category error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get category' } });
   }
 });
@@ -123,7 +126,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create category error:', error);
+    logger.error('Create category error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create category' } });
   }
 });
@@ -193,7 +196,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Update category error:', error);
+    logger.error('Update category error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update category' } });
   }
 });
@@ -231,9 +234,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.productCategory.delete({ where: { id: req.params.id } });
 
-    res.json({ success: true, data: { message: 'Category deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete category error:', error);
+    logger.error('Delete category error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete category' } });
   }
 });

@@ -40,10 +40,10 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     } = req.query;
 
     const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (status) {
       where.status = status;
@@ -314,7 +314,7 @@ router.get('/stats/summary', authenticate, async (req: AuthRequest, res, next) =
   try {
     const { buildingId } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (buildingId) {
       where.device = { buildingId };
     }

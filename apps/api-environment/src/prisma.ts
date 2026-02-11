@@ -1,4 +1,5 @@
-import { PrismaClient } from '@ims/database/environment';
+import { PrismaClient, Prisma } from '@ims/database/environment';
+export { Prisma };
 
 declare global {
   var envPrisma: InstanceType<typeof PrismaClient> | undefined;

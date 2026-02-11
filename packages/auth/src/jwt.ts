@@ -54,7 +54,7 @@ export interface TokenPairResult {
  * Generate an access token with issuer/audience claims
  */
 export function generateToken(options: GenerateTokenOptions): string {
-  const { userId, email, role, expiresIn = '7d' } = options;
+  const { userId, email, role, expiresIn = '15m' } = options;
   return jwt.sign(
     { userId, email, role },
     getJwtSecret(),
@@ -74,7 +74,7 @@ export function generateRefreshToken(userId: string): string {
     { userId, type: 'refresh' },
     getJwtRefreshSecret(),
     {
-      expiresIn: '30d',
+      expiresIn: '7d',
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
     }
@@ -87,7 +87,7 @@ export function generateRefreshToken(userId: string): string {
 export function generateTokenPair(options: GenerateTokenOptions): TokenPairResult {
   const accessToken = generateToken(options);
   const refreshToken = generateRefreshToken(options.userId);
-  const expiresAt = getTokenExpiry(options.expiresIn || '7d');
+  const expiresAt = getTokenExpiry(options.expiresIn || '15m');
 
   return { accessToken, refreshToken, expiresAt };
 }
@@ -97,6 +97,7 @@ export function generateTokenPair(options: GenerateTokenOptions): TokenPairResul
  */
 export function verifyToken(token: string): JWTPayload {
   return jwt.verify(token, getJwtSecret(), {
+    algorithms: ['HS256'],
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   }) as JWTPayload;
@@ -107,6 +108,7 @@ export function verifyToken(token: string): JWTPayload {
  */
 export function verifyRefreshToken(token: string): JWTPayload {
   const payload = jwt.verify(token, getJwtRefreshSecret(), {
+    algorithms: ['HS256'],
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   }) as JWTPayload & { type?: string };
@@ -133,13 +135,13 @@ export function decodeToken(token: string): JWTPayload | null {
 /**
  * Calculate token expiry date from duration string
  */
-export function getTokenExpiry(expiresIn: string = '7d'): Date {
+export function getTokenExpiry(expiresIn: string = '15m'): Date {
   const now = new Date();
   const match = expiresIn.match(/^(\d+)([dhms])$/);
 
   if (!match) {
-    // Default to 7 days
-    now.setDate(now.getDate() + 7);
+    // Default to 15 minutes
+    now.setMinutes(now.getMinutes() + 15);
     return now;
   }
 
@@ -178,6 +180,6 @@ export function refreshAccessToken(refreshToken: string): { accessToken: string;
 
   return {
     accessToken,
-    expiresAt: getTokenExpiry('7d'),
+    expiresAt: getTokenExpiry('15m'),
   };
 }

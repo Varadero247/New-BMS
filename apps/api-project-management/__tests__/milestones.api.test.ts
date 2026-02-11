@@ -300,9 +300,7 @@ describe('Milestones API Routes', () => {
 
       const res = await request(app).delete('/api/milestones/ms-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Milestone deleted successfully');
+      expect(res.status).toBe(204);
     });
 
     it('should return 404 if milestone not found', async () => {

@@ -37,6 +37,9 @@ model User {
   sessions  Session[]
   auditLogs AuditLog[]
 
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -322,8 +325,13 @@ model Action {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
+  @@index([standard])
   @@index([status, dueDate])
   @@index([ownerId, status])
+  @@index([type])
+  @@index([priority])
+  @@index([riskId])
+  @@index([incidentId])
   @@map("actions")
 }
 
@@ -364,7 +372,10 @@ model AIAnalysis {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
+  @@index([userId])
   @@index([sourceType, sourceId])
+  @@index([status])
+  @@index([createdAt])
   @@map("ai_analyses")
 }
 

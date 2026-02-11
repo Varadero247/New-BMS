@@ -505,8 +505,7 @@ describe('Quality Actions API Routes', () => {
         .delete('/api/actions/act-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualAction.delete).toHaveBeenCalledWith({
         where: { id: 'act-1' },
       });

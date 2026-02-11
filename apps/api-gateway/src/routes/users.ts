@@ -2,9 +2,11 @@ import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, requireRole, hashPassword, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
+const logger = createLogger('api-gateway');
 const router: IRouter = Router();
 
 // All routes require authentication
@@ -15,11 +17,15 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
   try {
     const { page = '1', limit = '20', search, role, department } = req.query;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: {
+      OR?: Array<Record<string, { contains: string; mode: string }>>;
+      role?: string;
+      department?: string;
+    } = {};
 
     if (search) {
       where.OR = [
@@ -30,11 +36,11 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
     }
 
     if (role) {
-      where.role = role;
+      where.role = role as string;
     }
 
     if (department) {
-      where.department = department;
+      where.department = department as string;
     }
 
     const [users, total] = await Promise.all([
@@ -71,7 +77,7 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
       },
     });
   } catch (error) {
-    console.error('List users error:', error);
+    logger.error('List users error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list users' },
@@ -119,7 +125,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: user });
   } catch (error) {
-    console.error('Get user error:', error);
+    logger.error('Get user error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get user' },
@@ -181,7 +187,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Create user error:', error);
+    logger.error('Create user error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create user' },
@@ -251,7 +257,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
       });
     }
-    console.error('Update user error:', error);
+    logger.error('Update user error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update user' },
@@ -274,9 +280,9 @@ router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Respon
 
     await prisma.user.delete({ where: { id } });
 
-    res.json({ success: true, data: { message: 'User deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete user error:', error);
+    logger.error('Delete user error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete user' },

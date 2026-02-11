@@ -451,8 +451,7 @@ describe('Environment Actions API Routes', () => {
         .delete('/api/actions/action-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.envAction.delete).toHaveBeenCalledWith({
         where: { id: 'action-1' },
       });

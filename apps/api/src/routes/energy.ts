@@ -27,7 +27,7 @@ router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
         startDate = new Date(now.setHours(0, 0, 0, 0));
     }
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       timestamp: { gte: startDate },
     };
 
@@ -81,7 +81,7 @@ router.get('/readings', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const { buildingId, type, from, to, limit = 100 } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (buildingId) where.buildingId = buildingId;
     if (type) where.type = type;

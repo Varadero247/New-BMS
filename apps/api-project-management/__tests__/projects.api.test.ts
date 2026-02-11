@@ -439,9 +439,7 @@ describe('Projects API Routes', () => {
 
       const res = await request(app).delete('/api/projects/proj-001');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.message).toBe('Project deleted successfully');
+      expect(res.status).toBe(204);
     });
 
     it('should return 404 if project not found', async () => {

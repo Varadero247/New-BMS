@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-environment');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -31,11 +34,11 @@ async function generateRefNumber(): Promise<string> {
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', status, significant, search } = req.query;
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Prisma.EnvAspectWhereInput = {};
     if (status) where.status = status;
     if (significant === 'true') where.isSignificant = true;
     if (significant === 'false') where.isSignificant = false;
@@ -59,7 +62,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List aspects error:', error);
+    logger.error('List aspects error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list aspects' } });
   }
 });
@@ -71,7 +74,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     if (!aspect) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
     res.json({ success: true, data: aspect });
   } catch (error) {
-    console.error('Get aspect error:', error);
+    logger.error('Get aspect error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get aspect' } });
   }
 });
@@ -182,7 +185,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create aspect error:', error);
+    logger.error('Create aspect error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create aspect' } });
   }
 });
@@ -217,7 +220,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: aspect });
   } catch (error) {
-    console.error('Update aspect error:', error);
+    logger.error('Update aspect error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update aspect' } });
   }
 });
@@ -228,9 +231,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
     await prisma.envAspect.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Aspect deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete aspect error:', error);
+    logger.error('Delete aspect error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete aspect' } });
   }
 });

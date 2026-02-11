@@ -570,8 +570,7 @@ describe('Quality CAPA API Routes', () => {
         .delete('/api/capa/capa-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualCapa.delete).toHaveBeenCalledWith({
         where: { id: 'capa-1' },
       });
@@ -814,8 +813,7 @@ describe('Quality CAPA API Routes', () => {
         .delete('/api/capa/capa-1/actions/ca-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualCapaAction.delete).toHaveBeenCalledWith({
         where: { id: 'ca-1' },
       });

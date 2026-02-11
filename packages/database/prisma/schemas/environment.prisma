@@ -67,9 +67,14 @@ model EnvAspect {
   aiGenerated                  Boolean @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+  createdBy           String?
+  updatedBy           String?
 
   @@index([status])
   @@index([isSignificant])
+  @@index([activityCategory])
+  @@index([department])
   @@map("env_aspects")
 }
 
@@ -142,10 +147,15 @@ model EnvEvent {
   aiGenerated              Boolean @default(false)
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
+  deletedAt                DateTime?
+  createdBy                String?
+  updatedBy                String?
 
   @@index([status])
   @@index([eventType])
+  @@index([severity])
   @@index([dateOfEvent])
+  @@index([linkedAspectId])
   @@map("env_events")
 }
 
@@ -199,9 +209,13 @@ model EnvLegal {
   aiGenerated             Boolean @default(false)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
+  deletedAt               DateTime?
+  createdBy               String?
+  updatedBy               String?
 
   @@index([complianceStatus])
   @@index([obligationType])
+  @@index([status])
   @@map("env_legal")
 }
 
@@ -251,6 +265,9 @@ model EnvObjective {
   aiGenerated            Boolean  @default(false)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
+  deletedAt              DateTime?
+  createdBy              String?
+  updatedBy              String?
   // Relations
   milestones             EnvMilestone[]
 
@@ -317,9 +334,18 @@ model EnvAction {
   aiGenerated      Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+  createdBy        String?
+  updatedBy        String?
 
   @@index([status, dueDate])
   @@index([assignedTo])
+  @@index([actionType])
+  @@index([priority])
+  @@index([linkedAspectId])
+  @@index([linkedEventId])
+  @@index([linkedLegalId])
+  @@index([linkedObjectiveId])
   @@map("env_actions")
 }
 
@@ -397,11 +423,17 @@ model EnvCapa {
   aiGenerated            Boolean   @default(false)
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+  createdBy              String?
+  updatedBy              String?
   // Relations
   capaActions            EnvCapaAction[]
 
   @@index([status])
   @@index([capaType])
+  @@index([severity])
+  @@index([triggerSource])
+  @@index([targetClosureDate])
   @@map("env_capas")
 }
 
@@ -418,6 +450,8 @@ model EnvCapaAction {
   capa        EnvCapa  @relation(fields: [capaId], references: [id], onDelete: Cascade)
 
   @@index([capaId])
+  @@index([status])
+  @@index([dueDate])
   @@map("env_capa_actions")
 }
 

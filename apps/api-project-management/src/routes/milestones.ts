@@ -1,8 +1,11 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
@@ -16,11 +19,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { projectId: projectId as string };
+    const where: Prisma.ProjectMilestoneWhereInput = { projectId: projectId as string };
 
     const [milestones, total] = await Promise.all([
       prisma.projectMilestone.findMany({
@@ -38,7 +41,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('List milestones error:', error);
+    logger.error('List milestones error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list milestones' } });
   }
 });
@@ -81,7 +84,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Create milestone error:', error);
+    logger.error('Create milestone error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create milestone' } });
   }
 });
@@ -114,7 +117,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: milestone });
   } catch (error) {
-    console.error('Update milestone error:', error);
+    logger.error('Update milestone error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update milestone' } });
   }
 });
@@ -138,7 +141,7 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: milestone });
   } catch (error) {
-    console.error('Approve milestone error:', error);
+    logger.error('Approve milestone error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve milestone' } });
   }
 });
@@ -152,9 +155,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     await prisma.projectMilestone.delete({ where: { id: req.params.id } });
-    res.json({ success: true, data: { message: 'Milestone deleted successfully' } });
+    res.status(204).send();
   } catch (error) {
-    console.error('Delete milestone error:', error);
+    logger.error('Delete milestone error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete milestone' } });
   }
 });

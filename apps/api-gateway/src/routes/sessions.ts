@@ -91,10 +91,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
 
     logger.info('Session revoked', { sessionId: id, userId, revokedBy: currentSessionId });
 
-    res.json({
-      success: true,
-      data: { message: 'Session revoked successfully' },
-    });
+    res.status(204).send();
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -132,13 +129,7 @@ router.delete('/', authenticate, async (req: AuthRequest, res: Response) => {
       revokedCount: result.count,
     });
 
-    res.json({
-      success: true,
-      data: {
-        message: `Logged out from ${result.count} other device(s)`,
-        revokedCount: result.count,
-      },
-    });
+    res.status(204).send();
   } catch (error) {
     logger.error('Failed to revoke all sessions', { error, userId: req.user?.id });
     res.status(500).json({

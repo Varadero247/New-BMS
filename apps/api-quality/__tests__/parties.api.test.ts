@@ -435,8 +435,7 @@ describe('Quality Interested Parties API Routes', () => {
         .delete('/api/parties/party-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualInterestedParty.delete).toHaveBeenCalledWith({
         where: { id: 'party-1' },
       });

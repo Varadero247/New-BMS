@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-gateway');
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -11,7 +14,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.error('Error:', err);
+  logger.error('Unhandled error', { error: err.message, code: err.code, statusCode: err.statusCode });
 
   const statusCode = err.statusCode || 500;
   const code = err.code || 'INTERNAL_ERROR';

@@ -449,8 +449,7 @@ describe('Environment Aspects API Routes', () => {
         .delete('/api/aspects/aspect-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.envAspect.delete).toHaveBeenCalledWith({
         where: { id: 'aspect-1' },
       });

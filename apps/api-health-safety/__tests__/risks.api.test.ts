@@ -402,8 +402,7 @@ describe('Health & Safety Risks API Routes', () => {
         .delete('/api/risks/risk-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.risk.delete).toHaveBeenCalledWith({
         where: { id: 'risk-1' },
       });

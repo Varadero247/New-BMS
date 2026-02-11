@@ -440,8 +440,7 @@ describe('Quality Documents API Routes', () => {
         .delete('/api/documents/doc-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualDocument.delete).toHaveBeenCalledWith({
         where: { id: 'doc-1' },
       });

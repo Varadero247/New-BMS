@@ -1,8 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-hr');
 
 const router: Router = Router();
+router.use(authenticate);
 
 // GET /api/leave/types - Get all leave types
 router.get('/types', async (_req: Request, res: Response) => {
@@ -14,7 +19,7 @@ router.get('/types', async (_req: Request, res: Response) => {
 
     res.json({ success: true, data: types });
   } catch (error) {
-    console.error('Error fetching leave types:', error);
+    logger.error('Error fetching leave types', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave types' } });
   }
 });
@@ -45,7 +50,7 @@ router.post('/types', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating leave type:', error);
+    logger.error('Error creating leave type', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave type' } });
   }
 });
@@ -63,13 +68,14 @@ router.get('/requests', async (req: Request, res: Response) => {
       limit = '20',
     } = req.query;
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
-    if (leaveTypeId) where.leaveTypeId = leaveTypeId;
+    const where: Prisma.LeaveRequestWhereInput = {};
+    if (employeeId) where.employeeId = employeeId as string;
+    if (status) where.status = status as string;
+    if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
     if (startDate || endDate) {
       where.startDate = {};
       if (startDate) where.startDate.gte = new Date(startDate as string);
@@ -85,7 +91,7 @@ router.get('/requests', async (req: Request, res: Response) => {
           approvals: true,
         },
         skip,
-        take,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.leaveRequest.count({ where }),
@@ -94,10 +100,10 @@ router.get('/requests', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: requests,
-      meta: { page: parseInt(page as string), limit: take, total, totalPages: Math.ceil(total / take) },
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
   } catch (error) {
-    console.error('Error fetching leave requests:', error);
+    logger.error('Error fetching leave requests', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave requests' } });
   }
 });
@@ -129,7 +135,7 @@ router.get('/requests/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: request });
   } catch (error) {
-    console.error('Error fetching leave request:', error);
+    logger.error('Error fetching leave request', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave request' } });
   }
 });
@@ -181,50 +187,54 @@ router.post('/requests', async (req: Request, res: Response) => {
       select: { managerId: true },
     });
 
-    const request = await prisma.leaveRequest.create({
-      data: {
-        requestNumber,
-        employeeId: data.employeeId,
-        leaveTypeId: data.leaveTypeId,
-        startDate: start,
-        endDate: end,
-        days,
-        isHalfDay: data.isHalfDay,
-        halfDayPeriod: data.halfDayPeriod,
-        reason: data.reason,
-        contactDuring: data.contactDuring,
-        handoverToId: data.handoverToId,
-        handoverNotes: data.handoverNotes,
-        status: 'PENDING',
-        approvals: employee?.managerId ? {
-          create: {
-            approverEmployeeId: employee.managerId,
-            step: 1,
-            status: 'PENDING',
-          },
-        } : undefined,
-      },
-      include: {
-        employee: { select: { firstName: true, lastName: true } },
-        leaveType: true,
-        approvals: true,
-      },
-    });
-
-    // Update pending balance
-    if (balance) {
-      await prisma.leaveBalance.update({
-        where: { id: balance.id },
-        data: { pending: { increment: days } },
+    const request = await prisma.$transaction(async (tx) => {
+      const created = await tx.leaveRequest.create({
+        data: {
+          requestNumber,
+          employeeId: data.employeeId,
+          leaveTypeId: data.leaveTypeId,
+          startDate: start,
+          endDate: end,
+          days,
+          isHalfDay: data.isHalfDay,
+          halfDayPeriod: data.halfDayPeriod,
+          reason: data.reason,
+          contactDuring: data.contactDuring,
+          handoverToId: data.handoverToId,
+          handoverNotes: data.handoverNotes,
+          status: 'PENDING',
+          approvals: employee?.managerId ? {
+            create: {
+              approverEmployeeId: employee.managerId,
+              step: 1,
+              status: 'PENDING',
+            },
+          } : undefined,
+        },
+        include: {
+          employee: { select: { firstName: true, lastName: true } },
+          leaveType: true,
+          approvals: true,
+        },
       });
-    }
+
+      // Update pending balance
+      if (balance) {
+        await tx.leaveBalance.update({
+          where: { id: balance.id },
+          data: { pending: { increment: days } },
+        });
+      }
+
+      return created;
+    });
 
     res.status(201).json({ success: true, data: request });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating leave request:', error);
+    logger.error('Error creating leave request', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave request' } });
   }
 });
@@ -243,39 +253,43 @@ router.put('/requests/:id/approve', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Leave request not found' } });
     }
 
-    // Update approval
-    await prisma.leaveApproval.updateMany({
-      where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
-      data: { status: 'APPROVED', decision: 'APPROVE', decidedAt: new Date(), comments },
-    });
+    const updatedRequest = await prisma.$transaction(async (tx) => {
+      // Update approval
+      await tx.leaveApproval.updateMany({
+        where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
+        data: { status: 'APPROVED', decision: 'APPROVE', decidedAt: new Date(), comments },
+      });
 
-    // Update request status
-    const updatedRequest = await prisma.leaveRequest.update({
-      where: { id: req.params.id },
-      data: { status: 'APPROVED' },
-      include: { employee: true, leaveType: true },
-    });
+      // Update request status
+      const updated = await tx.leaveRequest.update({
+        where: { id: req.params.id },
+        data: { status: 'APPROVED' },
+        include: { employee: true, leaveType: true },
+      });
 
-    // Update leave balance
-    const year = request.startDate.getFullYear();
-    await prisma.leaveBalance.update({
-      where: {
-        employeeId_leaveTypeId_year: {
-          employeeId: request.employeeId,
-          leaveTypeId: request.leaveTypeId,
-          year,
+      // Update leave balance
+      const year = request.startDate.getFullYear();
+      await tx.leaveBalance.update({
+        where: {
+          employeeId_leaveTypeId_year: {
+            employeeId: request.employeeId,
+            leaveTypeId: request.leaveTypeId,
+            year,
+          },
         },
-      },
-      data: {
-        pending: { decrement: request.days },
-        taken: { increment: request.days },
-        balance: { decrement: request.days },
-      },
+        data: {
+          pending: { decrement: request.days },
+          taken: { increment: request.days },
+          balance: { decrement: request.days },
+        },
+      });
+
+      return updated;
     });
 
     res.json({ success: true, data: updatedRequest });
   } catch (error) {
-    console.error('Error approving leave request:', error);
+    logger.error('Error approving leave request', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve leave request' } });
   }
 });
@@ -291,34 +305,38 @@ router.put('/requests/:id/reject', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Leave request not found' } });
     }
 
-    // Update approval
-    await prisma.leaveApproval.updateMany({
-      where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
-      data: { status: 'REJECTED', decision: 'REJECT', decidedAt: new Date(), comments },
-    });
+    const updatedRequest = await prisma.$transaction(async (tx) => {
+      // Update approval
+      await tx.leaveApproval.updateMany({
+        where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
+        data: { status: 'REJECTED', decision: 'REJECT', decidedAt: new Date(), comments },
+      });
 
-    // Update request status
-    const updatedRequest = await prisma.leaveRequest.update({
-      where: { id: req.params.id },
-      data: { status: 'REJECTED' },
-    });
+      // Update request status
+      const updated = await tx.leaveRequest.update({
+        where: { id: req.params.id },
+        data: { status: 'REJECTED' },
+      });
 
-    // Release pending balance
-    const year = request.startDate.getFullYear();
-    await prisma.leaveBalance.update({
-      where: {
-        employeeId_leaveTypeId_year: {
-          employeeId: request.employeeId,
-          leaveTypeId: request.leaveTypeId,
-          year,
+      // Release pending balance
+      const year = request.startDate.getFullYear();
+      await tx.leaveBalance.update({
+        where: {
+          employeeId_leaveTypeId_year: {
+            employeeId: request.employeeId,
+            leaveTypeId: request.leaveTypeId,
+            year,
+          },
         },
-      },
-      data: { pending: { decrement: request.days } },
+        data: { pending: { decrement: request.days } },
+      });
+
+      return updated;
     });
 
     res.json({ success: true, data: updatedRequest });
   } catch (error) {
-    console.error('Error rejecting leave request:', error);
+    logger.error('Error rejecting leave request', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject leave request' } });
   }
 });
@@ -338,7 +356,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: balances });
   } catch (error) {
-    console.error('Error fetching leave balances:', error);
+    logger.error('Error fetching leave balances', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave balances' } });
   }
 });
@@ -384,7 +402,7 @@ router.post('/balances', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error updating leave balance:', error);
+    logger.error('Error updating leave balance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update leave balance' } });
   }
 });
@@ -397,7 +415,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     const start = new Date(startDate as string);
     const end = new Date(endDate as string);
 
-    const where: any = {
+    const where: Prisma.LeaveRequestWhereInput = {
       status: 'APPROVED',
       OR: [
         { startDate: { gte: start, lte: end } },
@@ -420,7 +438,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: leaves });
   } catch (error) {
-    console.error('Error fetching leave calendar:', error);
+    logger.error('Error fetching leave calendar', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch calendar' } });
   }
 });
@@ -438,7 +456,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: holidays });
   } catch (error) {
-    console.error('Error fetching holidays:', error);
+    logger.error('Error fetching holidays', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch holidays' } });
   }
 });
@@ -471,7 +489,7 @@ router.post('/holidays', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    console.error('Error creating holiday:', error);
+    logger.error('Error creating holiday', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create holiday' } });
   }
 });

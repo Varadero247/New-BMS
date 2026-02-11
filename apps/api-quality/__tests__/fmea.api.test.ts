@@ -433,8 +433,7 @@ describe('Quality FMEA API Routes', () => {
         .delete('/api/fmea/fmea-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualFmea.delete).toHaveBeenCalledWith({
         where: { id: 'fmea-1' },
       });
@@ -665,8 +664,7 @@ describe('Quality FMEA API Routes', () => {
         .delete('/api/fmea/fmea-1/rows/row-1')
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+      expect(response.status).toBe(204);
       expect(mockPrisma.qualFmeaRow.delete).toHaveBeenCalledWith({
         where: { id: 'row-1' },
       });

@@ -49,7 +49,9 @@ model WorkflowDefinition {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
   createdById       String?
+  updatedBy         String?
 
   // Relations
   instances         WorkflowInstance[]
@@ -129,6 +131,9 @@ model WorkflowInstance {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   // Relations
   definition        WorkflowDefinition @relation(fields: [definitionId], references: [id])
@@ -289,6 +294,9 @@ model WorkflowTask {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   // Relations
   instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
@@ -457,6 +465,7 @@ model WorkflowTemplate {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
   createdById       String?
 
   @@index([category])
@@ -504,6 +513,7 @@ model ApprovalChain {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
   createdById       String?
 
   @@map("wf_approval_chains")
@@ -727,6 +737,7 @@ model AutomationRule {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
   createdById       String?
 
   // Relations
@@ -860,6 +871,9 @@ model ApprovalRequest {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
 
   // Relations
   responses         ApprovalResponse[]
