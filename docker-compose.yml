@@ -64,6 +64,7 @@ services:
       SERVICE_ENVIRONMENT_URL: http://api-environment:4002
       SERVICE_QUALITY_URL: http://api-quality:4003
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
+      CSRF_ENABLED: "false"
     depends_on:
       postgres:
         condition: service_healthy

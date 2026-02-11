@@ -165,7 +165,16 @@ const createServiceProxy = (
   target,
   changeOrigin: true,
   pathRewrite: { [`^${basePath}`]: '/api' },
-  onProxyReq: addServiceToken,
+  onProxyReq: (proxyReq, req) => {
+    addServiceToken(proxyReq);
+    // Re-serialize body for POST/PUT/PATCH — express.json() consumed the stream
+    if (req.body && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      const bodyData = JSON.stringify(req.body);
+      proxyReq.setHeader('Content-Type', 'application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData).toString());
+      proxyReq.write(bodyData);
+    }
+  },
   onProxyRes: (proxyRes) => {
     // Remove downstream CORS headers - gateway handles CORS
     delete proxyRes.headers['access-control-allow-origin'];
