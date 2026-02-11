@@ -1,0 +1,789 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('@ims/database', () => ({
+  prisma: {
+    hRTrainingCourse: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+    hRTrainingSession: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+    },
+    hRTrainingEnrollment: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+      aggregate: jest.fn(),
+    },
+    employeeCertification: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid-123'),
+}));
+
+import { prisma } from '@ims/database';
+import trainingRoutes from '../src/routes/training';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe('HR Training API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/training', trainingRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/training/courses', () => {
+    const mockCourses = [
+      {
+        id: 'course-1',
+        code: 'SAF-101',
+        name: 'Safety Fundamentals',
+        category: 'SAFETY',
+        deliveryMethod: 'CLASSROOM',
+        isActive: true,
+        isMandatory: true,
+        _count: { sessions: 3, enrollments: 25 },
+      },
+      {
+        id: 'course-2',
+        code: 'DEV-201',
+        name: 'Advanced Development',
+        category: 'TECHNICAL',
+        deliveryMethod: 'VIRTUAL',
+        isActive: true,
+        isMandatory: false,
+        _count: { sessions: 1, enrollments: 10 },
+      },
+    ];
+
+    it('should return list of active courses', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
+
+      const response = await request(app)
+        .get('/api/training/courses')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(2);
+    });
+
+    it('should filter by category', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce([mockCourses[0]]);
+
+      await request(app)
+        .get('/api/training/courses?category=SAFETY')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingCourse.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+            category: 'SAFETY',
+          }),
+        })
+      );
+    });
+
+    it('should filter by deliveryMethod', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/courses?deliveryMethod=VIRTUAL')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingCourse.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            deliveryMethod: 'VIRTUAL',
+          }),
+        })
+      );
+    });
+
+    it('should filter by isMandatory', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce([mockCourses[0]]);
+
+      await request(app)
+        .get('/api/training/courses?isMandatory=true')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingCourse.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isMandatory: true,
+          }),
+        })
+      );
+    });
+
+    it('should order by name ascending', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
+
+      await request(app)
+        .get('/api/training/courses')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingCourse.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { name: 'asc' },
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/courses')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/training/courses/:id', () => {
+    const mockCourse = {
+      id: 'course-1',
+      code: 'SAF-101',
+      name: 'Safety Fundamentals',
+      sessions: [
+        { id: 'sess-1', sessionCode: 'S001', startDate: new Date(), _count: { enrollments: 5 } },
+      ],
+      _count: { enrollments: 25 },
+    };
+
+    it('should return single course with sessions', async () => {
+      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockResolvedValueOnce(mockCourse);
+
+      const response = await request(app)
+        .get('/api/training/courses/course-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe('course-1');
+      expect(response.body.data.sessions).toHaveLength(1);
+    });
+
+    it('should return 404 for non-existent course', async () => {
+      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .get('/api/training/courses/non-existent')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/courses/course-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/training/courses', () => {
+    const createPayload = {
+      code: 'NEW-101',
+      name: 'New Course',
+      category: 'TECHNICAL',
+      deliveryMethod: 'CLASSROOM',
+      duration: 8,
+    };
+
+    it('should create a course successfully', async () => {
+      (mockPrisma.hRTrainingCourse.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-course-123',
+        ...createPayload,
+        isActive: true,
+      });
+
+      const response = await request(app)
+        .post('/api/training/courses')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.name).toBe('New Course');
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/training/courses')
+        .set('Authorization', 'Bearer token')
+        .send({ name: 'Incomplete' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid deliveryMethod', async () => {
+      const response = await request(app)
+        .post('/api/training/courses')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, deliveryMethod: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingCourse.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/training/courses')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/training/sessions', () => {
+    const mockSessions = [
+      {
+        id: 'sess-1',
+        sessionCode: 'S001',
+        courseId: 'course-1',
+        status: 'SCHEDULED',
+        startDate: new Date('2024-03-01'),
+        course: { name: 'Safety Fundamentals', code: 'SAF-101', duration: 8 },
+        _count: { enrollments: 5 },
+      },
+    ];
+
+    it('should return list of sessions', async () => {
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce(mockSessions);
+
+      const response = await request(app)
+        .get('/api/training/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+    });
+
+    it('should filter by courseId', async () => {
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/sessions?courseId=course-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingSession.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            courseId: 'course-1',
+          }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/sessions?status=SCHEDULED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingSession.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'SCHEDULED',
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/sessions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/training/sessions', () => {
+    const createPayload = {
+      courseId: '11111111-1111-1111-1111-111111111111',
+      startDate: '2024-04-01',
+      endDate: '2024-04-01',
+      maxParticipants: 20,
+    };
+
+    it('should create a session successfully', async () => {
+      (mockPrisma.hRTrainingSession.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.hRTrainingSession.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-sess-123',
+        sessionCode: '11111111-S003',
+        ...createPayload,
+        status: 'SCHEDULED',
+        course: { name: 'Safety Fundamentals' },
+      });
+
+      const response = await request(app)
+        .post('/api/training/sessions')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should set initial status to SCHEDULED', async () => {
+      (mockPrisma.hRTrainingSession.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.hRTrainingSession.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-sess-123',
+        status: 'SCHEDULED',
+        course: {},
+      });
+
+      await request(app)
+        .post('/api/training/sessions')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(mockPrisma.hRTrainingSession.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'SCHEDULED',
+          }),
+        })
+      );
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/training/sessions')
+        .set('Authorization', 'Bearer token')
+        .send({ courseId: '11111111-1111-1111-1111-111111111111' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingSession.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.hRTrainingSession.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/training/sessions')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/training/enrollments', () => {
+    const mockEnrollments = [
+      {
+        id: 'enroll-1',
+        employeeId: 'emp-1',
+        courseId: 'course-1',
+        status: 'ENROLLED',
+        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        course: { name: 'Safety Fundamentals', code: 'SAF-101' },
+        session: { sessionCode: 'S001', startDate: new Date(), endDate: new Date() },
+      },
+    ];
+
+    it('should return list of enrollments', async () => {
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce(mockEnrollments);
+
+      const response = await request(app)
+        .get('/api/training/enrollments')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+    });
+
+    it('should filter by employeeId', async () => {
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/enrollments?employeeId=emp-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingEnrollment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            employeeId: 'emp-1',
+          }),
+        })
+      );
+    });
+
+    it('should filter by courseId', async () => {
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/enrollments?courseId=course-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingEnrollment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            courseId: 'course-1',
+          }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/enrollments?status=COMPLETED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hRTrainingEnrollment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'COMPLETED',
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/enrollments')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/training/enrollments', () => {
+    const createPayload = {
+      employeeId: '11111111-1111-1111-1111-111111111111',
+      courseId: '22222222-2222-2222-2222-222222222222',
+      sessionId: '33333333-3333-3333-3333-333333333333',
+    };
+
+    it('should enroll employee successfully', async () => {
+      (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'sess-1',
+        enrolledCount: 5,
+        maxParticipants: 20,
+      });
+      (mockPrisma.hRTrainingEnrollment.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-enroll-123',
+        ...createPayload,
+        status: 'ENROLLED',
+        employee: { firstName: 'John', lastName: 'Doe' },
+        course: { name: 'Safety Fundamentals' },
+      });
+      (mockPrisma.hRTrainingSession.update as jest.Mock).mockResolvedValueOnce({});
+
+      const response = await request(app)
+        .post('/api/training/enrollments')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return 400 when session is full', async () => {
+      (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'sess-1',
+        enrolledCount: 20,
+        maxParticipants: 20,
+      });
+
+      const response = await request(app)
+        .post('/api/training/enrollments')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('SESSION_FULL');
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/training/enrollments')
+        .set('Authorization', 'Bearer token')
+        .send({ employeeId: '11111111-1111-1111-1111-111111111111' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'sess-1',
+        enrolledCount: 5,
+        maxParticipants: 20,
+      });
+      (mockPrisma.hRTrainingEnrollment.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/training/enrollments')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/training/enrollments/:id', () => {
+    it('should update enrollment successfully', async () => {
+      (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockResolvedValueOnce({
+        id: 'enroll-1',
+        status: 'COMPLETED',
+        assessmentScore: 85,
+      });
+
+      const response = await request(app)
+        .put('/api/training/enrollments/enroll-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'COMPLETED', assessmentScore: 85 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return 400 for invalid status', async () => {
+      const response = await request(app)
+        .put('/api/training/enrollments/enroll-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/training/enrollments/enroll-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'COMPLETED' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/training/certifications', () => {
+    const mockCerts = [
+      {
+        id: 'cert-1',
+        name: 'AWS Solutions Architect',
+        issuingOrganization: 'Amazon',
+        status: 'ACTIVE',
+        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+      },
+    ];
+
+    it('should return list of certifications', async () => {
+      (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValueOnce(mockCerts);
+
+      const response = await request(app)
+        .get('/api/training/certifications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+    });
+
+    it('should filter by employeeId', async () => {
+      (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/certifications?employeeId=emp-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.employeeCertification.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            employeeId: 'emp-1',
+          }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/training/certifications?status=ACTIVE')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.employeeCertification.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'ACTIVE',
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.employeeCertification.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/certifications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/training/certifications', () => {
+    const createPayload = {
+      employeeId: '11111111-1111-1111-1111-111111111111',
+      name: 'AWS Solutions Architect',
+      issuingOrganization: 'Amazon',
+      issueDate: '2024-01-15',
+    };
+
+    it('should add certification successfully', async () => {
+      (mockPrisma.employeeCertification.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-cert-123',
+        ...createPayload,
+        status: 'ACTIVE',
+        employee: { firstName: 'John', lastName: 'Doe' },
+      });
+
+      const response = await request(app)
+        .post('/api/training/certifications')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.name).toBe('AWS Solutions Architect');
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/training/certifications')
+        .set('Authorization', 'Bearer token')
+        .send({ name: 'Incomplete' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.employeeCertification.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/training/certifications')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/training/stats', () => {
+    it('should return training statistics', async () => {
+      (mockPrisma.hRTrainingCourse.count as jest.Mock).mockResolvedValueOnce(10);
+      (mockPrisma.hRTrainingSession.groupBy as jest.Mock).mockResolvedValueOnce([
+        { status: 'SCHEDULED', _count: { id: 3 } },
+        { status: 'COMPLETED', _count: { id: 5 } },
+      ]);
+      (mockPrisma.hRTrainingEnrollment.groupBy as jest.Mock)
+        .mockResolvedValueOnce([ // enrollmentsByStatus
+          { status: 'ENROLLED', _count: { id: 10 } },
+          { status: 'COMPLETED', _count: { id: 20 } },
+        ])
+        .mockResolvedValueOnce([ // popularCoursesRaw
+          { courseId: 'course-1', _count: { id: 25 } },
+        ]);
+      (mockPrisma.hRTrainingEnrollment.count as jest.Mock).mockResolvedValueOnce(5); // completedThisMonth
+      (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValueOnce(2); // expiringCertifications
+      (mockPrisma.hRTrainingEnrollment.aggregate as jest.Mock).mockResolvedValueOnce({
+        _avg: { assessmentScore: 82.5 },
+      });
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce([]); // upcomingCourses
+      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockResolvedValueOnce({
+        name: 'Safety Fundamentals',
+        code: 'SAF-101',
+      });
+
+      const response = await request(app)
+        .get('/api/training/stats')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('totalCourses');
+      expect(response.body.data).toHaveProperty('completionRate');
+      expect(response.body.data).toHaveProperty('expiringCertifications');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.hRTrainingCourse.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/training/stats')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});

@@ -146,8 +146,15 @@ curl -X POST http://localhost:4000/api/auth/login         # Login
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (939 across 35 suites)
-./scripts/test-hs-modules.sh             # Integration tests (70)
+pnpm test                                # All Jest tests (2,285 across 80 suites)
+./scripts/test-all-modules.sh            # All integration tests (master runner)
+./scripts/test-hs-modules.sh             # H&S integration tests (70)
+./scripts/test-env-modules.sh            # Environment integration tests (~52)
+./scripts/test-quality-modules.sh        # Quality integration tests (~81)
+./scripts/test-hr-modules.sh             # HR integration tests (~50)
+./scripts/test-payroll-modules.sh        # Payroll integration tests (~40)
+./scripts/test-inventory-modules.sh      # Inventory integration tests (~60)
+./scripts/test-workflows-modules.sh      # Workflows integration tests
 ./scripts/check-services.sh              # Service health checks
 ```
 
@@ -186,7 +193,7 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - Workflows: 6 sub-modules (Templates, Definitions, Instances, Tasks, Approvals, Automation) — 57+ endpoints
   - AI Analysis: Central analysis service + 5 H&S-specific AI routes (Claude Sonnet 4.5)
   - Gateway: Auth, users, sessions, dashboard, CSRF — 20+ local endpoints
-- Tests: 939 Jest tests (35 suites) + 70 integration tests — all passing
+- Tests: 2,285 Jest tests (80 suites) + 8 integration test scripts (~400+ assertions) — all passing
 - CI/CD: Lint PASS, Build PASS, Test PASS, 9/9 Docker builds PASS
 - Auth: JWT Bearer token + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 9 web apps

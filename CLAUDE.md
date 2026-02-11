@@ -124,8 +124,15 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # 117 Jest unit tests
-./scripts/test-hs-modules.sh     # 70 integration tests
+pnpm test                        # 2,285 Jest unit tests (80 suites)
+./scripts/test-all-modules.sh    # All integration tests (master runner)
+./scripts/test-hs-modules.sh     # H&S integration tests (70 assertions)
+./scripts/test-env-modules.sh    # Environment integration tests
+./scripts/test-quality-modules.sh # Quality integration tests
+./scripts/test-hr-modules.sh     # HR integration tests
+./scripts/test-payroll-modules.sh # Payroll integration tests
+./scripts/test-inventory-modules.sh # Inventory integration tests
+./scripts/test-workflows-modules.sh # Workflows integration tests
 ./scripts/check-services.sh      # Service health checks
 ```
 

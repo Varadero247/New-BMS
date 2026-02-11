@@ -1,0 +1,375 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('@ims/database', () => ({
+  prisma: {
+    benefitPlan: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+    },
+    employeeBenefit: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid-123'),
+}));
+
+import { prisma } from '@ims/database';
+import benefitsRoutes from '../src/routes/benefits';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe('Payroll Benefits API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/benefits', benefitsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/benefits/plans', () => {
+    const mockPlans = [
+      {
+        id: 'plan-1',
+        code: 'HEALTH-01',
+        name: 'Standard Health Insurance',
+        category: 'HEALTH_INSURANCE',
+        isActive: true,
+        _count: { employeeBenefits: 25 },
+      },
+      {
+        id: 'plan-2',
+        code: 'DENTAL-01',
+        name: 'Dental Plan',
+        category: 'DENTAL',
+        isActive: true,
+        _count: { employeeBenefits: 15 },
+      },
+    ];
+
+    it('should return list of active benefit plans', async () => {
+      (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce(mockPlans);
+
+      const response = await request(app)
+        .get('/api/benefits/plans')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(2);
+    });
+
+    it('should filter by category', async () => {
+      (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce([mockPlans[0]]);
+
+      await request(app)
+        .get('/api/benefits/plans?category=HEALTH_INSURANCE')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.benefitPlan.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+            category: 'HEALTH_INSURANCE',
+          }),
+        })
+      );
+    });
+
+    it('should only return active plans by default', async () => {
+      (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/benefits/plans')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.benefitPlan.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.benefitPlan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/benefits/plans')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/benefits/plans', () => {
+    const createPayload = {
+      code: 'VISION-01',
+      name: 'Vision Plan',
+      category: 'VISION',
+      coverageLevels: ['EMPLOYEE_ONLY', 'FAMILY'],
+      effectiveFrom: '2024-01-01',
+    };
+
+    it('should create a benefit plan successfully', async () => {
+      (mockPrisma.benefitPlan.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-plan-123',
+        ...createPayload,
+        isActive: true,
+        effectiveFrom: new Date('2024-01-01'),
+      });
+
+      const response = await request(app)
+        .post('/api/benefits/plans')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.name).toBe('Vision Plan');
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/benefits/plans')
+        .set('Authorization', 'Bearer token')
+        .send({ name: 'Incomplete' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid category', async () => {
+      const response = await request(app)
+        .post('/api/benefits/plans')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, category: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid coverageLevels', async () => {
+      const response = await request(app)
+        .post('/api/benefits/plans')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, coverageLevels: ['INVALID_LEVEL'] });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.benefitPlan.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/benefits/plans')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/benefits/employees/:employeeId', () => {
+    const mockBenefits = [
+      {
+        id: 'ben-1',
+        employeeId: 'emp-1',
+        coverageLevel: 'FAMILY',
+        status: 'ACTIVE',
+        benefitPlan: { id: 'plan-1', name: 'Health Insurance', category: 'HEALTH_INSURANCE' },
+      },
+    ];
+
+    it('should return employee benefits', async () => {
+      (mockPrisma.employeeBenefit.findMany as jest.Mock).mockResolvedValueOnce(mockBenefits);
+
+      const response = await request(app)
+        .get('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+    });
+
+    it('should query by employeeId parameter', async () => {
+      (mockPrisma.employeeBenefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.employeeBenefit.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { employeeId: 'emp-1' },
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.employeeBenefit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/benefits/employees/:employeeId', () => {
+    const createPayload = {
+      benefitPlanId: '11111111-1111-1111-1111-111111111111',
+      coverageLevel: 'FAMILY',
+      effectiveFrom: '2024-01-01',
+    };
+
+    it('should enroll employee in benefit successfully', async () => {
+      (mockPrisma.employeeBenefit.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-ben-123',
+        employeeId: 'emp-1',
+        ...createPayload,
+        status: 'ACTIVE',
+        benefitPlan: { name: 'Health Insurance' },
+      });
+
+      const response = await request(app)
+        .post('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should set initial status to ACTIVE', async () => {
+      (mockPrisma.employeeBenefit.create as jest.Mock).mockResolvedValueOnce({
+        id: 'new-ben-123',
+        status: 'ACTIVE',
+        benefitPlan: {},
+      });
+
+      await request(app)
+        .post('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(mockPrisma.employeeBenefit.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'ACTIVE',
+            employeeId: 'emp-1',
+          }),
+        })
+      );
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token')
+        .send({ benefitPlanId: '11111111-1111-1111-1111-111111111111' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid coverageLevel', async () => {
+      const response = await request(app)
+        .post('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, coverageLevel: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.employeeBenefit.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/benefits/employees/emp-1')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/benefits/:id/terminate', () => {
+    it('should terminate benefit successfully', async () => {
+      (mockPrisma.employeeBenefit.update as jest.Mock).mockResolvedValueOnce({
+        id: 'ben-1',
+        status: 'TERMINATED',
+        terminationDate: new Date('2024-06-30'),
+        effectiveTo: new Date('2024-06-30'),
+      });
+
+      const response = await request(app)
+        .put('/api/benefits/ben-1/terminate')
+        .set('Authorization', 'Bearer token')
+        .send({ terminationDate: '2024-06-30' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should set status to TERMINATED', async () => {
+      (mockPrisma.employeeBenefit.update as jest.Mock).mockResolvedValueOnce({
+        id: 'ben-1',
+        status: 'TERMINATED',
+      });
+
+      await request(app)
+        .put('/api/benefits/ben-1/terminate')
+        .set('Authorization', 'Bearer token')
+        .send({ terminationDate: '2024-06-30' });
+
+      expect(mockPrisma.employeeBenefit.update).toHaveBeenCalledWith({
+        where: { id: 'ben-1' },
+        data: expect.objectContaining({
+          status: 'TERMINATED',
+          terminationDate: expect.any(Date),
+          effectiveTo: expect.any(Date),
+        }),
+      });
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.employeeBenefit.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/benefits/ben-1/terminate')
+        .set('Authorization', 'Bearer token')
+        .send({ terminationDate: '2024-06-30' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});

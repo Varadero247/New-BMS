@@ -1,6 +1,7 @@
 import express from 'express';
 import request from 'supertest';
 
+// Mock dependencies - use ../prisma (not @ims/database)
 jest.mock('../src/prisma', () => ({
   prisma: {
     capa: {
@@ -36,7 +37,7 @@ import capaRoutes from '../src/routes/capa';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
-describe('Health & Safety CAPA API', () => {
+describe('Health & Safety CAPA API Routes', () => {
   let app: express.Express;
 
   beforeAll(() => {
@@ -54,18 +55,28 @@ describe('Health & Safety CAPA API', () => {
       {
         id: 'capa-1',
         referenceNumber: 'CAPA-001',
-        title: 'Fix guarding on press',
+        title: 'Corrective action for incident',
         capaType: 'CORRECTIVE',
         source: 'INCIDENT',
         priority: 'HIGH',
         status: 'OPEN',
         actions: [],
       },
+      {
+        id: 'capa-2',
+        referenceNumber: 'CAPA-002',
+        title: 'Preventive measure for risk',
+        capaType: 'PREVENTIVE',
+        source: 'RISK_ASSESSMENT',
+        priority: 'MEDIUM',
+        status: 'IN_PROGRESS',
+        actions: [{ id: 'action-1', title: 'Action 1', sortOrder: 0 }],
+      },
     ];
 
-    it('should return list with actions included', async () => {
+    it('should return list of CAPAs with pagination', async () => {
       (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce(mockCapas);
-      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
         .get('/api/capa')
@@ -73,10 +84,76 @@ describe('Health & Safety CAPA API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.meta).toMatchObject({
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+      });
+    });
+
+    it('should support pagination parameters', async () => {
+      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([mockCapas[0]]);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(100);
+
+      const response = await request(app)
+        .get('/api/capa?page=2&limit=10')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.page).toBe(2);
+      expect(response.body.meta.limit).toBe(10);
+      expect(response.body.meta.totalPages).toBe(10);
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/capa?status=OPEN')
+        .set('Authorization', 'Bearer token');
+
       expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          include: { actions: { orderBy: { sortOrder: 'asc' } } },
+          where: expect.objectContaining({
+            status: 'OPEN',
+          }),
+        })
+      );
+    });
+
+    it('should filter by capaType', async () => {
+      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/capa?capaType=CORRECTIVE')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            capaType: 'CORRECTIVE',
+          }),
+        })
+      );
+    });
+
+    it('should filter by source', async () => {
+      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/capa?source=INCIDENT')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            source: 'INCIDENT',
+          }),
         })
       );
     });
@@ -91,37 +168,46 @@ describe('Health & Safety CAPA API', () => {
 
       expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ priority: 'CRITICAL' }),
+          where: expect.objectContaining({
+            priority: 'CRITICAL',
+          }),
         })
       );
     });
 
-    it('should filter by capaType', async () => {
+    it('should support search by title, problemStatement, or referenceNumber', async () => {
       (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/capa?capaType=PREVENTIVE')
+        .get('/api/capa?search=incident')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ capaType: 'PREVENTIVE' }),
+          where: expect.objectContaining({
+            OR: expect.arrayContaining([
+              expect.objectContaining({ title: { contains: 'incident', mode: 'insensitive' } }),
+              expect.objectContaining({ problemStatement: { contains: 'incident', mode: 'insensitive' } }),
+              expect.objectContaining({ referenceNumber: { contains: 'incident', mode: 'insensitive' } }),
+            ]),
+          }),
         })
       );
     });
 
-    it('should filter by source', async () => {
-      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(0);
+    it('should order by createdAt descending and include actions', async () => {
+      (mockPrisma.capa.findMany as jest.Mock).mockResolvedValueOnce(mockCapas);
+      (mockPrisma.capa.count as jest.Mock).mockResolvedValueOnce(2);
 
       await request(app)
-        .get('/api/capa?source=AUDIT')
+        .get('/api/capa')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.capa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ source: 'AUDIT' }),
+          orderBy: { createdAt: 'desc' },
+          include: { actions: { orderBy: { sortOrder: 'asc' } } },
         })
       );
     });
@@ -139,19 +225,39 @@ describe('Health & Safety CAPA API', () => {
   });
 
   describe('GET /api/capa/:id', () => {
+    const mockCapa = {
+      id: 'capa-1',
+      referenceNumber: 'CAPA-001',
+      title: 'Corrective action',
+      capaType: 'CORRECTIVE',
+      status: 'OPEN',
+      actions: [{ id: 'action-1', title: 'Action 1', sortOrder: 0 }],
+    };
+
     it('should return single CAPA with actions', async () => {
-      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
-        title: 'Fix guarding',
-        actions: [{ id: 'action-1', title: 'Install guard' }],
-      });
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
 
       const response = await request(app)
         .get('/api/capa/capa-1')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe('capa-1');
       expect(response.body.data.actions).toHaveLength(1);
+    });
+
+    it('should include actions ordered by sortOrder', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
+
+      await request(app)
+        .get('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.capa.findUnique).toHaveBeenCalledWith({
+        where: { id: 'capa-1' },
+        include: { actions: { orderBy: { sortOrder: 'asc' } } },
+      });
     });
 
     it('should return 404 for non-existent CAPA', async () => {
@@ -164,32 +270,36 @@ describe('Health & Safety CAPA API', () => {
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
   });
 
   describe('POST /api/capa', () => {
     const createPayload = {
-      title: 'Fix machine guarding',
+      title: 'New CAPA',
       capaType: 'CORRECTIVE',
       source: 'INCIDENT',
       priority: 'HIGH',
-      problemStatement: 'Machine guard was removed',
-      actions: [
-        { title: 'Install new guard', type: 'CORRECTIVE', owner: 'John' },
-        { title: 'Training on lockout', type: 'PREVENTIVE', owner: 'Jane' },
-      ],
+      problemStatement: 'Something went wrong',
     };
 
-    it('should create CAPA with actions and auto ref#', async () => {
+    it('should create a CAPA successfully', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
         id: 'mock-uuid-123',
         referenceNumber: 'CAPA-001',
         ...createPayload,
         status: 'OPEN',
-        actions: [
-          { id: 'a1', title: 'Install new guard' },
-          { id: 'a2', title: 'Training on lockout' },
-        ],
+        actions: [],
       });
 
       const response = await request(app)
@@ -199,16 +309,70 @@ describe('Health & Safety CAPA API', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe(createPayload.title);
+    });
+
+    it('should generate reference number from last CAPA', async () => {
+      (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce({
+        referenceNumber: 'CAPA-005',
+      });
+      (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
+        id: 'mock-uuid-123',
+        referenceNumber: 'CAPA-006',
+        ...createPayload,
+        status: 'OPEN',
+        actions: [],
+      });
+
+      const response = await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
       expect(mockPrisma.capa.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            referenceNumber: 'CAPA-001',
-            status: 'OPEN',
-            createdBy: 'user-123',
+            referenceNumber: 'CAPA-006',
+          }),
+        })
+      );
+    });
+
+    it('should create CAPA with nested actions', async () => {
+      const payloadWithActions = {
+        ...createPayload,
+        actions: [
+          { title: 'Immediate action', type: 'IMMEDIATE' },
+          { title: 'Corrective action', type: 'CORRECTIVE' },
+        ],
+      };
+
+      (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
+        id: 'mock-uuid-123',
+        referenceNumber: 'CAPA-001',
+        ...createPayload,
+        status: 'OPEN',
+        actions: [
+          { id: 'mock-uuid-123', title: 'Immediate action', type: 'IMMEDIATE', sortOrder: 0 },
+          { id: 'mock-uuid-123', title: 'Corrective action', type: 'CORRECTIVE', sortOrder: 1 },
+        ],
+      });
+
+      const response = await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send(payloadWithActions);
+
+      expect(response.status).toBe(201);
+      expect(mockPrisma.capa.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
             actions: expect.objectContaining({
               create: expect.arrayContaining([
-                expect.objectContaining({ title: 'Install new guard', sortOrder: 0 }),
-                expect.objectContaining({ title: 'Training on lockout', sortOrder: 1 }),
+                expect.objectContaining({ title: 'Immediate action', type: 'IMMEDIATE', sortOrder: 0 }),
+                expect.objectContaining({ title: 'Corrective action', type: 'CORRECTIVE', sortOrder: 1 }),
               ]),
             }),
           }),
@@ -216,23 +380,29 @@ describe('Health & Safety CAPA API', () => {
       );
     });
 
-    it('should auto-set target date from HIGH priority (14 days)', async () => {
+    it('should set status to OPEN and createdBy from user', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
         id: 'mock-uuid-123',
-        priority: 'HIGH',
+        ...createPayload,
+        status: 'OPEN',
+        createdBy: 'user-123',
+        actions: [],
       });
 
       await request(app)
         .post('/api/capa')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Test', capaType: 'CORRECTIVE', source: 'INCIDENT', priority: 'HIGH' });
+        .send(createPayload);
 
-      const createCall = (mockPrisma.capa.create as jest.Mock).mock.calls[0][0];
-      const targetDate = createCall.data.targetCompletionDate;
-      const daysDiff = Math.round((targetDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
-      expect(daysDiff).toBeGreaterThanOrEqual(13);
-      expect(daysDiff).toBeLessThanOrEqual(15);
+      expect(mockPrisma.capa.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'OPEN',
+            createdBy: 'user-123',
+          }),
+        })
+      );
     });
 
     it('should auto-set target date from CRITICAL priority (7 days)', async () => {
@@ -240,12 +410,13 @@ describe('Health & Safety CAPA API', () => {
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
         id: 'mock-uuid-123',
         priority: 'CRITICAL',
+        actions: [],
       });
 
       await request(app)
         .post('/api/capa')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Test', capaType: 'CORRECTIVE', source: 'INCIDENT', priority: 'CRITICAL' });
+        .send({ title: 'Urgent', capaType: 'CORRECTIVE', source: 'INCIDENT', priority: 'CRITICAL' });
 
       const createCall = (mockPrisma.capa.create as jest.Mock).mock.calls[0][0];
       const targetDate = createCall.data.targetCompletionDate;
@@ -254,11 +425,32 @@ describe('Health & Safety CAPA API', () => {
       expect(daysDiff).toBeLessThanOrEqual(8);
     });
 
-    it('should default priority to MEDIUM (30 days) when not specified', async () => {
+    it('should auto-set target date from HIGH priority (14 days)', async () => {
+      (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
+        id: 'mock-uuid-123',
+        priority: 'HIGH',
+        actions: [],
+      });
+
+      await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'High', capaType: 'CORRECTIVE', source: 'INCIDENT', priority: 'HIGH' });
+
+      const createCall = (mockPrisma.capa.create as jest.Mock).mock.calls[0][0];
+      const targetDate = createCall.data.targetCompletionDate;
+      const daysDiff = Math.round((targetDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+      expect(daysDiff).toBeGreaterThanOrEqual(13);
+      expect(daysDiff).toBeLessThanOrEqual(15);
+    });
+
+    it('should default priority to MEDIUM when not specified', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
         id: 'mock-uuid-123',
         priority: 'MEDIUM',
+        actions: [],
       });
 
       await request(app)
@@ -273,11 +465,31 @@ describe('Health & Safety CAPA API', () => {
       );
     });
 
-    it('should return 400 for missing required fields', async () => {
+    it('should return 400 for missing title', async () => {
       const response = await request(app)
         .post('/api/capa')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'No type or source' });
+        .send({ capaType: 'CORRECTIVE', source: 'INCIDENT' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for missing capaType', async () => {
+      const response = await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Missing type', source: 'INCIDENT' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for missing source', async () => {
+      const response = await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Missing source', capaType: 'CORRECTIVE' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -287,53 +499,71 @@ describe('Health & Safety CAPA API', () => {
       const response = await request(app)
         .post('/api/capa')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Test', capaType: 'INVALID', source: 'INCIDENT' });
+        .send({ title: 'Bad type', capaType: 'INVALID', source: 'INCIDENT' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.capa.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/capa')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
   });
 
   describe('PATCH /api/capa/:id', () => {
-    const existing = {
+    const existingCapa = {
       id: 'capa-1',
+      referenceNumber: 'CAPA-001',
       title: 'Existing CAPA',
+      capaType: 'CORRECTIVE',
       status: 'OPEN',
     };
 
-    it('should update CAPA', async () => {
-      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existing);
+    it('should update CAPA successfully', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
       (mockPrisma.capa.update as jest.Mock).mockResolvedValueOnce({
-        ...existing,
-        title: 'Updated',
+        ...existingCapa,
+        title: 'Updated CAPA',
+        actions: [],
       });
 
       const response = await request(app)
         .patch('/api/capa/capa-1')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Updated' });
+        .send({ title: 'Updated CAPA' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
-    it('should set closedDate and closedBy when status CLOSED', async () => {
-      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existing);
+    it('should set closedDate and closedBy when status is CLOSED', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
       (mockPrisma.capa.update as jest.Mock).mockResolvedValueOnce({
-        ...existing,
+        ...existingCapa,
         status: 'CLOSED',
         closedDate: new Date(),
         closedBy: 'user-123',
+        actions: [],
       });
 
       await request(app)
         .patch('/api/capa/capa-1')
         .set('Authorization', 'Bearer token')
-        .send({ status: 'CLOSED', closureNotes: 'Verified effective', effectivenessRating: 'EFFECTIVE' });
+        .send({ status: 'CLOSED', closureNotes: 'Verified effective' });
 
       expect(mockPrisma.capa.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
+            status: 'CLOSED',
             closedDate: expect.any(Date),
             closedBy: 'user-123',
           }),
@@ -352,10 +582,46 @@ describe('Health & Safety CAPA API', () => {
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
+
+    it('should return 400 for invalid status value', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid capaType', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token')
+        .send({ capaType: 'INVALID_TYPE' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
   });
 
   describe('DELETE /api/capa/:id', () => {
-    it('should delete CAPA (cascades actions)', async () => {
+    it('should delete CAPA successfully', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
       (mockPrisma.capa.delete as jest.Mock).mockResolvedValueOnce({});
 
@@ -365,6 +631,9 @@ describe('Health & Safety CAPA API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
+      expect(mockPrisma.capa.delete).toHaveBeenCalledWith({
+        where: { id: 'capa-1' },
+      });
     });
 
     it('should return 404 for non-existent CAPA', async () => {
@@ -375,35 +644,72 @@ describe('Health & Safety CAPA API', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/capa/capa-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
 
   describe('POST /api/capa/:id/actions', () => {
-    it('should add action to CAPA', async () => {
+    const actionPayload = {
+      title: 'New action',
+      type: 'IMMEDIATE',
+      owner: 'John Doe',
+    };
+
+    it('should add action to CAPA successfully', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
         id: 'capa-1',
-        actions: [{ id: 'a1' }],
+        actions: [{ id: 'existing-1' }],
       });
       (mockPrisma.capaAction.create as jest.Mock).mockResolvedValueOnce({
         id: 'mock-uuid-123',
-        title: 'New action',
+        capaId: 'capa-1',
+        ...actionPayload,
         sortOrder: 1,
       });
 
       const response = await request(app)
         .post('/api/capa/capa-1/actions')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'New action', type: 'CORRECTIVE' });
+        .send(actionPayload);
 
       expect(response.status).toBe(201);
-      expect(mockPrisma.capaAction.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          capaId: 'capa-1',
-          title: 'New action',
-          type: 'CORRECTIVE',
-          sortOrder: 1,
-        }),
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('New action');
+    });
+
+    it('should set sortOrder based on existing actions count', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'capa-1',
+        actions: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }],
       });
+      (mockPrisma.capaAction.create as jest.Mock).mockResolvedValueOnce({
+        id: 'mock-uuid-123',
+        sortOrder: 3,
+      });
+
+      await request(app)
+        .post('/api/capa/capa-1/actions')
+        .set('Authorization', 'Bearer token')
+        .send(actionPayload);
+
+      expect(mockPrisma.capaAction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            sortOrder: 3,
+          }),
+        })
+      );
     });
 
     it('should return 404 if CAPA not found', async () => {
@@ -412,51 +718,179 @@ describe('Health & Safety CAPA API', () => {
       const response = await request(app)
         .post('/api/capa/non-existent/actions')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Action', type: 'CORRECTIVE' });
+        .send(actionPayload);
 
       expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for missing title', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'capa-1',
+        actions: [],
+      });
+
+      const response = await request(app)
+        .post('/api/capa/capa-1/actions')
+        .set('Authorization', 'Bearer token')
+        .send({ type: 'IMMEDIATE' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for missing type', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'capa-1',
+        actions: [],
+      });
+
+      const response = await request(app)
+        .post('/api/capa/capa-1/actions')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Missing type' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'capa-1',
+        actions: [],
+      });
+      (mockPrisma.capaAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/capa/capa-1/actions')
+        .set('Authorization', 'Bearer token')
+        .send(actionPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
 
   describe('PATCH /api/capa/:id/actions/:aid', () => {
-    it('should update action and set completedAt on COMPLETED', async () => {
-      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'action-1',
-        capaId: 'capa-1',
-      });
+    const existingAction = {
+      id: 'action-1',
+      capaId: 'capa-1',
+      title: 'Existing action',
+      type: 'IMMEDIATE',
+      status: 'OPEN',
+    };
+
+    it('should update CAPA action successfully', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(existingAction);
       (mockPrisma.capaAction.update as jest.Mock).mockResolvedValueOnce({
-        id: 'action-1',
+        ...existingAction,
+        title: 'Updated action',
+      });
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1/actions/action-1')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated action' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should set completedAt when status is COMPLETED', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(existingAction);
+      (mockPrisma.capaAction.update as jest.Mock).mockResolvedValueOnce({
+        ...existingAction,
         status: 'COMPLETED',
         completedAt: new Date(),
       });
 
-      const response = await request(app)
+      await request(app)
         .patch('/api/capa/capa-1/actions/action-1')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
-      expect(response.status).toBe(200);
-      expect(mockPrisma.capaAction.update).toHaveBeenCalledWith({
-        where: { id: 'action-1' },
-        data: expect.objectContaining({
-          status: 'COMPLETED',
-          completedAt: expect.any(Date),
-        }),
-      });
+      expect(mockPrisma.capaAction.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'COMPLETED',
+            completedAt: expect.any(Date),
+          }),
+        })
+      );
     });
 
-    it('should return 404 if action not found or wrong CAPA', async () => {
+    it('should set completedAt when status is VERIFIED', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(existingAction);
+      (mockPrisma.capaAction.update as jest.Mock).mockResolvedValueOnce({
+        ...existingAction,
+        status: 'VERIFIED',
+        completedAt: new Date(),
+      });
+
+      await request(app)
+        .patch('/api/capa/capa-1/actions/action-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'VERIFIED' });
+
+      expect(mockPrisma.capaAction.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'VERIFIED',
+            completedAt: expect.any(Date),
+          }),
+        })
+      );
+    });
+
+    it('should return 404 if action not found', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1/actions/non-existent')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 404 if action belongs to different CAPA', async () => {
       (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'action-1',
-        capaId: 'capa-OTHER',
+        ...existingAction,
+        capaId: 'different-capa',
       });
 
       const response = await request(app)
         .patch('/api/capa/capa-1/actions/action-1')
         .set('Authorization', 'Bearer token')
-        .send({ status: 'COMPLETED' });
+        .send({ title: 'Updated' });
 
       expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for invalid status value', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(existingAction);
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1/actions/action-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.capaAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .patch('/api/capa/capa-1/actions/action-1')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
 });

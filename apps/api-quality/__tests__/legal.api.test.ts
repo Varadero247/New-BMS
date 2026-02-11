@@ -1,0 +1,463 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    qualLegal: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid-123'),
+}));
+
+import { prisma } from '../src/prisma';
+import legalRoutes from '../src/routes/legal';
+
+const mockPrisma = prisma as any;
+
+describe('Quality Legal Obligations API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/legal', () => {
+    const mockLegalItems = [
+      {
+        id: 'leg-1',
+        referenceNumber: 'QMS-LEG-2026-001',
+        title: 'ISO 9001:2015 Certification',
+        obligationType: 'CERTIFICATION_REQUIREMENT',
+        complianceStatus: 'COMPLIANT',
+        status: 'ACTIVE',
+        description: 'Maintain ISO 9001 certification',
+        createdAt: new Date('2024-01-15'),
+      },
+      {
+        id: 'leg-2',
+        referenceNumber: 'QMS-LEG-2026-002',
+        title: 'Customer Contract Quality Requirements',
+        obligationType: 'CUSTOMER_CONTRACT',
+        complianceStatus: 'PARTIALLY_COMPLIANT',
+        status: 'ACTIVE',
+        description: 'Meet contractual quality standards',
+        createdAt: new Date('2024-01-14'),
+      },
+    ];
+
+    it('should return list of legal obligations with pagination', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce(mockLegalItems);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(2);
+
+      const response = await request(app)
+        .get('/api/legal')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.items).toHaveLength(2);
+      expect(response.body.data).toMatchObject({
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+      });
+    });
+
+    it('should support pagination parameters', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([mockLegalItems[0]]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(50);
+
+      const response = await request(app)
+        .get('/api/legal?page=3&limit=10')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.page).toBe(3);
+      expect(response.body.data.limit).toBe(10);
+      expect(response.body.data.totalPages).toBe(5);
+    });
+
+    it('should filter by obligationType', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?obligationType=REGULATORY')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            obligationType: 'REGULATORY',
+          }),
+        })
+      );
+    });
+
+    it('should filter by complianceStatus', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?complianceStatus=NON_COMPLIANT')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            complianceStatus: 'NON_COMPLIANT',
+          }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?status=EXPIRED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'EXPIRED',
+          }),
+        })
+      );
+    });
+
+    it('should support search filter', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?search=ISO')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            title: { contains: 'ISO', mode: 'insensitive' },
+          }),
+        })
+      );
+    });
+
+    it('should order by createdAt descending', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce(mockLegalItems);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(2);
+
+      await request(app)
+        .get('/api/legal')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { createdAt: 'desc' },
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.qualLegal.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/legal')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/legal/:id', () => {
+    const mockLegal = {
+      id: 'leg-1',
+      referenceNumber: 'QMS-LEG-2026-001',
+      title: 'ISO 9001:2015 Certification',
+      obligationType: 'CERTIFICATION_REQUIREMENT',
+      complianceStatus: 'COMPLIANT',
+      status: 'ACTIVE',
+      description: 'Maintain ISO 9001 certification',
+    };
+
+    it('should return single legal obligation', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(mockLegal);
+
+      const response = await request(app)
+        .get('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe('leg-1');
+    });
+
+    it('should return 404 for non-existent legal obligation', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .get('/api/legal/non-existent')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/legal', () => {
+    const createPayload = {
+      title: 'New Regulatory Requirement',
+      obligationType: 'REGULATORY',
+      description: 'New government regulation on product safety',
+    };
+
+    it('should create a legal obligation successfully', async () => {
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+      mockPrisma.qualLegal.create.mockResolvedValueOnce({
+        id: 'new-leg-123',
+        ...createPayload,
+        referenceNumber: 'QMS-LEG-2026-001',
+        complianceStatus: 'NOT_ASSESSED',
+        status: 'ACTIVE',
+        reviewFrequency: 'ANNUALLY',
+      });
+
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe(createPayload.title);
+    });
+
+    it('should generate a reference number', async () => {
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(4);
+      mockPrisma.qualLegal.create.mockResolvedValueOnce({
+        id: 'new-leg-123',
+        referenceNumber: 'QMS-LEG-2026-005',
+      });
+
+      await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(mockPrisma.qualLegal.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^QMS-LEG-\d{4}-\d{3}$/),
+        }),
+      });
+    });
+
+    it('should return 400 for missing title', async () => {
+      const { title, ...payload } = createPayload;
+
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send(payload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for missing description', async () => {
+      const { description, ...payload } = createPayload;
+
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send(payload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid obligationType', async () => {
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, obligationType: 'INVALID_TYPE' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+      mockPrisma.qualLegal.create.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/legal/:id', () => {
+    const existingLegal = {
+      id: 'leg-1',
+      title: 'Existing Legal Obligation',
+      status: 'ACTIVE',
+      complianceStatus: 'NOT_ASSESSED',
+    };
+
+    it('should update legal obligation successfully', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
+      mockPrisma.qualLegal.update.mockResolvedValueOnce({
+        ...existingLegal,
+        title: 'Updated Title',
+      });
+
+      const response = await request(app)
+        .put('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated Title' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return 404 for non-existent legal obligation', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/legal/non-existent')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for invalid complianceStatus', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
+
+      const response = await request(app)
+        .put('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token')
+        .send({ complianceStatus: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid status', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
+
+      const response = await request(app)
+        .put('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid reviewFrequency', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
+
+      const response = await request(app)
+        .put('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token')
+        .send({ reviewFrequency: 'INVALID_FREQUENCY' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Updated' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('DELETE /api/legal/:id', () => {
+    it('should delete legal obligation successfully', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({ id: 'leg-1' });
+      mockPrisma.qualLegal.delete.mockResolvedValueOnce({});
+
+      const response = await request(app)
+        .delete('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(mockPrisma.qualLegal.delete).toHaveBeenCalledWith({
+        where: { id: 'leg-1' },
+      });
+    });
+
+    it('should return 404 for non-existent legal obligation', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .delete('/api/legal/non-existent')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors', async () => {
+      mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/legal/leg-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});
