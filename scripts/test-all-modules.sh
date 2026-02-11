@@ -15,6 +15,7 @@ MODULES=(
   "test-payroll-modules.sh:Payroll"
   "test-inventory-modules.sh:Inventory"
   "test-workflows-modules.sh:Workflows"
+  "test-pm-modules.sh:Project Management"
 )
 
 TOTAL_MODULES=0

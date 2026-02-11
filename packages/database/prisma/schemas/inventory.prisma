@@ -35,7 +35,7 @@ model ProductCategory {
   products    Product[]
 
   @@index([parentId])
-  @@map("inv_product_categories")
+  @@map("product_categories")
 }
 
 // ============================================
@@ -74,7 +74,7 @@ model Supplier {
   products    Product[]
 
   @@index([status])
-  @@map("inv_suppliers")
+  @@map("suppliers")
 }
 
 enum SupplierStatus {
@@ -150,7 +150,7 @@ model Product {
   @@index([categoryId])
   @@index([supplierId])
   @@index([status])
-  @@map("inv_products")
+  @@map("products")
 }
 
 enum ProductStatus {
@@ -201,7 +201,7 @@ model Warehouse {
   sourceTransfers InventoryTransaction[] @relation("TransferSource")
   destTransfers   InventoryTransaction[] @relation("TransferDestination")
 
-  @@map("inv_warehouses")
+  @@map("warehouses")
 }
 
 // ============================================
@@ -252,7 +252,7 @@ model Inventory {
   @@unique([productId, warehouseId])
   @@index([warehouseId])
   @@index([quantityOnHand])
-  @@map("inv_inventory")
+  @@map("inventory")
 }
 
 // ============================================
@@ -308,7 +308,7 @@ model InventoryTransaction {
   @@index([transactionType])
   @@index([transactionDate])
   @@index([referenceType, referenceId])
-  @@map("inv_transactions")
+  @@map("inventory_transactions")
 }
 
 enum TransactionType {
@@ -369,7 +369,7 @@ model StockCount {
 
   @@index([status])
   @@index([scheduledDate])
-  @@map("inv_stock_counts")
+  @@map("stock_counts")
 }
 
 enum CountType {
@@ -425,7 +425,7 @@ model StockCountItem {
 
   @@index([stockCountId])
   @@index([productId])
-  @@map("inv_stock_count_items")
+  @@map("stock_count_items")
 }
 
 enum CountItemStatus {
@@ -482,7 +482,7 @@ model PurchaseOrder {
   @@index([status])
   @@index([supplierId])
   @@index([orderDate])
-  @@map("inv_purchase_orders")
+  @@map("purchase_orders")
 }
 
 enum POStatus {
@@ -527,7 +527,7 @@ model PurchaseOrderItem {
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
 
   @@index([purchaseOrderId])
-  @@map("inv_purchase_order_items")
+  @@map("purchase_order_items")
 }
 
 enum POItemStatus {
@@ -573,7 +573,7 @@ model GoodsReceipt {
 
   @@index([status])
   @@index([purchaseOrderId])
-  @@map("inv_goods_receipts")
+  @@map("goods_receipts")
 }
 
 enum ReceiptStatus {
@@ -616,7 +616,7 @@ model GoodsReceiptItem {
   goodsReceipt    GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
 
   @@index([goodsReceiptId])
-  @@map("inv_goods_receipt_items")
+  @@map("goods_receipt_items")
 }
 
 enum QualityStatus {

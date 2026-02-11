@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label, Textarea } from '@ims/ui';
 import { Plus, Building2, Users, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -16,9 +16,28 @@ interface Department {
   _count?: { employees: number; children: number; positions: number };
 }
 
+const initialFormState = {
+  code: '',
+  name: '',
+  description: '',
+  headId: '',
+  parentId: '',
+  budget: '',
+  costCenter: '',
+  location: '',
+  isActive: true,
+};
+
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [formData, setFormData] = useState(initialFormState);
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [employees, setEmployees] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
 
   useEffect(() => {
     loadDepartments();
@@ -32,6 +51,75 @@ export default function DepartmentsPage() {
       console.error('Error loading departments:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadEmployees() {
+    try {
+      const res = await api.get('/employees?limit=200');
+      setEmployees(res.data.data || []);
+    } catch (error) {
+      console.error('Error loading employees:', error);
+    }
+  }
+
+  function openCreateModal() {
+    setFormData(initialFormState);
+    setFormError('');
+    setCreateModalOpen(true);
+    loadEmployees();
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  }
+
+  async function handleCreate() {
+    setFormError('');
+
+    if (!formData.code.trim()) {
+      setFormError('Department code is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      setFormError('Department name is required');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload: Record<string, any> = {
+        code: formData.code,
+        name: formData.name,
+      };
+
+      if (formData.description) payload.description = formData.description;
+      if (formData.headId) payload.headId = formData.headId;
+      if (formData.parentId) payload.parentId = formData.parentId;
+      if (formData.budget) payload.budget = parseFloat(formData.budget);
+      if (formData.costCenter) payload.costCenter = formData.costCenter;
+
+      await api.post('/departments', payload);
+      setCreateModalOpen(false);
+      setFormData(initialFormState);
+      loadDepartments();
+    } catch (error: any) {
+      const msg = error?.response?.data?.error?.message;
+      if (Array.isArray(msg)) {
+        setFormError(msg.map((e: any) => e.message).join(', '));
+      } else if (typeof msg === 'string') {
+        setFormError(msg);
+      } else {
+        setFormError('Failed to create department. Please try again.');
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -61,11 +149,9 @@ export default function DepartmentsPage() {
             <h1 className="text-3xl font-bold text-gray-900">Departments</h1>
             <p className="text-gray-500 mt-1">Organizational structure</p>
           </div>
-          <Link href="/departments/new">
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" /> Add Department
-            </Button>
-          </Link>
+          <Button className="flex items-center gap-2" onClick={openCreateModal}>
+            <Plus className="h-4 w-4" /> Add Department
+          </Button>
         </div>
 
         {/* Stats */}
@@ -166,6 +252,149 @@ export default function DepartmentsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Create Department Modal */}
+      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Department" size="lg">
+        <div className="max-h-[70vh] overflow-y-auto pr-2">
+          {formError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="code">Department Code *</Label>
+                <Input
+                  id="code"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  placeholder="e.g. HR, ENG, FIN"
+                />
+              </div>
+              <div>
+                <Label htmlFor="name">Department Name *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Department name"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Brief description of the department"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="headId">Department Head</Label>
+                <select
+                  id="headId"
+                  name="headId"
+                  value={formData.headId}
+                  onChange={handleChange}
+                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">Select department head</option>
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="parentId">Parent Department</Label>
+                <select
+                  id="parentId"
+                  name="parentId"
+                  value={formData.parentId}
+                  onChange={handleChange}
+                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">None (Top-level)</option>
+                  {departments.map(dept => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="budget">Budget</Label>
+                <Input
+                  id="budget"
+                  name="budget"
+                  type="number"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div>
+                <Label htmlFor="costCenter">Cost Center</Label>
+                <Input
+                  id="costCenter"
+                  name="costCenter"
+                  value={formData.costCenter}
+                  onChange={handleChange}
+                  placeholder="e.g. CC-100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Office location"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                id="isActive"
+                name="isActive"
+                type="checkbox"
+                checked={formData.isActive}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <Label htmlFor="isActive">Active</Label>
+            </div>
+          </div>
+        </div>
+
+        <ModalFooter>
+          <Button
+            variant="outline"
+            onClick={() => setCreateModalOpen(false)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Department'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }

@@ -41,6 +41,7 @@ start_service "@ims/api-inventory" "api-inventory" "Inventory API"
 start_service "@ims/api-hr" "api-hr" "HR API"
 start_service "@ims/api-payroll" "api-payroll" "Payroll API"
 start_service "@ims/api-workflows" "api-workflows" "Workflows API"
+start_service "@ims/api-project-management" "api-project-management" "Project Management API"
 
 sleep 3  # Give APIs time to start
 
@@ -64,6 +65,8 @@ sleep 2
 start_service "@ims/web-payroll" "web-payroll" "Payroll Web"
 sleep 2
 start_service "@ims/web-workflows" "web-workflows" "Workflows Web"
+sleep 2
+start_service "@ims/web-project-management" "web-project-management" "Project Management Web"
 
 echo ""
 echo "All services starting..."
@@ -79,6 +82,7 @@ echo "  Inventory:          http://localhost:3005 (API: 4005)"
 echo "  HR:                 http://localhost:3006 (API: 4006)"
 echo "  Payroll:            http://localhost:3007 (API: 4007)"
 echo "  Workflows:          http://localhost:3008 (API: 4008)"
+echo "  Project Management: http://localhost:3009 (API: 4009)"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"

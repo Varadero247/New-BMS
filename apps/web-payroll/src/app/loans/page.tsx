@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, CreditCard, DollarSign, Clock, CheckCircle, Users } from 'lucide-react';
-import api from '@/lib/api';
+import { Plus, CreditCard, DollarSign, Clock, CheckCircle, Users, Sparkles } from 'lucide-react';
+import api, { aiApi } from '@/lib/api';
+import { Modal } from '@ims/ui';
 
 interface Loan {
   id: string;
@@ -31,6 +32,19 @@ export default function LoansPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<any | null>(null);
+  const [formData, setFormData] = useState({
+    employeeId: '',
+    loanType: 'PERSONAL_LOAN',
+    principalAmount: '',
+    interestRate: '0',
+    termMonths: '',
+    startDate: '',
+    paymentFrequency: 'MONTHLY',
+    purpose: '',
+  });
 
   useEffect(() => {
     fetchLoans();
@@ -66,6 +80,33 @@ export default function LoansPage() {
       fetchLoans();
     } catch (error) {
       console.error('Error disbursing loan:', error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/loans', {
+        ...formData,
+        principalAmount: parseFloat(formData.principalAmount),
+        interestRate: parseFloat(formData.interestRate),
+        termMonths: parseInt(formData.termMonths, 10),
+        purpose: formData.purpose || undefined,
+      });
+      setShowModal(false);
+      setFormData({
+        employeeId: '',
+        loanType: 'PERSONAL_LOAN',
+        principalAmount: '',
+        interestRate: '0',
+        termMonths: '',
+        startDate: '',
+        paymentFrequency: 'MONTHLY',
+        purpose: '',
+      });
+      fetchLoans();
+    } catch (error) {
+      console.error('Error creating loan:', error);
     }
   };
 
@@ -113,11 +154,153 @@ export default function LoansPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Loan Management</h1>
-        <button className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-          <Plus className="h-5 w-5" />
-          <span>New Loan</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={async () => {
+              setAiLoading(true);
+              setAiResult(null);
+              try {
+                const res = await aiApi.post('/analyze', {
+                  type: 'LOAN_CALCULATOR',
+                  context: {
+                    amount: loans[0]?.principalAmount || 10000,
+                    interestRate: loans[0]?.interestRate || 5,
+                    termMonths: loans[0]?.termMonths || 12,
+                    currency: 'USD',
+                    loanType: loans[0]?.loanType || 'PERSONAL',
+                  },
+                });
+                setAiResult(res.data.data.result);
+              } catch (error) {
+                console.error('AI analysis error:', error);
+              } finally {
+                setAiLoading(false);
+              }
+            }}
+            disabled={aiLoading}
+            className="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
+          >
+            <Sparkles className="h-5 w-5" />
+            <span>{aiLoading ? 'Calculating...' : 'AI Calculate'}</span>
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+          >
+            <Plus className="h-5 w-5" />
+            <span>New Loan</span>
+          </button>
+        </div>
       </div>
+
+      {/* AI Result */}
+      {aiResult && (
+        <div className="rounded-lg border-2 border-green-400 bg-green-50 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="flex items-center space-x-2 text-lg font-semibold text-green-800">
+              <Sparkles className="h-5 w-5" />
+              <span>AI Loan Calculation</span>
+            </h3>
+            <button
+              onClick={() => setAiResult(null)}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Dismiss
+            </button>
+          </div>
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-lg bg-white p-3 shadow-sm">
+                <p className="text-xs text-gray-500">Monthly Payment</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {aiResult.monthlyPayment != null
+                    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.monthlyPayment)
+                    : 'N/A'}
+                </p>
+              </div>
+              <div className="rounded-lg bg-white p-3 shadow-sm">
+                <p className="text-xs text-gray-500">Total Interest</p>
+                <p className="text-lg font-bold text-red-600">
+                  {aiResult.totalInterest != null
+                    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.totalInterest)
+                    : 'N/A'}
+                </p>
+              </div>
+              <div className="rounded-lg bg-white p-3 shadow-sm">
+                <p className="text-xs text-gray-500">Total Repayment</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {aiResult.totalRepayment != null
+                    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.totalRepayment)
+                    : 'N/A'}
+                </p>
+              </div>
+            </div>
+            {aiResult.affordability && (
+              <div className="rounded-lg bg-white p-3 shadow-sm">
+                <p className="text-sm font-medium text-gray-700">Affordability</p>
+                <p className="text-sm text-gray-600">
+                  {typeof aiResult.affordability === 'string'
+                    ? aiResult.affordability
+                    : aiResult.affordability.assessment || aiResult.affordability.summary || JSON.stringify(aiResult.affordability)}
+                </p>
+              </div>
+            )}
+            {aiResult.recommendations && aiResult.recommendations.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700">Recommendations:</p>
+                <ul className="mt-1 list-inside list-disc text-sm text-gray-600">
+                  {aiResult.recommendations.map((r: string, i: number) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {aiResult.schedule && aiResult.schedule.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700">Amortization Schedule (First 3 Months):</p>
+                <table className="mt-1 w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-gray-500">
+                      <th className="pb-1 pr-4">Month</th>
+                      <th className="pb-1 pr-4">Payment</th>
+                      <th className="pb-1 pr-4">Principal</th>
+                      <th className="pb-1 pr-4">Interest</th>
+                      <th className="pb-1">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {aiResult.schedule.slice(0, 3).map((row: any, i: number) => (
+                      <tr key={i} className="text-gray-600">
+                        <td className="pr-4">{row.month || i + 1}</td>
+                        <td className="pr-4">
+                          {row.payment != null
+                            ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row.payment)
+                            : 'N/A'}
+                        </td>
+                        <td className="pr-4">
+                          {row.principal != null
+                            ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row.principal)
+                            : 'N/A'}
+                        </td>
+                        <td className="pr-4">
+                          {row.interest != null
+                            ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row.interest)
+                            : 'N/A'}
+                        </td>
+                        <td>
+                          {row.balance != null
+                            ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row.balance)
+                            : 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex items-center space-x-4">
@@ -311,6 +494,124 @@ export default function LoansPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Create Loan Modal */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New Loan" size="lg">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+              <input
+                type="text"
+                value={formData.employeeId}
+                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                placeholder="Employee UUID"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Loan Type</label>
+              <select
+                value={formData.loanType}
+                onChange={(e) => setFormData({ ...formData, loanType: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              >
+                <option value="SALARY_ADVANCE">Salary Advance</option>
+                <option value="PERSONAL_LOAN">Personal Loan</option>
+                <option value="EMERGENCY_LOAN">Emergency Loan</option>
+                <option value="HOUSING_LOAN">Housing Loan</option>
+                <option value="VEHICLE_LOAN">Vehicle Loan</option>
+                <option value="EDUCATION_LOAN">Education Loan</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Principal Amount</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.principalAmount}
+                onChange={(e) => setFormData({ ...formData, principalAmount: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.interestRate}
+                onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Term (Months)</label>
+              <input
+                type="number"
+                value={formData.termMonths}
+                onChange={(e) => setFormData({ ...formData, termMonths: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Start Date</label>
+              <input
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Payment Frequency</label>
+            <select
+              value={formData.paymentFrequency}
+              onChange={(e) => setFormData({ ...formData, paymentFrequency: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+            >
+              <option value="WEEKLY">Weekly</option>
+              <option value="BIWEEKLY">Biweekly</option>
+              <option value="SEMI_MONTHLY">Semi-Monthly</option>
+              <option value="MONTHLY">Monthly</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Purpose (Optional)</label>
+            <textarea
+              value={formData.purpose}
+              onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              rows={2}
+            />
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            >
+              Create Loan
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

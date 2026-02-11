@@ -12,13 +12,14 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
-import { prisma } from '@ims/database';
+import { prisma } from './prisma';
 
 const logger = createLogger('api-ai-analysis');
 
 import analyseRouter from './routes/analyse';
 import analysesRouter from './routes/analyses';
 import settingsRouter from './routes/settings';
+import analyzeRouter from './routes/analyze';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4004;
@@ -38,6 +39,7 @@ app.get('/metrics', metricsHandler);
 app.use('/api/analyse', analyseRouter);
 app.use('/api/analyses', analysesRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/analyze', analyzeRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

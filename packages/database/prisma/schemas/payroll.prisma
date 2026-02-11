@@ -77,6 +77,7 @@ enum PayrollRunStatus {
   CALCULATING
   CALCULATED
   REVIEWING
+  UNDER_REVIEW
   APPROVED
   PROCESSING
   COMPLETED
@@ -87,6 +88,7 @@ enum PayrollRunStatus {
 enum PayFrequency {
   WEEKLY
   BI_WEEKLY
+  BIWEEKLY
   SEMI_MONTHLY
   MONTHLY
   QUARTERLY
@@ -188,6 +190,7 @@ model Payslip {
 
 enum PayslipStatus {
   DRAFT
+  GENERATED
   CALCULATED
   APPROVED
   PUBLISHED
@@ -292,6 +295,7 @@ model SalaryComponentType {
 
   // Relations
   payslipItems        PayslipItem[]
+  salaryComponents    SalaryComponent[]
 
   @@map("payroll_salary_component_types")
 }
@@ -480,6 +484,7 @@ enum LoanStatus {
   PENDING
   APPROVED
   ACTIVE
+  COMPLETED
   FULLY_PAID
   DEFAULTED
   CANCELLED
@@ -501,14 +506,14 @@ model LoanRepayment {
   paidDate            DateTime?
 
   // Amounts
-  principalAmount     Decimal  @db.Decimal(14, 2)
-  interestAmount      Decimal  @db.Decimal(14, 2)
-  totalAmount         Decimal  @db.Decimal(14, 2)
+  principal           Decimal  @db.Decimal(14, 2)
+  interest            Decimal  @db.Decimal(14, 2)
+  amount              Decimal  @db.Decimal(14, 2)
+  paidAmount          Decimal? @db.Decimal(14, 2)
+  balanceAfter        Decimal  @default(0) @db.Decimal(14, 2)
 
-  // Balance
-  balanceAfter        Decimal  @db.Decimal(14, 2)
-
-  // Status
+  // Payment
+  paymentMethod       String?
   status              RepaymentStatus @default(PENDING)
 
   notes               String?
@@ -538,29 +543,36 @@ model TaxFiling {
   id                  String   @id @default(cuid())
   payrollRunId        String?
   filingType          TaxFilingType
-  filingPeriod        String   // e.g., "2024-Q1", "2024-01"
+  taxPeriod           String   // e.g., "2024-Q1", "2024-01"
+  taxYear             Int
 
   // Filing details
   filingNumber        String?  @unique
   filingDate          DateTime?
-  dueDate             DateTime
-  totalTaxAmount      Decimal  @db.Decimal(14, 2)
-  totalEmployees      Int
+  filingDeadline      DateTime
+
+  // Tax amounts
+  grossWages          Decimal  @default(0) @db.Decimal(14, 2)
+  taxableWages        Decimal  @default(0) @db.Decimal(14, 2)
+  taxWithheld         Decimal  @default(0) @db.Decimal(14, 2)
+  employerTax         Decimal  @default(0) @db.Decimal(14, 2)
+  totalTax            Decimal  @default(0) @db.Decimal(14, 2)
+  totalEmployees      Int      @default(0)
 
   // Status
   status              TaxFilingStatus @default(DRAFT)
-  submittedAt         DateTime?
-  submittedById       String?
-  acknowledgedAt      DateTime?
-  acknowledgementRef  String?
+  filedAt             DateTime?
+  filedById           String?
+  confirmationNumber  String?
 
   // Payment
   paymentStatus       PaymentStatus @default(PENDING)
   paymentDate         DateTime?
   paymentReference    String?
+  paymentDue          Decimal  @default(0) @db.Decimal(14, 2)
 
   // Documents
-  fileUrl             String?
+  filingDocumentUrl   String?
   receiptUrl          String?
 
   notes               String?
@@ -571,8 +583,9 @@ model TaxFiling {
   // Relations
   payrollRun          PayrollRun? @relation(fields: [payrollRunId], references: [id])
 
-  @@index([filingType, filingPeriod])
+  @@index([filingType, taxPeriod])
   @@index([status])
+  @@index([taxYear])
   @@map("payroll_tax_filings")
 }
 
@@ -594,4 +607,207 @@ enum TaxFilingStatus {
   ACKNOWLEDGED
   REJECTED
   AMENDED
+  PENDING
+  PREPARED
+  FILED
+}
+
+// ============================================
+// TAX BRACKETS
+// ============================================
+
+model TaxBracket {
+  id                  String   @id @default(cuid())
+  taxYear             Int
+  country             String
+  region              String?
+  filingStatus        String?
+  minIncome           Decimal  @db.Decimal(14, 2)
+  maxIncome           Decimal? @db.Decimal(14, 2)
+  rate                Decimal  @db.Decimal(5, 4)
+  fixedAmount         Decimal  @default(0) @db.Decimal(14, 2)
+  isActive            Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([taxYear, country])
+  @@map("payroll_tax_brackets")
+}
+
+// ============================================
+// EMPLOYEE SALARIES (Payroll-specific)
+// ============================================
+
+model EmployeeSalary {
+  id                  String   @id @default(cuid())
+  employeeId          String
+
+  // Salary details
+  baseSalary          Decimal  @db.Decimal(14, 2)
+  currency            String   @default("USD")
+  payFrequency        PayFrequency @default(MONTHLY)
+
+  // Effective dates
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+  isActive            Boolean  @default(true)
+
+  // Change history
+  previousSalary      Decimal? @db.Decimal(14, 2)
+  changeReason        String?
+  changeType          String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  components          SalaryComponent[]
+
+  @@index([employeeId])
+  @@index([isActive])
+  @@map("payroll_employee_salaries")
+}
+
+// ============================================
+// SALARY COMPONENTS
+// ============================================
+
+model SalaryComponent {
+  id                  String   @id @default(cuid())
+  employeeSalaryId    String
+  componentTypeId     String
+
+  // Component details
+  amount              Decimal  @db.Decimal(14, 2)
+  percentage          Decimal? @db.Decimal(5, 2)
+  calculationType     ComponentCalculationType @default(FIXED)
+  isActive            Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  employeeSalary      EmployeeSalary @relation(fields: [employeeSalaryId], references: [id], onDelete: Cascade)
+  componentType       SalaryComponentType @relation(fields: [componentTypeId], references: [id])
+
+  @@index([employeeSalaryId])
+  @@map("payroll_salary_components")
+}
+
+// ============================================
+// EXPENSES
+// ============================================
+
+model Expense {
+  id                    String   @id @default(cuid())
+  expenseNumber         String   @unique
+  employeeId            String
+
+  // Details
+  category              ExpenseCategory
+  subcategory           String?
+  description           String
+  merchant              String?
+  amount                Decimal  @db.Decimal(14, 2)
+  currency              String   @default("USD")
+  expenseDate           DateTime
+  receiptUrls           String[]
+  projectCode           String?
+  costCenter            String?
+  isBillable            Boolean  @default(false)
+  clientName            String?
+  notes                 String?
+  hasReceipt            Boolean  @default(false)
+  amountInBaseCurrency  Decimal  @default(0) @db.Decimal(14, 2)
+
+  // Approval
+  status                ExpenseStatus   @default(DRAFT)
+  approvalStatus        ApprovalStatus  @default(PENDING)
+  approvedById          String?
+  approvedAt            DateTime?
+  approvalNotes         String?
+
+  // Reimbursement
+  reimbursementStatus   String?
+  reimbursedAt          DateTime?
+  reimbursementMethod   String?
+
+  // Report link
+  reportId              String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  report                ExpenseReport? @relation(fields: [reportId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([reportId])
+  @@map("payroll_expenses")
+}
+
+enum ExpenseCategory {
+  TRAVEL
+  MEALS
+  ACCOMMODATION
+  TRANSPORTATION
+  OFFICE_SUPPLIES
+  SOFTWARE
+  HARDWARE
+  TRAINING
+  COMMUNICATION
+  CLIENT_ENTERTAINMENT
+  MISCELLANEOUS
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  REIMBURSED
+}
+
+// ============================================
+// EXPENSE REPORTS
+// ============================================
+
+model ExpenseReport {
+  id                    String   @id @default(cuid())
+  reportNumber          String   @unique
+  employeeId            String
+
+  // Details
+  title                 String
+  description           String?
+  periodStart           DateTime
+  periodEnd             DateTime
+  totalAmount           Decimal  @default(0) @db.Decimal(14, 2)
+  expenseCount          Int      @default(0)
+
+  // Status
+  status                ExpenseReportStatus @default(DRAFT)
+  submittedAt           DateTime?
+  approvedById          String?
+  approvedAt            DateTime?
+  notes                 String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  expenses              Expense[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("payroll_expense_reports")
+}
+
+enum ExpenseReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
 }

@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => ({
+jest.mock('../src/prisma', () => ({
   prisma: {
     payrollRun: {
       findMany: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('@ims/database', () => ({
   },
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import payrollRoutes from '../src/routes/payroll';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -288,7 +288,7 @@ describe('Payroll API Routes', () => {
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
-    it('should calculate payroll for active employees', async () => {
+    it('should return 501 for calculate (requires cross-service integration)', async () => {
       mockPrisma.payrollRun.findUnique.mockResolvedValueOnce({
         id: 'run-1',
         runNumber: 'PAY-2024-0001',
@@ -297,64 +297,16 @@ describe('Payroll API Routes', () => {
         payDate: new Date('2024-02-01'),
       } as any);
       mockPrisma.payrollRun.update.mockResolvedValue({} as any);
-      mockPrisma.employee.findMany.mockResolvedValueOnce([
-        {
-          id: 'emp-1',
-          firstName: 'John',
-          lastName: 'Doe',
-          employeeNumber: 'EMP001',
-          jobTitle: 'Developer',
-          salaryRecords: [
-            {
-              baseSalary: 5000,
-              currency: 'USD',
-              isActive: true,
-              components: [],
-            },
-          ],
-          benefits: [],
-          loans: [],
-        },
-      ] as any);
-      mockPrisma.payslip.create.mockResolvedValue({} as any);
 
       const response = await request(app)
         .post('/api/payroll/runs/run-1/calculate');
 
-      expect(response.status).toBe(200);
-      expect(mockPrisma.payslip.create).toHaveBeenCalled();
-    });
-
-    it('should update run status to CALCULATING then CALCULATED', async () => {
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce({
-        id: 'run-1',
-        runNumber: 'PAY-2024-0001',
-        periodStart: new Date('2024-01-01'),
-        periodEnd: new Date('2024-01-31'),
-        payDate: new Date('2024-02-01'),
-      } as any);
-      mockPrisma.payrollRun.update.mockResolvedValue({
-        status: 'CALCULATED',
-        _count: { payslips: 1 },
-      } as any);
-      mockPrisma.employee.findMany.mockResolvedValueOnce([]);
-
-      await request(app).post('/api/payroll/runs/run-1/calculate');
-
-      // First call sets to CALCULATING
-      expect(mockPrisma.payrollRun.update).toHaveBeenCalledWith({
-        where: { id: 'run-1' },
-        data: { status: 'CALCULATING' },
-      });
+      expect(response.status).toBe(501);
+      expect(response.body.error.code).toBe('NOT_IMPLEMENTED');
     });
 
     it('should handle database errors and set status to ERROR', async () => {
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce({
-        id: 'run-1',
-      } as any);
-      mockPrisma.payrollRun.update.mockResolvedValueOnce({} as any);
-      mockPrisma.employee.findMany.mockRejectedValueOnce(new Error('DB error'));
-      mockPrisma.payrollRun.update.mockResolvedValueOnce({} as any);
+      mockPrisma.payrollRun.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/payroll/runs/run-1/calculate');

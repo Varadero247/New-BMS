@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 
 const router: Router = Router();
@@ -17,7 +17,6 @@ router.get('/', async (req: Request, res: Response) => {
     const loans = await prisma.employeeLoan.findMany({
       where,
       include: {
-        employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
         repayments: {
           orderBy: { dueDate: 'asc' },
         },
@@ -38,7 +37,6 @@ router.get('/:id', async (req: Request, res: Response) => {
     const loan = await prisma.employeeLoan.findUnique({
       where: { id: req.params.id },
       include: {
-        employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
         repayments: {
           orderBy: { dueDate: 'asc' },
         },
@@ -104,9 +102,6 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'PENDING',
         purpose: data.purpose,
         notes: data.notes,
-      },
-      include: {
-        employee: { select: { firstName: true, lastName: true } },
       },
     });
 

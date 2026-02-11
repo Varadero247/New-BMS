@@ -53,8 +53,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        const { token, user } = data.data;
-        localStorage.setItem('token', token);
+        const { accessToken, refreshToken, user } = data.data;
+        localStorage.setItem('token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
         }

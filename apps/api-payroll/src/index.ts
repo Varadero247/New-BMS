@@ -11,7 +11,7 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
-import { prisma } from '@ims/database';
+import { prisma } from './prisma';
 
 const logger = createLogger('api-payroll');
 

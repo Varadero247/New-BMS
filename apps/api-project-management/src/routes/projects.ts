@@ -1,0 +1,417 @@
+import { Router, Response } from 'express';
+import type { Router as IRouter } from 'express';
+import { prisma } from '../prisma';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { z } from 'zod';
+
+const router: IRouter = Router();
+router.use(authenticate);
+
+// Helper: generate project code PRJ0001, PRJ0002, etc.
+async function generateProjectCode(): Promise<string> {
+  const lastProject = await prisma.project.findFirst({
+    orderBy: { createdAt: 'desc' },
+    select: { projectCode: true },
+  });
+
+  let nextNum = 1;
+  if (lastProject?.projectCode) {
+    const match = lastProject.projectCode.match(/PRJ(\d+)/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+
+  return `PRJ${String(nextNum).padStart(4, '0')}`;
+}
+
+// GET /api/projects - List projects with pagination and filters
+router.get('/', async (req: AuthRequest, res: Response) => {
+  try {
+    const { page = '1', limit = '20', status, priority, methodology, search } = req.query;
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: any = {};
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
+    if (methodology) where.methodology = methodology;
+    if (search) {
+      where.OR = [
+        { projectName: { contains: search as string, mode: 'insensitive' } },
+        { projectDescription: { contains: search as string, mode: 'insensitive' } },
+        { projectCode: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [projects, total] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          _count: {
+            select: {
+              tasks: true,
+              risks: true,
+              issues: true,
+              milestones: true,
+            },
+          },
+        },
+      }),
+      prisma.project.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: projects,
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    console.error('List projects error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list projects' } });
+  }
+});
+
+// GET /api/projects/:id - Get single project with all relations
+router.get('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: {
+        tasks: true,
+        milestones: true,
+        risks: true,
+        issues: true,
+        changes: true,
+        resources: true,
+        stakeholders: true,
+        documents: true,
+        sprints: true,
+        statusReports: { orderBy: { reportDate: 'desc' }, take: 5 },
+        timesheets: true,
+        _count: {
+          select: {
+            tasks: true,
+            risks: true,
+            issues: true,
+            milestones: true,
+            changes: true,
+            resources: true,
+            stakeholders: true,
+            documents: true,
+            sprints: true,
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+    }
+
+    res.json({ success: true, data: project });
+  } catch (error) {
+    console.error('Get project error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get project' } });
+  }
+});
+
+// GET /api/projects/:id/dashboard - Dashboard metrics
+router.get('/:id/dashboard', async (req: AuthRequest, res: Response) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: {
+        tasks: true,
+        milestones: true,
+        risks: true,
+        issues: true,
+        resources: true,
+        timesheets: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+    }
+
+    // Overview
+    const overview = {
+      projectName: project.projectName,
+      projectCode: project.projectCode,
+      status: project.status,
+      healthStatus: project.healthStatus,
+      progressPercentage: project.progressPercentage,
+      methodology: project.methodology,
+      priority: project.priority,
+    };
+
+    // Schedule metrics
+    const now = new Date();
+    const startDate = project.startDate ? new Date(project.startDate) : now;
+    const plannedEnd = new Date(project.plannedEndDate);
+    const totalDuration = plannedEnd.getTime() - startDate.getTime();
+    const elapsed = now.getTime() - startDate.getTime();
+    const scheduleProgress = totalDuration > 0 ? Math.min(100, Math.round((elapsed / totalDuration) * 100)) : 0;
+
+    const schedule = {
+      startDate: project.startDate,
+      plannedEndDate: project.plannedEndDate,
+      actualEndDate: project.actualEndDate,
+      scheduleProgress,
+      daysRemaining: Math.max(0, Math.ceil((plannedEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))),
+      isOverdue: now > plannedEnd && !project.actualEndDate,
+    };
+
+    // Budget metrics
+    const budget = {
+      plannedBudget: project.plannedBudget,
+      actualCost: project.actualCost,
+      contingencyReserve: project.contingencyReserve,
+      managementReserve: project.managementReserve,
+      budgetUtilization: project.plannedBudget ? Math.round((project.actualCost / project.plannedBudget) * 100) : 0,
+    };
+
+    // EVM metrics
+    const evm = {
+      plannedValue: project.plannedValue,
+      earnedValue: project.earnedValue,
+      actualCost: project.actualCost,
+      costPerformanceIndex: project.costPerformanceIndex,
+      schedulePerformanceIndex: project.schedulePerformanceIndex,
+      estimateAtCompletion: project.estimateAtCompletion,
+      estimateToComplete: project.estimateToComplete,
+      varianceAtCompletion: project.varianceAtCompletion,
+    };
+
+    // Task breakdown
+    const taskBreakdown = {
+      total: project.tasks.length,
+      notStarted: project.tasks.filter(t => t.status === 'NOT_STARTED').length,
+      inProgress: project.tasks.filter(t => t.status === 'IN_PROGRESS').length,
+      completed: project.tasks.filter(t => t.status === 'COMPLETED').length,
+      blocked: project.tasks.filter(t => t.status === 'BLOCKED').length,
+      cancelled: project.tasks.filter(t => t.status === 'CANCELLED').length,
+    };
+
+    // Milestone stats
+    const milestoneStats = {
+      total: project.milestones.length,
+      upcoming: project.milestones.filter(m => m.status === 'UPCOMING').length,
+      achieved: project.milestones.filter(m => m.status === 'ACHIEVED').length,
+      missed: project.milestones.filter(m => m.status === 'MISSED').length,
+      overdue: project.milestones.filter(m => m.status === 'UPCOMING' && new Date(m.plannedDate) < now).length,
+    };
+
+    // Risk stats
+    const riskStats = {
+      total: project.risks.length,
+      identified: project.risks.filter(r => r.status === 'IDENTIFIED').length,
+      mitigating: project.risks.filter(r => r.status === 'MITIGATING').length,
+      closed: project.risks.filter(r => r.status === 'CLOSED').length,
+      byLevel: {
+        critical: project.risks.filter(r => r.riskLevel === 'CRITICAL').length,
+        high: project.risks.filter(r => r.riskLevel === 'HIGH').length,
+        medium: project.risks.filter(r => r.riskLevel === 'MEDIUM').length,
+        low: project.risks.filter(r => r.riskLevel === 'LOW').length,
+      },
+    };
+
+    // Issue stats
+    const issueStats = {
+      total: project.issues.length,
+      open: project.issues.filter(i => i.status === 'OPEN').length,
+      inProgress: project.issues.filter(i => i.status === 'IN_PROGRESS').length,
+      resolved: project.issues.filter(i => i.status === 'RESOLVED').length,
+      closed: project.issues.filter(i => i.status === 'CLOSED').length,
+    };
+
+    // Resource utilization
+    const totalPlannedHours = project.resources.reduce((sum, r) => sum + (r.plannedHours || 0), 0);
+    const totalActualHours = project.resources.reduce((sum, r) => sum + r.actualHours, 0);
+    const resourceUtilization = {
+      totalResources: project.resources.length,
+      totalPlannedHours,
+      totalActualHours,
+      overallUtilization: totalPlannedHours > 0 ? Math.round((totalActualHours / totalPlannedHours) * 100) : 0,
+    };
+
+    res.json({
+      success: true,
+      data: {
+        overview,
+        schedule,
+        budget,
+        evm,
+        taskBreakdown,
+        milestoneStats,
+        riskStats,
+        issueStats,
+        resourceUtilization,
+      },
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard' } });
+  }
+});
+
+// POST /api/projects - Create project
+router.post('/', async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      projectName: z.string().min(1),
+      projectDescription: z.string().optional(),
+      projectType: z.enum(['INTERNAL', 'CLIENT', 'R_D', 'IMPROVEMENT', 'COMPLIANCE']),
+      businessCase: z.string().optional(),
+      businessJustification: z.string().optional(),
+      expectedBenefits: z.string().optional(),
+      roi: z.number().optional(),
+      paybackPeriod: z.number().optional(),
+      scopeStatement: z.string().optional(),
+      objectives: z.string().optional(),
+      deliverables: z.string().optional(),
+      exclusions: z.string().optional(),
+      assumptions: z.string().optional(),
+      constraints: z.string().optional(),
+      startDate: z.string().optional(),
+      plannedEndDate: z.string(),
+      plannedBudget: z.number().optional(),
+      budgetCurrency: z.string().optional(),
+      contingencyReserve: z.number().optional(),
+      managementReserve: z.number().optional(),
+      projectManagerId: z.string().optional(),
+      projectSponsorId: z.string().optional(),
+      teamMembers: z.string().optional(),
+      methodology: z.enum(['WATERFALL', 'AGILE', 'HYBRID', 'PRINCE2']),
+      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+      complianceStandards: z.string().optional(),
+      linkedProcessIds: z.string().optional(),
+      linkedRiskIds: z.string().optional(),
+      linkedAspectIds: z.string().optional(),
+      linkedDepartmentIds: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+    const projectCode = await generateProjectCode();
+
+    const project = await prisma.project.create({
+      data: {
+        projectCode,
+        projectName: data.projectName,
+        projectDescription: data.projectDescription,
+        projectType: data.projectType,
+        businessCase: data.businessCase,
+        businessJustification: data.businessJustification,
+        expectedBenefits: data.expectedBenefits,
+        roi: data.roi,
+        paybackPeriod: data.paybackPeriod,
+        scopeStatement: data.scopeStatement,
+        objectives: data.objectives,
+        deliverables: data.deliverables,
+        exclusions: data.exclusions,
+        assumptions: data.assumptions,
+        constraints: data.constraints,
+        startDate: data.startDate ? new Date(data.startDate) : null,
+        plannedEndDate: new Date(data.plannedEndDate),
+        plannedBudget: data.plannedBudget,
+        budgetCurrency: data.budgetCurrency || 'GBP',
+        contingencyReserve: data.contingencyReserve || 0,
+        managementReserve: data.managementReserve || 0,
+        projectManagerId: data.projectManagerId,
+        projectSponsorId: data.projectSponsorId,
+        teamMembers: data.teamMembers,
+        methodology: data.methodology,
+        priority: data.priority,
+        complianceStandards: data.complianceStandards,
+        linkedProcessIds: data.linkedProcessIds,
+        linkedRiskIds: data.linkedRiskIds,
+        linkedAspectIds: data.linkedAspectIds,
+        linkedDepartmentIds: data.linkedDepartmentIds,
+        createdBy: req.user?.id,
+        status: 'PLANNING',
+        healthStatus: 'GREEN',
+        progressPercentage: 0,
+      },
+    });
+
+    res.status(201).json({ success: true, data: project });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Create project error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create project' } });
+  }
+});
+
+// PUT /api/projects/:id - Update project
+router.put('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+    }
+
+    const data = req.body;
+    const updateData: any = { ...data, updatedBy: req.user?.id };
+
+    // Handle date conversions
+    if (data.startDate) updateData.startDate = new Date(data.startDate);
+    if (data.plannedEndDate) updateData.plannedEndDate = new Date(data.plannedEndDate);
+    if (data.actualEndDate) updateData.actualEndDate = new Date(data.actualEndDate);
+    if (data.baselineEndDate) updateData.baselineEndDate = new Date(data.baselineEndDate);
+
+    // Auto-calculate EVM metrics if values provided
+    if (data.earnedValue !== undefined || data.actualCost !== undefined || data.plannedValue !== undefined) {
+      const pv = data.plannedValue ?? existing.plannedValue;
+      const ev = data.earnedValue ?? existing.earnedValue;
+      const ac = data.actualCost ?? existing.actualCost;
+
+      if (ac > 0) updateData.costPerformanceIndex = parseFloat((ev / ac).toFixed(4));
+      if (pv > 0) updateData.schedulePerformanceIndex = parseFloat((ev / pv).toFixed(4));
+      if (updateData.costPerformanceIndex && existing.plannedBudget) {
+        updateData.estimateAtCompletion = parseFloat((existing.plannedBudget / updateData.costPerformanceIndex).toFixed(2));
+        updateData.estimateToComplete = parseFloat((updateData.estimateAtCompletion - ac).toFixed(2));
+        updateData.varianceAtCompletion = parseFloat((existing.plannedBudget - updateData.estimateAtCompletion).toFixed(2));
+      }
+    }
+
+    // Handle closure
+    if (data.status === 'CLOSED' && existing.status !== 'CLOSED') {
+      updateData.closedAt = new Date();
+      updateData.closedBy = req.user?.id;
+    }
+
+    const project = await prisma.project.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
+
+    res.json({ success: true, data: project });
+  } catch (error) {
+    console.error('Update project error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update project' } });
+  }
+});
+
+// DELETE /api/projects/:id - Delete project
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+    }
+
+    await prisma.project.delete({ where: { id: req.params.id } });
+    res.json({ success: true, data: { message: 'Project deleted successfully' } });
+  } catch (error) {
+    console.error('Delete project error:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete project' } });
+  }
+});
+
+export default router;

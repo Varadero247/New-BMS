@@ -1,8 +1,8 @@
 import express from 'express';
 import request from 'supertest';
 
-// Mock dependencies - HR routes import from @ims/database directly
-jest.mock('@ims/database', () => ({
+// Mock dependencies - routes import from ../prisma (re-exports from @ims/database/hr)
+jest.mock('../src/prisma', () => ({
   prisma: {
     attendance: {
       findMany: jest.fn(),
@@ -24,7 +24,7 @@ jest.mock('@ims/database', () => ({
   },
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import attendanceRoutes from '../src/routes/attendance';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

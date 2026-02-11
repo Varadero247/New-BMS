@@ -46,13 +46,17 @@
     "./ai": {
       "import": "./generated/ai/index.js",
       "require": "./generated/ai/index.js"
+    },
+    "./project-management": {
+      "import": "./generated/project-management/index.js",
+      "require": "./generated/project-management/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -62,8 +66,9 @@
     "generate:inventory": "prisma generate --schema=prisma/schemas/inventory.prisma",
     "generate:workflows": "prisma generate --schema=prisma/schemas/workflows.prisma",
     "generate:ai": "prisma generate --schema=prisma/schemas/ai.prisma",
+    "generate:project-management": "prisma generate --schema=prisma/schemas/project-management.prisma",
     "push": "prisma db push",
-    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management",
     "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
     "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
     "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
@@ -73,6 +78,7 @@
     "push:inventory": "prisma db push --schema=prisma/schemas/inventory.prisma",
     "push:workflows": "prisma db push --schema=prisma/schemas/workflows.prisma",
     "push:ai": "prisma db push --schema=prisma/schemas/ai.prisma",
+    "push:project-management": "prisma db push --schema=prisma/schemas/project-management.prisma",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",

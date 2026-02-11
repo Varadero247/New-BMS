@@ -64,6 +64,12 @@ services:
       SERVICE_ENVIRONMENT_URL: http://api-environment:4002
       SERVICE_QUALITY_URL: http://api-quality:4003
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
+      SERVICE_AI_URL: http://api-ai-analysis:4004
+      SERVICE_INVENTORY_URL: http://api-inventory:4005
+      SERVICE_HR_URL: http://api-hr:4006
+      SERVICE_PAYROLL_URL: http://api-payroll:4007
+      SERVICE_WORKFLOWS_URL: http://api-workflows:4008
+      SERVICE_PROJECT_MANAGEMENT_URL: http://api-project-management:4009
       CSRF_ENABLED: "false"
     depends_on:
       postgres:
@@ -77,6 +83,10 @@ services:
       api-quality:
         condition: service_started
       api-ai-analysis:
+        condition: service_started
+      api-inventory:
+        condition: service_started
+      api-project-management:
         condition: service_started
 
   api-health-safety:
@@ -150,8 +160,49 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       AI_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-inventory:
+    build:
+      context: .
+      dockerfile: ./apps/api-inventory/Dockerfile
+    container_name: ims-api-inventory
+    restart: unless-stopped
+    ports:
+      - '4005:4005'
+    environment:
+      NODE_ENV: production
+      PORT: 4005
+      INVENTORY_PORT: 4005
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      INVENTORY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-project-management:
+    build:
+      context: .
+      dockerfile: ./apps/api-project-management/Dockerfile
+    container_name: ims-api-project-management
+    restart: unless-stopped
+    ports:
+      - '4009:4009'
+    environment:
+      NODE_ENV: production
+      PORT: 4009
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      PROJECT_MANAGEMENT_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      AI_API_URL: http://api-ai-analysis:4004
     depends_on:
       postgres:
         condition: service_healthy
@@ -247,6 +298,33 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+
+  web-inventory:
+    build:
+      context: .
+      dockerfile: ./apps/web-inventory/Dockerfile
+    container_name: ims-web-inventory
+    restart: unless-stopped
+    ports:
+      - '3005:3005'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+
+  web-project-management:
+    build:
+      context: .
+      dockerfile: ./apps/web-project-management/Dockerfile
+    container_name: ims-web-project-management
+    restart: unless-stopped
+    ports:
+      - '3009:3009'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+
 volumes:
   postgres_data:
   redis_data:

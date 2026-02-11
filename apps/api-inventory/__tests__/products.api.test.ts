@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => ({
+jest.mock('../src/prisma', () => ({
   prisma: {
     product: {
       findMany: jest.fn(),
@@ -26,7 +26,7 @@ jest.mock('@ims/auth', () => ({
   }),
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import productsRoutes from '../src/routes/products';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

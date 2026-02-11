@@ -44,6 +44,7 @@ const SERVICES = {
   hr: process.env.SERVICE_HR_URL || process.env.HR_URL || 'http://localhost:4006',
   payroll: process.env.SERVICE_PAYROLL_URL || process.env.PAYROLL_URL || 'http://localhost:4007',
   workflows: process.env.SERVICE_WORKFLOWS_URL || process.env.WORKFLOWS_URL || 'http://localhost:4008',
+  projectManagement: process.env.SERVICE_PROJECT_MANAGEMENT_URL || process.env.PROJECT_MANAGEMENT_URL || 'http://localhost:4009',
 };
 
 // Generate service token for inter-service authentication
@@ -80,7 +81,7 @@ function addServiceToken(proxyReq: any): void {
 // Raw CORS headers - must be absolute first middleware
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   const origin = req.headers.origin;
-  const allowed = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003','http://localhost:3004','http://localhost:3005','http://localhost:3006','http://localhost:3007','http://localhost:3008'];
+  const allowed = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003','http://localhost:3004','http://localhost:3005','http://localhost:3006','http://localhost:3007','http://localhost:3008','http://localhost:3009'];
   if (origin && allowed.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -91,7 +92,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   next();
 });
 // CORS must run BEFORE security middleware
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008', 'http://localhost:3009'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -200,6 +201,7 @@ app.use('/api/v1/inventory', addVersionHeader('v1'), createServiceProxy('Invento
 app.use('/api/v1/hr', addVersionHeader('v1'), createServiceProxy('HR', SERVICES.hr, '/api/v1/hr', 'HR service unavailable'));
 app.use('/api/v1/payroll', addVersionHeader('v1'), createServiceProxy('Payroll', SERVICES.payroll, '/api/v1/payroll', 'Payroll service unavailable'));
 app.use('/api/v1/workflows', addVersionHeader('v1'), createServiceProxy('Workflows', SERVICES.workflows, '/api/v1/workflows', 'Workflows service unavailable'));
+app.use('/api/v1/project-management', addVersionHeader('v1'), createServiceProxy('Project Management', SERVICES.projectManagement, '/api/v1/project-management', 'Project Management service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -212,6 +214,7 @@ app.use('/api/inventory', deprecatedRoute('/api/v1/inventory'), createServicePro
 app.use('/api/hr', deprecatedRoute('/api/v1/hr'), createServiceProxy('HR', SERVICES.hr, '/api/hr', 'HR service unavailable'));
 app.use('/api/payroll', deprecatedRoute('/api/v1/payroll'), createServiceProxy('Payroll', SERVICES.payroll, '/api/payroll', 'Payroll service unavailable'));
 app.use('/api/workflows', deprecatedRoute('/api/v1/workflows'), createServiceProxy('Workflows', SERVICES.workflows, '/api/workflows', 'Workflows service unavailable'));
+app.use('/api/project-management', deprecatedRoute('/api/v1/project-management'), createServiceProxy('Project Management', SERVICES.projectManagement, '/api/project-management', 'Project Management service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

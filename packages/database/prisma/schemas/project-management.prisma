@@ -1,0 +1,778 @@
+// Project Management Schema - Project Lifecycle Management (PMI PMBOK / PRINCE2 / Agile / ISO 21500)
+// This schema is used by the Project Management microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/project-management"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PROJECT_MANAGEMENT_DATABASE_URL")
+}
+
+// ============================================
+// PROJECT (Core entity)
+// ============================================
+
+model Project {
+  id                       String    @id @default(cuid())
+
+  // Basic Information
+  projectCode              String    @unique
+  projectName              String
+  projectDescription       String?   @db.Text
+  projectType              String    // INTERNAL, CLIENT, R_D, IMPROVEMENT, COMPLIANCE
+
+  // Business Case
+  businessCase             String?   @db.Text
+  businessJustification    String?   @db.Text
+  expectedBenefits         String?   @db.Text
+  roi                      Float?
+  paybackPeriod            Int?
+
+  // Scope
+  scopeStatement           String?   @db.Text
+  objectives               String?   @db.Text
+  deliverables             String?   @db.Text
+  exclusions               String?   @db.Text
+  assumptions              String?   @db.Text
+  constraints              String?   @db.Text
+
+  // Timeline
+  startDate                DateTime?
+  plannedEndDate           DateTime
+  actualEndDate            DateTime?
+  baselineEndDate          DateTime?
+
+  // Budget
+  plannedBudget            Float?
+  budgetCurrency           String    @default("GBP")
+  contingencyReserve       Float     @default(0)
+  managementReserve        Float     @default(0)
+
+  // Earned Value Management
+  plannedValue             Float     @default(0)
+  earnedValue              Float     @default(0)
+  actualCost               Float     @default(0)
+  costPerformanceIndex     Float?
+  schedulePerformanceIndex Float?
+  estimateAtCompletion     Float?
+  estimateToComplete       Float?
+  varianceAtCompletion     Float?
+
+  // Team & Resources
+  projectManagerId         String?
+  projectSponsorId         String?
+  teamMembers              String?   @db.Text
+
+  // Methodology
+  methodology              String    @default("WATERFALL")
+
+  // Status
+  status                   String    @default("PLANNING")
+  healthStatus             String    @default("GREEN")
+  progressPercentage       Int       @default(0)
+
+  // Priority
+  priority                 String    @default("MEDIUM")
+
+  // Quality
+  qualityScore             Float?
+  customerSatisfaction     Float?
+
+  // Integration with IMS Modules
+  linkedProcessIds         String?   @db.Text
+  linkedRiskIds            String?   @db.Text
+  linkedAspectIds          String?   @db.Text
+  linkedDepartmentIds      String?   @db.Text
+
+  // Compliance & Standards
+  complianceStandards      String?   @db.Text
+
+  // Closure
+  closureReason            String?
+  lessonsLearned           String?   @db.Text
+  closedAt                 DateTime?
+  closedBy                 String?
+
+  // Audit Trail
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  createdBy                String?
+  updatedBy                String?
+
+  // Relations
+  tasks                    ProjectTask[]
+  milestones               ProjectMilestone[]
+  risks                    ProjectRisk[]
+  issues                   ProjectIssue[]
+  changes                  ProjectChange[]
+  resources                ProjectResource[]
+  stakeholders             ProjectStakeholder[]
+  documents                ProjectDocument[]
+  sprints                  ProjectSprint[]
+  statusReports            ProjectStatusReport[]
+  timesheets               ProjectTimesheet[]
+  expenses                 ProjectExpense[]
+
+  @@map("projects")
+}
+
+// ============================================
+// WORK BREAKDOWN STRUCTURE (WBS) — Task Model
+// ============================================
+
+model ProjectTask {
+  id                 String    @id @default(cuid())
+
+  projectId          String
+  project            Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Task Identification
+  taskCode           String
+  taskName           String
+  taskDescription    String?   @db.Text
+
+  // Hierarchy (WBS)
+  parentTaskId       String?
+  parentTask         ProjectTask?  @relation("TaskHierarchy", fields: [parentTaskId], references: [id])
+  childTasks         ProjectTask[] @relation("TaskHierarchy")
+  wbsLevel           Int       @default(0)
+  sortOrder          Int       @default(0)
+
+  // Task Type
+  taskType           String    @default("TASK")
+
+  // Assignment
+  assignedToId       String?
+  assignedDepartment String?
+
+  // Scheduling
+  plannedStartDate   DateTime?
+  plannedEndDate     DateTime?
+  actualStartDate    DateTime?
+  actualEndDate      DateTime?
+  baselineStartDate  DateTime?
+  baselineEndDate    DateTime?
+
+  // Duration (hours)
+  plannedDuration    Float?
+  actualDuration     Float     @default(0)
+  remainingDuration  Float?
+
+  // Effort (person-hours)
+  plannedEffort      Float?
+  actualEffort       Float     @default(0)
+  remainingEffort    Float?
+
+  // Dependencies
+  predecessorIds     String?   @db.Text
+  dependencyType     String?
+  lagDays            Int       @default(0)
+
+  // Critical Path
+  isCriticalPath     Boolean   @default(false)
+  slack              Float?
+
+  // Progress
+  progressPercentage Int       @default(0)
+  status             String    @default("NOT_STARTED")
+
+  // Budget
+  plannedCost        Float?
+  actualCost         Float     @default(0)
+
+  // Quality
+  acceptanceCriteria String?   @db.Text
+  testStatus         String?
+  defectCount        Int       @default(0)
+
+  // Priority
+  priority           String    @default("MEDIUM")
+
+  // Tags
+  tags               String?   @db.Text
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  timesheets         ProjectTimesheet[]
+
+  @@unique([projectId, taskCode])
+  @@map("project_tasks")
+}
+
+// ============================================
+// MILESTONE
+// ============================================
+
+model ProjectMilestone {
+  id                    String    @id @default(cuid())
+
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  milestoneName         String
+  milestoneDescription  String?   @db.Text
+
+  // Dates
+  plannedDate           DateTime
+  actualDate            DateTime?
+  baselineDate          DateTime?
+
+  // Deliverables
+  deliverables          String?   @db.Text
+
+  // Approval
+  requiresApproval      Boolean   @default(true)
+  approvalStatus        String    @default("PENDING")
+  approvedBy            String?
+  approvedAt            DateTime?
+
+  // Status
+  status                String    @default("UPCOMING")
+  achievementPercentage Int       @default(0)
+
+  // Critical
+  isCritical            Boolean   @default(false)
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("project_milestones")
+}
+
+// ============================================
+// RISK MANAGEMENT
+// ============================================
+
+model ProjectRisk {
+  id                    String    @id @default(cuid())
+
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Risk Identification
+  riskCode              String
+  riskTitle             String
+  riskDescription       String    @db.Text
+  riskCategory          String
+  riskTrigger           String?   @db.Text
+
+  // Risk Analysis (Qualitative)
+  probability           Int
+  impact                Int
+  riskScore             Int
+  riskLevel             String
+
+  // Risk Analysis (Quantitative)
+  expectedMonetaryValue Float?
+  contingencyAmount     Float?
+
+  // Risk Response
+  responseStrategy      String
+  responsePlan          String?   @db.Text
+  responseOwner         String?
+
+  // Mitigation
+  mitigationActions     String?   @db.Text
+  contingencyPlan       String?   @db.Text
+
+  // Status
+  status                String    @default("IDENTIFIED")
+
+  // Monitoring
+  residualProbability   Int?
+  residualImpact        Int?
+  residualRisk          Int?
+
+  // Dates
+  identifiedDate        DateTime  @default(now())
+  reviewDate            DateTime?
+  closedDate            DateTime?
+
+  identifiedBy          String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([projectId, riskCode])
+  @@map("project_risks")
+}
+
+// ============================================
+// ISSUE TRACKING
+// ============================================
+
+model ProjectIssue {
+  id                    String    @id @default(cuid())
+
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Issue Identification
+  issueCode             String
+  issueTitle            String
+  issueDescription      String    @db.Text
+  issueType             String
+
+  // Categorization
+  category              String?
+  severity              String    @default("MEDIUM")
+  priority              String    @default("MEDIUM")
+
+  // Assignment
+  reportedBy            String?
+  assignedTo            String?
+
+  // Dates
+  raisedDate            DateTime  @default(now())
+  targetResolutionDate  DateTime?
+  actualResolutionDate  DateTime?
+
+  // Status
+  status                String    @default("OPEN")
+
+  // Resolution
+  resolutionDescription String?   @db.Text
+  rootCause             String?   @db.Text
+  preventiveAction      String?   @db.Text
+
+  // Impact
+  impactOnSchedule      Int?
+  impactOnBudget        Float?
+  impactOnScope         String?   @db.Text
+
+  // Escalation
+  escalated             Boolean   @default(false)
+  escalatedTo           String?
+  escalationDate        DateTime?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([projectId, issueCode])
+  @@map("project_issues")
+}
+
+// ============================================
+// CHANGE MANAGEMENT
+// ============================================
+
+model ProjectChange {
+  id                  String    @id @default(cuid())
+
+  projectId           String
+  project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Change Request
+  changeCode          String
+  changeTitle         String
+  changeDescription   String    @db.Text
+  changeReason        String    @db.Text
+  changeType          String
+
+  // Requestor
+  requestedBy         String?
+  requestDate         DateTime  @default(now())
+
+  // Impact Analysis
+  impactOnScope       String?   @db.Text
+  impactOnSchedule    Int?
+  impactOnBudget      Float?
+  impactOnQuality     String?   @db.Text
+  impactOnRisk        String?   @db.Text
+  impactOnResources   String?   @db.Text
+
+  // Benefits
+  benefits            String?   @db.Text
+
+  // Approval Workflow
+  status              String    @default("SUBMITTED")
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  reviewerComments    String?   @db.Text
+
+  approvedBy          String?
+  approvedAt          DateTime?
+  approvalComments    String?   @db.Text
+
+  // Implementation
+  implementationPlan  String?   @db.Text
+  implementedBy       String?
+  implementedAt       DateTime?
+
+  // Priority
+  priority            String    @default("MEDIUM")
+  urgency             String    @default("NORMAL")
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([projectId, changeCode])
+  @@map("project_changes")
+}
+
+// ============================================
+// RESOURCE ALLOCATION
+// ============================================
+
+model ProjectResource {
+  id                    String    @id @default(cuid())
+
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Resource Details
+  resourceType          String
+  resourceId            String?
+  resourceName          String
+  resourceRole          String?
+
+  // RACI
+  responsibility        String    @default("RESPONSIBLE")
+
+  // Allocation
+  allocationPercentage  Int       @default(100)
+  allocatedFrom         DateTime
+  allocatedTo           DateTime
+
+  // Cost
+  costPerHour           Float?
+  totalAllocatedCost    Float?
+  actualCost            Float     @default(0)
+
+  // Capacity
+  plannedHours          Float?
+  actualHours           Float     @default(0)
+  remainingHours        Float?
+  utilization           Float?
+
+  status                String    @default("ASSIGNED")
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("project_resources")
+}
+
+// ============================================
+// STAKEHOLDER MANAGEMENT
+// ============================================
+
+model ProjectStakeholder {
+  id                     String    @id @default(cuid())
+
+  projectId              String
+  project                Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Stakeholder Details
+  stakeholderName        String
+  stakeholderOrg         String?
+  stakeholderRole        String
+  stakeholderType        String
+
+  // Contact
+  email                  String?
+  phone                  String?
+
+  // Power-Interest Grid
+  powerLevel             Int
+  interestLevel          Int
+  stakeholderCategory    String
+
+  // Engagement
+  currentEngagement      String    @default("NEUTRAL")
+  desiredEngagement      String    @default("SUPPORTIVE")
+  engagementStrategy     String?   @db.Text
+
+  // Communication
+  communicationFrequency String    @default("MONTHLY")
+  communicationMethod    String?
+
+  // Requirements & Expectations
+  requirements           String?   @db.Text
+  expectations           String?   @db.Text
+
+  status                 String    @default("ACTIVE")
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@map("project_stakeholders")
+}
+
+// ============================================
+// DOCUMENT MANAGEMENT
+// ============================================
+
+model ProjectDocument {
+  id                String    @id @default(cuid())
+
+  projectId         String
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Document Details
+  documentCode      String
+  documentTitle     String
+  documentType      String
+  documentCategory  String?
+
+  // Version Control
+  version           String    @default("1.0")
+  status            String    @default("DRAFT")
+
+  // File
+  fileUrl           String?
+  fileSize          Int?
+  fileType          String?
+
+  // Metadata
+  description       String?   @db.Text
+  keywords          String?   @db.Text
+
+  // Approval
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  approvedBy        String?
+  approvedAt        DateTime?
+
+  // Access Control
+  accessLevel       String    @default("PROJECT_TEAM")
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  updatedBy         String?
+
+  @@unique([projectId, documentCode])
+  @@map("project_documents")
+}
+
+// ============================================
+// AGILE SPRINT
+// ============================================
+
+model ProjectSprint {
+  id                    String    @id @default(cuid())
+
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Sprint Details
+  sprintNumber          Int
+  sprintName            String
+  sprintGoal            String?   @db.Text
+
+  // Timeline
+  startDate             DateTime
+  endDate               DateTime
+  duration              Int
+
+  // Planning
+  plannedVelocity       Int?
+  teamCapacity          Float?
+
+  // Backlog
+  committedStoryPoints  Int       @default(0)
+  completedStoryPoints  Int       @default(0)
+
+  // Status
+  status                String    @default("PLANNED")
+
+  // Retrospective
+  whatWentWell          String?   @db.Text
+  whatWentWrong         String?   @db.Text
+  actionItems           String?   @db.Text
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userStories           ProjectUserStory[]
+
+  @@unique([projectId, sprintNumber])
+  @@map("project_sprints")
+}
+
+// ============================================
+// USER STORY (Agile)
+// ============================================
+
+model ProjectUserStory {
+  id                 String    @id @default(cuid())
+
+  projectId          String
+  sprintId           String?
+  sprint             ProjectSprint? @relation(fields: [sprintId], references: [id])
+
+  // Story Details
+  storyCode          String
+  storyTitle         String
+  storyDescription   String    @db.Text
+
+  // Backlog
+  backlogPriority    Int       @default(999)
+  backlogStatus      String    @default("BACKLOG")
+
+  // Estimation
+  storyPoints        Int?
+  estimatedHours     Float?
+  actualHours        Float     @default(0)
+
+  // Acceptance Criteria
+  acceptanceCriteria String?   @db.Text
+
+  // Assignment
+  assignedTo         String?
+
+  // Status
+  status             String    @default("TO_DO")
+
+  // Definition of Done
+  definitionOfDone   String?   @db.Text
+
+  // Epic/Feature
+  epicId             String?
+  featureId          String?
+
+  // Testing
+  testStatus         String?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([projectId, storyCode])
+  @@map("project_user_stories")
+}
+
+// ============================================
+// TIMESHEET
+// ============================================
+
+model ProjectTimesheet {
+  id             String    @id @default(cuid())
+
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId         String?
+  task           ProjectTask? @relation(fields: [taskId], references: [id])
+
+  employeeId     String
+
+  // Time Entry
+  workDate       DateTime
+  hoursWorked    Float
+  overtime       Float     @default(0)
+
+  // Activity
+  activityType   String
+  description    String?   @db.Text
+
+  // Billing
+  isBillable     Boolean   @default(true)
+  billableHours  Float?
+  hourlyRate     Float?
+  totalCost      Float?
+
+  // Approval
+  status         String    @default("PENDING")
+  approvedBy     String?
+  approvedAt     DateTime?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("project_timesheets")
+}
+
+// ============================================
+// PROJECT EXPENSE
+// ============================================
+
+model ProjectExpense {
+  id           String    @id @default(cuid())
+
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  employeeId   String
+
+  // Expense Details
+  expenseType  String
+  description  String
+  expenseDate  DateTime
+
+  // Amount
+  amount       Float
+  currency     String    @default("GBP")
+
+  // Receipt
+  receiptUrl   String?
+
+  // Approval
+  status       String    @default("PENDING")
+  approvedBy   String?
+  approvedAt   DateTime?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("project_expenses")
+}
+
+// ============================================
+// STATUS REPORT
+// ============================================
+
+model ProjectStatusReport {
+  id                  String    @id @default(cuid())
+
+  projectId           String
+  project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Report Details
+  reportPeriod        String
+  reportDate          DateTime  @default(now())
+  reportType          String    @default("WEEKLY")
+
+  // Executive Summary
+  executiveSummary    String    @db.Text
+
+  // Progress
+  progressSummary     String?   @db.Text
+  milestonesAchieved  String?   @db.Text
+  upcomingMilestones  String?   @db.Text
+
+  // Health Status
+  overallStatus       String
+  scheduleStatus      String
+  budgetStatus        String
+  scopeStatus         String
+  qualityStatus       String
+  riskStatus          String
+
+  // Issues & Risks
+  keyIssues           String?   @db.Text
+  keyRisks            String?   @db.Text
+
+  // Accomplishments
+  accomplishments     String?   @db.Text
+
+  // Plans
+  nextPeriodPlans     String?   @db.Text
+
+  // Metrics
+  progressPercentage  Int?
+  budgetConsumed      Float?
+  scheduleVariance    Int?
+  costVariance        Float?
+
+  createdBy           String?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("project_status_reports")
+}

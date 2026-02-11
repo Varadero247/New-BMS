@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, DollarSign, Percent, Settings } from 'lucide-react';
-import api from '@/lib/api';
+import { Plus, DollarSign, Percent, Settings, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import api, { aiApi } from '@/lib/api';
 
 interface ComponentType {
   id: string;
@@ -24,6 +24,9 @@ export default function SalaryPage() {
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<any | null>(null);
+  const [aiExpanded, setAiExpanded] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     code: '',
@@ -83,6 +86,29 @@ export default function SalaryPage() {
     }
   };
 
+  const handleAiBenchmark = async () => {
+    setAiLoading(true);
+    try {
+      const res = await aiApi.post('/analyze', {
+        type: 'SALARY_BENCHMARK',
+        context: {
+          jobTitle: 'General Staff',
+          department: 'All Departments',
+          location: 'United Kingdom',
+          experienceLevel: 'Mid-level',
+          industry: 'General',
+          currency: 'GBP',
+        },
+      });
+      setAiResult(res.data.data.result);
+      setAiExpanded(true);
+    } catch (error) {
+      console.error('Error running AI benchmark:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const getCategoryBadge = (category: string) => {
     const styles: Record<string, string> = {
       BASIC: 'bg-blue-100 text-blue-800',
@@ -110,13 +136,23 @@ export default function SalaryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Salary Structure</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Add Component Type</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleAiBenchmark}
+            disabled={aiLoading}
+            className="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
+          >
+            <Sparkles className="h-5 w-5" />
+            <span>{aiLoading ? 'Benchmarking...' : 'AI Benchmark'}</span>
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Component Type</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -181,6 +217,83 @@ export default function SalaryPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Benchmark Result */}
+      {aiResult && (
+        <div className="rounded-lg border-2 border-green-400 bg-white p-4 shadow">
+          <button
+            onClick={() => setAiExpanded(!aiExpanded)}
+            className="flex w-full items-center justify-between"
+          >
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-900">AI Salary Benchmark</h3>
+            </div>
+            {aiExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+          {aiExpanded && (
+            <div className="mt-4 space-y-3">
+              {aiResult.marketRange && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Market Range:</p>
+                  <div className="mt-1 grid grid-cols-3 gap-4">
+                    <div className="rounded-lg bg-gray-50 p-3 text-center">
+                      <p className="text-xs text-gray-500">Low</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {typeof aiResult.marketRange.low === 'number'
+                          ? aiResult.marketRange.low.toLocaleString()
+                          : aiResult.marketRange.low}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-green-50 p-3 text-center">
+                      <p className="text-xs text-gray-500">Median</p>
+                      <p className="text-lg font-semibold text-green-700">
+                        {typeof aiResult.marketRange.median === 'number'
+                          ? aiResult.marketRange.median.toLocaleString()
+                          : aiResult.marketRange.median}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-gray-50 p-3 text-center">
+                      <p className="text-xs text-gray-500">High</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {typeof aiResult.marketRange.high === 'number'
+                          ? aiResult.marketRange.high.toLocaleString()
+                          : aiResult.marketRange.high}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {aiResult.currentPositionInRange && (
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Current Position in Range:</span>{' '}
+                  {aiResult.currentPositionInRange}
+                </p>
+              )}
+              {aiResult.percentile !== undefined && (
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Percentile:</span>{' '}
+                  {aiResult.percentile}th
+                </p>
+              )}
+              {aiResult.recommendations && aiResult.recommendations.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-blue-700">Recommendations:</p>
+                  <ul className="ml-4 list-disc text-sm text-blue-600">
+                    {aiResult.recommendations.map((r: string, i: number) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Component Types Table */}
       <div className="rounded-lg bg-white shadow">

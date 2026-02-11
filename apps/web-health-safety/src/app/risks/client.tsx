@@ -170,6 +170,8 @@ export default function RiskRegisterClient() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
   const [aiEditedFields, setAiEditedFields] = useState<Record<string, boolean>>({});
+  const [aiLegalSuggestions, setAiLegalSuggestions] = useState<Array<{ regulation: string; section: string; relevance: string }>>([]);
+  const [aiLegalLoading, setAiLegalLoading] = useState(false);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState('all');
@@ -256,10 +258,45 @@ export default function RiskRegisterClient() {
     }
   }
 
+  async function handleAiLegalSuggestions() {
+    if (!form.title && !form.description) return;
+    setAiLegalLoading(true);
+    setAiLegalSuggestions([]);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${baseUrl}/api/ai/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          type: 'LEGAL_REFERENCES',
+          context: {
+            riskTitle: form.title,
+            riskDescription: form.description,
+            riskCategory: form.category,
+          },
+        }),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        const suggestions = json.data?.suggestions || [];
+        setAiLegalSuggestions(suggestions);
+      }
+    } catch (error) {
+      console.error('AI legal suggestions error:', error);
+    } finally {
+      setAiLegalLoading(false);
+    }
+  }
+
   function openModal() {
     setForm(emptyForm);
     setAiGenerated(false);
     setAiEditedFields({});
+    setAiLegalSuggestions([]);
     setShowModal(true);
   }
 
@@ -836,7 +873,22 @@ export default function RiskRegisterClient() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="legalReference">Legal Reference</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="legalReference">Legal Reference</Label>
+                      <button
+                        type="button"
+                        className="text-xs flex items-center gap-1 px-2 py-1 rounded text-purple-600 border border-purple-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={aiLegalLoading || (!form.title && !form.description)}
+                        onClick={handleAiLegalSuggestions}
+                      >
+                        {aiLegalLoading ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3" />
+                        )}
+                        AI Suggest
+                      </button>
+                    </div>
                     <Input
                       id="legalReference"
                       placeholder="e.g. Work at Height Regulations 2005"
@@ -844,6 +896,28 @@ export default function RiskRegisterClient() {
                       onChange={e => updateForm('legalReference', e.target.value)}
                       className="mt-1"
                     />
+                    {aiLegalSuggestions.length > 0 && (
+                      <div className="mt-2 space-y-2">
+                        {aiLegalSuggestions.map((suggestion, idx) => (
+                          <div
+                            key={idx}
+                            className="p-2 bg-purple-50 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors"
+                            onClick={() => {
+                              const ref = `${suggestion.regulation}${suggestion.section ? ` — ${suggestion.section}` : ''}`;
+                              const current = form.legalReference;
+                              updateForm('legalReference', current ? `${current}; ${ref}` : ref);
+                            }}
+                          >
+                            <p className="text-sm font-medium text-purple-800">{suggestion.regulation}</p>
+                            {suggestion.section && (
+                              <p className="text-xs text-purple-600">{suggestion.section}</p>
+                            )}
+                            <p className="text-xs text-gray-500 mt-0.5">{suggestion.relevance}</p>
+                          </div>
+                        ))}
+                        <p className="text-xs text-gray-400">Click a suggestion to add it</p>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="reviewDate">Review Date</Label>

@@ -35,6 +35,7 @@ check_service 4005 "Inventory API"
 check_service 4006 "HR API"
 check_service 4007 "Payroll API"
 check_service 4008 "Workflows API"
+check_service 4009 "Project Management API"
 
 echo ""
 echo "Web Applications:"
@@ -47,8 +48,9 @@ check_service 3005 "Inventory Web"
 check_service 3006 "HR Web"
 check_service 3007 "Payroll Web"
 check_service 3008 "Workflows Web"
+check_service 3009 "Project Management Web"
 
 echo ""
 # Count running services using ss
-RUNNING=$(ss -tlnp 2>/dev/null | grep -E ":(300[0-8]|400[0-8]) " | wc -l)
-echo "Total services running: $RUNNING / 18"
+RUNNING=$(ss -tlnp 2>/dev/null | grep -E ":(300[0-9]|400[0-9]) " | wc -l)
+echo "Total services running: $RUNNING / 20"

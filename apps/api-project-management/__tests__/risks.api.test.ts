@@ -1,0 +1,352 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    projectRisk: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    next();
+  }),
+}));
+
+import { prisma } from '../src/prisma';
+import risksRouter from '../src/routes/risks';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe('Project Risks API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/risks', () => {
+    const mockRisks = [
+      {
+        id: 'risk-1',
+        riskCode: 'RSK-001',
+        riskTitle: 'Budget overrun risk',
+        riskDescription: 'Project may exceed allocated budget',
+        riskCategory: 'BUDGET',
+        probability: 4,
+        impact: 5,
+        riskScore: 20,
+        riskLevel: 'CRITICAL',
+        status: 'IDENTIFIED',
+      },
+      {
+        id: 'risk-2',
+        riskCode: 'RSK-002',
+        riskTitle: 'Schedule delay',
+        riskDescription: 'Key deliverables may be delayed',
+        riskCategory: 'SCHEDULE',
+        probability: 3,
+        impact: 3,
+        riskScore: 9,
+        riskLevel: 'MEDIUM',
+        status: 'MITIGATING',
+      },
+    ];
+
+    it('should return list of risks with projectId', async () => {
+      (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce(mockRisks);
+      (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(2);
+
+      const response = await request(app)
+        .get('/api/risks?projectId=proj-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.meta).toMatchObject({
+        page: 1,
+        limit: 50,
+        total: 2,
+        totalPages: 1,
+      });
+    });
+
+    it('should return 400 without projectId', async () => {
+      const response = await request(app)
+        .get('/api/risks')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('projectId');
+    });
+
+    it('should filter by riskLevel', async () => {
+      (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([mockRisks[0]]);
+      (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/risks?projectId=proj-1&riskLevel=CRITICAL')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.projectRisk.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            projectId: 'proj-1',
+            riskLevel: 'CRITICAL',
+          }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/risks?projectId=proj-1&status=IDENTIFIED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.projectRisk.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            projectId: 'proj-1',
+            status: 'IDENTIFIED',
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors', async () => {
+      (mockPrisma.projectRisk.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/risks?projectId=proj-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/risks', () => {
+    const createPayload = {
+      projectId: 'proj-1',
+      riskCode: 'RSK-003',
+      riskTitle: 'Resource shortage',
+      riskDescription: 'Key team members may leave',
+      riskCategory: 'RESOURCE',
+      probability: 3,
+      impact: 4,
+    };
+
+    it('should create a risk with auto-calculated riskScore and riskLevel', async () => {
+      (mockPrisma.projectRisk.create as jest.Mock).mockResolvedValueOnce({
+        id: 'risk-new',
+        ...createPayload,
+        riskScore: 12,
+        riskLevel: 'HIGH',
+        status: 'IDENTIFIED',
+      });
+
+      const response = await request(app)
+        .post('/api/risks')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.riskScore).toBe(12);
+      expect(response.body.data.riskLevel).toBe('HIGH');
+
+      expect(mockPrisma.projectRisk.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          riskScore: 12,
+          riskLevel: 'HIGH',
+          probability: 3,
+          impact: 4,
+        }),
+      });
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/api/risks')
+        .set('Authorization', 'Bearer token')
+        .send({ projectId: 'proj-1' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors on create', async () => {
+      (mockPrisma.projectRisk.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/risks')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/risks/:id', () => {
+    const existingRisk = {
+      id: 'risk-1',
+      riskCode: 'RSK-001',
+      riskTitle: 'Budget overrun',
+      riskDescription: 'May exceed budget',
+      riskCategory: 'BUDGET',
+      probability: 4,
+      impact: 5,
+      riskScore: 20,
+      riskLevel: 'CRITICAL',
+      status: 'IDENTIFIED',
+      residualProbability: null,
+      residualImpact: null,
+    };
+
+    it('should update risk successfully', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(existingRisk);
+      (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+        ...existingRisk,
+        riskTitle: 'Updated title',
+      });
+
+      const response = await request(app)
+        .put('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token')
+        .send({ riskTitle: 'Updated title' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return 404 for non-existent risk', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/risks/non-existent')
+        .set('Authorization', 'Bearer token')
+        .send({ riskTitle: 'Updated' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should recalculate riskScore when probability changes', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(existingRisk);
+      (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+        ...existingRisk,
+        probability: 2,
+        riskScore: 10,
+        riskLevel: 'HIGH',
+      });
+
+      await request(app)
+        .put('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token')
+        .send({ probability: 2 });
+
+      expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
+        where: { id: 'risk-1' },
+        data: expect.objectContaining({
+          riskScore: 10,
+          riskLevel: 'HIGH',
+        }),
+      });
+    });
+
+    it('should auto-set closedDate when status changes to CLOSED', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(existingRisk);
+      (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+        ...existingRisk,
+        status: 'CLOSED',
+        closedDate: new Date(),
+      });
+
+      await request(app)
+        .put('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'CLOSED' });
+
+      expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
+        where: { id: 'risk-1' },
+        data: expect.objectContaining({
+          status: 'CLOSED',
+          closedDate: expect.any(Date),
+        }),
+      });
+    });
+
+    it('should handle database errors on update', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token')
+        .send({ riskTitle: 'Updated' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('DELETE /api/risks/:id', () => {
+    it('should delete risk successfully', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'risk-1' });
+      (mockPrisma.projectRisk.delete as jest.Mock).mockResolvedValueOnce({});
+
+      const response = await request(app)
+        .delete('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(mockPrisma.projectRisk.delete).toHaveBeenCalledWith({
+        where: { id: 'risk-1' },
+      });
+    });
+
+    it('should return 404 for non-existent risk', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .delete('/api/risks/non-existent')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should handle database errors on delete', async () => {
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/risks/risk-1')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+});

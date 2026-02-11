@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
-import { Clock, UserCheck, UserX, AlertTriangle, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label, Textarea } from '@ims/ui';
+import { Clock, UserCheck, UserX, AlertTriangle, Calendar, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Attendance {
@@ -32,11 +32,27 @@ const statusColors: Record<string, string> = {
   HOLIDAY: 'bg-gray-100 text-gray-700',
 };
 
+const initialFormState = {
+  employeeId: '',
+  date: new Date().toISOString().split('T')[0],
+  clockIn: '',
+  clockOut: '',
+  status: 'PRESENT',
+  notes: '',
+};
+
 export default function AttendancePage() {
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [summary, setSummary] = useState<any>(null);
+
+  // Modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [formData, setFormData] = useState(initialFormState);
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [employees, setEmployees] = useState<Array<{ id: string; firstName: string; lastName: string; employeeNumber: string }>>([]);
 
   useEffect(() => {
     loadAttendance();
@@ -60,6 +76,71 @@ export default function AttendancePage() {
       setSummary(res.data.data);
     } catch (error) {
       console.error('Error loading summary:', error);
+    }
+  }
+
+  async function loadEmployees() {
+    try {
+      const res = await api.get('/employees?limit=200');
+      setEmployees(res.data.data || []);
+    } catch (error) {
+      console.error('Error loading employees:', error);
+    }
+  }
+
+  function openCreateModal() {
+    setFormData({ ...initialFormState, date: selectedDate });
+    setFormError('');
+    setCreateModalOpen(true);
+    loadEmployees();
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }
+
+  async function handleCreate() {
+    setFormError('');
+
+    if (!formData.employeeId) {
+      setFormError('Employee is required');
+      return;
+    }
+    if (!formData.date) {
+      setFormError('Date is required');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload: Record<string, any> = {
+        employeeId: formData.employeeId,
+        date: formData.date,
+        status: formData.status,
+      };
+
+      if (formData.clockIn) payload.clockIn = formData.clockIn;
+      if (formData.clockOut) payload.clockOut = formData.clockOut;
+      if (formData.notes) payload.notes = formData.notes;
+
+      await api.post('/attendance', payload);
+      setCreateModalOpen(false);
+      setFormData(initialFormState);
+      setLoading(true);
+      loadAttendance();
+      loadSummary();
+    } catch (error: any) {
+      const msg = error?.response?.data?.error?.message;
+      if (Array.isArray(msg)) {
+        setFormError(msg.map((e: any) => e.message).join(', '));
+      } else if (typeof msg === 'string') {
+        setFormError(msg);
+      } else {
+        setFormError('Failed to create attendance record. Please try again.');
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -109,6 +190,9 @@ export default function AttendancePage() {
                 className="border rounded-md px-3 py-2"
               />
             </div>
+            <Button className="flex items-center gap-2" onClick={openCreateModal}>
+              <Plus className="h-4 w-4" /> Manual Entry
+            </Button>
           </div>
         </div>
 
@@ -223,6 +307,115 @@ export default function AttendancePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Manual Attendance Entry Modal */}
+      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Manual Attendance Entry" size="lg">
+        <div className="max-h-[70vh] overflow-y-auto pr-2">
+          {formError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="employeeId">Employee *</Label>
+              <select
+                id="employeeId"
+                name="employeeId"
+                value={formData.employeeId}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">Select employee</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.firstName} {emp.lastName} ({emp.employeeNumber})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="date">Date *</Label>
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="clockIn">Clock In</Label>
+                <Input
+                  id="clockIn"
+                  name="clockIn"
+                  type="time"
+                  value={formData.clockIn}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="clockOut">Clock Out</Label>
+                <Input
+                  id="clockOut"
+                  name="clockOut"
+                  type="time"
+                  value={formData.clockOut}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="PRESENT">Present</option>
+                <option value="ABSENT">Absent</option>
+                <option value="LATE">Late</option>
+                <option value="HALF_DAY">Half Day</option>
+                <option value="ON_LEAVE">On Leave</option>
+                <option value="WORK_FROM_HOME">Work From Home</option>
+                <option value="HOLIDAY">Holiday</option>
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                placeholder="Optional notes about this attendance entry"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+
+        <ModalFooter>
+          <Button
+            variant="outline"
+            onClick={() => setCreateModalOpen(false)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Entry'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }

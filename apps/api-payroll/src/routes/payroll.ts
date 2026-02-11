@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 
 const router: Router = Router();
@@ -50,11 +50,7 @@ router.get('/runs/:id', async (req: Request, res: Response) => {
     const run = await prisma.payrollRun.findUnique({
       where: { id: req.params.id },
       include: {
-        payslips: {
-          include: {
-            employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
-          },
-        },
+        payslips: true,
         taxFilings: true,
       },
     });
@@ -132,170 +128,17 @@ router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
       data: { status: 'CALCULATING' },
     });
 
-    // Get all active employees with salary
-    const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE' },
-      include: {
-        salaryRecords: {
-          where: { isActive: true },
-          include: { components: { include: { componentType: true } } },
-        },
-        benefits: {
-          where: { status: 'ACTIVE' },
-          include: { benefitPlan: true },
-        },
-        loans: {
-          where: { status: 'ACTIVE' },
-          include: { repayments: { where: { status: 'PENDING' }, take: 1 } },
-        },
-      },
-    });
+    // TODO: Payroll calculation requires cross-service employee data integration.
+    // The payroll schema does not have an Employee model - employee data lives in the HR service.
+    // This endpoint needs to fetch employee data from the HR API before it can calculate payslips.
 
-    let totalGross = 0;
-    let totalDeductions = 0;
-    let totalNet = 0;
-    let processedCount = 0;
-
-    for (const employee of employees) {
-      const salary = employee.salaryRecords[0];
-      if (!salary) continue;
-
-      // Calculate gross earnings
-      let grossEarnings = salary.baseSalary;
-      const earningItems: any[] = [
-        { category: 'BASIC', type: 'EARNING', name: 'Basic Salary', amount: salary.baseSalary },
-      ];
-
-      // Add salary components
-      for (const comp of salary.components) {
-        if (comp.componentType.type === 'EARNING') {
-          grossEarnings += comp.amount;
-          earningItems.push({
-            category: comp.componentType.category,
-            type: 'EARNING',
-            name: comp.componentType.name,
-            amount: comp.amount,
-            componentTypeId: comp.componentTypeId,
-          });
-        }
-      }
-
-      // Calculate deductions
-      let totalDeductionsForEmployee = 0;
-      const deductionItems: any[] = [];
-
-      // Tax calculation (simplified - 20% flat rate for demo)
-      const taxableIncome = grossEarnings;
-      const incomeTax = taxableIncome * 0.2;
-      totalDeductionsForEmployee += incomeTax;
-      deductionItems.push({
-        category: 'STATUTORY',
-        type: 'DEDUCTION',
-        name: 'Income Tax',
-        amount: incomeTax,
-        isTaxable: false,
-      });
-
-      // Add salary component deductions
-      for (const comp of salary.components) {
-        if (comp.componentType.type === 'DEDUCTION') {
-          totalDeductionsForEmployee += comp.amount;
-          deductionItems.push({
-            category: comp.componentType.category,
-            type: 'DEDUCTION',
-            name: comp.componentType.name,
-            amount: comp.amount,
-            componentTypeId: comp.componentTypeId,
-          });
-        }
-      }
-
-      // Benefits deductions
-      for (const benefit of employee.benefits) {
-        if (benefit.employeeContribution > 0) {
-          totalDeductionsForEmployee += benefit.employeeContribution;
-          deductionItems.push({
-            category: 'DEDUCTION',
-            type: 'DEDUCTION',
-            name: benefit.benefitPlan.name,
-            amount: benefit.employeeContribution,
-          });
-        }
-      }
-
-      // Loan repayments
-      for (const loan of employee.loans) {
-        if (loan.repayments[0]) {
-          totalDeductionsForEmployee += loan.repayments[0].amount;
-          deductionItems.push({
-            category: 'DEDUCTION',
-            type: 'DEDUCTION',
-            name: `Loan: ${loan.loanNumber}`,
-            amount: loan.repayments[0].amount,
-          });
-        }
-      }
-
-      const netPay = grossEarnings - totalDeductionsForEmployee;
-
-      // Generate payslip number
-      const payslipNumber = `PS-${run.runNumber.replace('PAY-', '')}-${String(processedCount + 1).padStart(4, '0')}`;
-
-      // Create payslip
-      await prisma.payslip.create({
-        data: {
-          payslipNumber,
-          payrollRunId: run.id,
-          employeeId: employee.id,
-          periodStart: run.periodStart,
-          periodEnd: run.periodEnd,
-          payDate: run.payDate,
-          employeeName: `${employee.firstName} ${employee.lastName}`,
-          employeeNumber: employee.employeeNumber,
-          department: '',
-          position: employee.jobTitle,
-          workingDays: 22, // Simplified
-          paidDays: 22,
-          leaveDays: 0,
-          unpaidLeaveDays: 0,
-          basicSalary: salary.baseSalary,
-          grossEarnings,
-          totalDeductions: totalDeductionsForEmployee,
-          statutoryDeductions: incomeTax,
-          netPay,
-          currency: salary.currency,
-          taxableIncome,
-          incomeTax,
-          status: 'GENERATED',
-          items: {
-            create: [...earningItems, ...deductionItems],
-          },
-        },
-      });
-
-      totalGross += grossEarnings;
-      totalDeductions += totalDeductionsForEmployee;
-      totalNet += netPay;
-      processedCount++;
-    }
-
-    // Update run with totals
-    const updatedRun = await prisma.payrollRun.update({
+    // Revert status since we cannot proceed
+    await prisma.payrollRun.update({
       where: { id: req.params.id },
-      data: {
-        status: 'CALCULATED',
-        totalEmployees: employees.length,
-        processedEmployees: processedCount,
-        totalGross,
-        totalDeductions,
-        totalNet,
-      },
-      include: {
-        _count: { select: { payslips: true } },
-      },
+      data: { status: 'DRAFT' },
     });
 
-    res.json({ success: true, data: updatedRun });
+    res.status(501).json({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Payroll calculation requires cross-service employee data integration' } });
   } catch (error) {
     console.error('Error calculating payroll:', error);
     // Reset status on error
@@ -351,9 +194,6 @@ router.get('/payslips', async (req: Request, res: Response) => {
     const [payslips, total] = await Promise.all([
       prisma.payslip.findMany({
         where,
-        include: {
-          employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
-        },
         skip,
         take,
         orderBy: { payDate: 'desc' },
@@ -378,7 +218,6 @@ router.get('/payslips/:id', async (req: Request, res: Response) => {
     const payslip = await prisma.payslip.findUnique({
       where: { id: req.params.id },
       include: {
-        employee: true,
         items: { orderBy: { sortOrder: 'asc' } },
         payrollRun: true,
       },

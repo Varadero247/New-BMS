@@ -11,8 +11,12 @@ import {
   Clock,
   AlertCircle,
   Play,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import api from '@/lib/api';
+import api, { aiApi } from '@/lib/api';
+import { Modal } from '@ims/ui';
 
 interface PayrollRun {
   id: string;
@@ -33,6 +37,16 @@ export default function PayrollPage() {
   const [runs, setRuns] = useState<PayrollRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<any | null>(null);
+  const [aiExpanded, setAiExpanded] = useState(true);
+  const [formData, setFormData] = useState({
+    periodStart: '',
+    periodEnd: '',
+    payDate: '',
+    payFrequency: 'MONTHLY',
+  });
 
   useEffect(() => {
     fetchPayrollRuns();
@@ -49,6 +63,49 @@ export default function PayrollPage() {
       console.error('Error fetching payroll runs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/payroll/runs', formData);
+      setShowModal(false);
+      setFormData({
+        periodStart: '',
+        periodEnd: '',
+        payDate: '',
+        payFrequency: 'MONTHLY',
+      });
+      fetchPayrollRuns();
+    } catch (error) {
+      console.error('Error creating payroll run:', error);
+    }
+  };
+
+  const handleAiValidate = async () => {
+    setAiLoading(true);
+    try {
+      const latestRun = runs.length > 0 ? runs[0] : null;
+      const res = await aiApi.post('/analyze', {
+        type: 'PAYROLL_VALIDATION',
+        context: {
+          runNumber: latestRun?.runNumber,
+          periodStart: latestRun?.periodStart,
+          periodEnd: latestRun?.periodEnd,
+          totalEmployees: runs.reduce((s, r) => s + r.employeeCount, 0),
+          totalGross: runs.reduce((s, r) => s + r.totalGross, 0),
+          totalNet: runs.reduce((s, r) => s + r.totalNet, 0),
+          totalDeductions: runs.reduce((s, r) => s + (r.totalGross - r.totalNet), 0),
+          currency: 'USD',
+        },
+      });
+      setAiResult(res.data.data.result);
+      setAiExpanded(true);
+    } catch (error) {
+      console.error('Error running AI validation:', error);
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -96,13 +153,23 @@ export default function PayrollPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Payroll Runs</h1>
-        <Link
-          href="/payroll/new"
-          className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-        >
-          <Plus className="h-5 w-5" />
-          <span>New Payroll Run</span>
-        </Link>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleAiValidate}
+            disabled={aiLoading}
+            className="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
+          >
+            <Sparkles className="h-5 w-5" />
+            <span>{aiLoading ? 'Validating...' : 'AI Validate'}</span>
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+          >
+            <Plus className="h-5 w-5" />
+            <span>New Payroll Run</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -167,6 +234,73 @@ export default function PayrollPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Validation Result */}
+      {aiResult && (
+        <div className="rounded-lg border-2 border-green-400 bg-white p-4 shadow">
+          <button
+            onClick={() => setAiExpanded(!aiExpanded)}
+            className="flex w-full items-center justify-between"
+          >
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-900">AI Payroll Validation</h3>
+              {aiResult.isValid !== undefined && (
+                <span className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                  aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {aiResult.isValid ? 'Valid' : 'Issues Found'}
+                </span>
+              )}
+            </div>
+            {aiExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+          {aiExpanded && (
+            <div className="mt-4 space-y-3">
+              {aiResult.averagePerEmployee !== undefined && (
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Average Per Employee:</span>{' '}
+                  {formatCurrency(aiResult.averagePerEmployee)}
+                </p>
+              )}
+              {aiResult.warnings && aiResult.warnings.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-yellow-700">Warnings:</p>
+                  <ul className="ml-4 list-disc text-sm text-yellow-600">
+                    {aiResult.warnings.map((w: string, i: number) => (
+                      <li key={i}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {aiResult.errors && aiResult.errors.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-red-700">Errors:</p>
+                  <ul className="ml-4 list-disc text-sm text-red-600">
+                    {aiResult.errors.map((e: string, i: number) => (
+                      <li key={i}>{e}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {aiResult.recommendations && aiResult.recommendations.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-blue-700">Recommendations:</p>
+                  <ul className="ml-4 list-disc text-sm text-blue-600">
+                    {aiResult.recommendations.map((r: string, i: number) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Payroll Runs Table */}
       <div className="rounded-lg bg-white shadow">
@@ -250,6 +384,74 @@ export default function PayrollPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Create Payroll Run Modal */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New Payroll Run" size="lg">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Period Start</label>
+              <input
+                type="date"
+                value={formData.periodStart}
+                onChange={(e) => setFormData({ ...formData, periodStart: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Period End</label>
+              <input
+                type="date"
+                value={formData.periodEnd}
+                onChange={(e) => setFormData({ ...formData, periodEnd: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Pay Date</label>
+              <input
+                type="date"
+                value={formData.payDate}
+                onChange={(e) => setFormData({ ...formData, payDate: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Pay Frequency</label>
+              <select
+                value={formData.payFrequency}
+                onChange={(e) => setFormData({ ...formData, payFrequency: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              >
+                <option value="WEEKLY">Weekly</option>
+                <option value="BIWEEKLY">Biweekly</option>
+                <option value="SEMI_MONTHLY">Semi-Monthly</option>
+                <option value="MONTHLY">Monthly</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            >
+              Create Payroll Run
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

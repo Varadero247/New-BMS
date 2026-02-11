@@ -287,6 +287,7 @@ export default function AspectsClient() {
   const [aiGenerated, setAiGenerated] = useState(false);
   const [aiResults, setAiResults] = useState<Record<string, string>>({});
   const [aiExpanded, setAiExpanded] = useState(false);
+  const [aiSuggestedScores, setAiSuggestedScores] = useState<Record<string, number> | null>(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -373,35 +374,80 @@ export default function AspectsClient() {
   async function handleAiAnalysis() {
     try {
       setAiLoading(true);
-      const response = await api.post('/aspects/ai-analyse', {
-        activityProcess: form.activityProcess,
-        aspect: form.aspect,
-        impact: form.impact,
-        scoreSeverity: form.scoreSeverity,
-        scoreProbability: form.scoreProbability,
-        scoreDuration: form.scoreDuration,
-        scoreExtent: form.scoreExtent,
-        scoreReversibility: form.scoreReversibility,
-        scoreRegulatory: form.scoreRegulatory,
-        scoreStakeholder: form.scoreStakeholder,
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${baseUrl}/api/ai/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          type: 'ENVIRONMENTAL_ASPECT',
+          context: {
+            activity: form.activityProcess,
+            aspect: form.aspect,
+            impact: form.impact,
+            category: form.activityCategory,
+          },
+        }),
       });
-      const data = response.data.data || response.data;
-      setAiResults({
-        aiSignificanceJustification: data.aiSignificanceJustification || '',
-        aiControlRecommendations: data.aiControlRecommendations || '',
-        aiLegalObligations: data.aiLegalObligations || '',
-        aiBenchmarkComparison: data.aiBenchmarkComparison || '',
-        aiImprovementOpportunities: data.aiImprovementOpportunities || '',
-        aiClimateRelevance: data.aiClimateRelevance || '',
-      });
-      setAiGenerated(true);
-      setAiExpanded(true);
+      if (response.ok) {
+        const json = await response.json();
+        const data = json.data || {};
+        const results: Record<string, string> = {};
+        if (data.scoring?.rationale) {
+          results.aiSignificanceJustification = data.scoring.rationale;
+        }
+        if (data.controls && Array.isArray(data.controls)) {
+          results.aiControlRecommendations = data.controls.map((c: string, i: number) => `${i + 1}. ${c}`).join('\n');
+        }
+        if (data.legalReferences && Array.isArray(data.legalReferences)) {
+          results.aiLegalObligations = data.legalReferences
+            .map((r: { regulation: string; section?: string; relevance: string }) =>
+              `${r.regulation}${r.section ? ` (${r.section})` : ''}: ${r.relevance}`)
+            .join('\n');
+        }
+        if (data.iso14001Clauses && Array.isArray(data.iso14001Clauses)) {
+          results.aiImprovementOpportunities = data.iso14001Clauses
+            .map((c: { clause: string; title: string; relevance: string }) =>
+              `Clause ${c.clause} — ${c.title}: ${c.relevance}`)
+            .join('\n');
+        }
+        if (data.scoring) {
+          setAiSuggestedScores({
+            scoreSeverity: data.scoring.severity,
+            scoreProbability: data.scoring.probability,
+            scoreDuration: data.scoring.duration,
+            scoreExtent: data.scoring.extent,
+            scoreReversibility: data.scoring.reversibility,
+            scoreRegulatory: data.scoring.regulatory,
+            scoreStakeholder: data.scoring.stakeholder,
+          });
+        }
+        setAiResults(results);
+        setAiGenerated(true);
+        setAiExpanded(true);
+      }
     } catch {
-      // AI endpoint may not exist yet -- silently handle
       setAiGenerated(false);
     } finally {
       setAiLoading(false);
     }
+  }
+
+  function applyAiScores() {
+    if (!aiSuggestedScores) return;
+    setForm((prev) => ({
+      ...prev,
+      scoreSeverity: aiSuggestedScores.scoreSeverity || prev.scoreSeverity,
+      scoreProbability: aiSuggestedScores.scoreProbability || prev.scoreProbability,
+      scoreDuration: aiSuggestedScores.scoreDuration || prev.scoreDuration,
+      scoreExtent: aiSuggestedScores.scoreExtent || prev.scoreExtent,
+      scoreReversibility: aiSuggestedScores.scoreReversibility || prev.scoreReversibility,
+      scoreRegulatory: aiSuggestedScores.scoreRegulatory || prev.scoreRegulatory,
+      scoreStakeholder: aiSuggestedScores.scoreStakeholder || prev.scoreStakeholder,
+    }));
   }
 
   // ------------------------------------------
@@ -461,6 +507,7 @@ export default function AspectsClient() {
               setAiGenerated(false);
               setAiResults({});
               setAiExpanded(false);
+              setAiSuggestedScores(null);
               setShowModal(true);
             }}
           >
@@ -1144,6 +1191,35 @@ export default function AspectsClient() {
                   </button>
                   {aiExpanded && (
                     <div className="p-4 space-y-4 bg-white">
+                      {aiSuggestedScores && (
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-green-800">Suggested Scores</h4>
+                            <Button
+                              type="button"
+                              className="text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700"
+                              onClick={applyAiScores}
+                            >
+                              Apply Scores
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {[
+                              { key: 'scoreSeverity', label: 'Sev' },
+                              { key: 'scoreProbability', label: 'Prob' },
+                              { key: 'scoreDuration', label: 'Dur' },
+                              { key: 'scoreExtent', label: 'Ext' },
+                              { key: 'scoreReversibility', label: 'Rev' },
+                              { key: 'scoreRegulatory', label: 'Reg' },
+                              { key: 'scoreStakeholder', label: 'Sth' },
+                            ].map(({ key, label }) => (
+                              <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-green-200 text-green-700">
+                                {label}: {aiSuggestedScores[key] || '-'}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {[
                         {
                           key: 'aiSignificanceJustification',
@@ -1157,7 +1233,7 @@ export default function AspectsClient() {
                         { key: 'aiBenchmarkComparison', title: 'Benchmark Comparison' },
                         {
                           key: 'aiImprovementOpportunities',
-                          title: 'Improvement Opportunities',
+                          title: 'ISO 14001 Clauses',
                         },
                         { key: 'aiClimateRelevance', title: 'Climate Relevance' },
                       ].map(

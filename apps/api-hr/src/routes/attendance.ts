@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 
 const router: Router = Router();
@@ -365,6 +365,73 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
     console.error('Error updating attendance:', error);
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update attendance' } });
+  }
+});
+
+// POST /api/attendance - Manual attendance entry
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      employeeId: z.string().uuid(),
+      date: z.string(),
+      clockIn: z.string().optional(),
+      clockOut: z.string().optional(),
+      status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'ON_LEAVE', 'WORK_FROM_HOME', 'HOLIDAY']).default('PRESENT'),
+      notes: z.string().optional(),
+    });
+
+    const data = schema.parse(req.body);
+    const attendanceDate = new Date(data.date);
+    attendanceDate.setHours(0, 0, 0, 0);
+
+    const createData: any = {
+      employeeId: data.employeeId,
+      date: attendanceDate,
+      status: data.status,
+      notes: data.notes,
+      clockInMethod: 'MANUAL' as const,
+      lateMinutes: 0,
+    };
+
+    if (data.clockIn) {
+      const [hours, minutes] = data.clockIn.split(':').map(Number);
+      const clockInDate = new Date(attendanceDate);
+      clockInDate.setHours(hours, minutes, 0, 0);
+      createData.clockIn = clockInDate;
+    }
+
+    if (data.clockOut) {
+      const [hours, minutes] = data.clockOut.split(':').map(Number);
+      const clockOutDate = new Date(attendanceDate);
+      clockOutDate.setHours(hours, minutes, 0, 0);
+      createData.clockOut = clockOutDate;
+    }
+
+    if (createData.clockIn && createData.clockOut) {
+      const workedMs = createData.clockOut.getTime() - createData.clockIn.getTime();
+      createData.workedHours = Math.round((workedMs / 3600000) * 100) / 100;
+      const standardHours = 8;
+      createData.overtimeHours = Math.max(0, Math.round((createData.workedHours - standardHours) * 100) / 100);
+    }
+
+    const attendance = await prisma.attendance.upsert({
+      where: { employeeId_date: { employeeId: data.employeeId, date: attendanceDate } },
+      update: createData,
+      create: createData,
+      include: {
+        employee: {
+          select: { id: true, firstName: true, lastName: true, employeeNumber: true },
+        },
+      },
+    });
+
+    res.status(201).json({ success: true, data: attendance });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
+    console.error('Error creating manual attendance:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create attendance record' } });
   }
 });
 

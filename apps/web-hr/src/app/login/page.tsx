@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Input, Label } from '@ims/ui';
 import { Users, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { api } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,13 +42,21 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await api.post('/auth/login', {
-        email,
-        password,
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw { response: { status: response.status, data: responseData } };
+      }
+      // Wrap in axios-like shape for compatibility
+      const wrappedResponse = { data: responseData };
 
-      if (response.data.success) {
-        const { accessToken, refreshToken, user } = response.data.data;
+      if (wrappedResponse.data.success) {
+        const { accessToken, refreshToken, user } = wrappedResponse.data.data;
         localStorage.setItem('token', accessToken);
         if (refreshToken) {
           localStorage.setItem('refreshToken', refreshToken);
@@ -59,7 +66,7 @@ export default function LoginPage() {
         }
         router.push('/');
       } else {
-        setError(response.data.message || 'Login failed. Please try again.');
+        setError(wrappedResponse.data.message || 'Login failed. Please try again.');
       }
     } catch (err: any) {
       if (err.response?.status === 401) {

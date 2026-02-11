@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Calculator, Calendar, DollarSign, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Modal } from '@ims/ui';
 import api from '@/lib/api';
 
 interface TaxFiling {
@@ -39,6 +40,18 @@ export default function TaxPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    filingType: 'WITHHOLDING',
+    taxPeriod: '',
+    taxYear: new Date().getFullYear().toString(),
+    grossWages: '',
+    taxableWages: '',
+    taxWithheld: '',
+    employerTax: '0',
+    filingDeadline: '',
+    payrollRunId: '',
+  });
 
   useEffect(() => {
     fetchData();
@@ -62,6 +75,36 @@ export default function TaxPage() {
       console.error('Error fetching tax data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/tax/filings', {
+        ...formData,
+        taxYear: parseInt(formData.taxYear),
+        grossWages: parseFloat(formData.grossWages),
+        taxableWages: parseFloat(formData.taxableWages),
+        taxWithheld: parseFloat(formData.taxWithheld),
+        employerTax: parseFloat(formData.employerTax),
+        payrollRunId: formData.payrollRunId || undefined,
+      });
+      setShowModal(false);
+      setFormData({
+        filingType: 'WITHHOLDING',
+        taxPeriod: '',
+        taxYear: new Date().getFullYear().toString(),
+        grossWages: '',
+        taxableWages: '',
+        taxWithheld: '',
+        employerTax: '0',
+        filingDeadline: '',
+        payrollRunId: '',
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error creating tax filing:', error);
     }
   };
 
@@ -122,7 +165,10 @@ export default function TaxPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Tax Compliance</h1>
-        <button className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+        >
           <Plus className="h-5 w-5" />
           <span>New Filing</span>
         </button>
@@ -345,6 +391,136 @@ export default function TaxPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Create Tax Filing Modal */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Tax Filing" size="lg">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Filing Type</label>
+              <select
+                value={formData.filingType}
+                onChange={(e) => setFormData({ ...formData, filingType: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              >
+                <option value="WITHHOLDING">Withholding</option>
+                <option value="QUARTERLY">Quarterly</option>
+                <option value="ANNUAL">Annual</option>
+                <option value="AMENDMENT">Amendment</option>
+                <option value="SOCIAL_SECURITY">Social Security</option>
+                <option value="MEDICARE">Medicare</option>
+                <option value="STATE">State</option>
+                <option value="LOCAL">Local</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tax Period</label>
+              <input
+                type="text"
+                value={formData.taxPeriod}
+                onChange={(e) => setFormData({ ...formData, taxPeriod: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                placeholder="e.g. 2026-Q1"
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tax Year</label>
+              <input
+                type="number"
+                value={formData.taxYear}
+                onChange={(e) => setFormData({ ...formData, taxYear: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Filing Deadline</label>
+              <input
+                type="date"
+                value={formData.filingDeadline}
+                onChange={(e) => setFormData({ ...formData, filingDeadline: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Gross Wages</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.grossWages}
+                onChange={(e) => setFormData({ ...formData, grossWages: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Taxable Wages</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.taxableWages}
+                onChange={(e) => setFormData({ ...formData, taxableWages: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tax Withheld</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.taxWithheld}
+                onChange={(e) => setFormData({ ...formData, taxWithheld: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Employer Tax</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.employerTax}
+                onChange={(e) => setFormData({ ...formData, employerTax: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Payroll Run ID</label>
+            <input
+              type="text"
+              value={formData.payrollRunId}
+              onChange={(e) => setFormData({ ...formData, payrollRunId: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+              placeholder="Optional UUID"
+            />
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            >
+              Create Filing
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

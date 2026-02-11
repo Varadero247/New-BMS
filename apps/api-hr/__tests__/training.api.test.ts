@@ -1,8 +1,8 @@
 import express from 'express';
 import request from 'supertest';
 
-// Mock dependencies
-jest.mock('@ims/database', () => ({
+// Mock dependencies - routes import from ../prisma (re-exports from @ims/database/hr)
+jest.mock('../src/prisma', () => ({
   prisma: {
     hRTrainingCourse: {
       findMany: jest.fn(),
@@ -45,7 +45,7 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import trainingRoutes from '../src/routes/training';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

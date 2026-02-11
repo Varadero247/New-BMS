@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => ({
+jest.mock('../src/prisma', () => ({
   prisma: {
     productCategory: {
       findMany: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import categoriesRoutes from '../src/routes/categories';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
