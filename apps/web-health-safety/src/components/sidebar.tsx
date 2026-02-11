@@ -11,6 +11,7 @@ import {
   ClipboardList,
   GraduationCap,
   BarChart3,
+  ShieldCheck,
   Home,
   Settings,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Incidents', href: '/incidents', icon: FileWarning },
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },
+  { name: 'CAPA', href: '/capa', icon: ShieldCheck },
   { name: 'Actions', href: '/actions', icon: ClipboardList },
   { name: 'Training', href: '/training', icon: GraduationCap },
   { name: 'Metrics', href: '/metrics', icon: BarChart3 },

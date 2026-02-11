@@ -109,3 +109,294 @@ model ApiKey {
   @@index([prefix])
   @@map("api_keys")
 }
+
+// ============================================
+// DASHBOARD READ MODELS
+// Read-only model definitions for gateway dashboard
+// to query cross-domain aggregate data.
+// No relations defined — scalar fields only.
+// ============================================
+
+enum ISOStandard {
+  ISO_45001
+  ISO_14001
+  ISO_9001
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  ACTIVE
+  UNDER_REVIEW
+  MITIGATED
+  CLOSED
+  ACCEPTED
+}
+
+model Risk {
+  id              String      @id @default(cuid())
+  standard        ISOStandard
+  title           String
+  description     String
+  category        String?
+  source          String?
+  likelihood      Int         @default(1)
+  severity        Int         @default(1)
+  detectability   Int         @default(1)
+  riskScore       Int?
+  riskLevel       RiskLevel?
+  referenceNumber String?     @unique
+  whoAtRisk       String?
+  initialLikelihood       Int?
+  initialSeverity         Int?
+  initialRiskScore        Int?
+  initialRiskLevel        RiskLevel?
+  aiControlElimination    String?
+  aiControlSubstitution   String?
+  aiControlEngineering    String?
+  aiControlAdministrative String?
+  aiControlPPE            String?
+  aiControlsGenerated     Boolean    @default(false)
+  residualLikelihood      Int?
+  residualSeverity        Int?
+  residualRiskScore       Int?
+  residualRiskLevel       RiskLevel?
+  riskOwner               String?
+  legalReference          String?
+  createdBy               String?
+  aspectType          String?
+  environmentalImpact String?
+  scale               Int?
+  frequency           Int?
+  legalImpact         Int?
+  significanceScore   Int?
+  processOwner   String?
+  processInputs  String?
+  processOutputs String?
+  kpis           String?
+  existingControls   String?
+  additionalControls String?
+  residualRisk       Int?
+  status         RiskStatus @default(ACTIVE)
+  reviewDate     DateTime?
+  lastReviewedAt DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([standard, status])
+  @@map("risks")
+}
+
+enum IncidentType {
+  INJURY
+  NEAR_MISS
+  DANGEROUS_OCCURRENCE
+  OCCUPATIONAL_ILLNESS
+  PROPERTY_DAMAGE
+  FIRST_AID
+  MEDICAL_TREATMENT
+  LOST_TIME
+  SPILL
+  EMISSION
+  WASTE_INCIDENT
+  ENVIRONMENTAL_COMPLAINT
+  REGULATORY_BREACH
+  NON_CONFORMANCE
+  CUSTOMER_COMPLAINT
+  SUPPLIER_ISSUE
+  PROCESS_DEVIATION
+  PRODUCT_DEFECT
+  AUDIT_FINDING
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum IncidentStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  AWAITING_ACTIONS
+  ACTIONS_IN_PROGRESS
+  VERIFICATION
+  CLOSED
+}
+
+model Incident {
+  id              String           @id @default(cuid())
+  standard        ISOStandard
+  referenceNumber String           @unique @default(cuid())
+  title           String
+  description     String
+  type            IncidentType
+  severity        IncidentSeverity @default(MINOR)
+  category        String?
+  location        String?
+  dateOccurred    DateTime
+  dateReported    DateTime         @default(now())
+  reporterId      String
+  investigatorId  String?
+  personsInvolved String?
+  injuryType      String?
+  bodyPart        String?
+  daysLost        Int?
+  treatmentType   String?
+  environmentalMedia String?
+  quantity           Float?
+  unit               String?
+  regulatoryReport   Boolean @default(false)
+  productAffected      String?
+  customerImpact       String?
+  costOfNonConformance Float?
+  immediateCause      String?
+  rootCauses          String?
+  contributingFactors String?
+  status          IncidentStatus   @default(OPEN)
+  closedAt        DateTime?
+  riskId          String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([standard, status])
+  @@index([dateOccurred])
+  @@map("incidents")
+}
+
+enum ActionType {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  IMMEDIATE
+  LONG_TERM
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  OVERDUE
+  CANCELLED
+}
+
+model Action {
+  id              String         @id @default(cuid())
+  standard        ISOStandard
+  referenceNumber String         @unique @default(cuid())
+  title           String
+  description     String
+  type            ActionType
+  priority        ActionPriority @default(MEDIUM)
+  ownerId         String
+  createdById     String
+  dueDate         DateTime
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+  verificationMethod  String?
+  verificationNotes   String?
+  effectivenessRating Int?
+  status          ActionStatus   @default(OPEN)
+  estimatedCost   Float?
+  actualCost      Float?
+  riskId             String?
+  incidentId         String?
+  legalRequirementId String?
+  objectiveId        String?
+  aiAnalysisId       String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([status, dueDate])
+  @@index([ownerId, status])
+  @@map("actions")
+}
+
+enum AIProvider {
+  OPENAI
+  ANTHROPIC
+  GROK
+}
+
+enum AIAnalysisStatus {
+  PENDING
+  COMPLETED
+  ACCEPTED
+  PARTIALLY_ACCEPTED
+  REJECTED
+  ERROR
+}
+
+model AIAnalysis {
+  id             String           @id @default(cuid())
+  userId         String
+  sourceType     String
+  sourceId       String
+  sourceData     Json
+  prompt         String
+  provider       AIProvider
+  model          String?
+  response       Json
+  suggestedRootCause String?
+  suggestedActions   Json?
+  complianceGaps     Json?
+  highlights         Json?
+  status         AIAnalysisStatus @default(PENDING)
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+  riskId         String?
+  incidentId     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([sourceType, sourceId])
+  @@map("ai_analyses")
+}
+
+model MonthlyTrend {
+  id       String      @id @default(cuid())
+  standard ISOStandard
+  metric   String
+  year     Int
+  month    Int
+  value    Float
+  createdAt DateTime   @default(now())
+
+  @@unique([standard, metric, year, month])
+  @@index([standard, metric])
+  @@map("monthly_trends")
+}
+
+model ComplianceScore {
+  id             String      @id @default(cuid())
+  standard       ISOStandard
+  overallScore   Float       @default(0)
+  riskScore      Float?
+  incidentScore  Float?
+  legalScore     Float?
+  objectiveScore Float?
+  actionScore    Float?
+  trainingScore  Float?
+  documentScore  Float?
+  totalItems     Int         @default(0)
+  compliantItems Int         @default(0)
+  calculatedAt   DateTime    @default(now())
+
+  @@unique([standard])
+  @@map("compliance_scores")
+}
