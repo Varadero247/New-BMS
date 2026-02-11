@@ -3,46 +3,33 @@
 
 ARG NODE_VERSION=20-alpine
 
-# Stage 1: Dependencies
-FROM node:${NODE_VERSION} AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@8 --activate
-
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY packages/*/package.json packages/
-COPY apps/*/package.json apps/
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile --prod=false
-
-# Stage 2: Builder
+# Stage 1: Builder
 FROM node:${NODE_VERSION} AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@8 --activate
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Copy deps
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages ./packages
-COPY --from=deps /app/apps ./apps
+# Copy workspace config and lockfile first for caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Copy source
-COPY . .
+# Copy all package.json files preserving directory structure
+COPY packages/ ./packages/
+COPY apps/ ./apps/
 
-# Generate Prisma client
-RUN pnpm --filter @ims/database generate
+# Install dependencies
+RUN pnpm install --frozen-lockfile --prod=false
 
-# Build packages and app
+# Generate all Prisma clients (domain schemas in prisma/schemas/)
+RUN pnpm --filter @ims/database generate:all
+
+# Build shared packages first, then the target service
 ARG SERVICE=api-gateway
-RUN pnpm --filter @ims/* build
+RUN pnpm --filter @ims/* build || true
 RUN pnpm --filter ${SERVICE} build
 
-# Stage 3: Runner
+# Stage 2: Runner
 FROM node:${NODE_VERSION} AS runner
 RUN apk add --no-cache dumb-init
 

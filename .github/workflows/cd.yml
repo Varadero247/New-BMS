@@ -27,13 +27,14 @@ jobs:
       packages: write
 
     strategy:
+      fail-fast: false
       matrix:
         service:
           - api-gateway
           - api-health-safety
           - api-environment
           - api-quality
-          - api-ai
+          - api-ai-analysis
           - api-inventory
           - api-hr
           - api-payroll
