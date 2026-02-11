@@ -60,6 +60,8 @@ describe('Service Auth Package', () => {
     it('should throw error when no secret is set', () => {
       delete process.env.SERVICE_SECRET;
       delete process.env.JWT_SECRET;
+      // Clear cached secret from module load time
+      configureServiceAuth({ secret: '' });
 
       expect(() => generateServiceToken('test')).toThrow(
         'SERVICE_SECRET or JWT_SECRET environment variable must be set'
@@ -68,6 +70,8 @@ describe('Service Auth Package', () => {
 
     it('should throw error when secret is too short', () => {
       process.env.SERVICE_SECRET = 'short';
+      // Ensure config picks up the short env var
+      configureServiceAuth({ secret: 'short' });
 
       expect(() => generateServiceToken('test')).toThrow(
         'Service secret must be at least 32 characters'

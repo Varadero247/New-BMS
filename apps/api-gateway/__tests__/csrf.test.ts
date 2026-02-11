@@ -30,7 +30,7 @@ describe('CSRF Protection Middleware', () => {
   describe('csrfProtection', () => {
     it('should skip ignored paths', () => {
       const middleware = csrfProtection();
-      const req = mockRequest({ path: '/api/auth/login', method: 'POST' });
+      const req = mockRequest({ path: '/auth/login', method: 'POST' });
       const res = mockResponse();
 
       middleware(req as Request, res as Response, mockNext);

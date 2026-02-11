@@ -8,15 +8,22 @@ import {
 
 describe('AccountLockoutManager', () => {
   let manager: AccountLockoutManager;
+  const savedRedisUrl = process.env.REDIS_URL;
 
   beforeEach(() => {
+    // Remove REDIS_URL to force in-memory store for tests
+    delete process.env.REDIS_URL;
     resetAccountLockoutManager();
-    // Use in-memory store for tests (no Redis)
     manager = new AccountLockoutManager({ maxAttempts: 5, lockoutDuration: 60 });
   });
 
   afterEach(async () => {
     await manager.close();
+  });
+
+  afterAll(() => {
+    // Restore REDIS_URL if it was set
+    if (savedRedisUrl) process.env.REDIS_URL = savedRedisUrl;
   });
 
   describe('recordFailedAttempt', () => {
@@ -285,6 +292,7 @@ describe('checkAccountLockout middleware', () => {
   let manager: AccountLockoutManager;
 
   beforeEach(() => {
+    delete process.env.REDIS_URL;
     resetAccountLockoutManager();
     manager = new AccountLockoutManager({ maxAttempts: 3, lockoutDuration: 60 });
 
