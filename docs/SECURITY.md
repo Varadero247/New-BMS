@@ -196,7 +196,7 @@ Expired sessions are automatically cleaned up:
 - [ ] Verify `.env` is in `.gitignore`
 - [ ] Ensure `NODE_ENV=production` in production
 - [ ] Configure Redis for distributed rate limiting
-- [ ] Review CORS origins (`CORS_ORIGIN` env var)
+- [ ] Verify `CORS_ORIGIN` is NOT set in `.env` (let code use hardcoded origins array)
 - [ ] Enable HTTPS (via reverse proxy)
 
 ### Code Review
@@ -459,7 +459,7 @@ The API Gateway uses Helmet.js with strict security headers plus additional cust
 | `X-DNS-Prefetch-Control` | `off` | Prevent DNS prefetch leakage |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Control referrer information |
 | `Cross-Origin-Opener-Policy` | `same-origin` | Isolate browsing context |
-| `Cross-Origin-Resource-Policy` | `same-origin` | Block cross-origin resource loads |
+| `Cross-Origin-Resource-Policy` | `cross-origin` | Allow cross-origin resource loads (required for multi-port microservices) |
 | `X-Permitted-Cross-Domain-Policies` | `none` | Block Adobe cross-domain policies |
 
 ### HSTS (Production Only)

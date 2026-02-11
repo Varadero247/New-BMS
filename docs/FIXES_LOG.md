@@ -611,3 +611,110 @@ Each module includes: summary metrics cards, filter bar, card-based list with ba
 | 20 — API client & sidebar | Frontend | baseURL fix + navigation update |
 
 **All 15 API endpoints verified returning 200 through gateway. CRUD operations tested successfully with auto-generated reference numbers.**
+
+---
+
+## Session 5 — CI/CD Pipeline Fixes (2026-02-11)
+
+Fixed all CI/CD pipeline failures: 9/9 Docker builds pass, 35/35 test suites (939/939 tests) pass, lint and build all green.
+
+---
+
+### CHANGE 21 — Build Tool Migration (api-workflows + service-auth)
+
+**Problem:** `api-workflows` and `service-auth` used `tsc` for builds, which failed in Docker containers:
+- `service-auth`: `Cannot read file '/app/tsconfig.base.json'` and `Module 'jsonwebtoken' has no default export`
+- `api-workflows`: 14+ TypeScript errors — missing declaration files for `@ims/monitoring` and `@ims/database`
+
+**Root Cause:** All other API services use `tsup` (a zero-config TypeScript bundler) which bundles dependencies without needing `tsconfig.base.json` or declaration files. These two packages were the only ones still using raw `tsc`.
+
+**Solution:** Switched both packages to `tsup`, consistent with all other API services:
+
+```json
+// apps/api-workflows/package.json
+"build": "tsup src/index.ts --format cjs --no-dts"
+
+// packages/service-auth/package.json (exports types, so uses --dts)
+"build": "tsup src/index.ts --format cjs --dts"
+```
+
+**Files Changed:**
+- `apps/api-workflows/package.json`
+- `packages/service-auth/package.json`
+
+---
+
+### CHANGE 22 — Four CI Test Suite Fixes
+
+**Problem:** 4 test suites (11 tests) failed in CI but passed locally due to CI-specific environment variables (`REDIS_URL`, `JWT_SECRET`).
+
+#### Fix 22a — api-quality nonconformances test
+
+**Issue:** `moduleNameMapper` couldn't resolve `@ims/database/quality` subpath export. Test also used wrong model name (`incident` instead of `qualNonConformance`) and wrong Prisma methods.
+
+**Solution:** Complete rewrite — mock `../src/prisma` instead of `@ims/database`, use `qualNonConformance` model, match actual route behavior (findUnique not findFirst, ncType not type, status REPORTED not OPEN, PUT not PATCH for updates).
+
+```typescript
+// CORRECT — mock the local prisma module
+jest.mock('../src/prisma', () => ({
+  prisma: { qualNonConformance: { findMany: jest.fn(), ... } },
+}));
+
+// WRONG — moduleNameMapper can't resolve subpath exports
+jest.mock('@ims/database', () => ({ prisma: { ... } }));
+```
+
+**File:** `apps/api-quality/__tests__/nonconformances.api.test.ts`
+
+#### Fix 22b — service-auth token generation test
+
+**Issue:** CI sets `JWT_SECRET` env var. The `DEFAULT_CONFIG` object captures `process.env.JWT_SECRET` at module load time. Deleting env vars in tests doesn't clear the cached value.
+
+**Solution:** Added `configureServiceAuth({ secret: '' })` after deleting env vars to explicitly clear the cached config.
+
+**File:** `packages/service-auth/__tests__/service-auth.test.ts`
+
+#### Fix 22c — Gateway account-lockout test
+
+**Issue:** CI has `REDIS_URL=redis://localhost:6379`. `AccountLockoutManager` constructor creates a real Redis connection when `REDIS_URL` is set. Data persists across test instances.
+
+**Solution:** Added `delete process.env.REDIS_URL` in `beforeEach` to force in-memory store for tests.
+
+**File:** `apps/api-gateway/__tests__/account-lockout.test.ts`
+
+#### Fix 22d — Gateway CSRF test
+
+**Issue:** Test used path `/api/auth/login` but `ignorePaths` has `/auth/login`. The gateway strips the `/api` prefix before CSRF middleware runs, so `startsWith` never matches.
+
+**Solution:** Changed test path from `/api/auth/login` to `/auth/login`.
+
+**File:** `apps/api-gateway/__tests__/csrf.test.ts`
+
+---
+
+### CHANGE 23 — pnpm Lockfile Update
+
+**Problem:** After adding `tsup` to `api-workflows` and `service-auth` package.json files, CI failed at "Install dependencies" because `pnpm install --frozen-lockfile` detected the lockfile was outdated.
+
+**Solution:** Ran `pnpm install` locally to update `pnpm-lock.yaml` with the new tsup entries.
+
+**File:** `pnpm-lock.yaml`
+
+---
+
+### Session 5 Summary
+
+| Change | Category | Scope |
+|--------|----------|-------|
+| 21 — tsup migration | Build | 2 packages switched from tsc to tsup |
+| 22a — Quality test | Test | Rewrite mock to use correct model + import path |
+| 22b — Service-auth test | Test | Clear cached config after deleting env vars |
+| 22c — Lockout test | Test | Force in-memory store by removing REDIS_URL |
+| 22d — CSRF test | Test | Fix path to match gateway prefix stripping |
+| 23 — Lockfile | Build | Update pnpm-lock.yaml for new dependencies |
+
+**CI/CD Results (commit ce6e906):**
+- CI: Lint PASS, Build PASS, Test PASS (35 suites, 939 tests)
+- CD: 9/9 Docker builds PASS, Deploy to Staging skipped (no K8s)
+
+**Lesson Learned:** CI environments set additional env vars (`REDIS_URL`, `JWT_SECRET`) that aren't present locally. Tests that manipulate environment variables must account for module-level caching (values captured at import time) and Redis connections (created in constructors). Always run full test suite in CI-like conditions before assuming tests pass.

@@ -54,6 +54,9 @@ docker compose ps postgres redis
 ```
 
 ### Step 2: Push Database Schemas
+
+> **Important:** When multiple schemas share one database, `prisma db push` for one schema may try to DROP tables from other schemas. Use `prisma migrate diff --from-empty --script` piped through `psql` as the safe alternative (see Restart Procedure below for examples).
+
 ```bash
 cd packages/database
 
@@ -102,6 +105,9 @@ pnpm --filter @ims/database seed
 Creates default admin user: `admin@ims.local` / `admin123`
 
 ### Step 5: Build Docker Images
+
+All API services use `tsup` as the build tool (not `tsc`). This is configured in each service's `package.json`.
+
 ```bash
 docker compose build --no-cache
 ```
