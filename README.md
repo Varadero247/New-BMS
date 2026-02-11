@@ -1,6 +1,6 @@
 # IMS - Integrated Management System
 
-A modular Integrated Management System for ISO compliance (ISO 45001, ISO 14001, ISO 9001) with separate applications for Health & Safety, Environmental, and Quality management.
+A modular Integrated Management System for ISO compliance (ISO 45001, ISO 14001, ISO 9001, PMBOK/ISO 21502) with separate applications for Health & Safety, Environmental, Quality, and Project management.
 
 ## Tech Stack
 
@@ -10,7 +10,7 @@ A modular Integrated Management System for ISO compliance (ISO 45001, ISO 14001,
 - **Mobile**: Capacitor (iOS/Android)
 - **Monorepo**: pnpm workspaces + Turborepo
 - **AI**: Anthropic Claude (Sonnet 4.5) for H&S analysis, OpenAI, Grok
-- **Deployment**: Docker Compose with 18 containerized services
+- **Deployment**: Docker Compose with 22 containerized services (10 APIs + 10 web apps + PostgreSQL + Redis)
 
 ## Architecture
 
@@ -22,11 +22,21 @@ ims-monorepo/
 │   ├── web-environment/     # ISO 14001 Module (Port 3002)
 │   ├── web-quality/         # ISO 9001 Module (Port 3003)
 │   ├── web-settings/        # Settings & Admin (Port 3004)
+│   ├── web-inventory/       # Inventory Module (Port 3005)
+│   ├── web-hr/              # HR Module (Port 3006)
+│   ├── web-payroll/         # Payroll Module (Port 3007)
+│   ├── web-workflows/       # Workflows Module (Port 3008)
+│   ├── web-project-management/ # Project Management (Port 3009)
 │   ├── api-gateway/         # API Gateway (Port 4000)
 │   ├── api-health-safety/   # H&S API Service (Port 4001)
 │   ├── api-environment/     # Environmental API (Port 4002)
 │   ├── api-quality/         # Quality API (Port 4003)
 │   ├── api-ai-analysis/     # AI Analysis API (Port 4004)
+│   ├── api-inventory/       # Inventory API (Port 4005)
+│   ├── api-hr/              # HR API (Port 4006)
+│   ├── api-payroll/         # Payroll API (Port 4007)
+│   ├── api-workflows/       # Workflows API (Port 4008)
+│   ├── api-project-management/ # Project Management API (Port 4009)
 │   └── mobile/              # Capacitor mobile app
 ├── packages/
 │   ├── database/            # Prisma schemas and clients (core + H&S)
@@ -108,6 +118,7 @@ pnpm dev:health-safety  # H&S Module + API + Gateway
 pnpm dev:environment    # Environmental Module + API + Gateway
 pnpm dev:quality        # Quality Module + API + Gateway
 pnpm dev:settings       # Settings + AI API + Gateway
+pnpm dev:project-management  # PM Module + API + Gateway
 
 # Start APIs only
 pnpm dev:apis
@@ -126,6 +137,7 @@ pnpm dev:web
 | `pnpm dev:environment` | Start Environmental module with APIs |
 | `pnpm dev:quality` | Start Quality module with APIs |
 | `pnpm dev:settings` | Start Settings module with APIs |
+| `pnpm dev:project-management` | Start PM module with APIs |
 | `pnpm build` | Build all apps |
 | `pnpm build:packages` | Build shared packages only |
 | `pnpm db:generate` | Generate Prisma client |
@@ -245,13 +257,36 @@ Database: 8 models including WasteRecord and EnvironmentalMetric (energy, water,
 | **Expenses** | `/api/expenses` | Submit, approve, reimburse, reports |
 | **Tax** | `/api/tax` | Filings, brackets, payments, summaries |
 
-### AI Analysis (Claude Sonnet 4.5)
+### Project Management (PMBOK/ISO 21502) — Fully Implemented
+
+12 route modules with 60+ API endpoints:
+
+| Module | API Route | Key Features |
+|--------|-----------|-------------|
+| **Projects** | `/api/projects` | PMBOK lifecycle, RAG status, budget tracking |
+| **Tasks** | `/api/tasks` | WBS, dependencies, critical path, Gantt |
+| **Milestones** | `/api/milestones` | Deliverables, auto-status, phase gates |
+| **Risks** | `/api/risks` | Probability x Impact scoring, response plans |
+| **Issues** | `/api/issues` | Priority matrix, resolution tracking |
+| **Changes** | `/api/changes` | CCB approval, impact assessment |
+| **Resources** | `/api/resources` | Allocation, utilization, cost rates |
+| **Stakeholders** | `/api/stakeholders` | Power/Interest matrix, engagement strategy |
+| **Documents** | `/api/documents` | Version control, categories |
+| **Sprints** | `/api/sprints` | Agile ceremonies, velocity, burndown |
+| **Timesheets** | `/api/timesheets` | Time tracking, cost calculation, approval |
+| **Reports** | `/api/reports` | Status reports, RAG dashboards, EVM |
+
+### AI Analysis (Multi-Provider: Claude, OpenAI, Grok)
+
+- 23 analysis types across H&S, HR, Payroll, and Project Management
 - Risk controls generation (ISO 45001 Hierarchy of Controls)
 - Incident root cause analysis (5-Why, ICAM methodology)
 - Legal compliance assessment (UK/EU OHS legislation)
 - SMART objective generation with KPIs and milestones
 - CAPA root cause + corrective/preventive action generation
-- Fishbone diagrams, Bow-Tie analysis, Pareto analysis
+- HR analysis: Job descriptions, performance insights, leave analysis, onboarding, certifications
+- Payroll analysis: Validation, salary benchmarks, expense checks, loan calculator, payslip anomaly
+- PM analysis: Project charter, WBS generation, critical path, 3-point estimation, resource leveling, risk analysis, EVM, stakeholder strategy, health check, sprint planning, lessons learned
 
 ## API Gateway Routes
 
@@ -268,6 +303,7 @@ Database: 8 models including WasteRecord and EnvironmentalMetric (energy, water,
 | `/api/hr/*` | api-hr:4006 (employees, attendance, leave, recruitment, training, performance, documents) |
 | `/api/payroll/*` | api-payroll:4007 (payroll, salary, benefits, loans, expenses, tax) |
 | `/api/workflows/*` | api-workflows:4008 |
+| `/api/v1/project-management/*` | api-project-management:4009 (projects, tasks, milestones, risks, issues, changes, resources, stakeholders, documents, sprints, timesheets, reports) |
 
 ## Demo Credentials
 
@@ -337,11 +373,17 @@ import { createLogger, metricsMiddleware, createHealthCheck } from '@ims/monitor
 ## Testing
 
 ```bash
-# Run all Jest unit tests (117 tests across 5 suites)
+# Run all Jest unit tests (2,579 tests across 99 suites)
 pnpm test
+
+# Run all integration tests (8 modules, ~425 assertions)
+./scripts/test-all-modules.sh
 
 # Run H&S integration tests (70 tests)
 ./scripts/test-hs-modules.sh
+
+# Run PM integration tests (~45 tests)
+./scripts/test-pm-modules.sh
 
 # Run specific test suite
 npx jest --config jest.config.js apps/api-health-safety/__tests__/risks.api.test.ts

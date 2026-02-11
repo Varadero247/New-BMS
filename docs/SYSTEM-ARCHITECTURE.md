@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 18 services: 9 backend APIs and 9 frontend web applications.
+The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 20 services: 10 backend APIs and 10 frontend web applications.
 
 ## Architecture Diagram
 
@@ -15,9 +15,9 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 │  └────┬────┘ │  :3001  │ │  :3002  │ └────┬────┘ └────┬────┘               │
 │       │      └────┬────┘ └────┬────┘      │           │                    │
 │  ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐               │
-│  │Inventory│ │   HR    │ │ Payroll │ │Workflows│ │         │               │
-│  │  :3005  │ │  :3006  │ │  :3007  │ │  :3008  │ │         │               │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └─────────┘               │
+│  │Inventory│ │   HR    │ │ Payroll │ │Workflows│ │Proj Mgmt│               │
+│  │  :3005  │ │  :3006  │ │  :3007  │ │  :3008  │ │  :3009  │               │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘               │
 └───────┼──────────┼──────────┼──────────┼────────────────────────────────────┘
         │          │          │          │
         └──────────┴──────────┴──────────┘
@@ -47,6 +47,11 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 │  │   :4005     │ │   :4006     │ │   :4007     │ │   :4008     │           │
 │  │   Stock     │ │  Employees  │ │   Salary    │ │  Approvals  │           │
 │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘           │
+│  ┌─────────────┐                                                           │
+│  │ Proj Mgmt   │                                                           │
+│  │   :4009     │                                                           │
+│  │   PMBOK     │                                                           │
+│  └─────────────┘                                                           │
 └─────────────────────────────────────────────────────────────────────────────┘
         │
         ▼
@@ -74,6 +79,7 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 | **HR** | 4006 | Human resources | Employees, attendance, recruitment |
 | **Payroll** | 4007 | Payroll processing | Salaries, benefits, expenses |
 | **Workflows** | 4008 | Process automation | Approvals, task management |
+| **Project Management** | 4009 | PMBOK/ISO 21502 compliance | 14 models, 12 API routes: Projects, Tasks, Milestones, Risks, Issues, Changes, Resources, Stakeholders, Documents, Sprints, Timesheets, Reports |
 
 ### Web Applications
 
@@ -88,6 +94,7 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 | **HR** | 3006 | HR management |
 | **Payroll** | 3007 | Payroll management |
 | **Workflows** | 3008 | Workflow management |
+| **Project Management** | 3009 | Project management |
 
 ## Monitoring System
 
@@ -222,7 +229,7 @@ All `/api/*` routes (except `/api/auth/*`) require valid JWT token.
 ### Scripts
 
 ```bash
-# Start all 18 services
+# Start all 20 services
 ./scripts/start-all-services.sh
 
 # Stop all services
@@ -251,7 +258,7 @@ Web Applications:
 [OK] Dashboard (port 3000) - running
 ...
 
-Total services running: 18 / 18
+Total services running: 20 / 20
 ```
 
 ## Technology Stack
@@ -274,8 +281,8 @@ Total services running: 18 / 18
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (2,285 tests across 80 suites), 8 integration test scripts, CI via GitHub Actions
-- **Containerization**: Docker Compose (20 containers: 9 APIs + 9 web apps + PostgreSQL + Redis)
+- **Testing**: Jest (2,579 tests across 99 suites), 8 integration test scripts (~425 assertions), CI via GitHub Actions
+- **Containerization**: Docker Compose (22 containers: 10 APIs + 10 web apps + PostgreSQL + Redis)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)
 
@@ -359,6 +366,20 @@ GET    /api/{resource}/stats    # Statistics
 - `GET /api/changes` - Change management (impact assessment)
 - `GET /api/objectives` - Objectives with nested milestones
 
+#### PM API (4009)
+- `GET /api/projects` - List projects
+- `GET /api/projects/stats` - Project statistics
+- `GET /api/tasks` - List tasks
+- `GET /api/milestones` - List milestones
+- `GET /api/risks` - List project risks
+- `GET /api/issues` - List project issues
+- `GET /api/changes` - List change requests
+- `GET /api/resources` - List resources
+- `GET /api/stakeholders` - List stakeholders
+- `GET /api/sprints` - List sprints
+- `GET /api/timesheets` - List timesheets
+- `GET /api/reports` - List status reports
+
 ## Environment Configuration
 
 ### Required Variables
@@ -379,6 +400,7 @@ INVENTORY_URL=http://localhost:4005
 HR_URL=http://localhost:4006
 PAYROLL_URL=http://localhost:4007
 WORKFLOWS_URL=http://localhost:4008
+PROJECT_MANAGEMENT_URL=http://localhost:4009
 
 # Frontend
 NEXT_PUBLIC_API_URL=http://localhost:4000

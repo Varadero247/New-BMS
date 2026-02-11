@@ -15,7 +15,8 @@ Currently, all services share a single PostgreSQL database with a unified Prisma
 │  ┌─────────────────────────────────────────────────┐│
 │  │ Users, Sessions, Audit, Risks, Incidents,       ││
 │  │ Actions, Training, Quality, Environment,        ││
-│  │ Inventory, HR, Payroll, Workflows, AI           ││
+│  │ Inventory, HR, Payroll, Workflows, AI,          ││
+│  │ Project Management                              ││
 │  └─────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────┘
 ```
@@ -53,6 +54,14 @@ For production-scale deployments, each microservice should have its own database
 │  - Stock     │  │  - Instances │  │  - Insights  │
 │  - Movements │  │  - Tasks     │  │  - Metrics   │
 └──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────┐
+│ims_project_  │
+│  management  │
+│  - Projects  │
+│  - Tasks     │
+│  - Sprints   │
+└──────────────┘
 ```
 
 ## Database Schemas
@@ -86,6 +95,7 @@ Each microservice has its own schema file:
 | Inventory | `inventory.prisma` | `ims_inventory` | Item, Stock, Movement |
 | Workflows | `workflows.prisma` | `ims_workflows` | Definition, Instance, Task |
 | AI Analysis | `ai.prisma` | `ims_ai_analysis` | Analysis, Insight, Metric |
+| Project Management | `project-management.prisma` | `ims_project_management` | Project, ProjectTask, ProjectMilestone, ProjectRisk, ProjectIssue, ProjectChange, ProjectResource, ProjectStakeholder, ProjectDocument, ProjectSprint, ProjectUserStory, ProjectTimesheet, ProjectExpense, ProjectStatusReport (14 models) |
 
 ## Migration Strategy
 
@@ -105,6 +115,7 @@ Each microservice has its own schema file:
 - `inventory.prisma` - Products, Warehouses, Stock, POs
 - `workflows.prisma` - Definitions, Instances, Tasks
 - `ai.prisma` - Analyses, Insights, Embeddings
+- `project-management.prisma` - Projects, Tasks, Milestones, Risks, Issues, Changes, Resources, Stakeholders, Documents, Sprints, User Stories, Timesheets, Expenses, Reports (14 models)
 
 ### Phase 2: Database Creation (Complete)
 
@@ -124,6 +135,7 @@ This creates:
 - `ims_inventory`
 - `ims_workflows`
 - `ims_ai_analysis`
+- `ims_project_management`
 
 ### Phase 3: Data Migration (Complete)
 
@@ -243,6 +255,7 @@ ENVIRONMENT_DATABASE_URL=postgresql://ims_env:pass@db-env.prod:5432/ims_environm
 INVENTORY_DATABASE_URL=postgresql://ims_inv:pass@db-inv.prod:5432/ims_inventory
 WORKFLOWS_DATABASE_URL=postgresql://ims_wf:pass@db-wf.prod:5432/ims_workflows
 AI_DATABASE_URL=postgresql://ims_ai:pass@db-ai.prod:5432/ims_ai_analysis
+PROJECT_MANAGEMENT_DATABASE_URL=postgresql://ims_pm:pass@db-pm.prod:5432/ims_project_management
 ```
 
 ## Benefits of Database Per Service
@@ -269,3 +282,8 @@ AI_DATABASE_URL=postgresql://ims_ai:pass@db-ai.prod:5432/ims_ai_analysis
    - Compliance requires data isolation
 3. **Core First** - Always split core (auth/users) first
 4. **Gradual Migration** - Migrate one service at a time
+
+## Database Tables
+
+### Project Management
+`projects`, `project_tasks`, `project_milestones`, `project_risks`, `project_issues`, `project_changes`, `project_resources`, `project_stakeholders`, `project_documents`, `project_sprints`, `project_user_stories`, `project_timesheets`, `project_expenses`, `project_status_reports`

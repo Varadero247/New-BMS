@@ -32,10 +32,10 @@ VAULT_TOKEN=<token>           # For HashiCorp Vault secrets management
 
 ### 2. Verify Docker Compose
 
-Ensure `docker-compose.yml` has all 18 services:
+Ensure `docker-compose.yml` has all 20 services:
 - **Infrastructure**: `postgres`, `redis`
-- **APIs** (9): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`
-- **Web Apps** (9): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`
+- **APIs** (10): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`
+- **Web Apps** (10): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`
 
 ---
 
@@ -83,6 +83,9 @@ npx prisma db push --schema=prisma/schemas/inventory.prisma
 
 # Workflows schema
 npx prisma db push --schema=prisma/schemas/workflows.prisma
+
+# Project Management schema
+npx prisma db push --schema=prisma/schemas/project-management.prisma
 ```
 
 ### Step 3: Generate Prisma Clients
@@ -95,6 +98,7 @@ npx prisma generate --schema=prisma/schemas/hr.prisma
 npx prisma generate --schema=prisma/schemas/payroll.prisma
 npx prisma generate --schema=prisma/schemas/inventory.prisma
 npx prisma generate --schema=prisma/schemas/workflows.prisma
+npx prisma generate --schema=prisma/schemas/project-management.prisma
 ```
 
 ### Step 4: Seed Database (First Deploy Only)
@@ -128,7 +132,7 @@ docker compose up -d
 docker compose ps
 
 # Check health endpoints
-for port in 4000 4001 4002 4003 4004 4005 4006 4007 4008; do
+for port in 4000 4001 4002 4003 4004 4005 4006 4007 4008 4009; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health)
   echo "Port $port: $CODE"
 done
@@ -210,6 +214,14 @@ for ep in templates definitions instances tasks; do
     -H "Authorization: Bearer $TOKEN")
   echo "workflows/$ep: $CODE"
 done
+
+# Project Management
+for ep in projects tasks milestones risks issues changes resources stakeholders documents sprints timesheets reports; do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    http://localhost:4000/api/v1/project-management/$ep \
+    -H "Authorization: Bearer $TOKEN")
+  echo "project-management/$ep: $CODE"
+done
 ```
 
 ### CORS Verification
@@ -224,7 +236,7 @@ curl -s -I http://localhost:4000/api/health-safety/incidents \
 
 ### Web App Verification
 ```bash
-for port in 3000 3001 3002 3003 3004 3005 3006 3007 3008; do
+for port in 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port)
   echo "Web port $port: $CODE"
 done
@@ -329,7 +341,7 @@ export DOCKER_API_VERSION=1.41
 # 1. Kill conflicting ports
 sudo systemctl stop postgresql 2>/dev/null || true
 sudo systemctl stop redis 2>/dev/null || true
-for port in 5432 6379 4000 4001 4002 4003 3000 3001 3002 3003 3004 3005 3006 3007; do
+for port in 5432 6379 4000 4001 4002 4003 4004 4005 4006 4007 4008 4009 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009; do
   sudo fuser -k ${port}/tcp 2>/dev/null || true
 done
 sleep 3
@@ -389,6 +401,8 @@ export DOCKER_API_VERSION=1.41
 | Web HR | 3006 | 3006 |
 | Web Payroll | 3007 | 3007 |
 | Web Workflows | 3008 | 3008 |
+| API Project Management | 4009 | 4009 |
+| Web Project Management | 3009 | 3009 |
 
 ---
 
@@ -405,3 +419,6 @@ export DOCKER_API_VERSION=1.41
 
 ### Quality
 `qual_interested_parties`, `qual_issues`, `qual_risks`, `qual_opportunities`, `qual_processes`, `qual_nonconformances`, `qual_actions`, `qual_documents`, `qual_capas`, `qual_capa_actions`, `qual_legal`, `qual_fmeas`, `qual_fmea_rows`, `qual_improvements`, `qual_suppliers`, `qual_changes`, `qual_objectives`, `qual_milestones`
+
+### Project Management
+`projects`, `project_tasks`, `project_milestones`, `project_risks`, `project_issues`, `project_changes`, `project_resources`, `project_stakeholders`, `project_documents`, `project_sprints`, `project_user_stories`, `project_timesheets`, `project_expenses`, `project_status_reports`

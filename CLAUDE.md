@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 9 API services, 9 web apps, and 16 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose.
+Integrated Management System (IMS) monorepo with 10 API services, 10 web apps, and 16 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose.
 
 ## Known Issues & Fixes
 
@@ -97,8 +97,8 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ## Architecture Quick Reference
 
 ### Service Ports
-- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows)
-- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows)
+- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (Project Management)
+- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (Project Management)
 
 ### Gateway Routing
 - `/api/auth/*`, `/api/users/*`, `/api/dashboard/*` → handled locally by gateway
@@ -110,6 +110,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 - `/api/hr/*` → api-hr:4006
 - `/api/payroll/*` → api-payroll:4007
 - `/api/workflows/*` → api-workflows:4008
+- `/api/v1/project-management/*` → api-project-management:4009
 
 ### Database
 - Separate Prisma schemas per domain in `packages/database/prisma/schemas/`
@@ -124,15 +125,16 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # 2,285 Jest unit tests (80 suites)
-./scripts/test-all-modules.sh    # All integration tests (master runner)
+pnpm test                        # 2,579 Jest unit tests (99 suites)
+./scripts/test-all-modules.sh    # All integration tests (8 modules, ~425 assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (70 assertions)
-./scripts/test-env-modules.sh    # Environment integration tests
-./scripts/test-quality-modules.sh # Quality integration tests
-./scripts/test-hr-modules.sh     # HR integration tests
-./scripts/test-payroll-modules.sh # Payroll integration tests
-./scripts/test-inventory-modules.sh # Inventory integration tests
-./scripts/test-workflows-modules.sh # Workflows integration tests
+./scripts/test-env-modules.sh    # Environment integration tests (~60)
+./scripts/test-quality-modules.sh # Quality integration tests (~80)
+./scripts/test-hr-modules.sh     # HR integration tests (~50)
+./scripts/test-payroll-modules.sh # Payroll integration tests (~40)
+./scripts/test-inventory-modules.sh # Inventory integration tests (~40)
+./scripts/test-workflows-modules.sh # Workflows integration tests (~40)
+./scripts/test-pm-modules.sh     # PM integration tests (~45)
 ./scripts/check-services.sh      # Service health checks
 ```
 

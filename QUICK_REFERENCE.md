@@ -3,7 +3,7 @@
 ## Start All Services (Docker)
 ```bash
 cd /home/dyl/New-BMS
-docker compose up -d                    # Start all 18 services
+docker compose up -d                    # Start all 22 services
 docker compose logs -f web-health-safety  # Follow specific service logs
 docker compose down                     # Stop all services
 ```
@@ -27,6 +27,7 @@ curl http://localhost:4000/health        # API Gateway
 curl http://localhost:4001/health        # H&S API
 curl http://localhost:4002/health        # Environment API
 curl http://localhost:4003/health        # Quality API
+curl http://localhost:4009/health        # PM API
 ```
 
 ## Service Ports
@@ -41,6 +42,7 @@ curl http://localhost:4003/health        # Quality API
 | HR | 4006 | 3006 |
 | Payroll | 4007 | 3007 |
 | Workflows | 4008 | 3008 |
+| Project Management | 4009 | 3009 |
 | Settings | — | 3004 |
 
 ## H&S API Endpoints (via Gateway)
@@ -136,6 +138,22 @@ curl http://localhost:4000/api/workflows/approvals/requests
 curl http://localhost:4000/api/workflows/automation/rules
 ```
 
+## PM API Endpoints (via Gateway)
+```bash
+curl http://localhost:4000/api/v1/project-management/projects
+curl http://localhost:4000/api/v1/project-management/tasks
+curl http://localhost:4000/api/v1/project-management/milestones
+curl http://localhost:4000/api/v1/project-management/risks
+curl http://localhost:4000/api/v1/project-management/issues
+curl http://localhost:4000/api/v1/project-management/changes
+curl http://localhost:4000/api/v1/project-management/resources
+curl http://localhost:4000/api/v1/project-management/stakeholders
+curl http://localhost:4000/api/v1/project-management/documents
+curl http://localhost:4000/api/v1/project-management/sprints
+curl http://localhost:4000/api/v1/project-management/timesheets
+curl http://localhost:4000/api/v1/project-management/reports
+```
+
 ## Gateway Local Endpoints
 ```bash
 curl http://localhost:4000/api/dashboard/stats           # Dashboard data
@@ -146,15 +164,16 @@ curl -X POST http://localhost:4000/api/auth/login         # Login
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (2,285 across 80 suites)
-./scripts/test-all-modules.sh            # All integration tests (master runner)
+pnpm test                                # All Jest tests (2,579 across 99 suites)
+./scripts/test-all-modules.sh            # All integration tests (master runner, 8 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (70)
-./scripts/test-env-modules.sh            # Environment integration tests (~52)
-./scripts/test-quality-modules.sh        # Quality integration tests (~81)
+./scripts/test-env-modules.sh            # Environment integration tests (~60)
+./scripts/test-quality-modules.sh        # Quality integration tests (~80)
 ./scripts/test-hr-modules.sh             # HR integration tests (~50)
 ./scripts/test-payroll-modules.sh        # Payroll integration tests (~40)
-./scripts/test-inventory-modules.sh      # Inventory integration tests (~60)
-./scripts/test-workflows-modules.sh      # Workflows integration tests
+./scripts/test-inventory-modules.sh      # Inventory integration tests (~40)
+./scripts/test-workflows-modules.sh      # Workflows integration tests (~40)
+./scripts/test-pm-modules.sh             # PM integration tests (~45)
 ./scripts/check-services.sh              # Service health checks
 ```
 
@@ -177,13 +196,19 @@ QUALITY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5
   --to-schema-datamodel=prisma/schemas/quality.prisma --script | \
   PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims
 
+# Project Management schema (use migrate diff for multi-schema safety)
+PM_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  npx prisma migrate diff --from-empty \
+  --to-schema-datamodel=prisma/schemas/project-management.prisma --script | \
+  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims
+
 # Open Prisma Studio
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
 ## Current Status (Feb 11, 2026)
-- 18 Docker services running (9 APIs + 9 web apps)
-- **All 9 modules fully implemented**:
+- 22 Docker containers (10 APIs + 10 web apps + PostgreSQL + Redis)
+- **All 10 modules fully implemented**:
   - H&S: 5 sub-modules (Risks, Incidents, Legal, Objectives, CAPA) + 5 AI routes
   - Environment: 6 sub-modules (Aspects, Events, Legal, Objectives, Actions, CAPA) + 11 DB tables + AI analysis panels — fully rewritten with ISO 14001:2015 compliance
   - Quality: 12 frontend modules + 15 API endpoints — Parties, Issues, Risks, Opportunities, Processes, NCRs, Actions, Documents, CAPA (5-Why/Fishbone/8D), Legal, FMEA (S×O×D RPN), Improvements (PDCA), Suppliers (IMS scoring), Changes, Objectives — 18 Qual-prefixed DB models, ~13,157 lines frontend code, fully rewritten with ISO 9001:2015 compliance
@@ -191,10 +216,11 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - Payroll: 6 sub-modules (Payroll, Salary, Benefits, Loans, Expenses, Tax) — 35+ endpoints
   - Inventory: 6 sub-modules (Products, Inventory, Warehouses, Categories, Transactions, Suppliers) — 25+ endpoints
   - Workflows: 6 sub-modules (Templates, Definitions, Instances, Tasks, Approvals, Automation) — 57+ endpoints
-  - AI Analysis: Central analysis service + 5 H&S-specific AI routes (Claude Sonnet 4.5)
+  - Project Management: 12 sub-modules (Projects, Tasks, Milestones, Risks, Issues, Changes, Resources, Stakeholders, Documents, Sprints, Timesheets, Reports) — 60+ endpoints, PMBOK/ISO 21502
+  - AI Analysis: Central analysis service — 23 analysis types across H&S, HR, Payroll, PM (Claude, OpenAI, Grok)
   - Gateway: Auth, users, sessions, dashboard, CSRF — 20+ local endpoints
-- Tests: 2,285 Jest tests (80 suites) + 8 integration test scripts (~400+ assertions) — all passing
-- CI/CD: Lint PASS, Build PASS, Test PASS, 9/9 Docker builds PASS
+- Tests: 2,579 Jest tests (99 suites) + 8 integration test scripts (~425+ assertions) — all passing
+- CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + account lockout + optional CSRF double-submit cookie
-- Login pages built for all 9 web apps
-- Total API endpoints: 370+
+- Login pages built for all 10 web apps
+- Total API endpoints: 430+

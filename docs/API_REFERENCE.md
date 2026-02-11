@@ -55,7 +55,7 @@ On 401 response, the frontend clears `localStorage` and redirects to `/login`.
 
 ### Requirements
 - Gateway handles CORS for all services
-- Allowed origins: `http://localhost:3000` through `http://localhost:3008`
+- Allowed origins: `http://localhost:3000` through `http://localhost:3009`
 - Credentials: enabled
 - Methods: `GET, POST, PUT, PATCH, DELETE, OPTIONS`
 - Allowed headers: `Content-Type, Authorization, X-CSRF-Token, X-Correlation-ID`
@@ -1006,9 +1006,134 @@ KPI tracking with baseline/current/target values and nested milestones.
 
 ---
 
+## Project Management API (PMBOK/ISO 21502)
+
+All PM endpoints are proxied: `GET /api/v1/project-management/*` → `api-project-management:4009/api/*`
+
+### Projects
+```http
+GET /api/v1/project-management/projects
+POST /api/v1/project-management/projects
+GET /api/v1/project-management/projects/:id
+PUT /api/v1/project-management/projects/:id
+DELETE /api/v1/project-management/projects/:id
+GET /api/v1/project-management/projects/stats
+```
+
+Query parameters: `search`, `status` (PLANNING|ACTIVE|ON_HOLD|COMPLETED|CANCELLED), `priority`, `methodology` (WATERFALL|AGILE|HYBRID)
+
+### Tasks
+```http
+GET /api/v1/project-management/tasks
+POST /api/v1/project-management/tasks
+GET /api/v1/project-management/tasks/:id
+PUT /api/v1/project-management/tasks/:id
+DELETE /api/v1/project-management/tasks/:id
+```
+
+Query parameters: `search`, `status`, `priority`, `projectId`, `assigneeId`
+
+### Milestones
+```http
+GET /api/v1/project-management/milestones
+POST /api/v1/project-management/milestones
+GET /api/v1/project-management/milestones/:id
+PUT /api/v1/project-management/milestones/:id
+DELETE /api/v1/project-management/milestones/:id
+```
+
+### Risks
+```http
+GET /api/v1/project-management/risks
+POST /api/v1/project-management/risks
+GET /api/v1/project-management/risks/:id
+PUT /api/v1/project-management/risks/:id
+DELETE /api/v1/project-management/risks/:id
+```
+
+Risk score: Probability × Impact (auto-calculated).
+
+### Issues
+```http
+GET /api/v1/project-management/issues
+POST /api/v1/project-management/issues
+GET /api/v1/project-management/issues/:id
+PUT /api/v1/project-management/issues/:id
+DELETE /api/v1/project-management/issues/:id
+```
+
+### Changes
+```http
+GET /api/v1/project-management/changes
+POST /api/v1/project-management/changes
+GET /api/v1/project-management/changes/:id
+PUT /api/v1/project-management/changes/:id
+DELETE /api/v1/project-management/changes/:id
+```
+
+### Resources
+```http
+GET /api/v1/project-management/resources
+POST /api/v1/project-management/resources
+GET /api/v1/project-management/resources/:id
+PUT /api/v1/project-management/resources/:id
+DELETE /api/v1/project-management/resources/:id
+```
+
+### Stakeholders
+```http
+GET /api/v1/project-management/stakeholders
+POST /api/v1/project-management/stakeholders
+GET /api/v1/project-management/stakeholders/:id
+PUT /api/v1/project-management/stakeholders/:id
+DELETE /api/v1/project-management/stakeholders/:id
+```
+
+Power/Interest matrix: auto-categorized (MANAGE_CLOSELY|KEEP_SATISFIED|KEEP_INFORMED|MONITOR).
+
+### Documents
+```http
+GET /api/v1/project-management/documents
+POST /api/v1/project-management/documents
+GET /api/v1/project-management/documents/:id
+PUT /api/v1/project-management/documents/:id
+DELETE /api/v1/project-management/documents/:id
+```
+
+### Sprints
+```http
+GET /api/v1/project-management/sprints
+POST /api/v1/project-management/sprints
+GET /api/v1/project-management/sprints/:id
+PUT /api/v1/project-management/sprints/:id
+DELETE /api/v1/project-management/sprints/:id
+```
+
+### Timesheets
+```http
+GET /api/v1/project-management/timesheets
+POST /api/v1/project-management/timesheets
+GET /api/v1/project-management/timesheets/:id
+PUT /api/v1/project-management/timesheets/:id
+DELETE /api/v1/project-management/timesheets/:id
+```
+
+Cost auto-calculated: `hours × costRate`.
+
+### Reports
+```http
+GET /api/v1/project-management/reports
+POST /api/v1/project-management/reports
+GET /api/v1/project-management/reports/:id
+PUT /api/v1/project-management/reports/:id
+DELETE /api/v1/project-management/reports/:id
+```
+
+---
+
 ## AI Analysis Endpoints
 
-AI routes are Next.js API routes on the web-health-safety app (port 3001), calling Claude Sonnet 4.5.
+AI analysis is provided by the central AI Analysis service (port 4004). Supports Claude, OpenAI, and Grok providers.
 
 ### Risk Controls Generation
 ```http
@@ -1137,6 +1262,46 @@ Content-Type: application/json
 }
 ```
 
+### AI Quick Analysis (Central Service)
+```http
+POST /api/ai/analyze
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "type": "ANALYSIS_TYPE",
+  "context": { ... }
+}
+```
+
+**Available Analysis Types (23):**
+
+| Type | Category | Description |
+|------|----------|-------------|
+| `LEGAL_REFERENCES` | H&S | Legal compliance lookup |
+| `ENVIRONMENTAL_ASPECT` | Environment | Aspect analysis |
+| `HR_JOB_DESCRIPTION` | HR | Generate job descriptions |
+| `HR_PERFORMANCE_INSIGHTS` | HR | Performance review insights |
+| `HR_LEAVE_ANALYSIS` | HR | Leave pattern analysis |
+| `HR_EMPLOYEE_ONBOARDING` | HR | Onboarding checklist generation |
+| `HR_CERTIFICATION_MONITOR` | HR | Certification tracking |
+| `PAYROLL_VALIDATION` | Payroll | Validate payroll run calculations |
+| `SALARY_BENCHMARK` | Payroll | Salary benchmarking suggestions |
+| `EXPENSE_VALIDATION` | Payroll | Expense policy compliance |
+| `LOAN_CALCULATOR` | Payroll | Loan repayment schedule |
+| `PAYSLIP_ANOMALY` | Payroll | Payslip anomaly detection |
+| `PROJECT_CHARTER` | PM | Generate project charter |
+| `WBS_GENERATION` | PM | Work breakdown structure |
+| `CRITICAL_PATH` | PM | Critical path analysis |
+| `THREE_POINT_ESTIMATION` | PM | PERT estimation |
+| `RESOURCE_LEVELING` | PM | Resource optimization |
+| `PROJECT_RISK_ANALYSIS` | PM | Risk analysis |
+| `EVM_ANALYSIS` | PM | Earned value management |
+| `STAKEHOLDER_STRATEGY` | PM | Stakeholder engagement strategy |
+| `PROJECT_HEALTH_CHECK` | PM | Overall health assessment |
+| `SPRINT_PLANNING` | PM | Sprint planning assistance |
+| `LESSONS_LEARNED` | PM | Lessons learned analysis |
+
 ---
 
 ## Gateway Endpoints
@@ -1197,6 +1362,7 @@ Response:
 | HR | `http://localhost:4006/health` |
 | Payroll | `http://localhost:4007/health` |
 | Workflows | `http://localhost:4008/health` |
+| Project Management | `http://localhost:4009/health` |
 
 ---
 
@@ -1234,6 +1400,15 @@ for endpoint in parties issues risks opportunities processes nonconformances \
     -H "Authorization: Bearer $TOKEN" \
     -H "Origin: http://localhost:3003")
   echo "quality/$endpoint: $CODE"
+done
+
+# Project Management endpoints
+for endpoint in projects tasks milestones risks issues changes resources stakeholders documents sprints timesheets reports; do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    http://localhost:4000/api/v1/project-management/$endpoint \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Origin: http://localhost:3009")
+  echo "project-management/$endpoint: $CODE"
 done
 
 # CORS verification
