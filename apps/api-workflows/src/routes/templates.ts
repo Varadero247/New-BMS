@@ -39,6 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
     const templates = await prisma.workflowTemplate.findMany({
       where,
       orderBy: { name: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: templates });

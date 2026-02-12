@@ -198,6 +198,7 @@ router.get('/reports/all', async (req: Request, res: Response) => {
         _count: { select: { expenses: true } },
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: reports });
@@ -224,6 +225,7 @@ router.post('/reports', async (req: Request, res: Response) => {
     // Calculate totals from expenses
     const expenses = await prisma.expense.findMany({
       where: { id: { in: data.expenseIds } },
+      take: 100,
     });
 
     const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);

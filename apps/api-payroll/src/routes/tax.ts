@@ -27,6 +27,7 @@ router.get('/filings', async (req: Request, res: Response) => {
         payrollRun: { select: { runNumber: true, periodStart: true, periodEnd: true } },
       },
       orderBy: { filingDeadline: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: filings });
@@ -129,6 +130,7 @@ router.get('/brackets', async (req: Request, res: Response) => {
     const brackets = await prisma.taxBracket.findMany({
       where,
       orderBy: { minIncome: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: brackets });

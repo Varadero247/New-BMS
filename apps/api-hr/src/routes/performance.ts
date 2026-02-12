@@ -26,6 +26,7 @@ router.get('/cycles', async (req: Request, res: Response) => {
         _count: { select: { reviews: true, goals: true } },
       },
       orderBy: { year: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: cycles });
@@ -147,6 +148,7 @@ router.get('/reviews/:id', async (req: Request, res: Response) => {
     const goals = await prisma.performanceGoal.findMany({
       where: { cycleId: review.cycleId, employeeId: review.employeeId },
       include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
+      take: 100,
     });
 
     res.json({ success: true, data: { ...review, goals } });
@@ -253,6 +255,7 @@ router.get('/goals', async (req: Request, res: Response) => {
         updates: { orderBy: { createdAt: 'desc' }, take: 3 },
       },
       orderBy: [{ dueDate: 'asc' }, { weight: 'desc' }],
+      take: 100,
     });
 
     res.json({ success: true, data: goals });

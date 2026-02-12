@@ -40,6 +40,7 @@ router.get('/', async (req: Request, res: Response) => {
         },
       },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      take: 100,
     });
 
     if (tree === 'true') {
@@ -182,6 +183,7 @@ router.get('/positions/all', async (req: Request, res: Response) => {
         department: { select: { id: true, name: true } },
         _count: { select: { employees: true } },
       },
+      take: 100,
     });
 
     res.json({ success: true, data: positions });

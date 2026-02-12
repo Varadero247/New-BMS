@@ -121,6 +121,7 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
         profilePhoto: true,
         department: { select: { name: true } },
       },
+      take: 500,
     });
 
     // Build hierarchical structure
@@ -349,6 +350,7 @@ router.get('/:id/subordinates', async (req: Request, res: Response) => {
         position: true,
         _count: { select: { subordinates: true } },
       },
+      take: 100,
     });
 
     res.json({ success: true, data: subordinates });

@@ -191,9 +191,15 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/instances/:id/advance - Advance to next node
+const advanceInstanceSchema = z.object({
+  nextStepId: z.string().min(1),
+  actionBy: z.string().min(1).optional(),
+  comments: z.string().max(2000).optional(),
+});
+
 router.put('/:id/advance', async (req: Request, res: Response) => {
   try {
-    const { nextStepId, actionBy, comments } = req.body;
+    const data = advanceInstanceSchema.parse(req.body);
 
     const current = await prisma.workflowInstance.findUnique({ where: { id: req.params.id } });
     if (!current) {
@@ -206,7 +212,7 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
       const updated = await tx.workflowInstance.update({
         where: { id: req.params.id },
         data: {
-          currentStepId: nextStepId,
+          currentStepId: data.nextStepId,
         },
       });
 
@@ -215,10 +221,10 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
         data: {
           instanceId: req.params.id,
           eventType: 'STEP_COMPLETED',
-          actorId: actionBy,
+          actorId: data.actionBy,
           stepId: previousStepId,
-          description: comments,
-          metadata: { nextStepId },
+          description: data.comments,
+          metadata: { nextStepId: data.nextStepId },
         },
       });
 
@@ -227,6 +233,9 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: instance });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
     logger.error('Error advancing instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to advance instance' } });
   }
@@ -276,9 +285,14 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 });
 
 // PUT /api/instances/:id/cancel - Cancel workflow
+const cancelInstanceSchema = z.object({
+  cancelledById: z.string().uuid(),
+  cancellationReason: z.string().min(1).max(2000).optional(),
+});
+
 router.put('/:id/cancel', async (req: Request, res: Response) => {
   try {
-    const { cancelledById, cancellationReason } = req.body;
+    const data = cancelInstanceSchema.parse(req.body);
 
     const instance = await prisma.$transaction(async (tx) => {
       const updated = await tx.workflowInstance.update({
@@ -286,8 +300,8 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
         data: {
           status: 'CANCELLED',
           completedAt: new Date(),
-          completedById: cancelledById,
-          cancellationReason,
+          completedById: data.cancelledById,
+          cancellationReason: data.cancellationReason,
         },
       });
 
@@ -295,8 +309,8 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
         data: {
           instanceId: req.params.id,
           eventType: 'CANCELLED',
-          actorId: cancelledById,
-          description: cancellationReason,
+          actorId: data.cancelledById,
+          description: data.cancellationReason,
         },
       });
 
@@ -305,6 +319,9 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: instance });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
     logger.error('Error cancelling instance', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel instance' } });
   }

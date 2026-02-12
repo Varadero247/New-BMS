@@ -105,6 +105,7 @@ describe('Sessions API Routes', () => {
         },
         select: expect.any(Object),
         orderBy: { lastActivityAt: 'desc' },
+        take: 100,
       });
     });
 

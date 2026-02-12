@@ -19,7 +19,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.error('Error:', err);
+  console.error('Unhandled error', { error: err.message, stack: err.stack });
 
   // Zod validation errors
   if (err instanceof ZodError) {
@@ -74,9 +74,7 @@ export function errorHandler(
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production'
-        ? 'An unexpected error occurred'
-        : err.message,
+      message: 'Internal server error',
     },
   });
 }

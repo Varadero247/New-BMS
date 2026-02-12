@@ -95,7 +95,7 @@ describe('Error Handler Middleware', () => {
   });
 
   describe('error message handling', () => {
-    it('should use the message from the error when provided', () => {
+    it('should use the message from the error for 4xx status codes', () => {
       const err: AppError = new Error('Validation failed');
       err.statusCode = 422;
       err.code = 'VALIDATION_ERROR';
@@ -115,7 +115,26 @@ describe('Error Handler Middleware', () => {
       );
     });
 
-    it('should default to generic message when error has no message', () => {
+    it('should mask error message for 500 status codes', () => {
+      const err: AppError = new Error('Database connection pool exhausted');
+      err.statusCode = 500;
+
+      const req = mockRequest();
+      const res = mockResponse();
+
+      errorHandler(err, req as Request, res as Response, mockNext);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({
+            message: 'Internal server error',
+          }),
+        })
+      );
+    });
+
+    it('should default to generic message when error has no message and no statusCode', () => {
       const err: AppError = new Error();
       err.message = '';
 
@@ -128,7 +147,7 @@ describe('Error Handler Middleware', () => {
         expect.objectContaining({
           success: false,
           error: expect.objectContaining({
-            message: 'An unexpected error occurred',
+            message: 'Internal server error',
           }),
         })
       );
@@ -136,7 +155,7 @@ describe('Error Handler Middleware', () => {
   });
 
   describe('response shape', () => {
-    it('should return proper error JSON with success: false', () => {
+    it('should return proper error JSON with success: false for 4xx', () => {
       const err: AppError = new Error('Resource not found');
       err.statusCode = 404;
       err.code = 'NOT_FOUND';
@@ -170,69 +189,41 @@ describe('Error Handler Middleware', () => {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred',
+          message: 'Internal server error',
         },
       });
     });
   });
 
-  describe('stack trace in development', () => {
-    it('should include stack trace when NODE_ENV is development', () => {
+  describe('stack trace security', () => {
+    it('should never include stack trace regardless of NODE_ENV', () => {
+      for (const env of ['development', 'production', 'test']) {
+        const originalEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = env;
+
+        const err: AppError = new Error('Error in ' + env);
+        err.statusCode = 500;
+        err.code = 'TEST_ERROR';
+
+        const req = mockRequest();
+        const res = mockResponse();
+
+        errorHandler(err, req as Request, res as Response, mockNext);
+
+        const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+        expect(jsonCall.error).not.toHaveProperty('stack');
+
+        process.env.NODE_ENV = originalEnv;
+        jest.clearAllMocks();
+      }
+    });
+
+    it('should mask 500 error messages in all environments', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const err: AppError = new Error('Dev error');
+      const err: AppError = new Error('Sensitive database details');
       err.statusCode = 500;
-      err.code = 'DEV_ERROR';
-
-      const req = mockRequest();
-      const res = mockResponse();
-
-      errorHandler(err, req as Request, res as Response, mockNext);
-
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          code: 'DEV_ERROR',
-          message: 'Dev error',
-          stack: expect.any(String),
-        },
-      });
-
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it('should not include stack trace when NODE_ENV is production', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
-      const err: AppError = new Error('Prod error');
-      err.statusCode = 500;
-      err.code = 'PROD_ERROR';
-
-      const req = mockRequest();
-      const res = mockResponse();
-
-      errorHandler(err, req as Request, res as Response, mockNext);
-
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          code: 'PROD_ERROR',
-          message: 'Prod error',
-        },
-      });
-
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it('should not include stack trace when NODE_ENV is test', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'test';
-
-      const err: AppError = new Error('Test error');
-      err.statusCode = 400;
-      err.code = 'TEST_ERROR';
 
       const req = mockRequest();
       const res = mockResponse();
@@ -240,6 +231,7 @@ describe('Error Handler Middleware', () => {
       errorHandler(err, req as Request, res as Response, mockNext);
 
       const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonCall.error.message).toBe('Internal server error');
       expect(jsonCall.error).not.toHaveProperty('stack');
 
       process.env.NODE_ENV = originalEnv;

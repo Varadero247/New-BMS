@@ -28,6 +28,7 @@ router.get('/chains', async (req: Request, res: Response) => {
     const chains = await prisma.approvalChain.findMany({
       where,
       orderBy: { name: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: chains });
@@ -239,6 +240,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
         responses: true,
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     // Filter to requests where this user needs to respond at the current level
@@ -256,6 +258,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
         status: 'PENDING',
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     res.json({
@@ -493,9 +496,13 @@ router.put('/requests/:id/respond', async (req: Request, res: Response) => {
 });
 
 // PUT /api/approvals/requests/:id/cancel - Cancel approval request
+const cancelApprovalSchema = z.object({
+  reason: z.string().min(1).max(2000).optional(),
+});
+
 router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
   try {
-    const { reason } = req.body;
+    const data = cancelApprovalSchema.parse(req.body);
 
     const request = await prisma.approvalRequest.update({
       where: { id: req.params.id },
@@ -508,6 +515,12 @@ router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: request });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors },
+      });
+    }
     logger.error('Error cancelling approval request', { error: (error as Error).message });
     res.status(500).json({
       success: false,

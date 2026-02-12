@@ -66,10 +66,10 @@ services:
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
       SERVICE_AI_URL: http://api-ai-analysis:4004
       SERVICE_INVENTORY_URL: http://api-inventory:4005
-      SERVICE_HR_URL: http://host.docker.internal:4006
-      SERVICE_PAYROLL_URL: http://host.docker.internal:4007
-      SERVICE_WORKFLOWS_URL: http://host.docker.internal:4008
-      SERVICE_PROJECT_MANAGEMENT_URL: http://host.docker.internal:4009
+      SERVICE_HR_URL: http://api-hr:4006
+      SERVICE_PAYROLL_URL: http://api-payroll:4007
+      SERVICE_WORKFLOWS_URL: http://api-workflows:4008
+      SERVICE_PROJECT_MANAGEMENT_URL: http://api-project-management:4009
       CSRF_ENABLED: "false"
     depends_on:
       postgres:
@@ -86,8 +86,20 @@ services:
         condition: service_started
       api-inventory:
         condition: service_started
+      api-hr:
+        condition: service_started
+      api-payroll:
+        condition: service_started
+      api-workflows:
+        condition: service_started
       api-project-management:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-health-safety:
     build:
@@ -107,6 +119,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-environment:
     build:
@@ -126,6 +144,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-quality:
     build:
@@ -145,6 +169,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-ai-analysis:
     build:
@@ -166,6 +196,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-inventory:
     build:
@@ -186,6 +222,87 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-hr:
+    build:
+      context: .
+      dockerfile: ./apps/api-hr/Dockerfile
+    container_name: ims-api-hr
+    restart: unless-stopped
+    expose:
+      - '4006'
+    environment:
+      NODE_ENV: production
+      PORT: 4006
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      HR_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-payroll:
+    build:
+      context: .
+      dockerfile: ./apps/api-payroll/Dockerfile
+    container_name: ims-api-payroll
+    restart: unless-stopped
+    expose:
+      - '4007'
+    environment:
+      NODE_ENV: production
+      PORT: 4007
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      PAYROLL_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-workflows:
+    build:
+      context: .
+      dockerfile: ./apps/api-workflows/Dockerfile
+    container_name: ims-api-workflows
+    restart: unless-stopped
+    expose:
+      - '4008'
+    environment:
+      NODE_ENV: production
+      PORT: 4008
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      WORKFLOWS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   api-project-management:
     build:
@@ -206,6 +323,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4009/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # Web Applications
   web-dashboard:
@@ -220,6 +343,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-health-safety:
     build:
@@ -234,6 +363,12 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-environment:
     build:
@@ -247,6 +382,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-quality:
     build:
@@ -260,6 +401,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-settings:
     build:
@@ -273,6 +420,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-hr:
     build:
@@ -286,6 +439,13 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
   web-payroll:
     build:
       context: .
@@ -298,6 +458,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3007"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-inventory:
     build:
@@ -311,6 +477,31 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-workflows:
+    build:
+      context: .
+      dockerfile: ./apps/web-workflows/Dockerfile
+    container_name: ims-web-workflows
+    restart: unless-stopped
+    ports:
+      - '3008:3008'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3008"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
   web-project-management:
     build:
@@ -324,6 +515,12 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3009"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
 volumes:
   postgres_data:

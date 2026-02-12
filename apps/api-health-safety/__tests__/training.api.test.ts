@@ -89,6 +89,7 @@ describe('Health & Safety Training API Routes', () => {
           isActive: true,
         },
         orderBy: { title: 'asc' },
+        take: 100,
       });
     });
 

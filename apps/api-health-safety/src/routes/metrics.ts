@@ -22,6 +22,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.safetyMetric.findMany({
       where: { year: filterYear },
       orderBy: { month: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: metrics });
@@ -38,6 +39,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 
     const metrics = await prisma.safetyMetric.findMany({
       where: { year },
+      take: 100,
     });
 
     if (metrics.length === 0) {

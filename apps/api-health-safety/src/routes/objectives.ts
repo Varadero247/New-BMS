@@ -328,6 +328,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
     // Recalculate objective progress
     const allMilestones = await prisma.objectiveMilestone.findMany({
       where: { objectiveId: req.params.id },
+      take: 100,
     });
     const progress = calculateProgress(allMilestones);
     await prisma.ohsObjective.update({

@@ -71,6 +71,7 @@ export function generateServiceToken(
   };
 
   return jwt.sign(payload, secret, {
+    algorithm: 'HS256' as const,
     expiresIn: config.tokenExpiry as jwt.SignOptions['expiresIn'],
     issuer: config.issuer,
     audience: config.audience,

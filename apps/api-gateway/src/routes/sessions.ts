@@ -31,6 +31,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
         expiresAt: true,
       },
       orderBy: { lastActivityAt: 'desc' },
+      take: 100,
     });
 
     const sessionsWithCurrent = sessions.map((session) => ({

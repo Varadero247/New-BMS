@@ -82,7 +82,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(err.statusCode || 500).json({
     success: false,
-    error: { code: err.code || 'INTERNAL_ERROR', message: process.env.NODE_ENV === 'production' ? 'Internal server error' : (err.message || 'An error occurred') },
+    error: { code: err.code || 'INTERNAL_ERROR', message: 'Internal server error' },
   });
 });
 

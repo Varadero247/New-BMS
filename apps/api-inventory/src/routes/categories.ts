@@ -26,6 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       include: {
         _count: { select: { products: true } },
       },
+      take: 100,
     });
 
     // Return flat list or build hierarchy

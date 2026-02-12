@@ -100,6 +100,7 @@ router.get('/matrix', async (req: AuthRequest, res: Response) => {
     const risks = await prisma.risk.findMany({
       where: { status: 'ACTIVE' },
       select: { id: true, title: true, likelihood: true, severity: true, riskScore: true },
+      take: 500,
     });
 
     const matrix: Record<string, { id: string; title: string; riskScore: number }[]> = {};

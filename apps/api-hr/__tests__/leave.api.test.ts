@@ -101,6 +101,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.leaveType.findMany).toHaveBeenCalledWith({
         where: { isActive: true },
         orderBy: { sortOrder: 'asc' },
+        take: 100,
       });
     });
 
@@ -704,6 +705,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.holiday.findMany).toHaveBeenCalledWith({
         where: { year: 2024 },
         orderBy: { date: 'asc' },
+        take: 100,
       });
     });
 

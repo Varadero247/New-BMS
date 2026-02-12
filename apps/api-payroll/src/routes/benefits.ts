@@ -24,6 +24,7 @@ router.get('/plans', async (req: Request, res: Response) => {
       include: {
         _count: { select: { employeeBenefits: true } },
       },
+      take: 100,
     });
 
     res.json({ success: true, data: plans });
@@ -77,6 +78,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
       include: {
         benefitPlan: true,
       },
+      take: 100,
     });
 
     res.json({ success: true, data: benefits });

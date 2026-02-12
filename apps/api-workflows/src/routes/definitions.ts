@@ -34,6 +34,7 @@ router.get('/', async (req: Request, res: Response) => {
         _count: { select: { instances: true } },
       },
       orderBy: { updatedAt: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: definitions });

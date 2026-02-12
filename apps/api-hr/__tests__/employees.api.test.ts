@@ -239,6 +239,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
         where: { employmentStatus: 'ACTIVE' },
         select: expect.any(Object),
+        take: 500,
       });
     });
 
@@ -543,6 +544,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
         where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE' },
         include: expect.any(Object),
+        take: 100,
       });
     });
 

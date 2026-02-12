@@ -27,6 +27,7 @@ router.get('/courses', async (req: Request, res: Response) => {
         _count: { select: { sessions: true, enrollments: true } },
       },
       orderBy: { name: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: courses });
@@ -121,6 +122,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
         _count: { select: { enrollments: true } },
       },
       orderBy: { startDate: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: sessions });
@@ -192,6 +194,7 @@ router.get('/enrollments', async (req: Request, res: Response) => {
         session: { select: { sessionCode: true, startDate: true, endDate: true } },
       },
       orderBy: { enrolledAt: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: enrollments });
@@ -316,6 +319,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
         employee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true } },
       },
       orderBy: { expiryDate: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: certifications });

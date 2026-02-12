@@ -102,6 +102,7 @@ describe('Health & Safety Metrics API Routes', () => {
       expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith({
         where: { year: 2024 },
         orderBy: { month: 'asc' },
+        take: 100,
       });
     });
 

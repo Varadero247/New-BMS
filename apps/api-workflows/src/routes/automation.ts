@@ -60,6 +60,7 @@ router.get('/rules', async (req: Request, res: Response) => {
           select: { executions: true },
         },
       },
+      take: 100,
     });
 
     res.json({ success: true, data: rules });
@@ -203,9 +204,15 @@ router.delete('/rules/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/automation/rules/:id/execute - Execute rule manually
+const executeRuleSchema = z.object({
+  triggerData: z.record(z.unknown()).optional(),
+  entityType: z.string().min(1).max(100).optional(),
+  entityId: z.string().uuid().optional(),
+});
+
 router.post('/rules/:id/execute', async (req: Request, res: Response) => {
   try {
-    const { triggerData, entityType, entityId } = req.body;
+    const { triggerData, entityType, entityId } = executeRuleSchema.parse(req.body);
 
     const rule = await prisma.automationRule.findUnique({
       where: { id: req.params.id },
@@ -284,7 +291,6 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
           completedAt: new Date(),
           durationMs: Date.now() - startTime,
           errorMessage: execError instanceof Error ? execError.message : 'Unknown error',
-          errorStack: process.env.NODE_ENV !== 'production' ? (execError instanceof Error ? execError.stack : undefined) : undefined,
         },
       });
 
@@ -299,6 +305,12 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
       throw execError;
     }
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors },
+      });
+    }
     logger.error('Error executing automation rule', { error: (error as Error).message });
     res.status(500).json({
       success: false,

@@ -65,52 +65,34 @@ describe('Gateway Fix Verification', () => {
   });
 
   describe('F-032: Error Response Masking by Environment', () => {
-    it('should include stack trace ONLY in development', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+    it('should NEVER include stack trace in any environment', () => {
+      for (const env of ['development', 'production', 'test']) {
+        const originalEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = env;
 
-      const err: AppError = new Error('Dev error');
-      err.statusCode = 500;
-      const res = mockResponse();
+        const err: AppError = new Error('Error in ' + env);
+        err.statusCode = 500;
+        const res = mockResponse();
 
-      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+        errorHandler(err, mockRequest() as Request, res as Response, mockNext);
 
-      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-      expect(jsonCall.error.stack).toBeDefined();
+        const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+        expect(jsonCall.error.stack).toBeUndefined();
 
-      process.env.NODE_ENV = originalEnv;
+        process.env.NODE_ENV = originalEnv;
+        jest.clearAllMocks();
+      }
     });
 
-    it('should NOT include stack trace in production', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
-      const err: AppError = new Error('Prod error');
+    it('should mask 500 error messages to generic response', () => {
+      const err: AppError = new Error('Sensitive DB details leaked');
       err.statusCode = 500;
       const res = mockResponse();
 
       errorHandler(err, mockRequest() as Request, res as Response, mockNext);
 
       const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-      expect(jsonCall.error.stack).toBeUndefined();
-
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it('should NOT include stack trace in test environment', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'test';
-
-      const err: AppError = new Error('Test error');
-      err.statusCode = 500;
-      const res = mockResponse();
-
-      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
-
-      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-      expect(jsonCall.error.stack).toBeUndefined();
-
-      process.env.NODE_ENV = originalEnv;
+      expect(jsonCall.error.message).toBe('Internal server error');
     });
 
     it('should mask empty error messages', () => {
@@ -121,7 +103,7 @@ describe('Gateway Fix Verification', () => {
       errorHandler(err, mockRequest() as Request, res as Response, mockNext);
 
       const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-      expect(jsonCall.error.message).toBe('An unexpected error occurred');
+      expect(jsonCall.error.message).toBe('Internal server error');
     });
 
     it('should default error code to INTERNAL_ERROR', () => {

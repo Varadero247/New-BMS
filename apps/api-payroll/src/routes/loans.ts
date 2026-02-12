@@ -29,6 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
         },
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: loans });

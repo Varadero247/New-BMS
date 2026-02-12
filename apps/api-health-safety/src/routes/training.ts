@@ -22,6 +22,7 @@ router.get('/courses', async (req: AuthRequest, res: Response) => {
         isActive: true,
       },
       orderBy: { title: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: courses });
@@ -48,6 +49,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
         course: { select: { id: true, title: true, standard: true } },
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     // Filter for H&S courses

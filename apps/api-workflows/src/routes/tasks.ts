@@ -36,6 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
         },
       },
       orderBy: { dueDate: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: tasks });
@@ -98,6 +99,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
         },
       },
       orderBy: { dueDate: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: tasks });
@@ -172,15 +174,20 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/tasks/:id/claim - Claim task
+const claimTaskSchema = z.object({
+  userId: z.string().min(1),
+  userName: z.string().min(1).max(200).optional(),
+});
+
 router.put('/:id/claim', async (req: Request, res: Response) => {
   try {
-    const { userId, userName } = req.body;
+    const data = claimTaskSchema.parse(req.body);
 
     const task = await prisma.workflowTask.update({
       where: { id: req.params.id },
       data: {
-        assignedToId: userId,
-        assignedToName: userName,
+        assignedToId: data.userId,
+        assignedToName: data.userName,
         status: 'IN_PROGRESS',
         startedAt: new Date(),
       },
@@ -188,6 +195,9 @@ router.put('/:id/claim', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: task });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
     logger.error('Error claiming task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to claim task' } });
   }
@@ -235,9 +245,16 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 });
 
 // PUT /api/tasks/:id/reassign - Reassign task
+const reassignTaskSchema = z.object({
+  newAssigneeId: z.string().min(1),
+  newAssigneeName: z.string().min(1).max(200).optional(),
+  reason: z.string().min(1).max(1000).optional(),
+  reassignedBy: z.string().min(1).optional(),
+});
+
 router.put('/:id/reassign', async (req: Request, res: Response) => {
   try {
-    const { newAssigneeId, newAssigneeName, reason, reassignedBy } = req.body;
+    const data = reassignTaskSchema.parse(req.body);
 
     const currentTask = await prisma.workflowTask.findUnique({ where: { id: req.params.id } });
     if (!currentTask) {
@@ -247,8 +264,8 @@ router.put('/:id/reassign', async (req: Request, res: Response) => {
     const task = await prisma.workflowTask.update({
       where: { id: req.params.id },
       data: {
-        assignedToId: newAssigneeId,
-        assignedToName: newAssigneeName,
+        assignedToId: data.newAssigneeId,
+        assignedToName: data.newAssigneeName,
       },
     });
 
@@ -257,18 +274,21 @@ router.put('/:id/reassign', async (req: Request, res: Response) => {
       data: {
         instanceId: task.instanceId,
         eventType: 'DELEGATED',
-        actorId: reassignedBy,
+        actorId: data.reassignedBy,
         metadata: {
           taskId: task.id,
           previousAssignee: currentTask.assignedToId,
-          newAssignee: newAssigneeId,
-          reason,
+          newAssignee: data.newAssigneeId,
+          reason: data.reason,
         },
       },
     });
 
     res.json({ success: true, data: task });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+    }
     logger.error('Error reassigning task', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reassign task' } });
   }

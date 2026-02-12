@@ -35,7 +35,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       recentAIInsights,
     ] = await Promise.all([
       // Compliance scores
-      prisma.complianceScore.findMany(),
+      prisma.complianceScore.findMany({ take: 100 }),
 
       // Risk counts
       Promise.all([
@@ -182,6 +182,7 @@ router.get('/compliance', async (req: AuthRequest, res: Response) => {
   try {
     const complianceScores = await prisma.complianceScore.findMany({
       orderBy: { standard: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: complianceScores });
@@ -207,6 +208,7 @@ router.get('/trends', async (req: AuthRequest, res: Response) => {
     const trends = await prisma.monthlyTrend.findMany({
       where,
       orderBy: [{ standard: 'asc' }, { metric: 'asc' }, { month: 'asc' }],
+      take: 120,
     });
 
     res.json({ success: true, data: trends });

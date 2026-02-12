@@ -23,6 +23,7 @@ router.get('/component-types', async (req: Request, res: Response) => {
     const componentTypes = await prisma.salaryComponentType.findMany({
       where,
       orderBy: { sortOrder: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: componentTypes });
@@ -75,6 +76,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
         },
       },
       orderBy: { effectiveFrom: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: salaries });

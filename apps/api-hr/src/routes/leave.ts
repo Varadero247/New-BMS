@@ -17,6 +17,7 @@ router.get('/types', async (_req: Request, res: Response) => {
     const types = await prisma.leaveType.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: types });
@@ -354,6 +355,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
         year: parseInt(year as string),
       },
       include: { leaveType: true },
+      take: 100,
     });
 
     res.json({ success: true, data: balances });
@@ -436,6 +438,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
         employee: { select: { id: true, firstName: true, lastName: true, departmentId: true } },
         leaveType: { select: { name: true, color: true } },
       },
+      take: 500,
     });
 
     res.json({ success: true, data: leaves });
@@ -454,6 +457,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
     const holidays = await prisma.holiday.findMany({
       where: { year: parseInt(year as string) },
       orderBy: { date: 'asc' },
+      take: 100,
     });
 
     res.json({ success: true, data: holidays });

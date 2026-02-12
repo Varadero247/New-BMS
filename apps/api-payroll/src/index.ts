@@ -78,7 +78,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
+      message: 'Internal server error',
     },
   });
 });
