@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -12,7 +13,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/documents - Get employee documents
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, documentType, status, expiringWithin, page = '1', limit = '20' } = req.query;
 
@@ -20,7 +21,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EmployeeDocumentWhereInput = {};
+    const where: Prisma.EmployeeDocumentWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
@@ -56,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/documents/:id - Get single document
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.employeeDocument), async (req: Request, res: Response) => {
   try {
     const document = await prisma.employeeDocument.findUnique({
       where: { id: req.params.id },
@@ -125,7 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/documents/:id - Update document
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().optional(),
@@ -137,7 +138,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.expiryDate) updateData.expiryDate = new Date(data.expiryDate);
     if (data.verifiedById) updateData.verifiedAt = new Date();
 
@@ -177,7 +178,7 @@ router.post('/:id/sign', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/documents/:id - Archive document
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.employeeDocument), async (req: Request, res: Response) => {
   try {
     await prisma.employeeDocument.update({
       where: { id: req.params.id },
@@ -196,7 +197,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/qualifications/:employeeId', async (req: Request, res: Response) => {
   try {
     const qualifications = await prisma.employeeQualification.findMany({
-      where: { employeeId: req.params.employeeId },
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       orderBy: { endDate: 'desc' },
     });
 
@@ -249,7 +250,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
 router.get('/assets/:employeeId', async (req: Request, res: Response) => {
   try {
     const assets = await prisma.employeeAsset.findMany({
-      where: { employeeId: req.params.employeeId },
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       orderBy: { assignedDate: 'desc' },
     });
 

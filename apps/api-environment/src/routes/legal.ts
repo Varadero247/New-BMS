@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-environment');
 
@@ -21,14 +22,14 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List legal obligations
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', complianceStatus, obligationType, jurisdiction, status, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvLegalWhereInput = {};
+    const where: Prisma.EnvLegalWhereInput = { deletedAt: null };
     if (complianceStatus) where.complianceStatus = complianceStatus;
     if (obligationType) where.obligationType = obligationType;
     if (jurisdiction) where.jurisdiction = jurisdiction;
@@ -59,7 +60,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const obligation = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!obligation) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
@@ -176,7 +177,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
@@ -203,7 +204,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });

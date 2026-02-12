@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
@@ -27,7 +28,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 // GET / — List objectives (paginated)
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', category, status, search } = req.query;
 
@@ -35,7 +36,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualObjectiveWhereInput = {};
+    const where: Prisma.QualObjectiveWhereInput = { deletedAt: null };
     if (category) where.category = category;
     if (status) where.status = status;
     if (search) where.title = { contains: search as string, mode: 'insensitive' };
@@ -68,7 +69,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single objective
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest, res: Response) => {
   try {
     const objective = await prisma.qualObjective.findUnique({
       where: { id: req.params.id },
@@ -175,7 +176,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update objective
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -240,7 +241,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id — Delete objective
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) {

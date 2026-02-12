@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,7 +13,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/payroll/runs - Get payroll runs
-router.get('/runs', async (req: Request, res: Response) => {
+router.get('/runs', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, year, page = '1', limit = '20' } = req.query;
 
@@ -20,7 +21,7 @@ router.get('/runs', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PayrollRunWhereInput = {};
+    const where: Prisma.PayrollRunWhereInput = { deletedAt: null };
     if (status) where.status = status as string;
     if (year) {
       const startOfYear = new Date(parseInt(year as string), 0, 1);
@@ -53,7 +54,7 @@ router.get('/runs', async (req: Request, res: Response) => {
 });
 
 // GET /api/payroll/runs/:id - Get single payroll run
-router.get('/runs/:id', async (req: Request, res: Response) => {
+router.get('/runs/:id', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
   try {
     const run = await prisma.payrollRun.findUnique({
       where: { id: req.params.id },
@@ -120,7 +121,7 @@ router.post('/runs', async (req: Request, res: Response) => {
 });
 
 // POST /api/payroll/runs/:id/calculate - Calculate payroll
-router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
+router.post('/runs/:id/calculate', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
   let statusNeedsReset = false;
   try {
     const run = await prisma.payrollRun.findUnique({
@@ -168,7 +169,7 @@ router.post('/runs/:id/calculate', async (req: Request, res: Response) => {
 });
 
 // PUT /api/payroll/runs/:id/approve - Approve payroll run
-router.put('/runs/:id/approve', async (req: Request, res: Response) => {
+router.put('/runs/:id/approve', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
   try {
     const { approvedById } = req.body;
 
@@ -201,7 +202,7 @@ router.put('/runs/:id/approve', async (req: Request, res: Response) => {
 
 // Payslips
 // GET /api/payroll/payslips - Get payslips
-router.get('/payslips', async (req: Request, res: Response) => {
+router.get('/payslips', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, payrollRunId, page = '1', limit = '20' } = req.query;
 
@@ -209,7 +210,7 @@ router.get('/payslips', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PayslipWhereInput = {};
+    const where: Prisma.PayslipWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (payrollRunId) where.payrollRunId = payrollRunId as string;
 
@@ -235,7 +236,7 @@ router.get('/payslips', async (req: Request, res: Response) => {
 });
 
 // GET /api/payroll/payslips/:id - Get single payslip
-router.get('/payslips/:id', async (req: Request, res: Response) => {
+router.get('/payslips/:id', checkOwnership(prisma.payslip), async (req: Request, res: Response) => {
   try {
     const payslip = await prisma.payslip.findUnique({
       where: { id: req.params.id },

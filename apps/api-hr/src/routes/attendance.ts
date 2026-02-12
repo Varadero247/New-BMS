@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -12,7 +13,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/attendance - Get attendance records
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       employeeId,
@@ -27,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.AttendanceWhereInput = {};
+    const where: Prisma.AttendanceWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as string;
     if (startDate || endDate) {
@@ -340,7 +341,7 @@ router.post('/clock-out', async (req: Request, res: Response) => {
 });
 
 // PUT /api/attendance/:id - Update attendance record (manual correction)
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       clockIn: z.string().optional(),
@@ -351,7 +352,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.clockIn) updateData.clockIn = new Date(data.clockIn);
     if (data.clockOut) updateData.clockOut = new Date(data.clockOut);
 
@@ -392,7 +393,7 @@ router.post('/', async (req: Request, res: Response) => {
     const attendanceDate = new Date(data.date);
     attendanceDate.setHours(0, 0, 0, 0);
 
-    const createData: any = {
+    const createData = {
       employeeId: data.employeeId,
       date: attendanceDate,
       status: data.status,
@@ -448,7 +449,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/shifts/all', async (_req: Request, res: Response) => {
   try {
     const shifts = await prisma.workShift.findMany({
-      where: { isActive: true },
+      where: { isActive: true, deletedAt: null },
       include: { _count: { select: { employees: true } } },
     });
 

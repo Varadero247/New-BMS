@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -12,7 +13,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/recruitment/jobs - Get job postings
-router.get('/jobs', async (req: Request, res: Response) => {
+router.get('/jobs', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, departmentId, isRemote, page = '1', limit = '20' } = req.query;
 
@@ -20,7 +21,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.JobPostingWhereInput = {};
+    const where: Prisma.JobPostingWhereInput = { deletedAt: null };
     if (status) where.status = status as string;
     if (departmentId) where.departmentId = departmentId as string;
     if (isRemote === 'true') where.isRemote = true;
@@ -52,7 +53,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
 });
 
 // GET /api/recruitment/jobs/:id - Get single job
-router.get('/jobs/:id', async (req: Request, res: Response) => {
+router.get('/jobs/:id', checkOwnership(prisma.jobPosting), async (req: Request, res: Response) => {
   try {
     const job = await prisma.jobPosting.findUnique({
       where: { id: req.params.id },
@@ -136,7 +137,7 @@ router.post('/jobs', async (req: Request, res: Response) => {
 });
 
 // PUT /api/recruitment/jobs/:id - Update job
-router.put('/jobs/:id', async (req: Request, res: Response) => {
+router.put('/jobs/:id', checkOwnership(prisma.jobPosting), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().optional(),
@@ -148,7 +149,7 @@ router.put('/jobs/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.publishDate) updateData.publishDate = new Date(data.publishDate);
     if (data.closeDate) updateData.closeDate = new Date(data.closeDate);
 
@@ -177,7 +178,7 @@ router.get('/applicants', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ApplicantWhereInput = {};
+    const where: Prisma.ApplicantWhereInput = { deletedAt: null };
     if (jobPostingId) where.jobPostingId = jobPostingId as string;
     if (status) where.status = status as string;
     if (stage) where.stage = stage as string;
@@ -208,7 +209,7 @@ router.get('/applicants', async (req: Request, res: Response) => {
 });
 
 // GET /api/recruitment/applicants/:id - Get single applicant
-router.get('/applicants/:id', async (req: Request, res: Response) => {
+router.get('/applicants/:id', checkOwnership(prisma.applicant), async (req: Request, res: Response) => {
   try {
     const applicant = await prisma.applicant.findUnique({
       where: { id: req.params.id },
@@ -282,7 +283,7 @@ router.post('/applicants', async (req: Request, res: Response) => {
 });
 
 // PUT /api/recruitment/applicants/:id/status - Update applicant status
-router.put('/applicants/:id/status', async (req: Request, res: Response) => {
+router.put('/applicants/:id/status', checkOwnership(prisma.applicant), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       status: z.enum(['NEW', 'SCREENING', 'SHORTLISTED', 'INTERVIEWING', 'OFFER', 'HIRED', 'REJECTED', 'WITHDRAWN']),
@@ -350,7 +351,7 @@ router.post('/interviews', async (req: Request, res: Response) => {
 });
 
 // PUT /api/recruitment/interviews/:id - Update interview
-router.put('/interviews/:id', async (req: Request, res: Response) => {
+router.put('/interviews/:id', checkOwnership(prisma.interview), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       status: z.enum(['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED']).optional(),
@@ -361,7 +362,7 @@ router.put('/interviews/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.scheduledAt) updateData.scheduledAt = new Date(data.scheduledAt);
 
     const interview = await prisma.interview.update({
@@ -503,7 +504,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Calculate average time to hire (for completed hires)
     const hiredApplicants = await prisma.applicant.findMany({
-      where: { status: 'HIRED' },
+      where: { status: 'HIRED', deletedAt: null },
       select: { createdAt: true, updatedAt: true },
       take: 50,
       orderBy: { updatedAt: 'desc' },

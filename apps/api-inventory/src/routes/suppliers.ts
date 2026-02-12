@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 
@@ -15,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/suppliers - List suppliers
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', search, status, isActive } = req.query;
 
@@ -23,7 +24,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SupplierWhereInput = {};
+    const where: Prisma.SupplierWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -61,7 +62,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/suppliers/:id - Get single supplier
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
   try {
     const supplier = await prisma.supplier.findUnique({
       where: { id: req.params.id },
@@ -133,7 +134,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/suppliers/:id - Update supplier
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -186,7 +187,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/suppliers/:id - Delete supplier
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.supplier.findUnique({
       where: { id: req.params.id },

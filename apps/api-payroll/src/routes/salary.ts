@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/salary/component-types - Get salary component types
-router.get('/component-types', async (req: Request, res: Response) => {
+router.get('/component-types', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { type, category } = req.query;
 
-    const where: Prisma.SalaryComponentTypeWhereInput = { isActive: true };
+    const where: Prisma.SalaryComponentTypeWhereInput = { isActive: true, deletedAt: null };
     if (type) where.type = type;
     if (category) where.category = category;
 
@@ -69,7 +70,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const salaries = await prisma.employeeSalary.findMany({
-      where: { employeeId: req.params.employeeId },
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       include: {
         components: {
           include: { componentType: true },
@@ -114,7 +115,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
 
     // Get previous salary for history
     const prevSalary = await prisma.employeeSalary.findFirst({
-      where: { employeeId: req.params.employeeId },
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       orderBy: { effectiveFrom: 'desc' },
     });
 
@@ -155,7 +156,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
 });
 
 // PUT /api/salary/:id/components - Update salary components
-router.put('/:id/components', async (req: Request, res: Response) => {
+router.put('/:id/components', checkOwnership(prisma.employeeSalary), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       components: z.array(z.object({

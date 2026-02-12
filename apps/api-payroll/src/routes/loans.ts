@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/loans - Get all loans
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, status, loanType } = req.query;
 
-    const where: Prisma.EmployeeLoanWhereInput = {};
+    const where: Prisma.EmployeeLoanWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (status) where.status = status;
     if (loanType) where.loanType = loanType;
@@ -40,7 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/loans/:id - Get single loan
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
     const loan = await prisma.employeeLoan.findUnique({
       where: { id: req.params.id },
@@ -124,7 +125,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/loans/:id/approve - Approve loan
-router.put('/:id/approve', async (req: Request, res: Response) => {
+router.put('/:id/approve', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
     const { approvedById } = req.body;
 
@@ -180,7 +181,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 });
 
 // PUT /api/loans/:id/disburse - Disburse loan
-router.put('/:id/disburse', async (req: Request, res: Response) => {
+router.put('/:id/disburse', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
     const loan = await prisma.employeeLoan.update({
       where: { id: req.params.id },
@@ -199,7 +200,7 @@ router.put('/:id/disburse', async (req: Request, res: Response) => {
 });
 
 // POST /api/loans/:id/repayments/:repaymentId/pay - Record repayment
-router.post('/:id/repayments/:repaymentId/pay', async (req: Request, res: Response) => {
+router.post('/:id/repayments/:repaymentId/pay', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
     const { paidAmount, paymentMethod } = req.body;
 

@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
@@ -26,7 +27,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 // GET / — List changes (paginated)
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', changeType, status, priority, search } = req.query;
 
@@ -34,7 +35,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualChangeWhereInput = {};
+    const where: Prisma.QualChangeWhereInput = { deletedAt: null };
     if (changeType) where.changeType = changeType;
     if (status) where.status = status;
     if (priority) where.priority = priority;
@@ -67,7 +68,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single change
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
   try {
     const change = await prisma.qualChange.findUnique({
       where: { id: req.params.id },
@@ -227,7 +228,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update change
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -319,7 +320,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id — Delete change
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {

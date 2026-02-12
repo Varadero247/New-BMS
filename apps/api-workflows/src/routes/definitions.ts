@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -19,11 +20,11 @@ const triggerTypeEnum = z.enum(['MANUAL', 'AUTOMATIC', 'SCHEDULED', 'EVENT', 'AP
 const statusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']);
 
 // GET /api/definitions - Get workflow definitions
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { status, category, createdById } = req.query;
 
-    const where: Prisma.WorkflowDefinitionWhereInput = {};
+    const where: Prisma.WorkflowDefinitionWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (createdById) where.createdById = createdById as string;
@@ -45,7 +46,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/definitions/:id - Get single definition
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
   try {
     const definition = await prisma.workflowDefinition.findUnique({
       where: { id: req.params.id },
@@ -99,7 +100,7 @@ router.post('/', async (req: Request, res: Response) => {
         category: data.category,
         triggerType: data.triggerType,
         triggerConfig: data.triggerConfig,
-        steps: data.steps as any,
+        steps: data.steps as Prisma.InputJsonValue,
         rules: data.rules,
         defaultSlaHours: data.defaultSlaHours,
         escalationConfig: data.escalationConfig,
@@ -120,7 +121,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/definitions/:id - Update workflow definition
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().min(1).optional(),
@@ -160,7 +161,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /api/definitions/:id/activate - Activate workflow definition (was publish)
-router.put('/:id/activate', async (req: Request, res: Response) => {
+router.put('/:id/activate', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
   try {
     const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
     if (!current) {
@@ -183,7 +184,7 @@ router.put('/:id/activate', async (req: Request, res: Response) => {
 });
 
 // PUT /api/definitions/:id/archive - Archive workflow definition
-router.put('/:id/archive', async (req: Request, res: Response) => {
+router.put('/:id/archive', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
   try {
     const definition = await prisma.workflowDefinition.update({
       where: { id: req.params.id },

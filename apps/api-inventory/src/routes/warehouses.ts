@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 
@@ -15,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/warehouses - List warehouses
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', isActive } = req.query;
 
@@ -23,7 +24,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.WarehouseWhereInput = {};
+    const where: Prisma.WarehouseWhereInput = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const [warehouses, total] = await Promise.all([
@@ -68,7 +69,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/warehouses/:id - Get single warehouse with inventory summary
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
   try {
     const warehouse = await prisma.warehouse.findUnique({
       where: { id: req.params.id },
@@ -115,7 +116,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/warehouses/:id/inventory - Get all inventory in a warehouse
-router.get('/:id/inventory', async (req: AuthRequest, res: Response) => {
+router.get('/:id/inventory', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', search } = req.query;
 
@@ -123,7 +124,7 @@ router.get('/:id/inventory', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryWhereInput = { warehouseId: req.params.id };
+    const where: Prisma.InventoryWhereInput = { warehouseId: req.params.id, deletedAt: null };
 
     // If search, filter by product
     if (search) {
@@ -229,7 +230,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/warehouses/:id - Update warehouse
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.warehouse.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -301,7 +302,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/warehouses/:id - Delete warehouse
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.warehouse.findUnique({
       where: { id: req.params.id },

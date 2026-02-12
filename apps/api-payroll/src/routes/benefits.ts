@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/benefits/plans - Get benefit plans
-router.get('/plans', async (req: Request, res: Response) => {
+router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category } = req.query;
 
-    const where: Prisma.BenefitPlanWhereInput = { isActive: true };
+    const where: Prisma.BenefitPlanWhereInput = { isActive: true, deletedAt: null };
     if (category) where.category = category;
 
     const plans = await prisma.benefitPlan.findMany({
@@ -74,7 +75,7 @@ router.post('/plans', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const benefits = await prisma.employeeBenefit.findMany({
-      where: { employeeId: req.params.employeeId },
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       include: {
         benefitPlan: true,
       },
@@ -128,7 +129,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
 });
 
 // PUT /api/benefits/:id/terminate - Terminate benefit
-router.put('/:id/terminate', async (req: Request, res: Response) => {
+router.put('/:id/terminate', checkOwnership(prisma.employeeBenefit), async (req: Request, res: Response) => {
   try {
     const { terminationDate } = req.body;
 

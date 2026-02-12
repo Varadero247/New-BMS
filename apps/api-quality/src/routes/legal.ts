@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
@@ -23,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List legal obligations
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', obligationType, complianceStatus, status, search } = req.query;
 
@@ -31,7 +32,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualLegalWhereInput = {};
+    const where: Prisma.QualLegalWhereInput = { deletedAt: null };
     if (obligationType) where.obligationType = obligationType;
     if (complianceStatus) where.complianceStatus = complianceStatus;
     if (status) where.status = status;
@@ -66,7 +67,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single legal obligation
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
   try {
     const legal = await prisma.qualLegal.findUnique({
       where: { id: req.params.id },
@@ -137,7 +138,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update legal obligation
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -177,7 +178,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = {
+    const updateData = {
       ...data,
       lastAssessmentDate: data.lastAssessmentDate ? new Date(data.lastAssessmentDate) : data.lastAssessmentDate === null ? null : undefined,
       nextAssessmentDate: data.nextAssessmentDate ? new Date(data.nextAssessmentDate) : data.nextAssessmentDate === null ? null : undefined,
@@ -201,7 +202,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Delete legal obligation
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {

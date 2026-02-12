@@ -20,6 +20,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import tasksRouter from '../src/routes/tasks';
@@ -171,7 +175,7 @@ describe('Tasks API Routes', () => {
       expect(res.body.data[0].isCriticalPath).toBe(false);
       expect(mockPrisma.projectTask.findMany as jest.Mock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: '44000000-0000-4000-a000-000000000001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001', deletedAt: null },
           orderBy: [{ wbsLevel: 'asc' }, { sortOrder: 'asc' }],
           select: expect.objectContaining({
             id: true,

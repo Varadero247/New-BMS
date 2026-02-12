@@ -25,6 +25,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import productsRoutes from '../src/routes/products';
@@ -116,6 +120,7 @@ describe('Inventory Products API Routes', () => {
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             status: 'INACTIVE',
           }),
         })
@@ -133,6 +138,7 @@ describe('Inventory Products API Routes', () => {
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             categoryId: '4d000000-0000-4000-a000-000000000001',
           }),
         })
@@ -150,6 +156,7 @@ describe('Inventory Products API Routes', () => {
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             supplierId: '25000000-0000-4000-a000-000000000001',
           }),
         })
@@ -167,6 +174,7 @@ describe('Inventory Products API Routes', () => {
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             OR: expect.arrayContaining([
               expect.objectContaining({ sku: expect.any(Object) }),
               expect.objectContaining({ barcode: expect.any(Object) }),
@@ -239,7 +247,7 @@ describe('Inventory Products API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith({
-        where: { status: 'ACTIVE' },
+        where: { status: 'ACTIVE', deletedAt: null },
         include: expect.any(Object),
       });
     });

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-health-safety');
 
@@ -35,14 +36,14 @@ async function generateReferenceNumber(): Promise<string> {
 }
 
 // GET /api/legal - List legal requirements
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', complianceStatus, category, status, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LegalRequirementWhereInput = {};
+    const where: Prisma.LegalRequirementWhereInput = { deletedAt: null };
     if (complianceStatus) where.complianceStatus = complianceStatus;
     if (category) where.category = category;
     if (status) where.status = status;
@@ -72,7 +73,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/legal/:id - Get single legal requirement
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
   try {
     const requirement = await prisma.legalRequirement.findUnique({
       where: { id: req.params.id },
@@ -155,7 +156,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/legal/:id - Update legal requirement
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -186,7 +187,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.effectiveDate) updateData.effectiveDate = new Date(data.effectiveDate);
     if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
     if (data.complianceStatus && data.complianceStatus !== existing.complianceStatus) {
@@ -209,7 +210,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/legal/:id - Delete legal requirement
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
     if (!existing) {

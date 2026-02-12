@@ -4,6 +4,7 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 interface AIProviderResponse {
   content: string;
@@ -38,6 +39,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -708,7 +710,7 @@ Return ONLY valid JSON:
     }
 
     // Parse JSON from AI response
-    let parsedResult: any;
+    let parsedResult: unknown;
     try {
       const content = aiResponse.content || '';
       // Extract JSON from response (handle cases where AI adds markdown code blocks)
@@ -772,14 +774,17 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(error.error?.message || 'OpenAI API error');
+    const error = await response.json() as Record<string, unknown>;
+    const errorObj = error.error as Record<string, unknown> | undefined;
+    throw new Error((errorObj?.message as string) || 'OpenAI API error');
   }
 
-  const data = await response.json() as any;
+  const data = await response.json() as Record<string, unknown>;
+  const choices = data.choices as Array<{ message: { content: string } }>;
+  const usage = data.usage as { total_tokens?: number } | undefined;
   return {
-    content: data.choices[0].message.content,
-    tokensUsed: data.usage?.total_tokens || 0,
+    content: choices[0].message.content,
+    tokensUsed: usage?.total_tokens || 0,
   };
 }
 
@@ -800,14 +805,17 @@ async function callAnthropic(apiKey: string, model: string, prompt: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(error.error?.message || 'Anthropic API error');
+    const error = await response.json() as Record<string, unknown>;
+    const errorObj = error.error as Record<string, unknown> | undefined;
+    throw new Error((errorObj?.message as string) || 'Anthropic API error');
   }
 
-  const data = await response.json() as any;
+  const data = await response.json() as Record<string, unknown>;
+  const content = data.content as Array<{ text: string }>;
+  const usage = data.usage as { input_tokens?: number; output_tokens?: number } | undefined;
   return {
-    content: data.content[0].text,
-    tokensUsed: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0),
+    content: content[0].text,
+    tokensUsed: (usage?.input_tokens || 0) + (usage?.output_tokens || 0),
   };
 }
 
@@ -828,14 +836,17 @@ async function callGrok(apiKey: string, prompt: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(error.error?.message || 'Grok API error');
+    const error = await response.json() as Record<string, unknown>;
+    const errorObj = error.error as Record<string, unknown> | undefined;
+    throw new Error((errorObj?.message as string) || 'Grok API error');
   }
 
-  const data = await response.json() as any;
+  const data = await response.json() as Record<string, unknown>;
+  const choices = data.choices as Array<{ message: { content: string } }>;
+  const usage = data.usage as { total_tokens?: number } | undefined;
   return {
-    content: data.choices[0].message.content,
-    tokensUsed: data.usage?.total_tokens || 0,
+    content: choices[0].message.content,
+    tokensUsed: usage?.total_tokens || 0,
   };
 }
 

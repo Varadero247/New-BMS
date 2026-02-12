@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-environment');
 
@@ -21,14 +22,14 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List events
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', status, eventType, severity, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvEventWhereInput = {};
+    const where: Prisma.EnvEventWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (eventType) where.eventType = eventType;
     if (severity) where.severity = severity;
@@ -58,7 +59,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
   try {
     const event = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!event) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });
@@ -211,7 +212,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });
@@ -243,7 +244,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });

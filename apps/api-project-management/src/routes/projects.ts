@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -15,6 +16,7 @@ router.param('id', validateIdParam());
 // Helper: generate project code PRJ0001, PRJ0002, etc.
 async function generateProjectCode(): Promise<string> {
   const lastProject = await prisma.project.findFirst({
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { projectCode: true },
   });
@@ -29,7 +31,7 @@ async function generateProjectCode(): Promise<string> {
 }
 
 // GET /api/projects - List projects with pagination and filters
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, priority, methodology, search } = req.query;
 
@@ -37,7 +39,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectWhereInput = {};
+    const where: Prisma.ProjectWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (priority) where.priority = priority;
     if (methodology) where.methodology = methodology;
@@ -81,7 +83,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/projects/:id - Get single project with all relations
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
@@ -125,7 +127,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/projects/:id/dashboard - Dashboard metrics
-router.get('/:id/dashboard', async (req: AuthRequest, res: Response) => {
+router.get('/:id/dashboard', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
@@ -354,7 +356,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/projects/:id - Update project
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -362,7 +364,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data, updatedBy: req.user?.id };
+    const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
 
     // Handle date conversions
     if (data.startDate) updateData.startDate = new Date(data.startDate);
@@ -404,7 +406,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/projects/:id - Delete project
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!existing) {

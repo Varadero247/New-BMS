@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -42,11 +43,11 @@ const createRuleSchema = z.object({
 const updateRuleSchema = createRuleSchema.partial().omit({ code: true });
 
 // GET /api/automation/rules - Get automation rules
-router.get('/rules', async (req: Request, res: Response) => {
+router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { triggerType, actionType, isActive, entityType } = req.query;
 
-    const where: Prisma.AutomationRuleWhereInput = {};
+    const where: Prisma.AutomationRuleWhereInput = { deletedAt: null };
     if (triggerType) where.triggerType = triggerType as string;
     if (actionType) where.actionType = actionType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -74,7 +75,7 @@ router.get('/rules', async (req: Request, res: Response) => {
 });
 
 // GET /api/automation/rules/:id - Get single rule
-router.get('/rules/:id', async (req: Request, res: Response) => {
+router.get('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
   try {
     const rule = await prisma.automationRule.findUnique({
       where: { id: req.params.id },
@@ -161,7 +162,7 @@ router.post('/rules', async (req: Request, res: Response) => {
 });
 
 // PUT /api/automation/rules/:id - Update automation rule
-router.put('/rules/:id', async (req: Request, res: Response) => {
+router.put('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
   try {
     const data = updateRuleSchema.parse(req.body);
 
@@ -187,7 +188,7 @@ router.put('/rules/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/automation/rules/:id - Delete automation rule
-router.delete('/rules/:id', async (req: Request, res: Response) => {
+router.delete('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
   try {
     await prisma.automationRule.delete({
       where: { id: req.params.id },
@@ -236,7 +237,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
     const execution = await prisma.automationExecution.create({
       data: {
         ruleId: rule.id,
-        triggeredBy: (req as any).user?.id || 'MANUAL',
+        triggeredBy: (req as AuthRequest).user?.id || 'MANUAL',
         triggerType: 'API',
         triggerData: triggerData || {},
         entityType: entityType || rule.entityType,
@@ -324,7 +325,7 @@ router.get('/executions', async (req: Request, res: Response) => {
   try {
     const { ruleId, status, entityType, limit = '50', offset = '0' } = req.query;
 
-    const where: Prisma.AutomationExecutionWhereInput = {};
+    const where: Prisma.AutomationExecutionWhereInput = { deletedAt: null };
     if (ruleId) where.ruleId = ruleId as string;
     if (status) where.status = status as string;
     if (entityType) where.entityType = entityType as string;
@@ -422,7 +423,7 @@ router.post('/executions/:id/retry', async (req: Request, res: Response) => {
     const retryExecution = await prisma.automationExecution.create({
       data: {
         ruleId: execution.ruleId,
-        triggeredBy: (req as any).user?.id || 'RETRY',
+        triggeredBy: (req as AuthRequest).user?.id || 'RETRY',
         triggerType: execution.triggerType,
         triggerData: execution.triggerData ?? undefined,
         entityType: execution.entityType,
@@ -462,6 +463,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         _count: { status: true },
       }),
       prisma.automationExecution.findMany({
+        where: { deletedAt: null },
         take: 10,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -469,6 +471,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         },
       }),
       prisma.automationRule.findMany({
+        where: { deletedAt: null },
         take: 5,
         orderBy: { executionCount: 'desc' },
         select: {
@@ -507,10 +510,10 @@ router.get('/stats', async (req: Request, res: Response) => {
 
 // Helper function to execute automation action
 async function executeAction(
-  rule: any,
-  execution: any,
-  triggerData: any
-): Promise<any> {
+  rule: { actionConfig: unknown; actionType: string },
+  _execution: unknown,
+  _triggerData: unknown
+): Promise<unknown> {
   const config = rule.actionConfig;
 
   switch (rule.actionType) {

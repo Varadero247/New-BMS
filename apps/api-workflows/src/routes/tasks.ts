@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -19,11 +20,11 @@ const taskTypeEnum = z.enum(['REVIEW', 'APPROVE', 'COMPLETE_FORM', 'UPLOAD_DOCUM
 const taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
 
 // GET /api/tasks - Get workflow tasks
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { assignedToId, status, instanceId } = req.query;
 
-    const where: Prisma.WorkflowTaskWhereInput = {};
+    const where: Prisma.WorkflowTaskWhereInput = { deletedAt: null };
     if (assignedToId) where.assignedToId = assignedToId as string;
     if (status) where.status = status as string;
     if (instanceId) where.instanceId = instanceId as string;
@@ -88,6 +89,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
 
     const where: Prisma.WorkflowTaskWhereInput = {
       assignedToId: req.params.userId,
+      deletedAt: null,
     };
     if (status) where.status = status;
 
@@ -110,7 +112,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
 });
 
 // GET /api/tasks/:id - Get single task
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
   try {
     const task = await prisma.workflowTask.findUnique({
       where: { id: req.params.id },
@@ -179,7 +181,7 @@ const claimTaskSchema = z.object({
   userName: z.string().min(1).max(200).optional(),
 });
 
-router.put('/:id/claim', async (req: Request, res: Response) => {
+router.put('/:id/claim', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
   try {
     const data = claimTaskSchema.parse(req.body);
 
@@ -204,7 +206,7 @@ router.put('/:id/claim', async (req: Request, res: Response) => {
 });
 
 // PUT /api/tasks/:id/complete - Complete task
-router.put('/:id/complete', async (req: Request, res: Response) => {
+router.put('/:id/complete', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       outcome: z.string().optional(),
@@ -252,7 +254,7 @@ const reassignTaskSchema = z.object({
   reassignedBy: z.string().min(1).optional(),
 });
 
-router.put('/:id/reassign', async (req: Request, res: Response) => {
+router.put('/:id/reassign', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
   try {
     const data = reassignTaskSchema.parse(req.body);
 

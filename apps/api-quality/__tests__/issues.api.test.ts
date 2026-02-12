@@ -24,6 +24,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),

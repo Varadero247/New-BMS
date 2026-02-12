@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
@@ -56,7 +57,7 @@ function calculateRiskFields(data: {
 }
 
 // GET / - List risks
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', riskLevel, status, process, search } = req.query;
 
@@ -64,7 +65,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualRiskWhereInput = {};
+    const where: Prisma.QualRiskWhereInput = { deletedAt: null };
     if (riskLevel) where.riskLevel = riskLevel;
     if (status) where.status = status;
     if (process) where.process = process;
@@ -99,7 +100,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single risk
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
   try {
     const risk = await prisma.qualRisk.findUnique({
       where: { id: req.params.id },
@@ -181,7 +182,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update risk
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -246,7 +247,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Delete risk
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {

@@ -4,6 +4,7 @@ import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 
@@ -13,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/inventory/transactions - List transactions (audit trail)
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = '1',
@@ -31,7 +32,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryTransactionWhereInput = {};
+    const where: Prisma.InventoryTransactionWhereInput = { deletedAt: null };
 
     if (productId) where.productId = productId;
     if (warehouseId) where.warehouseId = warehouseId;
@@ -77,7 +78,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { startDate, endDate, warehouseId } = req.query;
 
-    const where: Prisma.InventoryTransactionWhereInput = {};
+    const where: Prisma.InventoryTransactionWhereInput = { deletedAt: null };
     if (warehouseId) where.warehouseId = warehouseId;
 
     // Default to last 30 days if no date range specified
@@ -95,7 +96,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     });
 
     // Get daily transaction volumes
-    let dailyTransactions: any[];
+    let dailyTransactions: unknown[];
     if (warehouseId) {
       dailyTransactions = await prisma.$queryRaw`
         SELECT
@@ -201,7 +202,7 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/inventory/transactions/:id - Get single transaction
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.inventoryTransaction), async (req: AuthRequest, res: Response) => {
   try {
     const transaction = await prisma.inventoryTransaction.findUnique({
       where: { id: req.params.id },

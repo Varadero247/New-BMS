@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -15,7 +16,7 @@ router.param('id', validateIdParam());
 router.get('/types', async (_req: Request, res: Response) => {
   try {
     const types = await prisma.leaveType.findMany({
-      where: { isActive: true },
+      where: { isActive: true, deletedAt: null },
       orderBy: { sortOrder: 'asc' },
       take: 100,
     });
@@ -59,7 +60,7 @@ router.post('/types', async (req: Request, res: Response) => {
 });
 
 // GET /api/leave/requests - Get leave requests
-router.get('/requests', async (req: Request, res: Response) => {
+router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       employeeId,
@@ -75,7 +76,7 @@ router.get('/requests', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LeaveRequestWhereInput = {};
+    const where: Prisma.LeaveRequestWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as string;
     if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
@@ -112,7 +113,7 @@ router.get('/requests', async (req: Request, res: Response) => {
 });
 
 // GET /api/leave/requests/:id - Get single leave request
-router.get('/requests/:id', async (req: Request, res: Response) => {
+router.get('/requests/:id', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
   try {
     const request = await prisma.leaveRequest.findUnique({
       where: { id: req.params.id },
@@ -243,7 +244,7 @@ router.post('/requests', async (req: Request, res: Response) => {
 });
 
 // PUT /api/leave/requests/:id/approve - Approve leave request
-router.put('/requests/:id/approve', async (req: Request, res: Response) => {
+router.put('/requests/:id/approve', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
   try {
     const { approverId, comments } = req.body;
 
@@ -298,7 +299,7 @@ router.put('/requests/:id/approve', async (req: Request, res: Response) => {
 });
 
 // PUT /api/leave/requests/:id/reject - Reject leave request
-router.put('/requests/:id/reject', async (req: Request, res: Response) => {
+router.put('/requests/:id/reject', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
   try {
     const { approverId, comments } = req.body;
 
@@ -353,6 +354,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
       where: {
         employeeId: req.params.employeeId,
         year: parseInt(year as string),
+        deletedAt: null,
       },
       include: { leaveType: true },
       take: 100,
@@ -433,7 +435,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     }
 
     const leaves = await prisma.leaveRequest.findMany({
-      where,
+      where: { ...where, deletedAt: null },
       include: {
         employee: { select: { id: true, firstName: true, lastName: true, departmentId: true } },
         leaveType: { select: { name: true, color: true } },
@@ -455,7 +457,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
     const { year = new Date().getFullYear() } = req.query;
 
     const holidays = await prisma.holiday.findMany({
-      where: { year: parseInt(year as string) },
+      where: { year: parseInt(year as string), deletedAt: null },
       orderBy: { date: 'asc' },
       take: 100,
     });

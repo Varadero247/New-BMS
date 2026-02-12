@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -27,11 +28,11 @@ const industryTypeEnum = z.enum([
 ]);
 
 // GET /api/templates - Get workflow templates
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { category, industryType, isActive } = req.query;
 
-    const where: Prisma.WorkflowTemplateWhereInput = {};
+    const where: Prisma.WorkflowTemplateWhereInput = { deletedAt: null };
     if (category) where.category = category;
     if (industryType) where.industryType = industryType;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -65,7 +66,7 @@ router.get('/categories/list', async (_req: Request, res: Response) => {
 });
 
 // GET /api/templates/:id - Get single template
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.workflowTemplate), async (req: AuthRequest, res: Response) => {
   try {
     const template = await prisma.workflowTemplate.findUnique({
       where: { id: req.params.id },
@@ -120,7 +121,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/templates/:id - Update template
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.workflowTemplate), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().min(1).optional(),
@@ -150,7 +151,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /api/templates/:id/publish - Publish template
-router.put('/:id/publish', async (req: Request, res: Response) => {
+router.put('/:id/publish', checkOwnership(prisma.workflowTemplate), async (req: AuthRequest, res: Response) => {
   try {
     const template = await prisma.workflowTemplate.update({
       where: { id: req.params.id },

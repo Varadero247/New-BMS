@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-environment');
 
@@ -22,14 +23,14 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List objectives
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '50', status, category, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvObjectiveWhereInput = {};
+    const where: Prisma.EnvObjectiveWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (search) {
@@ -58,7 +59,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
   try {
     const objective = await prisma.envObjective.findUnique({ where: { id: req.params.id }, include: { milestones: true } });
     if (!objective) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
@@ -179,7 +180,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
@@ -229,7 +230,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.completedDate) updateData.completedDate = new Date(data.completedDate);
     // Auto-set completedDate when marking as completed
@@ -257,7 +258,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
 });
 
 // DELETE /:id
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 
@@ -15,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/inventory - List inventory levels
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = '1',
@@ -29,7 +30,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryWhereInput = {};
+    const where: Prisma.InventoryWhereInput = { deletedAt: null };
     if (warehouseId) where.warehouseId = warehouseId as string;
     if (productId) where.productId = productId;
 
@@ -127,7 +128,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 router.get('/availability/:productId', async (req: AuthRequest, res: Response) => {
   try {
     const inventory = await prisma.inventory.findMany({
-      where: { productId: req.params.productId },
+      where: { productId: req.params.productId, deletedAt: null },
       include: {
         warehouse: { select: { id: true, code: true, name: true, isActive: true } },
       },
@@ -249,7 +250,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
         id: uuidv4(),
         productId: data.productId,
         warehouseId: data.warehouseId,
-        transactionType: data.adjustmentType as any,
+        transactionType: data.adjustmentType,
         referenceNumber: `ADJ-${Date.now()}`,
         referenceType: 'ADJUSTMENT',
         quantityBefore,

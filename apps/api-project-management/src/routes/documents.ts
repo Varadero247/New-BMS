@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -13,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/documents - List documents by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -25,7 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectDocumentWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectDocumentWhereInput = { projectId: projectId as string, deletedAt: null };
 
     const [documents, total] = await Promise.all([
       prisma.projectDocument.findMany({
@@ -99,7 +100,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/documents/:id - Update document
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectDocument), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -107,7 +108,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data, updatedBy: req.user?.id };
+    const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
 
     if (data.reviewedAt) updateData.reviewedAt = new Date(data.reviewedAt);
     if (data.approvedAt) updateData.approvedAt = new Date(data.approvedAt);
@@ -125,7 +126,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/documents/:id - Delete document
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectDocument), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
     if (!existing) {

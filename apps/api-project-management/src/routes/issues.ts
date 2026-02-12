@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -13,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/issues - List issues by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, status, severity, page = '1', limit = '50' } = req.query;
 
@@ -25,7 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectIssueWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectIssueWhereInput = { projectId: projectId as string, deletedAt: null };
     if (status) where.status = status;
     if (severity) where.severity = severity;
 
@@ -103,7 +104,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/issues/:id - Update issue
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -111,7 +112,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
 
     if (data.targetResolutionDate) updateData.targetResolutionDate = new Date(data.targetResolutionDate);
     if (data.actualResolutionDate) updateData.actualResolutionDate = new Date(data.actualResolutionDate);
@@ -130,7 +131,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/issues/:id/resolve - Resolve issue
-router.put('/:id/resolve', async (req: AuthRequest, res: Response) => {
+router.put('/:id/resolve', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -158,7 +159,7 @@ router.put('/:id/resolve', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/issues/:id - Delete issue
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {

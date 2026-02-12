@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/performance/cycles - Get performance cycles
-router.get('/cycles', async (req: Request, res: Response) => {
+router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
 
-    const where: Prisma.PerformanceCycleWhereInput = {};
+    const where: Prisma.PerformanceCycleWhereInput = { deletedAt: null };
     if (year) where.year = parseInt(year as string);
     if (status) where.status = status as string;
 
@@ -82,7 +83,7 @@ router.post('/cycles', async (req: Request, res: Response) => {
 });
 
 // GET /api/performance/reviews - Get performance reviews
-router.get('/reviews', async (req: Request, res: Response) => {
+router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { cycleId, employeeId, reviewerId, status, page = '1', limit = '20' } = req.query;
 
@@ -90,7 +91,7 @@ router.get('/reviews', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PerformanceReviewWhereInput = {};
+    const where: Prisma.PerformanceReviewWhereInput = { deletedAt: null };
     if (cycleId) where.cycleId = cycleId as string;
     if (employeeId) where.employeeId = employeeId as string;
     if (reviewerId) where.reviewerId = reviewerId as string;
@@ -123,7 +124,7 @@ router.get('/reviews', async (req: Request, res: Response) => {
 });
 
 // GET /api/performance/reviews/:id - Get single review
-router.get('/reviews/:id', async (req: Request, res: Response) => {
+router.get('/reviews/:id', checkOwnership(prisma.performanceReview), async (req: Request, res: Response) => {
   try {
     const review = await prisma.performanceReview.findUnique({
       where: { id: req.params.id },
@@ -146,7 +147,7 @@ router.get('/reviews/:id', async (req: Request, res: Response) => {
 
     // Get employee's goals for this cycle
     const goals = await prisma.performanceGoal.findMany({
-      where: { cycleId: review.cycleId, employeeId: review.employeeId },
+      where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null },
       include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
       take: 100,
     });
@@ -197,7 +198,7 @@ router.post('/reviews', async (req: Request, res: Response) => {
 });
 
 // PUT /api/performance/reviews/:id - Update review
-router.put('/reviews/:id', async (req: Request, res: Response) => {
+router.put('/reviews/:id', checkOwnership(prisma.performanceReview), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       selfAssessment: z.string().optional(),
@@ -215,7 +216,7 @@ router.put('/reviews/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.selfRating !== undefined) updateData.selfRatingDate = new Date();
     if (data.managerRating !== undefined) updateData.managerRatingDate = new Date();
 
@@ -237,11 +238,11 @@ router.put('/reviews/:id', async (req: Request, res: Response) => {
 
 // Goals
 // GET /api/performance/goals - Get goals
-router.get('/goals', async (req: Request, res: Response) => {
+router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, cycleId, status, category } = req.query;
 
-    const where: Prisma.PerformanceGoalWhereInput = {};
+    const where: Prisma.PerformanceGoalWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (cycleId) where.cycleId = cycleId as string;
     if (status) where.status = status as string;
@@ -306,7 +307,7 @@ router.post('/goals', async (req: Request, res: Response) => {
 });
 
 // PUT /api/performance/goals/:id - Update goal
-router.put('/goals/:id', async (req: Request, res: Response) => {
+router.put('/goals/:id', checkOwnership(prisma.performanceGoal), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().optional(),

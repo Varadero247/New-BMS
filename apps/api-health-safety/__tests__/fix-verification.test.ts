@@ -30,6 +30,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 // Mock prisma
 jest.mock('../src/prisma', () => ({

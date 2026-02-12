@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -25,11 +26,11 @@ const createDepartmentSchema = z.object({
 const updateDepartmentSchema = createDepartmentSchema.partial();
 
 // GET /api/departments - List all departments
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { includeInactive, tree } = req.query;
 
-    const where = includeInactive === 'true' ? {} : { isActive: true };
+    const where = includeInactive === 'true' ? { deletedAt: null } : { isActive: true, deletedAt: null };
 
     const departments = await prisma.hRDepartment.findMany({
       where,
@@ -45,7 +46,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (tree === 'true') {
       // Build tree structure
-      const buildTree = (parentId: string | null): any[] => {
+      const buildTree = (parentId: string | null): unknown[] => {
         return departments
           .filter(d => d.parentId === parentId)
           .map(d => ({
@@ -65,7 +66,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/departments/:id - Get single department
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, res: Response) => {
   try {
     const department = await prisma.hRDepartment.findUnique({
       where: { id: req.params.id },
@@ -121,7 +122,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/departments/:id - Update department
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, res: Response) => {
   try {
     const data = updateDepartmentSchema.parse(req.body);
 
@@ -142,7 +143,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/departments/:id - Soft delete department
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, res: Response) => {
   try {
     // Check for employees
     const employeeCount = await prisma.employee.count({
@@ -174,7 +175,7 @@ router.get('/positions/all', async (req: Request, res: Response) => {
   try {
     const { departmentId } = req.query;
 
-    const where: Prisma.PositionWhereInput = { isActive: true };
+    const where: Prisma.PositionWhereInput = { isActive: true, deletedAt: null };
     if (departmentId) where.departmentId = departmentId as string;
 
     const positions = await prisma.position.findMany({

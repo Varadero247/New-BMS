@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -22,7 +23,7 @@ function getRiskLevel(probability: number, impact: number): string {
 }
 
 // GET /api/risks - List project risks by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, riskLevel, status, page = '1', limit = '50' } = req.query;
 
@@ -34,7 +35,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectRiskWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectRiskWhereInput = { projectId: projectId as string, deletedAt: null };
     if (riskLevel) where.riskLevel = riskLevel;
     if (status) where.status = status;
 
@@ -124,7 +125,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/risks/:id - Update project risk
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectRisk), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -132,7 +133,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
 
     // Recalculate risk score if probability or impact changed
     const probability = data.probability ?? existing.probability;
@@ -168,7 +169,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/risks/:id - Delete project risk
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectRisk), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {

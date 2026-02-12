@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-health-safety');
 
@@ -50,14 +51,14 @@ function getTargetDate(priority: string): Date {
 }
 
 // GET /api/capa - List CAPAs
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, capaType, source, priority, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.CapaWhereInput = {};
+    const where: Prisma.CapaWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (capaType) where.capaType = capaType;
     if (source) where.source = source;
@@ -93,7 +94,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/capa/:id - Get single CAPA
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
   try {
     const capa = await prisma.capa.findUnique({
       where: { id: req.params.id },
@@ -202,7 +203,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/capa/:id - Update CAPA
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -232,7 +233,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.targetCompletionDate) updateData.targetCompletionDate = new Date(data.targetCompletionDate);
     if (data.status === 'CLOSED') {
       updateData.closedDate = new Date();
@@ -256,7 +257,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/capa/:id - Delete CAPA (cascades actions)
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -335,7 +336,7 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.status === 'COMPLETED' || data.status === 'VERIFIED') {
       updateData.completedAt = new Date();

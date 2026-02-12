@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -19,7 +20,7 @@ const priorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']);
 const statusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'WAITING_APPROVAL', 'PAUSED', 'COMPLETED', 'CANCELLED', 'ERROR', 'EXPIRED']);
 
 // GET /api/instances - Get workflow instances
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { status, definitionId, initiatedById, page = '1', limit = '20' } = req.query;
 
@@ -27,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.WorkflowInstanceWhereInput = {};
+    const where: Prisma.WorkflowInstanceWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (definitionId) where.definitionId = definitionId as string;
     if (initiatedById) where.initiatedById = initiatedById as string;
@@ -70,7 +71,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
         _count: true,
       }),
       prisma.workflowInstance.findMany({
-        where: { status: 'IN_PROGRESS' },
+        where: { status: 'IN_PROGRESS', deletedAt: null },
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -94,7 +95,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
 });
 
 // GET /api/instances/:id - Get single instance
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.workflowInstance), async (req: AuthRequest, res: Response) => {
   try {
     const instance = await prisma.workflowInstance.findUnique({
       where: { id: req.params.id },
@@ -197,7 +198,7 @@ const advanceInstanceSchema = z.object({
   comments: z.string().max(2000).optional(),
 });
 
-router.put('/:id/advance', async (req: Request, res: Response) => {
+router.put('/:id/advance', checkOwnership(prisma.workflowInstance), async (req: AuthRequest, res: Response) => {
   try {
     const data = advanceInstanceSchema.parse(req.body);
 
@@ -242,7 +243,7 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
 });
 
 // PUT /api/instances/:id/complete - Complete workflow
-router.put('/:id/complete', async (req: Request, res: Response) => {
+router.put('/:id/complete', checkOwnership(prisma.workflowInstance), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       completedById: z.string().optional(),
@@ -290,7 +291,7 @@ const cancelInstanceSchema = z.object({
   cancellationReason: z.string().min(1).max(2000).optional(),
 });
 
-router.put('/:id/cancel', async (req: Request, res: Response) => {
+router.put('/:id/cancel', checkOwnership(prisma.workflowInstance), async (req: AuthRequest, res: Response) => {
   try {
     const data = cancelInstanceSchema.parse(req.body);
 

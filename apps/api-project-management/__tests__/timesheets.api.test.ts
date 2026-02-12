@@ -20,6 +20,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import timesheetsRouter from '../src/routes/timesheets';
@@ -77,7 +81,7 @@ describe('Timesheets API Routes', () => {
       expect(res.body.meta.total).toBe(1);
       expect(mockPrisma.projectTimesheet.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: '44000000-0000-4000-a000-000000000001' },
+          where: { deletedAt: null, projectId: '44000000-0000-4000-a000-000000000001' },
           orderBy: { workDate: 'desc' },
           include: { task: { select: { id: true, taskCode: true, taskName: true } } },
         }),
@@ -95,7 +99,7 @@ describe('Timesheets API Routes', () => {
       expect(res.body.data).toHaveLength(1);
       expect(mockPrisma.projectTimesheet.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { employeeId: 'emp-001' },
+          where: { deletedAt: null, employeeId: 'emp-001' },
         }),
       );
     });

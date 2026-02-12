@@ -26,6 +26,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import departmentsRoutes from '../src/routes/departments';
@@ -84,7 +88,7 @@ describe('HR Departments API Routes', () => {
 
       expect(mockPrisma.hRDepartment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { isActive: true },
+          where: { isActive: true, deletedAt: null },
         })
       );
     });
@@ -96,7 +100,7 @@ describe('HR Departments API Routes', () => {
 
       expect(mockPrisma.hRDepartment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: {},
+          where: { deletedAt: null },
         })
       );
     });
@@ -376,6 +380,7 @@ describe('HR Departments API Routes', () => {
       expect(mockPrisma.position.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             departmentId: '2b000000-0000-4000-a000-000000000001',
           }),
         })

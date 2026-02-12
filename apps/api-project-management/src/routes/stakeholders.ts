@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -21,7 +22,7 @@ function getStakeholderCategory(powerLevel: number, interestLevel: number): stri
 }
 
 // GET /api/stakeholders - List stakeholders by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -33,7 +34,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectStakeholderWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectStakeholderWhereInput = { projectId: projectId as string, deletedAt: null };
 
     const [stakeholders, total] = await Promise.all([
       prisma.projectStakeholder.findMany({
@@ -117,7 +118,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/stakeholders/:id - Update stakeholder
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectStakeholder), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -125,7 +126,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
 
     // Recalculate stakeholder category if power/interest changed
     const powerLevel = data.powerLevel ?? existing.powerLevel;
@@ -145,7 +146,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/stakeholders/:id - Delete stakeholder
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectStakeholder), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
     if (!existing) {

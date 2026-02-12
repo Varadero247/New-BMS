@@ -42,6 +42,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import leaveRoutes from '../src/routes/leave';
@@ -99,7 +103,7 @@ describe('HR Leave API Routes', () => {
       await request(app).get('/api/leave/types');
 
       expect(mockPrisma.leaveType.findMany).toHaveBeenCalledWith({
-        where: { isActive: true },
+        where: { isActive: true, deletedAt: null },
         orderBy: { sortOrder: 'asc' },
         take: 100,
       });
@@ -246,6 +250,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
@@ -261,6 +266,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             status: 'PENDING',
           }),
         })
@@ -276,6 +282,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             leaveTypeId: 'lt-1',
           }),
         })
@@ -578,6 +585,7 @@ describe('HR Leave API Routes', () => {
       expect(mockPrisma.leaveBalance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             employeeId: '2a000000-0000-4000-a000-000000000001',
             year: 2024,
           }),
@@ -703,7 +711,7 @@ describe('HR Leave API Routes', () => {
       await request(app).get('/api/leave/holidays?year=2024');
 
       expect(mockPrisma.holiday.findMany).toHaveBeenCalledWith({
-        where: { year: 2024 },
+        where: { year: 2024, deletedAt: null },
         orderBy: { date: 'asc' },
         take: 100,
       });

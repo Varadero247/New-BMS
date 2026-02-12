@@ -4,6 +4,7 @@ import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-ai-analysis');
 
@@ -12,7 +13,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/analyses - List AI analyses
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', sourceType, status } = req.query;
 
@@ -20,7 +21,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.AIAnalysisWhereInput = {};
+    const where: Prisma.AIAnalysisWhereInput = { deletedAt: null };
     if (sourceType) where.sourceType = sourceType;
     if (status) where.status = status;
 
@@ -49,7 +50,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/analyses/:id - Get single analysis
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.aIAnalysis), async (req: AuthRequest, res: Response) => {
   try {
     const analysis = await prisma.aIAnalysis.findUnique({
       where: { id: req.params.id },
@@ -73,7 +74,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/analyses/:id/accept - Accept analysis
-router.post('/:id/accept', async (req: AuthRequest, res: Response) => {
+router.post('/:id/accept', checkOwnership(prisma.aIAnalysis), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aIAnalysis.findUnique({ where: { id: req.params.id } });
 
@@ -94,7 +95,7 @@ router.post('/:id/accept', async (req: AuthRequest, res: Response) => {
     const analysis = await prisma.aIAnalysis.update({
       where: { id: req.params.id },
       data: {
-        status: data.acceptedActions?.length === (existing.suggestedActions as any[])?.length
+        status: data.acceptedActions?.length === (existing.suggestedActions as unknown[])?.length
           ? 'ACCEPTED'
           : 'PARTIALLY_ACCEPTED',
         acceptedAt: new Date(),
@@ -119,7 +120,7 @@ router.post('/:id/accept', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/analyses/:id/reject - Reject analysis
-router.post('/:id/reject', async (req: AuthRequest, res: Response) => {
+router.post('/:id/reject', checkOwnership(prisma.aIAnalysis), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aIAnalysis.findUnique({ where: { id: req.params.id } });
 
@@ -149,7 +150,7 @@ router.post('/:id/reject', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/analyses/:id - Delete analysis
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.aIAnalysis), async (req: AuthRequest, res: Response) => {
   try {
     await prisma.aIAnalysis.delete({ where: { id: req.params.id } });
 

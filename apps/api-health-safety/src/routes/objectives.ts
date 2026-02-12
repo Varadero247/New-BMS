@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-health-safety');
 
@@ -41,14 +42,14 @@ function calculateProgress(milestones: { completed: boolean }[]): number {
 }
 
 // GET /api/objectives - List objectives
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, category, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.OhsObjectiveWhereInput = {};
+    const where: Prisma.OhsObjectiveWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (search) {
@@ -82,7 +83,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/objectives/:id - Get single objective
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest, res: Response) => {
   try {
     const objective = await prisma.ohsObjective.findUnique({
       where: { id: req.params.id },
@@ -181,7 +182,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/objectives/:id - Update objective
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.ohsObjective.findUnique({
       where: { id: req.params.id },
@@ -215,7 +216,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.startDate) updateData.startDate = new Date(data.startDate);
     if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
 
@@ -245,7 +246,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/objectives/:id - Delete objective (cascades milestones)
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.ohsObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -315,7 +316,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.completed === true) updateData.completedDate = new Date();
     if (data.completed === false) updateData.completedDate = null;

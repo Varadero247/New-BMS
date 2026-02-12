@@ -23,6 +23,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import sprintsRouter from '../src/routes/sprints';
@@ -90,7 +94,7 @@ describe('Sprints API Routes', () => {
       expect(res.body.meta.total).toBe(1);
       expect(mockPrisma.projectSprint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: '44000000-0000-4000-a000-000000000001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001', deletedAt: null },
           orderBy: { sprintNumber: 'asc' },
           include: { _count: { select: { userStories: true } } },
         }),
@@ -133,7 +137,7 @@ describe('Sprints API Routes', () => {
       expect(mockPrisma.projectSprint.findUnique).toHaveBeenCalledWith({ where: { id: '45000000-0000-4000-a000-000000000001' } });
       expect(mockPrisma.projectUserStory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { sprintId: '45000000-0000-4000-a000-000000000001' },
+          where: { sprintId: '45000000-0000-4000-a000-000000000001', deletedAt: null },
         }),
       );
     });

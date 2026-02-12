@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -15,7 +16,7 @@ router.param('id', validateIdParam());
 const RAG_STATUSES = ['GREEN', 'AMBER', 'RED'] as const;
 
 // GET /api/reports - List status reports by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, page = '1', limit = '20' } = req.query;
 
@@ -27,7 +28,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectStatusReportWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectStatusReportWhereInput = { projectId: projectId as string, deletedAt: null };
 
     const [reports, total] = await Promise.all([
       prisma.projectStatusReport.findMany({
@@ -51,7 +52,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/reports/:id - Get single report
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.projectStatusReport), async (req: AuthRequest, res: Response) => {
   try {
     const report = await prisma.projectStatusReport.findUnique({
       where: { id: req.params.id },
@@ -136,7 +137,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/reports/:id - Delete report
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectStatusReport), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectStatusReport.findUnique({ where: { id: req.params.id } });
     if (!existing) {

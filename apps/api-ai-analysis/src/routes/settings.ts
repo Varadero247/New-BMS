@@ -5,6 +5,7 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-ai-analysis');
 
@@ -13,9 +14,10 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/settings - Get AI settings
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const settings = await prisma.aISettings.findFirst({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -76,6 +78,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 
     // Check if settings exist
     const existing = await prisma.aISettings.findFirst({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 

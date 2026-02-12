@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -13,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/resources - List resources by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -25,7 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectResourceWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectResourceWhereInput = { projectId: projectId as string, deletedAt: null };
 
     const [resources, total] = await Promise.all([
       prisma.projectResource.findMany({
@@ -98,7 +99,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/resources/:id - Update resource
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectResource), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -106,7 +107,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
 
     if (data.allocatedFrom) updateData.allocatedFrom = new Date(data.allocatedFrom);
     if (data.allocatedTo) updateData.allocatedTo = new Date(data.allocatedTo);
@@ -133,7 +134,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/resources/:id - Delete resource
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectResource), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
     if (!existing) {

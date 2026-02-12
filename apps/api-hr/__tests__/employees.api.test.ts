@@ -27,6 +27,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import employeesRoutes from '../src/routes/employees';
@@ -114,6 +118,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             departmentId: '2b000000-0000-4000-a000-000000000001',
           }),
         })
@@ -129,6 +134,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             employmentStatus: 'ACTIVE',
           }),
         })
@@ -144,6 +150,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             managerId: '53000000-0000-4000-a000-000000000001',
           }),
         })
@@ -159,6 +166,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             employmentType: 'FULL_TIME',
           }),
         })
@@ -174,6 +182,7 @@ describe('HR Employees API Routes', () => {
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             OR: expect.arrayContaining([
               expect.objectContaining({ firstName: expect.any(Object) }),
               expect.objectContaining({ lastName: expect.any(Object) }),
@@ -237,7 +246,7 @@ describe('HR Employees API Routes', () => {
       await request(app).get('/api/employees/org-chart');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
-        where: { employmentStatus: 'ACTIVE' },
+        where: { employmentStatus: 'ACTIVE', deletedAt: null },
         select: expect.any(Object),
         take: 500,
       });
@@ -542,7 +551,7 @@ describe('HR Employees API Routes', () => {
       await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
-        where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE' },
+        where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE', deletedAt: null },
         include: expect.any(Object),
         take: 100,
       });

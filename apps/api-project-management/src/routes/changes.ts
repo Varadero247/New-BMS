@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-project-management');
 
@@ -13,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/changes - List change requests by projectId
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -25,7 +26,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectChangeWhereInput = { projectId: projectId as string };
+    const where: Prisma.ProjectChangeWhereInput = { projectId: projectId as string, deletedAt: null };
 
     const [changes, total] = await Promise.all([
       prisma.projectChange.findMany({
@@ -107,7 +108,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/changes/:id - Update change request
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -115,7 +116,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const data = req.body;
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
 
     if (data.implementedAt) updateData.implementedAt = new Date(data.implementedAt);
 
@@ -132,7 +133,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/changes/:id/review - Review change request
-router.put('/:id/review', async (req: AuthRequest, res: Response) => {
+router.put('/:id/review', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -159,7 +160,7 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/changes/:id/approve - Approve change request
-router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
+router.put('/:id/approve', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -186,7 +187,7 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/changes/:id - Delete change request
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {

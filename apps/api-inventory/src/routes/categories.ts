@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 
@@ -13,11 +14,11 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/categories - List categories (hierarchical)
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { flat, isActive } = req.query;
 
-    const where: Prisma.ProductCategoryWhereInput = {};
+    const where: Prisma.ProductCategoryWhereInput = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const categories = await prisma.productCategory.findMany({
@@ -36,8 +37,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     }
 
     // Build hierarchical structure
-    const categoryMap = new Map(categories.map(c => [c.id, { ...c, children: [] as any[] }]));
-    const rootCategories: any[] = [];
+    const categoryMap = new Map(categories.map(c => [c.id, { ...c, children: [] as unknown[] }]));
+    const rootCategories: unknown[] = [];
 
     categories.forEach(category => {
       const categoryWithChildren = categoryMap.get(category.id)!;
@@ -56,7 +57,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/categories/:id - Get single category with products
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
   try {
     const category = await prisma.productCategory.findUnique({
       where: { id: req.params.id },
@@ -133,7 +134,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/categories/:id - Update category
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.productCategory.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -203,7 +204,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/categories/:id - Delete category
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.productCategory.findUnique({
       where: { id: req.params.id },

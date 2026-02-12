@@ -30,6 +30,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import attendanceRoutes from '../src/routes/attendance';
@@ -113,6 +117,7 @@ describe('HR Attendance API Routes', () => {
       expect(mockPrisma.attendance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
@@ -128,6 +133,7 @@ describe('HR Attendance API Routes', () => {
       expect(mockPrisma.attendance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             status: 'PRESENT',
           }),
         })
@@ -143,6 +149,7 @@ describe('HR Attendance API Routes', () => {
       expect(mockPrisma.attendance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
+            deletedAt: null,
             date: expect.objectContaining({
               gte: expect.any(Date),
               lte: expect.any(Date),
@@ -407,7 +414,7 @@ describe('HR Attendance API Routes', () => {
 
       expect(mockPrisma.workShift.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { isActive: true },
+          where: { isActive: true, deletedAt: null },
         })
       );
     });

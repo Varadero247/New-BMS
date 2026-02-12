@@ -19,6 +19,10 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { prisma } from '../src/prisma';
 import reportsRouter from '../src/routes/reports';
@@ -84,7 +88,7 @@ describe('Reports API Routes', () => {
       expect(res.body.meta.total).toBe(1);
       expect(mockPrisma.projectStatusReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: '44000000-0000-4000-a000-000000000001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001', deletedAt: null },
           orderBy: { reportDate: 'desc' },
         }),
       );

@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/tax/filings - Get tax filings
-router.get('/filings', async (req: Request, res: Response) => {
+router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { taxYear, filingType, status } = req.query;
 
-    const where: Prisma.TaxFilingWhereInput = {};
+    const where: Prisma.TaxFilingWhereInput = { deletedAt: null };
     if (taxYear) where.taxYear = parseInt(taxYear as string);
     if (filingType) where.filingType = filingType as string;
     if (status) where.status = status as string;
@@ -75,7 +76,7 @@ router.post('/filings', async (req: Request, res: Response) => {
 });
 
 // PUT /api/tax/filings/:id/file - Submit tax filing
-router.put('/filings/:id/file', async (req: Request, res: Response) => {
+router.put('/filings/:id/file', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
   try {
     const { filedById, confirmationNumber, filingDocumentUrl } = req.body;
 
@@ -98,7 +99,7 @@ router.put('/filings/:id/file', async (req: Request, res: Response) => {
 });
 
 // PUT /api/tax/filings/:id/pay - Record tax payment
-router.put('/filings/:id/pay', async (req: Request, res: Response) => {
+router.put('/filings/:id/pay', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
   try {
     const { paymentReference } = req.body;
 
@@ -123,7 +124,7 @@ router.get('/brackets', async (req: Request, res: Response) => {
   try {
     const { taxYear, country } = req.query;
 
-    const where: Prisma.TaxBracketWhereInput = { isActive: true };
+    const where: Prisma.TaxBracketWhereInput = { isActive: true, deletedAt: null };
     if (taxYear) where.taxYear = parseInt(taxYear as string);
     if (country) where.country = country as string;
 
@@ -191,6 +192,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         taxYear: year,
         status: { in: ['PENDING', 'PREPARED'] },
         filingDeadline: { gte: new Date() },
+        deletedAt: null,
       },
       orderBy: { filingDeadline: 'asc' },
       take: 5,

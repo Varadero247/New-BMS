@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-payroll');
 
@@ -12,7 +13,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/expenses - Get expenses
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, status, category, page = '1', limit = '20' } = req.query;
 
@@ -20,7 +21,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ExpenseWhereInput = {};
+    const where: Prisma.ExpenseWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as string;
     if (category) where.category = category as string;
@@ -47,7 +48,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/expenses/:id - Get single expense
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
     const expense = await prisma.expense.findUnique({
       where: { id: req.params.id },
@@ -115,7 +116,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/expenses/:id/approve - Approve expense
-router.put('/:id/approve', async (req: Request, res: Response) => {
+router.put('/:id/approve', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
     const { approvedById, approvalNotes } = req.body;
 
@@ -138,7 +139,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 });
 
 // PUT /api/expenses/:id/reject - Reject expense
-router.put('/:id/reject', async (req: Request, res: Response) => {
+router.put('/:id/reject', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
     const { approvedById, approvalNotes } = req.body;
 
@@ -161,7 +162,7 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
 });
 
 // PUT /api/expenses/:id/reimburse - Mark as reimbursed
-router.put('/:id/reimburse', async (req: Request, res: Response) => {
+router.put('/:id/reimburse', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
     const { paymentMethod } = req.body;
 
@@ -188,7 +189,7 @@ router.get('/reports/all', async (req: Request, res: Response) => {
   try {
     const { employeeId, status } = req.query;
 
-    const where: Prisma.ExpenseReportWhereInput = {};
+    const where: Prisma.ExpenseReportWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as string;
 
@@ -224,7 +225,7 @@ router.post('/reports', async (req: Request, res: Response) => {
 
     // Calculate totals from expenses
     const expenses = await prisma.expense.findMany({
-      where: { id: { in: data.expenseIds } },
+      where: { id: { in: data.expenseIds }, deletedAt: null },
       take: 100,
     });
 

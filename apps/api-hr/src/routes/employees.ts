@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -39,7 +40,7 @@ const createEmployeeSchema = z.object({
 const updateEmployeeSchema = createEmployeeSchema.partial();
 
 // GET /api/employees - List all employees
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -55,7 +56,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EmployeeWhereInput = {};
+    const where: Prisma.EmployeeWhereInput = { deletedAt: null };
 
     if (department) where.departmentId = department;
     if (status) where.employmentStatus = status;
@@ -110,7 +111,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/org-chart', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE' },
+      where: { employmentStatus: 'ACTIVE', deletedAt: null },
       select: {
         id: true,
         firstName: true,
@@ -125,7 +126,7 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
     });
 
     // Build hierarchical structure
-    const buildTree = (managerId: string | null): any[] => {
+    const buildTree = (managerId: string | null): unknown[] => {
       return employees
         .filter(e => e.managerId === managerId)
         .map(e => ({
@@ -230,7 +231,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 });
 
 // GET /api/employees/:id - Get single employee
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', checkOwnership(prisma.employee), async (req: Request, res: Response) => {
   try {
     const employee = await prisma.employee.findUnique({
       where: { id: req.params.id },
@@ -295,7 +296,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/employees/:id - Update employee
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', checkOwnership(prisma.employee), async (req: Request, res: Response) => {
   try {
     const data = updateEmployeeSchema.parse(req.body);
 
@@ -323,7 +324,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/employees/:id - Delete (soft) employee
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.employee), async (req: Request, res: Response) => {
   try {
     await prisma.employee.update({
       where: { id: req.params.id },
@@ -344,7 +345,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/subordinates', async (req: Request, res: Response) => {
   try {
     const subordinates = await prisma.employee.findMany({
-      where: { managerId: req.params.id, employmentStatus: 'ACTIVE' },
+      where: { managerId: req.params.id, employmentStatus: 'ACTIVE', deletedAt: null },
       include: {
         department: true,
         position: true,

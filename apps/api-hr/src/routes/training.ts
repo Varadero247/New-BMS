@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
 
@@ -12,11 +13,11 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/training/courses - Get all courses
-router.get('/courses', async (req: Request, res: Response) => {
+router.get('/courses', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category, deliveryMethod, isMandatory } = req.query;
 
-    const where: Prisma.HRTrainingCourseWhereInput = { isActive: true };
+    const where: Prisma.HRTrainingCourseWhereInput = { isActive: true, deletedAt: null };
     if (category) where.category = category as string;
     if (deliveryMethod) where.deliveryMethod = deliveryMethod as string;
     if (isMandatory === 'true') where.isMandatory = true;
@@ -38,7 +39,7 @@ router.get('/courses', async (req: Request, res: Response) => {
 });
 
 // GET /api/training/courses/:id - Get single course
-router.get('/courses/:id', async (req: Request, res: Response) => {
+router.get('/courses/:id', checkOwnership(prisma.hRTrainingCourse), async (req: Request, res: Response) => {
   try {
     const course = await prisma.hRTrainingCourse.findUnique({
       where: { id: req.params.id },
@@ -106,7 +107,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const { courseId, status, startDate, endDate } = req.query;
 
-    const where: Prisma.HRTrainingSessionWhereInput = {};
+    const where: Prisma.HRTrainingSessionWhereInput = { deletedAt: null };
     if (courseId) where.courseId = courseId as string;
     if (status) where.status = status as string;
     if (startDate || endDate) {
@@ -180,7 +181,7 @@ router.get('/enrollments', async (req: Request, res: Response) => {
   try {
     const { employeeId, courseId, sessionId, status } = req.query;
 
-    const where: Prisma.HRTrainingEnrollmentWhereInput = {};
+    const where: Prisma.HRTrainingEnrollmentWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (courseId) where.courseId = courseId as string;
     if (sessionId) where.sessionId = sessionId as string;
@@ -259,7 +260,7 @@ router.post('/enrollments', async (req: Request, res: Response) => {
 });
 
 // PUT /api/training/enrollments/:id - Update enrollment
-router.put('/enrollments/:id', async (req: Request, res: Response) => {
+router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       status: z.enum(['ENROLLED', 'WAITLISTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED', 'NO_SHOW']).optional(),
@@ -273,7 +274,7 @@ router.put('/enrollments/:id', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data } as Record<string, unknown>;
     if (data.status === 'COMPLETED') {
       updateData.completedAt = new Date();
     }
@@ -302,7 +303,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, expiringWithin } = req.query;
 
-    const where: Prisma.EmployeeCertificationWhereInput = {};
+    const where: Prisma.EmployeeCertificationWhereInput = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as string;
     if (expiringWithin) {

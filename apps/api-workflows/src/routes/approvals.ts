@@ -2,9 +2,10 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-workflows');
 
@@ -17,11 +18,11 @@ router.param('id', validateIdParam());
 // ============================================
 
 // GET /api/approvals/chains - Get approval chains
-router.get('/chains', async (req: Request, res: Response) => {
+router.get('/chains', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { chainType, isActive } = req.query;
 
-    const where: Prisma.ApprovalChainWhereInput = {};
+    const where: Prisma.ApprovalChainWhereInput = { deletedAt: null };
     if (chainType) where.chainType = chainType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -42,7 +43,7 @@ router.get('/chains', async (req: Request, res: Response) => {
 });
 
 // GET /api/approvals/chains/:id - Get single approval chain
-router.get('/chains/:id', async (req: Request, res: Response) => {
+router.get('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
     const chain = await prisma.approvalChain.findUnique({
       where: { id: req.params.id },
@@ -109,7 +110,7 @@ router.post('/chains', async (req: Request, res: Response) => {
 });
 
 // PUT /api/approvals/chains/:id - Update approval chain
-router.put('/chains/:id', async (req: Request, res: Response) => {
+router.put('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().min(1).optional(),
@@ -146,7 +147,7 @@ router.put('/chains/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/approvals/chains/:id - Delete approval chain
-router.delete('/chains/:id', async (req: Request, res: Response) => {
+router.delete('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
     await prisma.approvalChain.delete({
       where: { id: req.params.id },
@@ -174,7 +175,7 @@ function generateRequestNumber(): string {
 }
 
 // GET /api/approvals/requests - Get approval requests
-router.get('/requests', async (req: Request, res: Response) => {
+router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const {
       status,
@@ -185,7 +186,7 @@ router.get('/requests', async (req: Request, res: Response) => {
       offset = '0',
     } = req.query;
 
-    const where: Prisma.ApprovalRequestWhereInput = {};
+    const where: Prisma.ApprovalRequestWhereInput = { deletedAt: null };
     if (status) where.status = status as string;
     if (requestType) where.requestType = requestType as string;
     if (requesterId) where.requesterId = requesterId as string;
@@ -235,6 +236,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
     const pendingRequests = await prisma.approvalRequest.findMany({
       where: {
         status: { in: ['PENDING', 'IN_REVIEW'] },
+        deletedAt: null,
       },
       include: {
         responses: true,
@@ -256,6 +258,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
       where: {
         approverId: req.params.userId,
         status: 'PENDING',
+        deletedAt: null,
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
@@ -279,7 +282,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
 });
 
 // GET /api/approvals/requests/:id - Get single approval request
-router.get('/requests/:id', async (req: Request, res: Response) => {
+router.get('/requests/:id', checkOwnership(prisma.approvalRequest), async (req: AuthRequest, res: Response) => {
   try {
     const request = await prisma.approvalRequest.findUnique({
       where: { id: req.params.id },
@@ -369,7 +372,7 @@ router.post('/requests', async (req: Request, res: Response) => {
 });
 
 // PUT /api/approvals/requests/:id/respond - Respond to approval request
-router.put('/requests/:id/respond', async (req: Request, res: Response) => {
+router.put('/requests/:id/respond', checkOwnership(prisma.approvalRequest), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       approverId: z.string(),
@@ -465,8 +468,8 @@ router.put('/requests/:id/respond', async (req: Request, res: Response) => {
     await prisma.approvalRequest.update({
       where: { id: request.id },
       data: {
-        status: newStatus as any,
-        outcome: outcome as any,
+        status: newStatus as Prisma.InputJsonValue,
+        outcome: outcome as Prisma.InputJsonValue,
         decidedAt,
         currentLevel,
       },
@@ -500,7 +503,7 @@ const cancelApprovalSchema = z.object({
   reason: z.string().min(1).max(2000).optional(),
 });
 
-router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
+router.put('/requests/:id/cancel', checkOwnership(prisma.approvalRequest), async (req: AuthRequest, res: Response) => {
   try {
     const data = cancelApprovalSchema.parse(req.body);
 
@@ -534,7 +537,7 @@ router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
 // ============================================
 
 // PUT /api/approvals/step/:id/respond - Respond to workflow step approval
-router.put('/step/:id/respond', async (req: Request, res: Response) => {
+router.put('/step/:id/respond', checkOwnership(prisma.workflowStepApproval), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       decision: z.enum([
@@ -576,11 +579,11 @@ router.put('/step/:id/respond', async (req: Request, res: Response) => {
 });
 
 // GET /api/approvals/step - Get workflow step approvals
-router.get('/step', async (req: Request, res: Response) => {
+router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { stepId, approverId, status, limit = '50', offset = '0' } = req.query;
 
-    const where: Prisma.WorkflowStepApprovalWhereInput = {};
+    const where: Prisma.WorkflowStepApprovalWhereInput = { deletedAt: null };
     if (stepId) where.stepId = stepId as string;
     if (approverId) where.approverId = approverId as string;
     if (status) where.status = status as string;
@@ -678,6 +681,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         },
       }),
       prisma.approvalRequest.findMany({
+        where: { deletedAt: null },
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {

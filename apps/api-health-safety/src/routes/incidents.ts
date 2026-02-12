@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
+import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-health-safety');
 
@@ -44,14 +45,14 @@ const SEVERITIES = ['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC'] as
 const STATUSES = ['OPEN', 'UNDER_INVESTIGATION', 'AWAITING_ACTIONS', 'ACTIONS_IN_PROGRESS', 'VERIFICATION', 'CLOSED'] as const;
 
 // GET /api/incidents - List incidents
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, type, severity, search } = req.query;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.IncidentWhereInput = {};
+    const where: Prisma.IncidentWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (type) where.type = type;
     if (severity) where.severity = severity;
@@ -80,7 +81,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/incidents/:id - Get single incident
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
   try {
     const incident = await prisma.incident.findUnique({
       where: { id: req.params.id },
@@ -205,7 +206,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/incidents/:id - Update incident
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -251,7 +252,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData = { ...data };
     if (data.reportedToAuthorityDate) updateData.reportedToAuthorityDate = new Date(data.reportedToAuthorityDate);
     if (data.investigationDueDate) updateData.investigationDueDate = new Date(data.investigationDueDate);
     if (data.status === 'CLOSED') updateData.closedAt = new Date();
@@ -272,7 +273,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/incidents/:id - Delete incident
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {
