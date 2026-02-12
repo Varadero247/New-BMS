@@ -3,6 +3,9 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
 // ID format validation
 export { isValidId, validateIdParam } from './validation';
 
+// Shared type utilities (PaginatedResponse, AuthUser, parsePaginationWithTake)
+export * from './types';
+
 // ============================================
 // Shared Utilities
 // ============================================

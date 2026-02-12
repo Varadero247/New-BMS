@@ -100,6 +100,7 @@ model Project {
   // Audit Trail
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
+  deletedAt                DateTime?
   createdBy                String?
   updatedBy                String?
 
@@ -204,6 +205,7 @@ model ProjectTask {
 
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   timesheets         ProjectTimesheet[]
 
@@ -254,6 +256,7 @@ model ProjectMilestone {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -316,6 +319,7 @@ model ProjectRisk {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   @@unique([projectId, riskCode])
   @@index([projectId, status])
@@ -375,6 +379,7 @@ model ProjectIssue {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   @@unique([projectId, issueCode])
   @@index([projectId, status])
@@ -438,6 +443,7 @@ model ProjectChange {
 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@unique([projectId, changeCode])
   @@index([projectId, status])
@@ -486,6 +492,7 @@ model ProjectResource {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -536,6 +543,7 @@ model ProjectStakeholder {
 
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   @@index([projectId])
   @@index([status])
@@ -583,6 +591,7 @@ model ProjectDocument {
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
   createdBy         String?
   updatedBy         String?
 
@@ -631,6 +640,7 @@ model ProjectSprint {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   userStories           ProjectUserStory[]
 
@@ -687,6 +697,7 @@ model ProjectUserStory {
 
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   @@unique([projectId, storyCode])
   @@index([sprintId])
@@ -734,6 +745,7 @@ model ProjectTimesheet {
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
 
   @@index([projectId, employeeId])
   @@index([projectId])
@@ -775,6 +787,7 @@ model ProjectExpense {
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -835,6 +848,7 @@ model ProjectStatusReport {
 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@index([projectId])
   @@index([reportDate])

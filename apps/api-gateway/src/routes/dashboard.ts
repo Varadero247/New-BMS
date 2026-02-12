@@ -1,3 +1,16 @@
+/**
+ * TODO: ARCHITECTURAL DEBT — HIGH PRIORITY
+ * ==========================================
+ * This file contains business/aggregation logic in the API Gateway.
+ * The gateway should be a pure routing layer (proxy only).
+ *
+ * Correct solution: Create apps/api-dashboard/ service (port 4010)
+ *   - Move all aggregation queries to the dedicated service
+ *   - Gateway proxies /api/dashboard/* → api-dashboard:4010
+ *   - Estimated effort: 8h (Sprint 1)
+ *
+ * Tracking: System Review Finding #4
+ */
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';

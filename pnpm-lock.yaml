@@ -1702,6 +1702,9 @@ importers:
       '@ims/database':
         specifier: workspace:*
         version: link:../database
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../monitoring
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -1810,6 +1813,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../monitoring
       '@prisma/client':
         specifier: ^5.7.0
         version: 5.22.0(prisma@5.22.0)
@@ -1844,6 +1850,9 @@ importers:
 
   packages/email:
     dependencies:
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../monitoring
       nodemailer:
         specifier: ^6.9.8
         version: 6.10.1
@@ -1997,6 +2006,10 @@ importers:
         version: 5.9.3
 
   packages/secrets:
+    dependencies:
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../monitoring
     devDependencies:
       '@types/jest':
         specifier: ^29.5.11

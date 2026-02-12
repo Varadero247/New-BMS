@@ -3,6 +3,13 @@ import { auditMiddleware, attachOldData, createAuditLogger, AuditMiddlewareOptio
 import { AuditService } from '../src/service';
 import { AuditAction, AuditEntity } from '../src/types';
 
+// Mock @ims/monitoring logger
+jest.mock('@ims/monitoring', () => {
+  const fns = { error: jest.fn(), info: jest.fn(), warn: jest.fn() };
+  return { createLogger: jest.fn(() => fns), __mockFns: fns };
+});
+const { __mockFns: mockLoggerFns } = require('@ims/monitoring');
+
 // Mock audit service
 const mockAuditService = {
   log: jest.fn().mockResolvedValue('log-123'),
@@ -270,7 +277,7 @@ describe('Audit Middleware', () => {
 
     it('should handle audit service errors gracefully', async () => {
       jest.useRealTimers(); // Use real timers for this test
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockLoggerFns.error.mockClear();
       (mockAuditService.log as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const middleware = auditMiddleware(mockAuditService, {
@@ -283,8 +290,7 @@ describe('Audit Middleware', () => {
       await new Promise((resolve) => setImmediate(resolve));
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(consoleSpy).toHaveBeenCalledWith('Audit logging failed:', expect.any(Error));
-      consoleSpy.mockRestore();
+      expect(mockLoggerFns.error).toHaveBeenCalledWith('Audit logging failed', expect.objectContaining({ error: 'DB error' }));
       jest.useFakeTimers(); // Restore fake timers
     });
 
@@ -400,16 +406,15 @@ describe('Audit Middleware', () => {
     });
 
     it('should handle getData errors gracefully', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockLoggerFns.error.mockClear();
       mockReq.method = 'PUT';
       const getData = jest.fn().mockRejectedValue(new Error('DB error'));
 
       const middleware = attachOldData(getData);
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to get old data for audit:', expect.any(Error));
+      expect(mockLoggerFns.error).toHaveBeenCalledWith('Failed to get old data for audit', expect.objectContaining({ error: 'DB error' }));
       expect(mockNext).toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
 
     it('should preserve existing audit context', async () => {

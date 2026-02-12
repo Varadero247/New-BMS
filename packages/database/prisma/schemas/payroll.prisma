@@ -61,6 +61,7 @@ model PayrollRun {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
   createdBy           String?
 
   // Relations
@@ -176,6 +177,7 @@ model Payslip {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
 
   // Relations
   payrollRun          PayrollRun @relation(fields: [payrollRunId], references: [id])
@@ -663,6 +665,7 @@ model EmployeeSalary {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
 
   // Relations
   components          SalaryComponent[]
@@ -741,6 +744,7 @@ model Expense {
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  deletedAt             DateTime?
 
   // Relations
   report                ExpenseReport? @relation(fields: [reportId], references: [id])

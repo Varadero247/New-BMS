@@ -4,6 +4,9 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { trace, SpanStatusCode, Span, SpanKind } from '@opentelemetry/api';
+import { createLogger } from './logger';
+
+const logger = createLogger('tracing');
 
 export interface TracingConfig {
   serviceName: string;
@@ -78,11 +81,11 @@ export function initTracing(config: TracingConfig): NodeSDK | null {
   // Graceful shutdown on SIGTERM
   process.on('SIGTERM', () => {
     sdk?.shutdown()
-      .then(() => console.log(`Tracing terminated for ${config.serviceName}`))
-      .catch((error) => console.error('Error terminating tracing', error));
+      .then(() => logger.info('Tracing terminated', { serviceName: config.serviceName }))
+      .catch((error) => logger.error('Error terminating tracing', { error: error instanceof Error ? error.message : String(error) }));
   });
 
-  console.log(`Tracing initialized for ${config.serviceName} (endpoint: ${otlpEndpoint || 'default'})`);
+  logger.info('Tracing initialized', { serviceName: config.serviceName, endpoint: otlpEndpoint || 'default' });
   return sdk;
 }
 

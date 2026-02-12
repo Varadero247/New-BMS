@@ -5,6 +5,9 @@ import {
   AuditLogResult,
   SENSITIVE_FIELDS,
 } from './types';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('audit');
 
 /**
  * Audit logging service
@@ -58,7 +61,7 @@ export class AuditService {
       return auditLog.id;
     } catch (error) {
       // Audit logging should never fail the main operation
-      console.error('Failed to create audit log:', error);
+      logger.error('Failed to create audit log', { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }

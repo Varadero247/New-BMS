@@ -22,6 +22,7 @@ import {
   createHealthCheck,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
+import { optionalServiceAuth } from '@ims/service-auth';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-health-safety');
@@ -45,6 +46,7 @@ app.use(metricsMiddleware('api-health-safety'));
 app.use(express.json({ limit: '1mb' }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
+app.use(optionalServiceAuth);
 
 // Health check, readiness, and metrics
 app.get('/health', createHealthCheck('api-health-safety', prisma, '1.0.0'));

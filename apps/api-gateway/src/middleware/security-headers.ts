@@ -51,6 +51,7 @@ const contentSecurityPolicy = {
                 'http://localhost:4006',
                 'http://localhost:4007',
                 'http://localhost:4008',
+                'http://localhost:4009',
                 'ws://localhost:*',
               ])),
     ],

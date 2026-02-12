@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { AuditService } from './service';
 import { AuditAction, AuditEntity } from './types';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('audit-middleware');
 
 /**
  * Extended request type with user and audit info
@@ -145,7 +148,7 @@ async function logAuditEvent(
       userAgent: req.headers['user-agent'],
     });
   } catch (error) {
-    console.error('Audit logging failed:', error);
+    logger.error('Audit logging failed', { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -204,7 +207,7 @@ export function attachOldData(
       next();
     } catch (error) {
       // Don't fail the request if we can't get old data
-      console.error('Failed to get old data for audit:', error);
+      logger.error('Failed to get old data for audit', { error: error instanceof Error ? error.message : String(error) });
       next();
     }
   };

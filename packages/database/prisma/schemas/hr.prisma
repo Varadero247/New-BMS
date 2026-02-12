@@ -499,6 +499,7 @@ model Attendance {
   notes            String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
 
   employee Employee  @relation(fields: [employeeId], references: [id])
   shift    WorkShift? @relation(fields: [shiftId], references: [id])
@@ -556,6 +557,7 @@ model LeaveRequest {
   status         LeaveRequestStatus @default(PENDING)
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
 
   employee   Employee       @relation("LeaveRequestEmployee", fields: [employeeId], references: [id])
   handoverTo Employee?      @relation("LeaveRequestHandover", fields: [handoverToId], references: [id])

@@ -19,6 +19,7 @@
     "clean": "rm -rf dist node_modules .turbo"
   },
   "dependencies": {
+    "@ims/monitoring": "workspace:*",
     "nodemailer": "^6.9.8"
   },
   "devDependencies": {

@@ -46,6 +46,9 @@ apps/mobile/android
 apps/mobile/ios
 apps/mobile/.capacitor
 
+# Claude settings (may contain tokens)
+.claude/settings.local.json
+
 # Misc
 *.tsbuildinfo
 .cache

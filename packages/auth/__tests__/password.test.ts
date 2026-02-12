@@ -78,17 +78,17 @@ describe('Password utilities', () => {
 
   describe('validatePasswordStrength', () => {
     it('should accept valid password', () => {
-      const result = validatePasswordStrength('TestPassword123');
+      const result = validatePasswordStrength('TestPassword123!');
 
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should reject password shorter than 8 characters', () => {
-      const result = validatePasswordStrength('Test1');
+    it('should reject password shorter than 12 characters', () => {
+      const result = validatePasswordStrength('Test1!');
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Password must be at least 8 characters long');
+      expect(result.errors).toContain('Password must be at least 12 characters long');
     });
 
     it('should reject password without uppercase letter', () => {
@@ -126,15 +126,29 @@ describe('Password utilities', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should accept exactly 8 character password meeting all criteria', () => {
-      const result = validatePasswordStrength('Test1234');
+    it('should reject password without special character', () => {
+      const result = validatePasswordStrength('TestPassword123');
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Password must contain at least one special character');
+    });
+
+    it('should accept exactly 12 character password meeting all criteria', () => {
+      const result = validatePasswordStrength('TestPass123!');
 
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
+    it('should reject password longer than 72 characters', () => {
+      const result = validatePasswordStrength('A'.repeat(50) + 'a'.repeat(20) + '1234!');
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Password must be at most 72 characters long');
+    });
+
     it('should accept long password meeting all criteria', () => {
-      const result = validatePasswordStrength('ThisIsAVeryLongPasswordWith123Numbers');
+      const result = validatePasswordStrength('ThisIsAVeryLongPassword@123');
 
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);

@@ -86,6 +86,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ims/monitoring": "workspace:*",
     "@prisma/client": "^5.7.0"
   },
   "devDependencies": {

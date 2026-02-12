@@ -194,10 +194,10 @@ describe('Security Fix Verification', () => {
   });
 
   describe('F-005: Password Strength Validation', () => {
-    it('should reject passwords shorter than 8 characters', () => {
-      const result = validatePasswordStrength('Short1');
+    it('should reject passwords shorter than 12 characters', () => {
+      const result = validatePasswordStrength('Short1!');
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Password must be at least 8 characters long');
+      expect(result.errors).toContain('Password must be at least 12 characters long');
     });
 
     it('should reject passwords without uppercase', () => {

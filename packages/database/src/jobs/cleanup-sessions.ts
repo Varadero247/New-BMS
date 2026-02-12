@@ -1,4 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { createLogger } from '@ims/monitoring';
+
+const defaultLogger = createLogger('session-cleanup');
 
 export interface CleanupResult {
   deletedCount: number;
@@ -66,8 +69,8 @@ export class SessionCleanupJob {
   ) {
     this.prisma = prisma;
     this.logger = logger || {
-      info: (msg, meta) => console.log(`[SessionCleanup] ${msg}`, meta || ''),
-      error: (msg, meta) => console.error(`[SessionCleanup] ${msg}`, meta || ''),
+      info: (msg: string, meta?: object) => defaultLogger.info(msg, meta),
+      error: (msg: string, meta?: object) => defaultLogger.error(msg, meta),
     };
   }
 

@@ -32,7 +32,7 @@ const loginSchema = z.object({
 
 const registerSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(12).max(72),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().optional(),
@@ -451,7 +451,7 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
   try {
     const { token, password } = z.object({
       token: z.string().min(1),
-      password: z.string().min(8),
+      password: z.string().min(12).max(72),
     }).parse(req.body);
 
     // Hash the provided token

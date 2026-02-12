@@ -1,4 +1,7 @@
 import nodemailer, { Transporter, SendMailOptions } from 'nodemailer';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('email');
 
 export interface EmailConfig {
   host: string;
@@ -47,7 +50,7 @@ export class EmailService {
 
   async send(options: SendEmailOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
     if (!this.transporter) {
-      console.warn('[EmailService] SMTP not configured, email not sent:', {
+      logger.warn('SMTP not configured, email not sent', {
         to: options.to,
         subject: options.subject,
       });
@@ -67,7 +70,7 @@ export class EmailService {
       return { success: true, messageId: info.messageId };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      console.error('[EmailService] Failed to send email:', message);
+      logger.error('Failed to send email', { error: message });
       return { success: false, error: message };
     }
   }

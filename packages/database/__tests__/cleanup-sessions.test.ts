@@ -5,6 +5,13 @@ import {
   createSessionCleanupJob,
 } from '../src/jobs/cleanup-sessions';
 
+// Mock @ims/monitoring logger
+jest.mock('@ims/monitoring', () => {
+  const fns = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
+  return { createLogger: jest.fn(() => fns), __mockFns: fns };
+});
+const { __mockFns: mockLoggerFns } = require('@ims/monitoring');
+
 // Mock Prisma client
 const mockPrisma = {
   session: {
@@ -127,21 +134,17 @@ describe('SessionCleanupJob', () => {
       expect(job.isJobRunning()).toBe(false);
     });
 
-    it('should create a job with default console logger when none provided', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should create a job with default structured logger when none provided', () => {
+      mockLoggerFns.info.mockClear();
 
       const job = new SessionCleanupJob(mockPrisma);
-      // Trigger start to see the default logger is used (logs to console)
+      // Trigger start to see the default logger is used
       mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
       job.start(60000);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[SessionCleanup]'),
-        expect.anything()
-      );
+      expect(mockLoggerFns.info).toHaveBeenCalled();
 
       job.stop();
-      consoleSpy.mockRestore();
     });
   });
 

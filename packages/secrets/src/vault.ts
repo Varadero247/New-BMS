@@ -1,6 +1,9 @@
 /**
  * HashiCorp Vault integration for secrets management
  */
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('secrets');
 
 export interface VaultConfig {
   /** Vault server address (e.g., http://localhost:8200) */
@@ -271,7 +274,7 @@ export async function loadSecretsFromVault(
 
     return secrets;
   } catch (error) {
-    console.error('Failed to load secrets from Vault:', (error as Error).message);
+    logger.error('Failed to load secrets from Vault', { error: (error as Error).message });
     throw error;
   }
 }
@@ -288,7 +291,7 @@ export async function initializeSecretsFromVault(options?: {
 
   // Check if Vault is configured
   if (process.env.USE_VAULT !== 'true') {
-    console.log('Vault not enabled (USE_VAULT !== "true"), using environment variables');
+    logger.info('Vault not enabled (USE_VAULT !== "true"), using environment variables');
     return false;
   }
 
@@ -297,7 +300,7 @@ export async function initializeSecretsFromVault(options?: {
     if (required) {
       throw new Error('Vault is required but VAULT_ADDR or VAULT_TOKEN is not set');
     }
-    console.warn('Vault credentials not configured, using environment variables');
+    logger.warn('Vault credentials not configured, using environment variables');
     return false;
   }
 
@@ -307,20 +310,20 @@ export async function initializeSecretsFromVault(options?: {
     if (required) {
       throw new Error('Vault is not healthy or accessible');
     }
-    console.warn('Vault is not accessible, using environment variables');
+    logger.warn('Vault is not accessible, using environment variables');
     return false;
   }
 
   // Load secrets
   try {
     await loadSecretsFromVault(client, path);
-    console.log(`Secrets loaded from Vault path: ${path}`);
+    logger.info('Secrets loaded from Vault', { path });
     return true;
   } catch (error) {
     if (required) {
       throw error;
     }
-    console.warn('Failed to load from Vault, using environment variables:', (error as Error).message);
+    logger.warn('Failed to load from Vault, using environment variables', { error: (error as Error).message });
     return false;
   }
 }

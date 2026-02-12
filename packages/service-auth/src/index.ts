@@ -248,3 +248,5 @@ export default {
   addServiceTokenToProxy,
   resetServiceAuthConfig,
 };
+
+export * from './ownership';

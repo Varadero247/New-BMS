@@ -19,7 +19,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@ims/database": "workspace:*"
+    "@ims/database": "workspace:*",
+    "@ims/monitoring": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
