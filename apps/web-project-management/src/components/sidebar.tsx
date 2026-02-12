@@ -15,6 +15,7 @@ import {
   Zap,
   Clock,
   BarChart3,
+  TrendingUp,
   Home,
   Settings,
 } from 'lucide-react';
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'Sprints', href: '/sprints', icon: Zap },
   { name: 'Timesheets', href: '/timesheets', icon: Clock },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Benefits', href: '/benefits', icon: TrendingUp },
 ];
 
 const externalLinks = [

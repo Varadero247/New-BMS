@@ -1,0 +1,1220 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies BEFORE importing any modules that use them
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    safetyCharacteristic: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    safetyIncident: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    recallAction: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    complianceRecord: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+    $transaction: jest.fn(),
+  },
+  Prisma: {
+    SafetyCharacteristicWhereInput: {},
+    SafetyIncidentWhereInput: {},
+    RecallActionWhereInput: {},
+    ComplianceRecordWhereInput: {},
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any, _val: any) => next(),
+}));
+
+import { prisma } from '../src/prisma';
+import productSafetyRouter from '../src/routes/product-safety';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+// ==========================================
+// Test data fixtures
+// ==========================================
+
+const mockCharacteristic = {
+  id: '10000000-0000-4000-a000-000000000001',
+  refNumber: 'PSC-2602-0001',
+  partNumber: 'BRK-PAD-001',
+  partName: 'Brake Pad Assembly',
+  characteristicType: 'SC',
+  description: 'Friction coefficient must be within 0.35-0.45',
+  controlMethod: 'SPC monitoring with Cp > 1.67',
+  measurementMethod: 'Dynamometer test per SAE J2522',
+  tolerance: '0.35 - 0.45 mu',
+  linkedFmeaId: null,
+  linkedControlPlanId: null,
+  notes: null,
+  status: 'ACTIVE',
+  createdBy: 'user-1',
+  deletedAt: null,
+  createdAt: new Date('2026-02-01'),
+  updatedAt: new Date('2026-02-01'),
+};
+
+const mockCharacteristic2 = {
+  id: '10000000-0000-4000-a000-000000000002',
+  refNumber: 'PSC-2602-0002',
+  partNumber: 'STR-COL-002',
+  partName: 'Steering Column',
+  characteristicType: 'CC',
+  description: 'Torque rating must meet minimum 45 Nm',
+  controlMethod: 'Torque testing per ISO 7176',
+  measurementMethod: 'Calibrated torque wrench',
+  tolerance: '>= 45 Nm',
+  linkedFmeaId: null,
+  linkedControlPlanId: null,
+  notes: 'Critical for vehicle safety',
+  status: 'ACTIVE',
+  createdBy: 'user-1',
+  deletedAt: null,
+  createdAt: new Date('2026-02-03'),
+  updatedAt: new Date('2026-02-03'),
+};
+
+const mockIncident = {
+  id: '20000000-0000-4000-a000-000000000001',
+  refNumber: 'PSI-2602-0001',
+  title: 'Brake pad delamination observed',
+  description: 'Friction material separating from backing plate on lot BRK-2026-L5',
+  product: 'Brake Pad Assembly',
+  partNumber: 'BRK-PAD-001',
+  severity: 'HIGH',
+  source: 'INTERNAL',
+  affectedCharacteristicId: '10000000-0000-4000-a000-000000000001',
+  immediateAction: 'Quarantine lot BRK-2026-L5',
+  reportedBy: 'user-1',
+  rootCause: null,
+  correctiveAction: null,
+  notes: null,
+  status: 'OPEN',
+  createdBy: 'user-1',
+  deletedAt: null,
+  createdAt: new Date('2026-02-05'),
+  updatedAt: new Date('2026-02-05'),
+};
+
+const mockRecall = {
+  id: '30000000-0000-4000-a000-000000000001',
+  refNumber: 'RCL-2602-0001',
+  product: 'Brake Pad Assembly',
+  reason: 'Friction material delamination risk',
+  scope: 'Lots BRK-2026-L4 through BRK-2026-L7',
+  affectedQuantity: 12000,
+  linkedIncidentId: '20000000-0000-4000-a000-000000000001',
+  regulatoryBody: 'NHTSA',
+  customerNotified: false,
+  regulatoryNotified: false,
+  containmentAction: null,
+  correctiveAction: null,
+  notes: null,
+  status: 'INITIATED',
+  createdBy: 'user-1',
+  deletedAt: null,
+  createdAt: new Date('2026-02-06'),
+  updatedAt: new Date('2026-02-06'),
+};
+
+const mockComplianceRecord = {
+  id: 'comp-0001',
+  partNumber: 'BRK-PAD-001',
+  partName: 'Brake Pad Assembly',
+  regulation: 'REACH',
+  status: 'COMPLIANT',
+  certificateRef: 'REACH-2026-CRT-001',
+  expiryDate: new Date('2027-06-01'),
+  substances: 'No SVHC above 0.1% w/w',
+  notes: null,
+  createdBy: 'user-1',
+  createdAt: new Date('2026-01-15'),
+  updatedAt: new Date('2026-01-15'),
+};
+
+const validCharacteristicPayload = {
+  partNumber: 'BRK-PAD-001',
+  partName: 'Brake Pad Assembly',
+  characteristicType: 'SC',
+  description: 'Friction coefficient must be within 0.35-0.45',
+  controlMethod: 'SPC monitoring with Cp > 1.67',
+  measurementMethod: 'Dynamometer test per SAE J2522',
+  tolerance: '0.35 - 0.45 mu',
+};
+
+const validIncidentPayload = {
+  title: 'Brake pad delamination observed',
+  description: 'Friction material separating from backing plate',
+  product: 'Brake Pad Assembly',
+  partNumber: 'BRK-PAD-001',
+  severity: 'HIGH',
+  source: 'INTERNAL',
+  immediateAction: 'Quarantine affected lot',
+};
+
+const validRecallPayload = {
+  product: 'Brake Pad Assembly',
+  reason: 'Friction material delamination risk',
+  scope: 'Lots BRK-2026-L4 through BRK-2026-L7',
+  affectedQuantity: 12000,
+  regulatoryBody: 'NHTSA',
+};
+
+const validCompliancePayload = {
+  partNumber: 'BRK-PAD-001',
+  partName: 'Brake Pad Assembly',
+  regulation: 'REACH',
+  status: 'COMPLIANT',
+  certificateRef: 'REACH-2026-CRT-001',
+  expiryDate: '2027-06-01',
+  substances: 'No SVHC above 0.1% w/w',
+};
+
+// ==========================================
+// Tests
+// ==========================================
+
+describe('Product Safety Management API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/product-safety', productSafetyRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // ==========================================
+  // SAFETY CHARACTERISTICS
+  // ==========================================
+
+  describe('POST /api/product-safety/characteristics', () => {
+    it('should create a safety characteristic successfully', async () => {
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send(validCharacteristicPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.partNumber).toBe('BRK-PAD-001');
+      expect(response.body.data.characteristicType).toBe('SC');
+      expect(response.body.data.status).toBe('ACTIVE');
+    });
+
+    it('should accept CC characteristic type', async () => {
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValueOnce({
+        ...mockCharacteristic2,
+      });
+
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, characteristicType: 'CC' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should accept KPC characteristic type', async () => {
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValueOnce({
+        ...mockCharacteristic,
+        characteristicType: 'KPC',
+      });
+
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, characteristicType: 'KPC' });
+
+      expect(response.status).toBe(201);
+    });
+
+    it('should generate sequential ref numbers', async () => {
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(5);
+      (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValueOnce({
+        ...mockCharacteristic,
+        refNumber: 'PSC-2602-0006',
+      });
+
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send(validCharacteristicPayload);
+
+      expect(response.status).toBe(201);
+
+      expect(mockPrisma.safetyCharacteristic.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          refNumber: expect.stringMatching(/^PSC-\d{4}-0006$/),
+        }),
+      });
+    });
+
+    it('should return 400 when partNumber is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, partNumber: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when characteristicType is invalid', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, characteristicType: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when description is empty', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, description: '' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when controlMethod is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCharacteristicPayload, controlMethod: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when body is empty', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.safetyCharacteristic.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
+
+      const response = await request(app)
+        .post('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token')
+        .send(validCharacteristicPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+      expect(response.body.error.message).toBe('Failed to create safety characteristic');
+    });
+  });
+
+  describe('GET /api/product-safety/characteristics', () => {
+    it('should return a list of characteristics with default pagination', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([mockCharacteristic, mockCharacteristic2]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(2);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.items).toHaveLength(2);
+      expect(response.body.data.total).toBe(2);
+      expect(response.body.data.page).toBe(1);
+      expect(response.body.data.limit).toBe(20);
+      expect(response.body.data.totalPages).toBe(1);
+    });
+
+    it('should support custom pagination', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([mockCharacteristic]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(50);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics?page=3&limit=10')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.page).toBe(3);
+      expect(response.body.data.limit).toBe(10);
+      expect(response.body.data.totalPages).toBe(5);
+
+      expect(mockPrisma.safetyCharacteristic.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 10 })
+      );
+    });
+
+    it('should cap limit at 100', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics?limit=500')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.limit).toBe(100);
+    });
+
+    it('should filter by characteristicType', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([mockCharacteristic]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/characteristics?characteristicType=SC')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyCharacteristic.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ characteristicType: 'SC', deletedAt: null }),
+        })
+      );
+    });
+
+    it('should filter by partNumber (case-insensitive)', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([mockCharacteristic]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/characteristics?partNumber=brk')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyCharacteristic.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            partNumber: { contains: 'brk', mode: 'insensitive' },
+            deletedAt: null,
+          }),
+        })
+      );
+    });
+
+    it('should exclude soft-deleted records', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyCharacteristic.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ deletedAt: null }),
+        })
+      );
+    });
+
+    it('should return empty results when none exist', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.items).toHaveLength(0);
+      expect(response.body.data.total).toBe(0);
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('GET /api/product-safety/characteristics/:id', () => {
+    it('should return a single characteristic by ID', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.partNumber).toBe('BRK-PAD-001');
+      expect(response.body.data.characteristicType).toBe('SC');
+    });
+
+    it('should return 404 when not found', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics/00000000-0000-4000-a000-ffffffffffff')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 404 when soft-deleted', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockCharacteristic,
+        deletedAt: new Date(),
+      });
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/product-safety/characteristics/:id', () => {
+    it('should update a characteristic', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.safetyCharacteristic.update as jest.Mock).mockResolvedValueOnce({
+        ...mockCharacteristic,
+        tolerance: '0.38 - 0.42 mu',
+        status: 'UNDER_REVIEW',
+      });
+
+      const response = await request(app)
+        .put('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ tolerance: '0.38 - 0.42 mu', status: 'UNDER_REVIEW' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.tolerance).toBe('0.38 - 0.42 mu');
+      expect(response.body.data.status).toBe('UNDER_REVIEW');
+    });
+
+    it('should return 404 when not found', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/product-safety/characteristics/00000000-0000-4000-a000-ffffffffffff')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INACTIVE' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for invalid status', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+
+      const response = await request(app)
+        .put('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID_STATUS' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid characteristicType', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+
+      const response = await request(app)
+        .put('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ characteristicType: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/product-safety/characteristics/10000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INACTIVE' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  // ==========================================
+  // SAFETY INCIDENTS
+  // ==========================================
+
+  describe('POST /api/product-safety/incidents', () => {
+    it('should create a safety incident successfully', async () => {
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.safetyIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send(validIncidentPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Brake pad delamination observed');
+      expect(response.body.data.severity).toBe('HIGH');
+      expect(response.body.data.status).toBe('OPEN');
+    });
+
+    it('should accept all severity levels', async () => {
+      for (const severity of ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) {
+        (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+        (mockPrisma.safetyIncident.create as jest.Mock).mockResolvedValueOnce({
+          ...mockIncident,
+          severity,
+        });
+
+        const response = await request(app)
+          .post('/api/product-safety/incidents')
+          .set('Authorization', 'Bearer token')
+          .send({ ...validIncidentPayload, severity });
+
+        expect(response.status).toBe(201);
+      }
+    });
+
+    it('should return 400 when title is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validIncidentPayload, title: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when description is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validIncidentPayload, description: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when product is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validIncidentPayload, product: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for invalid severity', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validIncidentPayload, severity: 'EXTREME' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when body is empty', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.safetyIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token')
+        .send(validIncidentPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+      expect(response.body.error.message).toBe('Failed to create safety incident');
+    });
+  });
+
+  describe('GET /api/product-safety/incidents', () => {
+    it('should return a list of incidents with default pagination', async () => {
+      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.items).toHaveLength(1);
+      expect(response.body.data.total).toBe(1);
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/incidents?status=OPEN')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'OPEN', deletedAt: null }),
+        })
+      );
+    });
+
+    it('should filter by severity', async () => {
+      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/product-safety/incidents?severity=CRITICAL')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ severity: 'CRITICAL' }),
+        })
+      );
+    });
+
+    it('should filter by product (case-insensitive)', async () => {
+      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/incidents?product=brake')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            product: { contains: 'brake', mode: 'insensitive' },
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyIncident.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/product-safety/incidents')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/product-safety/incidents/:id', () => {
+    it('should update an incident', async () => {
+      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.safetyIncident.update as jest.Mock).mockResolvedValueOnce({
+        ...mockIncident,
+        status: 'INVESTIGATING',
+        rootCause: 'Adhesive batch contamination',
+      });
+
+      const response = await request(app)
+        .put('/api/product-safety/incidents/20000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVESTIGATING', rootCause: 'Adhesive batch contamination' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('INVESTIGATING');
+      expect(response.body.data.rootCause).toBe('Adhesive batch contamination');
+    });
+
+    it('should return 404 when not found', async () => {
+      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/product-safety/incidents/00000000-0000-4000-a000-ffffffffffff')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'CLOSED' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for invalid status', async () => {
+      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
+
+      const response = await request(app)
+        .put('/api/product-safety/incidents/20000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/product-safety/incidents/20000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'CLOSED' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  // ==========================================
+  // RECALL ACTIONS
+  // ==========================================
+
+  describe('POST /api/product-safety/recalls', () => {
+    it('should create a recall action successfully', async () => {
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.recallAction.create as jest.Mock).mockResolvedValueOnce(mockRecall);
+
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send(validRecallPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.product).toBe('Brake Pad Assembly');
+      expect(response.body.data.affectedQuantity).toBe(12000);
+      expect(response.body.data.status).toBe('INITIATED');
+    });
+
+    it('should generate sequential ref numbers', async () => {
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(3);
+      (mockPrisma.recallAction.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRecall,
+        refNumber: 'RCL-2602-0004',
+      });
+
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send(validRecallPayload);
+
+      expect(response.status).toBe(201);
+      expect(mockPrisma.recallAction.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          refNumber: expect.stringMatching(/^RCL-\d{4}-0004$/),
+        }),
+      });
+    });
+
+    it('should return 400 when product is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validRecallPayload, product: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when reason is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validRecallPayload, reason: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when scope is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validRecallPayload, scope: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when affectedQuantity is negative', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validRecallPayload, affectedQuantity: -1 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when body is empty', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.recallAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token')
+        .send(validRecallPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+      expect(response.body.error.message).toBe('Failed to create recall action');
+    });
+  });
+
+  describe('GET /api/product-safety/recalls', () => {
+    it('should return a list of recalls with default pagination', async () => {
+      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.items).toHaveLength(1);
+      expect(response.body.data.total).toBe(1);
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/recalls?status=INITIATED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.recallAction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'INITIATED', deletedAt: null }),
+        })
+      );
+    });
+
+    it('should filter by product (case-insensitive)', async () => {
+      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/product-safety/recalls?product=brake')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.recallAction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            product: { contains: 'brake', mode: 'insensitive' },
+          }),
+        })
+      );
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.recallAction.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/product-safety/recalls')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('PUT /api/product-safety/recalls/:id', () => {
+    it('should update a recall action', async () => {
+      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
+      (mockPrisma.recallAction.update as jest.Mock).mockResolvedValueOnce({
+        ...mockRecall,
+        status: 'INVESTIGATING',
+        customerNotified: true,
+        regulatoryNotified: true,
+      });
+
+      const response = await request(app)
+        .put('/api/product-safety/recalls/30000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVESTIGATING', customerNotified: true, regulatoryNotified: true });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('INVESTIGATING');
+      expect(response.body.data.customerNotified).toBe(true);
+      expect(response.body.data.regulatoryNotified).toBe(true);
+    });
+
+    it('should return 404 when not found', async () => {
+      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .put('/api/product-safety/recalls/00000000-0000-4000-a000-ffffffffffff')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'CLOSED' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should return 400 for invalid status', async () => {
+      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
+
+      const response = await request(app)
+        .put('/api/product-safety/recalls/30000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.recallAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/product-safety/recalls/30000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'CLOSED' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  // ==========================================
+  // COMPLIANCE
+  // ==========================================
+
+  describe('GET /api/product-safety/compliance', () => {
+    it('should return compliance records with summary', async () => {
+      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([
+        { ...mockComplianceRecord, status: 'COMPLIANT' },
+        { ...mockComplianceRecord, id: 'comp-0002', status: 'PENDING' },
+      ]);
+      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(2);
+
+      const response = await request(app)
+        .get('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.items).toHaveLength(2);
+      expect(response.body.data.summary).toBeDefined();
+      expect(response.body.data.summary.compliant).toBe(1);
+      expect(response.body.data.summary.pending).toBe(1);
+    });
+
+    it('should filter by regulation', async () => {
+      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([mockComplianceRecord]);
+      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+      await request(app)
+        .get('/api/product-safety/compliance?regulation=REACH')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.complianceRecord.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ regulation: 'REACH' }),
+        })
+      );
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/product-safety/compliance?status=NON_COMPLIANT')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.complianceRecord.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'NON_COMPLIANT' }),
+        })
+      );
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.complianceRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .get('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
+
+  describe('POST /api/product-safety/compliance', () => {
+    it('should create a compliance record successfully', async () => {
+      (mockPrisma.complianceRecord.create as jest.Mock).mockResolvedValueOnce(mockComplianceRecord);
+
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send(validCompliancePayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.regulation).toBe('REACH');
+      expect(response.body.data.status).toBe('COMPLIANT');
+    });
+
+    it('should accept all regulation types', async () => {
+      for (const regulation of ['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']) {
+        (mockPrisma.complianceRecord.create as jest.Mock).mockResolvedValueOnce({
+          ...mockComplianceRecord,
+          regulation,
+        });
+
+        const response = await request(app)
+          .post('/api/product-safety/compliance')
+          .set('Authorization', 'Bearer token')
+          .send({ ...validCompliancePayload, regulation });
+
+        expect(response.status).toBe(201);
+      }
+    });
+
+    it('should return 400 when partNumber is missing', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCompliancePayload, partNumber: undefined });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when regulation is invalid', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCompliancePayload, regulation: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when status is invalid', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validCompliancePayload, status: 'INVALID' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 when body is empty', async () => {
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should handle database errors gracefully', async () => {
+      (mockPrisma.complianceRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .post('/api/product-safety/compliance')
+        .set('Authorization', 'Bearer token')
+        .send(validCompliancePayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+      expect(response.body.error.message).toBe('Failed to create compliance record');
+    });
+  });
+});

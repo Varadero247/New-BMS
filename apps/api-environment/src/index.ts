@@ -37,6 +37,8 @@ import auditsRouter from './routes/audits';
 import managementReviewsRouter from './routes/management-reviews';
 import emergencyRouter from './routes/emergency';
 import lifecycleRouter from './routes/lifecycle';
+import esgRouter from './routes/esg';
+import communicationsRouter from './routes/communications';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4002;
@@ -74,6 +76,8 @@ app.use('/api/audits', auditsRouter);
 app.use('/api/management-reviews', managementReviewsRouter);
 app.use('/api/emergency', emergencyRouter);
 app.use('/api/lifecycle', lifecycleRouter);
+app.use('/api/esg', esgRouter);
+app.use('/api/communications', communicationsRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

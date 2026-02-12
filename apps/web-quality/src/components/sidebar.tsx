@@ -20,6 +20,8 @@ import {
   Truck,
   GitBranch,
   ShieldAlert,
+  Shield,
+  Layers,
 } from 'lucide-react';
 
 // Quality Section
@@ -41,6 +43,8 @@ const modulesNavigation = [
   { name: 'Supplier Quality', href: '/suppliers', icon: Truck },
   { name: 'Change Management', href: '/changes', icon: GitBranch },
   { name: 'Counterfeit Prevention', href: '/counterfeit', icon: ShieldAlert },
+  { name: 'Product Safety', href: '/product-safety', icon: Shield },
+  { name: 'Design & Development', href: '/design-development', icon: Layers },
   { name: 'Objectives', href: '/objectives', icon: Target },
 ];
 

@@ -14,6 +14,8 @@ import {
   Settings,
   ShieldAlert,
   Recycle,
+  BarChart3,
+  MessageSquare,
 } from 'lucide-react';
 
 const navigation = [
@@ -26,6 +28,8 @@ const navigation = [
   { name: 'CAPA', href: '/capa', icon: RefreshCw },
   { name: 'Emergency Preparedness', href: '/emergency', icon: ShieldAlert },
   { name: 'Life Cycle Assessment', href: '/lifecycle', icon: Recycle },
+  { name: 'ESG / Sustainability', href: '/esg', icon: BarChart3 },
+  { name: 'Communications', href: '/communications', icon: MessageSquare },
 ];
 
 const externalLinks = [

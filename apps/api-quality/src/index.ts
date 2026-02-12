@@ -45,6 +45,8 @@ import changesRouter from './routes/changes';
 import objectivesRouter from './routes/objectives';
 import customerSatisfactionRouter from './routes/customer-satisfaction';
 import counterfeitRouter from './routes/counterfeit';
+import productSafetyRouter from './routes/product-safety';
+import designDevelopmentRouter from './routes/design-development';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -89,6 +91,8 @@ app.use('/api/changes', changesRouter);
 app.use('/api/objectives', objectivesRouter);
 app.use('/api/customer-satisfaction', customerSatisfactionRouter);
 app.use('/api/counterfeit', counterfeitRouter);
+app.use('/api/product-safety', productSafetyRouter);
+app.use('/api/design-development', designDevelopmentRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

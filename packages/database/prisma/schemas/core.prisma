@@ -471,3 +471,66 @@ model ComplianceScore {
   @@unique([standard])
   @@map("compliance_scores")
 }
+
+// ============================================
+// COMPLIANCE CALENDAR
+// ============================================
+
+enum ComplianceStandard {
+  ISO_9001_CAL
+  ISO_14001_CAL
+  ISO_45001_CAL
+  IATF_16949
+  AS9100D
+  ISO_13485
+  COMBINED
+}
+
+enum ComplianceEventType {
+  AUDIT
+  LEGAL_REVIEW
+  OBJECTIVE_REVIEW
+  CAPA_DUE
+  MANAGEMENT_REVIEW
+  CERT_EXPIRY
+  CALIBRATION_DUE
+  TRAINING_EXPIRY
+  PPAP_GATE
+  FAI_DUE
+  REGULATORY_SUBMISSION
+}
+
+enum ComplianceEventStatus {
+  UPCOMING
+  DUE_SOON
+  OVERDUE
+  COMPLETED
+}
+
+model ComplianceEvent {
+  id          String                @id @default(cuid())
+  title       String
+  description String?
+  type        ComplianceEventType
+  standard    ComplianceStandard
+  status      ComplianceEventStatus @default(UPCOMING)
+  dueDate     DateTime
+  completedAt DateTime?
+  assigneeId  String?
+  assignee    String?
+  location    String?
+  notes       String?
+  recurrence  String?               // DAILY, WEEKLY, MONTHLY, QUARTERLY, ANNUALLY
+  createdBy   String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  deletedAt   DateTime?
+
+  @@index([dueDate])
+  @@index([standard])
+  @@index([type])
+  @@index([status])
+  @@index([standard, status])
+  @@index([dueDate, status])
+  @@map("compliance_events")
+}

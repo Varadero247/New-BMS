@@ -12,6 +12,7 @@ import {
   GraduationCap,
   BarChart3,
   ShieldCheck,
+  MessageSquare,
   Home,
   Settings,
 } from 'lucide-react';
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Actions', href: '/actions', icon: ClipboardList },
   { name: 'Training', href: '/training', icon: GraduationCap },
   { name: 'Metrics', href: '/metrics', icon: BarChart3 },
+  { name: 'Communications', href: '/communications', icon: MessageSquare },
 ];
 
 const externalLinks = [

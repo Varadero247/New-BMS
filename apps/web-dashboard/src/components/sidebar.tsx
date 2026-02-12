@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import {
   LayoutDashboard,
+  CalendarCheck,
   Shield,
   Leaf,
   Award,
@@ -19,6 +20,13 @@ const modules = [
     icon: LayoutDashboard,
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
+  },
+  {
+    name: 'Compliance Calendar',
+    href: '/compliance-calendar',
+    icon: CalendarCheck,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-100',
   },
   {
     name: 'Health & Safety',

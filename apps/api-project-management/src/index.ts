@@ -39,6 +39,7 @@ import documentsRouter from './routes/documents';
 import sprintsRouter from './routes/sprints';
 import timesheetsRouter from './routes/timesheets';
 import reportsRouter from './routes/reports';
+import benefitsRouter from './routes/benefits';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4009;
@@ -78,6 +79,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/sprints', sprintsRouter);
 app.use('/api/timesheets', timesheetsRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/benefits', benefitsRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

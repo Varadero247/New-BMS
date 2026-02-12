@@ -18,6 +18,8 @@ import { generateServiceToken } from '@ims/service-auth';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import dashboardRoutes from './routes/dashboard';
+import complianceCalendarRoutes from './routes/compliance-calendar';
+import complianceScoresRoutes from './routes/compliance-scores';
 import sessionsRoutes from './routes/sessions';
 import v1Routes from './routes/v1';
 import { errorHandler } from './middleware/error-handler';
@@ -193,6 +195,8 @@ app.use('/api/v1', addVersionHeader('v1'), v1Routes);
 app.use('/api/auth', deprecatedRoute('/api/v1/auth'), authRoutes);
 app.use('/api/users', deprecatedRoute('/api/v1/users'), userRoutes);
 app.use('/api/dashboard', deprecatedRoute('/api/v1/dashboard'), dashboardRoutes);
+app.use('/api/dashboard/compliance-calendar', complianceCalendarRoutes);
+app.use('/api/dashboard/compliance-scores', complianceScoresRoutes);
 app.use('/api/sessions', deprecatedRoute('/api/v1/sessions'), sessionsRoutes);
 
 // ============================================

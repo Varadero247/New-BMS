@@ -5,6 +5,7 @@ import dashboardRoutes from '../dashboard';
 import sessionsRoutes from '../sessions';
 import auditRoutes from '../audit';
 import unifiedAuditRoutes from '../unified-audit';
+import complianceScoresRoutes from '../compliance-scores';
 
 const router: RouterType = Router();
 
@@ -15,5 +16,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/sessions', sessionsRoutes);
 router.use('/audit', auditRoutes);
 router.use('/unified-audit', unifiedAuditRoutes);
+router.use('/dashboard/compliance-scores', complianceScoresRoutes);
 
 export default router;
