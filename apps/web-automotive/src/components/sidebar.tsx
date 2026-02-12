@@ -16,6 +16,8 @@ import {
   Home,
   Settings,
   Award,
+  BookOpen,
+  Layers,
 } from 'lucide-react';
 
 // Automotive Core Navigation
@@ -34,6 +36,8 @@ const modulesNavigation = [
   { name: '8D Reports', href: '/8d', icon: FileText },
   { name: 'Supplier Development', href: '/supplier-dev', icon: Truck },
   { name: 'Customer Specific', href: '/customer-reqs', icon: Users },
+  { name: 'CSR Register', href: '/csr', icon: BookOpen },
+  { name: 'Layered Process Audits', href: '/lpa', icon: Layers },
 ];
 
 const externalLinks = [

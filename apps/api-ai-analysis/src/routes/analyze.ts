@@ -31,6 +31,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'THREE_POINT_ESTIMATION', 'RESOURCE_LEVELING', 'PROJECT_RISK_ANALYSIS',
         'EVM_ANALYSIS', 'STAKEHOLDER_STRATEGY', 'PROJECT_HEALTH_CHECK',
         'SPRINT_PLANNING', 'LESSONS_LEARNED',
+        'ENV_ASPECTS_SIGNIFICANCE', 'ENV_REGULATORY_GAP',
+        'MEDICAL_COMPLAINT_MDR_TRIAGE', 'MEDICAL_RISK_CONTROL_GENERATION',
+        'MEDICAL_DESIGN_INPUT_REVIEW',
+        'AEROSPACE_COUNTERFEIT_RISK_ASSESSMENT',
+        'AEROSPACE_AIRWORTHINESS_DIRECTIVE_IMPACT',
       ]),
       context: z.record(z.unknown()),
     });
@@ -687,6 +692,164 @@ Return ONLY valid JSON:
   "knowledgeAssets": [
     {"asset": "...", "location": "..."}
   ]
+}`;
+    } else if (data.type === 'ENV_ASPECTS_SIGNIFICANCE') {
+      prompt = `You are an ISO 14001:2015 environmental management system expert.
+
+Analyze the following environmental aspect for significance under ISO 14001:2015:
+
+Aspect: ${data.context.description || 'Not specified'}
+Activity: ${data.context.activity || 'Not specified'}
+Condition: ${data.context.condition || 'NORMAL'} (NORMAL/ABNORMAL/EMERGENCY)
+Scale: ${data.context.scale || 'Not specified'}
+Severity: ${data.context.severity || 0}/5
+Probability: ${data.context.probability || 0}/5
+Legal Requirement: ${data.context.legalRequirement || 'Not specified'}
+Stakeholder Concern: ${data.context.stakeholderConcern || 'Not specified'}
+
+Provide a structured significance assessment.
+
+Return ONLY valid JSON:
+{
+  "significanceAssessment": {
+    "isSignificant": true|false,
+    "overallScore": <number>,
+    "justification": "..."
+  },
+  "operationalControls": [
+    {"control": "...", "type": "ENGINEERING|ADMINISTRATIVE|PPE|MONITORING", "priority": "HIGH|MEDIUM|LOW"}
+  ],
+  "applicableRegulations": [
+    {"regulation": "...", "section": "...", "relevance": "..."}
+  ],
+  "monitoringParameters": [
+    {"parameter": "...", "method": "...", "frequency": "...", "limit": "..."}
+  ],
+  "iso14001Clauses": [
+    {"clause": "...", "title": "...", "relevance": "..."}
+  ]
+}`;
+    } else if (data.type === 'ENV_REGULATORY_GAP') {
+      prompt = `You are an ISO 14001:2015 environmental regulatory compliance expert.
+
+Analyze regulatory compliance gaps for the following organization under ISO 14001:2015:
+
+Sector: ${data.context.sector || 'Not specified'}
+Location: ${data.context.location || 'UK'}
+Operations: ${data.context.operations || 'Not specified'}
+Current Legal Register Entries: ${JSON.stringify(data.context.currentEntries || [])}
+
+Identify regulatory gaps and provide recommendations.
+
+Return ONLY valid JSON:
+{
+  "missingRegulations": [
+    {"regulation": "...", "jurisdiction": "...", "applicableClause": "...", "reason": "..."}
+  ],
+  "recentUpdates": [
+    {"regulation": "...", "updateDate": "...", "summary": "...", "actionRequired": "..."}
+  ],
+  "recommendedAdditions": [
+    {"regulation": "...", "clause": "...", "description": "...", "complianceAction": "..."}
+  ],
+  "priorityRanking": [
+    {"regulation": "...", "priority": "HIGH|MEDIUM|LOW", "reason": "...", "deadline": "..."}
+  ],
+  "overallComplianceRisk": "HIGH|MEDIUM|LOW",
+  "summary": "..."
+}`;
+    } else if (data.type === 'MEDICAL_COMPLAINT_MDR_TRIAGE') {
+      prompt = `You are a medical device regulatory expert specializing in complaint handling, MDR reporting (FDA 21 CFR 803), EU MDR Article 87, and UK MDR 2002.
+
+Assess the following complaint for MDR reportability:
+
+Complaint Description: ${data.context.description || 'Not specified'}
+Device Type: ${data.context.deviceType || 'Not specified'}
+Device Class: ${data.context.deviceClass || 'Not specified'}
+Injury/Incident Details: ${data.context.injuryDetails || 'None reported'}
+Death Involved: ${data.context.deathInvolved || 'No'}
+Serious Injury: ${data.context.seriousInjury || 'No'}
+Malfunction: ${data.context.malfunction || 'No'}
+Recurrence Likely: ${data.context.recurrenceLikely || 'Unknown'}
+
+Determine MDR reportability and provide a structured assessment. Respond with ONLY valid JSON:
+{
+  "reportability": "REPORTABLE|NOT_REPORTABLE|UNCERTAIN",
+  "confidence": "HIGH|MEDIUM|LOW",
+  "rationale": "...",
+  "applicableRegulations": [
+    {"regulation": "...", "clause": "...", "requirement": "..."}
+  ],
+  "reportingTimeline": "...",
+  "suggestedInvestigationSteps": ["..."],
+  "riskToPatient": "HIGH|MEDIUM|LOW|NONE",
+  "recommendedActions": ["..."]
+}`;
+    } else if (data.type === 'MEDICAL_RISK_CONTROL_GENERATION') {
+      prompt = `You are an ISO 14971:2019 risk management expert for medical devices.
+
+Given the following hazard information, recommend risk controls following the ISO 14971 risk control hierarchy:
+
+Hazard: ${data.context.hazard || 'Not specified'}
+Hazardous Situation: ${data.context.hazardousSituation || 'Not specified'}
+Harm: ${data.context.harm || 'Not specified'}
+Severity: ${data.context.severity || 'Not specified'} (1=Negligible, 5=Catastrophic)
+Probability: ${data.context.probability || 'Not specified'} (1=Rare, 5=Frequent)
+Current Risk Level: ${data.context.currentRiskLevel || 'Not specified'}
+Device Type: ${data.context.deviceType || 'Not specified'}
+
+Recommend risk controls by type following the hierarchy. Respond with ONLY valid JSON:
+{
+  "inherentSafetyControls": [
+    {"control": "...", "effectiveness": "HIGH|MEDIUM|LOW", "feasibility": "...", "iso14971Clause": "..."}
+  ],
+  "protectiveMeasures": [
+    {"control": "...", "effectiveness": "HIGH|MEDIUM|LOW", "feasibility": "...", "iso14971Clause": "..."}
+  ],
+  "informationForSafety": [
+    {"control": "...", "effectiveness": "HIGH|MEDIUM|LOW", "feasibility": "...", "iso14971Clause": "..."}
+  ],
+  "residualRiskEstimate": {
+    "severity": 1,
+    "probability": 1,
+    "riskLevel": "NEGLIGIBLE|LOW|MEDIUM|HIGH|UNACCEPTABLE",
+    "acceptable": true
+  },
+  "verificationMethods": ["..."],
+  "monitoringRequirements": ["..."]
+}`;
+    } else if (data.type === 'MEDICAL_DESIGN_INPUT_REVIEW') {
+      prompt = `You are a medical device design controls expert per ISO 13485 Clause 7.3 and FDA 21 CFR 820.30.
+
+Review the following user needs and intended use to derive design inputs:
+
+User Needs: ${data.context.userNeeds || 'Not specified'}
+Intended Use: ${data.context.intendedUse || 'Not specified'}
+Patient Population: ${data.context.patientPopulation || 'Not specified'}
+Use Environment: ${data.context.useEnvironment || 'Not specified'}
+Similar Devices: ${data.context.similarDevices || 'None specified'}
+Device Classification: ${data.context.deviceClass || 'Not specified'}
+
+Derive comprehensive design inputs. Respond with ONLY valid JSON:
+{
+  "functionalRequirements": [
+    {"requirement": "...", "source": "...", "verifiable": true, "testMethod": "..."}
+  ],
+  "performanceRequirements": [
+    {"requirement": "...", "source": "...", "verifiable": true, "testMethod": "..."}
+  ],
+  "safetyRequirements": [
+    {"requirement": "...", "source": "...", "regulatoryBasis": "...", "riskRef": "..."}
+  ],
+  "regulatoryRequirements": [
+    {"requirement": "...", "regulation": "...", "clause": "..."}
+  ],
+  "usabilityRequirements": [
+    {"requirement": "...", "humanFactorsConsideration": "..."}
+  ],
+  "verificationApproach": ["..."],
+  "validationApproach": ["..."],
+  "gaps": ["..."]
 }`;
     }
 

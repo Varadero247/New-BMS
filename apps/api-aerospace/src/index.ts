@@ -28,6 +28,10 @@ import { prisma } from './prisma';
 const logger = createLogger('api-aerospace');
 
 import configRouter from './routes/configuration';
+import faiRouter from './routes/fai';
+import workordersRouter from './routes/workorders';
+import humanFactorsRouter from './routes/human-factors';
+import oasisRouter from './routes/oasis';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4012;
@@ -56,6 +60,14 @@ app.get('/metrics', metricsHandler);
 
 // Routes - AS9100D Aerospace Configuration Management
 app.use('/api/configuration', configRouter);
+// Routes - AS9102 First Article Inspection
+app.use('/api/fai', faiRouter);
+// Routes - MRO Work Orders (AS9110)
+app.use('/api/workorders', workordersRouter);
+// Routes - Human Factors (ICAO/Transport Canada)
+app.use('/api/human-factors', humanFactorsRouter);
+// Routes - OASIS Database Integration (S4-04)
+app.use('/api/oasis', oasisRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

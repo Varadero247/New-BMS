@@ -137,3 +137,467 @@ enum GateDecision {
   REJECTED
   DEFERRED
 }
+
+// ============================================
+// PPAP (Production Part Approval Process)
+// ============================================
+
+model PpapProject {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // PPAP-YYMM-XXXX
+  partNumber      String
+  partName        String
+  customer        String
+  submissionLevel Int       @default(3) // 1-5
+  status          PpapStatus @default(PLANNING)
+  apqpProjectId   String?   // Link to APQP project if applicable
+  elements        PpapElement[]
+  submissions     PpapSubmission[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@index([customer])
+  @@map("ppap_projects")
+}
+
+model PpapElement {
+  id            String    @id @default(cuid())
+  projectId     String
+  elementNumber Int       // 1-18
+  elementName   String
+  status        PpapElementStatus @default(NOT_STARTED)
+  required      Boolean   @default(true)
+  documentRef   String?
+  notes         String?
+  reviewedBy    String?
+  reviewedDate  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       PpapProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, elementNumber])
+  @@index([projectId])
+  @@index([status])
+  @@map("ppap_elements")
+}
+
+model PpapSubmission {
+  id              String    @id @default(cuid())
+  projectId       String
+  submissionLevel Int
+  pswNumber       String?   @unique  // Part Submission Warrant number
+  submittedBy     String?
+  submittedDate   DateTime?
+  status          PpapSubmissionStatus @default(PENDING)
+  customerDecision PpapDecision?
+  customerNotes   String?
+  dispositionDate DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         PpapProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("ppap_submissions")
+}
+
+// ============================================
+// SPC (Statistical Process Control)
+// ============================================
+
+model SpcChart {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // SPC-YYMM-XXXX
+  title           String
+  characteristic  String
+  partNumber      String?
+  partName        String?
+  operationNumber String?
+  chartType       SpcChartType @default(XBAR_R)
+  usl             Float?    // Upper Spec Limit
+  lsl             Float?    // Lower Spec Limit
+  target          Float?
+  subgroupSize    Int       @default(5)
+  unit            String?
+  frequency       String?
+  notes           String?
+  status          SpcChartStatus @default(ACTIVE)
+  dataPoints      SpcDataPoint[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@map("spc_charts")
+}
+
+model SpcDataPoint {
+  id            String    @id @default(cuid())
+  chartId       String
+  value         Float
+  subgroup      Int?
+  timestamp     DateTime  @default(now())
+  operator      String?
+  defectives    Int?
+  sampleSize    Int?
+  outOfControl  Boolean   @default(false)
+  violationRules String[] // Which Western Electric rules were violated
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  chart         SpcChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+
+  @@index([chartId])
+  @@index([timestamp])
+  @@map("spc_data_points")
+}
+
+// ============================================
+// CONTROL PLANS
+// ============================================
+
+model ControlPlan {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // CP-YYMM-XXXX
+  title           String
+  partNumber      String
+  partName        String
+  planType        ControlPlanType @default(PRODUCTION)
+  status          ControlPlanStatus @default(DRAFT)
+  revision        String    @default("A")
+  approvedBy      String?
+  approvedDate    DateTime?
+  characteristics ControlPlanChar[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@map("control_plans")
+}
+
+model ControlPlanChar {
+  id                String    @id @default(cuid())
+  planId            String
+  processNumber     String
+  processName       String
+  machineDevice     String?
+  characteristicName String
+  characteristicType CharacteristicType @default(PRODUCT)
+  specialCharClass  String?   // CC, SC, KPC, or null
+  specification     String
+  tolerance         String?
+  evalTechnique     String    // Measurement technique
+  sampleSize        String
+  sampleFrequency   String
+  controlMethod     String
+  reactionPlan      String
+  pfmeaRef          String?   // Link to PFMEA cause
+  spcChartId        String?   // Link to SPC chart
+  workInstructionRef String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  plan              ControlPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@map("control_plan_chars")
+}
+
+// ============================================
+// MSA (Measurement System Analysis)
+// ============================================
+
+model MsaStudy {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // MSA-YYMM-XXXX
+  title           String
+  studyType       MsaStudyType
+  gageName        String
+  gageId          String?
+  characteristic  String
+  specification   String?
+  tolerance       String?
+  status          MsaStudyStatus @default(PLANNED)
+  operatorCount   Int       @default(2)
+  operators       String[]
+  numParts        Int       @default(10)
+  numTrials       Int       @default(3)
+  measurements    MsaMeasurement[]
+  repeatability   Float?    // % of tolerance
+  reproducibility Float?    // % of tolerance
+  totalGRR        Float?    // Total GR&R %
+  grrPercent      Float?    // GR&R as percentage
+  ev              Float?    // Equipment Variation (Repeatability)
+  av              Float?    // Appraiser Variation (Reproducibility)
+  grr             Float?    // Total GR&R absolute
+  pv              Float?    // Part Variation
+  tv              Float?    // Total Variation
+  ndc             Int?      // Number of distinct categories
+  result          MsaResult?
+  completedDate   DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("msa_studies")
+}
+
+model MsaMeasurement {
+  id          String    @id @default(cuid())
+  studyId     String
+  operator    String
+  partNumber  Int
+  trial       Int
+  value       Float
+  createdAt   DateTime  @default(now())
+
+  study       MsaStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@index([studyId])
+  @@map("msa_measurements")
+}
+
+// ============================================
+// ADDITIONAL ENUMS
+// ============================================
+
+enum PpapStatus {
+  DRAFT
+  PLANNING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+  ON_HOLD
+}
+
+enum PpapSubmissionStatus {
+  PENDING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum PpapElementStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  NOT_APPLICABLE
+  REJECTED
+}
+
+enum PpapDecision {
+  APPROVED
+  INTERIM_APPROVAL
+  REJECTED
+}
+
+enum SpcChartType {
+  XBAR_R
+  XBAR_S
+  IMR
+  P
+  NP
+  C
+  U
+}
+
+enum SpcChartStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ControlPlanType {
+  PROTOTYPE
+  PRE_LAUNCH
+  PRODUCTION
+}
+
+enum ControlPlanStatus {
+  DRAFT
+  ACTIVE
+  APPROVED
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum CharacteristicType {
+  PRODUCT
+  PROCESS
+}
+
+enum MsaStudyType {
+  GRR_CROSSED
+  GRR_NESTED
+  BIAS
+  LINEARITY
+  STABILITY
+  ATTRIBUTE
+}
+
+enum MsaStudyStatus {
+  DRAFT
+  PLANNED
+  DATA_COLLECTION
+  DATA_COLLECTED
+  ANALYSIS
+  COMPLETED
+}
+
+enum MsaResult {
+  ACCEPTABLE
+  CONDITIONAL
+  UNACCEPTABLE
+}
+
+// ============================================
+// CSR Register (Customer-Specific Requirements)
+// ============================================
+
+model CsrRequirement {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  oem             String    // e.g. "GM", "Ford", "Stellantis"
+  oemVersion      String?
+  effectiveDate   DateTime?
+  iatfClause      String    // IATF 16949 clause reference e.g. "8.3.2.1"
+  requirementText String
+  complianceStatus CsrComplianceStatus @default(NOT_ASSESSED)
+  gapNotes        String?
+  actionRequired  String?
+  assignedTo      String?
+  dueDate         DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, oem])
+  @@index([iatfClause])
+  @@index([complianceStatus])
+  @@map("csr_requirements")
+}
+
+enum CsrComplianceStatus {
+  COMPLIANT
+  PARTIAL
+  NOT_ASSESSED
+  NON_COMPLIANT
+}
+
+// ============================================
+// LPA (Layered Process Audits)
+// ============================================
+
+model LpaSchedule {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  processArea     String
+  layer           Int       // 1-4
+  frequency       LpaFrequency
+  questions       LpaQuestion[]
+  audits          LpaAudit[]
+  active          Boolean   @default(true)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, layer])
+  @@map("lpa_schedules")
+}
+
+model LpaQuestion {
+  id              String    @id @default(cuid())
+  scheduleId      String
+  questionText    String
+  category        String?
+  sortOrder       Int       @default(0)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  schedule        LpaSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+  @@map("lpa_questions")
+}
+
+model LpaAudit {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // LPA-YYMM-XXXX
+  scheduleId      String
+  auditor         String
+  layer           Int
+  processArea     String
+  status          LpaAuditStatus @default(IN_PROGRESS)
+  responses       LpaResponse[]
+  totalQuestions   Int       @default(0)
+  passCount       Int       @default(0)
+  failCount       Int       @default(0)
+  naCount         Int       @default(0)
+  score           Float?    // Pass %
+  notes           String?
+  completedAt     DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  schedule        LpaSchedule @relation(fields: [scheduleId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([scheduleId])
+  @@map("lpa_audits")
+}
+
+model LpaResponse {
+  id              String    @id @default(cuid())
+  auditId         String
+  questionId      String
+  questionText    String
+  result          LpaResult
+  notes           String?
+  capaRef         String?
+  createdAt       DateTime  @default(now())
+
+  audit           LpaAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@map("lpa_responses")
+}
+
+enum LpaFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum LpaAuditStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum LpaResult {
+  PASS
+  FAIL
+  NOT_APPLICABLE
+}

@@ -288,3 +288,702 @@ enum DHFCategory {
   CHANGE_ORDER
   OTHER
 }
+
+// ============================================
+// DMR (Device Master Record) - FDA 21 CFR 820.181
+// ============================================
+
+model DeviceMasterRecord {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // DMR-YYMM-XXXX
+  deviceName      String
+  deviceId        String?
+  deviceClass     DeviceClass
+  description     String?
+  specifications  String?   // JSON: specs
+  productionProcesses String? // JSON: processes
+  qualityProcedures String?
+  acceptanceCriteria String?
+  labellingSpecs  String?
+  packagingSpecs  String?
+  installationProcs String?
+  servicingProcs  String?
+  status          DMRStatus @default(DRAFT)
+  currentVersion  String    @default("1.0")
+  approvedBy      String?
+  approvedDate    DateTime?
+  esignatureId    String?
+  dhrs            DeviceHistoryRecord[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([deviceName])
+  @@map("device_master_records")
+}
+
+model DeviceHistoryRecord {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // DHR-YYMM-XXXX
+  dmrId           String
+  batchNumber     String
+  manufacturingDate DateTime
+  quantityManufactured Int
+  quantityReleased    Int?
+  quantityRejected    Int?
+  status          DHRStatus @default(IN_PRODUCTION)
+  productionRecords DHRRecord[]
+  labelsUsed      String?
+  primaryId       String?   // UDI-PI or serial range
+  deviationNotes  String?
+  releasedBy      String?
+  releaseDate     DateTime?
+  esignatureId    String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  dmr             DeviceMasterRecord @relation(fields: [dmrId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([dmrId])
+  @@index([batchNumber])
+  @@map("device_history_records")
+}
+
+model DHRRecord {
+  id          String    @id @default(cuid())
+  dhrId       String
+  recordType  DHRRecordType
+  title       String
+  description String?
+  result      String?
+  pass        Boolean?
+  documentRef String?
+  performedBy String?
+  performedDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  dhr         DeviceHistoryRecord @relation(fields: [dhrId], references: [id], onDelete: Cascade)
+
+  @@index([dhrId])
+  @@map("dhr_records")
+}
+
+// ============================================
+// ISO 14971 Risk Management
+// ============================================
+
+model RiskManagementFile {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // RMF-YYMM-XXXX
+  title           String
+  deviceName      String
+  deviceClass     DeviceClass
+  intendedUse     String?
+  riskPolicy      String?   // Acceptability criteria description
+  status          RMFStatus @default(ACTIVE)
+  overallRiskAcceptable Boolean?
+  benefitRiskAcceptable Boolean?
+  benefitRiskAnalysis String?
+  reportSummary   String?
+  hazards         Hazard[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("risk_management_files")
+}
+
+model Hazard {
+  id              String    @id @default(cuid())
+  fileId          String
+  hazardId        String?   // H-001, H-002 etc
+  hazardCategory  HazardCategory
+  hazardDescription String
+  hazardousSituation String
+  harm            String
+  severityBefore  Int       // 1-5
+  probabilityBefore Int     // 1-5
+  riskLevelBefore MedRiskLevel
+  controls        RiskControl[]
+  severityAfter   Int?      // 1-5 residual
+  probabilityAfter Int?     // 1-5 residual
+  riskLevelAfter  MedRiskLevel?
+  residualRiskAcceptable Boolean?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  file            RiskManagementFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@map("hazards")
+}
+
+model RiskControl {
+  id              String    @id @default(cuid())
+  hazardId        String
+  controlType     RiskControlType
+  description     String
+  implementationStatus ControlImplStatus @default(PLANNED)
+  verificationMethod String?
+  verificationResult String?
+  verified        Boolean   @default(false)
+  verifiedDate    DateTime?
+  verifiedBy      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  hazard          Hazard @relation(fields: [hazardId], references: [id], onDelete: Cascade)
+
+  @@index([hazardId])
+  @@map("risk_controls")
+}
+
+// ============================================
+// COMPLAINT HANDLING & MDR / VIGILANCE
+// ============================================
+
+model Complaint {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // COMP-YYMM-XXXX
+  deviceName      String
+  deviceId        String?
+  lotNumber       String?
+  serialNumber    String?
+  complaintDate   DateTime
+  source          ComplaintSource
+  reporterName    String?
+  reporterContact String?
+  description     String
+  patientInvolved Boolean   @default(false)
+  injuryOccurred  Boolean   @default(false)
+  injuryDescription String?
+  deathOccurred   Boolean   @default(false)
+  malfunctionOccurred Boolean @default(false)
+  severity        ComplaintSeverity @default(MINOR)
+  status          ComplaintStatus @default(RECEIVED)
+  investigationSummary String?
+  rootCause       String?
+  correctiveAction String?
+  capaRef         String?
+  mdrReportable   Boolean?
+  mdrDecisionDate DateTime?
+  mdrDecisionBy   String?
+  mdrReportRef    String?
+  closedDate      DateTime?
+  closedBy        String?
+  esignatureId    String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([deviceName])
+  @@index([mdrReportable])
+  @@index([complaintDate])
+  @@map("complaints")
+}
+
+// ============================================
+// ADDITIONAL ENUMS
+// ============================================
+
+enum DMRStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  SUPERSEDED
+  OBSOLETE
+}
+
+enum DHRStatus {
+  IN_PRODUCTION
+  QC_REVIEW
+  RELEASED
+  REJECTED
+  QUARANTINE
+}
+
+enum DHRRecordType {
+  INCOMING_INSPECTION
+  IN_PROCESS_TEST
+  FINAL_TEST
+  ACCEPTANCE_RECORD
+  DEVIATION
+  LABEL_RECORD
+  PACKAGING_RECORD
+  ENVIRONMENTAL_RECORD
+}
+
+enum RMFStatus {
+  ACTIVE
+  REVIEW
+  CLOSED
+  ARCHIVED
+}
+
+enum HazardCategory {
+  ENERGY
+  BIOLOGICAL
+  CHEMICAL
+  OPERATIONAL
+  INFORMATION
+  SOFTWARE
+  USE_ERROR
+  ENVIRONMENTAL
+}
+
+enum MedRiskLevel {
+  NEGLIGIBLE
+  LOW
+  MEDIUM
+  HIGH
+  UNACCEPTABLE
+}
+
+enum RiskControlType {
+  INHERENT_SAFETY
+  PROTECTIVE_MEASURE
+  INFORMATION_FOR_SAFETY
+}
+
+enum ControlImplStatus {
+  PLANNED
+  IMPLEMENTED
+  VERIFIED
+  INEFFECTIVE
+}
+
+enum ComplaintSource {
+  CUSTOMER
+  FIELD_SERVICE
+  INTERNAL
+  REGULATORY
+  DISTRIBUTOR
+  HEALTHCARE_PROVIDER
+  PATIENT
+}
+
+enum ComplaintSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  LIFE_THREATENING
+}
+
+enum ComplaintStatus {
+  RECEIVED
+  UNDER_INVESTIGATION
+  MDR_REVIEW
+  CAPA_INITIATED
+  CLOSED
+  CLOSED_NO_ACTION
+}
+
+// ============================================
+// UDI Management (EU MDR / FDA)
+// ============================================
+
+model UdiDevice {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // UDI-YYMM-XXXX
+  deviceName      String
+  modelNumber     String
+  manufacturer    String
+  deviceClass     DeviceClass
+  riskClass       String?
+  gmdn            String?   // GMDN code
+  emdn            String?   // EMDN code
+  diRecords       UdiDiRecord[]
+  piRecords       UdiPiRecord[]
+  submissions     UdiSubmission[]
+  status          UdiDeviceStatus @default(DRAFT)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([modelNumber])
+  @@map("udi_devices")
+}
+
+model UdiDiRecord {
+  id              String    @id @default(cuid())
+  deviceId        String
+  issuingAgency   String    // GS1, HIBCC, ICCBBA
+  diCode          String    @unique
+  version         String?
+  createdAt       DateTime  @default(now())
+
+  device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@map("udi_di_records")
+}
+
+model UdiPiRecord {
+  id              String    @id @default(cuid())
+  deviceId        String
+  lotNumber       String?
+  serialNumber    String?
+  manufacturingDate DateTime?
+  expirationDate  DateTime?
+  createdAt       DateTime  @default(now())
+
+  device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@map("udi_pi_records")
+}
+
+model UdiSubmission {
+  id              String    @id @default(cuid())
+  deviceId        String
+  database        UdiDatabase
+  submissionDate  DateTime?
+  status          UdiSubmissionStatus @default(PENDING)
+  referenceNumber String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@map("udi_submissions")
+}
+
+enum DeviceClass {
+  CLASS_I
+  CLASS_IIA
+  CLASS_IIB
+  CLASS_III
+}
+
+enum UdiDeviceStatus {
+  DRAFT
+  ACTIVE
+  DISCONTINUED
+  RECALLED
+}
+
+enum UdiDatabase {
+  GUDID
+  EUDAMED
+  UKCA
+}
+
+enum UdiSubmissionStatus {
+  PENDING
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  UPDATE_REQUIRED
+}
+
+// ============================================
+// Post-Market Surveillance (EU MDR Article 83-86)
+// ============================================
+
+model PmsPlan {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // PMS-YYMM-XXXX
+  deviceName      String
+  deviceClass     String?
+  dataSources     String[]  // JSON: complaints, MDRs, literature, MAUDE, etc.
+  reviewFrequency String?   // e.g. "ANNUAL", "BIANNUAL"
+  status          PmsPlanStatus @default(DRAFT)
+  lastReviewDate  DateTime?
+  nextReviewDate  DateTime?
+  reports         PmsReport[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("pms_plans")
+}
+
+model PmsReport {
+  id              String    @id @default(cuid())
+  planId          String
+  reportType      PmsReportType
+  refNumber       String?
+  periodStart     DateTime
+  periodEnd       DateTime
+  complaintCount  Int       @default(0)
+  mdrCount        Int       @default(0)
+  adverseEvents   Int       @default(0)
+  literatureRefs  String?
+  trendAnalysis   String?
+  conclusions     String?
+  actions         String?
+  status          PmsReportStatus @default(DRAFT)
+  approvedBy      String?
+  approvedDate    DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  plan            PmsPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@map("pms_reports")
+}
+
+enum PmsPlanStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  ARCHIVED
+}
+
+enum PmsReportType {
+  PSUR
+  PMCF
+  PMS_REPORT
+  TREND_REPORT
+}
+
+enum PmsReportStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+}
+
+// ============================================
+// Software Validation (IEC 62304)
+// ============================================
+
+model SoftwareProject {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // SW-YYMM-XXXX
+  title           String
+  description     String?
+  safetyClass     SoftwareSafetyClass
+  currentPhase    SoftwarePhase @default(PLANNING)
+  soupItems       SoupItem[]
+  anomalies       SoftwareAnomaly[]
+  phases          SoftwarePhaseDoc[]
+  status          SoftwareProjectStatus @default(ACTIVE)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("software_projects")
+}
+
+model SoupItem {
+  id              String    @id @default(cuid())
+  projectId       String
+  title           String
+  vendor          String?
+  version         String
+  intendedUse     String?
+  knownAnomalies  String?
+  riskAcceptable  Boolean   @default(false)
+  verifiedDate    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         SoftwareProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("soup_items")
+}
+
+model SoftwareAnomaly {
+  id              String    @id @default(cuid())
+  projectId       String
+  refNumber       String?
+  title           String
+  description     String
+  severity        AnomalySeverity @default(MINOR)
+  status          AnomalyStatus @default(OPEN)
+  resolution      String?
+  resolvedDate    DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         SoftwareProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("software_anomalies")
+}
+
+model SoftwarePhaseDoc {
+  id              String    @id @default(cuid())
+  projectId       String
+  phase           SoftwarePhase
+  documentRef     String?
+  content         String?
+  status          PhaseDocStatus @default(NOT_STARTED)
+  reviewedBy      String?
+  reviewedDate    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         SoftwareProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, phase])
+  @@index([projectId])
+  @@map("software_phase_docs")
+}
+
+enum SoftwareSafetyClass {
+  CLASS_A
+  CLASS_B
+  CLASS_C
+}
+
+enum SoftwarePhase {
+  PLANNING
+  REQUIREMENTS
+  ARCHITECTURE
+  DETAILED_DESIGN
+  IMPLEMENTATION
+  UNIT_TESTING
+  INTEGRATION_TESTING
+  SYSTEM_TESTING
+  RELEASE
+}
+
+enum SoftwareProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum AnomalySeverity {
+  COSMETIC
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+enum AnomalyStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+  WONT_FIX
+}
+
+enum PhaseDocStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  REVIEW
+  APPROVED
+}
+
+// ============================================
+// REGULATORY SUBMISSIONS TRACKER (S4-05)
+// ============================================
+
+model RegulatorySubmission {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // REG-YYMM-XXXX
+  deviceName      String
+  market          RegulatoryMarket
+  submissionType  SubmissionType
+  status          SubmissionStatus @default(PREPARATION)
+  submittedDate   DateTime?
+  approvalDate    DateTime?
+  expiryDate      DateTime?
+  referenceNumber String?   // Regulatory body reference (e.g. K-number)
+  conditions      String?   // Conditions of approval
+  notes           String?
+  changes         RegSubmissionChange[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, market])
+  @@index([status])
+  @@map("regulatory_submissions")
+}
+
+model RegSubmissionChange {
+  id              String    @id @default(cuid())
+  submissionId    String
+  changeType      String    // e.g. "Label Change", "Design Modification"
+  description     String
+  notificationDate DateTime?
+  regulatoryResponse String?
+  status          ChangeNotificationStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  submission      RegulatorySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("reg_submission_changes")
+}
+
+enum RegulatoryMarket {
+  FDA_510K
+  FDA_DE_NOVO
+  FDA_PMA
+  EU_CE_MDR
+  EU_CE_IVDR
+  UKCA
+  HEALTH_CANADA
+  TGA_AUSTRALIA
+  PMDA_JAPAN
+  NMPA_CHINA
+  ANVISA_BRAZIL
+}
+
+enum SubmissionType {
+  INITIAL
+  SUPPLEMENT
+  RENEWAL
+  AMENDMENT
+  NOTIFICATION
+}
+
+enum SubmissionStatus {
+  PREPARATION
+  SUBMITTED
+  UNDER_REVIEW
+  ADDITIONAL_INFO_REQUESTED
+  APPROVED
+  CONDITIONALLY_APPROVED
+  REJECTED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum ChangeNotificationStatus {
+  PENDING
+  SUBMITTED
+  ACKNOWLEDGED
+  APPROVED
+  REJECTED
+}

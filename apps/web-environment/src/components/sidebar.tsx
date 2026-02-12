@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Home,
   Settings,
+  ShieldAlert,
+  Recycle,
 } from 'lucide-react';
 
 const navigation = [
@@ -22,6 +24,8 @@ const navigation = [
   { name: 'Objectives', href: '/objectives', icon: Target },
   { name: 'Actions', href: '/actions', icon: ClipboardList },
   { name: 'CAPA', href: '/capa', icon: RefreshCw },
+  { name: 'Emergency Preparedness', href: '/emergency', icon: ShieldAlert },
+  { name: 'Life Cycle Assessment', href: '/lifecycle', icon: Recycle },
 ];
 
 const externalLinks = [

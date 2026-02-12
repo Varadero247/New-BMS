@@ -15,6 +15,8 @@ import {
   Eye,
   Home,
   Award,
+  Wrench,
+  Users,
 } from 'lucide-react';
 
 // Aerospace Section
@@ -29,10 +31,12 @@ const aerospaceNavigation = [
 
 // Modules Section
 const modulesNavigation = [
-  { name: 'First Article', href: '/first-article', icon: FileCheck },
+  { name: 'First Article Inspection', href: '/fai', icon: FileCheck },
   { name: 'Special Processes', href: '/special-processes', icon: Zap },
   { name: 'Counterfeit Parts', href: '/counterfeit', icon: AlertOctagon },
   { name: 'FOD Prevention', href: '/fod', icon: Eye },
+  { name: 'MRO Work Orders', href: '/workorders', icon: Wrench },
+  { name: 'Human Factors', href: '/human-factors', icon: Users },
 ];
 
 const externalLinks = [

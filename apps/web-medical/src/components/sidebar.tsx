@@ -16,12 +16,17 @@ import {
   Home,
   Award,
   Settings,
+  FileText,
+  Barcode,
+  Activity,
+  Code,
 } from 'lucide-react';
 
 // Medical Device Section
 const medicalNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Design Controls', href: '/design-controls', icon: Pencil },
+  { name: 'Device Records (DMR/DHR)', href: '/device-records', icon: FileText },
   { name: 'Risk Management', href: '/risk-management', icon: AlertTriangle },
   { name: 'DHF Records', href: '/dhf', icon: FolderOpen },
   { name: 'Verification', href: '/verification', icon: CheckSquare },
@@ -34,6 +39,9 @@ const modulesNavigation = [
   { name: 'Complaints', href: '/complaints', icon: MessageSquare },
   { name: 'Supplier Controls', href: '/suppliers', icon: Truck },
   { name: 'Traceability', href: '/traceability', icon: GitBranch },
+  { name: 'UDI Management', href: '/udi', icon: Barcode },
+  { name: 'Post-Market Surveillance', href: '/pms', icon: Activity },
+  { name: 'Software Validation', href: '/software', icon: Code },
 ];
 
 const externalLinks = [

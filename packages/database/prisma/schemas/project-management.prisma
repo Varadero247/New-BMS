@@ -855,3 +855,66 @@ model ProjectStatusReport {
   @@index([reportType])
   @@map("project_status_reports")
 }
+
+// ============================================
+// BENEFITS REALISATION MANAGEMENT (S4-06 — ISO 21502)
+// ============================================
+
+model Benefit {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // BEN-YYMM-XXXX
+  title           String
+  description     String?
+  benefitType     BenefitType
+  owner           String
+  projectId       String?
+  baselineValue   Float
+  targetValue     Float
+  currentValue    Float?
+  unit            String    // e.g. "GBP", "hours", "percentage"
+  measurementMethod String?
+  realisationDate DateTime?
+  status          BenefitStatus @default(IDENTIFIED)
+  measurements    BenefitMeasurement[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, benefitType])
+  @@index([status])
+  @@map("benefits")
+}
+
+model BenefitMeasurement {
+  id              String    @id @default(cuid())
+  benefitId       String
+  measuredValue   Float
+  measureDate     DateTime
+  notes           String?
+  measuredBy      String?
+  createdAt       DateTime  @default(now())
+
+  benefit         Benefit @relation(fields: [benefitId], references: [id], onDelete: Cascade)
+
+  @@index([benefitId])
+  @@index([measureDate])
+  @@map("benefit_measurements")
+}
+
+enum BenefitType {
+  FINANCIAL
+  STRATEGIC
+  OPERATIONAL
+  SOCIAL_ENVIRONMENTAL
+}
+
+enum BenefitStatus {
+  IDENTIFIED
+  PLANNED
+  TRACKING
+  REALISED
+  EXCEEDED
+  NOT_ACHIEVED
+}

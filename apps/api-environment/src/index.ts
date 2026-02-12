@@ -35,6 +35,8 @@ import actionsRouter from './routes/actions';
 import capaRouter from './routes/capa';
 import auditsRouter from './routes/audits';
 import managementReviewsRouter from './routes/management-reviews';
+import emergencyRouter from './routes/emergency';
+import lifecycleRouter from './routes/lifecycle';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4002;
@@ -70,6 +72,8 @@ app.use('/api/actions', actionsRouter);
 app.use('/api/capa', capaRouter);
 app.use('/api/audits', auditsRouter);
 app.use('/api/management-reviews', managementReviewsRouter);
+app.use('/api/emergency', emergencyRouter);
+app.use('/api/lifecycle', lifecycleRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -19,6 +19,7 @@
     "@ims/monitoring": "workspace:*",
     "@ims/service-auth": "workspace:*",
     "@ims/shared": "workspace:*",
+    "@ims/spc-engine": "workspace:*",
     "@ims/types": "workspace:*",
     "@ims/validation": "workspace:*",
     "cors": "^2.8.5",

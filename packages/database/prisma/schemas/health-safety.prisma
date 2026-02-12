@@ -970,3 +970,53 @@ enum HSMRActionStatus {
   COMPLETE
   OVERDUE
 }
+
+// ============================================
+// COMMUNICATION REGISTER (S4-07 — H&S side)
+// ============================================
+
+model HSCommunication {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique
+  direction       HSCommDirection
+  commType        HSCommType
+  subject         String
+  description     String?
+  stakeholders    String[]
+  date            DateTime
+  responseRequired Boolean  @default(false)
+  responseDate    DateTime?
+  responseNotes   String?
+  status          HSCommStatus @default(OPEN)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, direction])
+  @@index([status])
+  @@index([date])
+  @@map("hs_communications")
+}
+
+enum HSCommDirection {
+  INTERNAL
+  EXTERNAL
+}
+
+enum HSCommType {
+  WORKER_CONSULTATION
+  MANAGEMENT_NOTIFICATION
+  REGULATORY_COMMUNICATION
+  EXTERNAL_STAKEHOLDER
+  CONTRACTOR_BRIEFING
+  TOOLBOX_TALK
+  COMMITTEE_MEETING
+}
+
+enum HSCommStatus {
+  OPEN
+  RESPONDED
+  CLOSED
+}

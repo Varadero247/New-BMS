@@ -1044,3 +1044,271 @@ enum WasteStatus {
   TRANSPORTED
   DISPOSED
 }
+
+// ============================================
+// Emergency Preparedness (ISO 14001 Clause 8.2)
+// ============================================
+
+model EnvEmergencyPlan {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // EEP-YYMM-XXXX
+  title           String
+  scenario        String
+  triggerConditions String
+  immediateResponse String
+  notificationReqs String?   // Regulators, emergency services
+  containmentProcs String?
+  impactMitigation String?
+  recoveryActions String?
+  reviewSchedule  String?
+  status          EmergencyPlanStatus @default(DRAFT)
+  lastReviewDate  DateTime?
+  nextReviewDate  DateTime?
+  drills          EnvEmergencyDrill[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("env_emergency_plans")
+}
+
+model EnvEmergencyDrill {
+  id              String    @id @default(cuid())
+  planId          String
+  drillDate       DateTime
+  drillType       String    // TABLETOP, FUNCTIONAL, FULL_SCALE
+  participants    String[]
+  scenario        String?
+  outcome         DrillOutcome @default(SATISFACTORY)
+  lessonsLearned  String?
+  actionsRequired String?
+  conductedBy     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  plan            EnvEmergencyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@map("env_emergency_drills")
+}
+
+model EnvEmergencyIncident {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String?
+  title           String
+  description     String
+  incidentDate    DateTime
+  location        String?
+  environmentalImpact String?
+  containmentActions String?
+  regulatoryNotified Boolean @default(false)
+  status          EmergencyIncidentStatus @default(ACTIVE)
+  linkedPlanId    String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, status])
+  @@map("env_emergency_incidents")
+}
+
+enum EmergencyPlanStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  ARCHIVED
+}
+
+enum DrillOutcome {
+  SATISFACTORY
+  NEEDS_IMPROVEMENT
+  UNSATISFACTORY
+}
+
+enum EmergencyIncidentStatus {
+  ACTIVE
+  CONTAINED
+  RESOLVED
+  CLOSED
+}
+
+// ============================================
+// Life Cycle Perspective (ISO 14001 Clause 8.1)
+// ============================================
+
+model LifeCycleAssessment {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // LCA-YYMM-XXXX
+  title           String
+  productProcess  String    // Product or process being assessed
+  description     String?
+  stages          LifeCycleStage[]
+  status          LcaStatus @default(DRAFT)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("life_cycle_assessments")
+}
+
+model LifeCycleStage {
+  id              String    @id @default(cuid())
+  assessmentId    String
+  stageName       LcaStageName
+  aspects         String?   // Environmental aspects at this stage
+  impacts         String?   // Environmental impacts
+  severity        Int?      // 1-5
+  controls        String?   // Control measures
+  supplierReqs    String?   // Supplier requirements
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  assessment      LifeCycleAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assessmentId, stageName])
+  @@index([assessmentId])
+  @@map("life_cycle_stages")
+}
+
+enum LcaStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+enum LcaStageName {
+  RAW_MATERIAL_EXTRACTION
+  MANUFACTURING
+  DISTRIBUTION
+  USE
+  END_OF_LIFE
+}
+
+// ============================================
+// ESG / SUSTAINABILITY (S4-01)
+// ============================================
+
+model EsgMetric {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  category        EsgCategory
+  subcategory     String    // e.g. "Scope 1", "Water Consumption"
+  period          String    // e.g. "2026-01", "2026-Q1"
+  value           Float
+  unit            String    // e.g. "tCO2e", "kWh", "m3", "tonnes"
+  source          String?   // Data source
+  verified        Boolean   @default(false)
+  verifiedBy      String?
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, category])
+  @@index([period])
+  @@map("esg_metrics")
+}
+
+model EsgTarget {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique
+  category        EsgCategory
+  subcategory     String
+  description     String
+  baselineValue   Float
+  baselineYear    Int
+  targetValue     Float
+  targetYear      Int
+  unit            String
+  status          EsgTargetStatus @default(ON_TRACK)
+  currentValue    Float?
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, category])
+  @@index([status])
+  @@map("esg_targets")
+}
+
+enum EsgCategory {
+  GHG_SCOPE_1
+  GHG_SCOPE_2
+  GHG_SCOPE_3
+  ENERGY
+  WATER
+  WASTE
+  BIODIVERSITY
+  SOCIAL
+  GOVERNANCE
+}
+
+enum EsgTargetStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  ACHIEVED
+  CANCELLED
+}
+
+// ============================================
+// COMMUNICATION REGISTER (S4-07 — Environment side)
+// ============================================
+
+model EnvCommunication {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique
+  direction       CommDirection
+  commType        CommType
+  subject         String
+  description     String?
+  stakeholders    String[]
+  date            DateTime
+  responseRequired Boolean  @default(false)
+  responseDate    DateTime?
+  responseNotes   String?
+  status          CommStatus @default(OPEN)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, direction])
+  @@index([status])
+  @@index([date])
+  @@map("env_communications")
+}
+
+enum CommDirection {
+  INTERNAL
+  EXTERNAL
+}
+
+enum CommType {
+  WORKER_CONSULTATION
+  MANAGEMENT_NOTIFICATION
+  REGULATORY_COMMUNICATION
+  EXTERNAL_STAKEHOLDER
+  CONTRACTOR_BRIEFING
+  TOOLBOX_TALK
+  COMMITTEE_MEETING
+}
+
+enum CommStatus {
+  OPEN
+  RESPONDED
+  CLOSED
+}

@@ -1660,3 +1660,303 @@ enum NPSCategory {
   PASSIVE
   DETRACTOR
 }
+
+// ============================================
+// COUNTERFEIT PARTS PREVENTION
+// ============================================
+
+model CounterfeitReport {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // SUCP-YYMM-XXXX
+  partNumber      String
+  partName        String?
+  manufacturer    String
+  distributor     String?
+  lotNumber       String?
+  serialNumber    String?
+  reportDate      DateTime  @default(now())
+  reportedBy      String
+  suspicionReason String
+  evidence        String?
+  status          CounterfeitStatus @default(REPORTED)
+  investigationNotes String?
+  quarantineId    String?
+  gidepReported   Boolean   @default(false)
+  gidepRef        String?
+  disposition     CounterfeitDisposition?
+  dispositionDate DateTime?
+  dispositionBy   String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@map("counterfeit_reports")
+}
+
+model ApprovedSource {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  companyName     String
+  cageCode        String?
+  partNumbers     String[]
+  certifications  String[]  // e.g. ["AS9100", "ISO 9001", "NADCAP"]
+  approvalDate    DateTime
+  expiryDate      DateTime?
+  status          ApprovedSourceStatus @default(APPROVED)
+  notes           String?
+  lastAuditDate   DateTime?
+  riskRating      SourceRiskRating @default(LOW)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, status])
+  @@index([cageCode])
+  @@map("approved_sources")
+}
+
+model QuarantineRecord {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // QR-YYMM-XXXX
+  partNumber      String
+  quantity        Int
+  location        String
+  reason          String
+  reportId        String?   // Link to CounterfeitReport
+  status          QuarantineStatus @default(QUARANTINED)
+  dispositionAction String?
+  releasedDate    DateTime?
+  releasedBy      String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tenantId, status])
+  @@map("quarantine_records")
+}
+
+// Counterfeit enums
+enum CounterfeitStatus {
+  REPORTED
+  UNDER_INVESTIGATION
+  CONFIRMED_COUNTERFEIT
+  CONFIRMED_AUTHENTIC
+  INCONCLUSIVE
+  CLOSED
+}
+
+enum CounterfeitDisposition {
+  DESTROY
+  RETURN_TO_SUPPLIER
+  QUARANTINE
+  CLEARED
+}
+
+enum ApprovedSourceStatus {
+  APPROVED
+  CONDITIONAL
+  SUSPENDED
+  REVOKED
+}
+
+enum SourceRiskRating {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum QuarantineStatus {
+  QUARANTINED
+  UNDER_REVIEW
+  RELEASED
+  DESTROYED
+  RETURNED
+}
+
+// ============================================
+// DESIGN & DEVELOPMENT (ISO 9001 Clause 8.3) — S4-03
+// ============================================
+
+model QualDesignProject {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // DD-YYMM-XXXX
+  title           String
+  productDescription String
+  currentStage    QualDesignStage @default(PLANNING)
+  status          QualDesignStatus @default(ACTIVE)
+  projectLead     String
+  teamMembers     String[]
+  startDate       DateTime?
+  targetDate      DateTime?
+  completedDate   DateTime?
+  stages          QualDesignStageDoc[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([currentStage])
+  @@map("qual_design_projects")
+}
+
+model QualDesignStageDoc {
+  id              String    @id @default(cuid())
+  projectId       String
+  stage           QualDesignStage
+  content         String?   @db.Text
+  documentRef     String?
+  approvedBy      String?
+  approvedDate    DateTime?
+  status          QualDesignDocStatus @default(NOT_STARTED)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         QualDesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, stage])
+  @@index([projectId])
+  @@map("qual_design_stage_docs")
+}
+
+enum QualDesignStage {
+  PLANNING
+  INPUTS
+  OUTPUTS
+  REVIEW
+  VERIFICATION
+  VALIDATION
+  TRANSFER
+}
+
+enum QualDesignStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum QualDesignDocStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  REVIEW
+  APPROVED
+}
+
+// ============================================
+// PRODUCT SAFETY MANAGEMENT (S4-08)
+// ============================================
+
+model SafetyCharacteristic {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // PSC-YYMM-XXXX
+  partNumber      String
+  partName        String
+  characteristicName String
+  characteristicType SafetyCharType
+  specification   String?
+  controlMethod   String?
+  module          String?   // AUTOMOTIVE, AEROSPACE, QUALITY
+  linkedFmeaId    String?
+  linkedControlPlanId String?
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, characteristicType])
+  @@index([partNumber])
+  @@map("safety_characteristics")
+}
+
+model ProductSafetyIncident {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // PSI-YYMM-XXXX
+  title           String
+  description     String
+  productPart     String
+  severity        SafetyIncidentSeverity
+  status          SafetyIncidentStatus @default(REPORTED)
+  investigationNotes String?
+  rootCause       String?
+  capaRef         String?
+  recallRequired  Boolean   @default(false)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([severity])
+  @@map("product_safety_incidents")
+}
+
+model ProductRecall {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // RCL-YYMM-XXXX
+  title           String
+  description     String
+  productPart     String
+  affectedQuantity Int?
+  recallClass     RecallClass
+  status          RecallStatus @default(INITIATED)
+  regulatoryNotification Boolean @default(false)
+  notificationDate DateTime?
+  effectiveDate   DateTime?
+  completionDate  DateTime?
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@map("product_recalls")
+}
+
+enum SafetyCharType {
+  SC    // Safety Characteristic (AS9100)
+  CC    // Critical Characteristic (IATF)
+  KPC   // Key Product Characteristic (IATF)
+  SCC   // Safety Critical Characteristic (general)
+}
+
+enum SafetyIncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SafetyIncidentStatus {
+  REPORTED
+  INVESTIGATING
+  CAPA_RAISED
+  RECALL_INITIATED
+  CLOSED
+}
+
+enum RecallClass {
+  CLASS_I    // Serious health hazard
+  CLASS_II   // Temporary/reversible
+  CLASS_III  // Not likely to cause harm
+}
+
+enum RecallStatus {
+  INITIATED
+  IN_PROGRESS
+  COMPLETED
+  CLOSED
+}

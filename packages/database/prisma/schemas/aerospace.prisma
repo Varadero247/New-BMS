@@ -187,3 +187,306 @@ enum AuditResult {
   PASS_WITH_FINDINGS
   FAIL
 }
+
+// ============================================
+// FAI (First Article Inspection) - AS9102
+// ============================================
+
+model FirstArticleInspection {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // FAI-YYMM-XXXX
+  title           String
+  partNumber      String
+  partName        String
+  revision        String
+  drawingNumber   String?
+  customer        String?
+  poNumber        String?
+  faiType         FAIType   @default(FULL)
+  status          FAIStatus @default(PLANNING)
+  // Part 1 - Design Characteristics
+  part1Data       String?   // JSON: array of {charNum, charName, nominal, tolerance, actual, pass}
+  part1Status     FAIPartStatus @default(NOT_STARTED)
+  // Part 2 - Manufacturing Process Documentation
+  part2Data       String?   // JSON: array of {docType, docNumber, revision, available}
+  part2Status     FAIPartStatus @default(NOT_STARTED)
+  // Part 3 - Test Results
+  part3Data       String?   // JSON: array of {testName, testMethod, requirement, result, pass}
+  part3Status     FAIPartStatus @default(NOT_STARTED)
+  approvedBy      String?
+  approvedDate    DateTime?
+  esignatureId    String?
+  openItems       String?   // JSON: partial FAI open items
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@map("first_article_inspections")
+}
+
+// ============================================
+// ADDITIONAL ENUMS
+// ============================================
+
+enum FAIType {
+  FULL
+  PARTIAL
+  DELTA
+}
+
+enum FAIStatus {
+  PLANNING
+  IN_PROGRESS
+  REVIEW
+  APPROVED
+  APPROVED_PARTIAL
+  REJECTED
+}
+
+enum FAIPartStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  NEEDS_REVIEW
+}
+
+// ============================================
+// MRO Work Orders (AS9110)
+// ============================================
+
+model WorkOrder {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // WO-YYMM-XXXX
+  title           String
+  aircraftType    String
+  aircraftReg     String?
+  description     String
+  priority        WoPriority @default(ROUTINE)
+  status          WoStatus @default(OPEN)
+  tasks           TaskCard[]
+  assignedTo      String?
+  startDate       DateTime?
+  dueDate         DateTime?
+  completedDate   DateTime?
+  releaseCertType ReleaseCertType?
+  releaseCertRef  String?
+  releasedBy      String?
+  releasedDate    DateTime?
+  esignatureId    String?
+  inspectedBy     String?
+  inspectedDate   DateTime?
+  deferralRef     String?   // MEL/CDL reference if deferred
+  deferralNotes   String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([aircraftReg])
+  @@map("work_orders")
+}
+
+model TaskCard {
+  id              String    @id @default(cuid())
+  workOrderId     String
+  taskNumber      String
+  description     String
+  zone            String?
+  access          String?
+  estimatedHours  Float?
+  actualHours     Float?
+  status          TaskCardStatus @default(OPEN)
+  technicianId    String?
+  technicianName  String?
+  signedDate      DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  workOrder       WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
+  @@map("task_cards")
+}
+
+enum WoPriority {
+  AOG         // Aircraft on Ground (critical)
+  URGENT
+  ROUTINE
+  DEFERRED
+}
+
+enum WoStatus {
+  OPEN
+  IN_PROGRESS
+  INSPECTION
+  RELEASED
+  DEFERRED
+  CLOSED
+}
+
+enum TaskCardStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+}
+
+enum ReleaseCertType {
+  EASA_FORM_1
+  FAA_8130_3
+  CRS
+}
+
+// ============================================
+// Human Factors (ICAO / Transport Canada)
+// ============================================
+
+model HumanFactorIncident {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // HF-YYMM-XXXX
+  title           String
+  description     String
+  category        DirtyDozenCategory
+  severity        HfSeverity @default(LOW)
+  location        String?
+  shift           String?
+  personnelInvolved String[]
+  rootCause       String?
+  correctiveAction String?
+  capaRef         String?
+  status          HfStatus @default(REPORTED)
+  reportedBy      String?
+  incidentDate    DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, category])
+  @@index([incidentDate])
+  @@map("human_factor_incidents")
+}
+
+model FatigueAssessment {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  personnelId     String
+  personnelName   String
+  assessmentDate  DateTime
+  hoursWorked     Float
+  restHours       Float
+  fatigueScore    Int       // 1-10
+  riskLevel       FatigueRisk
+  mitigations     String?
+  fitForDuty      Boolean   @default(true)
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+
+  @@index([tenantId, personnelId])
+  @@map("fatigue_assessments")
+}
+
+enum DirtyDozenCategory {
+  LACK_OF_COMMUNICATION
+  COMPLACENCY
+  LACK_OF_KNOWLEDGE
+  DISTRACTION
+  LACK_OF_TEAMWORK
+  FATIGUE
+  LACK_OF_RESOURCES
+  PRESSURE
+  LACK_OF_ASSERTIVENESS
+  STRESS
+  LACK_OF_AWARENESS
+  NORMS
+}
+
+enum HfSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum HfStatus {
+  REPORTED
+  INVESTIGATING
+  CAPA_RAISED
+  CLOSED
+}
+
+enum FatigueRisk {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// OASIS SUPPLIER CERTIFICATE LOOKUP (S4-04)
+// ============================================
+
+model OasisMonitoredSupplier {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  cageCode        String
+  companyName     String
+  certStandard    String?   // AS9100, AS9110, AS9120
+  certBody        String?
+  certExpiry      DateTime?
+  lastChecked     DateTime?
+  certStatus      OasisCertStatus @default(UNKNOWN)
+  alerts          OasisAlert[]
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([tenantId, cageCode])
+  @@index([tenantId])
+  @@index([certStatus])
+  @@map("oasis_monitored_suppliers")
+}
+
+model OasisAlert {
+  id              String    @id @default(cuid())
+  supplierId      String
+  alertType       OasisAlertType
+  message         String
+  previousStatus  String?
+  newStatus       String?
+  acknowledged    Boolean   @default(false)
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  createdAt       DateTime  @default(now())
+
+  supplier        OasisMonitoredSupplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@index([supplierId])
+  @@index([acknowledged])
+  @@map("oasis_alerts")
+}
+
+enum OasisCertStatus {
+  CURRENT
+  EXPIRED
+  SUSPENDED
+  REVOKED
+  UNKNOWN
+}
+
+enum OasisAlertType {
+  CERT_EXPIRING
+  CERT_EXPIRED
+  CERT_SUSPENDED
+  CERT_REVOKED
+  STATUS_CHANGED
+}

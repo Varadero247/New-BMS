@@ -44,6 +44,7 @@ import suppliersRouter from './routes/suppliers';
 import changesRouter from './routes/changes';
 import objectivesRouter from './routes/objectives';
 import customerSatisfactionRouter from './routes/customer-satisfaction';
+import counterfeitRouter from './routes/counterfeit';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -87,6 +88,7 @@ app.use('/api/suppliers', suppliersRouter);
 app.use('/api/changes', changesRouter);
 app.use('/api/objectives', objectivesRouter);
 app.use('/api/customer-satisfaction', customerSatisfactionRouter);
+app.use('/api/counterfeit', counterfeitRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

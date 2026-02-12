@@ -28,6 +28,12 @@ import { prisma } from './prisma';
 const logger = createLogger('api-automotive');
 
 import apqpRouter from './routes/apqp';
+import ppapRouter from './routes/ppap';
+import controlPlansRouter from './routes/control-plans';
+import msaRouter from './routes/msa';
+import spcRouter from './routes/spc';
+import csrRouter from './routes/csr';
+import lpaRouter from './routes/lpa';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4010;
@@ -56,6 +62,12 @@ app.get('/metrics', metricsHandler);
 
 // Routes - IATF 16949 Automotive
 app.use('/api/apqp', apqpRouter);
+app.use('/api/ppap', ppapRouter);
+app.use('/api/control-plans', controlPlansRouter);
+app.use('/api/msa', msaRouter);
+app.use('/api/spc', spcRouter);
+app.use('/api/csr', csrRouter);
+app.use('/api/lpa', lpaRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

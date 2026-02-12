@@ -28,6 +28,13 @@ import { prisma } from './prisma';
 const logger = createLogger('api-medical');
 
 import designControlsRouter from './routes/design-controls';
+import complaintsRouter from './routes/complaints';
+import dmrDhrRouter from './routes/dmr-dhr';
+import riskManagementRouter from './routes/risk-management';
+import udiRouter from './routes/udi';
+import pmsRouter from './routes/pms';
+import softwareRouter from './routes/software';
+import submissionsRouter from './routes/submissions';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4011;
@@ -56,6 +63,27 @@ app.get('/metrics', metricsHandler);
 
 // Routes - Design Controls (ISO 13485 Clause 7.3)
 app.use('/api/design-controls', designControlsRouter);
+
+// Routes - Complaint Handling & MDR/Vigilance (21 CFR 803 / EU MDR Art 87)
+app.use('/api/complaints', complaintsRouter);
+
+// Routes - DMR/DHR (FDA 21 CFR 820.181/184)
+app.use('/api', dmrDhrRouter);
+
+// Routes - Risk Management (ISO 14971:2019)
+app.use('/api/risk', riskManagementRouter);
+
+// Routes - UDI Management (EU MDR / FDA)
+app.use('/api/udi', udiRouter);
+
+// Routes - Post-Market Surveillance (EU MDR Art 83-86)
+app.use('/api/pms', pmsRouter);
+
+// Routes - Software Validation (IEC 62304)
+app.use('/api/software', softwareRouter);
+
+// Routes - Regulatory Submissions Tracker (S4-05)
+app.use('/api/submissions', submissionsRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
