@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -68,26 +68,26 @@ router.get('/chains/:id', async (req: Request, res: Response) => {
 router.post('/chains', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      definitionId: z.string().uuid().optional(),
       name: z.string().min(1),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']),
       levels: z.array(z.record(z.unknown())),
-      skipConditions: z.record(z.unknown()).optional(),
-      escalationConfig: z.record(z.unknown()).optional(),
+      requireAllLevels: z.boolean().default(true),
+      skipOnUnavailable: z.boolean().default(false),
+      conditions: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);
 
     const chain = await prisma.approvalChain.create({
       data: {
-        definitionId: data.definitionId,
         name: data.name,
         description: data.description,
         chainType: data.chainType,
         levels: data.levels,
-        skipConditions: data.skipConditions,
-        escalationConfig: data.escalationConfig,
+        requireAllLevels: data.requireAllLevels,
+        skipOnUnavailable: data.skipOnUnavailable,
+        conditions: data.conditions,
       },
     });
 
@@ -115,8 +115,9 @@ router.put('/chains/:id', async (req: Request, res: Response) => {
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']).optional(),
       levels: z.array(z.record(z.unknown())).optional(),
-      skipConditions: z.record(z.unknown()).optional(),
-      escalationConfig: z.record(z.unknown()).optional(),
+      requireAllLevels: z.boolean().optional(),
+      skipOnUnavailable: z.boolean().optional(),
+      conditions: z.record(z.unknown()).optional(),
       isActive: z.boolean().optional(),
     });
 
@@ -502,7 +503,6 @@ router.put('/requests/:id/cancel', async (req: Request, res: Response) => {
         status: 'CANCELLED',
         outcome: 'CANCELLED',
         decidedAt: new Date(),
-        outcomeReason: reason,
       },
     });
 
@@ -565,10 +565,10 @@ router.put('/step/:id/respond', async (req: Request, res: Response) => {
 // GET /api/approvals/step - Get workflow step approvals
 router.get('/step', async (req: Request, res: Response) => {
   try {
-    const { stepInstanceId, approverId, status, limit = '50', offset = '0' } = req.query;
+    const { stepId, approverId, status, limit = '50', offset = '0' } = req.query;
 
     const where: Prisma.WorkflowStepApprovalWhereInput = {};
-    if (stepInstanceId) where.stepInstanceId = stepInstanceId as string;
+    if (stepId) where.stepId = stepId as string;
     if (approverId) where.approverId = approverId as string;
     if (status) where.status = status as string;
 
@@ -604,8 +604,9 @@ router.get('/step', async (req: Request, res: Response) => {
 router.post('/step', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      stepInstanceId: z.string().uuid(),
-      approverId: z.string().uuid(),
+      stepId: z.string(),
+      approverId: z.string(),
+      approverName: z.string().optional(),
       approvalOrder: z.number().int().min(1).default(1),
     });
 
@@ -613,13 +614,11 @@ router.post('/step', async (req: Request, res: Response) => {
 
     const approval = await prisma.workflowStepApproval.create({
       data: {
-        stepInstance: { connect: { id: data.stepInstanceId } },
-        approver: { connect: { id: data.approverId } },
+        stepId: data.stepId,
+        approverId: data.approverId,
+        approverName: data.approverName,
         approvalOrder: data.approvalOrder,
         status: 'PENDING',
-      },
-      include: {
-        approver: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 

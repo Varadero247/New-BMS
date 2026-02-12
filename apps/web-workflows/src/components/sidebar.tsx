@@ -10,7 +10,7 @@ import {
   CheckSquare,
   Users,
   Zap,
-  BookTemplate,
+  LayoutTemplate,
   BarChart3,
   Settings,
 } from 'lucide-react';
@@ -19,7 +19,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
 
   // Design
-  { name: 'Templates', href: '/templates', icon: BookTemplate },
+  { name: 'Templates', href: '/templates', icon: LayoutTemplate },
   { name: 'Definitions', href: '/definitions', icon: FileCode },
 
   // Execution

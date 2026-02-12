@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => {
+jest.mock('../src/prisma', () => {
   const p: any = {
     workflowInstance: {
       findMany: jest.fn(),
@@ -30,7 +30,15 @@ jest.mock('@ims/auth', () => ({
   }),
 }));
 
-import { prisma } from '@ims/database';
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+  metricsMiddleware: () => (req: any, res: any, next: any) => next(),
+  metricsHandler: (req: any, res: any) => res.json({}),
+  correlationIdMiddleware: () => (req: any, res: any, next: any) => next(),
+  createHealthCheck: () => (req: any, res: any) => res.json({ status: 'healthy' }),
+}));
+
+import { prisma } from '../src/prisma';
 import instancesRoutes from '../src/routes/instances';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -52,8 +60,7 @@ describe('Workflow Instances API Routes', () => {
     const mockInstances = [
       {
         id: '3c000000-0000-4000-a000-000000000001',
-        instanceNumber: 'WF-2024-000001',
-        title: 'Leave Request',
+        referenceNumber: 'WF-2024-000001',
         status: 'IN_PROGRESS',
         priority: 'NORMAL',
         definition: { name: 'Leave Approval' },
@@ -61,8 +68,7 @@ describe('Workflow Instances API Routes', () => {
       },
       {
         id: 'inst-2',
-        instanceNumber: 'WF-2024-000002',
-        title: 'Purchase Order',
+        referenceNumber: 'WF-2024-000002',
         status: 'COMPLETED',
         priority: 'HIGH',
         definition: { name: 'PO Approval' },
@@ -129,16 +135,16 @@ describe('Workflow Instances API Routes', () => {
       );
     });
 
-    it('should filter by initiatorId', async () => {
+    it('should filter by initiatedById', async () => {
       mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/instances?initiatorId=20000000-0000-4000-a000-000000000001');
+      await request(app).get('/api/instances?initiatedById=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            initiatorId: '20000000-0000-4000-a000-000000000001',
+            initiatedById: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -191,12 +197,11 @@ describe('Workflow Instances API Routes', () => {
   describe('GET /api/instances/:id', () => {
     const mockInstance = {
       id: '3c000000-0000-4000-a000-000000000001',
-      instanceNumber: 'WF-2024-000001',
-      title: 'Leave Request',
+      referenceNumber: 'WF-2024-000001',
       status: 'IN_PROGRESS',
       definition: { id: '3b000000-0000-4000-a000-000000000001', name: 'Leave Approval' },
       tasks: [{ id: '3d000000-0000-4000-a000-000000000001' }],
-      history: [{ id: 'hist-1', action: 'STARTED' }],
+      history: [{ id: 'hist-1', eventType: 'STARTED' }],
     };
 
     it('should return single instance with tasks and history', async () => {
@@ -233,8 +238,7 @@ describe('Workflow Instances API Routes', () => {
   describe('POST /api/instances', () => {
     const createPayload = {
       definitionId: '11111111-1111-1111-1111-111111111111',
-      initiatorId: '22222222-2222-2222-2222-222222222222',
-      title: 'New Workflow Instance',
+      initiatedById: '22222222-2222-2222-2222-222222222222',
       priority: 'NORMAL',
     };
 
@@ -246,7 +250,7 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(5);
       mockPrisma.workflowInstance.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
-        instanceNumber: 'WF-2024-000006',
+        referenceNumber: 'WF-2024-000006',
         ...createPayload,
         status: 'IN_PROGRESS',
         definition: { name: 'Approval' },
@@ -259,10 +263,10 @@ describe('Workflow Instances API Routes', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.instanceNumber).toBe('WF-2024-000006');
+      expect(response.body.data.referenceNumber).toBe('WF-2024-000006');
     });
 
-    it('should generate sequential instance number', async () => {
+    it('should generate sequential reference number', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
         id: createPayload.definitionId,
         status: 'ACTIVE',
@@ -270,7 +274,7 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(99);
       mockPrisma.workflowInstance.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
-        instanceNumber: 'WF-2024-000100',
+        referenceNumber: 'WF-2024-000100',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
@@ -280,7 +284,7 @@ describe('Workflow Instances API Routes', () => {
 
       expect(mockPrisma.workflowInstance.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          instanceNumber: expect.stringMatching(/^WF-\d{4}-000100$/),
+          referenceNumber: expect.stringMatching(/^WF-\d{4}-\d{6}$/),
         }),
         include: expect.any(Object),
       });
@@ -304,8 +308,8 @@ describe('Workflow Instances API Routes', () => {
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           instanceId: '30000000-0000-4000-a000-000000000123',
-          action: 'STARTED',
-          actionBy: createPayload.initiatorId,
+          eventType: 'STARTED',
+          actorId: createPayload.initiatedById,
         }),
       });
     });
@@ -368,44 +372,41 @@ describe('Workflow Instances API Routes', () => {
   });
 
   describe('PUT /api/instances/:id/advance', () => {
-    it('should advance to next node', async () => {
+    it('should advance to next step', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
         id: '3c000000-0000-4000-a000-000000000001',
-        currentNodeId: 'node-1',
-        completedNodeIds: [],
+        currentStepId: 'step-1',
       } as any);
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({
         id: '3c000000-0000-4000-a000-000000000001',
-        currentNodeId: 'node-2',
-        completedNodeIds: ['node-1'],
+        currentStepId: 'step-2',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
         .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
-        .send({ nextNodeId: 'node-2', actionBy: '20000000-0000-4000-a000-000000000001' });
+        .send({ nextStepId: 'step-2', actionBy: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
-    it('should add current node to completed list', async () => {
+    it('should update currentStepId', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
         id: '3c000000-0000-4000-a000-000000000001',
-        currentNodeId: 'node-2',
-        completedNodeIds: ['node-1'],
+        currentStepId: 'step-2',
       } as any);
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({} as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       await request(app)
         .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
-        .send({ nextNodeId: 'node-3', actionBy: '20000000-0000-4000-a000-000000000001' });
+        .send({ nextStepId: 'step-3', actionBy: '20000000-0000-4000-a000-000000000001' });
 
       expect(mockPrisma.workflowInstance.update).toHaveBeenCalledWith({
         where: { id: '3c000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
-          completedNodeIds: ['node-1', 'node-2'],
+          currentStepId: 'step-3',
         }),
       });
     });
@@ -415,7 +416,7 @@ describe('Workflow Instances API Routes', () => {
 
       const response = await request(app)
         .put('/api/instances/00000000-0000-4000-a000-ffffffffffff/advance')
-        .send({ nextNodeId: 'node-2' });
+        .send({ nextStepId: 'step-2' });
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -426,7 +427,7 @@ describe('Workflow Instances API Routes', () => {
 
       const response = await request(app)
         .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
-        .send({ nextNodeId: 'node-2' });
+        .send({ nextStepId: 'step-2' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -445,7 +446,7 @@ describe('Workflow Instances API Routes', () => {
 
       const response = await request(app)
         .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
-        .send({ outcome: 'APPROVED', outcomeNotes: 'Approved by manager' });
+        .send({ outcome: 'APPROVED', completedById: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -457,15 +458,12 @@ describe('Workflow Instances API Routes', () => {
 
       await request(app)
         .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
-        .send({ outcome: 'REJECTED', outcomeNotes: 'Rejected' });
+        .send({ outcome: 'REJECTED' });
 
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           instanceId: '3c000000-0000-4000-a000-000000000001',
-          action: 'COMPLETED',
-          details: expect.objectContaining({
-            outcome: 'REJECTED',
-          }),
+          eventType: 'COMPLETED',
         }),
       });
     });
@@ -496,8 +494,8 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({
         id: '3c000000-0000-4000-a000-000000000001',
         status: 'CANCELLED',
-        cancelledAt: new Date(),
-        cancelledById: '20000000-0000-4000-a000-000000000001',
+        completedAt: new Date(),
+        completedById: '20000000-0000-4000-a000-000000000001',
         cancellationReason: 'No longer needed',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
@@ -527,9 +525,8 @@ describe('Workflow Instances API Routes', () => {
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           instanceId: '3c000000-0000-4000-a000-000000000001',
-          action: 'CANCELLED',
-          actionBy: '20000000-0000-4000-a000-000000000001',
-          details: { reason: 'Project cancelled' },
+          eventType: 'CANCELLED',
+          actorId: '20000000-0000-4000-a000-000000000001',
         }),
       });
     });

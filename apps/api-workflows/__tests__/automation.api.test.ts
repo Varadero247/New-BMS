@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => ({
+jest.mock('../src/prisma', () => ({
   prisma: {
     automationRule: {
       findMany: jest.fn(),
@@ -30,11 +30,15 @@ jest.mock('@ims/auth', () => ({
   }),
 }));
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+  metricsMiddleware: () => (req: any, res: any, next: any) => next(),
+  metricsHandler: (req: any, res: any) => res.json({}),
+  correlationIdMiddleware: () => (req: any, res: any, next: any) => next(),
+  createHealthCheck: () => (req: any, res: any) => res.json({ status: 'healthy' }),
 }));
 
-import { prisma } from '@ims/database';
+import { prisma } from '../src/prisma';
 import automationRoutes from '../src/routes/automation';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -28,8 +28,9 @@ const createRuleSchema = z.object({
   actionConfig: z.record(z.unknown()),
   entityType: z.string().optional(),
   workflowCategory: z.enum([
-    'HR', 'FINANCE', 'OPERATIONS', 'QUALITY', 'SAFETY',
-    'PROCUREMENT', 'SALES', 'CUSTOMER_SERVICE', 'IT', 'COMPLIANCE', 'GENERAL'
+    'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
+    'ONBOARDING', 'OFFBOARDING', 'PROCUREMENT', 'DOCUMENT_CONTROL',
+    'AUDIT', 'CAPA', 'TRAINING', 'CUSTOM'
   ]).optional(),
   priority: z.number().int().min(0).max(100).default(0),
   maxRetries: z.number().int().min(0).max(10).default(3),

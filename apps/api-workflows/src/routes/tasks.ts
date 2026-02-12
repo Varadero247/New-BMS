@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -15,31 +15,27 @@ router.param('id', validateIdParam());
 // Valid WorkflowTaskType enum values
 const taskTypeEnum = z.enum(['REVIEW', 'APPROVE', 'COMPLETE_FORM', 'UPLOAD_DOCUMENT', 'VERIFICATION', 'DATA_ENTRY', 'NOTIFICATION', 'CUSTOM']);
 
-// Valid WorkflowPriority enum values
-const priorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']);
-
 // Valid WorkflowTaskStatus enum values
-const taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'SKIPPED']);
+const taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
 
 // GET /api/tasks - Get workflow tasks
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { assigneeId, status, priority, instanceId } = req.query;
+    const { assignedToId, status, instanceId } = req.query;
 
     const where: Prisma.WorkflowTaskWhereInput = {};
-    if (assigneeId) where.assigneeId = assigneeId as string;
+    if (assignedToId) where.assignedToId = assignedToId as string;
     if (status) where.status = status as string;
-    if (priority) where.priority = priority as string;
     if (instanceId) where.instanceId = instanceId as string;
 
     const tasks = await prisma.workflowTask.findMany({
       where,
       include: {
         instance: {
-          select: { instanceNumber: true, title: true, priority: true },
+          select: { referenceNumber: true, priority: true },
         },
       },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+      orderBy: { dueDate: 'asc' },
     });
 
     res.json({ success: true, data: tasks });
@@ -58,7 +54,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
         _count: true,
       }),
       prisma.workflowTask.groupBy({
-        by: ['priority'],
+        by: ['taskType'],
         where: { status: { in: ['PENDING', 'IN_PROGRESS'] } },
         _count: true,
       }),
@@ -74,7 +70,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
       success: true,
       data: {
         byStatus,
-        byPriority,
+        byTaskType: byPriority,
         overdueCount: overdue,
       },
     });
@@ -90,7 +86,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
     const { status } = req.query;
 
     const where: Prisma.WorkflowTaskWhereInput = {
-      assigneeId: req.params.userId,
+      assignedToId: req.params.userId,
     };
     if (status) where.status = status;
 
@@ -98,10 +94,10 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
       where,
       include: {
         instance: {
-          select: { instanceNumber: true, title: true, priority: true },
+          select: { referenceNumber: true, priority: true },
         },
       },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+      orderBy: { dueDate: 'asc' },
     });
 
     res.json({ success: true, data: tasks });
@@ -138,35 +134,30 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      instanceId: z.string().uuid(),
-      assigneeId: z.string().uuid(),
+      instanceId: z.string(),
+      assignedToId: z.string().optional(),
+      assignedToName: z.string().optional(),
       taskType: taskTypeEnum,
       title: z.string().min(1),
       description: z.string().optional(),
-      priority: priorityEnum.default('NORMAL'),
       dueDate: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
 
-    // Generate task number
-    const count = await prisma.workflowTask.count();
-    const taskNumber = `TSK-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-
     const task = await prisma.workflowTask.create({
       data: {
-        taskNumber,
         instanceId: data.instanceId,
-        assigneeId: data.assigneeId,
+        assignedToId: data.assignedToId,
+        assignedToName: data.assignedToName,
         taskType: data.taskType,
         title: data.title,
         description: data.description,
-        priority: data.priority,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         status: 'PENDING',
       },
       include: {
-        instance: { select: { instanceNumber: true, title: true } },
+        instance: { select: { referenceNumber: true } },
       },
     });
 
@@ -183,12 +174,13 @@ router.post('/', async (req: Request, res: Response) => {
 // PUT /api/tasks/:id/claim - Claim task
 router.put('/:id/claim', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const { userId, userName } = req.body;
 
     const task = await prisma.workflowTask.update({
       where: { id: req.params.id },
       data: {
-        assigneeId: userId,
+        assignedToId: userId,
+        assignedToName: userName,
         status: 'IN_PROGRESS',
         startedAt: new Date(),
       },
@@ -205,9 +197,9 @@ router.put('/:id/claim', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      result: z.record(z.unknown()).optional(),
+      outcome: z.string().optional(),
       notes: z.string().optional(),
-      completedBy: z.string().uuid().optional(),
+      completedBy: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -216,7 +208,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'COMPLETED',
-        result: data.result,
+        outcome: data.outcome,
         notes: data.notes,
         completedAt: new Date(),
       },
@@ -226,9 +218,9 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     await prisma.workflowHistory.create({
       data: {
         instanceId: task.instanceId,
-        action: 'TASK_COMPLETED',
-        actionBy: data.completedBy,
-        details: { taskId: task.id, result: data.result, notes: data.notes },
+        eventType: 'TASK_COMPLETED',
+        actorId: data.completedBy,
+        metadata: { taskId: task.id, outcome: data.outcome, notes: data.notes },
       },
     });
 
@@ -245,7 +237,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 // PUT /api/tasks/:id/reassign - Reassign task
 router.put('/:id/reassign', async (req: Request, res: Response) => {
   try {
-    const { newAssigneeId, reason, reassignedBy } = req.body;
+    const { newAssigneeId, newAssigneeName, reason, reassignedBy } = req.body;
 
     const currentTask = await prisma.workflowTask.findUnique({ where: { id: req.params.id } });
     if (!currentTask) {
@@ -255,7 +247,8 @@ router.put('/:id/reassign', async (req: Request, res: Response) => {
     const task = await prisma.workflowTask.update({
       where: { id: req.params.id },
       data: {
-        assigneeId: newAssigneeId,
+        assignedToId: newAssigneeId,
+        assignedToName: newAssigneeName,
       },
     });
 
@@ -263,11 +256,11 @@ router.put('/:id/reassign', async (req: Request, res: Response) => {
     await prisma.workflowHistory.create({
       data: {
         instanceId: task.instanceId,
-        action: 'TASK_REASSIGNED',
-        actionBy: reassignedBy,
-        details: {
+        eventType: 'DELEGATED',
+        actorId: reassignedBy,
+        metadata: {
           taskId: task.id,
-          previousAssignee: currentTask.assigneeId,
+          previousAssignee: currentTask.assignedToId,
           newAssignee: newAssigneeId,
           reason,
         },

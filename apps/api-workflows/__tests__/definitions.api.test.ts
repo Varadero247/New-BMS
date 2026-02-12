@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 // Mock dependencies
-jest.mock('@ims/database', () => ({
+jest.mock('../src/prisma', () => ({
   prisma: {
     workflowDefinition: {
       findMany: jest.fn(),
@@ -20,7 +20,15 @@ jest.mock('@ims/auth', () => ({
   }),
 }));
 
-import { prisma } from '@ims/database';
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+  metricsMiddleware: () => (req: any, res: any, next: any) => next(),
+  metricsHandler: (req: any, res: any) => res.json({}),
+  correlationIdMiddleware: () => (req: any, res: any, next: any) => next(),
+  createHealthCheck: () => (req: any, res: any) => res.json({ status: 'healthy' }),
+}));
+
+import { prisma } from '../src/prisma';
 import definitionsRoutes from '../src/routes/definitions';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -47,7 +55,6 @@ describe('Workflow Definitions API Routes', () => {
         status: 'ACTIVE',
         triggerType: 'MANUAL',
         version: 1,
-        template: { name: 'Standard Approval', category: 'APPROVAL' },
         _count: { instances: 10 },
       },
       {
@@ -57,7 +64,6 @@ describe('Workflow Definitions API Routes', () => {
         status: 'DRAFT',
         triggerType: 'EVENT',
         version: 2,
-        template: null,
         _count: { instances: 0 },
       },
     ];
@@ -86,35 +92,35 @@ describe('Workflow Definitions API Routes', () => {
       );
     });
 
-    it('should filter by templateId', async () => {
+    it('should filter by category', async () => {
       mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce([]);
 
-      await request(app).get('/api/definitions?templateId=41000000-0000-4000-a000-000000000001');
+      await request(app).get('/api/definitions?category=APPROVAL');
 
       expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            templateId: '41000000-0000-4000-a000-000000000001',
+            category: 'APPROVAL',
           }),
         })
       );
     });
 
-    it('should filter by createdBy', async () => {
+    it('should filter by createdById', async () => {
       mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce([]);
 
-      await request(app).get('/api/definitions?createdBy=20000000-0000-4000-a000-000000000001');
+      await request(app).get('/api/definitions?createdById=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            createdBy: '20000000-0000-4000-a000-000000000001',
+            createdById: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
     });
 
-    it('should include template and instance count', async () => {
+    it('should include instance count', async () => {
       mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce(mockDefinitions as any);
 
       await request(app).get('/api/definitions');
@@ -122,7 +128,6 @@ describe('Workflow Definitions API Routes', () => {
       expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           include: expect.objectContaining({
-            template: expect.any(Object),
             _count: expect.any(Object),
           }),
         })
@@ -144,9 +149,8 @@ describe('Workflow Definitions API Routes', () => {
       id: '3b000000-0000-4000-a000-000000000001',
       code: 'APPROVAL_FLOW',
       name: 'Approval Workflow',
-      nodes: [{ id: 'start', type: 'start' }],
-      edges: [],
-      template: { name: 'Standard Approval' },
+      steps: [{ id: 'start', type: 'start' }],
+      rules: {},
       instances: [{ id: '3c000000-0000-4000-a000-000000000001' }],
     };
 
@@ -184,9 +188,9 @@ describe('Workflow Definitions API Routes', () => {
     const createPayload = {
       code: 'NEW_WORKFLOW',
       name: 'New Workflow',
+      category: 'APPROVAL',
       triggerType: 'MANUAL',
-      nodes: [{ id: 'start', type: 'start' }],
-      edges: [],
+      steps: [{ id: 'start', type: 'start' }],
     };
 
     it('should create a workflow definition successfully', async () => {
@@ -195,7 +199,6 @@ describe('Workflow Definitions API Routes', () => {
         ...createPayload,
         status: 'DRAFT',
         version: 1,
-        template: null,
       } as any);
 
       const response = await request(app)
@@ -223,7 +226,6 @@ describe('Workflow Definitions API Routes', () => {
           status: 'DRAFT',
           version: 1,
         }),
-        include: expect.any(Object),
       });
     });
 
@@ -258,15 +260,15 @@ describe('Workflow Definitions API Routes', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('should accept optional templateId', async () => {
+    it('should accept optional defaultSlaHours', async () => {
       mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
-        templateId: '11111111-1111-1111-1111-111111111111',
+        defaultSlaHours: 24,
       } as any);
 
       const response = await request(app)
         .post('/api/definitions')
-        .send({ ...createPayload, templateId: '11111111-1111-1111-1111-111111111111' });
+        .send({ ...createPayload, defaultSlaHours: 24 });
 
       expect(response.status).toBe(201);
     });
@@ -325,22 +327,22 @@ describe('Workflow Definitions API Routes', () => {
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
-    it('should allow updating nodes and edges', async () => {
+    it('should allow updating steps and rules', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(existingDefinition as any);
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({} as any);
 
       await request(app)
         .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
         .send({
-          nodes: [{ id: 'new-node' }],
-          edges: [{ source: 'a', target: 'b' }],
+          steps: [{ id: 'new-node' }],
+          rules: { source: 'a', target: 'b' },
         });
 
       expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith({
         where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
-          nodes: [{ id: 'new-node' }],
-          edges: [{ source: 'a', target: 'b' }],
+          steps: [{ id: 'new-node' }],
+          rules: { source: 'a', target: 'b' },
         }),
       });
     });
@@ -358,7 +360,7 @@ describe('Workflow Definitions API Routes', () => {
   });
 
   describe('PUT /api/definitions/:id/activate', () => {
-    it('should activate definition and set published version', async () => {
+    it('should activate definition and set publishedAt', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
         id: '3b000000-0000-4000-a000-000000000001',
         version: 3,
@@ -367,7 +369,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
         id: '3b000000-0000-4000-a000-000000000001',
         status: 'ACTIVE',
-        publishedVersion: 3,
+        publishedAt: new Date(),
       } as any);
 
       const response = await request(app)
@@ -379,7 +381,7 @@ describe('Workflow Definitions API Routes', () => {
         where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: {
           status: 'ACTIVE',
-          publishedVersion: 3,
+          publishedAt: expect.any(Date),
         },
       });
     });
@@ -440,15 +442,13 @@ describe('Workflow Definitions API Routes', () => {
       code: 'ORIGINAL',
       name: 'Original Workflow',
       description: 'Description',
+      category: 'APPROVAL',
       triggerType: 'MANUAL',
       triggerConfig: null,
-      nodes: [{ id: 'start' }],
-      edges: [],
-      variables: null,
-      defaultSLA: 24,
-      escalationRules: null,
-      notificationConfig: null,
-      templateId: '41000000-0000-4000-a000-000000000001',
+      steps: [{ id: 'start' }],
+      rules: null,
+      defaultSlaHours: 24,
+      escalationConfig: null,
     };
 
     it('should clone definition with new code', async () => {

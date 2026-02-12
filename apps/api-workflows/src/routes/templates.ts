@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -14,8 +14,9 @@ router.param('id', validateIdParam());
 
 // Valid WorkflowCategory enum values
 const workflowCategoryEnum = z.enum([
-  'HR', 'FINANCE', 'OPERATIONS', 'QUALITY', 'SAFETY',
-  'PROCUREMENT', 'SALES', 'CUSTOMER_SERVICE', 'IT', 'COMPLIANCE', 'GENERAL'
+  'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
+  'ONBOARDING', 'OFFBOARDING', 'PROCUREMENT', 'DOCUMENT_CONTROL',
+  'AUDIT', 'CAPA', 'TRAINING', 'CUSTOM'
 ]);
 
 // Valid IndustryType enum values
@@ -24,9 +25,6 @@ const industryTypeEnum = z.enum([
   'TECHNOLOGY', 'EDUCATION', 'HOSPITALITY', 'LOGISTICS', 'ENERGY',
   'PHARMACEUTICAL', 'AUTOMOTIVE', 'AEROSPACE', 'FOOD_BEVERAGE', 'GENERAL'
 ]);
-
-// Valid WorkflowComplexity enum values
-const complexityEnum = z.enum(['SIMPLE', 'MEDIUM', 'COMPLEX']);
 
 // GET /api/templates - Get workflow templates
 router.get('/', async (req: Request, res: Response) => {
@@ -40,9 +38,6 @@ router.get('/', async (req: Request, res: Response) => {
 
     const templates = await prisma.workflowTemplate.findMany({
       where,
-      include: {
-        _count: { select: { definitions: true } },
-      },
       orderBy: { name: 'asc' },
     });
 
@@ -73,9 +68,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const template = await prisma.workflowTemplate.findUnique({
       where: { id: req.params.id },
-      include: {
-        definitions: true,
-      },
     });
 
     if (!template) {
@@ -98,11 +90,8 @@ router.post('/', async (req: Request, res: Response) => {
       description: z.string().optional(),
       category: workflowCategoryEnum,
       industryType: industryTypeEnum.optional(),
-      estimatedDuration: z.number().optional(),
-      complexity: complexityEnum.optional(),
-      requiredRoles: z.array(z.string()).optional(),
-      icon: z.string().optional(),
-      color: z.string().optional(),
+      definitionTemplate: z.record(z.unknown()),
+      formTemplates: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);
@@ -114,12 +103,8 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         industryType: data.industryType,
-        estimatedDuration: data.estimatedDuration,
-        complexity: data.complexity || 'MEDIUM',
-        requiredRoles: data.requiredRoles || [],
-        icon: data.icon,
-        color: data.color,
-        version: 1,
+        definitionTemplate: data.definitionTemplate,
+        formTemplates: data.formTemplates,
       },
     });
 
@@ -141,11 +126,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       description: z.string().optional(),
       category: workflowCategoryEnum.optional(),
       industryType: industryTypeEnum.optional(),
-      estimatedDuration: z.number().optional(),
-      complexity: complexityEnum.optional(),
-      requiredRoles: z.array(z.string()).optional(),
-      icon: z.string().optional(),
-      color: z.string().optional(),
+      definitionTemplate: z.record(z.unknown()).optional(),
+      formTemplates: z.record(z.unknown()).optional(),
       isActive: z.boolean().optional(),
     });
 
@@ -172,8 +154,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
     const template = await prisma.workflowTemplate.update({
       where: { id: req.params.id },
       data: {
-        isPublished: true,
-        publishedAt: new Date(),
+        isActive: true,
       },
     });
 

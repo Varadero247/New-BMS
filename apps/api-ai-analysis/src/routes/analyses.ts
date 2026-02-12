@@ -30,9 +30,6 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
-        include: {
-          user: { select: { id: true, firstName: true, lastName: true } },
-        },
       }),
       prisma.aIAnalysis.count({ where }),
     ]);
@@ -56,10 +53,6 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const analysis = await prisma.aIAnalysis.findUnique({
       where: { id: req.params.id },
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true, email: true } },
-        actions: true,
-      },
     });
 
     if (!analysis) {

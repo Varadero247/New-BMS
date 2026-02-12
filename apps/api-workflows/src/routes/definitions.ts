@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -21,17 +21,16 @@ const statusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']);
 // GET /api/definitions - Get workflow definitions
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { status, templateId, createdBy } = req.query;
+    const { status, category, createdById } = req.query;
 
     const where: Prisma.WorkflowDefinitionWhereInput = {};
     if (status) where.status = status;
-    if (templateId) where.templateId = templateId;
-    if (createdBy) where.createdBy = createdBy;
+    if (category) where.category = category;
+    if (createdById) where.createdById = createdById as string;
 
     const definitions = await prisma.workflowDefinition.findMany({
       where,
       include: {
-        template: { select: { name: true, category: true } },
         _count: { select: { instances: true } },
       },
       orderBy: { updatedAt: 'desc' },
@@ -50,7 +49,6 @@ router.get('/:id', async (req: Request, res: Response) => {
     const definition = await prisma.workflowDefinition.findUnique({
       where: { id: req.params.id },
       include: {
-        template: true,
         instances: {
           take: 10,
           orderBy: { createdAt: 'desc' },
@@ -73,43 +71,40 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      templateId: z.string().uuid().optional(),
       code: z.string().min(1),
       name: z.string().min(1),
       description: z.string().optional(),
+      category: z.enum([
+        'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
+        'ONBOARDING', 'OFFBOARDING', 'PROCUREMENT', 'DOCUMENT_CONTROL',
+        'AUDIT', 'CAPA', 'TRAINING', 'CUSTOM'
+      ]),
       triggerType: triggerTypeEnum,
       triggerConfig: z.record(z.unknown()).optional(),
-      nodes: z.array(z.record(z.unknown())),
-      edges: z.array(z.record(z.unknown())),
-      variables: z.record(z.unknown()).optional(),
-      defaultSLA: z.number().optional(),
-      escalationRules: z.record(z.unknown()).optional(),
-      notificationConfig: z.record(z.unknown()).optional(),
-      createdBy: z.string().optional(),
+      steps: z.unknown(), // JSON array of step definitions
+      rules: z.record(z.unknown()).optional(),
+      defaultSlaHours: z.number().optional(),
+      escalationConfig: z.record(z.unknown()).optional(),
+      createdById: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
 
     const definition = await prisma.workflowDefinition.create({
       data: {
-        templateId: data.templateId,
         code: data.code,
         name: data.name,
         description: data.description,
+        category: data.category,
         triggerType: data.triggerType,
         triggerConfig: data.triggerConfig,
-        nodes: data.nodes,
-        edges: data.edges,
-        variables: data.variables,
-        defaultSLA: data.defaultSLA,
-        escalationRules: data.escalationRules,
-        notificationConfig: data.notificationConfig,
-        createdBy: data.createdBy,
+        steps: data.steps as any,
+        rules: data.rules,
+        defaultSlaHours: data.defaultSlaHours,
+        escalationConfig: data.escalationConfig,
+        createdById: data.createdById,
         version: 1,
         status: 'DRAFT',
-      },
-      include: {
-        template: { select: { name: true, category: true } },
       },
     });
 
@@ -131,12 +126,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       description: z.string().optional(),
       triggerType: triggerTypeEnum.optional(),
       triggerConfig: z.record(z.unknown()).optional(),
-      nodes: z.array(z.record(z.unknown())).optional(),
-      edges: z.array(z.record(z.unknown())).optional(),
-      variables: z.record(z.unknown()).optional(),
-      defaultSLA: z.number().optional(),
-      escalationRules: z.record(z.unknown()).optional(),
-      notificationConfig: z.record(z.unknown()).optional(),
+      steps: z.unknown().optional(),
+      rules: z.record(z.unknown()).optional(),
+      defaultSlaHours: z.number().optional(),
+      escalationConfig: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);
@@ -177,7 +170,7 @@ router.put('/:id/activate', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'ACTIVE',
-        publishedVersion: current.version,
+        publishedAt: new Date(),
       },
     });
 
@@ -216,18 +209,16 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
 
     const clone = await prisma.workflowDefinition.create({
       data: {
-        templateId: source.templateId,
         code: cloneCode,
         name: `${source.name} (Copy)`,
         description: source.description,
+        category: source.category,
         triggerType: source.triggerType,
         triggerConfig: source.triggerConfig ?? undefined,
-        nodes: source.nodes as object,
-        edges: source.edges as object,
-        variables: source.variables ?? undefined,
-        defaultSLA: source.defaultSLA,
-        escalationRules: source.escalationRules ?? undefined,
-        notificationConfig: source.notificationConfig ?? undefined,
+        steps: source.steps as object,
+        rules: source.rules ?? undefined,
+        defaultSlaHours: source.defaultSlaHours,
+        escalationConfig: source.escalationConfig ?? undefined,
         version: 1,
         status: 'DRAFT',
       },

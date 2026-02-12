@@ -216,12 +216,8 @@ describe('Analyses CRUD API', () => {
       expect(response.body.error.message).toBe('Analysis not found');
     });
 
-    it('returns analysis with user and actions includes', async () => {
-      const analysisWithActions = {
-        ...mockAnalysis,
-        actions: [{ id: '13000000-0000-4000-a000-000000000001', title: 'Install guardrails' }],
-      };
-      mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(analysisWithActions);
+    it('returns analysis by id', async () => {
+      mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(mockAnalysis);
 
       const response = await request(app)
         .get('/api/analyses/52000000-0000-4000-a000-000000000001')
@@ -230,14 +226,9 @@ describe('Analyses CRUD API', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.id).toBe('52000000-0000-4000-a000-000000000001');
-      expect(response.body.data.actions).toHaveLength(1);
 
       expect(mockPrisma.aIAnalysis.findUnique).toHaveBeenCalledWith({
         where: { id: '52000000-0000-4000-a000-000000000001' },
-        include: {
-          user: { select: { id: true, firstName: true, lastName: true, email: true } },
-          actions: true,
-        },
       });
     });
 

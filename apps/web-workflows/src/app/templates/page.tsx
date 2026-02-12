@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, BookTemplate, FileCode, Users, Package } from 'lucide-react';
+import { Plus, LayoutTemplate, FileCode, Users, Package } from 'lucide-react';
 import api from '@/lib/api';
 
 interface Template {
@@ -119,7 +119,7 @@ export default function TemplatesPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-lg bg-white p-4 shadow">
           <div className="flex items-center space-x-3">
-            <BookTemplate className="h-8 w-8 text-indigo-500" />
+            <LayoutTemplate className="h-8 w-8 text-indigo-500" />
             <div>
               <p className="text-sm text-gray-500">Total Templates</p>
               <p className="text-xl font-semibold">{templates.length}</p>
@@ -165,7 +165,7 @@ export default function TemplatesPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {templates.length === 0 ? (
           <div className="col-span-full rounded-lg bg-white p-12 text-center shadow">
-            <BookTemplate className="mx-auto h-12 w-12 text-gray-400" />
+            <LayoutTemplate className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">No templates found</h3>
             <p className="mt-2 text-gray-500">Get started by creating a workflow template.</p>
           </div>

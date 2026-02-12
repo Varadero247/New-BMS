@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
@@ -21,7 +21,7 @@ const statusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'WAITING_APPROVAL', 'PAUSED
 // GET /api/instances - Get workflow instances
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { status, definitionId, initiatorId, page = '1', limit = '20' } = req.query;
+    const { status, definitionId, initiatedById, page = '1', limit = '20' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string) || 1);
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
@@ -29,8 +29,8 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Prisma.WorkflowInstanceWhereInput = {};
     if (status) where.status = status;
-    if (definitionId) where.definitionId = definitionId;
-    if (initiatorId) where.initiatorId = initiatorId;
+    if (definitionId) where.definitionId = definitionId as string;
+    if (initiatedById) where.initiatedById = initiatedById as string;
 
     const [instances, total] = await Promise.all([
       prisma.workflowInstance.findMany({
@@ -104,7 +104,7 @@ router.get('/:id', async (req: Request, res: Response) => {
           orderBy: { createdAt: 'desc' },
         },
         history: {
-          orderBy: { actionAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -124,16 +124,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      definitionId: z.string().uuid(),
-      initiatorId: z.string().uuid(),
-      title: z.string().min(1),
-      description: z.string().optional(),
+      definitionId: z.string(),
+      initiatedById: z.string(),
       priority: priorityEnum.default('NORMAL'),
       entityType: z.string().optional(),
       entityId: z.string().optional(),
-      variables: z.record(z.unknown()).optional(),
-      formData: z.record(z.unknown()).optional(),
-      dueDate: z.string().optional(),
+      contextData: z.record(z.unknown()).optional(),
+      slaDeadline: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -151,26 +148,22 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Definition must be active' } });
     }
 
-    // Generate instance number
+    // Generate reference number
     const count = await prisma.workflowInstance.count();
-    const instanceNumber = `WF-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+    const referenceNumber = `WF-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
 
     // Create instance
     const instance = await prisma.workflowInstance.create({
       data: {
-        instanceNumber,
+        referenceNumber,
         definitionId: data.definitionId,
-        initiatorId: data.initiatorId,
-        title: data.title,
-        description: data.description,
+        initiatedById: data.initiatedById,
         priority: data.priority,
         status: 'IN_PROGRESS',
         entityType: data.entityType,
         entityId: data.entityId,
-        variables: data.variables,
-        formData: data.formData,
-        startedAt: new Date(),
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        contextData: data.contextData,
+        slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : undefined,
       },
       include: {
         definition: { select: { name: true } },
@@ -181,9 +174,9 @@ router.post('/', async (req: Request, res: Response) => {
     await prisma.workflowHistory.create({
       data: {
         instanceId: instance.id,
-        action: 'STARTED',
-        actionBy: data.initiatorId,
-        details: { message: 'Workflow instance started' },
+        eventType: 'STARTED',
+        actorId: data.initiatedById,
+        description: 'Workflow instance started',
       },
     });
 
@@ -200,25 +193,20 @@ router.post('/', async (req: Request, res: Response) => {
 // PUT /api/instances/:id/advance - Advance to next node
 router.put('/:id/advance', async (req: Request, res: Response) => {
   try {
-    const { nextNodeId, actionBy, comments } = req.body;
+    const { nextStepId, actionBy, comments } = req.body;
 
     const current = await prisma.workflowInstance.findUnique({ where: { id: req.params.id } });
     if (!current) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Instance not found' } });
     }
 
-    // Add current node to completed nodes
-    const completedNodeIds = current.completedNodeIds || [];
-    if (current.currentNodeId && !completedNodeIds.includes(current.currentNodeId)) {
-      completedNodeIds.push(current.currentNodeId);
-    }
+    const previousStepId = current.currentStepId;
 
     const instance = await prisma.$transaction(async (tx) => {
       const updated = await tx.workflowInstance.update({
         where: { id: req.params.id },
         data: {
-          currentNodeId: nextNodeId,
-          completedNodeIds,
+          currentStepId: nextStepId,
         },
       });
 
@@ -226,10 +214,11 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
       await tx.workflowHistory.create({
         data: {
           instanceId: req.params.id,
-          action: 'NODE_COMPLETED',
-          actionBy,
-          nodeId: current.currentNodeId,
-          details: { nextNodeId, comments },
+          eventType: 'STEP_COMPLETED',
+          actorId: actionBy,
+          stepId: previousStepId,
+          description: comments,
+          metadata: { nextStepId },
         },
       });
 
@@ -247,9 +236,8 @@ router.put('/:id/advance', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      actionBy: z.string().uuid().optional(),
+      completedById: z.string().optional(),
       outcome: z.enum(['APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED']).optional(),
-      outcomeNotes: z.string().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -260,17 +248,17 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
         data: {
           status: 'COMPLETED',
           completedAt: new Date(),
+          completedById: data.completedById,
           outcome: data.outcome,
-          outcomeNotes: data.outcomeNotes,
         },
       });
 
       await tx.workflowHistory.create({
         data: {
           instanceId: req.params.id,
-          action: 'COMPLETED',
-          actionBy: data.actionBy,
-          details: { outcome: data.outcome, outcomeNotes: data.outcomeNotes },
+          eventType: 'COMPLETED',
+          actorId: data.completedById,
+          description: `Workflow completed with outcome: ${data.outcome || 'COMPLETED'}`,
         },
       });
 
@@ -297,8 +285,8 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
         where: { id: req.params.id },
         data: {
           status: 'CANCELLED',
-          cancelledAt: new Date(),
-          cancelledById,
+          completedAt: new Date(),
+          completedById: cancelledById,
           cancellationReason,
         },
       });
@@ -306,9 +294,9 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
       await tx.workflowHistory.create({
         data: {
           instanceId: req.params.id,
-          action: 'CANCELLED',
-          actionBy: cancelledById,
-          details: { reason: cancellationReason },
+          eventType: 'CANCELLED',
+          actorId: cancelledById,
+          description: cancellationReason,
         },
       });
 
