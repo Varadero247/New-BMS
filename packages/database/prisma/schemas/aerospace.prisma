@@ -1,0 +1,189 @@
+// Aerospace Schema - AS9100D / AS9110C Domain
+// Used by the Aerospace microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/aerospace"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AEROSPACE_DATABASE_URL")
+}
+
+// ============================================
+// CONFIGURATION MANAGEMENT (AS9100D Clause 8.1.2)
+// ============================================
+
+model ConfigBaseline {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // CB-NNN
+  title           String
+  description     String?
+  program         String?
+  status          BaselineStatus @default(DRAFT)
+  effectiveDate   DateTime?
+  approvedBy      String?
+  approvedDate    DateTime?
+  items           ConfigItem[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([effectiveDate])
+  @@map("config_baselines")
+}
+
+model ConfigItem {
+  id              String    @id @default(cuid())
+  baselineId      String
+  partNumber      String
+  nomenclature    String
+  revision        String
+  serialNumber    String?
+  lotNumber       String?
+  category        CICategory
+  status          CIStatus @default(CURRENT)
+  documentRef     String?
+  specifications  String?
+  supplier        String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  baseline        ConfigBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+
+  @@index([baselineId])
+  @@index([partNumber])
+  @@index([status])
+  @@map("config_items")
+}
+
+model EngineeringChangeProposal {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // ECP-YYMM-XXXX
+  title           String
+  description     String
+  reason          String
+  urgency         ECPUrgency @default(ROUTINE)
+  affectedItems   String[]  // Part numbers affected
+  affectedBaselines String[] // Baseline IDs affected
+  proposedBy      String
+  proposedDate    DateTime  @default(now())
+  status          ECPStatus @default(PROPOSED)
+  ccbDecision     CCBDecision?
+  ccbDate         DateTime?
+  ccbMembers      String[]
+  ccbNotes        String?
+  implementedDate DateTime?
+  verifiedDate    DateTime?
+  verifiedBy      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([urgency])
+  @@map("engineering_change_proposals")
+}
+
+model ConfigAudit {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // FCA-YYMM-XXXX or PCA-YYMM-XXXX
+  type            ConfigAuditType
+  title           String
+  baselineId      String?
+  auditDate       DateTime
+  auditors        String[]
+  status          ConfigAuditStatus @default(PLANNED)
+  findings        String?   // JSON array of findings
+  discrepancies   Int       @default(0)
+  result          AuditResult?
+  notes           String?
+  completedDate   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, type])
+  @@index([status])
+  @@map("config_audits")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum BaselineStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum CICategory {
+  HARDWARE
+  SOFTWARE
+  FIRMWARE
+  DOCUMENT
+  TOOL
+  TEST_EQUIPMENT
+  MATERIAL
+}
+
+enum CIStatus {
+  CURRENT
+  SUPERSEDED
+  OBSOLETE
+  PENDING_CHANGE
+}
+
+enum ECPUrgency {
+  EMERGENCY
+  URGENT
+  ROUTINE
+}
+
+enum ECPStatus {
+  PROPOSED
+  UNDER_REVIEW
+  CCB_APPROVED
+  CCB_REJECTED
+  IMPLEMENTING
+  IMPLEMENTED
+  VERIFIED
+  CLOSED
+}
+
+enum CCBDecision {
+  APPROVE
+  APPROVE_WITH_CONDITIONS
+  REJECT
+  DEFER
+  MORE_INFO_NEEDED
+}
+
+enum ConfigAuditType {
+  FCA
+  PCA
+}
+
+enum ConfigAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditResult {
+  PASS
+  PASS_WITH_FINDINGS
+  FAIL
+}

@@ -962,6 +962,13 @@ model QualFmea {
   dateInitiated   DateTime @default(now())
   nextReviewDate  DateTime?
 
+  // AIAG-VDA Harmonised Format support
+  fmeaFormat      FmeaFormat @default(TRADITIONAL)
+  actionPriority  FmeaActionPriority?
+  preventionControls String?
+  detectionControls  String?
+  apRating        String?  // Action Priority rating for AIAG-VDA format
+
   // AI
   aiAnalysis      String?
   aiMissingFailureModes String?
@@ -1053,6 +1060,17 @@ enum FMEARowStatus {
   COMPLETED
   VERIFIED
   ACCEPTED
+}
+
+enum FmeaFormat {
+  TRADITIONAL
+  AIAG_VDA_2024
+}
+
+enum FmeaActionPriority {
+  HIGH
+  MEDIUM
+  LOW
 }
 
 // ============================================
@@ -1536,4 +1554,109 @@ enum MilestoneStatus {
   COMPLETED
   OVERDUE
   CANCELLED
+}
+
+// ============================================
+// CUSTOMER SATISFACTION (ISO 9001 Clause 9.1.2)
+// ============================================
+
+model CustomerSurvey {
+  id            String    @id @default(cuid())
+  tenantId      String    @default("default")
+  refNumber     String    @unique  // CS-YYMM-XXXX
+  title         String
+  description   String?
+  type          SurveyType
+  isActive      Boolean   @default(true)
+  isPublic      Boolean   @default(false)
+  publicToken   String?   @unique
+  questions     SurveyQuestion[]
+  responses     SurveyResponse[]
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([tenantId, isActive])
+  @@index([publicToken])
+  @@map("customer_surveys")
+}
+
+model SurveyQuestion {
+  id          String       @id @default(cuid())
+  surveyId    String
+  orderIndex  Int
+  text        String
+  type        QuestionType
+  required    Boolean      @default(true)
+  options     String[]     // For MULTIPLE_CHOICE type
+  minValue    Int?         // For RATING type (e.g., 0 for NPS)
+  maxValue    Int?         // For RATING type (e.g., 10 for NPS)
+  answers     QuestionAnswer[]
+  createdAt   DateTime     @default(now())
+
+  survey      CustomerSurvey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
+  @@map("survey_questions")
+}
+
+model SurveyResponse {
+  id            String    @id @default(cuid())
+  surveyId      String
+  respondentName  String?
+  respondentEmail String?
+  respondentCompany String?
+  npsScore      Int?      // 0-10 NPS score
+  csatScore     Int?      // 1-5 CSAT score
+  npsCategory   NPSCategory?
+  answers       QuestionAnswer[]
+  submittedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  survey        CustomerSurvey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
+  @@index([submittedAt])
+  @@index([npsCategory])
+  @@map("survey_responses")
+}
+
+model QuestionAnswer {
+  id          String    @id @default(cuid())
+  responseId  String
+  questionId  String
+  textValue   String?
+  numericValue Int?
+  selectedOptions String[]
+  createdAt   DateTime  @default(now())
+
+  response    SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question    SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([responseId])
+  @@index([questionId])
+  @@map("question_answers")
+}
+
+enum SurveyType {
+  NPS
+  CSAT
+  CUSTOM
+  POST_DELIVERY
+  ANNUAL
+}
+
+enum QuestionType {
+  RATING
+  TEXT
+  MULTIPLE_CHOICE
+  YES_NO
+  NPS_SCALE
+}
+
+enum NPSCategory {
+  PROMOTER
+  PASSIVE
+  DETRACTOR
 }

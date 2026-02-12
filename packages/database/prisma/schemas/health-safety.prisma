@@ -901,3 +901,72 @@ enum CapaActionStatus {
   OVERDUE
   CANCELLED
 }
+
+// ============================================
+// MANAGEMENT REVIEW (ISO 45001 Clause 9.3)
+// ============================================
+
+model HSManagementReview {
+  id                    String    @id @default(cuid())
+  tenantId              String    @default("default")
+  refNumber             String    @unique  // HS-MR-YYYY-NN
+  reviewDate            DateTime
+  chair                 String
+  attendees             String[]
+  status                HSReviewStatus @default(DRAFT)
+  // ISO 45001 Clause 9.3 mandatory inputs
+  prevActionStatus      String?
+  ohsObjectivesProgress String?
+  legalComplianceStatus String?
+  incidentStatistics    String?
+  riskOpportunityReview String?
+  auditResults          String?
+  workerParticipation   String?
+  externalCommunications String?
+  changesInIssues       String?
+  // ISO 45001 Clause 9.3 mandatory outputs
+  continualImprovement  String?
+  resourceNeeds         String?
+  systemChanges         String?
+  actions               HSMRAction[]
+  createdBy             String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  @@index([tenantId, status])
+  @@index([reviewDate])
+  @@map("hs_management_reviews")
+}
+
+model HSMRAction {
+  id          String              @id @default(cuid())
+  reviewId    String
+  action      String
+  owner       String
+  dueDate     DateTime
+  status      HSMRActionStatus    @default(OPEN)
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  review      HSManagementReview  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("hs_mr_actions")
+}
+
+enum HSReviewStatus {
+  DRAFT
+  COMPLETED
+  APPROVED
+}
+
+enum HSMRActionStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETE
+  OVERDUE
+}

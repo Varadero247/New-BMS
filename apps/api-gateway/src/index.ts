@@ -45,6 +45,9 @@ const SERVICES = {
   payroll: process.env.SERVICE_PAYROLL_URL || process.env.PAYROLL_URL || 'http://localhost:4007',
   workflows: process.env.SERVICE_WORKFLOWS_URL || process.env.WORKFLOWS_URL || 'http://localhost:4008',
   projectManagement: process.env.SERVICE_PROJECT_MANAGEMENT_URL || process.env.PROJECT_MANAGEMENT_URL || 'http://localhost:4009',
+  automotive: process.env.SERVICE_AUTOMOTIVE_URL || process.env.AUTOMOTIVE_URL || 'http://localhost:4010',
+  medical: process.env.SERVICE_MEDICAL_URL || process.env.MEDICAL_URL || 'http://localhost:4011',
+  aerospace: process.env.SERVICE_AEROSPACE_URL || process.env.AEROSPACE_URL || 'http://localhost:4012',
 };
 
 // Generate service token for inter-service authentication
@@ -83,7 +86,8 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002',
   'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005',
   'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008',
-  'http://localhost:3009',
+  'http://localhost:3009', 'http://localhost:3010', 'http://localhost:3011',
+  'http://localhost:3012',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -246,6 +250,9 @@ app.use('/api/v1/hr', addVersionHeader('v1'), createServiceProxy('HR', SERVICES.
 app.use('/api/v1/payroll', addVersionHeader('v1'), createServiceProxy('Payroll', SERVICES.payroll, '/api/v1/payroll', 'Payroll service unavailable'));
 app.use('/api/v1/workflows', addVersionHeader('v1'), createServiceProxy('Workflows', SERVICES.workflows, '/api/v1/workflows', 'Workflows service unavailable'));
 app.use('/api/v1/project-management', addVersionHeader('v1'), createServiceProxy('Project Management', SERVICES.projectManagement, '/api/v1/project-management', 'Project Management service unavailable'));
+app.use('/api/v1/automotive', addVersionHeader('v1'), createServiceProxy('Automotive', SERVICES.automotive, '/api/v1/automotive', 'Automotive service unavailable'));
+app.use('/api/v1/medical', addVersionHeader('v1'), createServiceProxy('Medical', SERVICES.medical, '/api/v1/medical', 'Medical service unavailable'));
+app.use('/api/v1/aerospace', addVersionHeader('v1'), createServiceProxy('Aerospace', SERVICES.aerospace, '/api/v1/aerospace', 'Aerospace service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -259,6 +266,9 @@ app.use('/api/hr', deprecatedRoute('/api/v1/hr'), createServiceProxy('HR', SERVI
 app.use('/api/payroll', deprecatedRoute('/api/v1/payroll'), createServiceProxy('Payroll', SERVICES.payroll, '/api/payroll', 'Payroll service unavailable'));
 app.use('/api/workflows', deprecatedRoute('/api/v1/workflows'), createServiceProxy('Workflows', SERVICES.workflows, '/api/workflows', 'Workflows service unavailable'));
 app.use('/api/project-management', deprecatedRoute('/api/v1/project-management'), createServiceProxy('Project Management', SERVICES.projectManagement, '/api/project-management', 'Project Management service unavailable'));
+app.use('/api/automotive', deprecatedRoute('/api/v1/automotive'), createServiceProxy('Automotive', SERVICES.automotive, '/api/automotive', 'Automotive service unavailable'));
+app.use('/api/medical', deprecatedRoute('/api/v1/medical'), createServiceProxy('Medical', SERVICES.medical, '/api/medical', 'Medical service unavailable'));
+app.use('/api/aerospace', deprecatedRoute('/api/v1/aerospace'), createServiceProxy('Aerospace', SERVICES.aerospace, '/api/aerospace', 'Aerospace service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

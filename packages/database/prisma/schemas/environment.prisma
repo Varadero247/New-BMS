@@ -462,6 +462,131 @@ model EnvCapaAction {
 }
 
 // ============================================
+// ENVIRONMENTAL AUDITS (ISO 14001 Clause 9.2)
+// ============================================
+
+model EnvAudit {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // ENV-AUD-YYMM-XXXX
+  title           String
+  type            EnvAuditType
+  scope           String
+  auditDate       DateTime
+  leadAuditor     String
+  auditees        String[]
+  status          EnvAuditStatus @default(PLANNED)
+  iso14001Clauses String[]  // e.g. ["4.1","4.2","6.1.1","9.2"]
+  findings        EnvAuditFinding[]
+  summary         String?
+  nextAuditDate   DateTime?
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([tenantId, auditDate])
+  @@index([status])
+  @@map("env_audits")
+}
+
+model EnvAuditFinding {
+  id          String              @id @default(cuid())
+  auditId     String
+  clause      String              // ISO 14001 clause reference e.g. "6.1.1"
+  type        EnvFindingType
+  description String
+  evidence    String?
+  capaRef     String?             // Link to CAPA if NC
+  status      EnvFindingStatus    @default(OPEN)
+  dueDate     DateTime?
+  closedDate  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  audit       EnvAudit            @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@index([status])
+  @@map("env_audit_findings")
+}
+
+model EnvAuditSchedule {
+  id            String    @id @default(cuid())
+  tenantId      String    @default("default")
+  title         String
+  type          EnvAuditType
+  frequency     EnvReviewFrequency
+  nextDueDate   DateTime
+  lastCompleted DateTime?
+  assignedTo    String?
+  iso14001Clauses String[]
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tenantId, nextDueDate])
+  @@index([isActive])
+  @@map("env_audit_schedules")
+}
+
+// ============================================
+// MANAGEMENT REVIEW (ISO 14001 Clause 9.3)
+// ============================================
+
+model EnvManagementReview {
+  id                    String    @id @default(cuid())
+  tenantId              String    @default("default")
+  refNumber             String    @unique  // ENV-MR-YYYY-NN
+  reviewDate            DateTime
+  chair                 String
+  attendees             String[]
+  status                EnvReviewStatus @default(DRAFT)
+  // ISO 14001 Clause 9.3 mandatory inputs
+  prevActionStatus      String?
+  changesInIssues       String?
+  objectivesProgress    String?
+  aspectsPerformance    String?
+  legalCompliance       String?
+  incidentSummary       String?
+  auditResults          String?
+  supplierPerformance   String?
+  // ISO 14001 Clause 9.3 mandatory outputs
+  continualImprovement  String?
+  resourceNeeds         String?
+  systemChanges         String?
+  actions               EnvMRAction[]
+  createdBy             String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  @@index([tenantId, status])
+  @@index([reviewDate])
+  @@map("env_management_reviews")
+}
+
+model EnvMRAction {
+  id          String              @id @default(cuid())
+  reviewId    String
+  action      String
+  owner       String
+  dueDate     DateTime
+  status      EnvActionStatus     @default(OPEN)
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  review      EnvManagementReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("env_mr_actions")
+}
+
+// ============================================
 // ENVIRONMENTAL MONITORING (kept from original)
 // ============================================
 
@@ -844,6 +969,42 @@ enum EnvRootCauseCategory {
   SUPPLIER_FAILURE
   REGULATORY_CHANGE
   OTHER
+}
+
+enum EnvAuditType {
+  SYSTEM
+  COMPLIANCE
+  SITE
+  SUPPLIER
+  MANAGEMENT_REVIEW
+}
+
+enum EnvAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EnvFindingType {
+  CONFORMITY
+  MINOR_NC
+  MAJOR_NC
+  OBSERVATION
+  OFI
+}
+
+enum EnvFindingStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  VERIFIED
+}
+
+enum EnvReviewStatus {
+  DRAFT
+  COMPLETED
+  APPROVED
 }
 
 // Kept from original schema

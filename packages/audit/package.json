@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@ims/database": "workspace:*",
+    "@ims/esig": "workspace:*",
     "@ims/monitoring": "workspace:*"
   },
   "devDependencies": {

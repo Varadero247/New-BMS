@@ -50,13 +50,25 @@
     "./project-management": {
       "import": "./generated/project-management/index.js",
       "require": "./generated/project-management/index.js"
+    },
+    "./automotive": {
+      "import": "./generated/automotive/index.js",
+      "require": "./generated/automotive/index.js"
+    },
+    "./medical": {
+      "import": "./generated/medical/index.js",
+      "require": "./generated/medical/index.js"
+    },
+    "./aerospace": {
+      "import": "./generated/aerospace/index.js",
+      "require": "./generated/aerospace/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -67,8 +79,11 @@
     "generate:workflows": "prisma generate --schema=prisma/schemas/workflows.prisma",
     "generate:ai": "prisma generate --schema=prisma/schemas/ai.prisma",
     "generate:project-management": "prisma generate --schema=prisma/schemas/project-management.prisma",
+    "generate:automotive": "prisma generate --schema=prisma/schemas/automotive.prisma",
+    "generate:medical": "prisma generate --schema=prisma/schemas/medical.prisma",
+    "generate:aerospace": "prisma generate --schema=prisma/schemas/aerospace.prisma",
     "push": "prisma db push",
-    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace",
     "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
     "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
     "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
@@ -79,6 +94,9 @@
     "push:workflows": "prisma db push --schema=prisma/schemas/workflows.prisma",
     "push:ai": "prisma db push --schema=prisma/schemas/ai.prisma",
     "push:project-management": "prisma db push --schema=prisma/schemas/project-management.prisma",
+    "push:automotive": "prisma db push --schema=prisma/schemas/automotive.prisma",
+    "push:medical": "prisma db push --schema=prisma/schemas/medical.prisma",
+    "push:aerospace": "prisma db push --schema=prisma/schemas/aerospace.prisma",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",

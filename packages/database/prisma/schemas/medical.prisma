@@ -1,0 +1,290 @@
+// Medical Devices Schema - ISO 13485 Domain
+// Used by the Medical microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/medical"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MEDICAL_DATABASE_URL")
+}
+
+// ============================================
+// DESIGN CONTROLS (ISO 13485 Clause 7.3)
+// ============================================
+
+model DesignProject {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // DC-YYMM-XXXX
+  title           String
+  deviceName      String
+  deviceClass     DeviceClass
+  intendedUse     String
+  patientPopulation String?
+  regulatoryPathway String?  // 510k, De Novo, PMA, CE Mark
+  currentStage    DesignStage @default(PLANNING)
+  status          DesignProjectStatus @default(ACTIVE)
+  projectLead     String
+  teamMembers     String[]
+  startDate       DateTime
+  targetDate      DateTime?
+  completedDate   DateTime?
+  inputs          DesignInput[]
+  outputs         DesignOutput[]
+  reviews         DesignReview[]
+  verifications   DesignVerification[]
+  validations     DesignValidation[]
+  transfers       DesignTransfer[]
+  historyFiles    DesignHistoryFile[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([currentStage])
+  @@index([deviceClass])
+  @@map("design_projects")
+}
+
+model DesignInput {
+  id            String    @id @default(cuid())
+  projectId     String
+  category      InputCategory
+  requirement   String
+  source        String?   // User need, regulatory, safety, etc.
+  priority      DesignPriority @default(MEDIUM)
+  verified      Boolean   @default(false)
+  verifiedDate  DateTime?
+  verifiedBy    String?
+  traceToOutput String?   // Link to DesignOutput ID
+  traceToVerification String? // Link to DesignVerification ID
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@map("design_inputs")
+}
+
+model DesignOutput {
+  id            String    @id @default(cuid())
+  projectId     String
+  category      OutputCategory
+  description   String
+  documentRef   String?
+  acceptanceCriteria String?
+  status        OutputStatus @default(DRAFT)
+  approvedDate  DateTime?
+  approvedBy    String?
+  traceToInput  String?   // Link to DesignInput ID
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@map("design_outputs")
+}
+
+model DesignReview {
+  id          String    @id @default(cuid())
+  projectId   String
+  stage       DesignStage
+  reviewDate  DateTime
+  reviewers   String[]
+  decision    ReviewDecision
+  minutes     String?
+  actionItems String?
+  nextReviewDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project     DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([stage])
+  @@map("design_reviews")
+}
+
+model DesignVerification {
+  id              String    @id @default(cuid())
+  projectId       String
+  title           String
+  protocol        String?
+  testMethod      String
+  acceptanceCriteria String
+  results         String?
+  pass            Boolean?
+  completedDate   DateTime?
+  completedBy     String?
+  traceToInput    String?   // What input requirement does this verify?
+  traceToOutput   String?   // What output does this verify?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("design_verifications")
+}
+
+model DesignValidation {
+  id              String    @id @default(cuid())
+  projectId       String
+  title           String
+  protocol        String?
+  testMethod      String    // Clinical, usability, biocompatibility, etc.
+  intendedUseConfirmed Boolean @default(false)
+  results         String?
+  pass            Boolean?
+  completedDate   DateTime?
+  completedBy     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("design_validations")
+}
+
+model DesignTransfer {
+  id              String    @id @default(cuid())
+  projectId       String
+  transferDate    DateTime?
+  dhfComplete     Boolean   @default(false)
+  mfgReadiness    Boolean   @default(false)
+  qaApproval      Boolean   @default(false)
+  raApproval      Boolean   @default(false)
+  notes           String?
+  status          TransferStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("design_transfers")
+}
+
+model DesignHistoryFile {
+  id          String    @id @default(cuid())
+  projectId   String
+  title       String
+  category    DHFCategory
+  documentRef String?
+  version     String    @default("1.0")
+  uploadedBy  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project     DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@map("design_history_files")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum DeviceClass {
+  CLASS_I
+  CLASS_II
+  CLASS_III
+  CLASS_IIA
+  CLASS_IIB
+}
+
+enum DesignStage {
+  PLANNING
+  INPUTS
+  OUTPUTS
+  REVIEW
+  VERIFICATION
+  VALIDATION
+  TRANSFER
+  COMPLETE
+}
+
+enum DesignProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum InputCategory {
+  FUNCTIONAL
+  PERFORMANCE
+  SAFETY
+  REGULATORY
+  USER_NEED
+  ENVIRONMENTAL
+  INTERFACE
+  STANDARDS
+}
+
+enum OutputCategory {
+  DRAWING
+  SPECIFICATION
+  SOFTWARE
+  LABELLING
+  MANUFACTURING
+  ACCEPTANCE_CRITERIA
+  PACKAGING
+  RISK_ANALYSIS
+}
+
+enum OutputStatus {
+  DRAFT
+  REVIEWED
+  APPROVED
+  SUPERSEDED
+}
+
+enum ReviewDecision {
+  APPROVED
+  APPROVED_WITH_CONDITIONS
+  NEEDS_REWORK
+  REJECTED
+}
+
+enum TransferStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+enum DesignPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum DHFCategory {
+  DESIGN_PLAN
+  USER_NEEDS
+  DESIGN_INPUT
+  DESIGN_OUTPUT
+  DESIGN_REVIEW
+  VERIFICATION_PROTOCOL
+  VERIFICATION_RESULT
+  VALIDATION_PROTOCOL
+  VALIDATION_RESULT
+  RISK_MANAGEMENT
+  TRANSFER_RECORD
+  CHANGE_ORDER
+  OTHER
+}

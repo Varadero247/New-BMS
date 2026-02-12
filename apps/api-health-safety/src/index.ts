@@ -34,6 +34,7 @@ import trainingRouter from './routes/training';
 import legalRouter from './routes/legal';
 import objectivesRouter from './routes/objectives';
 import capaRouter from './routes/capa';
+import managementReviewsRouter from './routes/management-reviews';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4001;
@@ -68,6 +69,7 @@ app.use('/api/training', trainingRouter);
 app.use('/api/legal', legalRouter);
 app.use('/api/objectives', objectivesRouter);
 app.use('/api/capa', capaRouter);
+app.use('/api/management-reviews', managementReviewsRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

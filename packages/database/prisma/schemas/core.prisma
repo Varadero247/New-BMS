@@ -93,6 +93,63 @@ model AuditLog {
 }
 
 // ============================================
+// ENHANCED AUDIT TRAIL (21 CFR Part 11)
+// ============================================
+
+model EnhancedAuditTrail {
+  id            String   @id @default(cuid())
+  tenantId      String   @default("default")
+  userId        String
+  userEmail     String
+  userFullName  String
+  action        String   // CREATE | UPDATE | DELETE | APPROVE | SIGN | VIEW
+  resourceType  String   // e.g. 'DeviceMasterRecord'
+  resourceId    String
+  resourceRef   String   // e.g. 'DMR-2602-0001'
+  changes       Json     @default("[]") // Array of { field, oldValue, newValue }
+  ipAddress     String
+  userAgent     String
+  sessionId     String   @default("")
+  esignatureId  String?
+  systemVersion String   @default("1.0.0")
+  checksum      String   // SHA-256 tamper detection
+  createdAt     DateTime @default(now())
+
+  esignature ESignature? @relation(fields: [esignatureId], references: [id])
+
+  @@index([tenantId, resourceType, resourceId])
+  @@index([tenantId, userId])
+  @@index([resourceType, resourceId])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("enhanced_audit_trail")
+}
+
+model ESignature {
+  id            String   @id @default(cuid())
+  userId        String
+  userEmail     String
+  userFullName  String
+  meaning       String   // APPROVED | REVIEWED | RELEASED | VERIFIED | etc.
+  reason        String
+  resourceType  String
+  resourceId    String
+  resourceRef   String
+  ipAddress     String
+  userAgent     String
+  checksum      String   // SHA-256 tamper detection
+  valid         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  auditEntries EnhancedAuditTrail[]
+
+  @@index([userId, createdAt])
+  @@index([resourceType, resourceId])
+  @@index([valid])
+  @@map("esignatures")
+}
+
+// ============================================
 // API KEYS (for service-to-service auth)
 // ============================================
 

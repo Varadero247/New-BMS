@@ -145,6 +145,23 @@ describe('Quality FMEA API Routes', () => {
       );
     });
 
+    it('should filter by fmeaFormat', async () => {
+      (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/fmea?fmeaFormat=AIAG_VDA_2024')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.qualFmea.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            fmeaFormat: 'AIAG_VDA_2024',
+          }),
+        })
+      );
+    });
+
     it('should order by createdAt descending and include rows', async () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce(mockFmeas);
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(2);
@@ -344,6 +361,88 @@ describe('Quality FMEA API Routes', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
+    it('should create an AIAG-VDA format FMEA with new fields', async () => {
+      const aiagPayload = {
+        fmeaType: 'PFMEA',
+        title: 'AIAG-VDA FMEA',
+        productProcess: 'Production Line C',
+        fmeaFormat: 'AIAG_VDA_2024',
+        actionPriority: 'HIGH',
+        preventionControls: 'SPC monitoring, tool calibration',
+        detectionControls: 'End-of-line functional test',
+        apRating: 'H',
+      };
+
+      (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.qualFmea.create as jest.Mock).mockResolvedValueOnce({
+        id: '30000000-0000-4000-a000-000000000124',
+        referenceNumber: 'QMS-FMEA-2026-003',
+        ...aiagPayload,
+        status: 'DRAFT',
+        rows: [],
+      });
+
+      const response = await request(app)
+        .post('/api/fmea')
+        .set('Authorization', 'Bearer token')
+        .send(aiagPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.fmeaFormat).toBe('AIAG_VDA_2024');
+      expect(response.body.data.actionPriority).toBe('HIGH');
+      expect(response.body.data.preventionControls).toBe('SPC monitoring, tool calibration');
+      expect(response.body.data.detectionControls).toBe('End-of-line functional test');
+      expect(response.body.data.apRating).toBe('H');
+      expect(mockPrisma.qualFmea.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            fmeaFormat: 'AIAG_VDA_2024',
+            actionPriority: 'HIGH',
+            preventionControls: 'SPC monitoring, tool calibration',
+            detectionControls: 'End-of-line functional test',
+            apRating: 'H',
+          }),
+        })
+      );
+    });
+
+    it('should default fmeaFormat to TRADITIONAL when not provided', async () => {
+      (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(3);
+      (mockPrisma.qualFmea.create as jest.Mock).mockResolvedValueOnce({
+        id: '30000000-0000-4000-a000-000000000125',
+        referenceNumber: 'QMS-FMEA-2026-004',
+        ...createPayload,
+        fmeaFormat: 'TRADITIONAL',
+        status: 'DRAFT',
+        rows: [],
+      });
+
+      const response = await request(app)
+        .post('/api/fmea')
+        .set('Authorization', 'Bearer token')
+        .send(createPayload);
+
+      expect(response.status).toBe(201);
+      expect(mockPrisma.qualFmea.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            fmeaFormat: 'TRADITIONAL',
+          }),
+        })
+      );
+    });
+
+    it('should return 400 for invalid fmeaFormat', async () => {
+      const response = await request(app)
+        .post('/api/fmea')
+        .set('Authorization', 'Bearer token')
+        .send({ ...createPayload, fmeaFormat: 'INVALID_FORMAT' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
     it('should handle database errors', async () => {
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualFmea.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
@@ -398,6 +497,63 @@ describe('Quality FMEA API Routes', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should update FMEA with AIAG-VDA format fields', async () => {
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce(existingFmea);
+      (mockPrisma.qualFmea.update as jest.Mock).mockResolvedValueOnce({
+        ...existingFmea,
+        fmeaFormat: 'AIAG_VDA_2024',
+        actionPriority: 'MEDIUM',
+        preventionControls: 'Process control plan',
+        detectionControls: 'Visual inspection',
+        apRating: 'M',
+        rows: [],
+      });
+
+      const response = await request(app)
+        .put('/api/fmea/1f000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({
+          fmeaFormat: 'AIAG_VDA_2024',
+          actionPriority: 'MEDIUM',
+          preventionControls: 'Process control plan',
+          detectionControls: 'Visual inspection',
+          apRating: 'M',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.fmeaFormat).toBe('AIAG_VDA_2024');
+      expect(response.body.data.actionPriority).toBe('MEDIUM');
+      expect(response.body.data.preventionControls).toBe('Process control plan');
+      expect(response.body.data.detectionControls).toBe('Visual inspection');
+      expect(response.body.data.apRating).toBe('M');
+    });
+
+    it('should allow clearing AIAG-VDA fields with null', async () => {
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce(existingFmea);
+      (mockPrisma.qualFmea.update as jest.Mock).mockResolvedValueOnce({
+        ...existingFmea,
+        actionPriority: null,
+        preventionControls: null,
+        detectionControls: null,
+        apRating: null,
+        rows: [],
+      });
+
+      const response = await request(app)
+        .put('/api/fmea/1f000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({
+          actionPriority: null,
+          preventionControls: null,
+          detectionControls: null,
+          apRating: null,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
     });
 
     it('should return 400 for invalid status value', async () => {

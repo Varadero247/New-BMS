@@ -14,6 +14,14 @@ export {
   createAuditService,
 } from './service';
 
+// Enhanced Service (21 CFR Part 11)
+export {
+  EnhancedAuditService,
+  createEnhancedAuditService,
+  type EnhancedAuditCreateParams,
+  type EnhancedAuditQueryOptions,
+} from './enhanced-service';
+
 // Middleware
 export {
   auditMiddleware,

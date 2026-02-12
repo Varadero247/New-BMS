@@ -36,7 +36,7 @@ function getActionPriority(rpn: number): 'LOW' | 'MEDIUM' | 'HIGH' {
 // GET / — List FMEAs (paginated)
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', status, fmeaType } = req.query;
+    const { page = '1', limit = '20', status, fmeaType, fmeaFormat } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
@@ -45,6 +45,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const where: Prisma.QualFmeaWhereInput = { deletedAt: null };
     if (status) where.status = status;
     if (fmeaType) where.fmeaType = fmeaType;
+    if (fmeaFormat) where.fmeaFormat = fmeaFormat;
 
     const [items, total] = await Promise.all([
       prisma.qualFmea.findMany({
@@ -131,6 +132,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
       dateInitiated: z.string().optional(),
       nextReviewDate: z.string().optional(),
+      // AIAG-VDA Harmonised Format fields
+      fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
+      actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
+      preventionControls: z.string().optional(),
+      detectionControls: z.string().optional(),
+      apRating: z.string().optional(),
+      // AI fields
       aiAnalysis: z.string().optional(),
       aiMissingFailureModes: z.string().optional(),
       aiControlGaps: z.string().optional(),
@@ -155,6 +163,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: data.status || 'DRAFT',
         dateInitiated: data.dateInitiated ? new Date(data.dateInitiated) : new Date(),
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
+        fmeaFormat: data.fmeaFormat || 'TRADITIONAL',
+        actionPriority: data.actionPriority,
+        preventionControls: data.preventionControls,
+        detectionControls: data.detectionControls,
+        apRating: data.apRating,
         aiAnalysis: data.aiAnalysis,
         aiMissingFailureModes: data.aiMissingFailureModes,
         aiControlGaps: data.aiControlGaps,
@@ -193,6 +206,13 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
       linkedProcess: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
       nextReviewDate: z.string().optional(),
+      // AIAG-VDA Harmonised Format fields
+      fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
+      actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().nullable(),
+      preventionControls: z.string().optional().nullable(),
+      detectionControls: z.string().optional().nullable(),
+      apRating: z.string().optional().nullable(),
+      // AI fields
       aiAnalysis: z.string().optional(),
       aiMissingFailureModes: z.string().optional(),
       aiControlGaps: z.string().optional(),

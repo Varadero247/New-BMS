@@ -1,0 +1,354 @@
+import bcrypt from 'bcryptjs';
+import {
+  createSignature,
+  verifySignature,
+  isValidMeaning,
+  getValidMeanings,
+  computeAuditChecksum,
+  verifyAuditChecksum,
+  computeSignatureChecksum,
+  verifySignatureChecksum,
+  computeChanges,
+} from '../src';
+import type { SignatureRequest, ElectronicSignature } from '../src';
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+describe('Electronic Signature Package', () => {
+  const testPassword = 'TestPassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  describe('createSignature', () => {
+    const baseRequest: SignatureRequest = {
+      userId: 'user-001',
+      userEmail: 'test@ims.local',
+      userFullName: 'Test User',
+      password: testPassword,
+      meaning: 'APPROVED',
+      reason: 'Reviewed and approved document',
+      resourceType: 'DeviceMasterRecord',
+      resourceId: 'dmr-001',
+      resourceRef: 'DMR-2602-0001',
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla/5.0',
+    };
+
+    it('should create a valid signature with correct password', async () => {
+      const result = await createSignature(baseRequest, passwordHash);
+
+      expect(result.error).toBeUndefined();
+      expect(result.signature).not.toBeNull();
+      expect(result.signature!.userId).toBe('user-001');
+      expect(result.signature!.meaning).toBe('APPROVED');
+      expect(result.signature!.resourceType).toBe('DeviceMasterRecord');
+      expect(result.signature!.valid).toBe(true);
+      expect(result.signature!.checksum).toHaveLength(64); // SHA-256 hex
+      expect(result.signature!.id).toBeDefined();
+      expect(result.signature!.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('should reject with wrong password', async () => {
+      const request = { ...baseRequest, password: 'WrongPassword123!' };
+      const result = await createSignature(request, passwordHash);
+
+      expect(result.signature).toBeNull();
+      expect(result.error).toBe('Password re-authentication failed');
+    });
+
+    it('should reject invalid meaning', async () => {
+      const request = { ...baseRequest, meaning: 'INVALID' as any };
+      const result = await createSignature(request, passwordHash);
+
+      expect(result.signature).toBeNull();
+      expect(result.error).toContain('Invalid signature meaning');
+    });
+
+    it('should support all valid meanings', async () => {
+      for (const meaning of getValidMeanings()) {
+        const request = { ...baseRequest, meaning };
+        const result = await createSignature(request, passwordHash);
+        expect(result.signature).not.toBeNull();
+        expect(result.signature!.meaning).toBe(meaning);
+      }
+    });
+
+    it('should generate unique IDs for each signature', async () => {
+      const result1 = await createSignature(baseRequest, passwordHash);
+      const result2 = await createSignature(baseRequest, passwordHash);
+
+      expect(result1.signature!.id).not.toBe(result2.signature!.id);
+    });
+  });
+
+  describe('verifySignature', () => {
+    it('should verify a valid signature', async () => {
+      const result = await createSignature({
+        userId: 'user-001',
+        userEmail: 'test@ims.local',
+        userFullName: 'Test User',
+        password: testPassword,
+        meaning: 'APPROVED',
+        reason: 'Approved',
+        resourceType: 'Document',
+        resourceId: 'doc-001',
+        resourceRef: 'DOC-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'TestAgent',
+      }, passwordHash);
+
+      const verification = verifySignature(result.signature!);
+
+      expect(verification.valid).toBe(true);
+      expect(verification.checksumMatch).toBe(true);
+      expect(verification.signatureId).toBe(result.signature!.id);
+    });
+
+    it('should detect tampered signature', async () => {
+      const result = await createSignature({
+        userId: 'user-001',
+        userEmail: 'test@ims.local',
+        userFullName: 'Test User',
+        password: testPassword,
+        meaning: 'APPROVED',
+        reason: 'Approved',
+        resourceType: 'Document',
+        resourceId: 'doc-001',
+        resourceRef: 'DOC-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'TestAgent',
+      }, passwordHash);
+
+      // Tamper with the signature data
+      const tampered: ElectronicSignature = {
+        ...result.signature!,
+        userId: 'attacker-001',
+      };
+
+      const verification = verifySignature(tampered);
+
+      expect(verification.valid).toBe(false);
+      expect(verification.checksumMatch).toBe(false);
+    });
+
+    it('should detect invalidated signature', async () => {
+      const result = await createSignature({
+        userId: 'user-001',
+        userEmail: 'test@ims.local',
+        userFullName: 'Test User',
+        password: testPassword,
+        meaning: 'REVIEWED',
+        reason: 'Reviewed',
+        resourceType: 'Document',
+        resourceId: 'doc-002',
+        resourceRef: 'DOC-002',
+        ipAddress: '10.0.0.1',
+        userAgent: 'TestAgent',
+      }, passwordHash);
+
+      const invalidated: ElectronicSignature = {
+        ...result.signature!,
+        valid: false,
+      };
+
+      const verification = verifySignature(invalidated);
+
+      expect(verification.valid).toBe(false);
+      expect(verification.checksumMatch).toBe(true);
+    });
+  });
+
+  describe('isValidMeaning', () => {
+    it('should return true for valid meanings', () => {
+      expect(isValidMeaning('APPROVED')).toBe(true);
+      expect(isValidMeaning('REVIEWED')).toBe(true);
+      expect(isValidMeaning('RELEASED')).toBe(true);
+      expect(isValidMeaning('VERIFIED')).toBe(true);
+      expect(isValidMeaning('REJECTED')).toBe(true);
+      expect(isValidMeaning('WITNESSED')).toBe(true);
+      expect(isValidMeaning('AUTHORED')).toBe(true);
+      expect(isValidMeaning('ACKNOWLEDGED')).toBe(true);
+    });
+
+    it('should return false for invalid meanings', () => {
+      expect(isValidMeaning('INVALID')).toBe(false);
+      expect(isValidMeaning('')).toBe(false);
+      expect(isValidMeaning('approved')).toBe(false);
+    });
+  });
+
+  describe('getValidMeanings', () => {
+    it('should return all 8 valid meanings', () => {
+      const meanings = getValidMeanings();
+      expect(meanings).toHaveLength(8);
+      expect(meanings).toContain('APPROVED');
+      expect(meanings).toContain('RELEASED');
+    });
+  });
+});
+
+describe('Checksum Utilities', () => {
+  const now = new Date('2026-02-12T10:00:00Z');
+
+  describe('computeAuditChecksum', () => {
+    it('should produce consistent SHA-256 hash', () => {
+      const params = {
+        userId: 'user-001',
+        action: 'UPDATE',
+        resourceId: 'doc-001',
+        timestamp: now,
+        changes: [{ field: 'status', oldValue: 'DRAFT', newValue: 'APPROVED' }],
+      };
+
+      const hash1 = computeAuditChecksum(params);
+      const hash2 = computeAuditChecksum(params);
+
+      expect(hash1).toBe(hash2);
+      expect(hash1).toHaveLength(64);
+    });
+
+    it('should produce different hashes for different data', () => {
+      const hash1 = computeAuditChecksum({
+        userId: 'user-001',
+        action: 'CREATE',
+        resourceId: 'doc-001',
+        timestamp: now,
+        changes: [],
+      });
+
+      const hash2 = computeAuditChecksum({
+        userId: 'user-002',
+        action: 'CREATE',
+        resourceId: 'doc-001',
+        timestamp: now,
+        changes: [],
+      });
+
+      expect(hash1).not.toBe(hash2);
+    });
+  });
+
+  describe('verifyAuditChecksum', () => {
+    it('should verify matching checksum', () => {
+      const params = {
+        userId: 'user-001',
+        action: 'DELETE',
+        resourceId: 'risk-001',
+        timestamp: now,
+        changes: [{ field: 'deletedAt', oldValue: null, newValue: now.toISOString() }],
+      };
+
+      const checksum = computeAuditChecksum(params);
+      const result = verifyAuditChecksum({ ...params, storedChecksum: checksum });
+
+      expect(result).toBe(true);
+    });
+
+    it('should reject mismatched checksum', () => {
+      const result = verifyAuditChecksum({
+        userId: 'user-001',
+        action: 'DELETE',
+        resourceId: 'risk-001',
+        timestamp: now,
+        changes: [],
+        storedChecksum: 'tampered_checksum_value',
+      });
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('computeSignatureChecksum', () => {
+    it('should produce consistent SHA-256 hash', () => {
+      const params = {
+        userId: 'user-001',
+        meaning: 'APPROVED',
+        resourceType: 'Document',
+        resourceId: 'doc-001',
+        timestamp: now,
+      };
+
+      const hash1 = computeSignatureChecksum(params);
+      const hash2 = computeSignatureChecksum(params);
+
+      expect(hash1).toBe(hash2);
+      expect(hash1).toHaveLength(64);
+    });
+  });
+
+  describe('verifySignatureChecksum', () => {
+    it('should verify matching signature checksum', () => {
+      const params = {
+        userId: 'user-001',
+        meaning: 'RELEASED',
+        resourceType: 'DMR',
+        resourceId: 'dmr-001',
+        timestamp: now,
+      };
+
+      const checksum = computeSignatureChecksum(params);
+      const result = verifySignatureChecksum({ ...params, storedChecksum: checksum });
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('computeChanges', () => {
+    it('should detect field additions', () => {
+      const changes = computeChanges({}, { name: 'New Value' });
+
+      expect(changes).toHaveLength(1);
+      expect(changes[0]).toEqual({ field: 'name', oldValue: null, newValue: 'New Value' });
+    });
+
+    it('should detect field modifications', () => {
+      const changes = computeChanges(
+        { status: 'DRAFT', title: 'Old Title' },
+        { status: 'APPROVED', title: 'Old Title' }
+      );
+
+      expect(changes).toHaveLength(1);
+      expect(changes[0]).toEqual({ field: 'status', oldValue: 'DRAFT', newValue: 'APPROVED' });
+    });
+
+    it('should detect field removals', () => {
+      const changes = computeChanges({ description: 'Hello' }, {});
+
+      expect(changes).toHaveLength(1);
+      expect(changes[0]).toEqual({ field: 'description', oldValue: 'Hello', newValue: null });
+    });
+
+    it('should handle multiple changes', () => {
+      const changes = computeChanges(
+        { a: 1, b: 2, c: 3 },
+        { a: 1, b: 99, d: 4 }
+      );
+
+      expect(changes).toHaveLength(3); // b changed, c removed, d added
+    });
+
+    it('should return empty array for identical objects', () => {
+      const changes = computeChanges(
+        { a: 1, b: 'hello' },
+        { a: 1, b: 'hello' }
+      );
+
+      expect(changes).toHaveLength(0);
+    });
+
+    it('should handle nested objects', () => {
+      const changes = computeChanges(
+        { config: { timeout: 30 } },
+        { config: { timeout: 60 } }
+      );
+
+      expect(changes).toHaveLength(1);
+      expect(changes[0].field).toBe('config');
+    });
+  });
+});

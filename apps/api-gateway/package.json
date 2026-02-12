@@ -12,9 +12,12 @@
     "clean": "rm -rf dist node_modules .turbo"
   },
   "dependencies": {
+    "@ims/audit": "workspace:*",
     "@ims/auth": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/email": "workspace:*",
+    "@ims/esig": "workspace:*",
+    "@ims/iso-checklists": "workspace:*",
     "@ims/monitoring": "workspace:*",
     "@ims/secrets": "workspace:*",
     "@ims/service-auth": "workspace:*",

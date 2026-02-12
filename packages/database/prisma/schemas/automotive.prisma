@@ -1,0 +1,139 @@
+// Automotive Schema - IATF 16949 Domain
+// Used by the Automotive microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/automotive"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AUTOMOTIVE_DATABASE_URL")
+}
+
+// ============================================
+// APQP (Advanced Product Quality Planning)
+// ============================================
+
+model ApqpProject {
+  id              String    @id @default(cuid())
+  tenantId        String    @default("default")
+  refNumber       String    @unique  // APQP-YYMM-XXXX
+  title           String
+  partNumber      String
+  partName        String
+  customer        String
+  programName     String?
+  status          ApqpStatus @default(PLANNING)
+  currentPhase    Int        @default(1) // 1-5
+  startDate       DateTime
+  targetDate      DateTime
+  completedDate   DateTime?
+  teamLeader      String
+  teamMembers     String[]
+  phases          ApqpPhase[]
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([customer])
+  @@index([partNumber])
+  @@map("apqp_projects")
+}
+
+model ApqpPhase {
+  id            String    @id @default(cuid())
+  projectId     String
+  phaseNumber   Int       // 1-5
+  phaseName     String
+  status        ApqpPhaseStatus @default(NOT_STARTED)
+  startDate     DateTime?
+  completedDate DateTime?
+  gateReview    ApqpGateReview?
+  deliverables  ApqpDeliverable[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       ApqpProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, phaseNumber])
+  @@index([projectId])
+  @@index([status])
+  @@map("apqp_phases")
+}
+
+model ApqpDeliverable {
+  id          String    @id @default(cuid())
+  phaseId     String
+  name        String
+  description String?
+  required    Boolean   @default(true)
+  status      DeliverableStatus @default(NOT_STARTED)
+  assignedTo  String?
+  dueDate     DateTime?
+  completedDate DateTime?
+  documentRef String?   // Reference to uploaded document
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  phase       ApqpPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([phaseId])
+  @@index([status])
+  @@map("apqp_deliverables")
+}
+
+model ApqpGateReview {
+  id            String    @id @default(cuid())
+  phaseId       String    @unique
+  reviewDate    DateTime
+  reviewers     String[]
+  decision      GateDecision
+  conditions    String?
+  notes         String?
+  nextActions   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  phase         ApqpPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@map("apqp_gate_reviews")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum ApqpStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ApqpPhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum DeliverableStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  NOT_APPLICABLE
+  BLOCKED
+}
+
+enum GateDecision {
+  APPROVED
+  APPROVED_WITH_CONDITIONS
+  REJECTED
+  DEFERRED
+}
