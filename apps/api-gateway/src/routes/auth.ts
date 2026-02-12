@@ -9,6 +9,7 @@ import {
   verifyRefreshToken,
   hashPassword,
   comparePassword,
+  validatePasswordStrength,
   authenticate,
   type AuthRequest
 } from '@ims/auth';
@@ -155,6 +156,19 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
 router.post('/register', registerLimiter, async (req, res) => {
   try {
     const data = registerSchema.parse(req.body);
+
+    // Validate password strength before proceeding
+    const passwordCheck = validatePasswordStrength(data.password);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'WEAK_PASSWORD',
+          message: 'Password does not meet strength requirements',
+          details: passwordCheck.errors,
+        },
+      });
+    }
 
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
 
@@ -458,6 +472,19 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
       return res.status(400).json({
         success: false,
         error: { code: 'INVALID_TOKEN', message: 'Invalid or expired reset token' },
+      });
+    }
+
+    // Validate password strength before updating
+    const passwordCheck = validatePasswordStrength(password);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'WEAK_PASSWORD',
+          message: 'Password does not meet strength requirements',
+          details: passwordCheck.errors,
+        },
       });
     }
 

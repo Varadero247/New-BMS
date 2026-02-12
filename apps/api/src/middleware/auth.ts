@@ -5,11 +5,12 @@ import { prisma, User } from '@ims/database';
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('JWT_SECRET environment variable is required in production');
-    }
-    console.warn('[SECURITY WARNING] JWT_SECRET not set - using insecure default. Do not use in production!');
-    return 'INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION';
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  if (secret.length < 32) {
+    console.warn(
+      '[SECURITY WARNING] JWT_SECRET is shorter than 32 characters. Use a stronger secret in production.'
+    );
   }
   return secret;
 }

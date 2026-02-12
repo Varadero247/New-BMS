@@ -223,23 +223,20 @@ describe('Security Fix Verification', () => {
   });
 
   describe('F-004: JWT Secret Enforcement', () => {
-    it('should throw in production without JWT_SECRET', () => {
+    it('should throw without JWT_SECRET in any environment', () => {
       delete process.env.JWT_SECRET;
       (process.env as any).NODE_ENV = 'production';
       jest.resetModules();
       const { generateToken: genToken } = require('../src/jwt');
-      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required in production');
+      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
     });
 
-    it('should warn in development without JWT_SECRET', () => {
+    it('should throw in development without JWT_SECRET', () => {
       delete process.env.JWT_SECRET;
       (process.env as any).NODE_ENV = 'development';
       jest.resetModules();
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
       const { generateToken: genToken } = require('../src/jwt');
-      genToken({ userId: 'test' });
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('SECURITY WARNING'));
-      consoleSpy.mockRestore();
+      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
     });
   });
 });

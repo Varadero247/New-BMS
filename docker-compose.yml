@@ -95,8 +95,8 @@ services:
       dockerfile: ./apps/api-health-safety/Dockerfile
     container_name: ims-api-health-safety
     restart: unless-stopped
-    ports:
-      - '4001:4001'
+    expose:
+      - '4001'
     environment:
       NODE_ENV: production
       PORT: 4001
@@ -114,8 +114,8 @@ services:
       dockerfile: ./apps/api-environment/Dockerfile
     container_name: ims-api-environment
     restart: unless-stopped
-    ports:
-      - '4002:4002'
+    expose:
+      - '4002'
     environment:
       NODE_ENV: production
       PORT: 4002
@@ -133,8 +133,8 @@ services:
       dockerfile: ./apps/api-quality/Dockerfile
     container_name: ims-api-quality
     restart: unless-stopped
-    ports:
-      - '4003:4003'
+    expose:
+      - '4003'
     environment:
       NODE_ENV: production
       PORT: 4003
@@ -152,8 +152,8 @@ services:
       dockerfile: ./apps/api-ai-analysis/Dockerfile
     container_name: ims-api-ai-analysis
     restart: unless-stopped
-    ports:
-      - '4004:4004'
+    expose:
+      - '4004'
     environment:
       NODE_ENV: production
       PORT: 4004
@@ -173,8 +173,8 @@ services:
       dockerfile: ./apps/api-inventory/Dockerfile
     container_name: ims-api-inventory
     restart: unless-stopped
-    ports:
-      - '4005:4005'
+    expose:
+      - '4005'
     environment:
       NODE_ENV: production
       PORT: 4005
@@ -193,8 +193,8 @@ services:
       dockerfile: ./apps/api-project-management/Dockerfile
     container_name: ims-api-project-management
     restart: unless-stopped
-    ports:
-      - '4009:4009'
+    expose:
+      - '4009'
     environment:
       NODE_ENV: production
       PORT: 4009

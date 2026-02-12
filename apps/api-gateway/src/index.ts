@@ -22,7 +22,7 @@ import sessionsRoutes from './routes/sessions';
 import v1Routes from './routes/v1';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
-import { apiLimiter } from './middleware/rate-limiter';
+import { apiLimiter, strictApiLimiter } from './middleware/rate-limiter';
 import { csrfProtection, generateCsrfToken } from './middleware/csrf';
 import { createSecurityMiddleware } from './middleware/security-headers';
 import { addVersionHeader, deprecatedRoute } from './middleware/api-version';
@@ -202,6 +202,8 @@ const createServiceProxy = (
 ) => createProxyMiddleware({
   target,
   changeOrigin: true,
+  proxyTimeout: 30000,
+  timeout: 30000,
   pathRewrite: { [`^${basePath}`]: '/api' },
   onProxyReq: (proxyReq, req) => {
     addServiceToken(proxyReq);
@@ -238,7 +240,7 @@ const createServiceProxy = (
 app.use('/api/v1/health-safety', addVersionHeader('v1'), createServiceProxy('Health Safety', SERVICES.healthSafety, '/api/v1/health-safety', 'Health & Safety service unavailable'));
 app.use('/api/v1/environment', addVersionHeader('v1'), createServiceProxy('Environment', SERVICES.environment, '/api/v1/environment', 'Environment service unavailable'));
 app.use('/api/v1/quality', addVersionHeader('v1'), createServiceProxy('Quality', SERVICES.quality, '/api/v1/quality', 'Quality service unavailable'));
-app.use('/api/v1/ai', addVersionHeader('v1'), createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/v1/ai', 'AI Analysis service unavailable'));
+app.use('/api/v1/ai', addVersionHeader('v1'), strictApiLimiter, createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/v1/ai', 'AI Analysis service unavailable'));
 app.use('/api/v1/inventory', addVersionHeader('v1'), createServiceProxy('Inventory', SERVICES.inventory, '/api/v1/inventory', 'Inventory service unavailable'));
 app.use('/api/v1/hr', addVersionHeader('v1'), createServiceProxy('HR', SERVICES.hr, '/api/v1/hr', 'HR service unavailable'));
 app.use('/api/v1/payroll', addVersionHeader('v1'), createServiceProxy('Payroll', SERVICES.payroll, '/api/v1/payroll', 'Payroll service unavailable'));
@@ -251,7 +253,7 @@ app.use('/api/v1/project-management', addVersionHeader('v1'), createServiceProxy
 app.use('/api/health-safety', deprecatedRoute('/api/v1/health-safety'), createServiceProxy('Health Safety', SERVICES.healthSafety, '/api/health-safety', 'Health & Safety service unavailable'));
 app.use('/api/environment', deprecatedRoute('/api/v1/environment'), createServiceProxy('Environment', SERVICES.environment, '/api/environment', 'Environment service unavailable'));
 app.use('/api/quality', deprecatedRoute('/api/v1/quality'), createServiceProxy('Quality', SERVICES.quality, '/api/quality', 'Quality service unavailable'));
-app.use('/api/ai', deprecatedRoute('/api/v1/ai'), createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/ai', 'AI Analysis service unavailable'));
+app.use('/api/ai', deprecatedRoute('/api/v1/ai'), strictApiLimiter, createServiceProxy('AI Analysis', SERVICES.aiAnalysis, '/api/ai', 'AI Analysis service unavailable'));
 app.use('/api/inventory', deprecatedRoute('/api/v1/inventory'), createServiceProxy('Inventory', SERVICES.inventory, '/api/inventory', 'Inventory service unavailable'));
 app.use('/api/hr', deprecatedRoute('/api/v1/hr'), createServiceProxy('HR', SERVICES.hr, '/api/hr', 'HR service unavailable'));
 app.use('/api/payroll', deprecatedRoute('/api/v1/payroll'), createServiceProxy('Payroll', SERVICES.payroll, '/api/payroll', 'Payroll service unavailable'));

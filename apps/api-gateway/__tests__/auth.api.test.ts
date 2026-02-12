@@ -25,6 +25,7 @@ jest.mock('@ims/auth', () => ({
   verifyRefreshToken: jest.fn().mockReturnValue({ userId: '20000000-0000-4000-a000-000000000123' }),
   hashPassword: jest.fn().mockResolvedValue('hashed-password'),
   comparePassword: jest.fn(),
+  validatePasswordStrength: jest.fn().mockReturnValue({ valid: true, errors: [] }),
   authenticate: jest.fn((req, res, next) => {
     req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();

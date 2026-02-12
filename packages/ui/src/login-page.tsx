@@ -97,11 +97,6 @@ export function LoginPage({
     }
   };
 
-  const fillDemoCredentials = () => {
-    setEmail('admin@ims.local');
-    setPassword('admin123');
-  };
-
   if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -156,7 +151,7 @@ export function LoginPage({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@ims.local"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   disabled={loading}
@@ -209,19 +204,6 @@ export function LoginPage({
 
               <Button type="submit" className="w-full h-11" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-400">Development</span>
-                </div>
-              </div>
-
-              <Button type="button" variant="outline" className="w-full" onClick={fillDemoCredentials} disabled={loading}>
-                Fill Demo Credentials
               </Button>
             </form>
           </CardContent>

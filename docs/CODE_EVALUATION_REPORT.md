@@ -1,38 +1,42 @@
-# IMS Platform - Professional Code Evaluation Report
+# IMS Platform — Professional Code Evaluation Report
 
-**Date:** 2026-02-11
-**Platform:** New Business Management System (New-BMS)
-**Evaluator:** Claude Code Automated Audit Suite
-**Standards:** OWASP Top 10 2023, ASVS Level 2, CWE/SANS Top 25, NIST SP 800-53, GDPR Article 32, 12-Factor App, ISO/IEC 25010
+**Date:** 2026-02-12
+**Platform:** Integrated Management System (IMS)
+**Version:** 1.0.0
+**Repository:** /home/dyl/New-BMS
+**Branch:** main
+**Classification:** CONFIDENTIAL
+
+**Evaluation Standards:**
+- OWASP Top 10 2023, OWASP ASVS 4.0 Level 2, CWE/SANS Top 25
+- NIST SP 800-53 Rev 5, ISO 27001, GDPR Article 32
+- 12-Factor App, Clean Architecture, ISO/IEC 25010:2023
+- Google Engineering Guide, Node.js Best Practices
+
+**Audit Personas:**
+- Chief Security Engineer (CISSP, CEH)
+- Principal Software Architect
+- Staff Full-Stack Engineer
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-| Metric | Score |
-|--------|-------|
-| **Overall Security Score** | **28 / 100** |
-| **Overall Architecture Score** | **40 / 100** |
-| **Overall Code Quality Score** | **45 / 100** |
-| **Composite Score** | **37 / 100** |
+```
+Overall Security Score:      52 / 100
+Overall Architecture Score:  64 / 100
+Overall Code Quality Score:  68 / 100
+Composite Score:             61 / 100
 
-| Severity | Count | Action |
-|----------|-------|--------|
-| CRITICAL | 15 | Fix immediately -- block deployment |
-| HIGH | 42 | Fix within 24 hours |
-| MEDIUM | 52 | Fix within current sprint |
-| LOW | 24 | Fix in next sprint |
-| INFO | 8 | Informational, no immediate action |
-| **Total** | **141** | |
+Total Findings:              55
+  CRITICAL:  2   (fix immediately — block deployment)
+  HIGH:      12  (fix within 24 hours)
+  MEDIUM:    16  (fix within current sprint)
+  LOW:       15  (fix in next sprint)
+  INFO:      10  (informational, no immediate action)
+```
 
-**Key Risk Summary:**
-- 3 API services (HR, Payroll, Workflows) have ZERO authentication middleware
-- Live Anthropic API key committed to .env files on disk
-- Two comprehensive shared packages (`@ims/validation`, `@ims/resilience`) built but never imported by any service
-- PII (salary, bank account, DOB) stored in plaintext with no encryption at rest
-- No GDPR Article 17 right-to-erasure implementation
-- 453x duplicated try/catch error handling pattern across 77 route files
-- 60+ foreign key columns missing database indexes
+**Key Risk Areas:** The platform has strong foundational security controls (JWT algorithm pinning, bcrypt, rate limiting, Zod validation, Helmet) but is undermined by critical secrets management failures and plaintext PII storage. Architecture is well-decomposed into microservices but lacks database isolation and resilience patterns. Code quality benefits from strict TypeScript and consistent patterns but suffers from significant DRY violations and missing authorization controls.
 
 ---
 
@@ -42,376 +46,145 @@
 
 ---
 
-#### FINDING-001 | CRITICAL | SECURITY
-**Title:** Live Anthropic API Key Committed in .env Files
-**File:** `.env:11`, `apps/web-health-safety/.env:3`, `.next/standalone/` copies
-**CVSS:** 9.1 | **Rule:** OWASP A02 / CWE-798 | **Fix:** 1 hour
-
-**Problematic Code:**
 ```
-ANTHROPIC_API_KEY=sk-ant-api03-Y91TnRSNeqA1Wo...
-```
-
-**Explanation:** A live Anthropic API key is hardcoded in the root `.env` and duplicated in web app `.env` files and `.next/standalone/` build artifacts. If exposed, attackers can consume API credits and access AI services.
-
-**Fixed Code:**
-```bash
-# Remove from all .env files. Use runtime injection:
-# In CI/CD: set ANTHROPIC_API_KEY as a secret
-# In Docker: pass via docker-compose environment or secrets
-# Rotate the key immediately via Anthropic dashboard
-```
-
----
-
-#### FINDING-002 | CRITICAL | SECURITY
-**Title:** JWT Secrets Hardcoded with Actual Values in Root .env
-**File:** `.env:7-8`
-**CVSS:** 9.8 | **Rule:** OWASP A02 / CWE-798 | **Fix:** 1 hour
-
-**Problematic Code:**
-```
-JWT_SECRET=90d89bf8db03349449822e5a19a0116240b37321c0617b1922802cf2b635453352143eb49c9f6ef6
-JWT_REFRESH_SECRET=34969c19b44a994c611bedf331fc4ab3b66ba5dcf258303f8516c064169835b6ee522c1745a9d0bf
-```
-
-**Explanation:** Real JWT signing secrets stored in plaintext on disk. If the repo is cloned or files are exposed, all tokens can be forged. Additionally, 8 downstream services use the placeholder `your-super-secret-jwt-key-change-in-production`.
-
-**Fixed Code:**
-```bash
-# Generate per-environment secrets via secrets manager
-openssl rand -hex 32  # Generate new JWT_SECRET
-openssl rand -hex 32  # Generate new JWT_REFRESH_SECRET
-# Store in HashiCorp Vault or CI/CD secrets, not .env files
-```
-
----
-
-#### FINDING-003 | CRITICAL | SECURITY
-**Title:** HR, Payroll, and Workflows APIs Have ZERO Authentication Middleware
-**Files:** `apps/api-hr/src/index.ts:51-58`, `apps/api-payroll/src/index.ts:49-54`, `apps/api-workflows/src/index.ts`
-**CVSS:** 9.8 | **Rule:** OWASP A01 / CWE-306 | **Fix:** 2 hours
-
-**Problematic Code:**
-```typescript
-// apps/api-hr/src/index.ts -- NO authenticate middleware anywhere
-app.use('/api/employees', employeesRouter);
-app.use('/api/departments', departmentsRouter);
-// ... all routes completely unprotected
-```
-
-**Explanation:** Three services expose all endpoints without any authentication. Anyone with direct network access to ports 4006/4007/4008 can read/modify all employee PII, salary data, payroll runs, and workflow approvals. In Docker Compose, these ports are exposed to the host network.
-
-**Fixed Code:**
-```typescript
-// In each route file (e.g., apps/api-hr/src/routes/employees.ts):
-import { authenticate, type AuthRequest } from '@ims/auth';
-router.use(authenticate);
-
-// Change all handlers from (req: Request, ...) to (req: AuthRequest, ...)
+┌─────────────────────────────────────────────────────────────────┐
+│ [CRITICAL] — FINDING-001                                        │
+│ Category: SECURITY                                              │
+│ CVSS Score: 9.8                                                 │
+│ Estimated Fix: 2 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Production Secrets Exposed in .env Files                 │
+│ Files: .env:7-11, apps/api-gateway/.env:5,                      │
+│        apps/api-hr/.env:3, apps/api-payroll/.env:3,             │
+│        apps/api-workflows/.env:5 (+ 4 more)                    │
+│ Rule:  OWASP A02 / CWE-798 / CWE-321                           │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   # .env (root)                                                 │
+│   JWT_SECRET=90d89bf8db03349449822e5a19a0116240b...             │
+│   JWT_REFRESH_SECRET=34969c19b44a994c611bedf331f...             │
+│   ANTHROPIC_API_KEY=sk-ant-api03-Y91TnRSNeqA1Wo...             │
+│                                                                 │
+│   # apps/api-gateway/.env (and 6 other services)               │
+│   JWT_SECRET=your-super-secret-jwt-key-change-in-production    │
+│                                                                 │
+│   # packages/auth/src/jwt.ts:22                                │
+│   return 'INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION';       │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Multiple .env files contain real production secrets           │
+│   (JWT signing keys, Anthropic API key, DB passwords).          │
+│   7 services use the weak placeholder                           │
+│   "your-super-secret-jwt-key-change-in-production"             │
+│   which is trivially guessable. The root .env has              │
+│   real 80-char hex JWT secrets and a live Anthropic             │
+│   API key. JWT secret mismatch between services means          │
+│   tokens signed by the gateway may not verify at               │
+│   downstream services, or vice versa. If any .env              │
+│   was ever committed to git history, all JWTs can              │
+│   be forged and the API key is compromised.                    │
+│                                                                 │
+│   Additionally, packages/auth/src/jwt.ts:22 has a             │
+│   hardcoded fallback secret when JWT_SECRET is unset.          │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // packages/auth/src/jwt.ts - Remove fallback entirely       │
+│   function getJwtSecret(): string {                            │
+│     const secret = process.env.JWT_SECRET;                     │
+│     if (!secret || secret.length < 32) {                       │
+│       throw new Error(                                          │
+│         'JWT_SECRET must be set to a secure value (>=32 chars)'│
+│       );                                                        │
+│     }                                                           │
+│     return secret;                                              │
+│   }                                                             │
+│                                                                 │
+│   // Remove all per-service .env JWT_SECRET overrides          │
+│   // Use single JWT_SECRET from docker-compose/k8s secrets     │
+│   // Rotate Anthropic API key immediately                      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-#### FINDING-004 | CRITICAL | SECURITY
-**Title:** JWT Algorithm Not Explicitly Specified -- Algorithm Confusion Attack
-**Files:** `packages/auth/src/jwt.ts:99,109`, `packages/service-auth/src/index.ts:87`
-**CVSS:** 9.1 | **Rule:** OWASP A02 / CWE-327 | **Fix:** 1 hour
-
-**Problematic Code:**
-```typescript
-jwt.verify(token, getJwtSecret());
-// No algorithms whitelist -- vulnerable to algorithm confusion
 ```
-
-**Explanation:** None of the `jwt.verify()` calls specify an `algorithms` whitelist. While jsonwebtoken 9.x rejects `none` by default, explicitly specifying `algorithms: ['HS256']` prevents any ambiguity and future regressions.
-
-**Fixed Code:**
-```typescript
-jwt.verify(token, getJwtSecret(), {
-  algorithms: ['HS256'],
-  issuer: JWT_ISSUER,
-  audience: JWT_AUDIENCE,
-});
-```
-
----
-
-#### FINDING-005 | CRITICAL | SECURITY
-**Title:** @ims/validation Package Built But Never Imported by ANY Service
-**File:** `packages/validation/` (entire package is dead code)
-**CVSS:** 8.6 | **Rule:** OWASP A03 / CWE-20 | **Fix:** 4 hours
-
-**Problematic Code:**
-```json
-// No API service's package.json lists @ims/validation as a dependency
-// Zero imports of @ims/validation in any apps/api-*/src/ file
-```
-
-**Explanation:** A comprehensive validation package exists with sanitization middleware, XSS detection, SQL injection detection, and Zod schemas with length constraints. It is completely unused. All 9 API services process request bodies with inline Zod schemas that lack length limits, sanitization, and security checks.
-
-**Fixed Code:**
-```typescript
-// In each apps/api-*/src/index.ts:
-import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
-app.use(sanitizeMiddleware());
-app.use(sanitizeQueryMiddleware());
-
-// In each route handler with POST/PUT:
-import { validateMiddleware } from '@ims/validation';
-router.post('/', validateMiddleware(createSchema), async (req, res) => { ... });
-```
-
----
-
-#### FINDING-006 | CRITICAL | SECURITY
-**Title:** PII Stored in Plaintext -- No Encryption at Rest
-**Files:** `packages/database/prisma/schemas/hr.prisma:339-360`, `payroll.prisma:138`
-**CVSS:** 8.5 | **Rule:** GDPR Art. 32 / CWE-311 | **Fix:** 8 hours
-
-**Problematic Code:**
-```prisma
-model Employee {
-  dateOfBirth    DateTime    // Plaintext
-  personalEmail  String?     // Plaintext
-  accountNumber  String?     // Plaintext
-  salary         Decimal     // Plaintext
-}
-```
-
-**Explanation:** Highly sensitive PII fields (DOB, personal email, bank account, salary, tax code) are stored as plaintext in the database with no application-level encryption. Zero usage of AES/cipher found in codebase.
-
-**Fixed Code:**
-```typescript
-// packages/encryption/src/index.ts
-import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
-const ALGORITHM = 'aes-256-gcm';
-
-export function encrypt(plaintext: string, key: Buffer): string {
-  const iv = randomBytes(16);
-  const cipher = createCipheriv(ALGORITHM, key, iv);
-  const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
-}
-
-// Use Prisma middleware to encrypt on write, decrypt on read
-```
-
----
-
-#### FINDING-007 | CRITICAL | SECURITY
-**Title:** No GDPR Right to Erasure (Article 17) Implementation
-**File:** (none found -- zero matches for "gdpr", "erasure", "anonymise")
-**CVSS:** 8.0 | **Rule:** GDPR Art. 17 / NIST SP 800-53 | **Fix:** 16 hours
-
-**Explanation:** No endpoint exists for data subject deletion requests. The HR system stores personal data with no mechanism for erasure. GDPR Article 17 is a legal requirement for any system processing EU personal data.
-
-**Fixed Code:**
-```typescript
-// POST /api/v1/dsr/erasure -- Data Subject Request endpoint
-router.post('/erasure', authenticate, requireRole('ADMIN', 'DPO'), async (req, res) => {
-  const { employeeId, reason } = req.body;
-  await prisma.$transaction(async (tx) => {
-    await tx.employee.update({
-      where: { id: employeeId },
-      data: {
-        firstName: 'REDACTED', lastName: 'REDACTED',
-        personalEmail: null, dateOfBirth: null,
-        accountNumber: null, phone: null,
-        deletedAt: new Date(),
-      },
-    });
-    await tx.auditLog.create({ data: { action: 'GDPR_ERASURE', entityId: employeeId, reason } });
-  });
-});
-```
-
----
-
-#### FINDING-008 | CRITICAL | ARCHITECTURE
-**Title:** @ims/resilience Package Never Imported or Used
-**File:** `packages/resilience/src/index.ts` (entire package is dead code)
-**Rule:** Resilience / Fault Tolerance | **Fix:** 4 hours
-
-**Explanation:** A well-designed resilience library providing circuit breaker (opossum), retry with exponential backoff and jitter, timeout wrappers, and bulkhead pattern exists but is imported by zero services. All external calls, database queries, and inter-service requests operate without any resilience patterns.
-
-**Fixed Code:**
-```typescript
-// In apps/api-ai-analysis/src/routes/analyse.ts:
-import { createCircuitBreaker, withRetry, withTimeout } from '@ims/resilience';
-
-const aiBreaker = createCircuitBreaker('ai-provider', {
-  timeout: 15000, errorThresholdPercentage: 50, resetTimeout: 60000,
-});
-
-const aiResponse = await aiBreaker.fire(async () =>
-  withTimeout(callAIProvider(provider, apiKey, model, prompt), 10000)
-);
-```
-
----
-
-#### FINDING-009 | CRITICAL | ARCHITECTURE
-**Title:** External AI API Calls Have No Timeout
-**Files:** `apps/api-ai-analysis/src/routes/analyse.ts:132,166,196`, 5 Next.js API routes
-**Rule:** CWE-400 / DoS Prevention | **Fix:** 2 hours
-
-**Problematic Code:**
-```typescript
-const response = await fetch('https://api.openai.com/v1/chat/completions', {
-  method: 'POST',
-  headers: { ... },
-  body: JSON.stringify({ ... }),
-  // No timeout, no AbortController
-});
-```
-
-**Explanation:** All 12 fetch() calls to external AI providers have zero timeout. AI LLM calls can take 30-120+ seconds. If a provider hangs, the request hangs indefinitely, consuming workers and connections.
-
-**Fixed Code:**
-```typescript
-const controller = new AbortController();
-const timeoutId = setTimeout(() => controller.abort(), 15000);
-try {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { ... },
-    body: JSON.stringify({ ... }),
-    signal: controller.signal,
-  });
-} finally {
-  clearTimeout(timeoutId);
-}
-```
-
----
-
-#### FINDING-010 | CRITICAL | CODE_QUALITY
-**Title:** 461 console.log/error Calls Alongside Structured Logger
-**Files:** 81 files across all `apps/api-*/src/` directories
-**Rule:** OWASP A09 / CWE-778 | **Fix:** 4 hours
-
-**Explanation:** Every service creates a Winston structured logger via `createLogger()`, but route handlers use `console.error()` for error logging. This produces unstructured plaintext without timestamp, service name, correlation ID, or log level metadata. It also risks PII leakage when error objects containing request bodies are logged.
-
-**Fixed Code:**
-```typescript
-// Replace in every catch block across all route files:
-// Before:
-console.error('Error listing risks:', error);
-// After:
-logger.error('Error listing risks', { error: (error as Error).message, correlationId: req.correlationId });
-```
-
----
-
-#### FINDING-011 | CRITICAL | ARCHITECTURE
-**Title:** Project Management Schema Has 12+ Models with ZERO Indexes
-**File:** `packages/database/prisma/schemas/project-management.prisma`
-**Rule:** Performance / ISO 25010 | **Fix:** 2 hours
-
-**Explanation:** The entire Project Management schema (Project, ProjectTask, ProjectMilestone, ProjectRisk, ProjectIssue, ProjectChange, ProjectResource, ProjectStakeholder, ProjectDocument, ProjectSprint, ProjectTimesheet, ProjectReport) has zero `@@index` directives. Every query involving foreign keys or status filters will perform full table scans.
-
-**Fixed Code:**
-```prisma
-model ProjectTask {
-  // ... fields ...
-  @@index([projectId, status])
-  @@index([assignedToId])
-  @@index([parentTaskId])
-  @@index([plannedEndDate])
-  @@index([priority])
-  @@map("project_tasks")
-}
-```
-
----
-
-#### FINDING-012 | CRITICAL | ARCHITECTURE
-**Title:** 60+ Foreign Key Columns Missing Database Indexes
-**Files:** All 10 Prisma schema files
-**Rule:** Performance / CWE-405 | **Fix:** 4 hours
-
-**Explanation:** Approximately 60+ foreign key columns across all schemas lack indexes. Every JOIN or WHERE clause referencing a parent record will require a full table scan. Most severely affected: HR schema (15+ missing), Payroll schema (5+), H&S schema (8+), and the main schema (10+).
-
----
-
-#### FINDING-013 | CRITICAL | CODE_QUALITY
-**Title:** Unbounded findMany Queries with No Pagination Limit Cap
-**Files:** 29+ GET list endpoints across all API services
-**Rule:** CWE-400 / DoS Prevention | **Fix:** 2 hours
-
-**Problematic Code:**
-```typescript
-const limitNum = parseInt(limit as string, 10); // No maximum
-const items = await prisma.risk.findMany({ take: limitNum }); // Client controls limit
-```
-
-**Explanation:** All list endpoints parse `limit` from query params with no maximum cap. `?limit=999999` causes the database to return an arbitrarily large result set, leading to OOM.
-
-**Fixed Code:**
-```typescript
-const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-```
-
----
-
-#### FINDING-014 | CRITICAL | CODE_QUALITY
-**Title:** 89+ `const where: any = {}` Bypass Prisma Type Safety
-**Files:** 59 route files across all API services
-**Rule:** TypeScript Strict / CWE-843 | **Fix:** 8 hours
-
-**Problematic Code:**
-```typescript
-const where: any = {};
-if (status) where.status = status;
-if (type) where.type = type;
-```
-
-**Explanation:** Dynamic filter objects are typed as `any`, completely bypassing Prisma's type-safe query builder. Typos in field names, wrong operators, or invalid filter values silently produce wrong queries with no compile-time error.
-
-**Fixed Code:**
-```typescript
-import { Prisma } from '@prisma/client';
-const where: Prisma.RiskWhereInput = {};
-if (status) where.status = status as any;
-if (type) where.type = type as any;
-```
-
----
-
-#### FINDING-015 | CRITICAL | CODE_QUALITY
-**Title:** Payroll Calculate Can Permanently Deadlock Run in CALCULATING State
-**File:** `apps/api-payroll/src/routes/payroll.ts:115-151`
-**Rule:** CWE-667 / Data Integrity | **Fix:** 1 hour
-
-**Problematic Code:**
-```typescript
-try {
-  await prisma.payrollRun.update({ data: { status: 'CALCULATING' } });
-  // ... work ...
-} catch (error) {
-  // If THIS update fails, the run is stuck in CALCULATING forever
-  await prisma.payrollRun.update({ data: { status: 'ERROR' } });
-}
-```
-
-**Fixed Code:**
-```typescript
-let statusNeedsReset = false;
-try {
-  await prisma.payrollRun.update({ where: { id }, data: { status: 'CALCULATING' } });
-  statusNeedsReset = true;
-  // ... work ...
-  statusNeedsReset = false;
-} catch (error) {
-  res.status(500).json({ ... });
-} finally {
-  if (statusNeedsReset) {
-    try { await prisma.payrollRun.update({ where: { id }, data: { status: 'ERROR' } }); }
-    catch (e) { logger.error('Failed to reset payroll status', { error: e }); }
-  }
-}
+┌─────────────────────────────────────────────────────────────────┐
+│ [CRITICAL] — FINDING-002                                        │
+│ Category: SECURITY                                              │
+│ CVSS Score: 9.1                                                 │
+│ Estimated Fix: 8 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: PII Stored in Plaintext Without Encryption at Rest       │
+│ Files: packages/database/prisma/schemas/hr.prisma:339-360       │
+│        packages/database/prisma/schemas/payroll.prisma:137-650  │
+│ Rule:  GDPR Article 32 / CWE-311 / CWE-312                     │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   // hr.prisma                                                  │
+│   model Employee {                                              │
+│     dateOfBirth     DateTime?                                   │
+│     personalEmail   String?                                     │
+│     salary          Decimal?                                    │
+│     bankName        String?                                     │
+│     accountNumber   String?    // Plaintext bank account        │
+│   }                                                             │
+│                                                                 │
+│   // payroll.prisma                                             │
+│   model Payslip {                                               │
+│     bankAccount     String?    // Plaintext bank account        │
+│     basicSalary     Decimal    // Plaintext salary              │
+│     netPay          Decimal    // Plaintext net pay             │
+│   }                                                             │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Highly sensitive PII (bank account numbers, salary,           │
+│   date of birth, personal email) is stored as plaintext        │
+│   in PostgreSQL. No application-level encryption exists.        │
+│   A grep for encrypt/decrypt/aes/cipher found zero             │
+│   results in application code (only bcrypt for passwords).      │
+│   A database breach would expose all employee financial         │
+│   and personal data. Under UK GDPR, this is a compliance       │
+│   violation for a system handling employee records.             │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // packages/encryption/src/index.ts (new package)            │
+│   import crypto from 'crypto';                                  │
+│   const ALGORITHM = 'aes-256-gcm';                             │
+│   const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'); │
+│                                                                 │
+│   export function encrypt(text: string): string {              │
+│     const iv = crypto.randomBytes(16);                         │
+│     const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);  │
+│     const encrypted = Buffer.concat([                          │
+│       cipher.update(text, 'utf8'), cipher.final()              │
+│     ]);                                                         │
+│     const tag = cipher.getAuthTag();                           │
+│     return `${iv.toString('hex')}:${tag.toString('hex')}:`     │
+│       + `${encrypted.toString('hex')}`;                        │
+│   }                                                             │
+│                                                                 │
+│   export function decrypt(data: string): string {              │
+│     const [ivHex, tagHex, encHex] = data.split(':');           │
+│     const decipher = crypto.createDecipheriv(                  │
+│       ALGORITHM, KEY, Buffer.from(ivHex, 'hex')                │
+│     );                                                          │
+│     decipher.setAuthTag(Buffer.from(tagHex, 'hex'));           │
+│     return decipher.update(encHex, 'hex', 'utf8')              │
+│       + decipher.final('utf8');                                 │
+│   }                                                             │
+│                                                                 │
+│   // Apply via Prisma middleware on Employee/Payslip models    │
+│   // Encrypt: accountNumber, bankAccount, personalEmail        │
+│   // on $create and $update; decrypt on $findMany/$findFirst   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -420,559 +193,896 @@ try {
 
 ---
 
-#### FINDING-016 | HIGH | SECURITY
-**Title:** Placeholder JWT Secret Used Across 8 API Services
-**Files:** All `apps/api-*/.env:5` files
-**CVSS:** 8.1 | **Fix:** 1 hour
-
-All individual service `.env` files contain `JWT_SECRET=your-super-secret-jwt-key-change-in-production`. This bypasses the dev fallback warning since a value IS set.
-
----
-
-#### FINDING-017 | HIGH | SECURITY
-**Title:** Database Passwords Hardcoded in .env Files
-**Files:** `.env:2`, `packages/database/.env`, all service `.env` files
-**CVSS:** 7.5 | **Fix:** 1 hour
-
-Two distinct passwords exist: `ims_secure_password_2026` and `ims_secure_2024` across different services.
-
----
-
-#### FINDING-018 | HIGH | SECURITY
-**Title:** Default Access Token Lifetime is 7 Days
-**File:** `packages/auth/src/jwt.ts:57`
-**CVSS:** 7.5 | **Fix:** 0.5 hours
-
-`generateToken()` defaults to `expiresIn = '7d'`. Any caller forgetting to pass `'15m'` creates tokens valid for 7 days.
-**Fix:** Change default to `'15m'`.
-
----
-
-#### FINDING-019 | HIGH | SECURITY
-**Title:** bcrypt Cost Factor 10, Below OWASP Minimum 12
-**File:** `packages/auth/src/password.ts:3`
-**CVSS:** 5.9 | **Fix:** 0.5 hours
-
-`const SALT_ROUNDS = 10;` -- OWASP recommends minimum 12. **Fix:** Change to `12`.
-
----
-
-#### FINDING-020 | HIGH | SECURITY
-**Title:** Password Validator Exists But Never Called
-**File:** `packages/auth/src/password.ts:19`, `apps/api-gateway/src/routes/auth.ts:34`
-**CVSS:** 5.3 | **Fix:** 1 hour
-
-`validatePasswordStrength()` exists but registration and user creation routes only use `z.string().min(8)`.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-003                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 8.1                                                 │
+│ Estimated Fix: 2 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Hardcoded Admin Credentials in Code and UI               │
+│ Files: packages/ui/src/login-page.tsx:100-102                   │
+│        packages/database/prisma/seed.ts:10-16                   │
+│        scripts/startup.sh:31,95,119                             │
+│ Rule:  OWASP A07 / CWE-798                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   // packages/ui/src/login-page.tsx                             │
+│   const fillDemoCredentials = () => {                           │
+│     setEmail('admin@ims.local');                                │
+│     setPassword('admin123');                                    │
+│   };                                                            │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   The default admin account admin@ims.local / admin123 is      │
+│   hardcoded across the codebase: seeded in DB, pre-filled      │
+│   in the login UI, used in all test scripts. The password      │
+│   "admin123" fails the project's own password strength         │
+│   validation (no uppercase, no special chars). An attacker     │
+│   can easily find these credentials in the source code.        │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // Remove fillDemoCredentials from login-page.tsx             │
+│   // Guard seed script: if (process.env.NODE_ENV !== 'prod')   │
+│   // Force password change on first admin login                │
+│   // Use env vars for test credentials in CI scripts           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-021 | HIGH | SECURITY
-**Title:** Seed Credentials Use Weak Password "admin123"
-**File:** `packages/database/prisma/seed.ts:10`
-**CVSS:** 7.2 | **Fix:** 1 hour
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-004                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 7.5                                                 │
+│ Estimated Fix: 4 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: No Role-Based Access Control on Downstream Services      │
+│ Files: All apps/api-*/src/routes/*.ts (9 services)              │
+│ Rule:  OWASP A01 / CWE-862 / CWE-285                           │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   // apps/api-health-safety/src/routes/risks.ts (typical)      │
+│   router.use(authenticate); // Only checks: is user logged in? │
+│   // No requireRole() check on any route                       │
+│                                                                 │
+│   router.delete('/:id', async (req, res) => {                  │
+│     // Any authenticated user can delete any risk record       │
+│     await prisma.risk.update({                                 │
+│       where: { id: req.params.id },                            │
+│       data: { deletedAt: new Date() }                          │
+│     });                                                         │
+│   });                                                           │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   All 9 downstream services only call authenticate (is the     │
+│   user logged in?) but never call requireRole(). Any           │
+│   authenticated user can create, update, and delete any        │
+│   record in any module including risks, incidents, CAPA,       │
+│   payroll, employee records, etc. Only the gateway's user      │
+│   management routes enforce ADMIN/MANAGER roles.               │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   import { authenticate, requireRole } from '@ims/auth';       │
+│                                                                 │
+│   router.use(authenticate);                                     │
+│                                                                 │
+│   // Read operations: any authenticated user                   │
+│   router.get('/', async (req, res) => { ... });                │
+│   router.get('/:id', async (req, res) => { ... });             │
+│                                                                 │
+│   // Write operations: ADMIN or MANAGER only                   │
+│   router.post('/', requireRole('ADMIN','MANAGER'),             │
+│     async (req, res) => { ... });                              │
+│   router.put('/:id', requireRole('ADMIN','MANAGER'),           │
+│     async (req, res) => { ... });                              │
+│   router.delete('/:id', requireRole('ADMIN','MANAGER'),        │
+│     async (req, res) => { ... });                              │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-022 | HIGH | SECURITY
-**Title:** Environment PUT Routes Use Raw req.body Without Validation
-**Files:** 7 route files in `apps/api-environment/src/routes/`
-**CVSS:** 7.5 | **Fix:** 3 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-005                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 7.5                                                 │
+│ Estimated Fix: 1 hour                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: AI Endpoint Lacks Dedicated Rate Limiting                │
+│ Files: apps/api-ai-analysis/src/index.ts                        │
+│        apps/api-gateway/src/index.ts:241                        │
+│ Rule:  OWASP A04 / CWE-770                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   // AI service has NO rate limiting middleware                 │
+│   // Gateway applies general apiLimiter (100 req/15min)        │
+│   // strictApiLimiter (20/15min) exists but is NOT applied     │
+│   app.use('/api/v1/ai', addVersionHeader('v1'),                │
+│     createServiceProxy('AI', SERVICES.aiAnalysis, ...));       │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   AI endpoints call OpenAI/Anthropic APIs with real cost.      │
+│   At 100 requests per 15 minutes, an attacker or               │
+│   misconfigured client could burn through significant          │
+│   API budget ($0.01-0.10 per request = $10-100/hr).            │
+│   The strictApiLimiter already exists but isn't applied.       │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // In gateway, apply strictApiLimiter to AI routes           │
+│   app.use('/api/v1/ai', addVersionHeader('v1'),                │
+│     strictApiLimiter,  // 20 req/15min                         │
+│     createServiceProxy('AI', SERVICES.aiAnalysis, ...));       │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-023 | HIGH | SECURITY
-**Title:** Project Management PUT Routes Use Raw req.body Without Validation
-**Files:** 11 route files in `apps/api-project-management/src/routes/`
-**CVSS:** 7.5 | **Fix:** 3 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-006                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 5.9                                                 │
+│ Estimated Fix: 1 hour                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Redis Running Without Authentication                     │
+│ Files: .env:15, docker-compose.yml:26-39                        │
+│ Rule:  CWE-306 / NIST AC-3                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   # .env                                                        │
+│   REDIS_PASSWORD=                                               │
+│                                                                 │
+│   # docker-compose.yml                                          │
+│   command: >                                                    │
+│     sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then                │
+│       redis-server --requirepass $$REDIS_PASSWORD;              │
+│     else redis-server; fi"                                      │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Redis starts without --requirepass since REDIS_PASSWORD       │
+│   is empty. Port 6379 is exposed to the host. Rate limiting    │
+│   and session data in Redis can be read/modified by anyone     │
+│   with network access. An attacker could reset rate limit      │
+│   counters or poison session data.                             │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   # .env                                                        │
+│   REDIS_PASSWORD=<generate-strong-random-password>             │
+│                                                                 │
+│   # Update REDIS_URL to include password                       │
+│   REDIS_URL=redis://:${REDIS_PASSWORD}@localhost:6379          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-024 | HIGH | SECURITY
-**Title:** Payroll Action Routes Use Raw req.body Without Validation
-**Files:** 9 endpoints across payroll route files
-**CVSS:** 7.3 | **Fix:** 2 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-007                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 7.5                                                 │
+│ Estimated Fix: 16 hours                                         │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: No GDPR Right-to-Erasure Implementation                  │
+│ Files: No implementation exists in codebase                     │
+│ Rule:  GDPR Article 17 / UK GDPR                               │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Zero results for 'gdpr', 'right to forget', 'data           │
+│   retention', 'purge', 'anonymize' in application code.        │
+│   No DSAR endpoint, no right-to-erasure endpoint, no           │
+│   automated data retention policy. Soft-delete via deletedAt   │
+│   retains all PII. The HR module stores UK-relevant PII        │
+│   (RIDDOR injury data, personal details). Under UK GDPR,       │
+│   this is a compliance gap requiring immediate attention.      │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // apps/api-hr/src/routes/gdpr.ts (new)                      │
+│   router.post('/data-export/:employeeId',                      │
+│     requireRole('ADMIN'), async (req, res) => {                │
+│     // Export all PII for data subject access request           │
+│   });                                                           │
+│                                                                 │
+│   router.post('/anonymize/:employeeId',                        │
+│     requireRole('ADMIN'), async (req, res) => {                │
+│     // Replace PII with anonymized values                      │
+│     // Keep non-PII for regulatory retention                   │
+│     await prisma.employee.update({                             │
+│       where: { id }, data: {                                   │
+│         firstName: 'REDACTED', lastName: 'REDACTED',           │
+│         personalEmail: null, accountNumber: null,              │
+│         dateOfBirth: null, salary: null, bankName: null,       │
+│       }                                                         │
+│     });                                                         │
+│   });                                                           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-025 | HIGH | SECURITY
-**Title:** HR Action Routes Use Raw req.body Without Validation
-**Files:** 4 endpoints in HR route files
-**CVSS:** 7.3 | **Fix:** 1 hour
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-008                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 6.5                                                 │
+│ Estimated Fix: 4 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Employee PII Returned Unmasked in API Responses          │
+│ Files: apps/api-hr/src/routes/employees.ts:112+                 │
+│        apps/api-payroll/src/routes/salary.ts                    │
+│ Rule:  GDPR Article 5(1)(c) / CWE-359                          │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   // GET /api/employees/:id returns all fields                 │
+│   const employee = await prisma.employee.findUnique({          │
+│     where: { id: req.params.id },                              │
+│     // Returns salary, accountNumber, bankName,                │
+│     // personalEmail, dateOfBirth without masking              │
+│   });                                                           │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Individual employee GET endpoints and salary routes return   │
+│   salary, accountNumber, bankName, personalEmail, and          │
+│   dateOfBirth without masking. Any authenticated user can      │
+│   view any other employee's bank account and salary. No        │
+│   field-level access control based on user role.               │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   function maskPII(employee: any, userRole: string) {          │
+│     if (userRole !== 'ADMIN' && userRole !== 'HR_MANAGER') {   │
+│       return {                                                  │
+│         ...employee,                                            │
+│         accountNumber: employee.accountNumber                  │
+│           ? '****' + employee.accountNumber.slice(-4) : null,  │
+│         salary: undefined,                                      │
+│         personalEmail: undefined,                               │
+│         dateOfBirth: undefined,                                 │
+│       };                                                        │
+│     }                                                           │
+│     return employee;                                            │
+│   }                                                             │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-026 | HIGH | SECURITY
-**Title:** Workflow Action Routes Use Raw req.body Without Validation
-**Files:** 6 endpoints in workflow route files
-**CVSS:** 7.3 | **Fix:** 2 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-009                                            │
+│ Category: ARCHITECTURE                                          │
+│ CVSS Score: N/A                                                 │
+│ Estimated Fix: 2 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: All Downstream Service Ports Exposed to Host             │
+│ File:  docker-compose.yml:98-99,117-118,136-137,155-156,...     │
+│ Rule:  NIST SC-7 / Defense in Depth                             │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   api-health-safety:                                            │
+│     ports:                                                      │
+│       - '4001:4001'  # Exposed to host!                        │
+│   api-environment:                                              │
+│     ports:                                                      │
+│       - '4002:4002'  # Exposed to host!                        │
+│   # ... all 9 downstream services exposed                      │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Every downstream service has its port mapped to the host.    │
+│   Clients can bypass the gateway entirely, skipping auth,      │
+│   rate limiting, CORS, and security headers. Only the          │
+│   gateway (4000) and web apps should be externally exposed.    │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   api-health-safety:                                            │
+│     # ports:          # Remove host port mapping               │
+│     #   - '4001:4001' # Only accessible within Docker network  │
+│     expose:                                                     │
+│       - '4001'        # Available to other containers only     │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-027 | HIGH | SECURITY
-**Title:** Salary Data Exposed in Stats Endpoint Without Authorization
-**File:** `apps/api-hr/src/routes/employees.ts:182-214`
-**CVSS:** 7.0 | **Fix:** 1 hour
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-010                                            │
+│ Category: ARCHITECTURE                                          │
+│ CVSS Score: N/A                                                 │
+│ Estimated Fix: 1 hour                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Gateway Proxy Missing Timeout Configuration              │
+│ File:  apps/api-gateway/src/index.ts:197-235                    │
+│ Rule:  Resilience Pattern / Timeout                             │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   const createServiceProxy = (...) =>                          │
+│     createProxyMiddleware({                                     │
+│       target,                                                   │
+│       changeOrigin: true,                                       │
+│       // No proxyTimeout or timeout set!                       │
+│       pathRewrite: { ... },                                    │
+│     });                                                         │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   If a downstream service accepts TCP connection but never     │
+│   responds, the proxy will hang until OS TCP timeout           │
+│   (typically 2+ minutes). This can cascade: if multiple        │
+│   requests hit a hung service, the gateway's connection        │
+│   pool is exhausted and all requests fail.                     │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   const createServiceProxy = (...) =>                          │
+│     createProxyMiddleware({                                     │
+│       target,                                                   │
+│       changeOrigin: true,                                       │
+│       proxyTimeout: 30000,  // 30s proxy timeout               │
+│       timeout: 30000,       // 30s socket timeout              │
+│       pathRewrite: { ... },                                    │
+│     });                                                         │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-028 | HIGH | SECURITY
-**Title:** PII Logged to Console in 440+ Error Handlers
-**Files:** All route files across all services
-**CVSS:** 6.5 | **Fix:** 4 hours (overlaps with FINDING-010)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-011                                            │
+│ Category: ARCHITECTURE                                          │
+│ CVSS Score: N/A                                                 │
+│ Estimated Fix: 4 hours                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Circuit Breaker Only Used by AI Service                  │
+│ Files: packages/resilience/src/index.ts (exists)                │
+│        apps/api-ai-analysis/src/routes/analyse.ts (only user)   │
+│ Rule:  Resilience Pattern / Circuit Breaker                     │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   The @ims/resilience package provides circuit breaker          │
+│   (opossum), retry with backoff, timeout wrapper, and          │
+│   bulkhead. Only the AI service uses it. The gateway's         │
+│   http-proxy-middleware calls to 9 downstream services have    │
+│   no circuit breaker. If one service is failing, the gateway   │
+│   continues sending requests, wasting resources and            │
+│   returning slow 502 errors instead of fast-failing.           │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   // Deferred to Sprint 1 - requires gateway refactoring       │
+│   // Wrap each createServiceProxy with circuit breaker         │
+│   // that opens after 5 consecutive failures, half-open        │
+│   // after 30 seconds                                          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-029 | HIGH | SECURITY
-**Title:** No Dedicated Rate Limit on AI Analysis Endpoints
-**File:** `apps/api-ai-analysis/src/routes/analyze.ts`
-**CVSS:** 6.5 | **Fix:** 1 hour
-
-AI calls are expensive (token costs) and slow. Only falls under general 100 req/15min limit.
-
----
-
-#### FINDING-030 | HIGH | SECURITY
-**Title:** 3 Downstream Services Expose err.message Unconditionally
-**Files:** `apps/api-workflows/src/index.ts:47`, `apps/api-ai-analysis/src/index.ts:49`, `apps/api-inventory/src/index.ts:53`
-**CVSS:** 6.5 | **Fix:** 0.5 hours
-
----
-
-#### FINDING-031 | HIGH | SECURITY
-**Title:** Error Stack Traces Stored in Database
-**File:** `apps/api-workflows/src/routes/automation.ts:278`
-**CVSS:** 6.0 | **Fix:** 0.5 hours
-
----
-
-#### FINDING-032 | HIGH | SECURITY
-**Title:** Three Downstream Services Use cors() with No Origin Restriction
-**Files:** `apps/api-ai-analysis/src/index.ts:29`, `apps/api-inventory/src/index.ts:31`, `apps/api-workflows/src/index.ts:27`
-**CVSS:** 6.1 | **Fix:** 0.5 hours
-
-**Fix:** Change to `cors({ origin: true, credentials: true })`.
-
----
-
-#### FINDING-033 | HIGH | ARCHITECTURE
-**Title:** Gateway Core Schema Contains Cross-Domain Read Models
-**File:** `packages/database/prisma/schemas/core.prisma:141-402`
-**Fix:** 8 hours
-
-Gateway directly reads domain tables (risks, incidents, actions) instead of calling downstream APIs.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-012                                            │
+│ Category: ARCHITECTURE                                          │
+│ CVSS Score: N/A                                                 │
+│ Estimated Fix: 2 hours (documentation + plan)                   │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Shared Database Violates Per-Service DB Principle         │
+│ File:  docker-compose.yml:58-59,103-106,...                     │
+│ Rule:  Microservices Database-per-Service Pattern               │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   All 10 services connect to the SAME PostgreSQL database      │
+│   with the SAME credentials. While they use different table    │
+│   prefixes (hs_*, env_*, qual_*), nothing prevents any         │
+│   service from querying another's tables. The gateway          │
+│   directly queries H&S tables for dashboard data. A schema    │
+│   migration in one service could break another. No             │
+│   PostgreSQL row-level security (RLS) policies exist.          │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   -- Short-term: Create per-service database users              │
+│   CREATE USER ims_hs WITH PASSWORD '...';                      │
+│   GRANT SELECT,INSERT,UPDATE,DELETE ON hs_* TO ims_hs;         │
+│   REVOKE ALL ON env_*,qual_*,hr_*,... FROM ims_hs;             │
+│                                                                 │
+│   -- Long-term: Separate databases per service                 │
+│   -- Cross-service reads via API calls, not direct DB          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-034 | HIGH | ARCHITECTURE
-**Title:** Workflows Service Imports from @ims/database (Core) Instead of Local Prisma
-**File:** `apps/api-workflows/src/index.ts:11`
-**Fix:** 0.5 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [HIGH] — FINDING-013                                            │
+│ Category: SECURITY                                              │
+│ CVSS Score: 4.3                                                 │
+│ Estimated Fix: 1 hour                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Password Strength Not Enforced at Registration           │
+│ Files: apps/api-gateway/src/routes/auth.ts:32-40,440            │
+│ Rule:  OWASP A07 / CWE-521 / NIST 800-63B                     │
+├─────────────────────────────────────────────────────────────────┤
+│ VULNERABLE CODE:                                                │
+│                                                                 │
+│   const registerSchema = z.object({                            │
+│     email: z.string().email(),                                  │
+│     password: z.string().min(8),  // Only checks length!       │
+│     firstName: z.string().min(1),                               │
+│     lastName: z.string().min(1),                                │
+│   });                                                           │
+│   // validatePasswordStrength() exists but is NEVER called     │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ EXPLANATION:                                                    │
+│   Registration and password reset only validate min(8) length. │
+│   The validatePasswordStrength() function in @ims/auth         │
+│   requires uppercase, lowercase, and digits but is never       │
+│   called. A user can register with "aaaaaaaa" as a password.   │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ FIXED CODE:                                                     │
+│                                                                 │
+│   import { validatePasswordStrength } from '@ims/auth';        │
+│                                                                 │
+│   // In register route, after Zod validation:                  │
+│   const pwCheck = validatePasswordStrength(password);           │
+│   if (!pwCheck.valid) {                                         │
+│     return res.status(400).json({                              │
+│       success: false,                                           │
+│       error: { code: 'WEAK_PASSWORD', message: pwCheck.errors }│
+│     });                                                         │
+│   }                                                             │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-035 | HIGH | ARCHITECTURE
-**Title:** No Circuit Breaker on AI Analysis Service
-**Files:** `apps/api-ai-analysis/src/routes/analyse.ts`, `analyze.ts`
-**Fix:** 2 hours
+### MEDIUM FINDINGS
 
 ---
 
-#### FINDING-036 | HIGH | ARCHITECTURE
-**Title:** No Graceful Shutdown on 8 of 9 Downstream Services
-**Files:** All `apps/api-*/src/index.ts` except gateway
-**Fix:** 2 hours
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-014                                          │
+│ Category: SECURITY          │ Estimated Fix: 1 hour             │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Open Registration Without Admin Approval                 │
+│ File:  apps/api-gateway/src/routes/auth.ts:155-234              │
+│ Rule:  CWE-284 / ISO 27001 A.9.2.1                             │
+│                                                                 │
+│ The /api/auth/register endpoint is publicly accessible          │
+│ (rate-limited 3/hour/IP) and assigns role: 'USER'. For an      │
+│ ISO compliance system, user provisioning should require         │
+│ admin approval or invitation-only registration.                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-015                                          │
+│ Category: SECURITY          │ Estimated Fix: 1 hour             │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: K8s Secrets YAML with Placeholder Values Committed       │
+│ File:  deploy/k8s/base/secrets.yaml                             │
+│ Rule:  CWE-798 / OWASP A05                                     │
+│                                                                 │
+│ Kubernetes secrets manifest contains "CHANGE_ME" placeholder   │
+│ values for DB passwords, JWT secrets, Redis password. Could    │
+│ lead to accidental deployment with default values.             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-016                                          │
+│ Category: SECURITY          │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Downstream Services Have No Rate Limiting                │
+│ Files: All apps/api-*/src/index.ts (9 services)                 │
+│ Rule:  OWASP A04 / CWE-770                                     │
+│                                                                 │
+│ All 9 downstream services have zero rate limiting. Service      │
+│ ports are exposed to the host (FINDING-009). Anyone bypassing  │
+│ the gateway gets unlimited access.                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-017                                          │
+│ Category: SECURITY          │ Estimated Fix: 2 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Audit Log Redaction Not Enforced                          │
+│ File:  packages/audit/src/types.ts:135-164                      │
+│ Rule:  GDPR Article 5(1)(f) / CWE-532                          │
+│                                                                 │
+│ A comprehensive SENSITIVE_FIELDS array (26 fields) exists but  │
+│ no redactFields() function is called before writing audit log  │
+│ entries. PII may be recorded in audit logs.                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-018                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 2 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: 3 API Services Missing from Docker Compose               │
+│ File:  docker-compose.yml                                       │
+│ Rule:  12-Factor / Dev-Prod Parity                              │
+│                                                                 │
+│ api-hr (4006), api-payroll (4007), api-workflows (4008) are    │
+│ NOT defined in docker-compose.yml. Gateway proxies to them     │
+│ but they won't be running in Docker deployment.                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-019                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: No Database Connection Retry or Pool Configuration       │
+│ Files: All apps/api-*/src/prisma.ts, packages/database/.env     │
+│ Rule:  Resilience Pattern / Connection Pool                     │
+│                                                                 │
+│ DATABASE_URL has no connection_limit, pool_timeout, or          │
+│ statement_timeout parameters. No retry on connection. The      │
+│ withRetry utility exists in @ims/resilience but is unused.     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-020                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 2 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: OpenTelemetry Tracing Built But Never Activated          │
+│ File:  packages/monitoring/src/tracing.ts                       │
+│ Rule:  Observability / Distributed Tracing                     │
+│                                                                 │
+│ Complete OpenTelemetry implementation exists with auto-         │
+│ instrumentation for HTTP, Express, PostgreSQL. But             │
+│ initTracing() is never called from any service.                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-021                                          │
+│ Category: PERFORMANCE       │ Estimated Fix: 2 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Unbounded findMany() Queries Without take Limit          │
+│ Files: apps/api-gateway/src/routes/dashboard.ts:38              │
+│        apps/api-hr/src/routes/leave.ts:17,351,433,454           │
+│        apps/api-hr/src/routes/departments.ts:34,179             │
+│        apps/api-workflows/src/routes/definitions.ts:31          │
+│ Rule:  Performance / Query Safety                               │
+│                                                                 │
+│ Several queries call findMany() with no take limit.            │
+│ Data growth could cause OOM or slow responses.                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-022                                          │
+│ Category: PERFORMANCE       │ Estimated Fix: 3 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: N+1 Query Patterns in Loops                              │
+│ Files: apps/api-hr/src/routes/attendance.ts:145-173             │
+│        apps/api/src/routes/analytics.ts:724-748                 │
+│ Rule:  Performance / N+1 Query                                  │
+│                                                                 │
+│ Attendance trends: 7 sequential groupBy() queries (one per     │
+│ day). Analytics trends: 12 sequential count() + 12 upsert()   │
+│ queries (one per month).                                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-023                                          │
+│ Category: CODE_QUALITY      │ Estimated Fix: 8 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: try/catch Error Pattern Repeated 600+ Times (DRY)        │
+│ Files: All 93 route files across 10 API services                │
+│ Rule:  DRY Principle / Clean Code                               │
+│                                                                 │
+│ Every route handler follows the identical 5-line pattern:      │
+│   try { ... } catch (error) {                                  │
+│     logger.error('...', { error: ... });                       │
+│     res.status(500).json({ success: false, error: {...} });    │
+│   }                                                             │
+│ Fix: Create asyncHandler(fn) wrapper in @ims/shared.           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-024                                          │
+│ Category: CODE_QUALITY      │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Pagination Logic Duplicated 80+ Times                    │
+│ Files: All route files with list endpoints                      │
+│ Rule:  DRY Principle                                            │
+│                                                                 │
+│ Same 4-line pagination extraction + metadata response           │
+│ copy-pasted across ~80 list endpoints.                         │
+│ Fix: Create parsePagination() and paginatedResponse() helpers. │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-025                                          │
+│ Category: CODE_QUALITY      │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: 483 any/as any Occurrences in Codebase                   │
+│ Files: 137 files across apps/ directory                         │
+│ Rule:  TypeScript Strict Mode / Type Safety                    │
+│                                                                 │
+│ While many are in test files, production code has:             │
+│ prisma as any for health checks, (req as any).correlationId,   │
+│ Express error handlers.                                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-026                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: No Row-Level Security on Shared Database                 │
+│ Files: All Prisma schemas                                       │
+│ Rule:  NIST AC-3 / Least Privilege                             │
+│                                                                 │
+│ No PostgreSQL RLS policies. Combined with shared database,     │
+│ any service can read/modify any table.                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-027                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 2 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Hardcoded Service Discovery                              │
+│ File:  apps/api-gateway/src/index.ts:38-48                      │
+│ Rule:  12-Factor / Port Binding                                │
+│                                                                 │
+│ Service URLs default to localhost:PORT. Acceptable for Docker  │
+│ Compose but not for dynamic environments.                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-028                                          │
+│ Category: CODE_QUALITY      │ Estimated Fix: 1 hour             │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: Missing Per-Service .env.example Files                   │
+│ Files: All apps/api-* directories                               │
+│ Rule:  12-Factor / Config                                       │
+│                                                                 │
+│ Root .env.example exists but no per-service .env.example.      │
+│ New developers must examine code to determine required vars.   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [MEDIUM] — FINDING-029                                          │
+│ Category: ARCHITECTURE      │ Estimated Fix: 4 hours            │
+├─────────────────────────────────────────────────────────────────┤
+│ Title: No Fallback/Degradation When Services Are Down           │
+│ File:  apps/api-gateway/src/index.ts:228-234                    │
+│ Rule:  Resilience Pattern / Graceful Degradation               │
+│                                                                 │
+│ When downstream service is unavailable, gateway returns 502.   │
+│ No cached fallback or partial response. Module pages fail      │
+│ entirely if their service is down.                             │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-#### FINDING-037 | HIGH | ARCHITECTURE
-**Title:** No unhandledRejection / uncaughtException Handlers
-**Files:** All `apps/api-*/src/index.ts`
-**Fix:** 1 hour
+### LOW FINDINGS
 
 ---
 
-#### FINDING-038 | HIGH | ARCHITECTURE
-**Title:** No Database Query Timeout in Any Prisma Configuration
-**Files:** All 10 Prisma schema datasource blocks
-**Fix:** 1 hour
+| ID | Category | Title | File | Est. Fix |
+|----|----------|-------|------|----------|
+| FINDING-030 | SECURITY | No Special Character in Password Policy | packages/auth/src/password.ts:13-39 | 0.5h |
+| FINDING-031 | SECURITY | Session Token Stored as Full JWT in DB | apps/api-gateway/src/routes/auth.ts:107-116 | 2h |
+| FINDING-032 | SECURITY | Missing ID Validation on 5 Services | Quality, Inventory, HR, Payroll, Workflows routes | 2h |
+| FINDING-033 | SECURITY | SQL Injection Regex Detection Bypassable | packages/validation/src/sanitize.ts:52-61 | 1h |
+| FINDING-034 | SECURITY | CSP and HSTS Disabled in Non-Production | apps/api-gateway/src/middleware/security-headers.ts | 1h |
+| FINDING-035 | SECURITY | Duplicate CORS Middleware in Gateway | apps/api-gateway/src/index.ts | 0.5h |
+| FINDING-036 | ARCHITECTURE | Some Models Missing Audit Trail Fields | environment.prisma (MonitoringData, EnvMilestone), PM schema | 2h |
+| FINDING-037 | ARCHITECTURE | PM Schema Uses Strings Instead of Enums | packages/database/prisma/schemas/project-management.prisma | 4h |
+| FINDING-038 | ARCHITECTURE | Prisma Metrics Middleware Exists But Unused | packages/monitoring/src/metrics.ts:86-98 | 1h |
+| FINDING-039 | ARCHITECTURE | Log File Rotation Not Configured | packages/monitoring/src/logger.ts:47-57 | 1h |
+| FINDING-040 | PERFORMANCE | Select Clause Not Used on High-Volume Queries | Various list endpoints returning all columns | 4h |
+| FINDING-041 | CODE_QUALITY | Stale Closure Risk in Older H&S Components | apps/web-health-safety/src/app/risks/client.tsx:185-187 | 2h |
+| FINDING-042 | CODE_QUALITY | Chart.js registerables Import (Non-Tree-Shakeable) | apps/web-quality/src/components/analytics/*.tsx | 1h |
+| FINDING-043 | CODE_QUALITY | Auto-Numbering Logic Duplicated 15+ Times | Various POST handlers across services | 2h |
+| FINDING-044 | ARCHITECTURE | Full Stack Traces in Structured Logs | All apps/api-*/src/index.ts error handlers | 1h |
 
 ---
 
-#### FINDING-039 | HIGH | ARCHITECTURE
-**Title:** OpenTelemetry Tracing Never Initialized
-**File:** `packages/monitoring/src/tracing.ts` (defined but unused)
-**Fix:** 2 hours
+### INFO FINDINGS (Positive Practices Already Implemented)
 
 ---
 
-#### FINDING-040 | HIGH | ARCHITECTURE
-**Title:** Correlation ID Not Propagated to Downstream Services
-**File:** `apps/api-gateway/src/index.ts:160-193`
-**Fix:** 0.5 hours
-
----
-
-#### FINDING-041 | HIGH | ARCHITECTURE
-**Title:** No /ready Endpoint for Kubernetes Readiness Probes
-**Files:** All `apps/api-*/src/index.ts`
-**Fix:** 1 hour
-
----
-
-#### FINDING-042 | HIGH | ARCHITECTURE
-**Title:** Gateway Health Check Does Not Verify Database Connectivity
-**File:** `apps/api-gateway/src/index.ts:136`
-**Fix:** 0.25 hours
-
----
-
-#### FINDING-043 | HIGH | ARCHITECTURE
-**Title:** DELETE Returns 200 with Body Instead of 204 No Content
-**Files:** All 40+ delete handlers across all services
-**Fix:** 2 hours
-
----
-
-#### FINDING-044 | HIGH | ARCHITECTURE
-**Title:** Inconsistent Response Envelope (3 Pagination Patterns)
-**Files:** All list endpoints across services
-**Fix:** 4 hours
-
----
-
-#### FINDING-045 | HIGH | ARCHITECTURE
-**Title:** Main Schema Risk/Incident Are Polymorphic God Tables
-**File:** `packages/database/prisma/schema.prisma:101-258`
-**Fix:** 8 hours
-
----
-
-#### FINDING-046 | HIGH | ARCHITECTURE
-**Title:** Most Domain Models Lack Soft Delete (deletedAt)
-**Files:** All schema files except HR
-**Fix:** 4 hours
-
----
-
-#### FINDING-047 | HIGH | ARCHITECTURE
-**Title:** Missing createdBy/updatedBy Audit Fields Across Domain Schemas
-**Files:** Environment, Quality, Inventory, Workflows, AI schemas
-**Fix:** 4 hours
-
----
-
-#### FINDING-048 | HIGH | CODE_QUALITY
-**Title:** Leave Approval Has No Transaction -- Partial Updates on Failure
-**File:** `apps/api-hr/src/routes/leave.ts:233-281`
-**Fix:** 1 hour
-
-3 sequential writes (update approval, update request, update balance) without `$transaction`.
-
----
-
-#### FINDING-049 | HIGH | CODE_QUALITY
-**Title:** Payroll Approve Has No Transaction
-**File:** `apps/api-payroll/src/routes/payroll.ts:154-179`
-**Fix:** 1 hour
-
----
-
-#### FINDING-050 | HIGH | CODE_QUALITY
-**Title:** Workflow Advance + History Create Has No Transaction
-**File:** `apps/api-workflows/src/routes/instances.ts:192-231`
-**Fix:** 1 hour
-
----
-
-#### FINDING-051 | HIGH | CODE_QUALITY
-**Title:** Leave Request Creation Has No Transaction
-**File:** `apps/api-hr/src/routes/leave.ts:138-230`
-**Fix:** 1 hour
-
----
-
-#### FINDING-052 | HIGH | CODE_QUALITY
-**Title:** try/catch/500 Response Pattern Repeated 453 Times
-**Files:** 77 route files across all services
-**Fix:** 4 hours
-
-**Fix:** Create shared `asyncHandler` wrapper eliminating ~1,800 lines of duplication.
-
----
-
-#### FINDING-053 | HIGH | CODE_QUALITY
-**Title:** generateRefNumber Duplicated 30+ Times
-**Files:** 24 route files across H&S, Environment, Quality
-**Fix:** 2 hours
-
-Same algorithm copy-pasted 30+ times. Also has a race condition (two concurrent POSTs can get same count).
-
----
-
-#### FINDING-054 | HIGH | CODE_QUALITY
-**Title:** Pagination Parsing Duplicated in 45+ GET Handlers
-**Files:** 45 route files (94 occurrences)
-**Fix:** 2 hours
-
----
-
-#### FINDING-055 | HIGH | CODE_QUALITY
-**Title:** Login Page Duplicated 9 Times
-**Files:** All 9 `apps/web-*/src/app/login/page.tsx`
-**Fix:** 4 hours
-
-~1,800 lines of near-identical code across 9 web apps.
-
----
-
-#### FINDING-056 | HIGH | CODE_QUALITY
-**Title:** Zero Error Boundaries Across All 10 Web Applications
-**Files:** All web apps -- no `error.tsx` or `global-error.tsx`
-**Fix:** 2 hours
-
-An uncaught JS error in any component crashes the entire application with a white screen.
-
----
-
-#### FINDING-057 | HIGH | CODE_QUALITY
-**Title:** Only Gateway Validates Config at Startup; 8 Others Do Not
-**File:** `apps/api-gateway/src/index.ts:225-232` (only instance)
-**Fix:** 2 hours
-
-If DATABASE_URL is missing, services start but crash on first query.
-
----
-
-### MEDIUM FINDINGS (Summary Table)
-
-| ID | Category | Title | Files | Fix Hours |
-|----|----------|-------|-------|-----------|
-| M-01 | SECURITY | Secrets in .next/standalone build artifacts | 9 web apps | 1 |
-| M-02 | SECURITY | Inconsistent database credentials across services | .env files | 1 |
-| M-03 | SECURITY | Next.js API routes have no authentication | 5 routes in web-hs | 2 |
-| M-04 | SECURITY | No refresh token revocation on logout | auth.ts:237 | 4 |
-| M-05 | SECURITY | Legacy auth lacks session/issuer/audience checks | apps/api/src/middleware | 2 |
-| M-06 | SECURITY | Insecure dev fallback secret in code | jwt.ts:22 | 1 |
-| M-07 | SECURITY | Prisma $queryRaw with potentially unsafe composition | transactions.ts:101 | 1 |
-| M-08 | SECURITY | No UUID format validation on req.params.id | All routes | 2 |
-| M-09 | SECURITY | No pagination limit caps on query parameters | 70+ routes | 2 |
-| M-10 | SECURITY | 37 instances of z.any() in Zod schemas | Multiple routes | 4 |
-| M-11 | SECURITY | Missing or excessive JSON body size limits | 6 services | 1 |
-| M-12 | SECURITY | No string length caps on most Zod schema fields | All POST/PUT schemas | 4 |
-| M-13 | SECURITY | CSP disabled in development mode | security-headers.ts:79 | 1 |
-| M-14 | SECURITY | Token refresh endpoint not rate limited | auth.ts:288 | 0.5 |
-| M-15 | SECURITY | In-memory rate limiting fallback in production | rate-limiter.ts:19 | 1 |
-| M-16 | SECURITY | Downstream services have no rate limiting | All 8 downstream APIs | 4 |
-| M-17 | SECURITY | Sensitive field redaction list incomplete | audit/types.ts:135 | 0.5 |
-| M-18 | SECURITY | No PII access audit trail in HR/Payroll | HR/Payroll routes | 4 |
-| M-19 | SECURITY | Salary data sent to external AI providers | analyze.ts:266 | 2 |
-| M-20 | SECURITY | AI provider error messages forwarded to client | analyse.ts:76 | 0.5 |
-| M-21 | SECURITY | Zod validation errors expose schema details | Multiple | 1 |
-| M-22 | ARCH | No circuit breakers on gateway proxy | index.ts:160 | 4 |
-| M-23 | ARCH | Action verbs in URL paths for state transitions | Multiple routes | 2 |
-| M-24 | ARCH | Inconsistent use of PUT vs PATCH | Multiple services | 4 |
-| M-25 | ARCH | Inconsistent error envelope | Multiple services | 2 |
-| M-26 | ARCH | Downstream services unaware of API version | All downstream | 2 |
-| M-27 | ARCH | Payroll calculate returns 501 Not Implemented | payroll.ts:114 | 8 |
-| M-28 | ARCH | Supplier.address stored as JSON | inventory.prisma:55 | 4 |
-| M-29 | ARCH | BowTie stores structured data in JSON columns | hs.prisma:394 | 4 |
-| M-30 | ARCH | Missing numeric range constraints | Multiple schemas | 2 |
-| M-31 | ARCH | Duplicate PayFrequency enum values | payroll.prisma:88 | 0.5 |
-| M-32 | ARCH | Environment models missing createdBy/updatedBy | env.prisma | 2 |
-| M-33 | ARCH | Quality models missing createdBy/updatedBy | quality.prisma | 2 |
-| M-34 | ARCH | DB query duration metric defined but never recorded | metrics.ts:33 | 1 |
-| M-35 | ARCH | Correlation ID not included in log messages | All routes | 2 |
-| M-36 | ARCH | PII risk in auth logging (email plaintext) | auth.ts:56 | 1 |
-| M-37 | QUALITY | useEffect fires API on every search keystroke (no debounce) | employees page | 1 |
-| M-38 | QUALITY | filteredRisks recomputed every render (no useMemo) | risks/client.tsx | 1 |
-| M-39 | QUALITY | Error states silently logged, not shown to users | All web apps | 4 |
-| M-40 | QUALITY | @tanstack/react-query installed but never used (8 apps) | 8 web apps | 2 |
-| M-41 | QUALITY | API client (axios + interceptors) duplicated 10 times | 10 api.ts files | 2 |
-| M-42 | QUALITY | RBAC only applied to 2 of 10 API services | Most services | 8 |
-| M-43 | QUALITY | Dashboard stats sequential queries (should be Promise.all) | dashboard.ts | 1 |
-| M-44 | QUALITY | AI analysis module has 15+ `: any` types | analyse.ts | 2 |
-| M-45 | QUALITY | 60+ `as any` casts on Prisma enum fields | env routes | 4 |
-| M-46 | QUALITY | AI provider response.json() can throw on non-JSON bodies | analyse.ts:153 | 0.5 |
-| M-47 | QUALITY | Hardcoded localhost origins in gateway CORS | index.ts:84 | 1 |
-| M-48 | QUALITY | Hardcoded localhost URLs in CSP/security headers | security-headers.ts:41 | 1 |
-| M-49 | QUALITY | Hardcoded localhost CORS in HR and Payroll | hr/payroll index.ts | 0.5 |
-| M-50 | QUALITY | Inconsistent PORT variable name in api-inventory | inventory index.ts | 0.25 |
-| M-51 | QUALITY | Inconsistent DATABASE_URL credentials | All .env files | 1 |
-| M-52 | QUALITY | Inline object literals in JSX create new refs every render | risks/client.tsx | 1 |
-
----
-
-### LOW FINDINGS (Summary Table)
-
-| ID | Category | Title | Fix Hours |
-|----|----------|-------|-----------|
-| L-01 | SECURITY | .env.example exposes misleading JWT expiry | 0.25 |
-| L-02 | SECURITY | Account lockout leaks remaining attempts | 0.25 |
-| L-03 | SECURITY | Not-found handler reflects request path | 0.25 |
-| L-04 | SECURITY | Weak password policy on legacy auth | 0.5 |
-| L-05 | SECURITY | NaN propagation from unparsed query params | 1 |
-| L-06 | SECURITY | HR/Payroll allow 10MB request bodies | 0.25 |
-| L-07 | SECURITY | bcryptjs unmaintained (last release 2017) | 2 |
-| L-08 | SECURITY | http-proxy-middleware v2 legacy | 4 |
-| L-09 | SECURITY | No npm audit or Snyk integration | 1 |
-| L-10 | ARCH | Missing Docker Compose depends_on for HR/Payroll/Workflows | 0.25 |
-| L-11 | ARCH | Dual spelling /analyse and /analyze in AI service | 0.5 |
-| L-12 | ARCH | Nested /inventory/inventory/transactions path | 0.25 |
-| L-13 | ARCH | AI analyze route is 700+ line god handler | 8 |
-| L-14 | ARCH | Inconsistent CORS configuration across services | 1 |
-| L-15 | ARCH | Inventory lotNumbers/serialNumbers as JSON | 4 |
-| L-16 | ARCH | Metrics route path high-cardinality labels | 1 |
-| L-17 | ARCH | Console.log in tracing.ts initialization | 0.25 |
-| L-18 | QUALITY | key={index} on dynamic list items (~90 instances) | 2 |
-| L-19 | QUALITY | style={{}} inline objects in ~40 JSX locations | 1 |
-| L-20 | QUALITY | Inline onCellClick={() => {}} creates new ref every render | 0.25 |
-| L-21 | QUALITY | class-variance-authority duplicated across apps | 0.5 |
-| L-22 | QUALITY | ANTHROPIC_API_KEY read without validation | 0.5 |
-| L-23 | QUALITY | Sequential uniqueness checks could be parallelized | 0.5 |
-| L-24 | QUALITY | Single @ts-expect-error could have more specific comment | 0.1 |
+| # | Category | Practice | Status |
+|---|----------|----------|--------|
+| 1 | SECURITY | JWT algorithm pinned to HS256 — prevents algorithm confusion attacks | Implemented |
+| 2 | SECURITY | Bcrypt with cost factor 12 for password hashing | Implemented |
+| 3 | SECURITY | 5-tier rate limiting with Redis backing (auth, register, reset, API, strict) | Implemented |
+| 4 | SECURITY | Account lockout after 5 failed attempts (30-min cooldown) | Implemented |
+| 5 | SECURITY | Zod schema validation on all input across all services | Implemented |
+| 6 | SECURITY | Input sanitization middleware (HTML strip, XSS pattern blocking) | Implemented |
+| 7 | SECURITY | Comprehensive Helmet config with CSP, X-Frame-Options, Permissions-Policy | Implemented |
+| 8 | SECURITY | Zero dangerouslySetInnerHTML in all React code — XSS prevented | Implemented |
+| 9 | SECURITY | Parameterized queries exclusively — no raw SQL interpolation | Implemented |
+| 10 | SECURITY | Password reset uses SHA-256 hashed tokens with 1-hour expiry | Implemented |
+| 11 | ARCHITECTURE | Clean microservice decomposition with single responsibility per service | Implemented |
+| 12 | ARCHITECTURE | Consistent response envelope: { success, data, error: { code, message } } | Implemented |
+| 13 | ARCHITECTURE | API versioning with deprecation headers and sunset dates | Implemented |
+| 14 | ARCHITECTURE | Inter-service authentication via service tokens (refreshed every 50min) | Implemented |
+| 15 | ARCHITECTURE | Graceful shutdown with SIGTERM/SIGINT handlers on all services | Implemented |
+| 16 | ARCHITECTURE | Health (/health) and readiness (/ready) endpoints on all 10 services | Implemented |
+| 17 | ARCHITECTURE | Comprehensive database indexing (200+ indexes across 10 schemas) | Implemented |
+| 18 | ARCHITECTURE | FK cascades correctly applied; unique constraints on business identifiers | Implemented |
+| 19 | CODE_QUALITY | TypeScript strict mode enabled globally with noImplicitAny | Implemented |
+| 20 | CODE_QUALITY | Structured logging (Winston) with correlation IDs across all services | Implemented |
+| 21 | CODE_QUALITY | Promise.all used for parallel DB queries in list+count patterns | Implemented |
+| 22 | CODE_QUALITY | useCallback properly applied in newer frontend components | Implemented |
+| 23 | CODE_QUALITY | Error boundaries on all 10 web applications | Implemented |
+| 24 | CODE_QUALITY | No heavy legacy dependencies (moment, lodash, jQuery, Bootstrap) | Verified |
+| 25 | CODE_QUALITY | 2,633 unit tests across 103 suites with comprehensive route coverage | Implemented |
 
 ---
 
 ## REMEDIATION ROADMAP
 
-### SPRINT 0 -- THIS WEEK (Security Critical)
+---
 
-| # | Finding | Title | Hours |
+### SPRINT 0 — THIS WEEK (Security Critical)
+
+| | Finding | Title | Hours |
 |---|---------|-------|-------|
-| 1 | F-003 | Add authenticate middleware to HR, Payroll, Workflows | 2 |
-| 2 | F-004 | Add `algorithms: ['HS256']` to all jwt.verify() calls | 1 |
-| 3 | F-005 | Wire @ims/validation into all 9 API services | 4 |
-| 4 | F-009 | Add AbortController timeout to all AI fetch() calls | 2 |
-| 5 | F-013 | Add pagination limit cap (max 100) to all list endpoints | 2 |
-| 6 | F-015 | Fix payroll calculate deadlock with finally block | 1 |
-| 7 | F-018 | Change default token expiry from 7d to 15m | 0.5 |
-| 8 | F-019 | Increase bcrypt cost factor from 10 to 12 | 0.5 |
-| 9 | F-020 | Integrate validatePasswordStrength into registration | 1 |
-| 10 | F-030 | Add NODE_ENV guard on error messages in 3 services | 0.5 |
-| 11 | F-032 | Fix cors() to use origin: true in 3 services | 0.5 |
-| 12 | F-034 | Fix workflows import from @ims/database to local prisma | 0.5 |
-| 13 | F-057 | Add startup config validation to all services | 2 |
-| **Total** | | | **17.5 hours** |
+| 1 | FINDING-001 | Secrets exposed in .env files — rotate + remove fallback | 2 |
+| 2 | FINDING-002 | PII encryption at rest — implement field-level crypto | 8 |
+| 3 | FINDING-003 | Remove hardcoded admin credentials from UI | 2 |
+| 4 | FINDING-005 | Apply strictApiLimiter to AI routes | 1 |
+| 5 | FINDING-006 | Set Redis password | 1 |
+| 6 | FINDING-009 | Remove host port mappings for downstream services | 2 |
+| 7 | FINDING-010 | Add proxyTimeout to gateway proxy | 1 |
+| 8 | FINDING-013 | Wire up validatePasswordStrength in registration | 1 |
+| **Total** | | | **18 hours** |
 
-### SPRINT 1 -- NEXT SPRINT (High Priority)
+### SPRINT 1 — NEXT SPRINT (High Priority)
 
-| # | Finding | Title | Hours |
+| | Finding | Title | Hours |
 |---|---------|-------|-------|
-| 1 | F-001/002 | Rotate all secrets, move to secrets manager | 4 |
-| 2 | F-008 | Wire @ims/resilience into AI and gateway services | 4 |
-| 3 | F-010 | Replace 461 console.error with structured logger | 4 |
-| 4 | F-011/012 | Add missing indexes to all Prisma schemas | 4 |
-| 5 | F-014 | Replace `where: any` with Prisma typed inputs | 8 |
-| 6 | F-036/037 | Add graceful shutdown + process error handlers | 3 |
-| 7 | F-038 | Add database query timeouts to Prisma config | 1 |
-| 8 | F-040 | Forward correlation IDs across service boundaries | 0.5 |
-| 9 | F-042 | Fix gateway health check to verify database | 0.25 |
-| 10 | F-048-051 | Add $transaction to HR leave, payroll, workflows | 4 |
-| 11 | F-052 | Create shared asyncHandler to eliminate try/catch duplication | 4 |
-| 12 | F-053/054 | Create shared refNumber + pagination utilities | 4 |
-| 13 | F-056 | Add error.tsx to all 10 web apps | 2 |
-| **Total** | | | **42.75 hours** |
+| 1 | FINDING-004 | Implement RBAC on all downstream services | 4 |
+| 2 | FINDING-007 | GDPR right-to-erasure and DSAR endpoints | 16 |
+| 3 | FINDING-008 | PII masking in API responses | 4 |
+| 4 | FINDING-011 | Circuit breakers on gateway proxy | 4 |
+| 5 | FINDING-012 | Per-service database users with table grants | 2 |
+| 6 | FINDING-014 | Admin approval workflow for registration | 4 |
+| 7 | FINDING-017 | Implement audit log redaction function | 2 |
+| 8 | FINDING-018 | Add missing services to docker-compose | 2 |
+| **Total** | | | **38 hours** |
 
-### SPRINT 2 -- BACKLOG (Medium Priority)
+### SPRINT 2 — BACKLOG (Medium Priority)
 
-| # | Finding | Title | Hours |
+| | Finding | Title | Hours |
 |---|---------|-------|-------|
-| 1 | F-006 | Implement PII encryption at rest (AES-256-GCM) | 8 |
-| 2 | F-007 | Build GDPR right-to-erasure endpoint | 16 |
-| 3 | F-022-026 | Add Zod validation to all PUT/PATCH routes | 12 |
-| 4 | F-039 | Initialize OpenTelemetry tracing in all services | 2 |
-| 5 | F-041 | Add /ready endpoints to all services | 1 |
-| 6 | F-043/044 | Standardize DELETE responses and pagination envelope | 6 |
-| 7 | F-046/047 | Add deletedAt + createdBy/updatedBy to all domain models | 8 |
-| 8 | F-055 | Extract shared LoginPage component | 4 |
-| 9 | M-04 | Implement refresh token revocation | 4 |
-| 10 | M-10 | Replace z.any() with specific schemas | 4 |
-| 11 | M-18 | Integrate @ims/audit into HR and Payroll | 4 |
-| 12 | M-42 | Add RBAC to all API services | 8 |
-| **Total** | | | **77 hours** |
+| 1 | FINDING-015 | Remove K8s secrets template from repo | 1 |
+| 2 | FINDING-016 | Add rate limiting to downstream services | 4 |
+| 3 | FINDING-019 | DB connection pool configuration | 4 |
+| 4 | FINDING-020 | Activate OpenTelemetry tracing | 2 |
+| 5 | FINDING-021 | Add take limits to unbounded queries | 2 |
+| 6 | FINDING-022 | Fix N+1 query patterns | 3 |
+| 7 | FINDING-023 | Extract asyncHandler wrapper (DRY) | 8 |
+| 8 | FINDING-024 | Extract pagination helper (DRY) | 4 |
+| 9 | FINDING-025 | Reduce any/as any occurrences | 4 |
+| 10 | FINDING-026 | Row-level security policies | 4 |
+| 11 | FINDING-027 | Require explicit service URLs in production | 2 |
+| 12 | FINDING-028 | Create per-service .env.example files | 1 |
+| 13 | FINDING-029 | Gateway response caching for degradation | 4 |
+| **Total** | | | **43 hours** |
 
-### SPRINT 3 -- TECH DEBT (Low Priority)
+### SPRINT 3 — TECH DEBT (Low Priority)
 
-| # | Finding | Title | Hours |
+| | Finding | Title | Hours |
 |---|---------|-------|-------|
-| 1 | L-07 | Migrate from bcryptjs to bcrypt or @node-rs/bcrypt | 2 |
-| 2 | L-08 | Migrate http-proxy-middleware to v3 | 4 |
-| 3 | L-09 | Set up Dependabot/Snyk for dependency scanning | 1 |
-| 4 | L-13 | Refactor AI analyze 700-line god handler | 8 |
-| 5 | M-37/38 | Add debounce and useMemo to React components | 2 |
-| 6 | M-40 | Either use react-query or remove from 8 apps | 4 |
-| 7 | M-41 | Extract shared API client factory | 2 |
-| 8 | M-45 | Replace `as any` enum casts with z.nativeEnum | 4 |
-| 9 | M-47/48 | Externalize CORS and CSP origins to env vars | 2 |
-| **Total** | | | **29 hours** |
+| 1 | FINDING-030 | Add special char requirement + max length | 0.5 |
+| 2 | FINDING-031 | Store hashed session tokens | 2 |
+| 3 | FINDING-032 | Add validateIdParam to remaining services | 2 |
+| 4 | FINDING-033 | Improve SQL injection regex or remove | 1 |
+| 5 | FINDING-034 | Enable CSP/HSTS in staging environments | 1 |
+| 6 | FINDING-035 | Remove duplicate CORS middleware | 0.5 |
+| 7 | FINDING-036 | Add missing audit fields to models | 2 |
+| 8 | FINDING-037 | Convert PM schema strings to enums | 4 |
+| 9 | FINDING-038 | Wire Prisma metrics middleware | 1 |
+| 10 | FINDING-039 | Configure log file rotation | 1 |
+| 11 | FINDING-040 | Add select clauses to list queries | 4 |
+| 12 | FINDING-041 | Fix stale closures in H&S components | 2 |
+| 13 | FINDING-042 | Tree-shake Chart.js imports | 1 |
+| 14 | FINDING-043 | Extract auto-numbering utility | 2 |
+| 15 | FINDING-044 | Truncate stack traces in production logs | 1 |
+| **Total** | | | **25 hours** |
 
 ---
 
 ## POSITIVE FINDINGS
 
-The following practices are already in place and should be preserved:
+The IMS platform demonstrates strong engineering practices that should be preserved and enforced:
 
-### Security
-1. **Session-based token validation** (`packages/auth/src/middleware.ts:45-59`) -- tokens validated against DB sessions with expiry and active status checks
-2. **Account lockout** (`apps/api-gateway/src/middleware/account-lockout.ts`) -- 5 failed attempts triggers 30-minute lockout with Redis backing
-3. **Comprehensive rate limiting** -- Login: 5/15min, Registration: 3/hour, Password reset: 3/15min, API: 100/15min per IP
-4. **Secure password reset flow** -- 32-byte random token stored as SHA-256 hash, 1-hour expiry, all sessions invalidated, anti-enumeration response
-5. **RBAC on user management** -- ADMIN-only for user creation/deletion, self-deletion prevention
-6. **Comprehensive security headers** -- Helmet with HSTS (preload), frame-ancestors: none, noSniff, strict referrer, 24-feature permissions policy
-7. **API response caching prevention** -- `Cache-Control: no-store, no-cache, must-revalidate` on all API paths
-8. **Audit service with PII redaction** -- `packages/audit/src/service.ts` redacts password, token, apiKey, SSN, creditCard etc.
-9. **No dangerouslySetInnerHTML usage** -- zero instances across all 10 web apps
-10. **Current dependency versions** -- Express 4.22.1, jsonwebtoken 9.0.3, Prisma 5.22.0, Zod 3.25.76
+### Security Strengths
+1. **JWT Security**: Algorithm pinned to HS256, preventing none-algorithm and RSA/HMAC confusion attacks. Issuer/audience validation on all verify calls. 15-minute access token expiry with 7-day refresh tokens.
+2. **Password Hashing**: bcrypt with cost factor 12 (above minimum recommendation). SHA-256 hashed reset tokens with 1-hour expiry.
+3. **Rate Limiting**: 5-tier rate limiting strategy (auth: 5/15min, register: 3/hr, reset: 3/15min, API: 100/15min, strict: 20/15min). Redis-backed with in-memory fallback. Custom error responses in API envelope format.
+4. **Account Lockout**: 5 failed attempts trigger 30-minute lockout. Redis-backed with automatic reset on successful login.
+5. **Input Validation**: Zod schema validation on all request bodies across all 10 services. UUID/CUID validation on route params. Sanitization middleware stripping HTML and blocking XSS patterns.
+6. **Security Headers**: Comprehensive Helmet configuration with CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, and extensive Permissions-Policy.
+7. **SQL Injection Prevention**: Exclusive use of Prisma ORM with parameterized queries. Zero uses of $queryRawUnsafe or string interpolation in SQL.
+8. **XSS Prevention**: Zero instances of dangerouslySetInnerHTML across all 10 web applications.
 
-### Architecture
-11. **Clean bounded contexts** -- each service owns a distinct ISO/business domain with table prefixes
-12. **Star topology via gateway** -- clean separation with no inter-service HTTP calls
-13. **API versioning with deprecation headers** -- `/api/v1/*` routes with Sunset headers on legacy endpoints
-14. **Service token authentication** -- gateway generates `X-Service-Token` for downstream auth
-15. **CORS header stripping** -- gateway strips downstream CORS headers to prevent conflicts
-16. **Body re-serialization on proxy** -- correctly handles express.json() consuming the request stream
-17. **Well-designed resilience library** -- circuit breaker, retry, timeout, bulkhead -- just needs wiring
-18. **Well-designed monitoring package** -- Winston logging, Prometheus metrics, correlation IDs, health checks, OpenTelemetry tracing
+### Architecture Strengths
+9. **Microservice Design**: Clean domain decomposition with single responsibility per service. Each service has its own Prisma schema and generated client.
+10. **API Design**: Consistent response envelope pattern. REST naming conventions with plural nouns. API versioning with deprecation headers.
+11. **Resilience Foundation**: Graceful shutdown on all services. Health and readiness endpoints. Inter-service authentication. Circuit breaker package available.
+12. **Database Design**: 200+ indexes across 10 schemas. Appropriate JSON field usage. FK cascades correctly applied. Composite unique constraints enforcing business rules.
+13. **Observability Foundation**: Structured logging with Winston. Correlation ID propagation. Prometheus metrics collection. OpenTelemetry tracing package (needs activation).
 
-### Code Quality
-19. **2,579 unit tests passing** across 99 suites with consistent mock patterns
-20. **8 integration test scripts** with ~425 assertions and master runner
-21. **No heavy dependencies** -- no moment.js, lodash (full), jQuery, Bootstrap, Material UI
-22. **Consistent test pattern** -- mock Prisma client + mock auth + supertest
-23. **CI/CD pipeline** -- GitHub Actions with daily runs, push/PR triggers, artifact upload
-24. **Loading skeletons on all components** -- proper loading states with pulse animations
-25. **Empty state handling** -- all list components show user-friendly empty messages
-26. **Modal components use correct `isOpen` prop** -- per CLAUDE.md guidance
-27. **Chart.js registrations at module level** -- not inside components
-28. **Several modules properly use useCallback/useMemo** -- quality, environment, H&S improvements
+### Code Quality Strengths
+14. **TypeScript Safety**: Strict mode enabled globally. Only 1 @ts-expect-error in production code. Consistent type annotations.
+15. **Error Handling**: Every async route handler wrapped in try/catch. Consistent error response format. Error boundaries on all web apps.
+16. **React Patterns**: useCallback properly applied in newer components. No heavy legacy dependencies. Loading states and error states handled.
+17. **Testing**: 2,633 unit tests across 103 suites. 8 integration test scripts with ~425 assertions. CI/CD pipeline with daily test runs.
+18. **12-Factor Compliance**: All configuration from environment variables. Required config validated at startup with fail-fast behavior. .env files in .gitignore.
 
 ---
 
-## METHODOLOGY
-
-### Evaluation Personas
-- **Chief Security Engineer** (CISSP, CEH) -- Phases 1A-1H
-- **Principal Architect** (15 years distributed systems) -- Phases 2A-2E
-- **Staff Full-Stack Engineer** (TypeScript, React, Node.js) -- Phases 3A-3G
-
-### Tools Used
-- Static analysis via ripgrep pattern matching
-- Prisma schema analysis
-- package.json dependency audit
-- Route-level code review of all 77 route files
-- React component analysis across all 10 web apps
-
-### Standards Applied
-- OWASP Top 10 2023
-- OWASP ASVS 4.0 Level 2
-- CWE/SANS Top 25
-- NIST SP 800-53 Rev 5
-- GDPR Article 32
-- 12-Factor App Methodology
-- ISO/IEC 25010:2023
-
----
-
-**Report Generated:** 2026-02-11
-**Total Unique Findings:** 141 (15 CRITICAL, 42 HIGH, 52 MEDIUM, 24 LOW, 8 INFO)
-**Estimated Total Remediation:** ~166 hours across 4 sprints
+**Report generated by automated code evaluation audit.**
+**Evaluation date: 2026-02-12**
+**Next scheduled review: TBD**

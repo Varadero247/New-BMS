@@ -24,6 +24,7 @@ describe('Auth Middleware', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
 
     mockReq = {
       headers: {},

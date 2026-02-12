@@ -9,9 +9,6 @@ for (const envVar of requiredEnvVars) {
     process.exit(1);
   }
 }
-if (process.env.JWT_SECRET === 'your-super-secret-jwt-key-change-in-production') {
-  console.warn('[SECURITY WARNING] Using placeholder JWT_SECRET. Change in production!');
-}
 
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';

@@ -7,19 +7,17 @@ const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'ims-client';
 
 /**
  * Get JWT secret from environment
- * Throws in production if not properly configured
+ * Throws if JWT_SECRET is not set (required in all environments)
  */
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('JWT_SECRET environment variable is required in production');
-    }
-    // Development fallback with warning
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  if (secret.length < 32) {
     console.warn(
-      '[SECURITY WARNING] JWT_SECRET not set - using insecure default. Do not use in production!'
+      '[SECURITY WARNING] JWT_SECRET is shorter than 32 characters. Use a stronger secret in production.'
     );
-    return 'INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION';
   }
   return secret;
 }
