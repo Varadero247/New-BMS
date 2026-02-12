@@ -5,12 +5,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/products - List products with search and filters
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -205,10 +207,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       minStockLevel: z.number().int().min(0).default(0),
       maxStockLevel: z.number().int().min(0).default(0),
       leadTimeDays: z.number().int().min(0).default(0),
-      dimensions: z.any().optional(),
+      dimensions: z.record(z.unknown()).optional(),
       weight: z.number().optional(),
       weightUnit: z.string().optional(),
-      customAttributes: z.any().optional(),
+      customAttributes: z.record(z.unknown()).optional(),
       trackSerialNumbers: z.boolean().default(false),
       trackLotNumbers: z.boolean().default(false),
       trackExpiryDates: z.boolean().default(false),
@@ -247,7 +249,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: product });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Create product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' } });
@@ -280,10 +282,10 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
       minStockLevel: z.number().int().min(0).optional(),
       maxStockLevel: z.number().int().min(0).optional(),
       leadTimeDays: z.number().int().min(0).optional(),
-      dimensions: z.any().optional(),
+      dimensions: z.record(z.unknown()).optional(),
       weight: z.number().optional().nullable(),
       weightUnit: z.string().optional().nullable(),
-      customAttributes: z.any().optional(),
+      customAttributes: z.record(z.unknown()).optional(),
       trackSerialNumbers: z.boolean().optional(),
       trackLotNumbers: z.boolean().optional(),
       trackExpiryDates: z.boolean().optional(),
@@ -335,7 +337,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: product });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Update product error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' } });

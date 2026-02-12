@@ -24,7 +24,7 @@ jest.mock('@ims/auth', () => ({
         error: { code: 'UNAUTHORIZED', message: 'No token provided' },
       });
     }
-    req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
     next();
   },
   requireRole: () => (req: any, res: any, next: any) => next(),
@@ -56,11 +56,11 @@ describe('Analyses CRUD API', () => {
     jest.clearAllMocks();
   });
 
-  const mockUser = { id: 'user-1', firstName: 'Admin', lastName: 'User' };
+  const mockUser = { id: '20000000-0000-4000-a000-000000000001', firstName: 'Admin', lastName: 'User' };
 
   const mockAnalysis = {
-    id: 'analysis-1',
-    userId: 'user-1',
+    id: '52000000-0000-4000-a000-000000000001',
+    userId: '20000000-0000-4000-a000-000000000001',
     sourceType: 'risk',
     sourceId: 'source-1',
     sourceData: { title: 'Fall from height' },
@@ -203,11 +203,11 @@ describe('Analyses CRUD API', () => {
   // GET /api/analyses/:id - Get single analysis
   // =========================================================
   describe('GET /api/analyses/:id', () => {
-    it('returns 404 for non-existent analysis', async () => {
+    it('returns 404 for 00000000-0000-4000-a000-ffffffffffff analysis', async () => {
       mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/analyses/non-existent')
+        .get('/api/analyses/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer test-token');
 
       expect(response.status).toBe(404);
@@ -219,21 +219,21 @@ describe('Analyses CRUD API', () => {
     it('returns analysis with user and actions includes', async () => {
       const analysisWithActions = {
         ...mockAnalysis,
-        actions: [{ id: 'action-1', title: 'Install guardrails' }],
+        actions: [{ id: '13000000-0000-4000-a000-000000000001', title: 'Install guardrails' }],
       };
       mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(analysisWithActions);
 
       const response = await request(app)
-        .get('/api/analyses/analysis-1')
+        .get('/api/analyses/52000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer test-token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('analysis-1');
+      expect(response.body.data.id).toBe('52000000-0000-4000-a000-000000000001');
       expect(response.body.data.actions).toHaveLength(1);
 
       expect(mockPrisma.aIAnalysis.findUnique).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
+        where: { id: '52000000-0000-4000-a000-000000000001' },
         include: {
           user: { select: { id: true, firstName: true, lastName: true, email: true } },
           actions: true,
@@ -245,7 +245,7 @@ describe('Analyses CRUD API', () => {
       mockPrisma.aIAnalysis.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/analyses/analysis-1')
+        .get('/api/analyses/52000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer test-token');
 
       expect(response.status).toBe(500);
@@ -258,11 +258,11 @@ describe('Analyses CRUD API', () => {
   // POST /api/analyses/:id/accept - Accept analysis
   // =========================================================
   describe('POST /api/analyses/:id/accept', () => {
-    it('returns 404 for non-existent analysis', async () => {
+    it('returns 404 for 00000000-0000-4000-a000-ffffffffffff analysis', async () => {
       mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/analyses/non-existent/accept')
+        .post('/api/analyses/00000000-0000-4000-a000-ffffffffffff/accept')
         .set('Authorization', 'Bearer test-token')
         .send({ acceptedActions: [0, 1] });
 
@@ -281,7 +281,7 @@ describe('Analyses CRUD API', () => {
       });
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/accept')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
         .set('Authorization', 'Bearer test-token')
         .send({ acceptedActions: [0, 1] });
 
@@ -290,7 +290,7 @@ describe('Analyses CRUD API', () => {
       expect(response.body.data.status).toBe('ACCEPTED');
 
       expect(mockPrisma.aIAnalysis.update).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
+        where: { id: '52000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'ACCEPTED',
           acceptedAt: expect.any(Date),
@@ -308,7 +308,7 @@ describe('Analyses CRUD API', () => {
       });
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/accept')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
         .set('Authorization', 'Bearer test-token')
         .send({ acceptedActions: [0] });
 
@@ -317,7 +317,7 @@ describe('Analyses CRUD API', () => {
       expect(response.body.data.status).toBe('PARTIALLY_ACCEPTED');
 
       expect(mockPrisma.aIAnalysis.update).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
+        where: { id: '52000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'PARTIALLY_ACCEPTED',
           acceptedAt: expect.any(Date),
@@ -334,7 +334,7 @@ describe('Analyses CRUD API', () => {
       });
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/accept')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
         .set('Authorization', 'Bearer test-token')
         .send({});
 
@@ -346,7 +346,7 @@ describe('Analyses CRUD API', () => {
       mockPrisma.aIAnalysis.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/accept')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
         .set('Authorization', 'Bearer test-token')
         .send({ acceptedActions: [0] });
 
@@ -360,11 +360,11 @@ describe('Analyses CRUD API', () => {
   // POST /api/analyses/:id/reject - Reject analysis
   // =========================================================
   describe('POST /api/analyses/:id/reject', () => {
-    it('returns 404 for non-existent analysis', async () => {
+    it('returns 404 for 00000000-0000-4000-a000-ffffffffffff analysis', async () => {
       mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/analyses/non-existent/reject')
+        .post('/api/analyses/00000000-0000-4000-a000-ffffffffffff/reject')
         .set('Authorization', 'Bearer test-token')
         .send({});
 
@@ -382,7 +382,7 @@ describe('Analyses CRUD API', () => {
       });
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/reject')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/reject')
         .set('Authorization', 'Bearer test-token')
         .send({});
 
@@ -391,7 +391,7 @@ describe('Analyses CRUD API', () => {
       expect(response.body.data.status).toBe('REJECTED');
 
       expect(mockPrisma.aIAnalysis.update).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
+        where: { id: '52000000-0000-4000-a000-000000000001' },
         data: {
           status: 'REJECTED',
           rejectedAt: expect.any(Date),
@@ -403,7 +403,7 @@ describe('Analyses CRUD API', () => {
       mockPrisma.aIAnalysis.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/analyses/analysis-1/reject')
+        .post('/api/analyses/52000000-0000-4000-a000-000000000001/reject')
         .set('Authorization', 'Bearer test-token')
         .send({});
 
@@ -421,13 +421,13 @@ describe('Analyses CRUD API', () => {
       mockPrisma.aIAnalysis.delete.mockResolvedValueOnce(mockAnalysis);
 
       const response = await request(app)
-        .delete('/api/analyses/analysis-1')
+        .delete('/api/analyses/52000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer test-token');
 
       expect(response.status).toBe(204);
 
       expect(mockPrisma.aIAnalysis.delete).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
+        where: { id: '52000000-0000-4000-a000-000000000001' },
       });
     });
 
@@ -435,7 +435,7 @@ describe('Analyses CRUD API', () => {
       mockPrisma.aIAnalysis.delete.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/analyses/analysis-1')
+        .delete('/api/analyses/52000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer test-token');
 
       expect(response.status).toBe(500);

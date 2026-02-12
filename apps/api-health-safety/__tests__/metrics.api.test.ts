@@ -13,7 +13,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -27,7 +27,7 @@ jest.mock('@ims/calculations', () => ({
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -232,7 +232,7 @@ describe('Health & Safety Metrics API Routes', () => {
 
     it('should create or upsert a monthly safety metric', async () => {
       (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         ltifr: 19.23,
         trir: 15.38,
@@ -252,7 +252,7 @@ describe('Health & Safety Metrics API Routes', () => {
 
     it('should upsert using year_month compound key', async () => {
       (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
       });
 
@@ -272,7 +272,7 @@ describe('Health & Safety Metrics API Routes', () => {
 
     it('should calculate rates from input data', async () => {
       (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
       });
 

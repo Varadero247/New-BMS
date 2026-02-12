@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Environment Actions API Routes', () => {
   describe('GET /api/actions', () => {
     const mockActions = [
       {
-        id: 'action-1',
+        id: '13000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-ACT-2026-001',
         title: 'Install air filtration system',
         actionType: 'CORRECTIVE',
@@ -58,7 +58,7 @@ describe('Environment Actions API Routes', () => {
         dueDate: '2026-06-30T00:00:00.000Z',
       },
       {
-        id: 'action-2',
+        id: '13000000-0000-4000-a000-000000000002',
         referenceNumber: 'ENV-ACT-2026-002',
         title: 'Update waste disposal procedures',
         actionType: 'PREVENTIVE',
@@ -222,7 +222,7 @@ describe('Environment Actions API Routes', () => {
 
   describe('GET /api/actions/:id', () => {
     const mockAction = {
-      id: 'action-1',
+      id: '13000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-ACT-2026-001',
       title: 'Install air filtration system',
       actionType: 'CORRECTIVE',
@@ -233,19 +233,19 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce(mockAction);
 
       const response = await request(app)
-        .get('/api/actions/action-1')
+        .get('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('action-1');
+      expect(response.body.data.id).toBe('13000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/actions/non-existent')
+        .get('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -256,7 +256,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/actions/action-1')
+        .get('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -278,7 +278,7 @@ describe('Environment Actions API Routes', () => {
     it('should create an action successfully', async () => {
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envAction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-ACT-2026-001',
         ...createPayload,
         status: 'OPEN',
@@ -298,7 +298,7 @@ describe('Environment Actions API Routes', () => {
     it('should generate reference number on create', async () => {
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(3);
       (mockPrisma.envAction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-ACT-2026-004',
         ...createPayload,
       });
@@ -371,7 +371,7 @@ describe('Environment Actions API Routes', () => {
 
   describe('PUT /api/actions/:id', () => {
     const existingAction = {
-      id: 'action-1',
+      id: '13000000-0000-4000-a000-000000000001',
       title: 'Install air filtration system',
       actionType: 'CORRECTIVE',
       priority: 'HIGH',
@@ -386,7 +386,7 @@ describe('Environment Actions API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/actions/action-1')
+        .put('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -394,11 +394,11 @@ describe('Environment Actions API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/actions/non-existent')
+        .put('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -415,7 +415,7 @@ describe('Environment Actions API Routes', () => {
       });
 
       await request(app)
-        .put('/api/actions/action-1')
+        .put('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -433,7 +433,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/actions/action-1')
+        .put('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -444,24 +444,24 @@ describe('Environment Actions API Routes', () => {
 
   describe('DELETE /api/actions/:id', () => {
     it('should delete action successfully', async () => {
-      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'action-1' });
+      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({ id: '13000000-0000-4000-a000-000000000001' });
       (mockPrisma.envAction.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/actions/action-1')
+        .delete('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envAction.delete).toHaveBeenCalledWith({
-        where: { id: 'action-1' },
+        where: { id: '13000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/actions/non-existent')
+        .delete('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -472,7 +472,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/actions/action-1')
+        .delete('/api/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

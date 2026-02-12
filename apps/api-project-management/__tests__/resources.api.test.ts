@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -40,7 +40,7 @@ describe('Resources API Routes', () => {
   });
 
   const mockResource = {
-    id: 'resource-1',
+    id: '47000000-0000-4000-a000-000000000001',
     projectId: 'project-1',
     resourceType: 'HUMAN',
     resourceName: 'John Doe',
@@ -69,7 +69,7 @@ describe('Resources API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].id).toBe('resource-1');
+      expect(response.body.data[0].id).toBe('47000000-0000-4000-a000-000000000001');
       expect(response.body.meta).toMatchObject({
         page: 1,
         limit: 50,
@@ -193,7 +193,7 @@ describe('Resources API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/resources/resource-1')
+        .put('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ resourceName: 'Updated Name' });
 
@@ -206,7 +206,7 @@ describe('Resources API Routes', () => {
       (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/resources/non-existent')
+        .put('/api/resources/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ resourceName: 'Updated Name' });
 
@@ -225,13 +225,13 @@ describe('Resources API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/resources/resource-1')
+        .put('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ actualHours: 120 });
 
       expect(response.status).toBe(200);
       expect(mockPrisma.projectResource.update).toHaveBeenCalledWith({
-        where: { id: 'resource-1' },
+        where: { id: '47000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           utilization: 75,
         }),
@@ -248,13 +248,13 @@ describe('Resources API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/resources/resource-1')
+        .put('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ plannedHours: 200 });
 
       expect(response.status).toBe(200);
       expect(mockPrisma.projectResource.update).toHaveBeenCalledWith({
-        where: { id: 'resource-1' },
+        where: { id: '47000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           utilization: 40,
         }),
@@ -265,7 +265,7 @@ describe('Resources API Routes', () => {
       (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/resources/resource-1')
+        .put('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ resourceName: 'Updated' });
 
@@ -281,12 +281,12 @@ describe('Resources API Routes', () => {
       (mockPrisma.projectResource.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/resources/resource-1')
+        .delete('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectResource.delete).toHaveBeenCalledWith({
-        where: { id: 'resource-1' },
+        where: { id: '47000000-0000-4000-a000-000000000001' },
       });
     });
 
@@ -294,7 +294,7 @@ describe('Resources API Routes', () => {
       (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/resources/non-existent')
+        .delete('/api/resources/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -306,7 +306,7 @@ describe('Resources API Routes', () => {
       (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/resources/resource-1')
+        .delete('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

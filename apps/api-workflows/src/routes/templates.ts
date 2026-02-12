@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Valid WorkflowCategory enum values
 const workflowCategoryEnum = z.enum([

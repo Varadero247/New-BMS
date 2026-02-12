@@ -18,7 +18,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -44,7 +44,7 @@ describe('Quality Nonconformances API Routes', () => {
   describe('GET /api/nonconformances', () => {
     const mockNCs = [
       {
-        id: 'nc-1',
+        id: '1c000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-NC-2026-001',
         title: 'Product Defect',
         description: 'Defect found in batch 123',
@@ -165,7 +165,7 @@ describe('Quality Nonconformances API Routes', () => {
 
   describe('GET /api/nonconformances/:id', () => {
     const mockNC = {
-      id: 'nc-1',
+      id: '1c000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-NC-2026-001',
       title: 'Product Defect',
       description: 'Defect found in batch 123',
@@ -177,19 +177,19 @@ describe('Quality Nonconformances API Routes', () => {
       mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(mockNC);
 
       const response = await request(app)
-        .get('/api/nonconformances/nc-1')
+        .get('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('nc-1');
+      expect(response.body.data.id).toBe('1c000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent NC', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff NC', async () => {
       mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/nonconformances/non-existent')
+        .get('/api/nonconformances/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -200,7 +200,7 @@ describe('Quality Nonconformances API Routes', () => {
       mockPrisma.qualNonConformance.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/nonconformances/nc-1')
+        .get('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -222,7 +222,7 @@ describe('Quality Nonconformances API Routes', () => {
     it('should create a NC successfully', async () => {
       mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
       mockPrisma.qualNonConformance.create.mockResolvedValueOnce({
-        id: 'new-nc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'QMS-NC-2026-001',
         status: 'REPORTED',
@@ -241,7 +241,7 @@ describe('Quality Nonconformances API Routes', () => {
     it('should generate a reference number', async () => {
       mockPrisma.qualNonConformance.count.mockResolvedValueOnce(3);
       mockPrisma.qualNonConformance.create.mockResolvedValueOnce({
-        id: 'new-nc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-NC-2026-004',
       });
 
@@ -260,7 +260,7 @@ describe('Quality Nonconformances API Routes', () => {
     it('should set initial status to REPORTED', async () => {
       mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
       mockPrisma.qualNonConformance.create.mockResolvedValueOnce({
-        id: 'new-nc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'REPORTED',
       });
 
@@ -326,7 +326,7 @@ describe('Quality Nonconformances API Routes', () => {
 
   describe('PUT /api/nonconformances/:id', () => {
     const existingNC = {
-      id: 'nc-1',
+      id: '1c000000-0000-4000-a000-000000000001',
       title: 'Existing NC',
       status: 'REPORTED',
       closureDate: null,
@@ -340,7 +340,7 @@ describe('Quality Nonconformances API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/nonconformances/nc-1')
+        .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -348,11 +348,11 @@ describe('Quality Nonconformances API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent NC', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff NC', async () => {
       mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/nonconformances/non-existent')
+        .put('/api/nonconformances/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -364,7 +364,7 @@ describe('Quality Nonconformances API Routes', () => {
       mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(existingNC);
 
       const response = await request(app)
-        .put('/api/nonconformances/nc-1')
+        .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -376,7 +376,7 @@ describe('Quality Nonconformances API Routes', () => {
       mockPrisma.qualNonConformance.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/nonconformances/nc-1')
+        .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -387,24 +387,24 @@ describe('Quality Nonconformances API Routes', () => {
 
   describe('DELETE /api/nonconformances/:id', () => {
     it('should delete NC successfully', async () => {
-      mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({ id: 'nc-1' });
+      mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({ id: '1c000000-0000-4000-a000-000000000001' });
       mockPrisma.qualNonConformance.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/nonconformances/nc-1')
+        .delete('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualNonConformance.delete).toHaveBeenCalledWith({
-        where: { id: 'nc-1' },
+        where: { id: '1c000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent NC', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff NC', async () => {
       mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/nonconformances/non-existent')
+        .delete('/api/nonconformances/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -415,7 +415,7 @@ describe('Quality Nonconformances API Routes', () => {
       mockPrisma.qualNonConformance.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/nonconformances/nc-1')
+        .delete('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

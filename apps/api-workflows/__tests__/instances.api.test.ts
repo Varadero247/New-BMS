@@ -25,7 +25,7 @@ jest.mock('@ims/database', () => {
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -51,7 +51,7 @@ describe('Workflow Instances API Routes', () => {
   describe('GET /api/instances', () => {
     const mockInstances = [
       {
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         instanceNumber: 'WF-2024-000001',
         title: 'Leave Request',
         status: 'IN_PROGRESS',
@@ -118,12 +118,12 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/instances?definitionId=def-1');
+      await request(app).get('/api/instances?definitionId=3b000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            definitionId: 'def-1',
+            definitionId: '3b000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -133,12 +133,12 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([]);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/instances?initiatorId=user-1');
+      await request(app).get('/api/instances?initiatorId=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowInstance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            initiatorId: 'user-1',
+            initiatorId: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -166,7 +166,7 @@ describe('Workflow Instances API Routes', () => {
           { priority: 'HIGH', _count: 10 },
         ] as any);
       mockPrisma.workflowInstance.findMany.mockResolvedValueOnce([
-        { id: 'inst-1', definition: { name: 'Workflow 1' } },
+        { id: '3c000000-0000-4000-a000-000000000001', definition: { name: 'Workflow 1' } },
       ] as any);
 
       const response = await request(app).get('/api/instances/stats/summary');
@@ -190,31 +190,31 @@ describe('Workflow Instances API Routes', () => {
 
   describe('GET /api/instances/:id', () => {
     const mockInstance = {
-      id: 'inst-1',
+      id: '3c000000-0000-4000-a000-000000000001',
       instanceNumber: 'WF-2024-000001',
       title: 'Leave Request',
       status: 'IN_PROGRESS',
-      definition: { id: 'def-1', name: 'Leave Approval' },
-      tasks: [{ id: 'task-1' }],
+      definition: { id: '3b000000-0000-4000-a000-000000000001', name: 'Leave Approval' },
+      tasks: [{ id: '3d000000-0000-4000-a000-000000000001' }],
       history: [{ id: 'hist-1', action: 'STARTED' }],
     };
 
     it('should return single instance with tasks and history', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(mockInstance as any);
 
-      const response = await request(app).get('/api/instances/inst-1');
+      const response = await request(app).get('/api/instances/3c000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('inst-1');
+      expect(response.body.data.id).toBe('3c000000-0000-4000-a000-000000000001');
       expect(response.body.data.tasks).toHaveLength(1);
       expect(response.body.data.history).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent instance', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff instance', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/instances/non-existent');
+      const response = await request(app).get('/api/instances/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -223,7 +223,7 @@ describe('Workflow Instances API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowInstance.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/instances/inst-1');
+      const response = await request(app).get('/api/instances/3c000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -245,7 +245,7 @@ describe('Workflow Instances API Routes', () => {
       } as any);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(5);
       mockPrisma.workflowInstance.create.mockResolvedValueOnce({
-        id: 'new-inst-123',
+        id: '30000000-0000-4000-a000-000000000123',
         instanceNumber: 'WF-2024-000006',
         ...createPayload,
         status: 'IN_PROGRESS',
@@ -269,7 +269,7 @@ describe('Workflow Instances API Routes', () => {
       } as any);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(99);
       mockPrisma.workflowInstance.create.mockResolvedValueOnce({
-        id: 'new-inst-123',
+        id: '30000000-0000-4000-a000-000000000123',
         instanceNumber: 'WF-2024-000100',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
@@ -293,7 +293,7 @@ describe('Workflow Instances API Routes', () => {
       } as any);
       mockPrisma.workflowInstance.count.mockResolvedValueOnce(0);
       mockPrisma.workflowInstance.create.mockResolvedValueOnce({
-        id: 'new-inst-123',
+        id: '30000000-0000-4000-a000-000000000123',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
@@ -303,14 +303,14 @@ describe('Workflow Instances API Routes', () => {
 
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          instanceId: 'new-inst-123',
+          instanceId: '30000000-0000-4000-a000-000000000123',
           action: 'STARTED',
           actionBy: createPayload.initiatorId,
         }),
       });
     });
 
-    it('should return 404 for non-existent definition', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
@@ -370,20 +370,20 @@ describe('Workflow Instances API Routes', () => {
   describe('PUT /api/instances/:id/advance', () => {
     it('should advance to next node', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         currentNodeId: 'node-1',
         completedNodeIds: [],
       } as any);
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         currentNodeId: 'node-2',
         completedNodeIds: ['node-1'],
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
-        .put('/api/instances/inst-1/advance')
-        .send({ nextNodeId: 'node-2', actionBy: 'user-1' });
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
+        .send({ nextNodeId: 'node-2', actionBy: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -391,7 +391,7 @@ describe('Workflow Instances API Routes', () => {
 
     it('should add current node to completed list', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce({
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         currentNodeId: 'node-2',
         completedNodeIds: ['node-1'],
       } as any);
@@ -399,22 +399,22 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       await request(app)
-        .put('/api/instances/inst-1/advance')
-        .send({ nextNodeId: 'node-3', actionBy: 'user-1' });
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
+        .send({ nextNodeId: 'node-3', actionBy: '20000000-0000-4000-a000-000000000001' });
 
       expect(mockPrisma.workflowInstance.update).toHaveBeenCalledWith({
-        where: { id: 'inst-1' },
+        where: { id: '3c000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           completedNodeIds: ['node-1', 'node-2'],
         }),
       });
     });
 
-    it('should return 404 for non-existent instance', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff instance', async () => {
       mockPrisma.workflowInstance.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/instances/non-existent/advance')
+        .put('/api/instances/00000000-0000-4000-a000-ffffffffffff/advance')
         .send({ nextNodeId: 'node-2' });
 
       expect(response.status).toBe(404);
@@ -425,7 +425,7 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/instances/inst-1/advance')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
         .send({ nextNodeId: 'node-2' });
 
       expect(response.status).toBe(500);
@@ -436,7 +436,7 @@ describe('Workflow Instances API Routes', () => {
   describe('PUT /api/instances/:id/complete', () => {
     it('should complete workflow instance', async () => {
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         completedAt: new Date(),
         outcome: 'APPROVED',
@@ -444,7 +444,7 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
-        .put('/api/instances/inst-1/complete')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
         .send({ outcome: 'APPROVED', outcomeNotes: 'Approved by manager' });
 
       expect(response.status).toBe(200);
@@ -452,16 +452,16 @@ describe('Workflow Instances API Routes', () => {
     });
 
     it('should record completion in history', async () => {
-      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: 'inst-1' } as any);
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: '3c000000-0000-4000-a000-000000000001' } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       await request(app)
-        .put('/api/instances/inst-1/complete')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
         .send({ outcome: 'REJECTED', outcomeNotes: 'Rejected' });
 
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          instanceId: 'inst-1',
+          instanceId: '3c000000-0000-4000-a000-000000000001',
           action: 'COMPLETED',
           details: expect.objectContaining({
             outcome: 'REJECTED',
@@ -472,7 +472,7 @@ describe('Workflow Instances API Routes', () => {
 
     it('should return 400 for invalid outcome', async () => {
       const response = await request(app)
-        .put('/api/instances/inst-1/complete')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
         .send({ outcome: 'INVALID_OUTCOME' });
 
       expect(response.status).toBe(400);
@@ -483,7 +483,7 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/instances/inst-1/complete')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
         .send({});
 
       expect(response.status).toBe(500);
@@ -494,18 +494,18 @@ describe('Workflow Instances API Routes', () => {
   describe('PUT /api/instances/:id/cancel', () => {
     it('should cancel workflow instance', async () => {
       mockPrisma.workflowInstance.update.mockResolvedValueOnce({
-        id: 'inst-1',
+        id: '3c000000-0000-4000-a000-000000000001',
         status: 'CANCELLED',
         cancelledAt: new Date(),
-        cancelledById: 'user-1',
+        cancelledById: '20000000-0000-4000-a000-000000000001',
         cancellationReason: 'No longer needed',
       } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
-        .put('/api/instances/inst-1/cancel')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/cancel')
         .send({
-          cancelledById: 'user-1',
+          cancelledById: '20000000-0000-4000-a000-000000000001',
           cancellationReason: 'No longer needed',
         });
 
@@ -514,21 +514,21 @@ describe('Workflow Instances API Routes', () => {
     });
 
     it('should record cancellation in history', async () => {
-      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: 'inst-1' } as any);
+      mockPrisma.workflowInstance.update.mockResolvedValueOnce({ id: '3c000000-0000-4000-a000-000000000001' } as any);
       mockPrisma.workflowHistory.create.mockResolvedValueOnce({} as any);
 
       await request(app)
-        .put('/api/instances/inst-1/cancel')
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/cancel')
         .send({
-          cancelledById: 'user-1',
+          cancelledById: '20000000-0000-4000-a000-000000000001',
           cancellationReason: 'Project cancelled',
         });
 
       expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          instanceId: 'inst-1',
+          instanceId: '3c000000-0000-4000-a000-000000000001',
           action: 'CANCELLED',
-          actionBy: 'user-1',
+          actionBy: '20000000-0000-4000-a000-000000000001',
           details: { reason: 'Project cancelled' },
         }),
       });
@@ -538,8 +538,8 @@ describe('Workflow Instances API Routes', () => {
       mockPrisma.workflowInstance.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/instances/inst-1/cancel')
-        .send({ cancelledById: 'user-1' });
+        .put('/api/instances/3c000000-0000-4000-a000-000000000001/cancel')
+        .send({ cancelledById: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

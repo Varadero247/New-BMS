@@ -22,13 +22,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -52,17 +52,17 @@ describe('Environment CAPA API Routes', () => {
   describe('GET /api/capa', () => {
     const mockCapas = [
       {
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-CAPA-2026-001',
         capaType: 'CORRECTIVE',
         title: 'Fix emissions breach',
         severity: 'MAJOR',
         status: 'INITIATED',
         responsiblePerson: 'John Smith',
-        capaActions: [{ id: 'ca-1', description: 'Replace filter', status: 'OPEN' }],
+        capaActions: [{ id: '1a000000-0000-4000-a000-000000000001', description: 'Replace filter', status: 'OPEN' }],
       },
       {
-        id: 'capa-2',
+        id: '12000000-0000-4000-a000-000000000002',
         referenceNumber: 'ENV-CAPA-2026-002',
         capaType: 'PREVENTIVE',
         title: 'Prevent waste spill recurrence',
@@ -224,24 +224,24 @@ describe('Environment CAPA API Routes', () => {
 
   describe('GET /api/capa/:id', () => {
     const mockCapa = {
-      id: 'capa-1',
+      id: '12000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-CAPA-2026-001',
       capaType: 'CORRECTIVE',
       title: 'Fix emissions breach',
       severity: 'MAJOR',
-      capaActions: [{ id: 'ca-1', description: 'Replace filter' }],
+      capaActions: [{ id: '1a000000-0000-4000-a000-000000000001', description: 'Replace filter' }],
     };
 
     it('should return single CAPA with capaActions', async () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
 
       const response = await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('capa-1');
+      expect(response.body.data.id).toBe('12000000-0000-4000-a000-000000000001');
       expect(response.body.data.capaActions).toBeDefined();
     });
 
@@ -249,7 +249,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
 
       await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envCapa.findUnique).toHaveBeenCalledWith(
@@ -259,11 +259,11 @@ describe('Environment CAPA API Routes', () => {
       );
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/capa/non-existent')
+        .get('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -274,7 +274,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -297,7 +297,7 @@ describe('Environment CAPA API Routes', () => {
     it('should create a CAPA successfully', async () => {
       (mockPrisma.envCapa.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envCapa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-CAPA-2026-001',
         ...createPayload,
         status: 'INITIATED',
@@ -326,11 +326,11 @@ describe('Environment CAPA API Routes', () => {
 
       (mockPrisma.envCapa.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envCapa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-CAPA-2026-001',
         ...createPayload,
         capaActions: [
-          { id: 'ca-1', description: 'Replace filter', assignedTo: 'Tech A', priority: 'MEDIUM' },
+          { id: '1a000000-0000-4000-a000-000000000001', description: 'Replace filter', assignedTo: 'Tech A', priority: 'MEDIUM' },
           { id: 'ca-2', description: 'Update SOP', assignedTo: 'Tech B', priority: 'HIGH' },
         ],
       });
@@ -422,7 +422,7 @@ describe('Environment CAPA API Routes', () => {
 
   describe('PUT /api/capa/:id', () => {
     const existingCapa = {
-      id: 'capa-1',
+      id: '12000000-0000-4000-a000-000000000001',
       capaType: 'CORRECTIVE',
       title: 'Fix emissions breach',
       status: 'INITIATED',
@@ -437,7 +437,7 @@ describe('Environment CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/capa/capa-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -453,7 +453,7 @@ describe('Environment CAPA API Routes', () => {
       });
 
       await request(app)
-        .put('/api/capa/capa-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated title' });
 
@@ -472,7 +472,7 @@ describe('Environment CAPA API Routes', () => {
       });
 
       await request(app)
-        .put('/api/capa/capa-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated', capaActions: [{ description: 'New action', assignedTo: 'Someone', dueDate: '2026-07-01' }] });
 
@@ -480,11 +480,11 @@ describe('Environment CAPA API Routes', () => {
       expect(callData.capaActions).toBeUndefined();
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/capa/non-existent')
+        .put('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -496,7 +496,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/capa/capa-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -507,24 +507,24 @@ describe('Environment CAPA API Routes', () => {
 
   describe('DELETE /api/capa/:id', () => {
     it('should delete CAPA successfully', async () => {
-      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
+      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
       (mockPrisma.envCapa.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/capa/capa-1')
+        .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envCapa.delete).toHaveBeenCalledWith({
-        where: { id: 'capa-1' },
+        where: { id: '12000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/capa/non-existent')
+        .delete('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -535,7 +535,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/capa/capa-1')
+        .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -551,17 +551,17 @@ describe('Environment CAPA API Routes', () => {
     };
 
     it('should add a CAPA action successfully', async () => {
-      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
+      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
       (mockPrisma.envCapaAction.create as jest.Mock).mockResolvedValueOnce({
         id: 'ca-new',
-        capaId: 'capa-1',
+        capaId: '12000000-0000-4000-a000-000000000001',
         ...actionPayload,
         priority: 'MEDIUM',
         status: 'OPEN',
       });
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -574,7 +574,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/capa/non-existent/actions')
+        .post('/api/capa/00000000-0000-4000-a000-ffffffffffff/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -583,10 +583,10 @@ describe('Environment CAPA API Routes', () => {
     });
 
     it('should return 400 for missing description', async () => {
-      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
+      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send({ assignedTo: 'Tech A', dueDate: '2026-04-15' });
 
@@ -595,11 +595,11 @@ describe('Environment CAPA API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
+      (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
       (mockPrisma.envCapaAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -610,8 +610,8 @@ describe('Environment CAPA API Routes', () => {
 
   describe('PUT /api/capa/:id/actions/:actionId', () => {
     const existingAction = {
-      id: 'ca-1',
-      capaId: 'capa-1',
+      id: '1a000000-0000-4000-a000-000000000001',
+      capaId: '12000000-0000-4000-a000-000000000001',
       description: 'Replace filter',
       status: 'OPEN',
     };
@@ -624,7 +624,7 @@ describe('Environment CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/capa/capa-1/actions/ca-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -632,11 +632,11 @@ describe('Environment CAPA API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent CAPA action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA action', async () => {
       (mockPrisma.envCapaAction.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/capa/capa-1/actions/non-existent')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -653,7 +653,7 @@ describe('Environment CAPA API Routes', () => {
       });
 
       await request(app)
-        .put('/api/capa/capa-1/actions/ca-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -671,7 +671,7 @@ describe('Environment CAPA API Routes', () => {
       (mockPrisma.envCapaAction.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/capa/capa-1/actions/ca-1')
+        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 

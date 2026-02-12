@@ -22,11 +22,11 @@ jest.mock('@ims/database', () => ({
 jest.mock('@ims/auth', () => ({
   generateToken: jest.fn().mockReturnValue('mock-access-token'),
   generateRefreshToken: jest.fn().mockReturnValue('mock-refresh-token'),
-  verifyRefreshToken: jest.fn().mockReturnValue({ userId: 'user-123' }),
+  verifyRefreshToken: jest.fn().mockReturnValue({ userId: '20000000-0000-4000-a000-000000000123' }),
   hashPassword: jest.fn().mockResolvedValue('hashed-password'),
   comparePassword: jest.fn(),
   authenticate: jest.fn((req, res, next) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -88,7 +88,7 @@ describe('Auth API Routes', () => {
     };
 
     const mockUser = {
-      id: 'user-123',
+      id: '20000000-0000-4000-a000-000000000123',
       email: 'test@example.com',
       password: 'hashed-password',
       firstName: 'Test',
@@ -227,7 +227,7 @@ describe('Auth API Routes', () => {
     it('should register successfully with valid data', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
-        id: 'new-user-123',
+        id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
         firstName: registerPayload.firstName,
         lastName: registerPayload.lastName,
@@ -295,7 +295,7 @@ describe('Auth API Routes', () => {
     it('should hash the password before storing', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
-        id: 'new-user-123',
+        id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
         role: 'USER',
       } as any);
@@ -316,7 +316,7 @@ describe('Auth API Routes', () => {
     it('should accept optional fields', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
-        id: 'new-user-123',
+        id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
         role: 'USER',
       } as any);
@@ -346,7 +346,7 @@ describe('Auth API Routes', () => {
 
   describe('POST /api/auth/refresh', () => {
     const mockUser = {
-      id: 'user-123',
+      id: '20000000-0000-4000-a000-000000000123',
       email: 'test@example.com',
       role: 'USER',
       isActive: true,
@@ -380,7 +380,7 @@ describe('Auth API Routes', () => {
       expect(response.body.error.code).toBe('USER_INACTIVE');
     });
 
-    it('should return 401 for non-existent user', async () => {
+    it('should return 401 for 00000000-0000-4000-a000-ffffffffffff user', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
@@ -498,7 +498,7 @@ describe('Auth API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return success even for non-existent email (prevent enumeration)', async () => {
+    it('should return success even for nonexistent email (prevent enumeration)', async () => {
       const response = await request(app)
         .post('/api/auth/forgot-password')
         .send({ email: 'nonexistent@example.com' });

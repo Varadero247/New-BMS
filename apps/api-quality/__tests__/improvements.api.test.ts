@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Quality Improvements API Routes', () => {
   describe('GET /api/improvements', () => {
     const mockImprovements = [
       {
-        id: 'imp-1',
+        id: '21000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-CI-2026-001',
         title: 'Reduce defect rate',
         category: 'QUALITY_IMPROVEMENT',
@@ -225,7 +225,7 @@ describe('Quality Improvements API Routes', () => {
   // ============================================
   describe('GET /api/improvements/:id', () => {
     const mockImprovement = {
-      id: 'imp-1',
+      id: '21000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-CI-2026-001',
       title: 'Reduce defect rate',
       category: 'QUALITY_IMPROVEMENT',
@@ -240,19 +240,19 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(mockImprovement);
 
       const response = await request(app)
-        .get('/api/improvements/imp-1')
+        .get('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('imp-1');
+      expect(response.body.data.id).toBe('21000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent improvement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff improvement', async () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/improvements/non-existent')
+        .get('/api/improvements/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -263,7 +263,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/improvements/imp-1')
+        .get('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -288,7 +288,7 @@ describe('Quality Improvements API Routes', () => {
     it('should create an improvement successfully', async () => {
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualImprovement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-CI-2026-001',
         ...createPayload,
         status: 'IDEA_SUBMITTED',
@@ -321,7 +321,7 @@ describe('Quality Improvements API Routes', () => {
 
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualImprovement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...payloadWithImpacts,
         priorityScore: 6, // HIGH(3) + MEDIUM(2) + LOW(1)
       });
@@ -417,7 +417,7 @@ describe('Quality Improvements API Routes', () => {
   // ============================================
   describe('PUT /api/improvements/:id', () => {
     const existingImprovement = {
-      id: 'imp-1',
+      id: '21000000-0000-4000-a000-000000000001',
       title: 'Existing Improvement',
       qualityImpact: 'MEDIUM',
       customerImpact: 'LOW',
@@ -433,7 +433,7 @@ describe('Quality Improvements API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/improvements/imp-1')
+        .put('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Improvement' });
 
@@ -451,23 +451,23 @@ describe('Quality Improvements API Routes', () => {
       });
 
       await request(app)
-        .put('/api/improvements/imp-1')
+        .put('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ qualityImpact: 'HIGH' });
 
       expect(mockPrisma.qualImprovement.update).toHaveBeenCalledWith({
-        where: { id: 'imp-1' },
+        where: { id: '21000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           priorityScore: 4,
         }),
       });
     });
 
-    it('should return 404 for non-existent improvement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff improvement', async () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/improvements/non-existent')
+        .put('/api/improvements/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -479,7 +479,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(existingImprovement);
 
       const response = await request(app)
-        .put('/api/improvements/imp-1')
+        .put('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -491,7 +491,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/improvements/imp-1')
+        .put('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -505,24 +505,24 @@ describe('Quality Improvements API Routes', () => {
   // ============================================
   describe('DELETE /api/improvements/:id', () => {
     it('should delete improvement successfully', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'imp-1' });
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '21000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualImprovement.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/improvements/imp-1')
+        .delete('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualImprovement.delete).toHaveBeenCalledWith({
-        where: { id: 'imp-1' },
+        where: { id: '21000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent improvement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff improvement', async () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/improvements/non-existent')
+        .delete('/api/improvements/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -533,7 +533,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/improvements/imp-1')
+        .delete('/api/improvements/21000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

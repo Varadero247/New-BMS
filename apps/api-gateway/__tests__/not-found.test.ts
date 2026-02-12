@@ -62,7 +62,7 @@ describe('Not Found Handler Middleware', () => {
 
   describe('path info in response', () => {
     it('should include the request method and path in the error message', () => {
-      const req = mockRequest({ method: 'GET', path: '/api/nonexistent' });
+      const req = mockRequest({ method: 'GET', path: '/api/00000000-0000-4000-a000-ffffffffffff' });
       const res = mockResponse();
 
       notFoundHandler(req as Request, res as Response);
@@ -71,7 +71,7 @@ describe('Not Found Handler Middleware', () => {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: 'Route GET /api/nonexistent not found',
+          message: 'Route GET /api/00000000-0000-4000-a000-ffffffffffff not found',
         },
       });
     });

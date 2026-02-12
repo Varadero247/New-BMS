@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
@@ -160,6 +160,7 @@ export default function RiskRegisterClient() {
   // Data state
   const [risks, setRisks] = useState<Risk[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -187,9 +188,11 @@ export default function RiskRegisterClient() {
 
   async function loadRisks() {
     try {
+      setError(null);
       const response = await api.get('/risks');
       setRisks(response.data.data || []);
     } catch (error) {
+      setError('Failed to load risks. Please try again.');
       console.error('Failed to load risks:', error);
     } finally {
       setLoading(false);
@@ -337,23 +340,25 @@ export default function RiskRegisterClient() {
     }
   }
 
-  // ── Filtering ──
+  // ── Filtering (memoized to avoid re-filtering on every render) ──
 
-  const filteredRisks = risks.filter(r => {
-    if (statusFilter !== 'all' && r.status !== statusFilter) return false;
-    if (ratingFilter !== 'all' && r.riskLevel !== ratingFilter) return false;
-    if (categoryFilter !== 'all' && r.category !== categoryFilter) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return (
-        r.title?.toLowerCase().includes(q) ||
-        r.description?.toLowerCase().includes(q) ||
-        r.referenceNumber?.toLowerCase().includes(q) ||
-        r.riskOwner?.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  const filteredRisks = useMemo(() => {
+    return risks.filter(r => {
+      if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+      if (ratingFilter !== 'all' && r.riskLevel !== ratingFilter) return false;
+      if (categoryFilter !== 'all' && r.category !== categoryFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return (
+          r.title?.toLowerCase().includes(q) ||
+          r.description?.toLowerCase().includes(q) ||
+          r.referenceNumber?.toLowerCase().includes(q) ||
+          r.riskOwner?.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [risks, statusFilter, ratingFilter, categoryFilter, searchQuery]);
 
   // ── Risk score display ──
 
@@ -370,6 +375,19 @@ export default function RiskRegisterClient() {
     form.severity > 0 &&
     form.residualLikelihood > 0 &&
     form.residualSeverity > 0;
+
+  // ── Stable callback for RiskMatrix (avoids new function on every render) ──
+  const handleRiskMatrixCellClick = useCallback(() => {}, []);
+
+  // ── Mapped risks for the risk matrix (memoized to avoid new array on every render) ──
+  const riskMatrixData = useMemo(() => {
+    return risks.map(r => ({
+      id: r.id,
+      likelihood: r.likelihood || r.residualLikelihood,
+      severity: r.severity || r.residualSeverity,
+      title: r.title,
+    }));
+  }, [risks]);
 
   // ── Summary counts ──
 
@@ -397,6 +415,14 @@ export default function RiskRegisterClient() {
             Add Risk
           </Button>
         </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold">×</button>
+          </div>
+        )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -587,13 +613,8 @@ export default function RiskRegisterClient() {
               </CardHeader>
               <CardContent>
                 <RiskMatrix
-                  risks={risks.map(r => ({
-                    id: r.id,
-                    likelihood: r.likelihood || r.residualLikelihood,
-                    severity: r.severity || r.residualSeverity,
-                    title: r.title,
-                  }))}
-                  onCellClick={() => {}}
+                  risks={riskMatrixData}
+                  onCellClick={handleRiskMatrixCellClick}
                 />
               </CardContent>
             </Card>

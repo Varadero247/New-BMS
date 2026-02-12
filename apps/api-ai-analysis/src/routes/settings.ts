@@ -117,9 +117,10 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const fields = error.errors.map(e => e.path.join('.'));
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
       });
     }
     logger.error('Update AI settings error', { error: (error as Error).message });

@@ -27,13 +27,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -58,21 +58,21 @@ describe('Inventory API Routes', () => {
     const mockInventory = [
       {
         id: 'inv-1',
-        productId: 'prod-1',
-        warehouseId: 'wh-1',
+        productId: '27000000-0000-4000-a000-000000000001',
+        warehouseId: '28000000-0000-4000-a000-000000000001',
         quantityOnHand: 100,
         quantityReserved: 10,
-        product: { id: 'prod-1', sku: 'SKU001', name: 'Widget A', reorderPoint: 20 },
-        warehouse: { id: 'wh-1', code: 'WH1', name: 'Main Warehouse' },
+        product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', reorderPoint: 20 },
+        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
       },
       {
         id: 'inv-2',
         productId: 'prod-2',
-        warehouseId: 'wh-1',
+        warehouseId: '28000000-0000-4000-a000-000000000001',
         quantityOnHand: 50,
         quantityReserved: 5,
         product: { id: 'prod-2', sku: 'SKU002', name: 'Widget B', reorderPoint: 10 },
-        warehouse: { id: 'wh-1', code: 'WH1', name: 'Main Warehouse' },
+        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
       },
     ];
 
@@ -126,13 +126,13 @@ describe('Inventory API Routes', () => {
       (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/inventory?warehouseId=wh-1')
+        .get('/api/inventory?warehouseId=28000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.inventory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            warehouseId: 'wh-1',
+            warehouseId: '28000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -143,13 +143,13 @@ describe('Inventory API Routes', () => {
       (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/inventory?productId=prod-1')
+        .get('/api/inventory?productId=27000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.inventory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            productId: 'prod-1',
+            productId: '27000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -189,7 +189,7 @@ describe('Inventory API Routes', () => {
           quantityOnHand: 100,
           quantityReserved: 10,
           binLocation: 'A1',
-          warehouse: { id: 'wh-1', code: 'WH1', name: 'Main', isActive: true },
+          warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main', isActive: true },
         },
         {
           quantityOnHand: 50,
@@ -199,14 +199,14 @@ describe('Inventory API Routes', () => {
         },
       ]);
       (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'prod-1',
+        id: '27000000-0000-4000-a000-000000000001',
         sku: 'SKU001',
         name: 'Widget A',
         reorderPoint: 20,
       });
 
       const response = await request(app)
-        .get('/api/inventory/availability/prod-1')
+        .get('/api/inventory/availability/27000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -217,12 +217,12 @@ describe('Inventory API Routes', () => {
       expect(response.body.data.byWarehouse).toHaveLength(2);
     });
 
-    it('should return 404 for non-existent product', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff product', async () => {
       (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/inventory/availability/non-existent')
+        .get('/api/inventory/availability/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -235,18 +235,18 @@ describe('Inventory API Routes', () => {
           quantityOnHand: 5,
           quantityReserved: 0,
           binLocation: 'A1',
-          warehouse: { id: 'wh-1', code: 'WH1', name: 'Main', isActive: true },
+          warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main', isActive: true },
         },
       ]);
       (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'prod-1',
+        id: '27000000-0000-4000-a000-000000000001',
         sku: 'SKU001',
         name: 'Widget A',
         reorderPoint: 20,
       });
 
       const response = await request(app)
-        .get('/api/inventory/availability/prod-1')
+        .get('/api/inventory/availability/27000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.body.data.isLowStock).toBe(true);
@@ -256,7 +256,7 @@ describe('Inventory API Routes', () => {
       (mockPrisma.inventory.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/inventory/availability/prod-1')
+        .get('/api/inventory/availability/27000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -266,8 +266,8 @@ describe('Inventory API Routes', () => {
 
   describe('POST /api/inventory/adjust', () => {
     const adjustPayload = {
-      productId: 'prod-1',
-      warehouseId: 'wh-1',
+      productId: '27000000-0000-4000-a000-000000000001',
+      warehouseId: '28000000-0000-4000-a000-000000000001',
       adjustmentType: 'ADJUSTMENT_IN',
       quantity: 25,
       reason: 'Physical count adjustment',
@@ -285,7 +285,7 @@ describe('Inventory API Routes', () => {
         quantityOnHand: 125,
       });
       (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'txn-1',
+        id: '29000000-0000-4000-a000-000000000001',
         quantityBefore: 100,
         quantityAfter: 125,
         quantityChange: 25,
@@ -305,11 +305,11 @@ describe('Inventory API Routes', () => {
     it('should create new inventory record if not exists', async () => {
       (mockPrisma.inventory.findUnique as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.inventory.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         quantityOnHand: 25,
       });
       (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'txn-1',
+        id: '29000000-0000-4000-a000-000000000001',
       });
 
       const response = await request(app)
@@ -344,7 +344,7 @@ describe('Inventory API Routes', () => {
       const response = await request(app)
         .post('/api/inventory/adjust')
         .set('Authorization', 'Bearer token')
-        .send({ productId: 'prod-1' });
+        .send({ productId: '27000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -375,8 +375,8 @@ describe('Inventory API Routes', () => {
 
   describe('POST /api/inventory/transfer', () => {
     const transferPayload = {
-      productId: 'prod-1',
-      fromWarehouseId: 'wh-1',
+      productId: '27000000-0000-4000-a000-000000000001',
+      fromWarehouseId: '28000000-0000-4000-a000-000000000001',
       toWarehouseId: 'wh-2',
       quantity: 20,
     };
@@ -410,7 +410,7 @@ describe('Inventory API Routes', () => {
       const response = await request(app)
         .post('/api/inventory/transfer')
         .set('Authorization', 'Bearer token')
-        .send({ ...transferPayload, toWarehouseId: 'wh-1' });
+        .send({ ...transferPayload, toWarehouseId: '28000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('SAME_WAREHOUSE');
@@ -447,7 +447,7 @@ describe('Inventory API Routes', () => {
       const response = await request(app)
         .post('/api/inventory/transfer')
         .set('Authorization', 'Bearer token')
-        .send({ productId: 'prod-1' });
+        .send({ productId: '27000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -468,8 +468,8 @@ describe('Inventory API Routes', () => {
 
   describe('POST /api/inventory/receive', () => {
     const receivePayload = {
-      productId: 'prod-1',
-      warehouseId: 'wh-1',
+      productId: '27000000-0000-4000-a000-000000000001',
+      warehouseId: '28000000-0000-4000-a000-000000000001',
       quantity: 50,
       unitCost: 10,
     };
@@ -486,7 +486,7 @@ describe('Inventory API Routes', () => {
         quantityOnHand: 150,
       });
       (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'txn-1',
+        id: '29000000-0000-4000-a000-000000000001',
         transactionType: 'RECEIPT',
       });
 
@@ -504,11 +504,11 @@ describe('Inventory API Routes', () => {
     it('should create new inventory if not exists', async () => {
       (mockPrisma.inventory.findUnique as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.inventory.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         quantityOnHand: 50,
       });
       (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'txn-1',
+        id: '29000000-0000-4000-a000-000000000001',
       });
 
       const response = await request(app)
@@ -524,7 +524,7 @@ describe('Inventory API Routes', () => {
       const response = await request(app)
         .post('/api/inventory/receive')
         .set('Authorization', 'Bearer token')
-        .send({ productId: 'prod-1' });
+        .send({ productId: '27000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -545,8 +545,8 @@ describe('Inventory API Routes', () => {
 
   describe('POST /api/inventory/issue', () => {
     const issuePayload = {
-      productId: 'prod-1',
-      warehouseId: 'wh-1',
+      productId: '27000000-0000-4000-a000-000000000001',
+      warehouseId: '28000000-0000-4000-a000-000000000001',
       quantity: 20,
     };
 
@@ -562,7 +562,7 @@ describe('Inventory API Routes', () => {
         quantityOnHand: 80,
       });
       (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'txn-1',
+        id: '29000000-0000-4000-a000-000000000001',
         transactionType: 'ISSUE',
       });
 
@@ -610,7 +610,7 @@ describe('Inventory API Routes', () => {
       const response = await request(app)
         .post('/api/inventory/issue')
         .set('Authorization', 'Bearer token')
-        .send({ productId: 'prod-1' });
+        .send({ productId: '27000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');

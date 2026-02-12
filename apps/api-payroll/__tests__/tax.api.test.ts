@@ -20,13 +20,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Payroll Tax API Routes', () => {
   describe('GET /api/tax/filings', () => {
     const mockFilings = [
       {
-        id: 'filing-1',
+        id: '3a000000-0000-4000-a000-000000000001',
         filingType: 'QUARTERLY',
         taxPeriod: 'Q1-2024',
         taxYear: 2024,
@@ -177,7 +177,7 @@ describe('Payroll Tax API Routes', () => {
 
     it('should create a tax filing successfully', async () => {
       (mockPrisma.taxFiling.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-filing-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         totalTax: 100000,
         paymentDue: 100000,
@@ -196,7 +196,7 @@ describe('Payroll Tax API Routes', () => {
 
     it('should calculate totalTax from taxWithheld + employerTax', async () => {
       (mockPrisma.taxFiling.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-filing-123',
+        id: '30000000-0000-4000-a000-000000000123',
         totalTax: 100000,
         paymentDue: 100000,
         status: 'PENDING',
@@ -219,7 +219,7 @@ describe('Payroll Tax API Routes', () => {
 
     it('should set initial status to PENDING', async () => {
       (mockPrisma.taxFiling.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-filing-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'PENDING',
       });
 
@@ -273,13 +273,13 @@ describe('Payroll Tax API Routes', () => {
   describe('PUT /api/tax/filings/:id/file', () => {
     it('should submit tax filing successfully', async () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockResolvedValueOnce({
-        id: 'filing-1',
+        id: '3a000000-0000-4000-a000-000000000001',
         status: 'FILED',
         confirmationNumber: 'CONF-12345',
       });
 
       const response = await request(app)
-        .put('/api/tax/filings/filing-1/file')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/file')
         .set('Authorization', 'Bearer token')
         .send({
           filedById: 'admin-1',
@@ -293,17 +293,17 @@ describe('Payroll Tax API Routes', () => {
 
     it('should set status to FILED', async () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockResolvedValueOnce({
-        id: 'filing-1',
+        id: '3a000000-0000-4000-a000-000000000001',
         status: 'FILED',
       });
 
       await request(app)
-        .put('/api/tax/filings/filing-1/file')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/file')
         .set('Authorization', 'Bearer token')
         .send({ filedById: 'admin-1', confirmationNumber: 'CONF-12345' });
 
       expect(mockPrisma.taxFiling.update).toHaveBeenCalledWith({
-        where: { id: 'filing-1' },
+        where: { id: '3a000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'FILED',
           filedAt: expect.any(Date),
@@ -317,7 +317,7 @@ describe('Payroll Tax API Routes', () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/tax/filings/filing-1/file')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/file')
         .set('Authorization', 'Bearer token')
         .send({ filedById: 'admin-1', confirmationNumber: 'CONF-12345' });
 
@@ -329,13 +329,13 @@ describe('Payroll Tax API Routes', () => {
   describe('PUT /api/tax/filings/:id/pay', () => {
     it('should record tax payment successfully', async () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockResolvedValueOnce({
-        id: 'filing-1',
+        id: '3a000000-0000-4000-a000-000000000001',
         paymentStatus: 'COMPLETED',
         paymentReference: 'PAY-REF-12345',
       });
 
       const response = await request(app)
-        .put('/api/tax/filings/filing-1/pay')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paymentReference: 'PAY-REF-12345' });
 
@@ -345,17 +345,17 @@ describe('Payroll Tax API Routes', () => {
 
     it('should set paymentStatus to COMPLETED', async () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockResolvedValueOnce({
-        id: 'filing-1',
+        id: '3a000000-0000-4000-a000-000000000001',
         paymentStatus: 'COMPLETED',
       });
 
       await request(app)
-        .put('/api/tax/filings/filing-1/pay')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paymentReference: 'PAY-REF-12345' });
 
       expect(mockPrisma.taxFiling.update).toHaveBeenCalledWith({
-        where: { id: 'filing-1' },
+        where: { id: '3a000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           paymentStatus: 'COMPLETED',
           paymentDate: expect.any(Date),
@@ -368,7 +368,7 @@ describe('Payroll Tax API Routes', () => {
       (mockPrisma.taxFiling.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/tax/filings/filing-1/pay')
+        .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paymentReference: 'PAY-REF-12345' });
 

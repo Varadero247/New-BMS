@@ -6866,7 +6866,7 @@ enum EmploymentStatus {
 
 enum PayFrequency {
   WEEKLY
-  BIWEEKLY
+  BI_WEEKLY
   SEMI_MONTHLY
   MONTHLY
   QUARTERLY

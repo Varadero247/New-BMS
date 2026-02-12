@@ -25,7 +25,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -51,14 +51,14 @@ describe('HR Documents API Routes', () => {
   describe('GET /api/documents', () => {
     const mockDocuments = [
       {
-        id: 'doc-1',
-        employeeId: 'emp-1',
+        id: '1e000000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         documentType: 'CONTRACT',
         title: 'Employment Contract',
         fileName: 'contract.pdf',
         fileUrl: 'https://files.example.com/contract.pdf',
         status: 'ACTIVE',
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
       },
       {
         id: 'doc-2',
@@ -105,12 +105,12 @@ describe('HR Documents API Routes', () => {
       (mockPrisma.employeeDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.employeeDocument.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/documents?employeeId=emp-1');
+      await request(app).get('/api/documents?employeeId=2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.employeeDocument.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -171,27 +171,27 @@ describe('HR Documents API Routes', () => {
 
   describe('GET /api/documents/:id', () => {
     const mockDocument = {
-      id: 'doc-1',
-      employeeId: 'emp-1',
+      id: '1e000000-0000-4000-a000-000000000001',
+      employeeId: '2a000000-0000-4000-a000-000000000001',
       documentType: 'CONTRACT',
       title: 'Employment Contract',
-      employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: 'dept-1' },
+      employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
     };
 
     it('should return single document with employee data', async () => {
       (mockPrisma.employeeDocument.findUnique as jest.Mock).mockResolvedValueOnce(mockDocument);
 
-      const response = await request(app).get('/api/documents/doc-1');
+      const response = await request(app).get('/api/documents/1e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('doc-1');
+      expect(response.body.data.id).toBe('1e000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent document', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff document', async () => {
       (mockPrisma.employeeDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/documents/non-existent');
+      const response = await request(app).get('/api/documents/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -200,7 +200,7 @@ describe('HR Documents API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employeeDocument.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/documents/doc-1');
+      const response = await request(app).get('/api/documents/1e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -307,13 +307,13 @@ describe('HR Documents API Routes', () => {
   describe('PUT /api/documents/:id', () => {
     it('should update document successfully', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockResolvedValueOnce({
-        id: 'doc-1',
+        id: '1e000000-0000-4000-a000-000000000001',
         title: 'Updated Contract',
         status: 'VERIFIED',
       });
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .send({ title: 'Updated Contract', status: 'VERIFIED' });
 
       expect(response.status).toBe(200);
@@ -322,13 +322,13 @@ describe('HR Documents API Routes', () => {
 
     it('should set verifiedAt when verifiedById is provided', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockResolvedValueOnce({
-        id: 'doc-1',
+        id: '1e000000-0000-4000-a000-000000000001',
         verifiedById: 'admin-1',
         verifiedAt: new Date(),
       });
 
       await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .send({ verifiedById: 'admin-1' });
 
       expect(mockPrisma.employeeDocument.update).toHaveBeenCalledWith(
@@ -343,7 +343,7 @@ describe('HR Documents API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .send({ status: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -354,7 +354,7 @@ describe('HR Documents API Routes', () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .send({ title: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -365,13 +365,13 @@ describe('HR Documents API Routes', () => {
   describe('POST /api/documents/:id/sign', () => {
     it('should sign document successfully', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockResolvedValueOnce({
-        id: 'doc-1',
+        id: '1e000000-0000-4000-a000-000000000001',
         signedAt: new Date(),
         signatureUrl: 'https://sigs.example.com/sig1.png',
       });
 
       const response = await request(app)
-        .post('/api/documents/doc-1/sign')
+        .post('/api/documents/1e000000-0000-4000-a000-000000000001/sign')
         .send({ signatureUrl: 'https://sigs.example.com/sig1.png' });
 
       expect(response.status).toBe(200);
@@ -382,7 +382,7 @@ describe('HR Documents API Routes', () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/documents/doc-1/sign')
+        .post('/api/documents/1e000000-0000-4000-a000-000000000001/sign')
         .send({ signatureUrl: 'https://sigs.example.com/sig1.png' });
 
       expect(response.status).toBe(500);
@@ -393,15 +393,15 @@ describe('HR Documents API Routes', () => {
   describe('DELETE /api/documents/:id', () => {
     it('should archive document (soft delete)', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockResolvedValueOnce({
-        id: 'doc-1',
+        id: '1e000000-0000-4000-a000-000000000001',
         status: 'ARCHIVED',
       });
 
-      const response = await request(app).delete('/api/documents/doc-1');
+      const response = await request(app).delete('/api/documents/1e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.employeeDocument.update).toHaveBeenCalledWith({
-        where: { id: 'doc-1' },
+        where: { id: '1e000000-0000-4000-a000-000000000001' },
         data: { status: 'ARCHIVED' },
       });
     });
@@ -409,7 +409,7 @@ describe('HR Documents API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/documents/doc-1');
+      const response = await request(app).delete('/api/documents/1e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -420,7 +420,7 @@ describe('HR Documents API Routes', () => {
     const mockQualifications = [
       {
         id: 'qual-1',
-        employeeId: 'emp-1',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         qualificationType: 'BACHELOR',
         institution: 'MIT',
         degree: 'Computer Science',
@@ -430,7 +430,7 @@ describe('HR Documents API Routes', () => {
     it('should return qualifications for employee', async () => {
       (mockPrisma.employeeQualification.findMany as jest.Mock).mockResolvedValueOnce(mockQualifications);
 
-      const response = await request(app).get('/api/documents/qualifications/emp-1');
+      const response = await request(app).get('/api/documents/qualifications/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -440,7 +440,7 @@ describe('HR Documents API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employeeQualification.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/documents/qualifications/emp-1');
+      const response = await request(app).get('/api/documents/qualifications/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -493,10 +493,10 @@ describe('HR Documents API Routes', () => {
   describe('GET /api/documents/assets/:employeeId', () => {
     it('should return assets for employee', async () => {
       (mockPrisma.employeeAsset.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: 'asset-1', assetTag: 'LAP-001', assetType: 'LAPTOP', name: 'MacBook Pro' },
+        { id: '50000000-0000-4000-a000-000000000001', assetTag: 'LAP-001', assetType: 'LAPTOP', name: 'MacBook Pro' },
       ]);
 
-      const response = await request(app).get('/api/documents/assets/emp-1');
+      const response = await request(app).get('/api/documents/assets/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -506,7 +506,7 @@ describe('HR Documents API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employeeAsset.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/documents/assets/emp-1');
+      const response = await request(app).get('/api/documents/assets/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -561,14 +561,14 @@ describe('HR Documents API Routes', () => {
   describe('PUT /api/documents/assets/:id/return', () => {
     it('should return asset successfully', async () => {
       (mockPrisma.employeeAsset.update as jest.Mock).mockResolvedValueOnce({
-        id: 'asset-1',
+        id: '50000000-0000-4000-a000-000000000001',
         returnDate: new Date(),
         returnCondition: 'GOOD',
         notes: 'In good condition',
       });
 
       const response = await request(app)
-        .put('/api/documents/assets/asset-1/return')
+        .put('/api/documents/assets/50000000-0000-4000-a000-000000000001/return')
         .send({ returnCondition: 'GOOD', notes: 'In good condition' });
 
       expect(response.status).toBe(200);
@@ -579,7 +579,7 @@ describe('HR Documents API Routes', () => {
       (mockPrisma.employeeAsset.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/documents/assets/asset-1/return')
+        .put('/api/documents/assets/50000000-0000-4000-a000-000000000001/return')
         .send({ returnCondition: 'GOOD' });
 
       expect(response.status).toBe(500);

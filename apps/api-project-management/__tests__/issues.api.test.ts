@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -42,7 +42,7 @@ describe('Project Issues API Routes', () => {
   describe('GET /api/issues', () => {
     const mockIssues = [
       {
-        id: 'issue-1',
+        id: '22000000-0000-4000-a000-000000000001',
         issueCode: 'ISS-001',
         issueTitle: 'Build pipeline failure',
         issueDescription: 'CI/CD pipeline fails intermittently',
@@ -158,7 +158,7 @@ describe('Project Issues API Routes', () => {
         priority: 'MEDIUM',
         status: 'OPEN',
         raisedDate: new Date(),
-        reportedBy: 'user-123',
+        reportedBy: '20000000-0000-4000-a000-000000000123',
       });
 
       const response = await request(app)
@@ -176,7 +176,7 @@ describe('Project Issues API Routes', () => {
           issueCode: 'ISS-003',
           raisedDate: expect.any(Date),
           status: 'OPEN',
-          reportedBy: 'user-123',
+          reportedBy: '20000000-0000-4000-a000-000000000123',
         }),
       });
     });
@@ -207,7 +207,7 @@ describe('Project Issues API Routes', () => {
 
   describe('PUT /api/issues/:id', () => {
     const existingIssue = {
-      id: 'issue-1',
+      id: '22000000-0000-4000-a000-000000000001',
       issueCode: 'ISS-001',
       issueTitle: 'Build pipeline failure',
       issueDescription: 'CI/CD pipeline fails intermittently',
@@ -225,7 +225,7 @@ describe('Project Issues API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ severity: 'CRITICAL' });
 
@@ -233,11 +233,11 @@ describe('Project Issues API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent issue', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue', async () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/issues/non-existent')
+        .put('/api/issues/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ severity: 'LOW' });
 
@@ -249,7 +249,7 @@ describe('Project Issues API Routes', () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ severity: 'LOW' });
 
@@ -260,7 +260,7 @@ describe('Project Issues API Routes', () => {
 
   describe('PUT /api/issues/:id/resolve', () => {
     const existingIssue = {
-      id: 'issue-1',
+      id: '22000000-0000-4000-a000-000000000001',
       issueCode: 'ISS-001',
       issueTitle: 'Build pipeline failure',
       status: 'OPEN',
@@ -278,7 +278,7 @@ describe('Project Issues API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/issues/issue-1/resolve')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001/resolve')
         .set('Authorization', 'Bearer token')
         .send({
           resolutionDescription: 'Fixed the pipeline config',
@@ -291,7 +291,7 @@ describe('Project Issues API Routes', () => {
       expect(response.body.data.status).toBe('RESOLVED');
 
       expect(mockPrisma.projectIssue.update).toHaveBeenCalledWith({
-        where: { id: 'issue-1' },
+        where: { id: '22000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'RESOLVED',
           resolutionDescription: 'Fixed the pipeline config',
@@ -302,11 +302,11 @@ describe('Project Issues API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent issue on resolve', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue on resolve', async () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/issues/non-existent/resolve')
+        .put('/api/issues/00000000-0000-4000-a000-ffffffffffff/resolve')
         .set('Authorization', 'Bearer token')
         .send({ resolutionDescription: 'Fixed' });
 
@@ -318,7 +318,7 @@ describe('Project Issues API Routes', () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/issues/issue-1/resolve')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001/resolve')
         .set('Authorization', 'Bearer token')
         .send({ resolutionDescription: 'Fixed' });
 
@@ -329,24 +329,24 @@ describe('Project Issues API Routes', () => {
 
   describe('DELETE /api/issues/:id', () => {
     it('should delete issue successfully', async () => {
-      (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'issue-1' });
+      (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: '22000000-0000-4000-a000-000000000001' });
       (mockPrisma.projectIssue.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/issues/issue-1')
+        .delete('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectIssue.delete).toHaveBeenCalledWith({
-        where: { id: 'issue-1' },
+        where: { id: '22000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent issue', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue', async () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/issues/non-existent')
+        .delete('/api/issues/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -357,7 +357,7 @@ describe('Project Issues API Routes', () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/issues/issue-1')
+        .delete('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Validation schemas
 const createRuleSchema = z.object({
@@ -18,12 +20,12 @@ const createRuleSchema = z.object({
   triggerType: z.enum(['EVENT', 'SCHEDULED', 'CONDITION', 'WORKFLOW_EVENT', 'API', 'WEBHOOK']),
   triggerEvent: z.string().optional(),
   triggerSchedule: z.string().optional(),
-  triggerCondition: z.any().optional(),
+  triggerCondition: z.record(z.unknown()).optional(),
   actionType: z.enum([
     'CREATE_WORKFLOW', 'UPDATE_ENTITY', 'SEND_NOTIFICATION', 'CALL_WEBHOOK',
     'EXECUTE_SCRIPT', 'ASSIGN_TASK', 'ESCALATE', 'UPDATE_STATUS', 'GENERATE_REPORT', 'CUSTOM'
   ]),
-  actionConfig: z.any(),
+  actionConfig: z.record(z.unknown()),
   entityType: z.string().optional(),
   workflowCategory: z.enum([
     'HR', 'FINANCE', 'OPERATIONS', 'QUALITY', 'SAFETY',

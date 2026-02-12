@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, res: any, next: any) => {
     if (req.headers.authorization) {
-      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+      req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
       next();
     } else {
       res.status(401).json({
@@ -317,7 +317,7 @@ describe('AI Settings API Routes', () => {
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    expect(response.body.error.details).toBeDefined();
+    expect(response.body.error.fields).toBeDefined();
   });
 
   // -------------------------------------------------------

@@ -24,7 +24,7 @@ const createScheduleSchema = z.object({
     actions: z.array(z.object({
       deviceId: z.string().optional(),
       command: z.string(),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.unknown()).optional(),
     })).optional(),
   }),
   isActive: z.boolean().optional(),

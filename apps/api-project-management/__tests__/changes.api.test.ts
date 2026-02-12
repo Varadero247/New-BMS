@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -42,7 +42,7 @@ describe('Project Changes API Routes', () => {
   describe('GET /api/changes', () => {
     const mockChanges = [
       {
-        id: 'change-1',
+        id: '4b000000-0000-4000-a000-000000000001',
         changeCode: 'CHG-001',
         changeTitle: 'Add reporting module',
         changeDescription: 'Client requests additional reporting features',
@@ -119,7 +119,7 @@ describe('Project Changes API Routes', () => {
         ...createPayload,
         status: 'SUBMITTED',
         requestDate: new Date(),
-        requestedBy: 'user-123',
+        requestedBy: '20000000-0000-4000-a000-000000000123',
         priority: 'MEDIUM',
         urgency: 'NORMAL',
       });
@@ -139,7 +139,7 @@ describe('Project Changes API Routes', () => {
           changeCode: 'CHG-003',
           status: 'SUBMITTED',
           requestDate: expect.any(Date),
-          requestedBy: 'user-123',
+          requestedBy: '20000000-0000-4000-a000-000000000123',
         }),
       });
     });
@@ -170,7 +170,7 @@ describe('Project Changes API Routes', () => {
 
   describe('PUT /api/changes/:id', () => {
     const existingChange = {
-      id: 'change-1',
+      id: '4b000000-0000-4000-a000-000000000001',
       changeCode: 'CHG-001',
       changeTitle: 'Add reporting module',
       changeDescription: 'Client requests additional reporting features',
@@ -187,7 +187,7 @@ describe('Project Changes API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/changes/change-1')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ changeTitle: 'Updated title' });
 
@@ -195,11 +195,11 @@ describe('Project Changes API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent change', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change', async () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/changes/non-existent')
+        .put('/api/changes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ changeTitle: 'Updated' });
 
@@ -211,7 +211,7 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/changes/change-1')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ changeTitle: 'Updated' });
 
@@ -222,7 +222,7 @@ describe('Project Changes API Routes', () => {
 
   describe('PUT /api/changes/:id/review', () => {
     const existingChange = {
-      id: 'change-1',
+      id: '4b000000-0000-4000-a000-000000000001',
       changeCode: 'CHG-001',
       changeTitle: 'Add reporting module',
       status: 'SUBMITTED',
@@ -233,13 +233,13 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
         ...existingChange,
         status: 'UNDER_REVIEW',
-        reviewedBy: 'user-123',
+        reviewedBy: '20000000-0000-4000-a000-000000000123',
         reviewedAt: new Date(),
         reviewerComments: 'Looks reasonable',
       });
 
       const response = await request(app)
-        .put('/api/changes/change-1/review')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001/review')
         .set('Authorization', 'Bearer token')
         .send({ reviewerComments: 'Looks reasonable' });
 
@@ -248,21 +248,21 @@ describe('Project Changes API Routes', () => {
       expect(response.body.data.status).toBe('UNDER_REVIEW');
 
       expect(mockPrisma.projectChange.update).toHaveBeenCalledWith({
-        where: { id: 'change-1' },
+        where: { id: '4b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'UNDER_REVIEW',
-          reviewedBy: 'user-123',
+          reviewedBy: '20000000-0000-4000-a000-000000000123',
           reviewedAt: expect.any(Date),
           reviewerComments: 'Looks reasonable',
         }),
       });
     });
 
-    it('should return 404 for non-existent change on review', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change on review', async () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/changes/non-existent/review')
+        .put('/api/changes/00000000-0000-4000-a000-ffffffffffff/review')
         .set('Authorization', 'Bearer token')
         .send({ reviewerComments: 'Review' });
 
@@ -274,7 +274,7 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/changes/change-1/review')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001/review')
         .set('Authorization', 'Bearer token')
         .send({ reviewerComments: 'Review' });
 
@@ -285,7 +285,7 @@ describe('Project Changes API Routes', () => {
 
   describe('PUT /api/changes/:id/approve', () => {
     const existingChange = {
-      id: 'change-1',
+      id: '4b000000-0000-4000-a000-000000000001',
       changeCode: 'CHG-001',
       changeTitle: 'Add reporting module',
       status: 'UNDER_REVIEW',
@@ -296,13 +296,13 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
         ...existingChange,
         status: 'APPROVED',
-        approvedBy: 'user-123',
+        approvedBy: '20000000-0000-4000-a000-000000000123',
         approvedAt: new Date(),
         approvalComments: 'Approved for implementation',
       });
 
       const response = await request(app)
-        .put('/api/changes/change-1/approve')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvalComments: 'Approved for implementation' });
 
@@ -311,21 +311,21 @@ describe('Project Changes API Routes', () => {
       expect(response.body.data.status).toBe('APPROVED');
 
       expect(mockPrisma.projectChange.update).toHaveBeenCalledWith({
-        where: { id: 'change-1' },
+        where: { id: '4b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'APPROVED',
-          approvedBy: 'user-123',
+          approvedBy: '20000000-0000-4000-a000-000000000123',
           approvedAt: expect.any(Date),
           approvalComments: 'Approved for implementation',
         }),
       });
     });
 
-    it('should return 404 for non-existent change on approve', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change on approve', async () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/changes/non-existent/approve')
+        .put('/api/changes/00000000-0000-4000-a000-ffffffffffff/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvalComments: 'Approved' });
 
@@ -337,7 +337,7 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/changes/change-1/approve')
+        .put('/api/changes/4b000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvalComments: 'Approved' });
 
@@ -348,24 +348,24 @@ describe('Project Changes API Routes', () => {
 
   describe('DELETE /api/changes/:id', () => {
     it('should delete change request successfully', async () => {
-      (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'change-1' });
+      (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: '4b000000-0000-4000-a000-000000000001' });
       (mockPrisma.projectChange.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/changes/change-1')
+        .delete('/api/changes/4b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectChange.delete).toHaveBeenCalledWith({
-        where: { id: 'change-1' },
+        where: { id: '4b000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent change', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change', async () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/changes/non-existent')
+        .delete('/api/changes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -376,7 +376,7 @@ describe('Project Changes API Routes', () => {
       (mockPrisma.projectChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/changes/change-1')
+        .delete('/api/changes/4b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

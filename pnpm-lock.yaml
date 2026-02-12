@@ -117,6 +117,9 @@ importers:
       '@ims/monitoring':
         specifier: workspace:*
         version: link:../../packages/monitoring
+      '@ims/resilience':
+        specifier: workspace:*
+        version: link:../../packages/resilience
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types

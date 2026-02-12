@@ -21,13 +21,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -51,17 +51,17 @@ describe('Environment Objectives API Routes', () => {
   describe('GET /api/objectives', () => {
     const mockObjectives = [
       {
-        id: 'obj-1',
+        id: '15000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-OBJ-2026-001',
         title: 'Reduce carbon emissions',
         objectiveStatement: 'Achieve 30% reduction in CO2 by 2027',
         category: 'EMISSIONS',
         status: 'IN_PROGRESS',
         owner: 'John Smith',
-        milestones: [{ id: 'ms-1', title: 'Phase 1', completed: false }],
+        milestones: [{ id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1', completed: false }],
       },
       {
-        id: 'obj-2',
+        id: '15000000-0000-4000-a000-000000000002',
         referenceNumber: 'ENV-OBJ-2026-002',
         title: 'Waste reduction',
         objectiveStatement: 'Reduce waste to landfill by 50%',
@@ -206,23 +206,23 @@ describe('Environment Objectives API Routes', () => {
 
   describe('GET /api/objectives/:id', () => {
     const mockObjective = {
-      id: 'obj-1',
+      id: '15000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-OBJ-2026-001',
       title: 'Reduce carbon emissions',
       objectiveStatement: 'Achieve 30% reduction',
-      milestones: [{ id: 'ms-1', title: 'Phase 1' }],
+      milestones: [{ id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1' }],
     };
 
     it('should return single objective with milestones', async () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce(mockObjective);
 
       const response = await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('obj-1');
+      expect(response.body.data.id).toBe('15000000-0000-4000-a000-000000000001');
       expect(response.body.data.milestones).toBeDefined();
     });
 
@@ -230,7 +230,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce(mockObjective);
 
       await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envObjective.findUnique).toHaveBeenCalledWith(
@@ -240,11 +240,11 @@ describe('Environment Objectives API Routes', () => {
       );
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/objectives/non-existent')
+        .get('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -255,7 +255,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -275,7 +275,7 @@ describe('Environment Objectives API Routes', () => {
     it('should create an objective successfully', async () => {
       (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envObjective.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-OBJ-2026-001',
         ...createPayload,
         status: 'NOT_STARTED',
@@ -303,11 +303,11 @@ describe('Environment Objectives API Routes', () => {
 
       (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envObjective.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-OBJ-2026-001',
         ...createPayload,
         milestones: [
-          { id: 'ms-1', title: 'Phase 1 Complete', sortOrder: 0 },
+          { id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1 Complete', sortOrder: 0 },
           { id: 'ms-2', title: 'Phase 2 Complete', sortOrder: 1 },
         ],
       });
@@ -389,7 +389,7 @@ describe('Environment Objectives API Routes', () => {
 
   describe('PUT /api/objectives/:id', () => {
     const existingObjective = {
-      id: 'obj-1',
+      id: '15000000-0000-4000-a000-000000000001',
       title: 'Reduce carbon emissions',
       objectiveStatement: 'Achieve 30% reduction',
       category: 'EMISSIONS',
@@ -405,7 +405,7 @@ describe('Environment Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -421,7 +421,7 @@ describe('Environment Objectives API Routes', () => {
       });
 
       await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated title' });
 
@@ -440,7 +440,7 @@ describe('Environment Objectives API Routes', () => {
       });
 
       await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated', milestones: [{ title: 'New MS', dueDate: '2027-01-01' }] });
 
@@ -448,11 +448,11 @@ describe('Environment Objectives API Routes', () => {
       expect(callData.milestones).toBeUndefined();
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/objectives/non-existent')
+        .put('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -464,7 +464,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -475,24 +475,24 @@ describe('Environment Objectives API Routes', () => {
 
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
-      (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.envObjective.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envObjective.delete).toHaveBeenCalledWith({
-        where: { id: 'obj-1' },
+        where: { id: '15000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/objectives/non-existent')
+        .delete('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -503,7 +503,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

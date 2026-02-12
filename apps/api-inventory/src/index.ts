@@ -37,7 +37,7 @@ import transactionsRouter from './routes/transactions';
 import suppliersRouter from './routes/suppliers';
 
 const app: Express = express();
-const PORT = process.env.INVENTORY_PORT || 4005;
+const PORT = process.env.PORT || 4005;
 
 // Middleware
 app.use(helmet());

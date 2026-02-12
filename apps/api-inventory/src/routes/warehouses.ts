@@ -5,12 +5,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/warehouses - List warehouses
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -180,13 +182,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       code: z.string().min(1),
       name: z.string().min(1),
       description: z.string().optional(),
-      address: z.any().optional(),
+      address: z.record(z.unknown()).optional(),
       totalCapacity: z.number().optional(),
       capacityUnit: z.string().default('cubic_meters'),
       managerId: z.string().optional(),
       phone: z.string().optional(),
       email: z.string().email().optional(),
-      operatingHours: z.any().optional(),
+      operatingHours: z.record(z.unknown()).optional(),
       isDefault: z.boolean().default(false),
     });
 
@@ -219,7 +221,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: warehouse });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Create warehouse error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create warehouse' } });
@@ -238,14 +240,14 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
       code: z.string().min(1).optional(),
       name: z.string().min(1).optional(),
       description: z.string().optional().nullable(),
-      address: z.any().optional(),
+      address: z.record(z.unknown()).optional(),
       totalCapacity: z.number().optional().nullable(),
       usedCapacity: z.number().optional().nullable(),
       capacityUnit: z.string().optional(),
       managerId: z.string().optional().nullable(),
       phone: z.string().optional().nullable(),
       email: z.string().email().optional().nullable(),
-      operatingHours: z.any().optional(),
+      operatingHours: z.record(z.unknown()).optional(),
       isDefault: z.boolean().optional(),
       isActive: z.boolean().optional(),
       version: z.number().int().optional(),
@@ -291,7 +293,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: warehouse });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Update warehouse error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update warehouse' } });

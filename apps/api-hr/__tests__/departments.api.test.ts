@@ -22,7 +22,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -48,7 +48,7 @@ describe('HR Departments API Routes', () => {
   describe('GET /api/departments', () => {
     const mockDepartments = [
       {
-        id: 'dept-1',
+        id: '2b000000-0000-4000-a000-000000000001',
         code: 'ENG',
         name: 'Engineering',
         isActive: true,
@@ -103,8 +103,8 @@ describe('HR Departments API Routes', () => {
 
     it('should return tree structure when tree=true', async () => {
       const treeDepartments = [
-        { id: 'dept-1', name: 'Root', parentId: null, _count: { employees: 5, children: 1, positions: 2 }, parent: null },
-        { id: 'dept-2', name: 'Child', parentId: 'dept-1', _count: { employees: 3, children: 0, positions: 1 }, parent: { id: 'dept-1', name: 'Root', code: 'ROOT' } },
+        { id: '2b000000-0000-4000-a000-000000000001', name: 'Root', parentId: null, _count: { employees: 5, children: 1, positions: 2 }, parent: null },
+        { id: 'dept-2', name: 'Child', parentId: '2b000000-0000-4000-a000-000000000001', _count: { employees: 3, children: 0, positions: 1 }, parent: { id: '2b000000-0000-4000-a000-000000000001', name: 'Root', code: 'ROOT' } },
       ];
       (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce(treeDepartments);
 
@@ -155,13 +155,13 @@ describe('HR Departments API Routes', () => {
 
   describe('GET /api/departments/:id', () => {
     const mockDepartment = {
-      id: 'dept-1',
+      id: '2b000000-0000-4000-a000-000000000001',
       code: 'ENG',
       name: 'Engineering',
       parent: null,
       children: [],
       employees: [
-        { id: 'emp-1', firstName: 'John', lastName: 'Doe', jobTitle: 'Developer', employeeNumber: 'EMP001' },
+        { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', jobTitle: 'Developer', employeeNumber: 'EMP001' },
       ],
       positions: [],
       _count: { employees: 1, children: 0, positions: 0 },
@@ -170,21 +170,21 @@ describe('HR Departments API Routes', () => {
     it('should return single department with details', async () => {
       (mockPrisma.hRDepartment.findUnique as jest.Mock).mockResolvedValueOnce(mockDepartment);
 
-      const response = await request(app).get('/api/departments/dept-1');
+      const response = await request(app).get('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('dept-1');
+      expect(response.body.data.id).toBe('2b000000-0000-4000-a000-000000000001');
       expect(response.body.data.employees).toHaveLength(1);
     });
 
     it('should include related data (parent, children, employees, positions)', async () => {
       (mockPrisma.hRDepartment.findUnique as jest.Mock).mockResolvedValueOnce(mockDepartment);
 
-      await request(app).get('/api/departments/dept-1');
+      await request(app).get('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.hRDepartment.findUnique).toHaveBeenCalledWith({
-        where: { id: 'dept-1' },
+        where: { id: '2b000000-0000-4000-a000-000000000001' },
         include: expect.objectContaining({
           parent: true,
           children: true,
@@ -195,10 +195,10 @@ describe('HR Departments API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent department', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff department', async () => {
       (mockPrisma.hRDepartment.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/departments/non-existent');
+      const response = await request(app).get('/api/departments/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -207,7 +207,7 @@ describe('HR Departments API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.hRDepartment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/departments/dept-1');
+      const response = await request(app).get('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -270,13 +270,13 @@ describe('HR Departments API Routes', () => {
   describe('PUT /api/departments/:id', () => {
     it('should update department successfully', async () => {
       (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'dept-1',
+        id: '2b000000-0000-4000-a000-000000000001',
         name: 'Updated Engineering',
         parent: null,
       });
 
       const response = await request(app)
-        .put('/api/departments/dept-1')
+        .put('/api/departments/2b000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated Engineering' });
 
       expect(response.status).toBe(200);
@@ -285,13 +285,13 @@ describe('HR Departments API Routes', () => {
 
     it('should allow partial updates', async () => {
       (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'dept-1',
+        id: '2b000000-0000-4000-a000-000000000001',
         description: 'Updated description',
         parent: null,
       });
 
       const response = await request(app)
-        .put('/api/departments/dept-1')
+        .put('/api/departments/2b000000-0000-4000-a000-000000000001')
         .send({ description: 'Updated description' });
 
       expect(response.status).toBe(200);
@@ -302,7 +302,7 @@ describe('HR Departments API Routes', () => {
       (mockPrisma.hRDepartment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/departments/dept-1')
+        .put('/api/departments/2b000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -314,15 +314,15 @@ describe('HR Departments API Routes', () => {
     it('should soft delete (deactivate) department', async () => {
       (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'dept-1',
+        id: '2b000000-0000-4000-a000-000000000001',
         isActive: false,
       });
 
-      const response = await request(app).delete('/api/departments/dept-1');
+      const response = await request(app).delete('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.hRDepartment.update).toHaveBeenCalledWith({
-        where: { id: 'dept-1' },
+        where: { id: '2b000000-0000-4000-a000-000000000001' },
         data: { isActive: false },
       });
     });
@@ -330,7 +330,7 @@ describe('HR Departments API Routes', () => {
     it('should return 400 if department has active employees', async () => {
       (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(5);
 
-      const response = await request(app).delete('/api/departments/dept-1');
+      const response = await request(app).delete('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('HAS_EMPLOYEES');
@@ -339,7 +339,7 @@ describe('HR Departments API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employee.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/departments/dept-1');
+      const response = await request(app).delete('/api/departments/2b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -353,7 +353,7 @@ describe('HR Departments API Routes', () => {
         code: 'SWE',
         title: 'Software Engineer',
         isActive: true,
-        department: { id: 'dept-1', name: 'Engineering' },
+        department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
         _count: { employees: 5 },
       },
     ];
@@ -371,12 +371,12 @@ describe('HR Departments API Routes', () => {
     it('should filter by departmentId', async () => {
       (mockPrisma.position.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app).get('/api/departments/positions/all?departmentId=dept-1');
+      await request(app).get('/api/departments/positions/all?departmentId=2b000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.position.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            departmentId: 'dept-1',
+            departmentId: '2b000000-0000-4000-a000-000000000001',
           }),
         })
       );

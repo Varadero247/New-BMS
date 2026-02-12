@@ -23,7 +23,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -49,16 +49,16 @@ describe('HR Employees API Routes', () => {
   describe('GET /api/employees', () => {
     const mockEmployees = [
       {
-        id: 'emp-1',
+        id: '2a000000-0000-4000-a000-000000000001',
         employeeNumber: 'EMP001',
         firstName: 'John',
         lastName: 'Doe',
         workEmail: 'john@company.com',
         jobTitle: 'Developer',
         employmentStatus: 'ACTIVE',
-        department: { id: 'dept-1', name: 'Engineering' },
+        department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
         position: { id: 'pos-1', title: 'Software Developer' },
-        manager: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager', employeeNumber: 'MGR001' },
+        manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager', employeeNumber: 'MGR001' },
         _count: { subordinates: 0 },
       },
       {
@@ -109,12 +109,12 @@ describe('HR Employees API Routes', () => {
       mockPrisma.employee.findMany.mockResolvedValueOnce([]);
       mockPrisma.employee.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/employees?department=dept-1');
+      await request(app).get('/api/employees?department=2b000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            departmentId: 'dept-1',
+            departmentId: '2b000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -139,12 +139,12 @@ describe('HR Employees API Routes', () => {
       mockPrisma.employee.findMany.mockResolvedValueOnce([]);
       mockPrisma.employee.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/employees?managerId=mgr-1');
+      await request(app).get('/api/employees?managerId=53000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            managerId: 'mgr-1',
+            managerId: '53000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -216,7 +216,7 @@ describe('HR Employees API Routes', () => {
     const mockOrgEmployees = [
       { id: 'ceo-1', firstName: 'CEO', lastName: 'Boss', jobTitle: 'CEO', departmentId: 'd1', managerId: null, department: { name: 'Executive' } },
       { id: 'vp-1', firstName: 'VP', lastName: 'Sales', jobTitle: 'VP Sales', departmentId: 'd2', managerId: 'ceo-1', department: { name: 'Sales' } },
-      { id: 'mgr-1', firstName: 'Manager', lastName: 'One', jobTitle: 'Sales Manager', departmentId: 'd2', managerId: 'vp-1', department: { name: 'Sales' } },
+      { id: '53000000-0000-4000-a000-000000000001', firstName: 'Manager', lastName: 'One', jobTitle: 'Sales Manager', departmentId: 'd2', managerId: 'vp-1', department: { name: 'Sales' } },
     ];
 
     it('should return hierarchical org chart', async () => {
@@ -291,14 +291,14 @@ describe('HR Employees API Routes', () => {
 
   describe('GET /api/employees/:id', () => {
     const mockEmployee = {
-      id: 'emp-1',
+      id: '2a000000-0000-4000-a000-000000000001',
       employeeNumber: 'EMP001',
       firstName: 'John',
       lastName: 'Doe',
       workEmail: 'john@company.com',
-      department: { id: 'dept-1', name: 'Engineering' },
+      department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
       position: { id: 'pos-1', title: 'Developer' },
-      manager: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager' },
+      manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       subordinates: [],
       leaveBalances: [],
       documents: [],
@@ -310,20 +310,20 @@ describe('HR Employees API Routes', () => {
     it('should return single employee with full details', async () => {
       mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee as any);
 
-      const response = await request(app).get('/api/employees/emp-1');
+      const response = await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('emp-1');
+      expect(response.body.data.id).toBe('2a000000-0000-4000-a000-000000000001');
     });
 
     it('should include related data', async () => {
       mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee as any);
 
-      await request(app).get('/api/employees/emp-1');
+      await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.employee.findUnique).toHaveBeenCalledWith({
-        where: { id: 'emp-1' },
+        where: { id: '2a000000-0000-4000-a000-000000000001' },
         include: expect.objectContaining({
           department: true,
           position: true,
@@ -338,10 +338,10 @@ describe('HR Employees API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent employee', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff employee', async () => {
       mockPrisma.employee.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/employees/non-existent');
+      const response = await request(app).get('/api/employees/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -350,7 +350,7 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/employees/emp-1');
+      const response = await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -370,7 +370,7 @@ describe('HR Employees API Routes', () => {
 
     it('should create an employee successfully', async () => {
       mockPrisma.employee.create.mockResolvedValueOnce({
-        id: 'new-emp-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         department: { id: createPayload.departmentId, name: 'Engineering' },
         position: null,
@@ -414,7 +414,7 @@ describe('HR Employees API Routes', () => {
 
     it('should accept optional fields', async () => {
       mockPrisma.employee.create.mockResolvedValueOnce({
-        id: 'new-emp-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         middleName: 'Middle',
         phone: '+1234567890',
@@ -448,14 +448,14 @@ describe('HR Employees API Routes', () => {
   describe('PUT /api/employees/:id', () => {
     it('should update employee successfully', async () => {
       mockPrisma.employee.update.mockResolvedValueOnce({
-        id: 'emp-1',
+        id: '2a000000-0000-4000-a000-000000000001',
         firstName: 'Updated',
         department: { id: 'd1', name: 'Engineering' },
         position: null,
       } as any);
 
       const response = await request(app)
-        .put('/api/employees/emp-1')
+        .put('/api/employees/2a000000-0000-4000-a000-000000000001')
         .send({ firstName: 'Updated' });
 
       expect(response.status).toBe(200);
@@ -464,7 +464,7 @@ describe('HR Employees API Routes', () => {
 
     it('should return 400 for invalid data', async () => {
       const response = await request(app)
-        .put('/api/employees/emp-1')
+        .put('/api/employees/2a000000-0000-4000-a000-000000000001')
         .send({ workEmail: 'not-an-email' });
 
       expect(response.status).toBe(400);
@@ -475,7 +475,7 @@ describe('HR Employees API Routes', () => {
       mockPrisma.employee.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/employees/emp-1')
+        .put('/api/employees/2a000000-0000-4000-a000-000000000001')
         .send({ firstName: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -486,16 +486,16 @@ describe('HR Employees API Routes', () => {
   describe('DELETE /api/employees/:id', () => {
     it('should soft delete (terminate) employee', async () => {
       mockPrisma.employee.update.mockResolvedValueOnce({
-        id: 'emp-1',
+        id: '2a000000-0000-4000-a000-000000000001',
         employmentStatus: 'TERMINATED',
         terminationDate: new Date(),
       } as any);
 
-      const response = await request(app).delete('/api/employees/emp-1');
+      const response = await request(app).delete('/api/employees/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.employee.update).toHaveBeenCalledWith({
-        where: { id: 'emp-1' },
+        where: { id: '2a000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           employmentStatus: 'TERMINATED',
           terminationDate: expect.any(Date),
@@ -506,7 +506,7 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.update.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/employees/emp-1');
+      const response = await request(app).delete('/api/employees/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -528,7 +528,7 @@ describe('HR Employees API Routes', () => {
     it('should return direct reports', async () => {
       mockPrisma.employee.findMany.mockResolvedValueOnce(mockSubordinates as any);
 
-      const response = await request(app).get('/api/employees/mgr-1/subordinates');
+      const response = await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -538,10 +538,10 @@ describe('HR Employees API Routes', () => {
     it('should only return active subordinates', async () => {
       mockPrisma.employee.findMany.mockResolvedValueOnce([]);
 
-      await request(app).get('/api/employees/mgr-1/subordinates');
+      await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
-        where: { managerId: 'mgr-1', employmentStatus: 'ACTIVE' },
+        where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE' },
         include: expect.any(Object),
       });
     });
@@ -549,7 +549,7 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/employees/mgr-1/subordinates');
+      const response = await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

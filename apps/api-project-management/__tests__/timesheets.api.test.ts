@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -27,9 +27,9 @@ import timesheetsRouter from '../src/routes/timesheets';
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const mockTimesheet = {
-  id: 'ts-001',
-  projectId: 'proj-001',
-  taskId: 'task-001',
+  id: '48000000-0000-4000-a000-000000000001',
+  projectId: '44000000-0000-4000-a000-000000000001',
+  taskId: '3d000000-0000-4000-a000-000000000001',
   employeeId: 'emp-001',
   workDate: '2025-03-10T00:00:00.000Z',
   hoursWorked: 8,
@@ -45,7 +45,7 @@ const mockTimesheet = {
   approvedAt: null,
   createdAt: '2025-03-10T09:00:00.000Z',
   updatedAt: '2025-03-10T09:00:00.000Z',
-  task: { id: 'task-001', taskCode: 'TSK-001', taskName: 'Login Feature' },
+  task: { id: '3d000000-0000-4000-a000-000000000001', taskCode: 'TSK-001', taskName: 'Login Feature' },
 };
 
 describe('Timesheets API Routes', () => {
@@ -68,16 +68,16 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValue([mockTimesheet]);
       (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app).get('/api/timesheets').query({ projectId: 'proj-001' });
+      const res = await request(app).get('/api/timesheets').query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveLength(1);
-      expect(res.body.data[0].id).toBe('ts-001');
+      expect(res.body.data[0].id).toBe('48000000-0000-4000-a000-000000000001');
       expect(res.body.meta.total).toBe(1);
       expect(mockPrisma.projectTimesheet.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: 'proj-001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001' },
           orderBy: { workDate: 'desc' },
           include: { task: { select: { id: true, taskCode: true, taskName: true } } },
         }),
@@ -113,7 +113,7 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
       (mockPrisma.projectTimesheet.count as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/timesheets').query({ projectId: 'proj-001' });
+      const res = await request(app).get('/api/timesheets').query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -126,8 +126,8 @@ describe('Timesheets API Routes', () => {
   describe('POST /api/timesheets', () => {
     it('should create a new timesheet entry', async () => {
       const createPayload = {
-        projectId: 'proj-001',
-        taskId: 'task-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
+        taskId: '3d000000-0000-4000-a000-000000000001',
         employeeId: 'emp-001',
         workDate: '2025-03-11',
         hoursWorked: 7,
@@ -163,7 +163,7 @@ describe('Timesheets API Routes', () => {
 
     it('should calculate totalCost when hourlyRate is provided', async () => {
       const createPayload = {
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         employeeId: 'emp-001',
         workDate: '2025-03-11',
         hoursWorked: 8,
@@ -200,7 +200,7 @@ describe('Timesheets API Routes', () => {
 
     it('should return 400 for validation errors (missing required fields)', async () => {
       const res = await request(app).post('/api/timesheets').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         // missing employeeId, workDate, hoursWorked, activityType
       });
 
@@ -214,7 +214,7 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app).post('/api/timesheets').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         employeeId: 'emp-001',
         workDate: '2025-03-11',
         hoursWorked: 8,
@@ -236,7 +236,7 @@ describe('Timesheets API Routes', () => {
       const updatedTimesheet = { ...mockTimesheet, hoursWorked: 9, description: 'Updated description' };
       (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValue(updatedTimesheet);
 
-      const res = await request(app).put('/api/timesheets/ts-001').send({
+      const res = await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001').send({
         hoursWorked: 9,
         description: 'Updated description',
       });
@@ -259,12 +259,12 @@ describe('Timesheets API Routes', () => {
       const updatedTimesheet = { ...existingTimesheet, billableHours: 10, totalCost: 750 };
       (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValue(updatedTimesheet);
 
-      const res = await request(app).put('/api/timesheets/ts-001').send({ billableHours: 10 });
+      const res = await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001').send({ billableHours: 10 });
 
       expect(res.status).toBe(200);
       // The route recalculates: hourlyRate (75 from existing) * billableHours (10 from update) = 750
       expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith({
-        where: { id: 'ts-001' },
+        where: { id: '48000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           totalCost: 750,
         }),
@@ -274,7 +274,7 @@ describe('Timesheets API Routes', () => {
     it('should return 404 when timesheet does not exist', async () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/timesheets/nonexistent').send({ hoursWorked: 5 });
+      const res = await request(app).put('/api/timesheets/00000000-0000-4000-a000-ffffffffffff').send({ hoursWorked: 5 });
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -286,7 +286,7 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
       (mockPrisma.projectTimesheet.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/timesheets/ts-001').send({ hoursWorked: 5 });
+      const res = await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001').send({ hoursWorked: 5 });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -303,22 +303,22 @@ describe('Timesheets API Routes', () => {
       const approvedTimesheet = {
         ...mockTimesheet,
         status: 'APPROVED',
-        approvedBy: 'user-123',
+        approvedBy: '20000000-0000-4000-a000-000000000123',
         approvedAt: '2025-03-11T10:00:00.000Z',
       };
       (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValue(approvedTimesheet);
 
-      const res = await request(app).put('/api/timesheets/ts-001/approve').send();
+      const res = await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001/approve').send();
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('APPROVED');
-      expect(res.body.data.approvedBy).toBe('user-123');
+      expect(res.body.data.approvedBy).toBe('20000000-0000-4000-a000-000000000123');
       expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith({
-        where: { id: 'ts-001' },
+        where: { id: '48000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'APPROVED',
-          approvedBy: 'user-123',
+          approvedBy: '20000000-0000-4000-a000-000000000123',
           approvedAt: expect.any(Date),
         }),
       });
@@ -327,7 +327,7 @@ describe('Timesheets API Routes', () => {
     it('should return 404 when timesheet to approve does not exist', async () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/timesheets/nonexistent/approve').send();
+      const res = await request(app).put('/api/timesheets/00000000-0000-4000-a000-ffffffffffff/approve').send();
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -339,7 +339,7 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
       (mockPrisma.projectTimesheet.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/timesheets/ts-001/approve').send();
+      const res = await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001/approve').send();
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -354,16 +354,16 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
       (mockPrisma.projectTimesheet.delete as jest.Mock).mockResolvedValue(mockTimesheet);
 
-      const res = await request(app).delete('/api/timesheets/ts-001');
+      const res = await request(app).delete('/api/timesheets/48000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectTimesheet.delete).toHaveBeenCalledWith({ where: { id: 'ts-001' } });
+      expect(mockPrisma.projectTimesheet.delete).toHaveBeenCalledWith({ where: { id: '48000000-0000-4000-a000-000000000001' } });
     });
 
     it('should return 404 when timesheet does not exist', async () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/timesheets/nonexistent');
+      const res = await request(app).delete('/api/timesheets/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -375,7 +375,7 @@ describe('Timesheets API Routes', () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
       (mockPrisma.projectTimesheet.delete as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/timesheets/ts-001');
+      const res = await request(app).delete('/api/timesheets/48000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

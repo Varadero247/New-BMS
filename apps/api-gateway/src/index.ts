@@ -78,11 +78,22 @@ function addServiceToken(proxyReq: any): void {
   }
 }
 
+// Allowed CORS origins - configurable via ALLOWED_ORIGINS env var (comma-separated)
+const DEFAULT_ORIGINS = [
+  'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002',
+  'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005',
+  'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008',
+  'http://localhost:3009',
+];
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : DEFAULT_ORIGINS;
+
 // Raw CORS headers - must be absolute first middleware
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   const origin = req.headers.origin;
-  const allowed = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003','http://localhost:3004','http://localhost:3005','http://localhost:3006','http://localhost:3007','http://localhost:3008','http://localhost:3009'];
-  if (origin && allowed.includes(origin)) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -92,7 +103,6 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   next();
 });
 // CORS must run BEFORE security middleware
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008', 'http://localhost:3009'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {

@@ -22,13 +22,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -52,7 +52,7 @@ describe('Payroll Expenses API Routes', () => {
   describe('GET /api/expenses', () => {
     const mockExpenses = [
       {
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         expenseNumber: 'EXP-2024-00001',
         category: 'TRAVEL',
         description: 'Flight to conference',
@@ -111,13 +111,13 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/expenses?employeeId=emp-1')
+        .get('/api/expenses?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.expense.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -186,12 +186,12 @@ describe('Payroll Expenses API Routes', () => {
 
   describe('GET /api/expenses/:id', () => {
     const mockExpense = {
-      id: 'exp-1',
+      id: '38000000-0000-4000-a000-000000000001',
       expenseNumber: 'EXP-2024-00001',
       category: 'TRAVEL',
       description: 'Flight to conference',
       amount: 500,
-      employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: 'dept-1' },
+      employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
       report: null,
     };
 
@@ -199,19 +199,19 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findUnique as jest.Mock).mockResolvedValueOnce(mockExpense);
 
       const response = await request(app)
-        .get('/api/expenses/exp-1')
+        .get('/api/expenses/38000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('exp-1');
+      expect(response.body.data.id).toBe('38000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent expense', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff expense', async () => {
       (mockPrisma.expense.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/expenses/non-existent')
+        .get('/api/expenses/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -222,7 +222,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/expenses/exp-1')
+        .get('/api/expenses/38000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -242,7 +242,7 @@ describe('Payroll Expenses API Routes', () => {
     it('should create an expense successfully', async () => {
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.expense.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-exp-123',
+        id: '30000000-0000-4000-a000-000000000123',
         expenseNumber: 'EXP-2024-00006',
         ...createPayload,
         status: 'SUBMITTED',
@@ -262,7 +262,7 @@ describe('Payroll Expenses API Routes', () => {
     it('should set initial status to SUBMITTED', async () => {
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.expense.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-exp-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'SUBMITTED',
         employee: {},
       });
@@ -284,7 +284,7 @@ describe('Payroll Expenses API Routes', () => {
     it('should generate sequential expense number', async () => {
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(10);
       (mockPrisma.expense.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-exp-123',
+        id: '30000000-0000-4000-a000-000000000123',
         expenseNumber: 'EXP-2024-00011',
         employee: {},
       });
@@ -350,14 +350,14 @@ describe('Payroll Expenses API Routes', () => {
   describe('PUT /api/expenses/:id/approve', () => {
     it('should approve expense successfully', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         approvalStatus: 'APPROVED',
         approvedById: 'admin-1',
       });
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/approve')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1', approvalNotes: 'Looks good' });
 
@@ -367,17 +367,17 @@ describe('Payroll Expenses API Routes', () => {
 
     it('should set status and approvalStatus to APPROVED', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
       });
 
       await request(app)
-        .put('/api/expenses/exp-1/approve')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
       expect(mockPrisma.expense.update).toHaveBeenCalledWith({
-        where: { id: 'exp-1' },
+        where: { id: '38000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'APPROVED',
           approvalStatus: 'APPROVED',
@@ -390,7 +390,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/approve')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -402,13 +402,13 @@ describe('Payroll Expenses API Routes', () => {
   describe('PUT /api/expenses/:id/reject', () => {
     it('should reject expense successfully', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'REJECTED',
         approvalStatus: 'REJECTED',
       });
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/reject')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reject')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1', approvalNotes: 'Missing receipt' });
 
@@ -418,17 +418,17 @@ describe('Payroll Expenses API Routes', () => {
 
     it('should set status and approvalStatus to REJECTED', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'REJECTED',
       });
 
       await request(app)
-        .put('/api/expenses/exp-1/reject')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reject')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
       expect(mockPrisma.expense.update).toHaveBeenCalledWith({
-        where: { id: 'exp-1' },
+        where: { id: '38000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'REJECTED',
           approvalStatus: 'REJECTED',
@@ -441,7 +441,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/reject')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reject')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -453,13 +453,13 @@ describe('Payroll Expenses API Routes', () => {
   describe('PUT /api/expenses/:id/reimburse', () => {
     it('should mark expense as reimbursed successfully', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'REIMBURSED',
         reimbursementStatus: 'COMPLETED',
       });
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/reimburse')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reimburse')
         .set('Authorization', 'Bearer token')
         .send({ paymentMethod: 'BANK_TRANSFER' });
 
@@ -469,17 +469,17 @@ describe('Payroll Expenses API Routes', () => {
 
     it('should set status to REIMBURSED', async () => {
       (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
-        id: 'exp-1',
+        id: '38000000-0000-4000-a000-000000000001',
         status: 'REIMBURSED',
       });
 
       await request(app)
-        .put('/api/expenses/exp-1/reimburse')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reimburse')
         .set('Authorization', 'Bearer token')
         .send({ paymentMethod: 'BANK_TRANSFER' });
 
       expect(mockPrisma.expense.update).toHaveBeenCalledWith({
-        where: { id: 'exp-1' },
+        where: { id: '38000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'REIMBURSED',
           reimbursementStatus: 'COMPLETED',
@@ -493,7 +493,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/expenses/exp-1/reimburse')
+        .put('/api/expenses/38000000-0000-4000-a000-000000000001/reimburse')
         .set('Authorization', 'Bearer token')
         .send({ paymentMethod: 'BANK_TRANSFER' });
 
@@ -530,13 +530,13 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expenseReport.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/expenses/reports/all?employeeId=emp-1')
+        .get('/api/expenses/reports/all?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.expenseReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -572,7 +572,7 @@ describe('Payroll Expenses API Routes', () => {
 
   describe('POST /api/expenses/reports', () => {
     const createPayload = {
-      employeeId: 'emp-1',
+      employeeId: '2a000000-0000-4000-a000-000000000001',
       title: 'March Expenses',
       periodStart: '2024-03-01',
       periodEnd: '2024-03-31',

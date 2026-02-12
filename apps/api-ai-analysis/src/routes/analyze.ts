@@ -5,6 +5,11 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 
+interface AIProviderResponse {
+  content: string;
+  tokensUsed: number;
+}
+
 const logger = createLogger('api-ai-analysis');
 
 const router: IRouter = Router();
@@ -26,7 +31,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'EVM_ANALYSIS', 'STAKEHOLDER_STRATEGY', 'PROJECT_HEALTH_CHECK',
         'SPRINT_PLANNING', 'LESSONS_LEARNED',
       ]),
-      context: z.record(z.any()),
+      context: z.record(z.unknown()),
     });
 
     const data = schema.parse(req.body);
@@ -684,7 +689,7 @@ Return ONLY valid JSON:
     }
 
     // Call AI provider
-    let aiResponse: any = null;
+    let aiResponse: AIProviderResponse | null = null;
 
     try {
       if (settings.provider === 'OPENAI') {
@@ -694,10 +699,11 @@ Return ONLY valid JSON:
       } else if (settings.provider === 'GROK') {
         aiResponse = await callGrok(settings.apiKey, prompt);
       }
-    } catch (aiError: any) {
+    } catch (aiError: unknown) {
+      const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI error';
       return res.status(502).json({
         success: false,
-        error: { code: 'AI_ERROR', message: `AI provider error: ${aiError.message}` },
+        error: { code: 'AI_ERROR', message: `AI provider error: ${errorMessage}` },
       });
     }
 
@@ -732,9 +738,10 @@ Return ONLY valid JSON:
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const fields = error.errors.map(e => e.path.join('.'));
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
       });
     }
     logger.error('Quick analyze error', { error: (error as Error).message });

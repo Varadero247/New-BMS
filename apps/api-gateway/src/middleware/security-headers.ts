@@ -34,21 +34,25 @@ const contentSecurityPolicy = {
     // Connect (XHR, WebSocket): same origin + API endpoints
     connectSrc: [
       "'self'",
-      // Allow connections to all local services in development
+      // Allow connections to configured origins and local services in development
       ...(isProduction
-        ? []
-        : [
-            'http://localhost:4000',
-            'http://localhost:4001',
-            'http://localhost:4002',
-            'http://localhost:4003',
-            'http://localhost:4004',
-            'http://localhost:4005',
-            'http://localhost:4006',
-            'http://localhost:4007',
-            'http://localhost:4008',
-            'ws://localhost:*',
-          ]),
+        ? (process.env.CSP_CONNECT_SOURCES
+            ? process.env.CSP_CONNECT_SOURCES.split(',').map(s => s.trim())
+            : [])
+        : (process.env.CSP_CONNECT_SOURCES
+            ? process.env.CSP_CONNECT_SOURCES.split(',').map(s => s.trim())
+            : [
+                'http://localhost:4000',
+                'http://localhost:4001',
+                'http://localhost:4002',
+                'http://localhost:4003',
+                'http://localhost:4004',
+                'http://localhost:4005',
+                'http://localhost:4006',
+                'http://localhost:4007',
+                'http://localhost:4008',
+                'ws://localhost:*',
+              ])),
     ],
 
     // Frame ancestors: prevent clickjacking

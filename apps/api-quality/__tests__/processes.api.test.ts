@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Processes API Routes', () => {
   describe('GET /api/processes', () => {
     const mockProcesses = [
       {
-        id: 'proc-1',
+        id: '1d000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-PRO-2026-001',
         processName: 'Order Fulfillment',
         processType: 'CORE',
@@ -185,7 +185,7 @@ describe('Quality Processes API Routes', () => {
 
   describe('GET /api/processes/:id', () => {
     const mockProcess = {
-      id: 'proc-1',
+      id: '1d000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-PRO-2026-001',
       processName: 'Order Fulfillment',
       processType: 'CORE',
@@ -198,19 +198,19 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(mockProcess);
 
       const response = await request(app)
-        .get('/api/processes/proc-1')
+        .get('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('proc-1');
+      expect(response.body.data.id).toBe('1d000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent process', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff process', async () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/processes/non-existent')
+        .get('/api/processes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -221,7 +221,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/processes/proc-1')
+        .get('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -243,7 +243,7 @@ describe('Quality Processes API Routes', () => {
     it('should create a process successfully', async () => {
       (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualProcess.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-PRO-2026-001',
         ...createPayload,
         version: '1.0',
@@ -264,7 +264,7 @@ describe('Quality Processes API Routes', () => {
     it('should generate a reference number on create', async () => {
       (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(4);
       (mockPrisma.qualProcess.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-PRO-2026-005',
         ...createPayload,
       });
@@ -377,7 +377,7 @@ describe('Quality Processes API Routes', () => {
 
   describe('PUT /api/processes/:id', () => {
     const existingProcess = {
-      id: 'proc-1',
+      id: '1d000000-0000-4000-a000-000000000001',
       processName: 'Existing Process',
       processType: 'CORE',
       department: 'Operations',
@@ -393,7 +393,7 @@ describe('Quality Processes API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/processes/proc-1')
+        .put('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ processName: 'Updated Process Name' });
 
@@ -401,11 +401,11 @@ describe('Quality Processes API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent process', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff process', async () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/processes/non-existent')
+        .put('/api/processes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ processName: 'Updated' });
 
@@ -417,7 +417,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(existingProcess);
 
       const response = await request(app)
-        .put('/api/processes/proc-1')
+        .put('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -429,7 +429,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(existingProcess);
 
       const response = await request(app)
-        .put('/api/processes/proc-1')
+        .put('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ processType: 'INVALID' });
 
@@ -441,7 +441,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(existingProcess);
 
       const response = await request(app)
-        .put('/api/processes/proc-1')
+        .put('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ measurementFrequency: 'YEARLY' });
 
@@ -453,7 +453,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/processes/proc-1')
+        .put('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ processName: 'Updated' });
 
@@ -464,24 +464,24 @@ describe('Quality Processes API Routes', () => {
 
   describe('DELETE /api/processes/:id', () => {
     it('should delete a process successfully', async () => {
-      (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proc-1' });
+      (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1d000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualProcess.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/processes/proc-1')
+        .delete('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualProcess.delete).toHaveBeenCalledWith({
-        where: { id: 'proc-1' },
+        where: { id: '1d000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent process', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff process', async () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/processes/non-existent')
+        .delete('/api/processes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -492,7 +492,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/processes/proc-1')
+        .delete('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

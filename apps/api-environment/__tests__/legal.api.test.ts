@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Environment Legal Obligations API Routes', () => {
   describe('GET /api/legal', () => {
     const mockObligations = [
       {
-        id: 'legal-1',
+        id: '14000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-LEG-2026-001',
         obligationType: 'LEGISLATION',
         title: 'Environmental Protection Act',
@@ -218,7 +218,7 @@ describe('Environment Legal Obligations API Routes', () => {
 
   describe('GET /api/legal/:id', () => {
     const mockObligation = {
-      id: 'legal-1',
+      id: '14000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-LEG-2026-001',
       obligationType: 'LEGISLATION',
       title: 'Environmental Protection Act',
@@ -229,19 +229,19 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce(mockObligation);
 
       const response = await request(app)
-        .get('/api/legal/legal-1')
+        .get('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('legal-1');
+      expect(response.body.data.id).toBe('14000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/legal/non-existent')
+        .get('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -252,7 +252,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/legal/legal-1')
+        .get('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -275,7 +275,7 @@ describe('Environment Legal Obligations API Routes', () => {
     it('should create a legal obligation successfully', async () => {
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envLegal.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-LEG-2026-001',
         ...createPayload,
         complianceStatus: 'NOT_ASSESSED',
@@ -295,7 +295,7 @@ describe('Environment Legal Obligations API Routes', () => {
     it('should generate reference number on create', async () => {
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.envLegal.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-LEG-2026-006',
         ...createPayload,
       });
@@ -368,7 +368,7 @@ describe('Environment Legal Obligations API Routes', () => {
 
   describe('PUT /api/legal/:id', () => {
     const existingObligation = {
-      id: 'legal-1',
+      id: '14000000-0000-4000-a000-000000000001',
       obligationType: 'LEGISLATION',
       title: 'Environmental Protection Act',
       complianceStatus: 'NOT_ASSESSED',
@@ -383,7 +383,7 @@ describe('Environment Legal Obligations API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/legal/legal-1')
+        .put('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'COMPLIANT' });
 
@@ -391,11 +391,11 @@ describe('Environment Legal Obligations API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/legal/non-existent')
+        .put('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -411,7 +411,7 @@ describe('Environment Legal Obligations API Routes', () => {
       });
 
       await request(app)
-        .put('/api/legal/legal-1')
+        .put('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ effectiveDate: '2026-03-01' });
 
@@ -428,7 +428,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/legal/legal-1')
+        .put('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -439,24 +439,24 @@ describe('Environment Legal Obligations API Routes', () => {
 
   describe('DELETE /api/legal/:id', () => {
     it('should delete legal obligation successfully', async () => {
-      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'legal-1' });
+      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
       (mockPrisma.envLegal.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/legal/legal-1')
+        .delete('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envLegal.delete).toHaveBeenCalledWith({
-        where: { id: 'legal-1' },
+        where: { id: '14000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/legal/non-existent')
+        .delete('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -467,7 +467,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/legal/legal-1')
+        .delete('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

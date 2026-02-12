@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Risks API Routes', () => {
   describe('GET /api/risks', () => {
     const mockRisks = [
       {
-        id: 'risk-1',
+        id: '10000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-RSK-2026-001',
         process: 'OPERATIONS',
         riskDescription: 'Equipment failure risk',
@@ -59,7 +59,7 @@ describe('Quality Risks API Routes', () => {
         consequenceRating: 5,
       },
       {
-        id: 'risk-2',
+        id: '10000000-0000-4000-a000-000000000002',
         referenceNumber: 'QMS-RSK-2026-002',
         process: 'HR',
         riskDescription: 'Staff turnover risk',
@@ -202,7 +202,7 @@ describe('Quality Risks API Routes', () => {
 
   describe('GET /api/risks/:id', () => {
     const mockRisk = {
-      id: 'risk-1',
+      id: '10000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-RSK-2026-001',
       process: 'OPERATIONS',
       riskDescription: 'Equipment failure risk',
@@ -214,19 +214,19 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce(mockRisk);
 
       const response = await request(app)
-        .get('/api/risks/risk-1')
+        .get('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('risk-1');
+      expect(response.body.data.id).toBe('10000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/risks/non-existent')
+        .get('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -237,7 +237,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/risks/risk-1')
+        .get('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -261,7 +261,7 @@ describe('Quality Risks API Routes', () => {
     it('should create a risk successfully', async () => {
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualRisk.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-RSK-2026-001',
         ...createPayload,
         probabilityRating: 3,
@@ -284,7 +284,7 @@ describe('Quality Risks API Routes', () => {
     it('should calculate risk fields (riskFactor = likelihood * max consequence)', async () => {
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualRisk.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         riskFactor: 12,
         riskLevel: 'MEDIUM',
       });
@@ -307,7 +307,7 @@ describe('Quality Risks API Routes', () => {
     it('should generate a reference number on create', async () => {
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(3);
       (mockPrisma.qualRisk.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-RSK-2026-004',
         ...createPayload,
       });
@@ -380,7 +380,7 @@ describe('Quality Risks API Routes', () => {
 
   describe('PUT /api/risks/:id', () => {
     const existingRisk = {
-      id: 'risk-1',
+      id: '10000000-0000-4000-a000-000000000001',
       process: 'OPERATIONS',
       riskDescription: 'Existing risk',
       likelihood: 3,
@@ -405,7 +405,7 @@ describe('Quality Risks API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ riskDescription: 'Updated risk description' });
 
@@ -424,12 +424,12 @@ describe('Quality Risks API Routes', () => {
       });
 
       await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ likelihood: 5 });
 
       expect(mockPrisma.qualRisk.update).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           probabilityRating: 5,
           consequenceRating: 4,
@@ -439,11 +439,11 @@ describe('Quality Risks API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/risks/non-existent')
+        .put('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ riskDescription: 'Updated' });
 
@@ -455,7 +455,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce(existingRisk);
 
       const response = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -467,7 +467,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ riskDescription: 'Updated' });
 
@@ -478,24 +478,24 @@ describe('Quality Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete a risk successfully', async () => {
-      (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'risk-1' });
+      (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualRisk.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualRisk.delete).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/risks/non-existent')
+        .delete('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -506,7 +506,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

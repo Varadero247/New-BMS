@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Interested Parties API Routes', () => {
   describe('GET /api/parties', () => {
     const mockParties = [
       {
-        id: 'party-1',
+        id: '24000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-PTY-2026-001',
         partyName: 'Acme Corp',
         partyType: 'EXTERNAL',
@@ -194,7 +194,7 @@ describe('Quality Interested Parties API Routes', () => {
 
   describe('GET /api/parties/:id', () => {
     const mockParty = {
-      id: 'party-1',
+      id: '24000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-PTY-2026-001',
       partyName: 'Acme Corp',
       partyType: 'EXTERNAL',
@@ -207,32 +207,32 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(mockParty);
 
       const response = await request(app)
-        .get('/api/parties/party-1')
+        .get('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('party-1');
+      expect(response.body.data.id).toBe('24000000-0000-4000-a000-000000000001');
     });
 
     it('should include issues in single party response', async () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(mockParty);
 
       await request(app)
-        .get('/api/parties/party-1')
+        .get('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualInterestedParty.findUnique).toHaveBeenCalledWith({
-        where: { id: 'party-1' },
+        where: { id: '24000000-0000-4000-a000-000000000001' },
         include: { issues: { orderBy: { createdAt: 'desc' } } },
       });
     });
 
-    it('should return 404 for non-existent party', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff party', async () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/parties/non-existent')
+        .get('/api/parties/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -243,7 +243,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/parties/party-1')
+        .get('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -261,7 +261,7 @@ describe('Quality Interested Parties API Routes', () => {
     it('should create an interested party successfully', async () => {
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-PTY-2026-001',
         ...createPayload,
         status: 'ACTIVE',
@@ -281,7 +281,7 @@ describe('Quality Interested Parties API Routes', () => {
     it('should generate a reference number on create', async () => {
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-PTY-2026-006',
         ...createPayload,
       });
@@ -354,7 +354,7 @@ describe('Quality Interested Parties API Routes', () => {
 
   describe('PUT /api/parties/:id', () => {
     const existingParty = {
-      id: 'party-1',
+      id: '24000000-0000-4000-a000-000000000001',
       partyName: 'Existing Partner',
       partyType: 'EXTERNAL',
       reasonForInclusion: 'Key customer',
@@ -369,7 +369,7 @@ describe('Quality Interested Parties API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/parties/party-1')
+        .put('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ partyName: 'Updated Partner' });
 
@@ -377,11 +377,11 @@ describe('Quality Interested Parties API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent party', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff party', async () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/parties/non-existent')
+        .put('/api/parties/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ partyName: 'Updated' });
 
@@ -393,7 +393,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(existingParty);
 
       const response = await request(app)
-        .put('/api/parties/party-1')
+        .put('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -405,7 +405,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(existingParty);
 
       const response = await request(app)
-        .put('/api/parties/party-1')
+        .put('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ reviewFrequency: 'WEEKLY' });
 
@@ -417,7 +417,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/parties/party-1')
+        .put('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ partyName: 'Updated' });
 
@@ -428,24 +428,24 @@ describe('Quality Interested Parties API Routes', () => {
 
   describe('DELETE /api/parties/:id', () => {
     it('should delete an interested party successfully', async () => {
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'party-1' });
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: '24000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualInterestedParty.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/parties/party-1')
+        .delete('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualInterestedParty.delete).toHaveBeenCalledWith({
-        where: { id: 'party-1' },
+        where: { id: '24000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent party', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff party', async () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/parties/non-existent')
+        .delete('/api/parties/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -456,7 +456,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/parties/party-1')
+        .delete('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

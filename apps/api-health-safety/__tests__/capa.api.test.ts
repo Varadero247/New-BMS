@@ -23,13 +23,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -53,7 +53,7 @@ describe('Health & Safety CAPA API Routes', () => {
   describe('GET /api/capa', () => {
     const mockCapas = [
       {
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         referenceNumber: 'CAPA-001',
         title: 'Corrective action for incident',
         capaType: 'CORRECTIVE',
@@ -63,14 +63,14 @@ describe('Health & Safety CAPA API Routes', () => {
         actions: [],
       },
       {
-        id: 'capa-2',
+        id: '12000000-0000-4000-a000-000000000002',
         referenceNumber: 'CAPA-002',
         title: 'Preventive measure for risk',
         capaType: 'PREVENTIVE',
         source: 'RISK_ASSESSMENT',
         priority: 'MEDIUM',
         status: 'IN_PROGRESS',
-        actions: [{ id: 'action-1', title: 'Action 1', sortOrder: 0 }],
+        actions: [{ id: '13000000-0000-4000-a000-000000000001', title: 'Action 1', sortOrder: 0 }],
       },
     ];
 
@@ -226,24 +226,24 @@ describe('Health & Safety CAPA API Routes', () => {
 
   describe('GET /api/capa/:id', () => {
     const mockCapa = {
-      id: 'capa-1',
+      id: '12000000-0000-4000-a000-000000000001',
       referenceNumber: 'CAPA-001',
       title: 'Corrective action',
       capaType: 'CORRECTIVE',
       status: 'OPEN',
-      actions: [{ id: 'action-1', title: 'Action 1', sortOrder: 0 }],
+      actions: [{ id: '13000000-0000-4000-a000-000000000001', title: 'Action 1', sortOrder: 0 }],
     };
 
     it('should return single CAPA with actions', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
 
       const response = await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('capa-1');
+      expect(response.body.data.id).toBe('12000000-0000-4000-a000-000000000001');
       expect(response.body.data.actions).toHaveLength(1);
     });
 
@@ -251,20 +251,20 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(mockCapa);
 
       await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.capa.findUnique).toHaveBeenCalledWith({
-        where: { id: 'capa-1' },
+        where: { id: '12000000-0000-4000-a000-000000000001' },
         include: { actions: { orderBy: { sortOrder: 'asc' } } },
       });
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/capa/non-existent')
+        .get('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -275,7 +275,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/capa/capa-1')
+        .get('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -295,7 +295,7 @@ describe('Health & Safety CAPA API Routes', () => {
     it('should create a CAPA successfully', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'CAPA-001',
         ...createPayload,
         status: 'OPEN',
@@ -317,7 +317,7 @@ describe('Health & Safety CAPA API Routes', () => {
         referenceNumber: 'CAPA-005',
       });
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'CAPA-006',
         ...createPayload,
         status: 'OPEN',
@@ -350,13 +350,13 @@ describe('Health & Safety CAPA API Routes', () => {
 
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'CAPA-001',
         ...createPayload,
         status: 'OPEN',
         actions: [
-          { id: 'mock-uuid-123', title: 'Immediate action', type: 'IMMEDIATE', sortOrder: 0 },
-          { id: 'mock-uuid-123', title: 'Corrective action', type: 'CORRECTIVE', sortOrder: 1 },
+          { id: '30000000-0000-4000-a000-000000000123', title: 'Immediate action', type: 'IMMEDIATE', sortOrder: 0 },
+          { id: '30000000-0000-4000-a000-000000000123', title: 'Corrective action', type: 'CORRECTIVE', sortOrder: 1 },
         ],
       });
 
@@ -383,10 +383,10 @@ describe('Health & Safety CAPA API Routes', () => {
     it('should set status to OPEN and createdBy from user', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         status: 'OPEN',
-        createdBy: 'user-123',
+        createdBy: '20000000-0000-4000-a000-000000000123',
         actions: [],
       });
 
@@ -399,7 +399,7 @@ describe('Health & Safety CAPA API Routes', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'OPEN',
-            createdBy: 'user-123',
+            createdBy: '20000000-0000-4000-a000-000000000123',
           }),
         })
       );
@@ -408,7 +408,7 @@ describe('Health & Safety CAPA API Routes', () => {
     it('should auto-set target date from CRITICAL priority (7 days)', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         priority: 'CRITICAL',
         actions: [],
       });
@@ -428,7 +428,7 @@ describe('Health & Safety CAPA API Routes', () => {
     it('should auto-set target date from HIGH priority (14 days)', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         priority: 'HIGH',
         actions: [],
       });
@@ -448,7 +448,7 @@ describe('Health & Safety CAPA API Routes', () => {
     it('should default priority to MEDIUM when not specified', async () => {
       (mockPrisma.capa.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.capa.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         priority: 'MEDIUM',
         actions: [],
       });
@@ -521,7 +521,7 @@ describe('Health & Safety CAPA API Routes', () => {
 
   describe('PATCH /api/capa/:id', () => {
     const existingCapa = {
-      id: 'capa-1',
+      id: '12000000-0000-4000-a000-000000000001',
       referenceNumber: 'CAPA-001',
       title: 'Existing CAPA',
       capaType: 'CORRECTIVE',
@@ -537,7 +537,7 @@ describe('Health & Safety CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/capa/capa-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated CAPA' });
 
@@ -551,12 +551,12 @@ describe('Health & Safety CAPA API Routes', () => {
         ...existingCapa,
         status: 'CLOSED',
         closedDate: new Date(),
-        closedBy: 'user-123',
+        closedBy: '20000000-0000-4000-a000-000000000123',
         actions: [],
       });
 
       await request(app)
-        .patch('/api/capa/capa-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED', closureNotes: 'Verified effective' });
 
@@ -565,17 +565,17 @@ describe('Health & Safety CAPA API Routes', () => {
           data: expect.objectContaining({
             status: 'CLOSED',
             closedDate: expect.any(Date),
-            closedBy: 'user-123',
+            closedBy: '20000000-0000-4000-a000-000000000123',
           }),
         })
       );
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/capa/non-existent')
+        .patch('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -587,7 +587,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
 
       const response = await request(app)
-        .patch('/api/capa/capa-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -599,7 +599,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(existingCapa);
 
       const response = await request(app)
-        .patch('/api/capa/capa-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ capaType: 'INVALID_TYPE' });
 
@@ -611,7 +611,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .patch('/api/capa/capa-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -622,24 +622,24 @@ describe('Health & Safety CAPA API Routes', () => {
 
   describe('DELETE /api/capa/:id', () => {
     it('should delete CAPA successfully', async () => {
-      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'capa-1' });
+      (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
       (mockPrisma.capa.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/capa/capa-1')
+        .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.capa.delete).toHaveBeenCalledWith({
-        where: { id: 'capa-1' },
+        where: { id: '12000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent CAPA', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff CAPA', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/capa/non-existent')
+        .delete('/api/capa/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -650,7 +650,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/capa/capa-1')
+        .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -667,18 +667,18 @@ describe('Health & Safety CAPA API Routes', () => {
 
     it('should add action to CAPA successfully', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         actions: [{ id: 'existing-1' }],
       });
       (mockPrisma.capaAction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
-        capaId: 'capa-1',
+        id: '30000000-0000-4000-a000-000000000123',
+        capaId: '12000000-0000-4000-a000-000000000001',
         ...actionPayload,
         sortOrder: 1,
       });
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -689,16 +689,16 @@ describe('Health & Safety CAPA API Routes', () => {
 
     it('should set sortOrder based on existing actions count', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         actions: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }],
       });
       (mockPrisma.capaAction.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         sortOrder: 3,
       });
 
       await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -715,7 +715,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/capa/non-existent/actions')
+        .post('/api/capa/00000000-0000-4000-a000-ffffffffffff/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -725,12 +725,12 @@ describe('Health & Safety CAPA API Routes', () => {
 
     it('should return 400 for missing title', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         actions: [],
       });
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send({ type: 'IMMEDIATE' });
 
@@ -740,12 +740,12 @@ describe('Health & Safety CAPA API Routes', () => {
 
     it('should return 400 for missing type', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         actions: [],
       });
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Missing type' });
 
@@ -755,13 +755,13 @@ describe('Health & Safety CAPA API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'capa-1',
+        id: '12000000-0000-4000-a000-000000000001',
         actions: [],
       });
       (mockPrisma.capaAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/capa/capa-1/actions')
+        .post('/api/capa/12000000-0000-4000-a000-000000000001/actions')
         .set('Authorization', 'Bearer token')
         .send(actionPayload);
 
@@ -772,8 +772,8 @@ describe('Health & Safety CAPA API Routes', () => {
 
   describe('PATCH /api/capa/:id/actions/:aid', () => {
     const existingAction = {
-      id: 'action-1',
-      capaId: 'capa-1',
+      id: '13000000-0000-4000-a000-000000000001',
+      capaId: '12000000-0000-4000-a000-000000000001',
       title: 'Existing action',
       type: 'IMMEDIATE',
       status: 'OPEN',
@@ -787,7 +787,7 @@ describe('Health & Safety CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated action' });
 
@@ -804,7 +804,7 @@ describe('Health & Safety CAPA API Routes', () => {
       });
 
       await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -827,7 +827,7 @@ describe('Health & Safety CAPA API Routes', () => {
       });
 
       await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'VERIFIED' });
 
@@ -845,7 +845,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/capa/capa-1/actions/non-existent')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -860,7 +860,7 @@ describe('Health & Safety CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -872,7 +872,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capaAction.findUnique as jest.Mock).mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -884,7 +884,7 @@ describe('Health & Safety CAPA API Routes', () => {
       (mockPrisma.capaAction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .patch('/api/capa/capa-1/actions/action-1')
+        .patch('/api/capa/12000000-0000-4000-a000-000000000001/actions/13000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 

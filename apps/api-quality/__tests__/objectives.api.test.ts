@@ -23,13 +23,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -56,7 +56,7 @@ describe('Quality Objectives API Routes', () => {
   describe('GET /api/objectives', () => {
     const mockObjectives = [
       {
-        id: 'obj-1',
+        id: '15000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-OBJ-2026-001',
         title: 'Reduce customer complaints',
         objectiveStatement: 'Reduce complaints by 30%',
@@ -73,7 +73,7 @@ describe('Quality Objectives API Routes', () => {
         milestones: [],
       },
       {
-        id: 'obj-2',
+        id: '15000000-0000-4000-a000-000000000002',
         referenceNumber: 'QMS-OBJ-2026-002',
         title: 'Achieve ISO certification',
         objectiveStatement: 'Obtain ISO 9001:2015 certification',
@@ -206,7 +206,7 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('GET /api/objectives/:id', () => {
     const mockObjective = {
-      id: 'obj-1',
+      id: '15000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-OBJ-2026-001',
       title: 'Reduce customer complaints',
       objectiveStatement: 'Reduce complaints by 30%',
@@ -218,7 +218,7 @@ describe('Quality Objectives API Routes', () => {
       owner: 'John Doe',
       department: 'Quality',
       milestones: [
-        { id: 'ms-1', title: 'Root cause analysis', status: 'COMPLETED' },
+        { id: '1b000000-0000-4000-a000-000000000001', title: 'Root cause analysis', status: 'COMPLETED' },
       ],
     };
 
@@ -226,24 +226,24 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(mockObjective);
 
       const response = await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('obj-1');
+      expect(response.body.data.id).toBe('15000000-0000-4000-a000-000000000001');
       expect(response.body.data.milestones).toHaveLength(1);
       expect(mockPrisma.qualObjective.findUnique).toHaveBeenCalledWith({
-        where: { id: 'obj-1' },
+        where: { id: '15000000-0000-4000-a000-000000000001' },
         include: { milestones: { orderBy: { targetDate: 'asc' } } },
       });
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/objectives/non-existent')
+        .get('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -254,7 +254,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -282,7 +282,7 @@ describe('Quality Objectives API Routes', () => {
     it('should create an objective successfully', async () => {
       (mockPrisma.qualObjective.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualObjective.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-OBJ-2026-001',
         ...createPayload,
         status: 'NOT_STARTED',
@@ -393,7 +393,7 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('PUT /api/objectives/:id', () => {
     const existingObjective = {
-      id: 'obj-1',
+      id: '15000000-0000-4000-a000-000000000001',
       title: 'Existing Objective',
       status: 'NOT_STARTED',
       progressPercent: 0,
@@ -408,7 +408,7 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Objective' });
 
@@ -427,7 +427,7 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'ON_TRACK', progressPercent: 45 });
 
@@ -436,11 +436,11 @@ describe('Quality Objectives API Routes', () => {
       expect(response.body.data.progressPercent).toBe(45);
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/objectives/non-existent')
+        .put('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -452,7 +452,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(existingObjective);
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -464,7 +464,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(existingObjective);
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ category: 'INVALID_CATEGORY' });
 
@@ -476,7 +476,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/objectives/obj-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -490,24 +490,24 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualObjective.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualObjective.delete).toHaveBeenCalledWith({
-        where: { id: 'obj-1' },
+        where: { id: '15000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/objectives/non-existent')
+        .delete('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -518,7 +518,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -536,31 +536,31 @@ describe('Quality Objectives API Routes', () => {
     };
 
     it('should create a milestone successfully', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualMilestone.create as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
-        objectiveId: 'obj-1',
+        id: '1b000000-0000-4000-a000-000000000001',
+        objectiveId: '15000000-0000-4000-a000-000000000001',
         title: 'Phase 1 Complete',
         targetDate: new Date('2026-06-30'),
         status: 'PENDING',
       });
 
       const response = await request(app)
-        .post('/api/objectives/obj-1/milestones')
+        .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
         .set('Authorization', 'Bearer token')
         .send(milestonePayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.data.title).toBe('Phase 1 Complete');
-      expect(response.body.data.objectiveId).toBe('obj-1');
+      expect(response.body.data.objectiveId).toBe('15000000-0000-4000-a000-000000000001');
     });
 
     it('should return 404 when parent objective does not exist', async () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/objectives/non-existent/milestones')
+        .post('/api/objectives/00000000-0000-4000-a000-ffffffffffff/milestones')
         .set('Authorization', 'Bearer token')
         .send(milestonePayload);
 
@@ -569,10 +569,10 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should return 400 for missing title', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
 
       const response = await request(app)
-        .post('/api/objectives/obj-1/milestones')
+        .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
         .set('Authorization', 'Bearer token')
         .send({ targetDate: '2026-06-30' });
 
@@ -581,10 +581,10 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should return 400 for missing targetDate', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
 
       const response = await request(app)
-        .post('/api/objectives/obj-1/milestones')
+        .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Phase 1' });
 
@@ -593,11 +593,11 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualMilestone.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/objectives/obj-1/milestones')
+        .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
         .set('Authorization', 'Bearer token')
         .send(milestonePayload);
 
@@ -611,8 +611,8 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('PUT /api/objectives/:id/milestones/:milestoneId', () => {
     const existingMilestone = {
-      id: 'ms-1',
-      objectiveId: 'obj-1',
+      id: '1b000000-0000-4000-a000-000000000001',
+      objectiveId: '15000000-0000-4000-a000-000000000001',
       title: 'Phase 1 Complete',
       status: 'PENDING',
     };
@@ -625,7 +625,7 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/obj-1/milestones/ms-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Phase 1 Updated' });
 
@@ -643,7 +643,7 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/obj-1/milestones/ms-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -651,11 +651,11 @@ describe('Quality Objectives API Routes', () => {
       expect(response.body.data.status).toBe('COMPLETED');
     });
 
-    it('should return 404 for non-existent milestone', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff milestone', async () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/objectives/obj-1/milestones/non-existent')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -667,7 +667,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(existingMilestone);
 
       const response = await request(app)
-        .put('/api/objectives/obj-1/milestones/ms-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -679,7 +679,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/objectives/obj-1/milestones/ms-1')
+        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -693,24 +693,24 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('DELETE /api/objectives/:id/milestones/:milestoneId', () => {
     it('should delete milestone successfully', async () => {
-      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce({ id: 'ms-1', objectiveId: 'obj-1' });
+      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce({ id: '1b000000-0000-4000-a000-000000000001', objectiveId: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualMilestone.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1/milestones/ms-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualMilestone.delete).toHaveBeenCalledWith({
-        where: { id: 'ms-1' },
+        where: { id: '1b000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent milestone', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff milestone', async () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1/milestones/non-existent')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -721,7 +721,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1/milestones/ms-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

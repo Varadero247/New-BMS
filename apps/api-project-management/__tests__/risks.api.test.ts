@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -42,7 +42,7 @@ describe('Project Risks API Routes', () => {
   describe('GET /api/risks', () => {
     const mockRisks = [
       {
-        id: 'risk-1',
+        id: '10000000-0000-4000-a000-000000000001',
         riskCode: 'RSK-001',
         riskTitle: 'Budget overrun risk',
         riskDescription: 'Project may exceed allocated budget',
@@ -54,7 +54,7 @@ describe('Project Risks API Routes', () => {
         status: 'IDENTIFIED',
       },
       {
-        id: 'risk-2',
+        id: '10000000-0000-4000-a000-000000000002',
         riskCode: 'RSK-002',
         riskTitle: 'Schedule delay',
         riskDescription: 'Key deliverables may be delayed',
@@ -211,7 +211,7 @@ describe('Project Risks API Routes', () => {
 
   describe('PUT /api/risks/:id', () => {
     const existingRisk = {
-      id: 'risk-1',
+      id: '10000000-0000-4000-a000-000000000001',
       riskCode: 'RSK-001',
       riskTitle: 'Budget overrun',
       riskDescription: 'May exceed budget',
@@ -233,7 +233,7 @@ describe('Project Risks API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ riskTitle: 'Updated title' });
 
@@ -241,11 +241,11 @@ describe('Project Risks API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/risks/non-existent')
+        .put('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ riskTitle: 'Updated' });
 
@@ -263,12 +263,12 @@ describe('Project Risks API Routes', () => {
       });
 
       await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ probability: 2 });
 
       expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           riskScore: 10,
           riskLevel: 'HIGH',
@@ -285,12 +285,12 @@ describe('Project Risks API Routes', () => {
       });
 
       await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED' });
 
       expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'CLOSED',
           closedDate: expect.any(Date),
@@ -302,7 +302,7 @@ describe('Project Risks API Routes', () => {
       (mockPrisma.projectRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ riskTitle: 'Updated' });
 
@@ -313,24 +313,24 @@ describe('Project Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete risk successfully', async () => {
-      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'risk-1' });
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
       (mockPrisma.projectRisk.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectRisk.delete).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/risks/non-existent')
+        .delete('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -341,7 +341,7 @@ describe('Project Risks API Routes', () => {
       (mockPrisma.projectRisk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

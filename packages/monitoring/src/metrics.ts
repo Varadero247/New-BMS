@@ -78,3 +78,21 @@ export const metricsHandler = async (_req: Request, res: Response) => {
   res.set('Content-Type', register.contentType);
   res.end(await register.metrics());
 };
+
+/**
+ * Prisma middleware to record query duration metrics.
+ * Usage: prisma.$use(prismaMetricsMiddleware);
+ */
+export async function prismaMetricsMiddleware(
+  params: { model?: string; action: string; args: any; dataPath: string[]; runInTransaction: boolean },
+  next: (params: any) => Promise<any>
+): Promise<any> {
+  const start = Date.now();
+  const result = await next(params);
+  const duration = (Date.now() - start) / 1000;
+  databaseQueryDuration.observe(
+    { operation: params.action, model: params.model || 'unknown' },
+    duration
+  );
+  return result;
+}

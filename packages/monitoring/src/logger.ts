@@ -66,3 +66,14 @@ export const createLogger = (serviceName: string) => {
 };
 
 export type Logger = ReturnType<typeof createLogger>;
+
+/**
+ * Create a child logger that automatically includes the correlation ID from the request.
+ * Usage in route handlers:
+ *   const log = createRequestLogger(logger, req);
+ *   log.info('Processing request');  // correlation ID is included automatically
+ */
+export const createRequestLogger = (parentLogger: Logger, req: { correlationId?: string; headers?: Record<string, any> }) => {
+  const correlationId = req?.correlationId || req?.headers?.['x-correlation-id'] || 'unknown';
+  return parentLogger.child({ correlationId });
+};

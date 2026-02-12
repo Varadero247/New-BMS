@@ -32,13 +32,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -62,7 +62,7 @@ describe('HR Recruitment API Routes', () => {
   describe('GET /api/recruitment/jobs', () => {
     const mockJobs = [
       {
-        id: 'job-1',
+        id: '32000000-0000-4000-a000-000000000001',
         jobCode: 'JOB-2024-0001',
         title: 'Software Engineer',
         status: 'PUBLISHED',
@@ -136,13 +136,13 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.jobPosting.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/recruitment/jobs?departmentId=dept-1')
+        .get('/api/recruitment/jobs?departmentId=2b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.jobPosting.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            departmentId: 'dept-1',
+            departmentId: '2b000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -194,14 +194,14 @@ describe('HR Recruitment API Routes', () => {
 
   describe('GET /api/recruitment/jobs/:id', () => {
     const mockJob = {
-      id: 'job-1',
+      id: '32000000-0000-4000-a000-000000000001',
       jobCode: 'JOB-2024-0001',
       title: 'Software Engineer',
       status: 'PUBLISHED',
       department: { name: 'Engineering' },
       position: { title: 'Senior Developer' },
       applicants: [
-        { id: 'app-1', firstName: 'John', lastName: 'Doe', _count: { interviews: 1, evaluations: 0 } },
+        { id: '33000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', _count: { interviews: 1, evaluations: 0 } },
       ],
       _count: { applicants: 1, interviews: 1 },
     };
@@ -210,20 +210,20 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.jobPosting.findUnique as jest.Mock).mockResolvedValueOnce(mockJob);
 
       const response = await request(app)
-        .get('/api/recruitment/jobs/job-1')
+        .get('/api/recruitment/jobs/32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('job-1');
+      expect(response.body.data.id).toBe('32000000-0000-4000-a000-000000000001');
       expect(response.body.data.applicants).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent job', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff job', async () => {
       (mockPrisma.jobPosting.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/recruitment/jobs/non-existent')
+        .get('/api/recruitment/jobs/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -234,7 +234,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.jobPosting.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/recruitment/jobs/job-1')
+        .get('/api/recruitment/jobs/32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -256,7 +256,7 @@ describe('HR Recruitment API Routes', () => {
     it('should create a job posting successfully', async () => {
       (mockPrisma.jobPosting.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.jobPosting.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-job-123',
+        id: '30000000-0000-4000-a000-000000000123',
         jobCode: 'JOB-2024-0006',
         ...createPayload,
         status: 'DRAFT',
@@ -276,7 +276,7 @@ describe('HR Recruitment API Routes', () => {
     it('should generate sequential job code', async () => {
       (mockPrisma.jobPosting.count as jest.Mock).mockResolvedValueOnce(3);
       (mockPrisma.jobPosting.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-job-123',
+        id: '30000000-0000-4000-a000-000000000123',
         jobCode: 'JOB-2024-0004',
         status: 'DRAFT',
         department: {},
@@ -333,13 +333,13 @@ describe('HR Recruitment API Routes', () => {
   describe('PUT /api/recruitment/jobs/:id', () => {
     it('should update job posting successfully', async () => {
       (mockPrisma.jobPosting.update as jest.Mock).mockResolvedValueOnce({
-        id: 'job-1',
+        id: '32000000-0000-4000-a000-000000000001',
         title: 'Updated Title',
         status: 'PUBLISHED',
       });
 
       const response = await request(app)
-        .put('/api/recruitment/jobs/job-1')
+        .put('/api/recruitment/jobs/32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title', status: 'PUBLISHED' });
 
@@ -349,7 +349,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/recruitment/jobs/job-1')
+        .put('/api/recruitment/jobs/32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -361,7 +361,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.jobPosting.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/recruitment/jobs/job-1')
+        .put('/api/recruitment/jobs/32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -373,7 +373,7 @@ describe('HR Recruitment API Routes', () => {
   describe('GET /api/recruitment/applicants', () => {
     const mockApplicants = [
       {
-        id: 'app-1',
+        id: '33000000-0000-4000-a000-000000000001',
         applicantNumber: 'APP-2024-00001',
         firstName: 'John',
         lastName: 'Doe',
@@ -409,13 +409,13 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.applicant.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/recruitment/applicants?jobPostingId=job-1')
+        .get('/api/recruitment/applicants?jobPostingId=32000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.applicant.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            jobPostingId: 'job-1',
+            jobPostingId: '32000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -469,7 +469,7 @@ describe('HR Recruitment API Routes', () => {
 
   describe('GET /api/recruitment/applicants/:id', () => {
     const mockApplicant = {
-      id: 'app-1',
+      id: '33000000-0000-4000-a000-000000000001',
       applicantNumber: 'APP-2024-00001',
       firstName: 'John',
       lastName: 'Doe',
@@ -483,19 +483,19 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.applicant.findUnique as jest.Mock).mockResolvedValueOnce(mockApplicant);
 
       const response = await request(app)
-        .get('/api/recruitment/applicants/app-1')
+        .get('/api/recruitment/applicants/33000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('app-1');
+      expect(response.body.data.id).toBe('33000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent applicant', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff applicant', async () => {
       (mockPrisma.applicant.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/recruitment/applicants/non-existent')
+        .get('/api/recruitment/applicants/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -506,7 +506,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.applicant.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/recruitment/applicants/app-1')
+        .get('/api/recruitment/applicants/33000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -526,7 +526,7 @@ describe('HR Recruitment API Routes', () => {
     it('should create an applicant successfully', async () => {
       (mockPrisma.applicant.count as jest.Mock).mockResolvedValueOnce(3);
       (mockPrisma.applicant.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-app-123',
+        id: '30000000-0000-4000-a000-000000000123',
         applicantNumber: 'APP-2024-00004',
         ...createPayload,
         status: 'NEW',
@@ -591,13 +591,13 @@ describe('HR Recruitment API Routes', () => {
   describe('PUT /api/recruitment/applicants/:id/status', () => {
     it('should update applicant status successfully', async () => {
       (mockPrisma.applicant.update as jest.Mock).mockResolvedValueOnce({
-        id: 'app-1',
+        id: '33000000-0000-4000-a000-000000000001',
         status: 'SHORTLISTED',
         stage: 'SCREENING',
       });
 
       const response = await request(app)
-        .put('/api/recruitment/applicants/app-1/status')
+        .put('/api/recruitment/applicants/33000000-0000-4000-a000-000000000001/status')
         .set('Authorization', 'Bearer token')
         .send({ status: 'SHORTLISTED', stage: 'SCREENING' });
 
@@ -607,7 +607,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/recruitment/applicants/app-1/status')
+        .put('/api/recruitment/applicants/33000000-0000-4000-a000-000000000001/status')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -619,7 +619,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.applicant.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/recruitment/applicants/app-1/status')
+        .put('/api/recruitment/applicants/33000000-0000-4000-a000-000000000001/status')
         .set('Authorization', 'Bearer token')
         .send({ status: 'SCREENING' });
 
@@ -640,7 +640,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should schedule an interview successfully', async () => {
       (mockPrisma.interview.create as jest.Mock).mockResolvedValueOnce({
-        id: 'int-1',
+        id: '34000000-0000-4000-a000-000000000001',
         ...createPayload,
         status: 'SCHEDULED',
         applicant: { firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
@@ -692,13 +692,13 @@ describe('HR Recruitment API Routes', () => {
   describe('PUT /api/recruitment/interviews/:id', () => {
     it('should update interview successfully', async () => {
       (mockPrisma.interview.update as jest.Mock).mockResolvedValueOnce({
-        id: 'int-1',
+        id: '34000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         notes: 'Great candidate',
       });
 
       const response = await request(app)
-        .put('/api/recruitment/interviews/int-1')
+        .put('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED', notes: 'Great candidate' });
 
@@ -708,7 +708,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/recruitment/interviews/int-1')
+        .put('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -720,7 +720,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.interview.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/recruitment/interviews/int-1')
+        .put('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -738,17 +738,17 @@ describe('HR Recruitment API Routes', () => {
 
     it('should submit evaluation successfully', async () => {
       (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce({
-        applicantId: 'app-1',
+        applicantId: '33000000-0000-4000-a000-000000000001',
       });
       (mockPrisma.interviewEvaluation.create as jest.Mock).mockResolvedValueOnce({
         id: 'eval-1',
-        interviewId: 'int-1',
-        applicantId: 'app-1',
+        interviewId: '34000000-0000-4000-a000-000000000001',
+        applicantId: '33000000-0000-4000-a000-000000000001',
         ...evalPayload,
       });
 
       const response = await request(app)
-        .post('/api/recruitment/interviews/int-1/evaluate')
+        .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
         .set('Authorization', 'Bearer token')
         .send(evalPayload);
 
@@ -756,11 +756,11 @@ describe('HR Recruitment API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent interview', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff interview', async () => {
       (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/recruitment/interviews/non-existent/evaluate')
+        .post('/api/recruitment/interviews/00000000-0000-4000-a000-ffffffffffff/evaluate')
         .set('Authorization', 'Bearer token')
         .send(evalPayload);
 
@@ -770,7 +770,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should return 400 for missing required fields', async () => {
       const response = await request(app)
-        .post('/api/recruitment/interviews/int-1/evaluate')
+        .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
         .set('Authorization', 'Bearer token')
         .send({ evaluatorId: 'eval-1' });
 
@@ -780,7 +780,7 @@ describe('HR Recruitment API Routes', () => {
 
     it('should return 400 for invalid recommendation', async () => {
       const response = await request(app)
-        .post('/api/recruitment/interviews/int-1/evaluate')
+        .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
         .set('Authorization', 'Bearer token')
         .send({ ...evalPayload, recommendation: 'INVALID' });
 
@@ -789,11 +789,11 @@ describe('HR Recruitment API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce({ applicantId: 'app-1' });
+      (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce({ applicantId: '33000000-0000-4000-a000-000000000001' });
       (mockPrisma.interviewEvaluation.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/recruitment/interviews/int-1/evaluate')
+        .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
         .set('Authorization', 'Bearer token')
         .send(evalPayload);
 
@@ -820,7 +820,7 @@ describe('HR Recruitment API Routes', () => {
           { stage: 'APPLICATION', _count: { id: 30 } },
         ])
         .mockResolvedValueOnce([ // topPositionsRaw
-          { jobPostingId: 'job-1', _count: { id: 20 } },
+          { jobPostingId: '32000000-0000-4000-a000-000000000001', _count: { id: 20 } },
         ]);
       (mockPrisma.jobPosting.findUnique as jest.Mock).mockResolvedValueOnce({
         title: 'Software Engineer',

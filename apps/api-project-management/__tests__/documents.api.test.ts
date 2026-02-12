@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -40,14 +40,14 @@ describe('Documents API Routes', () => {
   });
 
   const mockDocument = {
-    id: 'doc-1',
+    id: '1e000000-0000-4000-a000-000000000001',
     projectId: 'project-1',
     documentCode: 'DOC-001',
     documentTitle: 'Project Charter',
     documentType: 'CHARTER',
     version: '1.0',
     status: 'DRAFT',
-    createdBy: 'user-123',
+    createdBy: '20000000-0000-4000-a000-000000000123',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -64,7 +64,7 @@ describe('Documents API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].id).toBe('doc-1');
+      expect(response.body.data[0].id).toBe('1e000000-0000-4000-a000-000000000001');
       expect(response.body.meta).toMatchObject({
         page: 1,
         limit: 50,
@@ -112,7 +112,7 @@ describe('Documents API Routes', () => {
         version: '1.0',
         accessLevel: 'PROJECT_TEAM',
         status: 'DRAFT',
-        createdBy: 'user-123',
+        createdBy: '20000000-0000-4000-a000-000000000123',
       };
 
       (mockPrisma.projectDocument.create as jest.Mock).mockResolvedValueOnce(createdDocument);
@@ -135,7 +135,7 @@ describe('Documents API Routes', () => {
           version: '1.0',
           accessLevel: 'PROJECT_TEAM',
           status: 'DRAFT',
-          createdBy: 'user-123',
+          createdBy: '20000000-0000-4000-a000-000000000123',
         }),
       });
     });
@@ -185,11 +185,11 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.update as jest.Mock).mockResolvedValueOnce({
         ...mockDocument,
         documentTitle: 'Updated Charter',
-        updatedBy: 'user-123',
+        updatedBy: '20000000-0000-4000-a000-000000000123',
       });
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ documentTitle: 'Updated Charter' });
 
@@ -197,9 +197,9 @@ describe('Documents API Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.documentTitle).toBe('Updated Charter');
       expect(mockPrisma.projectDocument.update).toHaveBeenCalledWith({
-        where: { id: 'doc-1' },
+        where: { id: '1e000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
-          updatedBy: 'user-123',
+          updatedBy: '20000000-0000-4000-a000-000000000123',
         }),
       });
     });
@@ -208,7 +208,7 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/documents/non-existent')
+        .put('/api/documents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ documentTitle: 'Updated' });
 
@@ -226,7 +226,7 @@ describe('Documents API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({
           reviewedAt: '2025-03-15',
@@ -235,7 +235,7 @@ describe('Documents API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(mockPrisma.projectDocument.update).toHaveBeenCalledWith({
-        where: { id: 'doc-1' },
+        where: { id: '1e000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           reviewedAt: expect.any(Date),
           approvedAt: expect.any(Date),
@@ -247,7 +247,7 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ documentTitle: 'Updated' });
 
@@ -263,12 +263,12 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/documents/doc-1')
+        .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectDocument.delete).toHaveBeenCalledWith({
-        where: { id: 'doc-1' },
+        where: { id: '1e000000-0000-4000-a000-000000000001' },
       });
     });
 
@@ -276,7 +276,7 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/documents/non-existent')
+        .delete('/api/documents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -288,7 +288,7 @@ describe('Documents API Routes', () => {
       (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/documents/doc-1')
+        .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

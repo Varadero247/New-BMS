@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -40,7 +40,7 @@ describe('Stakeholders API Routes', () => {
   });
 
   const mockStakeholder = {
-    id: 'stakeholder-1',
+    id: '46000000-0000-4000-a000-000000000001',
     projectId: 'project-1',
     stakeholderName: 'Alice Johnson',
     stakeholderRole: 'Project Sponsor',
@@ -65,7 +65,7 @@ describe('Stakeholders API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].id).toBe('stakeholder-1');
+      expect(response.body.data[0].id).toBe('46000000-0000-4000-a000-000000000001');
       expect(response.body.meta).toMatchObject({
         page: 1,
         limit: 50,
@@ -232,7 +232,7 @@ describe('Stakeholders API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/stakeholders/stakeholder-1')
+        .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ stakeholderName: 'Updated Name' });
 
@@ -245,7 +245,7 @@ describe('Stakeholders API Routes', () => {
       (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/stakeholders/non-existent')
+        .put('/api/stakeholders/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ stakeholderName: 'Updated Name' });
 
@@ -269,13 +269,13 @@ describe('Stakeholders API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/stakeholders/stakeholder-1')
+        .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ powerLevel: 2 });
 
       expect(response.status).toBe(200);
       expect(mockPrisma.projectStakeholder.update).toHaveBeenCalledWith({
-        where: { id: 'stakeholder-1' },
+        where: { id: '46000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           stakeholderCategory: 'KEEP_INFORMED',
         }),
@@ -286,7 +286,7 @@ describe('Stakeholders API Routes', () => {
       (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/stakeholders/stakeholder-1')
+        .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ stakeholderName: 'Updated' });
 
@@ -302,12 +302,12 @@ describe('Stakeholders API Routes', () => {
       (mockPrisma.projectStakeholder.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/stakeholders/stakeholder-1')
+        .delete('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.projectStakeholder.delete).toHaveBeenCalledWith({
-        where: { id: 'stakeholder-1' },
+        where: { id: '46000000-0000-4000-a000-000000000001' },
       });
     });
 
@@ -315,7 +315,7 @@ describe('Stakeholders API Routes', () => {
       (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/stakeholders/non-existent')
+        .delete('/api/stakeholders/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -327,7 +327,7 @@ describe('Stakeholders API Routes', () => {
       (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/stakeholders/stakeholder-1')
+        .delete('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

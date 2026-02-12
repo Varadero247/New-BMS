@@ -20,13 +20,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Quality Issues API Routes', () => {
   describe('GET /api/issues', () => {
     const mockIssues = [
       {
-        id: 'issue-1',
+        id: '22000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-ISS-2026-001',
         issueOfConcern: 'Supply chain disruption',
         bias: 'RISK',
@@ -218,7 +218,7 @@ describe('Quality Issues API Routes', () => {
 
   describe('GET /api/issues/:id', () => {
     const mockIssue = {
-      id: 'issue-1',
+      id: '22000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-ISS-2026-001',
       issueOfConcern: 'Supply chain disruption',
       bias: 'RISK',
@@ -231,32 +231,32 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(mockIssue);
 
       const response = await request(app)
-        .get('/api/issues/issue-1')
+        .get('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('issue-1');
+      expect(response.body.data.id).toBe('22000000-0000-4000-a000-000000000001');
     });
 
     it('should include party in single issue response', async () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(mockIssue);
 
       await request(app)
-        .get('/api/issues/issue-1')
+        .get('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findUnique).toHaveBeenCalledWith({
-        where: { id: 'issue-1' },
+        where: { id: '22000000-0000-4000-a000-000000000001' },
         include: { party: true },
       });
     });
 
-    it('should return 404 for non-existent issue', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue', async () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/issues/non-existent')
+        .get('/api/issues/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -267,7 +267,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/issues/issue-1')
+        .get('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -285,7 +285,7 @@ describe('Quality Issues API Routes', () => {
     it('should create an issue successfully', async () => {
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualIssue.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-ISS-2026-001',
         ...createPayload,
         priority: 'MEDIUM',
@@ -305,19 +305,19 @@ describe('Quality Issues API Routes', () => {
 
     it('should create an issue with a valid partyId', async () => {
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'party-1', partyName: 'Valid Party' });
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: '24000000-0000-4000-a000-000000000001', partyName: 'Valid Party' });
       (mockPrisma.qualIssue.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-ISS-2026-001',
         ...createPayload,
-        partyId: 'party-1',
-        party: { id: 'party-1', partyName: 'Valid Party' },
+        partyId: '24000000-0000-4000-a000-000000000001',
+        party: { id: '24000000-0000-4000-a000-000000000001', partyName: 'Valid Party' },
       });
 
       const response = await request(app)
         .post('/api/issues')
         .set('Authorization', 'Bearer token')
-        .send({ ...createPayload, partyId: 'party-1' });
+        .send({ ...createPayload, partyId: '24000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -392,7 +392,7 @@ describe('Quality Issues API Routes', () => {
 
   describe('PUT /api/issues/:id', () => {
     const existingIssue = {
-      id: 'issue-1',
+      id: '22000000-0000-4000-a000-000000000001',
       issueOfConcern: 'Existing issue',
       bias: 'RISK',
       priority: 'MEDIUM',
@@ -408,7 +408,7 @@ describe('Quality Issues API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ priority: 'HIGH' });
 
@@ -416,11 +416,11 @@ describe('Quality Issues API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent issue', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue', async () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/issues/non-existent')
+        .put('/api/issues/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ priority: 'HIGH' });
 
@@ -432,7 +432,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(existingIssue);
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -445,7 +445,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ partyId: 'invalid-party' });
 
@@ -457,7 +457,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/issues/issue-1')
+        .put('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ priority: 'HIGH' });
 
@@ -468,24 +468,24 @@ describe('Quality Issues API Routes', () => {
 
   describe('DELETE /api/issues/:id', () => {
     it('should delete an issue successfully', async () => {
-      (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'issue-1' });
+      (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: '22000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualIssue.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/issues/issue-1')
+        .delete('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualIssue.delete).toHaveBeenCalledWith({
-        where: { id: 'issue-1' },
+        where: { id: '22000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent issue', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff issue', async () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/issues/non-existent')
+        .delete('/api/issues/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -496,7 +496,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/issues/issue-1')
+        .delete('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

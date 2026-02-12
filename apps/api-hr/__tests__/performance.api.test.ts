@@ -29,13 +29,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -209,24 +209,24 @@ describe('HR Performance API Routes', () => {
   describe('GET /api/performance/reviews', () => {
     const mockReviews = [
       {
-        id: 'review-1',
+        id: '2f000000-0000-4000-a000-000000000001',
         cycleId: 'cycle-1',
-        employeeId: 'emp-1',
-        reviewerId: 'mgr-1',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
+        reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'DRAFT',
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer' },
-        reviewer: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer' },
+        reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
       {
         id: 'review-2',
         cycleId: 'cycle-1',
         employeeId: 'emp-2',
-        reviewerId: 'mgr-1',
+        reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         cycle: { name: '2024 Review', year: 2024 },
         employee: { id: 'emp-2', firstName: 'Alice', lastName: 'Smith', employeeNumber: 'EMP002', jobTitle: 'Designer' },
-        reviewer: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager' },
+        reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
     ];
 
@@ -285,13 +285,13 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceReview.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/performance/reviews?employeeId=emp-1')
+        .get('/api/performance/reviews?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceReview.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -343,38 +343,38 @@ describe('HR Performance API Routes', () => {
 
   describe('GET /api/performance/reviews/:id', () => {
     const mockReview = {
-      id: 'review-1',
+      id: '2f000000-0000-4000-a000-000000000001',
       cycleId: 'cycle-1',
-      employeeId: 'emp-1',
-      reviewerId: 'mgr-1',
+      employeeId: '2a000000-0000-4000-a000-000000000001',
+      reviewerId: '53000000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       cycle: { id: 'cycle-1', name: '2024 Review' },
-      employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer', department: { name: 'Engineering' } },
-      reviewer: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager' },
+      employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer', department: { name: 'Engineering' } },
+      reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       feedbacks: [],
     };
 
     it('should return single review with goals', async () => {
       (mockPrisma.performanceReview.findUnique as jest.Mock).mockResolvedValueOnce(mockReview);
       (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: 'goal-1', title: 'Complete project', status: 'IN_PROGRESS', updates: [] },
+        { id: '31000000-0000-4000-a000-000000000001', title: 'Complete project', status: 'IN_PROGRESS', updates: [] },
       ]);
 
       const response = await request(app)
-        .get('/api/performance/reviews/review-1')
+        .get('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('review-1');
+      expect(response.body.data.id).toBe('2f000000-0000-4000-a000-000000000001');
       expect(response.body.data.goals).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent review', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff review', async () => {
       (mockPrisma.performanceReview.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/performance/reviews/non-existent')
+        .get('/api/performance/reviews/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -385,7 +385,7 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceReview.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/performance/reviews/review-1')
+        .get('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -405,7 +405,7 @@ describe('HR Performance API Routes', () => {
 
     it('should create a review successfully', async () => {
       (mockPrisma.performanceReview.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-review-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         status: 'DRAFT',
         cycle: { name: '2024 Review' },
@@ -459,7 +459,7 @@ describe('HR Performance API Routes', () => {
   describe('PUT /api/performance/reviews/:id', () => {
     it('should update review successfully', async () => {
       (mockPrisma.performanceReview.update as jest.Mock).mockResolvedValueOnce({
-        id: 'review-1',
+        id: '2f000000-0000-4000-a000-000000000001',
         selfAssessment: 'Good performance',
         selfRating: 4,
         status: 'SELF_ASSESSMENT',
@@ -469,7 +469,7 @@ describe('HR Performance API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/performance/reviews/review-1')
+        .put('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ selfAssessment: 'Good performance', selfRating: 4, status: 'SELF_ASSESSMENT' });
 
@@ -479,7 +479,7 @@ describe('HR Performance API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/performance/reviews/review-1')
+        .put('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -491,7 +491,7 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceReview.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/performance/reviews/review-1')
+        .put('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ selfAssessment: 'Updated' });
 
@@ -503,13 +503,13 @@ describe('HR Performance API Routes', () => {
   describe('GET /api/performance/goals', () => {
     const mockGoals = [
       {
-        id: 'goal-1',
+        id: '31000000-0000-4000-a000-000000000001',
         title: 'Complete project X',
         category: 'PERFORMANCE',
         status: 'IN_PROGRESS',
         progress: 50,
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe' },
         updates: [],
       },
     ];
@@ -530,13 +530,13 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/performance/goals?employeeId=emp-1')
+        .get('/api/performance/goals?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceGoal.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -615,7 +615,7 @@ describe('HR Performance API Routes', () => {
 
     it('should create a goal successfully', async () => {
       (mockPrisma.performanceGoal.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-goal-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         status: 'NOT_STARTED',
         dueDate: new Date('2024-06-30'),
@@ -669,14 +669,14 @@ describe('HR Performance API Routes', () => {
   describe('PUT /api/performance/goals/:id', () => {
     it('should update goal successfully', async () => {
       (mockPrisma.performanceGoal.update as jest.Mock).mockResolvedValueOnce({
-        id: 'goal-1',
+        id: '31000000-0000-4000-a000-000000000001',
         title: 'Updated Goal',
         progress: 75,
         status: 'IN_PROGRESS',
       });
 
       const response = await request(app)
-        .put('/api/performance/goals/goal-1')
+        .put('/api/performance/goals/31000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ progress: 75, status: 'IN_PROGRESS' });
 
@@ -686,7 +686,7 @@ describe('HR Performance API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/performance/goals/goal-1')
+        .put('/api/performance/goals/31000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -698,7 +698,7 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceGoal.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/performance/goals/goal-1')
+        .put('/api/performance/goals/31000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ progress: 50 });
 
@@ -711,29 +711,29 @@ describe('HR Performance API Routes', () => {
     const updatePayload = {
       progressAfter: 75,
       updateNotes: 'Milestone reached',
-      updatedById: 'user-123',
+      updatedById: '20000000-0000-4000-a000-000000000123',
     };
 
     it('should add goal progress update successfully', async () => {
       (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'goal-1',
+        id: '31000000-0000-4000-a000-000000000001',
         progress: 50,
       });
       (mockPrisma.goalUpdate.create as jest.Mock).mockResolvedValueOnce({
         id: 'update-1',
-        goalId: 'goal-1',
+        goalId: '31000000-0000-4000-a000-000000000001',
         progressBefore: 50,
         progressAfter: 75,
         updateNotes: 'Milestone reached',
       });
       (mockPrisma.performanceGoal.update as jest.Mock).mockResolvedValueOnce({
-        id: 'goal-1',
+        id: '31000000-0000-4000-a000-000000000001',
         progress: 75,
         status: 'IN_PROGRESS',
       });
 
       const response = await request(app)
-        .post('/api/performance/goals/goal-1/update')
+        .post('/api/performance/goals/31000000-0000-4000-a000-000000000001/update')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 
@@ -741,11 +741,11 @@ describe('HR Performance API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent goal', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff goal', async () => {
       (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/performance/goals/non-existent/update')
+        .post('/api/performance/goals/00000000-0000-4000-a000-ffffffffffff/update')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 
@@ -755,7 +755,7 @@ describe('HR Performance API Routes', () => {
 
     it('should return 400 for missing required fields', async () => {
       const response = await request(app)
-        .post('/api/performance/goals/goal-1/update')
+        .post('/api/performance/goals/31000000-0000-4000-a000-000000000001/update')
         .set('Authorization', 'Bearer token')
         .send({ progressAfter: 75 });
 
@@ -765,13 +765,13 @@ describe('HR Performance API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'goal-1',
+        id: '31000000-0000-4000-a000-000000000001',
         progress: 50,
       });
       (mockPrisma.goalUpdate.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/performance/goals/goal-1/update')
+        .post('/api/performance/goals/31000000-0000-4000-a000-000000000001/update')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 

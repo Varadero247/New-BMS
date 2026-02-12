@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Opportunities API Routes', () => {
   describe('GET /api/opportunities', () => {
     const mockOpportunities = [
       {
-        id: 'opp-1',
+        id: '23000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-OPP-2026-001',
         process: 'MARKETING_SALES',
         opportunityDescription: 'Expand into EU market',
@@ -202,7 +202,7 @@ describe('Quality Opportunities API Routes', () => {
 
   describe('GET /api/opportunities/:id', () => {
     const mockOpportunity = {
-      id: 'opp-1',
+      id: '23000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-OPP-2026-001',
       process: 'MARKETING_SALES',
       opportunityDescription: 'Expand into EU market',
@@ -214,19 +214,19 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(mockOpportunity);
 
       const response = await request(app)
-        .get('/api/opportunities/opp-1')
+        .get('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('opp-1');
+      expect(response.body.data.id).toBe('23000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent opportunity', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff opportunity', async () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/opportunities/non-existent')
+        .get('/api/opportunities/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -237,7 +237,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/opportunities/opp-1')
+        .get('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -260,7 +260,7 @@ describe('Quality Opportunities API Routes', () => {
     it('should create an opportunity successfully', async () => {
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualOpportunity.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-OPP-2026-001',
         ...createPayload,
         probabilityRating: 4,
@@ -283,7 +283,7 @@ describe('Quality Opportunities API Routes', () => {
     it('should calculate opportunity fields (score = likelihood * max benefit)', async () => {
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualOpportunity.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         opportunityScore: 16,
         priorityLevel: 'HIGH',
       });
@@ -306,7 +306,7 @@ describe('Quality Opportunities API Routes', () => {
     it('should generate a reference number on create', async () => {
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(2);
       (mockPrisma.qualOpportunity.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-OPP-2026-003',
         ...createPayload,
       });
@@ -389,7 +389,7 @@ describe('Quality Opportunities API Routes', () => {
 
   describe('PUT /api/opportunities/:id', () => {
     const existingOpportunity = {
-      id: 'opp-1',
+      id: '23000000-0000-4000-a000-000000000001',
       process: 'MARKETING_SALES',
       opportunityDescription: 'Existing opportunity',
       likelihood: 4,
@@ -413,7 +413,7 @@ describe('Quality Opportunities API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/opportunities/opp-1')
+        .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ opportunityDescription: 'Updated description' });
 
@@ -432,12 +432,12 @@ describe('Quality Opportunities API Routes', () => {
       });
 
       await request(app)
-        .put('/api/opportunities/opp-1')
+        .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ likelihood: 2 });
 
       expect(mockPrisma.qualOpportunity.update).toHaveBeenCalledWith({
-        where: { id: 'opp-1' },
+        where: { id: '23000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           probabilityRating: 2,
           benefitRating: 4,
@@ -447,11 +447,11 @@ describe('Quality Opportunities API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent opportunity', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff opportunity', async () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/opportunities/non-existent')
+        .put('/api/opportunities/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ opportunityDescription: 'Updated' });
 
@@ -463,7 +463,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(existingOpportunity);
 
       const response = await request(app)
-        .put('/api/opportunities/opp-1')
+        .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -475,7 +475,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/opportunities/opp-1')
+        .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ opportunityDescription: 'Updated' });
 
@@ -486,24 +486,24 @@ describe('Quality Opportunities API Routes', () => {
 
   describe('DELETE /api/opportunities/:id', () => {
     it('should delete an opportunity successfully', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'opp-1' });
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({ id: '23000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualOpportunity.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/opportunities/opp-1')
+        .delete('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualOpportunity.delete).toHaveBeenCalledWith({
-        where: { id: 'opp-1' },
+        where: { id: '23000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent opportunity', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff opportunity', async () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/opportunities/non-existent')
+        .delete('/api/opportunities/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -514,7 +514,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/opportunities/opp-1')
+        .delete('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Legal Obligations API Routes', () => {
   describe('GET /api/legal', () => {
     const mockLegalItems = [
       {
-        id: 'leg-1',
+        id: '18000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-LEG-2026-001',
         title: 'ISO 9001:2015 Certification',
         obligationType: 'CERTIFICATION_REQUIREMENT',
@@ -198,7 +198,7 @@ describe('Quality Legal Obligations API Routes', () => {
 
   describe('GET /api/legal/:id', () => {
     const mockLegal = {
-      id: 'leg-1',
+      id: '18000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-LEG-2026-001',
       title: 'ISO 9001:2015 Certification',
       obligationType: 'CERTIFICATION_REQUIREMENT',
@@ -211,19 +211,19 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(mockLegal);
 
       const response = await request(app)
-        .get('/api/legal/leg-1')
+        .get('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('leg-1');
+      expect(response.body.data.id).toBe('18000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/legal/non-existent')
+        .get('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -234,7 +234,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/legal/leg-1')
+        .get('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -252,7 +252,7 @@ describe('Quality Legal Obligations API Routes', () => {
     it('should create a legal obligation successfully', async () => {
       mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
       mockPrisma.qualLegal.create.mockResolvedValueOnce({
-        id: 'new-leg-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'QMS-LEG-2026-001',
         complianceStatus: 'NOT_ASSESSED',
@@ -273,7 +273,7 @@ describe('Quality Legal Obligations API Routes', () => {
     it('should generate a reference number', async () => {
       mockPrisma.qualLegal.count.mockResolvedValueOnce(4);
       mockPrisma.qualLegal.create.mockResolvedValueOnce({
-        id: 'new-leg-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-LEG-2026-005',
       });
 
@@ -339,7 +339,7 @@ describe('Quality Legal Obligations API Routes', () => {
 
   describe('PUT /api/legal/:id', () => {
     const existingLegal = {
-      id: 'leg-1',
+      id: '18000000-0000-4000-a000-000000000001',
       title: 'Existing Legal Obligation',
       status: 'ACTIVE',
       complianceStatus: 'NOT_ASSESSED',
@@ -353,7 +353,7 @@ describe('Quality Legal Obligations API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/legal/leg-1')
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -361,11 +361,11 @@ describe('Quality Legal Obligations API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/legal/non-existent')
+        .put('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -377,7 +377,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
 
       const response = await request(app)
-        .put('/api/legal/leg-1')
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'INVALID_STATUS' });
 
@@ -389,7 +389,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
 
       const response = await request(app)
-        .put('/api/legal/leg-1')
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -401,7 +401,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(existingLegal);
 
       const response = await request(app)
-        .put('/api/legal/leg-1')
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ reviewFrequency: 'INVALID_FREQUENCY' });
 
@@ -413,7 +413,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/legal/leg-1')
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -424,24 +424,24 @@ describe('Quality Legal Obligations API Routes', () => {
 
   describe('DELETE /api/legal/:id', () => {
     it('should delete legal obligation successfully', async () => {
-      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({ id: 'leg-1' });
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({ id: '18000000-0000-4000-a000-000000000001' });
       mockPrisma.qualLegal.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/legal/leg-1')
+        .delete('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualLegal.delete).toHaveBeenCalledWith({
-        where: { id: 'leg-1' },
+        where: { id: '18000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent legal obligation', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff legal obligation', async () => {
       mockPrisma.qualLegal.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/legal/non-existent')
+        .delete('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -452,7 +452,7 @@ describe('Quality Legal Obligations API Routes', () => {
       mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/legal/leg-1')
+        .delete('/api/legal/18000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

@@ -18,13 +18,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -48,7 +48,7 @@ describe('Quality Actions API Routes', () => {
   describe('GET /api/actions', () => {
     const mockActions = [
       {
-        id: 'act-1',
+        id: '19000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-ACT-2026-001',
         title: 'Implement corrective measure',
         description: 'Fix production defect',
@@ -259,7 +259,7 @@ describe('Quality Actions API Routes', () => {
 
   describe('GET /api/actions/:id', () => {
     const mockAction = {
-      id: 'act-1',
+      id: '19000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-ACT-2026-001',
       title: 'Implement corrective measure',
       description: 'Fix production defect',
@@ -271,19 +271,19 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(mockAction);
 
       const response = await request(app)
-        .get('/api/actions/act-1')
+        .get('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('act-1');
+      expect(response.body.data.id).toBe('19000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/actions/non-existent')
+        .get('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -294,7 +294,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/actions/act-1')
+        .get('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -318,7 +318,7 @@ describe('Quality Actions API Routes', () => {
     it('should create an action successfully', async () => {
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
       mockPrisma.qualAction.create.mockResolvedValueOnce({
-        id: 'new-act-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'QMS-ACT-2026-001',
         status: 'OPEN',
@@ -338,7 +338,7 @@ describe('Quality Actions API Routes', () => {
     it('should generate a reference number', async () => {
       mockPrisma.qualAction.count.mockResolvedValueOnce(3);
       mockPrisma.qualAction.create.mockResolvedValueOnce({
-        id: 'new-act-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-ACT-2026-004',
       });
 
@@ -357,7 +357,7 @@ describe('Quality Actions API Routes', () => {
     it('should set initial status to OPEN', async () => {
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
       mockPrisma.qualAction.create.mockResolvedValueOnce({
-        id: 'new-act-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'OPEN',
       });
 
@@ -424,7 +424,7 @@ describe('Quality Actions API Routes', () => {
 
   describe('PUT /api/actions/:id', () => {
     const existingAction = {
-      id: 'act-1',
+      id: '19000000-0000-4000-a000-000000000001',
       title: 'Existing Action',
       status: 'OPEN',
       completionDate: null,
@@ -439,7 +439,7 @@ describe('Quality Actions API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/actions/act-1')
+        .put('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -447,11 +447,11 @@ describe('Quality Actions API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/actions/non-existent')
+        .put('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -463,7 +463,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .put('/api/actions/act-1')
+        .put('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -475,7 +475,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .put('/api/actions/act-1')
+        .put('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ priority: 'INVALID_PRIORITY' });
 
@@ -487,7 +487,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/actions/act-1')
+        .put('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -498,24 +498,24 @@ describe('Quality Actions API Routes', () => {
 
   describe('DELETE /api/actions/:id', () => {
     it('should delete action successfully', async () => {
-      mockPrisma.qualAction.findUnique.mockResolvedValueOnce({ id: 'act-1' });
+      mockPrisma.qualAction.findUnique.mockResolvedValueOnce({ id: '19000000-0000-4000-a000-000000000001' });
       mockPrisma.qualAction.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/actions/act-1')
+        .delete('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualAction.delete).toHaveBeenCalledWith({
-        where: { id: 'act-1' },
+        where: { id: '19000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent action', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff action', async () => {
       mockPrisma.qualAction.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/actions/non-existent')
+        .delete('/api/actions/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -526,7 +526,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/actions/act-1')
+        .delete('/api/actions/19000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

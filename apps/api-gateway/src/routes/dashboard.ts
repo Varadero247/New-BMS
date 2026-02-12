@@ -14,8 +14,120 @@ router.use(authenticate);
 // GET /api/dashboard/stats - Get IMS dashboard statistics
 router.get('/stats', async (req: AuthRequest, res: Response) => {
   try {
-    // Get compliance scores
-    const complianceScores = await prisma.complianceScore.findMany();
+    // Compute date boundaries before the parallel query block
+    const thisMonthStart = new Date();
+    thisMonthStart.setDate(1);
+    thisMonthStart.setHours(0, 0, 0, 0);
+
+    const now = new Date();
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Run ALL independent queries in parallel
+    const [
+      complianceScores,
+      [totalRisks, highRisks, criticalRisks],
+      risksByStandard,
+      [totalIncidents, openIncidents, thisMonthIncidents],
+      incidentsByStandard,
+      [totalActions, openActions, overdueActions, dueThisWeek],
+      topRisks,
+      overdueActionsList,
+      recentAIInsights,
+    ] = await Promise.all([
+      // Compliance scores
+      prisma.complianceScore.findMany(),
+
+      // Risk counts
+      Promise.all([
+        prisma.risk.count({ where: { status: 'ACTIVE' } }),
+        prisma.risk.count({ where: { status: 'ACTIVE', riskLevel: 'HIGH' } }),
+        prisma.risk.count({ where: { status: 'ACTIVE', riskLevel: 'CRITICAL' } }),
+      ]),
+
+      // Risks grouped by standard
+      prisma.risk.groupBy({
+        by: ['standard'],
+        where: { status: 'ACTIVE' },
+        _count: { id: true },
+      }),
+
+      // Incident counts
+      Promise.all([
+        prisma.incident.count(),
+        prisma.incident.count({ where: { status: { not: 'CLOSED' } } }),
+        prisma.incident.count({ where: { createdAt: { gte: thisMonthStart } } }),
+      ]),
+
+      // Incidents grouped by standard
+      prisma.incident.groupBy({
+        by: ['standard'],
+        _count: { id: true },
+      }),
+
+      // Action counts
+      Promise.all([
+        prisma.action.count(),
+        prisma.action.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+        prisma.action.count({
+          where: {
+            status: { in: ['OPEN', 'IN_PROGRESS'] },
+            dueDate: { lt: now },
+          },
+        }),
+        prisma.action.count({
+          where: {
+            status: { in: ['OPEN', 'IN_PROGRESS'] },
+            dueDate: { gte: now, lte: weekFromNow },
+          },
+        }),
+      ]),
+
+      // Top 5 risks
+      prisma.risk.findMany({
+        where: { status: 'ACTIVE' },
+        orderBy: { riskScore: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          standard: true,
+          title: true,
+          riskScore: true,
+          riskLevel: true,
+        },
+      }),
+
+      // Overdue actions
+      prisma.action.findMany({
+        where: {
+          status: { in: ['OPEN', 'IN_PROGRESS'] },
+          dueDate: { lt: now },
+        },
+        orderBy: { dueDate: 'asc' },
+        take: 5,
+        select: {
+          id: true,
+          referenceNumber: true,
+          title: true,
+          dueDate: true,
+          standard: true,
+          priority: true,
+        },
+      }),
+
+      // Recent AI insights
+      prisma.aIAnalysis.findMany({
+        where: { status: 'COMPLETED' },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          sourceType: true,
+          sourceId: true,
+          suggestedRootCause: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     const compliance = {
       iso45001: complianceScores.find(s => s.standard === 'ISO_45001')?.overallScore || 0,
@@ -24,102 +136,6 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       overall: 0,
     };
     compliance.overall = Math.round((compliance.iso45001 + compliance.iso14001 + compliance.iso9001) / 3);
-
-    // Get risk statistics
-    const [totalRisks, highRisks, criticalRisks] = await Promise.all([
-      prisma.risk.count({ where: { status: 'ACTIVE' } }),
-      prisma.risk.count({ where: { status: 'ACTIVE', riskLevel: 'HIGH' } }),
-      prisma.risk.count({ where: { status: 'ACTIVE', riskLevel: 'CRITICAL' } }),
-    ]);
-
-    const risksByStandard = await prisma.risk.groupBy({
-      by: ['standard'],
-      where: { status: 'ACTIVE' },
-      _count: { id: true },
-    });
-
-    // Get incident statistics
-    const thisMonthStart = new Date();
-    thisMonthStart.setDate(1);
-    thisMonthStart.setHours(0, 0, 0, 0);
-
-    const [totalIncidents, openIncidents, thisMonthIncidents] = await Promise.all([
-      prisma.incident.count(),
-      prisma.incident.count({ where: { status: { not: 'CLOSED' } } }),
-      prisma.incident.count({ where: { createdAt: { gte: thisMonthStart } } }),
-    ]);
-
-    const incidentsByStandard = await prisma.incident.groupBy({
-      by: ['standard'],
-      _count: { id: true },
-    });
-
-    // Get action statistics
-    const now = new Date();
-    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-    const [totalActions, openActions, overdueActions, dueThisWeek] = await Promise.all([
-      prisma.action.count(),
-      prisma.action.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
-      prisma.action.count({
-        where: {
-          status: { in: ['OPEN', 'IN_PROGRESS'] },
-          dueDate: { lt: now },
-        },
-      }),
-      prisma.action.count({
-        where: {
-          status: { in: ['OPEN', 'IN_PROGRESS'] },
-          dueDate: { gte: now, lte: weekFromNow },
-        },
-      }),
-    ]);
-
-    // Get top 5 risks
-    const topRisks = await prisma.risk.findMany({
-      where: { status: 'ACTIVE' },
-      orderBy: { riskScore: 'desc' },
-      take: 5,
-      select: {
-        id: true,
-        standard: true,
-        title: true,
-        riskScore: true,
-        riskLevel: true,
-      },
-    });
-
-    // Get overdue actions
-    const overdueActionsList = await prisma.action.findMany({
-      where: {
-        status: { in: ['OPEN', 'IN_PROGRESS'] },
-        dueDate: { lt: now },
-      },
-      orderBy: { dueDate: 'asc' },
-      take: 5,
-      select: {
-        id: true,
-        referenceNumber: true,
-        title: true,
-        dueDate: true,
-        standard: true,
-        priority: true,
-      },
-    });
-
-    // Get recent AI insights
-    const recentAIInsights = await prisma.aIAnalysis.findMany({
-      where: { status: 'COMPLETED' },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      select: {
-        id: true,
-        sourceType: true,
-        sourceId: true,
-        suggestedRootCause: true,
-        createdAt: true,
-      },
-    });
 
     res.json({
       success: true,

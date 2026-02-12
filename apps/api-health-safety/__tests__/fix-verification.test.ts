@@ -26,7 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 // Mock @ims/auth
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -134,10 +134,10 @@ describe('Architecture Fix Verification', () => {
 
   describe('F-026: DELETE Returns 204 No Content', () => {
     it('should return 204 with no body on successful delete', async () => {
-      mockPrisma.risk.findUnique.mockResolvedValueOnce({ id: 'risk-123' } as any);
+      mockPrisma.risk.findUnique.mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000123' } as any);
       mockPrisma.risk.delete.mockResolvedValueOnce({} as any);
 
-      const response = await request(app).delete('/api/risks/risk-123');
+      const response = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000123');
 
       expect(response.status).toBe(204);
       expect(response.body).toEqual({});

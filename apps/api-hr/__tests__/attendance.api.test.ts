@@ -26,7 +26,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -52,14 +52,14 @@ describe('HR Attendance API Routes', () => {
   describe('GET /api/attendance', () => {
     const mockAttendances = [
       {
-        id: 'att-1',
-        employeeId: 'emp-1',
+        id: '2c000000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         date: new Date('2025-01-15'),
         status: 'PRESENT',
         clockIn: new Date('2025-01-15T08:00:00'),
         clockOut: new Date('2025-01-15T17:00:00'),
         workedHours: 9,
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: 'dept-1' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
         shift: null,
       },
       {
@@ -70,7 +70,7 @@ describe('HR Attendance API Routes', () => {
         clockIn: new Date('2025-01-15T09:30:00'),
         clockOut: null,
         workedHours: 0,
-        employee: { id: 'emp-2', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002', departmentId: 'dept-1' },
+        employee: { id: 'emp-2', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002', departmentId: '2b000000-0000-4000-a000-000000000001' },
         shift: null,
       },
     ];
@@ -108,12 +108,12 @@ describe('HR Attendance API Routes', () => {
       (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/attendance?employeeId=emp-1');
+      await request(app).get('/api/attendance?employeeId=2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.attendance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -272,13 +272,13 @@ describe('HR Attendance API Routes', () => {
 
     it('should clock out successfully', async () => {
       (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'att-1',
+        id: '2c000000-0000-4000-a000-000000000001',
         clockIn: new Date(Date.now() - 8 * 3600000),
         clockOut: null,
         scheduledHours: 8,
       });
       (mockPrisma.attendance.update as jest.Mock).mockResolvedValueOnce({
-        id: 'att-1',
+        id: '2c000000-0000-4000-a000-000000000001',
         clockOut: new Date(),
         workedHours: 8,
         overtimeHours: 0,
@@ -306,7 +306,7 @@ describe('HR Attendance API Routes', () => {
 
     it('should return 400 if already clocked out', async () => {
       (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'att-1',
+        id: '2c000000-0000-4000-a000-000000000001',
         clockIn: new Date(),
         clockOut: new Date(),
       });
@@ -343,13 +343,13 @@ describe('HR Attendance API Routes', () => {
   describe('PUT /api/attendance/:id', () => {
     it('should update attendance record', async () => {
       (mockPrisma.attendance.update as jest.Mock).mockResolvedValueOnce({
-        id: 'att-1',
+        id: '2c000000-0000-4000-a000-000000000001',
         status: 'PRESENT',
         notes: 'Manual correction',
       });
 
       const response = await request(app)
-        .put('/api/attendance/att-1')
+        .put('/api/attendance/2c000000-0000-4000-a000-000000000001')
         .send({ status: 'PRESENT', notes: 'Manual correction' });
 
       expect(response.status).toBe(200);
@@ -358,7 +358,7 @@ describe('HR Attendance API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/attendance/att-1')
+        .put('/api/attendance/2c000000-0000-4000-a000-000000000001')
         .send({ status: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -369,7 +369,7 @@ describe('HR Attendance API Routes', () => {
       (mockPrisma.attendance.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/attendance/att-1')
+        .put('/api/attendance/2c000000-0000-4000-a000-000000000001')
         .send({ status: 'PRESENT' });
 
       expect(response.status).toBe(500);

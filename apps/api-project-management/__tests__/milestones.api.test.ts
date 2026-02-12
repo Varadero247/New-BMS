@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -27,8 +27,8 @@ import milestonesRouter from '../src/routes/milestones';
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const mockMilestone = {
-  id: 'ms-001',
-  projectId: 'proj-001',
+  id: '1b000000-0000-4000-a000-000000000001',
+  projectId: '44000000-0000-4000-a000-000000000001',
   milestoneName: 'Phase 1 Complete',
   milestoneDescription: 'All phase 1 deliverables completed',
   plannedDate: '2025-06-30T00:00:00.000Z',
@@ -66,7 +66,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([mockMilestone]);
       (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(1);
 
-      const res = await request(app).get('/api/milestones?projectId=proj-001');
+      const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -88,7 +88,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
       (mockPrisma.projectMilestone.count as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).get('/api/milestones?projectId=proj-001');
+      const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -103,7 +103,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.create as jest.Mock).mockResolvedValueOnce(mockMilestone);
 
       const res = await request(app).post('/api/milestones').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         milestoneName: 'Phase 1 Complete',
         plannedDate: '2025-06-30',
         deliverables: 'Design docs, Prototype',
@@ -117,7 +117,7 @@ describe('Milestones API Routes', () => {
       expect(mockPrisma.projectMilestone.create as jest.Mock).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            projectId: 'proj-001',
+            projectId: '44000000-0000-4000-a000-000000000001',
             milestoneName: 'Phase 1 Complete',
             requiresApproval: true,
             isCritical: true,
@@ -145,7 +145,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.create as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
       const res = await request(app).post('/api/milestones').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         milestoneName: 'Phase 2 Complete',
         plannedDate: '2025-09-30',
       });
@@ -166,7 +166,7 @@ describe('Milestones API Routes', () => {
         milestoneName: 'Updated Milestone Name',
       });
 
-      const res = await request(app).put('/api/milestones/ms-001').send({
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001').send({
         milestoneName: 'Updated Milestone Name',
       });
 
@@ -178,7 +178,7 @@ describe('Milestones API Routes', () => {
     it('should return 404 if milestone not found', async () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/milestones/nonexistent').send({
+      const res = await request(app).put('/api/milestones/00000000-0000-4000-a000-ffffffffffff').send({
         milestoneName: 'Updated',
       });
 
@@ -197,7 +197,7 @@ describe('Milestones API Routes', () => {
         actualDate: new Date(),
       });
 
-      const res = await request(app).put('/api/milestones/ms-001').send({
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001').send({
         status: 'ACHIEVED',
       });
 
@@ -215,7 +215,7 @@ describe('Milestones API Routes', () => {
         milestoneName: 'Renamed',
       });
 
-      const res = await request(app).put('/api/milestones/ms-001').send({
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001').send({
         status: 'ACHIEVED',
         milestoneName: 'Renamed',
       });
@@ -230,7 +230,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
       (mockPrisma.projectMilestone.update as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).put('/api/milestones/ms-001').send({
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001').send({
         milestoneName: 'Updated',
       });
 
@@ -248,22 +248,22 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce({
         ...mockMilestone,
         approvalStatus: 'APPROVED',
-        approvedBy: 'user-123',
+        approvedBy: '20000000-0000-4000-a000-000000000123',
         approvedAt: new Date(),
       });
 
-      const res = await request(app).put('/api/milestones/ms-001/approve');
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001/approve');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.approvalStatus).toBe('APPROVED');
-      expect(res.body.data.approvedBy).toBe('user-123');
+      expect(res.body.data.approvedBy).toBe('20000000-0000-4000-a000-000000000123');
       expect(mockPrisma.projectMilestone.update as jest.Mock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'ms-001' },
+          where: { id: '1b000000-0000-4000-a000-000000000001' },
           data: expect.objectContaining({
             approvalStatus: 'APPROVED',
-            approvedBy: 'user-123',
+            approvedBy: '20000000-0000-4000-a000-000000000123',
           }),
         }),
       );
@@ -272,7 +272,7 @@ describe('Milestones API Routes', () => {
     it('should return 404 if milestone not found for approval', async () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/milestones/nonexistent/approve');
+      const res = await request(app).put('/api/milestones/00000000-0000-4000-a000-ffffffffffff/approve');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -283,7 +283,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
       (mockPrisma.projectMilestone.update as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).put('/api/milestones/ms-001/approve');
+      const res = await request(app).put('/api/milestones/1b000000-0000-4000-a000-000000000001/approve');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -298,7 +298,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
       (mockPrisma.projectMilestone.delete as jest.Mock).mockResolvedValueOnce(mockMilestone);
 
-      const res = await request(app).delete('/api/milestones/ms-001');
+      const res = await request(app).delete('/api/milestones/1b000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -306,7 +306,7 @@ describe('Milestones API Routes', () => {
     it('should return 404 if milestone not found', async () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/milestones/nonexistent');
+      const res = await request(app).delete('/api/milestones/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -317,7 +317,7 @@ describe('Milestones API Routes', () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
       (mockPrisma.projectMilestone.delete as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).delete('/api/milestones/ms-001');
+      const res = await request(app).delete('/api/milestones/1b000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

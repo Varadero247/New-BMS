@@ -34,13 +34,13 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '@ims/database';
@@ -68,14 +68,14 @@ describe('Workflows Approvals API Routes', () => {
   describe('GET /api/approvals/chains', () => {
     const mockChains = [
       {
-        id: 'chain-1',
+        id: '3e000000-0000-4000-a000-000000000001',
         name: 'Standard Approval',
         chainType: 'SEQUENTIAL',
         isActive: true,
         levels: [{ level: 1, approverRole: 'MANAGER' }],
       },
       {
-        id: 'chain-2',
+        id: '3e000000-0000-4000-a000-000000000002',
         name: 'Parallel Approval',
         chainType: 'PARALLEL',
         isActive: true,
@@ -134,22 +134,22 @@ describe('Workflows Approvals API Routes', () => {
   describe('GET /api/approvals/chains/:id', () => {
     it('should return single approval chain', async () => {
       (mockPrisma.approvalChain.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'chain-1',
+        id: '3e000000-0000-4000-a000-000000000001',
         name: 'Standard Approval',
         chainType: 'SEQUENTIAL',
       });
 
-      const response = await request(app).get('/api/approvals/chains/chain-1');
+      const response = await request(app).get('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('chain-1');
+      expect(response.body.data.id).toBe('3e000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent chain', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff chain', async () => {
       (mockPrisma.approvalChain.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/approvals/chains/non-existent');
+      const response = await request(app).get('/api/approvals/chains/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -158,7 +158,7 @@ describe('Workflows Approvals API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.approvalChain.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/approvals/chains/chain-1');
+      const response = await request(app).get('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -174,7 +174,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should create an approval chain successfully', async () => {
       (mockPrisma.approvalChain.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-chain-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         isActive: true,
       });
@@ -221,13 +221,13 @@ describe('Workflows Approvals API Routes', () => {
   describe('PUT /api/approvals/chains/:id', () => {
     it('should update approval chain successfully', async () => {
       (mockPrisma.approvalChain.update as jest.Mock).mockResolvedValueOnce({
-        id: 'chain-1',
+        id: '3e000000-0000-4000-a000-000000000001',
         name: 'Updated Chain',
         chainType: 'PARALLEL',
       });
 
       const response = await request(app)
-        .put('/api/approvals/chains/chain-1')
+        .put('/api/approvals/chains/3e000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated Chain', chainType: 'PARALLEL' });
 
       expect(response.status).toBe(200);
@@ -236,7 +236,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should return 400 for invalid chainType', async () => {
       const response = await request(app)
-        .put('/api/approvals/chains/chain-1')
+        .put('/api/approvals/chains/3e000000-0000-4000-a000-000000000001')
         .send({ chainType: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -247,7 +247,7 @@ describe('Workflows Approvals API Routes', () => {
       (mockPrisma.approvalChain.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/approvals/chains/chain-1')
+        .put('/api/approvals/chains/3e000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -259,7 +259,7 @@ describe('Workflows Approvals API Routes', () => {
     it('should delete approval chain successfully', async () => {
       (mockPrisma.approvalChain.delete as jest.Mock).mockResolvedValueOnce({});
 
-      const response = await request(app).delete('/api/approvals/chains/chain-1');
+      const response = await request(app).delete('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(204);
     });
@@ -267,7 +267,7 @@ describe('Workflows Approvals API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.approvalChain.delete as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/approvals/chains/chain-1');
+      const response = await request(app).delete('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -281,7 +281,7 @@ describe('Workflows Approvals API Routes', () => {
   describe('GET /api/approvals/requests', () => {
     const mockRequests = [
       {
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         requestNumber: 'APR-001',
         title: 'Purchase Request',
         requestType: 'PURCHASE_REQUEST',
@@ -346,24 +346,24 @@ describe('Workflows Approvals API Routes', () => {
   describe('GET /api/approvals/requests/:id', () => {
     it('should return single approval request with responses', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         requestNumber: 'APR-001',
         title: 'Purchase Request',
         status: 'PENDING',
         responses: [],
       });
 
-      const response = await request(app).get('/api/approvals/requests/req-1');
+      const response = await request(app).get('/api/approvals/requests/3f000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('req-1');
+      expect(response.body.data.id).toBe('3f000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent request', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/approvals/requests/non-existent');
+      const response = await request(app).get('/api/approvals/requests/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -372,7 +372,7 @@ describe('Workflows Approvals API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/approvals/requests/req-1');
+      const response = await request(app).get('/api/approvals/requests/3f000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -383,12 +383,12 @@ describe('Workflows Approvals API Routes', () => {
     const createPayload = {
       title: 'New Purchase Request',
       requestType: 'PURCHASE_REQUEST' as const,
-      requesterId: 'user-123',
+      requesterId: '20000000-0000-4000-a000-000000000123',
     };
 
     it('should create approval request successfully', async () => {
       (mockPrisma.approvalRequest.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-req-123',
+        id: '30000000-0000-4000-a000-000000000123',
         requestNumber: 'APR-TEST',
         ...createPayload,
         status: 'PENDING',
@@ -406,7 +406,7 @@ describe('Workflows Approvals API Routes', () => {
     it('should return 400 for missing title', async () => {
       const response = await request(app)
         .post('/api/approvals/requests')
-        .send({ requestType: 'PURCHASE_REQUEST', requesterId: 'user-123' });
+        .send({ requestType: 'PURCHASE_REQUEST', requesterId: '20000000-0000-4000-a000-000000000123' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -451,7 +451,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should respond to approval request successfully', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         status: 'PENDING',
         currentLevel: 1,
         totalLevels: 1,
@@ -464,12 +464,12 @@ describe('Workflows Approvals API Routes', () => {
         decision: 'APPROVE',
       });
       (mockPrisma.approvalRequest.update as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
       });
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/respond')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/respond')
         .send(respondPayload);
 
       expect(response.status).toBe(200);
@@ -477,11 +477,11 @@ describe('Workflows Approvals API Routes', () => {
       expect(response.body.data.requestStatus).toBe('APPROVED');
     });
 
-    it('should return 404 for non-existent request', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/approvals/requests/non-existent/respond')
+        .put('/api/approvals/requests/00000000-0000-4000-a000-ffffffffffff/respond')
         .send(respondPayload);
 
       expect(response.status).toBe(404);
@@ -490,7 +490,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should reject response if request not pending', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         currentLevel: 1,
         totalLevels: 1,
@@ -498,7 +498,7 @@ describe('Workflows Approvals API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/respond')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/respond')
         .send(respondPayload);
 
       expect(response.status).toBe(400);
@@ -507,7 +507,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should reject if already responded at this level', async () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         status: 'PENDING',
         currentLevel: 1,
         totalLevels: 2,
@@ -517,7 +517,7 @@ describe('Workflows Approvals API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/respond')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/respond')
         .send(respondPayload);
 
       expect(response.status).toBe(400);
@@ -526,7 +526,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should return 400 for invalid decision', async () => {
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/respond')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/respond')
         .send({ ...respondPayload, decision: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -537,7 +537,7 @@ describe('Workflows Approvals API Routes', () => {
       (mockPrisma.approvalRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/respond')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/respond')
         .send(respondPayload);
 
       expect(response.status).toBe(500);
@@ -548,13 +548,13 @@ describe('Workflows Approvals API Routes', () => {
   describe('PUT /api/approvals/requests/:id/cancel', () => {
     it('should cancel approval request successfully', async () => {
       (mockPrisma.approvalRequest.update as jest.Mock).mockResolvedValueOnce({
-        id: 'req-1',
+        id: '3f000000-0000-4000-a000-000000000001',
         status: 'CANCELLED',
         outcome: 'CANCELLED',
       });
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/cancel')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/cancel')
         .send({ reason: 'No longer needed' });
 
       expect(response.status).toBe(200);
@@ -565,7 +565,7 @@ describe('Workflows Approvals API Routes', () => {
       (mockPrisma.approvalRequest.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/approvals/requests/req-1/cancel')
+        .put('/api/approvals/requests/3f000000-0000-4000-a000-000000000001/cancel')
         .send({ reason: 'Cancel' });
 
       expect(response.status).toBe(500);
@@ -580,7 +580,7 @@ describe('Workflows Approvals API Routes', () => {
   describe('GET /api/approvals/step', () => {
     it('should return workflow step approvals', async () => {
       (mockPrisma.workflowStepApproval.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: 'step-1', status: 'PENDING', approverId: 'user-1' },
+        { id: '4f000000-0000-4000-a000-000000000001', status: 'PENDING', approverId: '20000000-0000-4000-a000-000000000001' },
       ]);
       (mockPrisma.workflowStepApproval.count as jest.Mock).mockResolvedValueOnce(1);
 
@@ -596,12 +596,12 @@ describe('Workflows Approvals API Routes', () => {
       (mockPrisma.workflowStepApproval.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.workflowStepApproval.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/approvals/step?approverId=user-1');
+      await request(app).get('/api/approvals/step?approverId=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowStepApproval.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            approverId: 'user-1',
+            approverId: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -620,13 +620,13 @@ describe('Workflows Approvals API Routes', () => {
   describe('PUT /api/approvals/step/:id/respond', () => {
     it('should respond to step approval successfully', async () => {
       (mockPrisma.workflowStepApproval.update as jest.Mock).mockResolvedValueOnce({
-        id: 'step-1',
+        id: '4f000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         decision: 'APPROVE',
       });
 
       const response = await request(app)
-        .put('/api/approvals/step/step-1/respond')
+        .put('/api/approvals/step/4f000000-0000-4000-a000-000000000001/respond')
         .send({ decision: 'APPROVE', comments: 'OK' });
 
       expect(response.status).toBe(200);
@@ -635,7 +635,7 @@ describe('Workflows Approvals API Routes', () => {
 
     it('should return 400 for invalid decision', async () => {
       const response = await request(app)
-        .put('/api/approvals/step/step-1/respond')
+        .put('/api/approvals/step/4f000000-0000-4000-a000-000000000001/respond')
         .send({ decision: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -646,7 +646,7 @@ describe('Workflows Approvals API Routes', () => {
       (mockPrisma.workflowStepApproval.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/approvals/step/step-1/respond')
+        .put('/api/approvals/step/4f000000-0000-4000-a000-000000000001/respond')
         .send({ decision: 'APPROVE' });
 
       expect(response.status).toBe(500);

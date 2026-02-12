@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Environment Events API Routes', () => {
   describe('GET /api/events', () => {
     const mockEvents = [
       {
-        id: 'event-1',
+        id: '17000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-EVT-2026-001',
         eventType: 'SPILL',
         severity: 'MAJOR',
@@ -203,7 +203,7 @@ describe('Environment Events API Routes', () => {
 
   describe('GET /api/events/:id', () => {
     const mockEvent = {
-      id: 'event-1',
+      id: '17000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-EVT-2026-001',
       eventType: 'SPILL',
       severity: 'MAJOR',
@@ -215,19 +215,19 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce(mockEvent);
 
       const response = await request(app)
-        .get('/api/events/event-1')
+        .get('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('event-1');
+      expect(response.body.data.id).toBe('17000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent event', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff event', async () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/events/non-existent')
+        .get('/api/events/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -238,7 +238,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/events/event-1')
+        .get('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -260,7 +260,7 @@ describe('Environment Events API Routes', () => {
     it('should create an event successfully', async () => {
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envEvent.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-EVT-2026-001',
         ...createPayload,
         status: 'REPORTED',
@@ -279,7 +279,7 @@ describe('Environment Events API Routes', () => {
     it('should generate reference number on create', async () => {
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(2);
       (mockPrisma.envEvent.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-EVT-2026-003',
         ...createPayload,
       });
@@ -342,7 +342,7 @@ describe('Environment Events API Routes', () => {
 
   describe('PUT /api/events/:id', () => {
     const existingEvent = {
-      id: 'event-1',
+      id: '17000000-0000-4000-a000-000000000001',
       eventType: 'SPILL',
       severity: 'MAJOR',
       description: 'Chemical spill',
@@ -357,7 +357,7 @@ describe('Environment Events API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/events/event-1')
+        .put('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated chemical spill description' });
 
@@ -365,11 +365,11 @@ describe('Environment Events API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent event', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff event', async () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/events/non-existent')
+        .put('/api/events/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated' });
 
@@ -386,7 +386,7 @@ describe('Environment Events API Routes', () => {
       });
 
       await request(app)
-        .put('/api/events/event-1')
+        .put('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED' });
 
@@ -404,7 +404,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/events/event-1')
+        .put('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated' });
 
@@ -415,24 +415,24 @@ describe('Environment Events API Routes', () => {
 
   describe('DELETE /api/events/:id', () => {
     it('should delete event successfully', async () => {
-      (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'event-1' });
+      (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({ id: '17000000-0000-4000-a000-000000000001' });
       (mockPrisma.envEvent.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/events/event-1')
+        .delete('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envEvent.delete).toHaveBeenCalledWith({
-        where: { id: 'event-1' },
+        where: { id: '17000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent event', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff event', async () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/events/non-existent')
+        .delete('/api/events/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -443,7 +443,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/events/event-1')
+        .delete('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

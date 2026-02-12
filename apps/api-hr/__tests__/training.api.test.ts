@@ -36,13 +36,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -66,7 +66,7 @@ describe('HR Training API Routes', () => {
   describe('GET /api/training/courses', () => {
     const mockCourses = [
       {
-        id: 'course-1',
+        id: '2d000000-0000-4000-a000-000000000001',
         code: 'SAF-101',
         name: 'Safety Fundamentals',
         category: 'SAFETY',
@@ -176,7 +176,7 @@ describe('HR Training API Routes', () => {
 
   describe('GET /api/training/courses/:id', () => {
     const mockCourse = {
-      id: 'course-1',
+      id: '2d000000-0000-4000-a000-000000000001',
       code: 'SAF-101',
       name: 'Safety Fundamentals',
       sessions: [
@@ -189,20 +189,20 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockResolvedValueOnce(mockCourse);
 
       const response = await request(app)
-        .get('/api/training/courses/course-1')
+        .get('/api/training/courses/2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('course-1');
+      expect(response.body.data.id).toBe('2d000000-0000-4000-a000-000000000001');
       expect(response.body.data.sessions).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent course', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff course', async () => {
       (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/training/courses/non-existent')
+        .get('/api/training/courses/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -213,7 +213,7 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/training/courses/course-1')
+        .get('/api/training/courses/2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -232,7 +232,7 @@ describe('HR Training API Routes', () => {
 
     it('should create a course successfully', async () => {
       (mockPrisma.hRTrainingCourse.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-course-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         isActive: true,
       });
@@ -285,7 +285,7 @@ describe('HR Training API Routes', () => {
       {
         id: 'sess-1',
         sessionCode: 'S001',
-        courseId: 'course-1',
+        courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'SCHEDULED',
         startDate: new Date('2024-03-01'),
         course: { name: 'Safety Fundamentals', code: 'SAF-101', duration: 8 },
@@ -309,13 +309,13 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/training/sessions?courseId=course-1')
+        .get('/api/training/sessions?courseId=2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.hRTrainingSession.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            courseId: 'course-1',
+            courseId: '2d000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -425,11 +425,11 @@ describe('HR Training API Routes', () => {
   describe('GET /api/training/enrollments', () => {
     const mockEnrollments = [
       {
-        id: 'enroll-1',
-        employeeId: 'emp-1',
-        courseId: 'course-1',
+        id: '2e000000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
+        courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'ENROLLED',
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
         course: { name: 'Safety Fundamentals', code: 'SAF-101' },
         session: { sessionCode: 'S001', startDate: new Date(), endDate: new Date() },
       },
@@ -451,13 +451,13 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/training/enrollments?employeeId=emp-1')
+        .get('/api/training/enrollments?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.hRTrainingEnrollment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -467,13 +467,13 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/training/enrollments?courseId=course-1')
+        .get('/api/training/enrollments?courseId=2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.hRTrainingEnrollment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            courseId: 'course-1',
+            courseId: '2d000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -521,7 +521,7 @@ describe('HR Training API Routes', () => {
         maxParticipants: 20,
       });
       (mockPrisma.hRTrainingEnrollment.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-enroll-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         status: 'ENROLLED',
         employee: { firstName: 'John', lastName: 'Doe' },
@@ -585,13 +585,13 @@ describe('HR Training API Routes', () => {
   describe('PUT /api/training/enrollments/:id', () => {
     it('should update enrollment successfully', async () => {
       (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'enroll-1',
+        id: '2e000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         assessmentScore: 85,
       });
 
       const response = await request(app)
-        .put('/api/training/enrollments/enroll-1')
+        .put('/api/training/enrollments/2e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED', assessmentScore: 85 });
 
@@ -601,7 +601,7 @@ describe('HR Training API Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .put('/api/training/enrollments/enroll-1')
+        .put('/api/training/enrollments/2e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -613,7 +613,7 @@ describe('HR Training API Routes', () => {
       (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/training/enrollments/enroll-1')
+        .put('/api/training/enrollments/2e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -629,7 +629,7 @@ describe('HR Training API Routes', () => {
         name: 'AWS Solutions Architect',
         issuingOrganization: 'Amazon',
         status: 'ACTIVE',
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
       },
     ];
 
@@ -649,13 +649,13 @@ describe('HR Training API Routes', () => {
       (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/training/certifications?employeeId=emp-1')
+        .get('/api/training/certifications?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeCertification.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -751,7 +751,7 @@ describe('HR Training API Routes', () => {
           { status: 'COMPLETED', _count: { id: 20 } },
         ])
         .mockResolvedValueOnce([ // popularCoursesRaw
-          { courseId: 'course-1', _count: { id: 25 } },
+          { courseId: '2d000000-0000-4000-a000-000000000001', _count: { id: 25 } },
         ]);
       (mockPrisma.hRTrainingEnrollment.count as jest.Mock).mockResolvedValueOnce(5); // completedThisMonth
       (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValueOnce(2); // expiringCertifications

@@ -3,11 +3,13 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-payroll');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/loans - Get all loans
 router.get('/', async (req: Request, res: Response) => {
@@ -69,7 +71,7 @@ router.post('/', async (req: Request, res: Response) => {
       interestRate: z.number().min(0).default(0),
       termMonths: z.number().positive(),
       startDate: z.string(),
-      paymentFrequency: z.enum(['WEEKLY', 'BIWEEKLY', 'SEMI_MONTHLY', 'MONTHLY']).default('MONTHLY'),
+      paymentFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']).default('MONTHLY'),
       purpose: z.string().optional(),
       notes: z.string().optional(),
     });

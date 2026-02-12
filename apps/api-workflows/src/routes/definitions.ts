@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Valid WorkflowTriggerType enum values
 const triggerTypeEnum = z.enum(['MANUAL', 'AUTOMATIC', 'SCHEDULED', 'EVENT', 'API']);
@@ -76,13 +78,13 @@ router.post('/', async (req: Request, res: Response) => {
       name: z.string().min(1),
       description: z.string().optional(),
       triggerType: triggerTypeEnum,
-      triggerConfig: z.any().optional(),
-      nodes: z.any(),
-      edges: z.any(),
-      variables: z.any().optional(),
+      triggerConfig: z.record(z.unknown()).optional(),
+      nodes: z.array(z.record(z.unknown())),
+      edges: z.array(z.record(z.unknown())),
+      variables: z.record(z.unknown()).optional(),
       defaultSLA: z.number().optional(),
-      escalationRules: z.any().optional(),
-      notificationConfig: z.any().optional(),
+      escalationRules: z.record(z.unknown()).optional(),
+      notificationConfig: z.record(z.unknown()).optional(),
       createdBy: z.string().optional(),
     });
 
@@ -128,13 +130,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       name: z.string().min(1).optional(),
       description: z.string().optional(),
       triggerType: triggerTypeEnum.optional(),
-      triggerConfig: z.any().optional(),
-      nodes: z.any().optional(),
-      edges: z.any().optional(),
-      variables: z.any().optional(),
+      triggerConfig: z.record(z.unknown()).optional(),
+      nodes: z.array(z.record(z.unknown())).optional(),
+      edges: z.array(z.record(z.unknown())).optional(),
+      variables: z.record(z.unknown()).optional(),
       defaultSLA: z.number().optional(),
-      escalationRules: z.any().optional(),
-      notificationConfig: z.any().optional(),
+      escalationRules: z.record(z.unknown()).optional(),
+      notificationConfig: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);

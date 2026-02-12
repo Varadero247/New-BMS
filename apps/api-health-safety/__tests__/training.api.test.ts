@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Health & Safety Training API Routes', () => {
   describe('GET /api/training/courses', () => {
     const mockCourses = [
       {
-        id: 'course-1',
+        id: '2d000000-0000-4000-a000-000000000001',
         title: 'Fire Safety',
         description: 'Fire safety awareness training',
         standard: 'ISO_45001',
@@ -122,18 +122,18 @@ describe('Health & Safety Training API Routes', () => {
     const mockRecords = [
       {
         id: 'record-1',
-        userId: 'user-1',
-        courseId: 'course-1',
+        userId: '20000000-0000-4000-a000-000000000001',
+        courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
-        user: { id: 'user-1', firstName: 'John', lastName: 'Doe', department: 'Engineering' },
-        course: { id: 'course-1', title: 'Fire Safety', standard: 'ISO_45001' },
+        user: { id: '20000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', department: 'Engineering' },
+        course: { id: '2d000000-0000-4000-a000-000000000001', title: 'Fire Safety', standard: 'ISO_45001' },
       },
       {
         id: 'record-2',
-        userId: 'user-2',
+        userId: '20000000-0000-4000-a000-000000000002',
         courseId: 'course-2',
         status: 'IN_PROGRESS',
-        user: { id: 'user-2', firstName: 'Jane', lastName: 'Smith', department: 'Operations' },
+        user: { id: '20000000-0000-4000-a000-000000000002', firstName: 'Jane', lastName: 'Smith', department: 'Operations' },
         course: { id: 'course-2', title: 'Manual Handling', standard: null },
       },
     ];
@@ -177,13 +177,13 @@ describe('Health & Safety Training API Routes', () => {
       (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecords[0]]);
 
       await request(app)
-        .get('/api/training/records?userId=user-1')
+        .get('/api/training/records?userId=20000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            userId: 'user-1',
+            userId: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -193,13 +193,13 @@ describe('Health & Safety Training API Routes', () => {
       (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/training/records?courseId=course-1')
+        .get('/api/training/records?courseId=2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            courseId: 'course-1',
+            courseId: '2d000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -275,7 +275,7 @@ describe('Health & Safety Training API Routes', () => {
 
     it('should create a training course successfully', async () => {
       (mockPrisma.trainingCourse.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         standard: 'ISO_45001',
         ...createPayload,
         isActive: true,
@@ -294,7 +294,7 @@ describe('Health & Safety Training API Routes', () => {
 
     it('should set standard to ISO_45001 and isActive to true', async () => {
       (mockPrisma.trainingCourse.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         standard: 'ISO_45001',
         isActive: true,
@@ -350,8 +350,8 @@ describe('Health & Safety Training API Routes', () => {
 
   describe('POST /api/training/records', () => {
     const createPayload = {
-      userId: 'user-1',
-      courseId: 'course-1',
+      userId: '20000000-0000-4000-a000-000000000001',
+      courseId: '2d000000-0000-4000-a000-000000000001',
       status: 'COMPLETED',
       completedAt: '2025-01-15T00:00:00.000Z',
       score: 85,
@@ -360,7 +360,7 @@ describe('Health & Safety Training API Routes', () => {
 
     it('should create a training record successfully', async () => {
       (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         completedAt: new Date(createPayload.completedAt),
       });
@@ -372,7 +372,7 @@ describe('Health & Safety Training API Routes', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.userId).toBe('user-1');
+      expect(response.body.data.userId).toBe('20000000-0000-4000-a000-000000000001');
     });
 
     it('should convert completedAt and expiresAt to Date objects', async () => {
@@ -382,7 +382,7 @@ describe('Health & Safety Training API Routes', () => {
       };
 
       (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...payload,
       });
 
@@ -408,7 +408,7 @@ describe('Health & Safety Training API Routes', () => {
       };
 
       (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...payload,
       });
 
@@ -431,7 +431,7 @@ describe('Health & Safety Training API Routes', () => {
       const response = await request(app)
         .post('/api/training/records')
         .set('Authorization', 'Bearer token')
-        .send({ courseId: 'course-1' });
+        .send({ courseId: '2d000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -441,7 +441,7 @@ describe('Health & Safety Training API Routes', () => {
       const response = await request(app)
         .post('/api/training/records')
         .set('Authorization', 'Bearer token')
-        .send({ userId: 'user-1' });
+        .send({ userId: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -461,7 +461,7 @@ describe('Health & Safety Training API Routes', () => {
       const response = await request(app)
         .post('/api/training/records')
         .set('Authorization', 'Bearer token')
-        .send({ userId: 'user-1', courseId: 'course-1', status: 'INVALID' });
+        .send({ userId: '20000000-0000-4000-a000-000000000001', courseId: '2d000000-0000-4000-a000-000000000001', status: 'INVALID' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -469,16 +469,16 @@ describe('Health & Safety Training API Routes', () => {
 
     it('should default status to NOT_STARTED if not provided', async () => {
       (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
-        userId: 'user-1',
-        courseId: 'course-1',
+        id: '30000000-0000-4000-a000-000000000123',
+        userId: '20000000-0000-4000-a000-000000000001',
+        courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'NOT_STARTED',
       });
 
       await request(app)
         .post('/api/training/records')
         .set('Authorization', 'Bearer token')
-        .send({ userId: 'user-1', courseId: 'course-1' });
+        .send({ userId: '20000000-0000-4000-a000-000000000001', courseId: '2d000000-0000-4000-a000-000000000001' });
 
       expect(mockPrisma.trainingRecord.create).toHaveBeenCalledWith(
         expect.objectContaining({

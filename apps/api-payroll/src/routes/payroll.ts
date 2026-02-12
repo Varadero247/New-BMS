@@ -3,11 +3,13 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-payroll');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/payroll/runs - Get payroll runs
 router.get('/runs', async (req: Request, res: Response) => {
@@ -79,7 +81,7 @@ router.post('/runs', async (req: Request, res: Response) => {
       periodStart: z.string(),
       periodEnd: z.string(),
       payDate: z.string(),
-      payFrequency: z.enum(['WEEKLY', 'BIWEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
+      payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
     });
 
     const data = schema.parse(req.body);

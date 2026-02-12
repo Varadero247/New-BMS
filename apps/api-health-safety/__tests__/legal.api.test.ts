@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Health & Safety Legal Requirements API', () => {
   describe('GET /api/legal', () => {
     const mockRequirements = [
       {
-        id: 'legal-1',
+        id: '14000000-0000-4000-a000-000000000001',
         referenceNumber: 'LR-001',
         title: 'Health and Safety at Work Act',
         description: 'Primary UK H&S legislation',
@@ -135,24 +135,24 @@ describe('Health & Safety Legal Requirements API', () => {
   describe('GET /api/legal/:id', () => {
     it('should return single requirement', async () => {
       (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'legal-1',
+        id: '14000000-0000-4000-a000-000000000001',
         referenceNumber: 'LR-001',
         title: 'HASAWA 1974',
       });
 
       const response = await request(app)
-        .get('/api/legal/legal-1')
+        .get('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
-      expect(response.body.data.id).toBe('legal-1');
+      expect(response.body.data.id).toBe('14000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent requirement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff requirement', async () => {
       (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/legal/non-existent')
+        .get('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -171,7 +171,7 @@ describe('Health & Safety Legal Requirements API', () => {
     it('should create requirement with auto ref#', async () => {
       (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'LR-001',
         ...createPayload,
         complianceStatus: 'NOT_ASSESSED',
@@ -199,7 +199,7 @@ describe('Health & Safety Legal Requirements API', () => {
         referenceNumber: 'LR-005',
       });
       (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'LR-006',
       });
 
@@ -216,7 +216,7 @@ describe('Health & Safety Legal Requirements API', () => {
     it('should default complianceStatus to NOT_ASSESSED', async () => {
       (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         complianceStatus: 'NOT_ASSESSED',
       });
 
@@ -233,7 +233,7 @@ describe('Health & Safety Legal Requirements API', () => {
     it('should accept AI fields', async () => {
       (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         aiAssessmentGenerated: true,
       });
 
@@ -290,7 +290,7 @@ describe('Health & Safety Legal Requirements API', () => {
 
   describe('PATCH /api/legal/:id', () => {
     const existing = {
-      id: 'legal-1',
+      id: '14000000-0000-4000-a000-000000000001',
       complianceStatus: 'NOT_ASSESSED',
     };
 
@@ -302,7 +302,7 @@ describe('Health & Safety Legal Requirements API', () => {
       });
 
       const response = await request(app)
-        .patch('/api/legal/legal-1')
+        .patch('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -319,12 +319,12 @@ describe('Health & Safety Legal Requirements API', () => {
       });
 
       await request(app)
-        .patch('/api/legal/legal-1')
+        .patch('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'COMPLIANT' });
 
       expect(mockPrisma.legalRequirement.update).toHaveBeenCalledWith({
-        where: { id: 'legal-1' },
+        where: { id: '14000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           lastReviewedAt: expect.any(Date),
         }),
@@ -339,7 +339,7 @@ describe('Health & Safety Legal Requirements API', () => {
       });
 
       await request(app)
-        .patch('/api/legal/legal-1')
+        .patch('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'NOT_ASSESSED' });
 
@@ -347,11 +347,11 @@ describe('Health & Safety Legal Requirements API', () => {
       expect(updateCall.data.lastReviewedAt).toBeUndefined();
     });
 
-    it('should return 404 for non-existent requirement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff requirement', async () => {
       (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/legal/non-existent')
+        .patch('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -362,21 +362,21 @@ describe('Health & Safety Legal Requirements API', () => {
 
   describe('DELETE /api/legal/:id', () => {
     it('should delete requirement', async () => {
-      (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'legal-1' });
+      (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
       (mockPrisma.legalRequirement.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/legal/legal-1')
+        .delete('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
     });
 
-    it('should return 404 for non-existent requirement', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff requirement', async () => {
       (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/legal/non-existent')
+        .delete('/api/legal/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);

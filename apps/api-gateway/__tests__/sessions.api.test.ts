@@ -15,7 +15,7 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req, res, next) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     req.sessionId = 'current-session-123';
     next();
   }),
@@ -100,7 +100,7 @@ describe('Sessions API Routes', () => {
 
       expect(mockPrisma.session.findMany).toHaveBeenCalledWith({
         where: {
-          userId: 'user-123',
+          userId: '20000000-0000-4000-a000-000000000123',
           expiresAt: { gte: expect.any(Date) },
         },
         select: expect.any(Object),
@@ -124,7 +124,7 @@ describe('Sessions API Routes', () => {
     it('should revoke a specific session', async () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce({
         id: 'other-session-456',
-        userId: 'user-123',
+        userId: '20000000-0000-4000-a000-000000000123',
       } as any);
       mockPrisma.session.delete.mockResolvedValueOnce({} as any);
 
@@ -147,11 +147,11 @@ describe('Sessions API Routes', () => {
       expect(response.body.error.code).toBe('CANNOT_REVOKE_CURRENT');
     });
 
-    it('should return 404 for non-existent session', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff session', async () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/sessions/non-existent-id')
+        .delete('/api/sessions/00000000-0000-4000-a000-ffffffffffff-id')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -162,11 +162,11 @@ describe('Sessions API Routes', () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce(null);
 
       await request(app)
-        .delete('/api/sessions/other-user-session')
+        .delete('/api/sessions/54000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.session.findFirst).toHaveBeenCalledWith({
-        where: { id: 'other-user-session', userId: 'user-123' },
+        where: { id: '54000000-0000-4000-a000-000000000001', userId: '20000000-0000-4000-a000-000000000123' },
       });
     });
 
@@ -202,7 +202,7 @@ describe('Sessions API Routes', () => {
 
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
         where: {
-          userId: 'user-123',
+          userId: '20000000-0000-4000-a000-000000000123',
           id: { not: 'current-session-123' },
         },
       });

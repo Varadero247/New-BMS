@@ -3,6 +3,7 @@ import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, requireRole, hashPassword, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,6 +12,7 @@ const router: IRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/users - List all users (Admin/Manager only)
 router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: Response) => {
@@ -184,7 +186,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
       });
     }
     logger.error('Create user error', { error: (error as Error).message });
@@ -254,7 +256,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
       });
     }
     logger.error('Update user error', { error: (error as Error).message });

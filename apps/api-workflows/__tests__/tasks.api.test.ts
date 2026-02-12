@@ -20,13 +20,13 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '@ims/database';
@@ -50,13 +50,13 @@ describe('Workflows Tasks API Routes', () => {
   describe('GET /api/tasks', () => {
     const mockTasks = [
       {
-        id: 'task-1',
+        id: '3d000000-0000-4000-a000-000000000001',
         taskNumber: 'TSK-2024-000001',
         title: 'Review Document',
         taskType: 'REVIEW',
         status: 'PENDING',
         priority: 'HIGH',
-        assigneeId: 'user-1',
+        assigneeId: '20000000-0000-4000-a000-000000000001',
         instance: { instanceNumber: 'WF-001', title: 'Onboarding', priority: 'NORMAL' },
       },
       {
@@ -66,7 +66,7 @@ describe('Workflows Tasks API Routes', () => {
         taskType: 'APPROVE',
         status: 'IN_PROGRESS',
         priority: 'URGENT',
-        assigneeId: 'user-2',
+        assigneeId: '20000000-0000-4000-a000-000000000002',
         instance: { instanceNumber: 'WF-002', title: 'Purchase Order', priority: 'HIGH' },
       },
     ];
@@ -84,12 +84,12 @@ describe('Workflows Tasks API Routes', () => {
     it('should filter by assigneeId', async () => {
       (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app).get('/api/tasks?assigneeId=user-1');
+      await request(app).get('/api/tasks?assigneeId=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowTask.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            assigneeId: 'user-1',
+            assigneeId: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -126,12 +126,12 @@ describe('Workflows Tasks API Routes', () => {
     it('should filter by instanceId', async () => {
       (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app).get('/api/tasks?instanceId=inst-1');
+      await request(app).get('/api/tasks?instanceId=3c000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowTask.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            instanceId: 'inst-1',
+            instanceId: '3c000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -196,14 +196,14 @@ describe('Workflows Tasks API Routes', () => {
     it('should return tasks assigned to user', async () => {
       (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([
         {
-          id: 'task-1',
+          id: '3d000000-0000-4000-a000-000000000001',
           title: 'My Task',
-          assigneeId: 'user-1',
+          assigneeId: '20000000-0000-4000-a000-000000000001',
           instance: { instanceNumber: 'WF-001', title: 'Test', priority: 'NORMAL' },
         },
       ]);
 
-      const response = await request(app).get('/api/tasks/my/user-1');
+      const response = await request(app).get('/api/tasks/my/20000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -213,12 +213,12 @@ describe('Workflows Tasks API Routes', () => {
     it('should filter by status for user tasks', async () => {
       (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app).get('/api/tasks/my/user-1?status=PENDING');
+      await request(app).get('/api/tasks/my/20000000-0000-4000-a000-000000000001?status=PENDING');
 
       expect(mockPrisma.workflowTask.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            assigneeId: 'user-1',
+            assigneeId: '20000000-0000-4000-a000-000000000001',
             status: 'PENDING',
           }),
         })
@@ -228,7 +228,7 @@ describe('Workflows Tasks API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.workflowTask.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/tasks/my/user-1');
+      const response = await request(app).get('/api/tasks/my/20000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -237,32 +237,32 @@ describe('Workflows Tasks API Routes', () => {
 
   describe('GET /api/tasks/:id', () => {
     const mockTask = {
-      id: 'task-1',
+      id: '3d000000-0000-4000-a000-000000000001',
       taskNumber: 'TSK-2024-000001',
       title: 'Review Document',
       taskType: 'REVIEW',
       status: 'PENDING',
       instance: {
         instanceNumber: 'WF-001',
-        definition: { id: 'def-1', name: 'Onboarding' },
+        definition: { id: '3b000000-0000-4000-a000-000000000001', name: 'Onboarding' },
       },
     };
 
     it('should return single task with instance and definition', async () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
 
-      const response = await request(app).get('/api/tasks/task-1');
+      const response = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('task-1');
+      expect(response.body.data.id).toBe('3d000000-0000-4000-a000-000000000001');
       expect(response.body.data.instance).toBeDefined();
     });
 
-    it('should return 404 for non-existent task', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff task', async () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/tasks/non-existent');
+      const response = await request(app).get('/api/tasks/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -271,7 +271,7 @@ describe('Workflows Tasks API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/tasks/task-1');
+      const response = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -289,7 +289,7 @@ describe('Workflows Tasks API Routes', () => {
     it('should create a task successfully', async () => {
       (mockPrisma.workflowTask.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.workflowTask.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-task-123',
+        id: '30000000-0000-4000-a000-000000000123',
         taskNumber: 'TSK-2024-000006',
         ...createPayload,
         status: 'PENDING',
@@ -373,14 +373,14 @@ describe('Workflows Tasks API Routes', () => {
   describe('PUT /api/tasks/:id/claim', () => {
     it('should claim a task successfully', async () => {
       (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
-        id: 'task-1',
-        assigneeId: 'user-1',
+        id: '3d000000-0000-4000-a000-000000000001',
+        assigneeId: '20000000-0000-4000-a000-000000000001',
         status: 'IN_PROGRESS',
       });
 
       const response = await request(app)
-        .put('/api/tasks/task-1/claim')
-        .send({ userId: 'user-1' });
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/claim')
+        .send({ userId: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -390,8 +390,8 @@ describe('Workflows Tasks API Routes', () => {
       (mockPrisma.workflowTask.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/tasks/task-1/claim')
-        .send({ userId: 'user-1' });
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/claim')
+        .send({ userId: '20000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -401,8 +401,8 @@ describe('Workflows Tasks API Routes', () => {
   describe('PUT /api/tasks/:id/complete', () => {
     it('should complete a task successfully', async () => {
       (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
-        id: 'task-1',
-        instanceId: 'inst-1',
+        id: '3d000000-0000-4000-a000-000000000001',
+        instanceId: '3c000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
       });
       (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({
@@ -410,7 +410,7 @@ describe('Workflows Tasks API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/tasks/task-1/complete')
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/complete')
         .send({
           result: { approved: true },
           notes: 'Completed review',
@@ -432,7 +432,7 @@ describe('Workflows Tasks API Routes', () => {
       (mockPrisma.workflowTask.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/tasks/task-1/complete')
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/complete')
         .send({});
 
       expect(response.status).toBe(500);
@@ -443,21 +443,21 @@ describe('Workflows Tasks API Routes', () => {
   describe('PUT /api/tasks/:id/reassign', () => {
     it('should reassign a task successfully', async () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'task-1',
+        id: '3d000000-0000-4000-a000-000000000001',
         assigneeId: 'old-user',
-        instanceId: 'inst-1',
+        instanceId: '3c000000-0000-4000-a000-000000000001',
       });
       (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
-        id: 'task-1',
+        id: '3d000000-0000-4000-a000-000000000001',
         assigneeId: 'new-user',
-        instanceId: 'inst-1',
+        instanceId: '3c000000-0000-4000-a000-000000000001',
       });
       (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({
         id: 'hist-1',
       });
 
       const response = await request(app)
-        .put('/api/tasks/task-1/reassign')
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/reassign')
         .send({
           newAssigneeId: 'new-user',
           reason: 'Out of office',
@@ -475,11 +475,11 @@ describe('Workflows Tasks API Routes', () => {
       );
     });
 
-    it('should return 404 for non-existent task', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff task', async () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/tasks/non-existent/reassign')
+        .put('/api/tasks/00000000-0000-4000-a000-ffffffffffff/reassign')
         .send({ newAssigneeId: 'new-user' });
 
       expect(response.status).toBe(404);
@@ -490,7 +490,7 @@ describe('Workflows Tasks API Routes', () => {
       (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/tasks/task-1/reassign')
+        .put('/api/tasks/3d000000-0000-4000-a000-000000000001/reassign')
         .send({ newAssigneeId: 'new-user' });
 
       expect(response.status).toBe(500);

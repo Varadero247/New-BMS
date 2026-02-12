@@ -15,7 +15,7 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -41,7 +41,7 @@ describe('Workflow Definitions API Routes', () => {
   describe('GET /api/definitions', () => {
     const mockDefinitions = [
       {
-        id: 'def-1',
+        id: '3b000000-0000-4000-a000-000000000001',
         code: 'APPROVAL_FLOW',
         name: 'Approval Workflow',
         status: 'ACTIVE',
@@ -89,12 +89,12 @@ describe('Workflow Definitions API Routes', () => {
     it('should filter by templateId', async () => {
       mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce([]);
 
-      await request(app).get('/api/definitions?templateId=tmpl-1');
+      await request(app).get('/api/definitions?templateId=41000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            templateId: 'tmpl-1',
+            templateId: '41000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -103,12 +103,12 @@ describe('Workflow Definitions API Routes', () => {
     it('should filter by createdBy', async () => {
       mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce([]);
 
-      await request(app).get('/api/definitions?createdBy=user-1');
+      await request(app).get('/api/definitions?createdBy=20000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            createdBy: 'user-1',
+            createdBy: '20000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -141,30 +141,30 @@ describe('Workflow Definitions API Routes', () => {
 
   describe('GET /api/definitions/:id', () => {
     const mockDefinition = {
-      id: 'def-1',
+      id: '3b000000-0000-4000-a000-000000000001',
       code: 'APPROVAL_FLOW',
       name: 'Approval Workflow',
       nodes: [{ id: 'start', type: 'start' }],
       edges: [],
       template: { name: 'Standard Approval' },
-      instances: [{ id: 'inst-1' }],
+      instances: [{ id: '3c000000-0000-4000-a000-000000000001' }],
     };
 
     it('should return single definition with instances', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(mockDefinition as any);
 
-      const response = await request(app).get('/api/definitions/def-1');
+      const response = await request(app).get('/api/definitions/3b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('def-1');
+      expect(response.body.data.id).toBe('3b000000-0000-4000-a000-000000000001');
       expect(response.body.data.instances).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent definition', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/definitions/non-existent');
+      const response = await request(app).get('/api/definitions/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -173,7 +173,7 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/definitions/def-1');
+      const response = await request(app).get('/api/definitions/3b000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -191,7 +191,7 @@ describe('Workflow Definitions API Routes', () => {
 
     it('should create a workflow definition successfully', async () => {
       mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
-        id: 'new-def-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         status: 'DRAFT',
         version: 1,
@@ -209,7 +209,7 @@ describe('Workflow Definitions API Routes', () => {
 
     it('should set initial status to DRAFT and version to 1', async () => {
       mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
-        id: 'new-def-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'DRAFT',
         version: 1,
       } as any);
@@ -260,7 +260,7 @@ describe('Workflow Definitions API Routes', () => {
 
     it('should accept optional templateId', async () => {
       mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
-        id: 'new-def-123',
+        id: '30000000-0000-4000-a000-000000000123',
         templateId: '11111111-1111-1111-1111-111111111111',
       } as any);
 
@@ -285,7 +285,7 @@ describe('Workflow Definitions API Routes', () => {
 
   describe('PUT /api/definitions/:id', () => {
     const existingDefinition = {
-      id: 'def-1',
+      id: '3b000000-0000-4000-a000-000000000001',
       code: 'APPROVAL_FLOW',
       name: 'Approval Workflow',
       version: 1,
@@ -300,13 +300,13 @@ describe('Workflow Definitions API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .put('/api/definitions/def-1')
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated Workflow' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith({
-        where: { id: 'def-1' },
+        where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           name: 'Updated Workflow',
           version: 2,
@@ -314,11 +314,11 @@ describe('Workflow Definitions API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent definition', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/definitions/non-existent')
+        .put('/api/definitions/00000000-0000-4000-a000-ffffffffffff')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(404);
@@ -330,14 +330,14 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({} as any);
 
       await request(app)
-        .put('/api/definitions/def-1')
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
         .send({
           nodes: [{ id: 'new-node' }],
           edges: [{ source: 'a', target: 'b' }],
         });
 
       expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith({
-        where: { id: 'def-1' },
+        where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           nodes: [{ id: 'new-node' }],
           edges: [{ source: 'a', target: 'b' }],
@@ -349,7 +349,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/definitions/def-1')
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -360,23 +360,23 @@ describe('Workflow Definitions API Routes', () => {
   describe('PUT /api/definitions/:id/activate', () => {
     it('should activate definition and set published version', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce({
-        id: 'def-1',
+        id: '3b000000-0000-4000-a000-000000000001',
         version: 3,
         status: 'DRAFT',
       } as any);
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
-        id: 'def-1',
+        id: '3b000000-0000-4000-a000-000000000001',
         status: 'ACTIVE',
         publishedVersion: 3,
       } as any);
 
       const response = await request(app)
-        .put('/api/definitions/def-1/activate');
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/activate');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith({
-        where: { id: 'def-1' },
+        where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: {
           status: 'ACTIVE',
           publishedVersion: 3,
@@ -384,11 +384,11 @@ describe('Workflow Definitions API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent definition', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/definitions/non-existent/activate');
+        .put('/api/definitions/00000000-0000-4000-a000-ffffffffffff/activate');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -398,7 +398,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/definitions/def-1/activate');
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/activate');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -408,17 +408,17 @@ describe('Workflow Definitions API Routes', () => {
   describe('PUT /api/definitions/:id/archive', () => {
     it('should archive definition', async () => {
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
-        id: 'def-1',
+        id: '3b000000-0000-4000-a000-000000000001',
         status: 'ARCHIVED',
       } as any);
 
       const response = await request(app)
-        .put('/api/definitions/def-1/archive');
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/archive');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith({
-        where: { id: 'def-1' },
+        where: { id: '3b000000-0000-4000-a000-000000000001' },
         data: { status: 'ARCHIVED' },
       });
     });
@@ -427,7 +427,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/definitions/def-1/archive');
+        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/archive');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -436,7 +436,7 @@ describe('Workflow Definitions API Routes', () => {
 
   describe('POST /api/definitions/:id/clone', () => {
     const sourceDefinition = {
-      id: 'def-1',
+      id: '3b000000-0000-4000-a000-000000000001',
       code: 'ORIGINAL',
       name: 'Original Workflow',
       description: 'Description',
@@ -448,7 +448,7 @@ describe('Workflow Definitions API Routes', () => {
       defaultSLA: 24,
       escalationRules: null,
       notificationConfig: null,
-      templateId: 'tmpl-1',
+      templateId: '41000000-0000-4000-a000-000000000001',
     };
 
     it('should clone definition with new code', async () => {
@@ -462,7 +462,7 @@ describe('Workflow Definitions API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .post('/api/definitions/def-1/clone');
+        .post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -476,7 +476,7 @@ describe('Workflow Definitions API Routes', () => {
         version: 1,
       } as any);
 
-      await request(app).post('/api/definitions/def-1/clone');
+      await request(app).post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
 
       expect(mockPrisma.workflowDefinition.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -486,11 +486,11 @@ describe('Workflow Definitions API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent source', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff source', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/definitions/non-existent/clone');
+        .post('/api/definitions/00000000-0000-4000-a000-ffffffffffff/clone');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -500,7 +500,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/definitions/def-1/clone');
+        .post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

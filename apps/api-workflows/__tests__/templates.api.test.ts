@@ -16,13 +16,13 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '@ims/database';
@@ -46,7 +46,7 @@ describe('Workflows Templates API Routes', () => {
   describe('GET /api/templates', () => {
     const mockTemplates = [
       {
-        id: 'tmpl-1',
+        id: '41000000-0000-4000-a000-000000000001',
         code: 'ONBOARDING',
         name: 'Employee Onboarding',
         category: 'HR',
@@ -179,28 +179,28 @@ describe('Workflows Templates API Routes', () => {
 
   describe('GET /api/templates/:id', () => {
     const mockTemplate = {
-      id: 'tmpl-1',
+      id: '41000000-0000-4000-a000-000000000001',
       code: 'ONBOARDING',
       name: 'Employee Onboarding',
       category: 'HR',
-      definitions: [{ id: 'def-1', name: 'V1' }],
+      definitions: [{ id: '3b000000-0000-4000-a000-000000000001', name: 'V1' }],
     };
 
     it('should return single template with definitions', async () => {
       (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce(mockTemplate);
 
-      const response = await request(app).get('/api/templates/tmpl-1');
+      const response = await request(app).get('/api/templates/41000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('tmpl-1');
+      expect(response.body.data.id).toBe('41000000-0000-4000-a000-000000000001');
       expect(response.body.data.definitions).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent template', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff template', async () => {
       (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/templates/non-existent');
+      const response = await request(app).get('/api/templates/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -209,7 +209,7 @@ describe('Workflows Templates API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/templates/tmpl-1');
+      const response = await request(app).get('/api/templates/41000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -225,7 +225,7 @@ describe('Workflows Templates API Routes', () => {
 
     it('should create a template successfully', async () => {
       (mockPrisma.workflowTemplate.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-tmpl-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         isActive: true,
         complexity: 'MEDIUM',
@@ -243,7 +243,7 @@ describe('Workflows Templates API Routes', () => {
 
     it('should set default complexity to MEDIUM and version to 1', async () => {
       (mockPrisma.workflowTemplate.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-tmpl-123',
+        id: '30000000-0000-4000-a000-000000000123',
         complexity: 'MEDIUM',
         version: 1,
       });
@@ -298,7 +298,7 @@ describe('Workflows Templates API Routes', () => {
 
     it('should accept optional fields', async () => {
       (mockPrisma.workflowTemplate.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-tmpl-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         industryType: 'MANUFACTURING',
         complexity: 'COMPLEX',
@@ -333,12 +333,12 @@ describe('Workflows Templates API Routes', () => {
   describe('PUT /api/templates/:id', () => {
     it('should update template successfully', async () => {
       (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
-        id: 'tmpl-1',
+        id: '41000000-0000-4000-a000-000000000001',
         name: 'Updated Template',
       });
 
       const response = await request(app)
-        .put('/api/templates/tmpl-1')
+        .put('/api/templates/41000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated Template' });
 
       expect(response.status).toBe(200);
@@ -347,7 +347,7 @@ describe('Workflows Templates API Routes', () => {
 
     it('should return 400 for invalid category on update', async () => {
       const response = await request(app)
-        .put('/api/templates/tmpl-1')
+        .put('/api/templates/41000000-0000-4000-a000-000000000001')
         .send({ category: 'INVALID' });
 
       expect(response.status).toBe(400);
@@ -356,12 +356,12 @@ describe('Workflows Templates API Routes', () => {
 
     it('should allow updating isActive', async () => {
       (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
-        id: 'tmpl-1',
+        id: '41000000-0000-4000-a000-000000000001',
         isActive: false,
       });
 
       const response = await request(app)
-        .put('/api/templates/tmpl-1')
+        .put('/api/templates/41000000-0000-4000-a000-000000000001')
         .send({ isActive: false });
 
       expect(response.status).toBe(200);
@@ -372,7 +372,7 @@ describe('Workflows Templates API Routes', () => {
       (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/templates/tmpl-1')
+        .put('/api/templates/41000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -383,18 +383,18 @@ describe('Workflows Templates API Routes', () => {
   describe('PUT /api/templates/:id/publish', () => {
     it('should publish template successfully', async () => {
       (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
-        id: 'tmpl-1',
+        id: '41000000-0000-4000-a000-000000000001',
         isPublished: true,
         publishedAt: new Date(),
       });
 
       const response = await request(app)
-        .put('/api/templates/tmpl-1/publish');
+        .put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(mockPrisma.workflowTemplate.update).toHaveBeenCalledWith({
-        where: { id: 'tmpl-1' },
+        where: { id: '41000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           isPublished: true,
           publishedAt: expect.any(Date),
@@ -406,7 +406,7 @@ describe('Workflows Templates API Routes', () => {
       (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/templates/tmpl-1/publish');
+        .put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

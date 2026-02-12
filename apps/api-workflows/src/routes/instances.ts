@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Valid WorkflowPriority enum values
 const priorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']);
@@ -129,8 +131,8 @@ router.post('/', async (req: Request, res: Response) => {
       priority: priorityEnum.default('NORMAL'),
       entityType: z.string().optional(),
       entityId: z.string().optional(),
-      variables: z.any().optional(),
-      formData: z.any().optional(),
+      variables: z.record(z.unknown()).optional(),
+      formData: z.record(z.unknown()).optional(),
       dueDate: z.string().optional(),
     });
 

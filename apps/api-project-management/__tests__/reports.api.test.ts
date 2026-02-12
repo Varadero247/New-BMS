@@ -15,7 +15,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -26,8 +26,8 @@ import reportsRouter from '../src/routes/reports';
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const mockReport = {
-  id: 'rpt-001',
-  projectId: 'proj-001',
+  id: '49000000-0000-4000-a000-000000000001',
+  projectId: '44000000-0000-4000-a000-000000000001',
   reportPeriod: 'Week 10 - March 2025',
   reportType: 'WEEKLY',
   reportDate: '2025-03-10T00:00:00.000Z',
@@ -49,7 +49,7 @@ const mockReport = {
   budgetConsumed: 45000,
   scheduleVariance: -2,
   costVariance: 5000,
-  createdBy: 'user-123',
+  createdBy: '20000000-0000-4000-a000-000000000123',
   createdAt: '2025-03-10T09:00:00.000Z',
   updatedAt: '2025-03-10T09:00:00.000Z',
 };
@@ -74,17 +74,17 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
       (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app).get('/api/reports').query({ projectId: 'proj-001' });
+      const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveLength(1);
-      expect(res.body.data[0].id).toBe('rpt-001');
+      expect(res.body.data[0].id).toBe('49000000-0000-4000-a000-000000000001');
       expect(res.body.meta).toBeDefined();
       expect(res.body.meta.total).toBe(1);
       expect(mockPrisma.projectStatusReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: 'proj-001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001' },
           orderBy: { reportDate: 'desc' },
         }),
       );
@@ -103,7 +103,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
       (mockPrisma.projectStatusReport.count as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/reports').query({ projectId: 'proj-001' });
+      const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -117,22 +117,22 @@ describe('Reports API Routes', () => {
     it('should return a single report by id', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
 
-      const res = await request(app).get('/api/reports/rpt-001');
+      const res = await request(app).get('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('rpt-001');
+      expect(res.body.data.id).toBe('49000000-0000-4000-a000-000000000001');
       expect(res.body.data.overallStatus).toBe('GREEN');
       expect(res.body.data.executiveSummary).toBeDefined();
       expect(mockPrisma.projectStatusReport.findUnique).toHaveBeenCalledWith({
-        where: { id: 'rpt-001' },
+        where: { id: '49000000-0000-4000-a000-000000000001' },
       });
     });
 
     it('should return 404 when report does not exist', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/reports/nonexistent');
+      const res = await request(app).get('/api/reports/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -142,7 +142,7 @@ describe('Reports API Routes', () => {
     it('should return 500 on internal error', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/reports/rpt-001');
+      const res = await request(app).get('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -155,7 +155,7 @@ describe('Reports API Routes', () => {
   describe('POST /api/reports', () => {
     it('should create a new status report', async () => {
       const createPayload = {
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         reportPeriod: 'Week 11 - March 2025',
         executiveSummary: 'Progressing well on frontend integration.',
         overallStatus: 'GREEN',
@@ -172,7 +172,7 @@ describe('Reports API Routes', () => {
         ...createPayload,
         reportType: 'WEEKLY',
         reportDate: '2025-03-17T09:00:00.000Z',
-        createdBy: 'user-123',
+        createdBy: '20000000-0000-4000-a000-000000000123',
         createdAt: '2025-03-17T09:00:00.000Z',
         updatedAt: '2025-03-17T09:00:00.000Z',
       };
@@ -185,10 +185,10 @@ describe('Reports API Routes', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.id).toBe('rpt-002');
       expect(res.body.data.reportType).toBe('WEEKLY');
-      expect(res.body.data.createdBy).toBe('user-123');
+      expect(res.body.data.createdBy).toBe('20000000-0000-4000-a000-000000000123');
       expect(mockPrisma.projectStatusReport.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          projectId: 'proj-001',
+          projectId: '44000000-0000-4000-a000-000000000001',
           reportPeriod: 'Week 11 - March 2025',
           reportType: 'WEEKLY',
           reportDate: expect.any(Date),
@@ -198,14 +198,14 @@ describe('Reports API Routes', () => {
           scopeStatus: 'AMBER',
           qualityStatus: 'GREEN',
           riskStatus: 'GREEN',
-          createdBy: 'user-123',
+          createdBy: '20000000-0000-4000-a000-000000000123',
         }),
       });
     });
 
     it('should return 400 when RAG statuses are missing', async () => {
       const res = await request(app).post('/api/reports').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         reportPeriod: 'Week 11',
         executiveSummary: 'Summary here',
         overallStatus: 'GREEN',
@@ -220,7 +220,7 @@ describe('Reports API Routes', () => {
 
     it('should return 400 for invalid RAG status values', async () => {
       const res = await request(app).post('/api/reports').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         reportPeriod: 'Week 11',
         executiveSummary: 'Summary here',
         overallStatus: 'INVALID',
@@ -240,7 +240,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app).post('/api/reports').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         reportPeriod: 'Week 11',
         executiveSummary: 'Summary here',
         overallStatus: 'GREEN',
@@ -264,16 +264,16 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
       (mockPrisma.projectStatusReport.delete as jest.Mock).mockResolvedValue(mockReport);
 
-      const res = await request(app).delete('/api/reports/rpt-001');
+      const res = await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectStatusReport.delete).toHaveBeenCalledWith({ where: { id: 'rpt-001' } });
+      expect(mockPrisma.projectStatusReport.delete).toHaveBeenCalledWith({ where: { id: '49000000-0000-4000-a000-000000000001' } });
     });
 
     it('should return 404 when report does not exist', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/reports/nonexistent');
+      const res = await request(app).delete('/api/reports/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -285,7 +285,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
       (mockPrisma.projectStatusReport.delete as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/reports/rpt-001');
+      const res = await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

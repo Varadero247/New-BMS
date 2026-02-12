@@ -20,13 +20,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Payroll Loans API Routes', () => {
   describe('GET /api/loans', () => {
     const mockLoans = [
       {
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         loanNumber: 'LN-2024-00001',
         loanType: 'PERSONAL_LOAN',
         principalAmount: 5000,
@@ -87,13 +87,13 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/loans?employeeId=emp-1')
+        .get('/api/loans?employeeId=2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeLoan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -159,7 +159,7 @@ describe('Payroll Loans API Routes', () => {
 
   describe('GET /api/loans/:id', () => {
     const mockLoan = {
-      id: 'loan-1',
+      id: '39000000-0000-4000-a000-000000000001',
       loanNumber: 'LN-2024-00001',
       loanType: 'PERSONAL_LOAN',
       principalAmount: 5000,
@@ -167,7 +167,7 @@ describe('Payroll Loans API Routes', () => {
       status: 'ACTIVE',
       employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
       repayments: [
-        { id: 'rep-1', installmentNumber: 1, amount: 437.5, status: 'PAID' },
+        { id: '4a000000-0000-4000-a000-000000000001', installmentNumber: 1, amount: 437.5, status: 'PAID' },
       ],
     };
 
@@ -175,20 +175,20 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce(mockLoan);
 
       const response = await request(app)
-        .get('/api/loans/loan-1')
+        .get('/api/loans/39000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('loan-1');
+      expect(response.body.data.id).toBe('39000000-0000-4000-a000-000000000001');
       expect(response.body.data.repayments).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent loan', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff loan', async () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/loans/non-existent')
+        .get('/api/loans/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -199,7 +199,7 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/loans/loan-1')
+        .get('/api/loans/39000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -220,7 +220,7 @@ describe('Payroll Loans API Routes', () => {
     it('should create a loan successfully', async () => {
       (mockPrisma.employeeLoan.count as jest.Mock).mockResolvedValueOnce(3);
       (mockPrisma.employeeLoan.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-loan-123',
+        id: '30000000-0000-4000-a000-000000000123',
         loanNumber: 'LN-2024-00004',
         ...createPayload,
         totalAmount: 5250,
@@ -242,7 +242,7 @@ describe('Payroll Loans API Routes', () => {
     it('should calculate total amount with interest', async () => {
       (mockPrisma.employeeLoan.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.employeeLoan.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-loan-123',
+        id: '30000000-0000-4000-a000-000000000123',
         totalAmount: 5250,
         installmentAmount: 437.5,
         status: 'PENDING',
@@ -267,7 +267,7 @@ describe('Payroll Loans API Routes', () => {
     it('should set initial status to PENDING', async () => {
       (mockPrisma.employeeLoan.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.employeeLoan.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-loan-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'PENDING',
         employee: {},
       });
@@ -333,7 +333,7 @@ describe('Payroll Loans API Routes', () => {
   describe('PUT /api/loans/:id/approve', () => {
     it('should approve loan and generate repayment schedule', async () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         principalAmount: 5000,
         interestRate: 5,
         totalAmount: 5250,
@@ -343,13 +343,13 @@ describe('Payroll Loans API Routes', () => {
       });
       (mockPrisma.loanRepayment.createMany as jest.Mock).mockResolvedValueOnce({ count: 12 });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         repayments: [],
       });
 
       const response = await request(app)
-        .put('/api/loans/loan-1/approve')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -358,11 +358,11 @@ describe('Payroll Loans API Routes', () => {
       expect(mockPrisma.loanRepayment.createMany).toHaveBeenCalled();
     });
 
-    it('should return 404 for non-existent loan', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff loan', async () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/loans/non-existent/approve')
+        .put('/api/loans/00000000-0000-4000-a000-ffffffffffff/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -372,7 +372,7 @@ describe('Payroll Loans API Routes', () => {
 
     it('should set status to APPROVED', async () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         principalAmount: 1000,
         interestRate: 0,
         totalAmount: 1000,
@@ -382,13 +382,13 @@ describe('Payroll Loans API Routes', () => {
       });
       (mockPrisma.loanRepayment.createMany as jest.Mock).mockResolvedValueOnce({ count: 2 });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         repayments: [],
       });
 
       await request(app)
-        .put('/api/loans/loan-1/approve')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -407,7 +407,7 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/loans/loan-1/approve')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({ approvedById: 'admin-1' });
 
@@ -422,13 +422,13 @@ describe('Payroll Loans API Routes', () => {
         principalAmount: 5000,
       });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         status: 'ACTIVE',
         disbursedAmount: 5000,
       });
 
       const response = await request(app)
-        .put('/api/loans/loan-1/disburse')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/disburse')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -440,16 +440,16 @@ describe('Payroll Loans API Routes', () => {
         principalAmount: 5000,
       });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         status: 'ACTIVE',
       });
 
       await request(app)
-        .put('/api/loans/loan-1/disburse')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/disburse')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeLoan.update).toHaveBeenCalledWith({
-        where: { id: 'loan-1' },
+        where: { id: '39000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'ACTIVE',
           disbursedAt: expect.any(Date),
@@ -461,7 +461,7 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.employeeLoan.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/loans/loan-1/disburse')
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/disburse')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -472,23 +472,23 @@ describe('Payroll Loans API Routes', () => {
   describe('POST /api/loans/:id/repayments/:repaymentId/pay', () => {
     it('should record repayment successfully', async () => {
       (mockPrisma.loanRepayment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'rep-1',
+        id: '4a000000-0000-4000-a000-000000000001',
         paidAmount: 437.5,
         status: 'PAID',
       });
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         remainingBalance: 4812.5,
         repaidAmount: 437.5,
       });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         remainingBalance: 4375,
         repaidAmount: 875,
       });
 
       const response = await request(app)
-        .post('/api/loans/loan-1/repayments/rep-1/pay')
+        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 
@@ -498,26 +498,26 @@ describe('Payroll Loans API Routes', () => {
 
     it('should update loan remaining balance', async () => {
       (mockPrisma.loanRepayment.update as jest.Mock).mockResolvedValueOnce({
-        id: 'rep-1',
+        id: '4a000000-0000-4000-a000-000000000001',
         status: 'PAID',
       });
       (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         remainingBalance: 1000,
         repaidAmount: 4250,
       });
       (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({
-        id: 'loan-1',
+        id: '39000000-0000-4000-a000-000000000001',
         remainingBalance: 562.5,
       });
 
       await request(app)
-        .post('/api/loans/loan-1/repayments/rep-1/pay')
+        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 
       expect(mockPrisma.employeeLoan.update).toHaveBeenCalledWith({
-        where: { id: 'loan-1' },
+        where: { id: '39000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           remainingBalance: expect.any(Number),
           repaidAmount: expect.any(Number),
@@ -529,7 +529,7 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.loanRepayment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/loans/loan-1/repayments/rep-1/pay')
+        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 

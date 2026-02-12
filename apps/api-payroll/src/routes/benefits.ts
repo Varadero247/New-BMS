@@ -3,11 +3,13 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-payroll');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/benefits/plans - Get benefit plans
 router.get('/plans', async (req: Request, res: Response) => {
@@ -90,7 +92,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     const schema = z.object({
       benefitPlanId: z.string().uuid(),
       coverageLevel: z.enum(['EMPLOYEE_ONLY', 'EMPLOYEE_SPOUSE', 'EMPLOYEE_CHILDREN', 'FAMILY']),
-      dependents: z.any().optional(),
+      dependents: z.array(z.record(z.unknown())).optional(),
       employeeContribution: z.number().default(0),
       employerContribution: z.number().default(0),
       effectiveFrom: z.string(),

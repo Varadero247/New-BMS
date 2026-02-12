@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Quality Suppliers API Routes', () => {
   describe('GET /api/suppliers', () => {
     const mockSuppliers = [
       {
-        id: 'sup-1',
+        id: '25000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-SUP-2026-001',
         supplierName: 'Acme Materials Ltd',
         category: 'MATERIALS',
@@ -202,7 +202,7 @@ describe('Quality Suppliers API Routes', () => {
   // ============================================
   describe('GET /api/suppliers/:id', () => {
     const mockSupplier = {
-      id: 'sup-1',
+      id: '25000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-SUP-2026-001',
       supplierName: 'Acme Materials Ltd',
       category: 'MATERIALS',
@@ -219,20 +219,20 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce(mockSupplier);
 
       const response = await request(app)
-        .get('/api/suppliers/sup-1')
+        .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('sup-1');
+      expect(response.body.data.id).toBe('25000000-0000-4000-a000-000000000001');
       expect(response.body.data.supplierName).toBe('Acme Materials Ltd');
     });
 
-    it('should return 404 for non-existent supplier', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff supplier', async () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/suppliers/non-existent')
+        .get('/api/suppliers/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -243,7 +243,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/suppliers/sup-1')
+        .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -263,7 +263,7 @@ describe('Quality Suppliers API Routes', () => {
     it('should create a supplier successfully', async () => {
       (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualSupplier.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-SUP-2026-001',
         ...createPayload,
         approvedStatus: 'PENDING_EVALUATION',
@@ -297,7 +297,7 @@ describe('Quality Suppliers API Routes', () => {
 
       (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualSupplier.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...payloadWithScores,
         overallImsScore: 83, // 90*0.5 + 80*0.3 + 70*0.2 = 45+24+14 = 83
         overallRating: 'APPROVED',
@@ -367,7 +367,7 @@ describe('Quality Suppliers API Routes', () => {
   // ============================================
   describe('PUT /api/suppliers/:id', () => {
     const existingSupplier = {
-      id: 'sup-1',
+      id: '25000000-0000-4000-a000-000000000001',
       supplierName: 'Existing Supplier',
       category: 'MATERIALS',
       qualityScore: 80,
@@ -386,7 +386,7 @@ describe('Quality Suppliers API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/suppliers/sup-1')
+        .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ supplierName: 'Updated Supplier' });
 
@@ -406,12 +406,12 @@ describe('Quality Suppliers API Routes', () => {
       });
 
       await request(app)
-        .put('/api/suppliers/sup-1')
+        .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ qualityScore: 95 });
 
       expect(mockPrisma.qualSupplier.update).toHaveBeenCalledWith({
-        where: { id: 'sup-1' },
+        where: { id: '25000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           overallImsScore: 81,
           overallRating: 'APPROVED',
@@ -420,11 +420,11 @@ describe('Quality Suppliers API Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent supplier', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff supplier', async () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/suppliers/non-existent')
+        .put('/api/suppliers/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ supplierName: 'Updated' });
 
@@ -436,7 +436,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce(existingSupplier);
 
       const response = await request(app)
-        .put('/api/suppliers/sup-1')
+        .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ approvedStatus: 'INVALID_STATUS' });
 
@@ -448,7 +448,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/suppliers/sup-1')
+        .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ supplierName: 'Updated' });
 
@@ -462,24 +462,24 @@ describe('Quality Suppliers API Routes', () => {
   // ============================================
   describe('DELETE /api/suppliers/:id', () => {
     it('should delete supplier successfully', async () => {
-      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'sup-1' });
+      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: '25000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualSupplier.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/suppliers/sup-1')
+        .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualSupplier.delete).toHaveBeenCalledWith({
-        where: { id: 'sup-1' },
+        where: { id: '25000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent supplier', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff supplier', async () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/suppliers/non-existent')
+        .delete('/api/suppliers/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -490,7 +490,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/suppliers/sup-1')
+        .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

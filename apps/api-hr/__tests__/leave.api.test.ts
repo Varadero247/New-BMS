@@ -38,7 +38,7 @@ jest.mock('../src/prisma', () => {
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -193,15 +193,15 @@ describe('HR Leave API Routes', () => {
   describe('GET /api/leave/requests', () => {
     const mockRequests = [
       {
-        id: 'lr-1',
+        id: '14100000-0000-4000-a000-000000000001',
         requestNumber: 'LR-2025-00001',
-        employeeId: 'emp-1',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         leaveTypeId: 'lt-1',
         startDate: new Date('2025-02-01'),
         endDate: new Date('2025-02-05'),
         days: 5,
         status: 'PENDING',
-        employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: 'dept-1' },
+        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
         leaveType: { id: 'lt-1', name: 'Annual Leave' },
         approvals: [],
       },
@@ -240,12 +240,12 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/leave/requests?employeeId=emp-1');
+      await request(app).get('/api/leave/requests?employeeId=2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -310,18 +310,18 @@ describe('HR Leave API Routes', () => {
 
   describe('GET /api/leave/requests/:id', () => {
     const mockRequest = {
-      id: 'lr-1',
+      id: '14100000-0000-4000-a000-000000000001',
       requestNumber: 'LR-2025-00001',
-      employeeId: 'emp-1',
+      employeeId: '2a000000-0000-4000-a000-000000000001',
       days: 5,
       status: 'PENDING',
       employee: {
-        id: 'emp-1',
+        id: '2a000000-0000-4000-a000-000000000001',
         firstName: 'John',
         lastName: 'Doe',
         employeeNumber: 'EMP001',
         department: { name: 'Engineering' },
-        manager: { id: 'mgr-1', firstName: 'Jane', lastName: 'Manager' },
+        manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
       leaveType: { id: 'lt-1', name: 'Annual Leave' },
       approvals: [],
@@ -330,17 +330,17 @@ describe('HR Leave API Routes', () => {
     it('should return single leave request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(mockRequest);
 
-      const response = await request(app).get('/api/leave/requests/lr-1');
+      const response = await request(app).get('/api/leave/requests/14100000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('lr-1');
+      expect(response.body.data.id).toBe('14100000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent request', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/leave/requests/non-existent');
+      const response = await request(app).get('/api/leave/requests/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -349,7 +349,7 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/leave/requests/lr-1');
+      const response = await request(app).get('/api/leave/requests/14100000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -372,7 +372,7 @@ describe('HR Leave API Routes', () => {
       });
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(10);
       (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce({
-        managerId: 'mgr-1',
+        managerId: '53000000-0000-4000-a000-000000000001',
       });
       (mockPrisma.leaveRequest.create as jest.Mock).mockResolvedValueOnce({
         id: 'lr-new',
@@ -382,7 +382,7 @@ describe('HR Leave API Routes', () => {
         status: 'PENDING',
         employee: { firstName: 'John', lastName: 'Doe' },
         leaveType: { id: 'lt-1', name: 'Annual Leave' },
-        approvals: [{ id: 'appr-1', approverEmployeeId: 'mgr-1', status: 'PENDING' }],
+        approvals: [{ id: 'appr-1', approverEmployeeId: '53000000-0000-4000-a000-000000000001', status: 'PENDING' }],
       });
       (mockPrisma.leaveBalance.update as jest.Mock).mockResolvedValueOnce({});
 
@@ -450,8 +450,8 @@ describe('HR Leave API Routes', () => {
   describe('PUT /api/leave/requests/:id/approve', () => {
     it('should approve leave request successfully', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'lr-1',
-        employeeId: 'emp-1',
+        id: '14100000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         leaveTypeId: 'lt-1',
         startDate: new Date('2025-02-10'),
         days: 5,
@@ -459,7 +459,7 @@ describe('HR Leave API Routes', () => {
       });
       (mockPrisma.leaveApproval.updateMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
       (mockPrisma.leaveRequest.update as jest.Mock).mockResolvedValueOnce({
-        id: 'lr-1',
+        id: '14100000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         employee: { firstName: 'John', lastName: 'Doe' },
         leaveType: { name: 'Annual Leave' },
@@ -467,19 +467,19 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveBalance.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .put('/api/leave/requests/lr-1/approve')
-        .send({ approverId: 'mgr-1', comments: 'Approved' });
+        .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/approve')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001', comments: 'Approved' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent request', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/leave/requests/non-existent/approve')
-        .send({ approverId: 'mgr-1' });
+        .put('/api/leave/requests/00000000-0000-4000-a000-ffffffffffff/approve')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -489,8 +489,8 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/leave/requests/lr-1/approve')
-        .send({ approverId: 'mgr-1' });
+        .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/approve')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -500,33 +500,33 @@ describe('HR Leave API Routes', () => {
   describe('PUT /api/leave/requests/:id/reject', () => {
     it('should reject leave request successfully', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'lr-1',
-        employeeId: 'emp-1',
+        id: '14100000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         leaveTypeId: 'lt-1',
         startDate: new Date('2025-02-10'),
         days: 5,
       });
       (mockPrisma.leaveApproval.updateMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
       (mockPrisma.leaveRequest.update as jest.Mock).mockResolvedValueOnce({
-        id: 'lr-1',
+        id: '14100000-0000-4000-a000-000000000001',
         status: 'REJECTED',
       });
       (mockPrisma.leaveBalance.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .put('/api/leave/requests/lr-1/reject')
-        .send({ approverId: 'mgr-1', comments: 'Rejected - team busy' });
+        .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/reject')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001', comments: 'Rejected - team busy' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent request', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/leave/requests/non-existent/reject')
-        .send({ approverId: 'mgr-1' });
+        .put('/api/leave/requests/00000000-0000-4000-a000-ffffffffffff/reject')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -536,8 +536,8 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/leave/requests/lr-1/reject')
-        .send({ approverId: 'mgr-1' });
+        .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/reject')
+        .send({ approverId: '53000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -548,7 +548,7 @@ describe('HR Leave API Routes', () => {
     const mockBalances = [
       {
         id: 'bal-1',
-        employeeId: 'emp-1',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         leaveTypeId: 'lt-1',
         year: 2025,
         entitled: 25,
@@ -562,7 +562,7 @@ describe('HR Leave API Routes', () => {
     it('should return leave balances for employee', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockResolvedValueOnce(mockBalances);
 
-      const response = await request(app).get('/api/leave/balances/emp-1');
+      const response = await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -572,12 +572,12 @@ describe('HR Leave API Routes', () => {
     it('should filter by year', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app).get('/api/leave/balances/emp-1?year=2024');
+      await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001?year=2024');
 
       expect(mockPrisma.leaveBalance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
             year: 2024,
           }),
         })
@@ -587,7 +587,7 @@ describe('HR Leave API Routes', () => {
     it('should include leaveType data', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockResolvedValueOnce(mockBalances);
 
-      await request(app).get('/api/leave/balances/emp-1');
+      await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.leaveBalance.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -599,7 +599,7 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/leave/balances/emp-1');
+      const response = await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

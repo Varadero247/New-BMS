@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Quality Documents API Routes', () => {
   describe('GET /api/documents', () => {
     const mockDocuments = [
       {
-        id: 'doc-1',
+        id: '1e000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-DOC-2026-001',
         title: 'Quality Policy',
         documentType: 'POLICY',
@@ -202,7 +202,7 @@ describe('Quality Documents API Routes', () => {
 
   describe('GET /api/documents/:id', () => {
     const mockDocument = {
-      id: 'doc-1',
+      id: '1e000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-DOC-2026-001',
       title: 'Quality Policy',
       documentType: 'POLICY',
@@ -213,19 +213,19 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(mockDocument);
 
       const response = await request(app)
-        .get('/api/documents/doc-1')
+        .get('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('doc-1');
+      expect(response.body.data.id).toBe('1e000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent document', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff document', async () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/documents/non-existent')
+        .get('/api/documents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -236,7 +236,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/documents/doc-1')
+        .get('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -255,7 +255,7 @@ describe('Quality Documents API Routes', () => {
     it('should create a document successfully', async () => {
       mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
       mockPrisma.qualDocument.create.mockResolvedValueOnce({
-        id: 'new-doc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'QMS-DOC-2026-001',
         status: 'DRAFT',
@@ -276,7 +276,7 @@ describe('Quality Documents API Routes', () => {
     it('should generate a reference number', async () => {
       mockPrisma.qualDocument.count.mockResolvedValueOnce(5);
       mockPrisma.qualDocument.create.mockResolvedValueOnce({
-        id: 'new-doc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-DOC-2026-006',
       });
 
@@ -295,7 +295,7 @@ describe('Quality Documents API Routes', () => {
     it('should set initial status to DRAFT', async () => {
       mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
       mockPrisma.qualDocument.create.mockResolvedValueOnce({
-        id: 'new-doc-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'DRAFT',
       });
 
@@ -361,7 +361,7 @@ describe('Quality Documents API Routes', () => {
 
   describe('PUT /api/documents/:id', () => {
     const existingDocument = {
-      id: 'doc-1',
+      id: '1e000000-0000-4000-a000-000000000001',
       title: 'Existing Document',
       status: 'DRAFT',
     };
@@ -374,7 +374,7 @@ describe('Quality Documents API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -382,11 +382,11 @@ describe('Quality Documents API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent document', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff document', async () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/documents/non-existent')
+        .put('/api/documents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -398,7 +398,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(existingDocument);
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -410,7 +410,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(existingDocument);
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ accessLevel: 'INVALID_LEVEL' });
 
@@ -422,7 +422,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/documents/doc-1')
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -433,24 +433,24 @@ describe('Quality Documents API Routes', () => {
 
   describe('DELETE /api/documents/:id', () => {
     it('should delete document successfully', async () => {
-      mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: 'doc-1' });
+      mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001' });
       mockPrisma.qualDocument.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/documents/doc-1')
+        .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualDocument.delete).toHaveBeenCalledWith({
-        where: { id: 'doc-1' },
+        where: { id: '1e000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent document', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff document', async () => {
       mockPrisma.qualDocument.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/documents/non-existent')
+        .delete('/api/documents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -461,7 +461,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/documents/doc-1')
+        .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

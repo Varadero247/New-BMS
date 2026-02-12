@@ -3,11 +3,13 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-payroll');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/salary/component-types - Get salary component types
 router.get('/component-types', async (req: Request, res: Response) => {
@@ -87,7 +89,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     const schema = z.object({
       baseSalary: z.number().positive(),
       currency: z.string().default('USD'),
-      payFrequency: z.enum(['WEEKLY', 'BIWEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).default('MONTHLY'),
+      payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).default('MONTHLY'),
       effectiveFrom: z.string(),
       changeReason: z.string().optional(),
       changeType: z.enum(['PROMOTION', 'ANNUAL_INCREMENT', 'ADJUSTMENT', 'DEMOTION', 'TRANSFER', 'CORRECTION', 'INITIAL']).optional(),

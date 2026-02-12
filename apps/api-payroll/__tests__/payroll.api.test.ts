@@ -29,7 +29,7 @@ jest.mock('../src/prisma', () => {
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -55,7 +55,7 @@ describe('Payroll API Routes', () => {
   describe('GET /api/payroll/runs', () => {
     const mockRuns = [
       {
-        id: 'run-1',
+        id: '35000000-0000-4000-a000-000000000001',
         runNumber: 'PAY-2024-0001',
         periodStart: new Date('2024-01-01'),
         periodEnd: new Date('2024-01-31'),
@@ -152,11 +152,11 @@ describe('Payroll API Routes', () => {
 
   describe('GET /api/payroll/runs/:id', () => {
     const mockRun = {
-      id: 'run-1',
+      id: '35000000-0000-4000-a000-000000000001',
       runNumber: 'PAY-2024-0001',
       status: 'APPROVED',
       payslips: [
-        { id: 'ps-1', employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' } },
+        { id: '4c000000-0000-4000-a000-000000000001', employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' } },
       ],
       taxFilings: [],
     };
@@ -164,18 +164,18 @@ describe('Payroll API Routes', () => {
     it('should return single payroll run with payslips', async () => {
       mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(mockRun as any);
 
-      const response = await request(app).get('/api/payroll/runs/run-1');
+      const response = await request(app).get('/api/payroll/runs/35000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('run-1');
+      expect(response.body.data.id).toBe('35000000-0000-4000-a000-000000000001');
       expect(response.body.data.payslips).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent run', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff run', async () => {
       mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/payroll/runs/non-existent');
+      const response = await request(app).get('/api/payroll/runs/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -184,7 +184,7 @@ describe('Payroll API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.payrollRun.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/payroll/runs/run-1');
+      const response = await request(app).get('/api/payroll/runs/35000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -202,7 +202,7 @@ describe('Payroll API Routes', () => {
     it('should create a payroll run successfully', async () => {
       mockPrisma.payrollRun.count.mockResolvedValueOnce(2);
       mockPrisma.payrollRun.create.mockResolvedValueOnce({
-        id: 'new-run-123',
+        id: '30000000-0000-4000-a000-000000000123',
         runNumber: 'PAY-2024-0003',
         ...createPayload,
         status: 'DRAFT',
@@ -220,7 +220,7 @@ describe('Payroll API Routes', () => {
     it('should generate sequential run number', async () => {
       mockPrisma.payrollRun.count.mockResolvedValueOnce(5);
       mockPrisma.payrollRun.create.mockResolvedValueOnce({
-        id: 'new-run-123',
+        id: '30000000-0000-4000-a000-000000000123',
         runNumber: 'PAY-2024-0006',
       } as any);
 
@@ -238,7 +238,7 @@ describe('Payroll API Routes', () => {
     it('should set initial status to DRAFT', async () => {
       mockPrisma.payrollRun.count.mockResolvedValueOnce(0);
       mockPrisma.payrollRun.create.mockResolvedValueOnce({
-        id: 'new-run-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'DRAFT',
       } as any);
 
@@ -287,11 +287,11 @@ describe('Payroll API Routes', () => {
   });
 
   describe('POST /api/payroll/runs/:id/calculate', () => {
-    it('should return 404 for non-existent run', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff run', async () => {
       mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/payroll/runs/non-existent/calculate');
+        .post('/api/payroll/runs/00000000-0000-4000-a000-ffffffffffff/calculate');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -299,7 +299,7 @@ describe('Payroll API Routes', () => {
 
     it('should return 501 for calculate (requires cross-service integration)', async () => {
       mockPrisma.payrollRun.findUnique.mockResolvedValueOnce({
-        id: 'run-1',
+        id: '35000000-0000-4000-a000-000000000001',
         runNumber: 'PAY-2024-0001',
         periodStart: new Date('2024-01-01'),
         periodEnd: new Date('2024-01-31'),
@@ -308,7 +308,7 @@ describe('Payroll API Routes', () => {
       mockPrisma.payrollRun.update.mockResolvedValue({} as any);
 
       const response = await request(app)
-        .post('/api/payroll/runs/run-1/calculate');
+        .post('/api/payroll/runs/35000000-0000-4000-a000-000000000001/calculate');
 
       expect(response.status).toBe(501);
       expect(response.body.error.code).toBe('NOT_IMPLEMENTED');
@@ -318,7 +318,7 @@ describe('Payroll API Routes', () => {
       mockPrisma.payrollRun.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/payroll/runs/run-1/calculate');
+        .post('/api/payroll/runs/35000000-0000-4000-a000-000000000001/calculate');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -328,30 +328,30 @@ describe('Payroll API Routes', () => {
   describe('PUT /api/payroll/runs/:id/approve', () => {
     it('should approve payroll run', async () => {
       mockPrisma.payrollRun.update.mockResolvedValueOnce({
-        id: 'run-1',
+        id: '35000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         approvalStatus: 'APPROVED',
       } as any);
       mockPrisma.payslip.updateMany.mockResolvedValueOnce({ count: 50 });
 
       const response = await request(app)
-        .put('/api/payroll/runs/run-1/approve')
-        .send({ approvedById: 'admin-123' });
+        .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
+        .send({ approvedById: '51000000-0000-4000-a000-000000000123' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
     it('should publish all payslips on approval', async () => {
-      mockPrisma.payrollRun.update.mockResolvedValueOnce({ id: 'run-1' } as any);
+      mockPrisma.payrollRun.update.mockResolvedValueOnce({ id: '35000000-0000-4000-a000-000000000001' } as any);
       mockPrisma.payslip.updateMany.mockResolvedValueOnce({ count: 50 });
 
       await request(app)
-        .put('/api/payroll/runs/run-1/approve')
-        .send({ approvedById: 'admin-123' });
+        .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
+        .send({ approvedById: '51000000-0000-4000-a000-000000000123' });
 
       expect(mockPrisma.payslip.updateMany).toHaveBeenCalledWith({
-        where: { payrollRunId: 'run-1' },
+        where: { payrollRunId: '35000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'PUBLISHED',
           publishedAt: expect.any(Date),
@@ -363,8 +363,8 @@ describe('Payroll API Routes', () => {
       mockPrisma.payrollRun.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/payroll/runs/run-1/approve')
-        .send({ approvedById: 'admin-123' });
+        .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
+        .send({ approvedById: '51000000-0000-4000-a000-000000000123' });
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -374,7 +374,7 @@ describe('Payroll API Routes', () => {
   describe('GET /api/payroll/payslips', () => {
     const mockPayslips = [
       {
-        id: 'ps-1',
+        id: '4c000000-0000-4000-a000-000000000001',
         payslipNumber: 'PS-2024-0001-0001',
         grossEarnings: 5000,
         netPay: 4000,
@@ -397,12 +397,12 @@ describe('Payroll API Routes', () => {
       mockPrisma.payslip.findMany.mockResolvedValueOnce([]);
       mockPrisma.payslip.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/payroll/payslips?employeeId=emp-1');
+      await request(app).get('/api/payroll/payslips?employeeId=2a000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.payslip.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -412,12 +412,12 @@ describe('Payroll API Routes', () => {
       mockPrisma.payslip.findMany.mockResolvedValueOnce([]);
       mockPrisma.payslip.count.mockResolvedValueOnce(0);
 
-      await request(app).get('/api/payroll/payslips?payrollRunId=run-1');
+      await request(app).get('/api/payroll/payslips?payrollRunId=35000000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.payslip.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            payrollRunId: 'run-1',
+            payrollRunId: '35000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -435,33 +435,33 @@ describe('Payroll API Routes', () => {
 
   describe('GET /api/payroll/payslips/:id', () => {
     const mockPayslip = {
-      id: 'ps-1',
+      id: '4c000000-0000-4000-a000-000000000001',
       payslipNumber: 'PS-2024-0001-0001',
       grossEarnings: 5000,
       netPay: 4000,
-      employee: { id: 'emp-1', firstName: 'John', lastName: 'Doe' },
+      employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe' },
       items: [
         { name: 'Basic Salary', amount: 5000, type: 'EARNING' },
         { name: 'Income Tax', amount: 1000, type: 'DEDUCTION' },
       ],
-      payrollRun: { id: 'run-1', runNumber: 'PAY-2024-0001' },
+      payrollRun: { id: '35000000-0000-4000-a000-000000000001', runNumber: 'PAY-2024-0001' },
     };
 
     it('should return single payslip with items', async () => {
       mockPrisma.payslip.findUnique.mockResolvedValueOnce(mockPayslip as any);
 
-      const response = await request(app).get('/api/payroll/payslips/ps-1');
+      const response = await request(app).get('/api/payroll/payslips/4c000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('ps-1');
+      expect(response.body.data.id).toBe('4c000000-0000-4000-a000-000000000001');
       expect(response.body.data.items).toHaveLength(2);
     });
 
-    it('should return 404 for non-existent payslip', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff payslip', async () => {
       mockPrisma.payslip.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/payroll/payslips/non-existent');
+      const response = await request(app).get('/api/payroll/payslips/00000000-0000-4000-a000-ffffffffffff');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -470,7 +470,7 @@ describe('Payroll API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.payslip.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/payroll/payslips/ps-1');
+      const response = await request(app).get('/api/payroll/payslips/4c000000-0000-4000-a000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

@@ -5,12 +5,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/suppliers - List suppliers
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -93,7 +95,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       email: z.string().email().optional(),
       phone: z.string().optional(),
       website: z.string().url().optional(),
-      address: z.any().optional(),
+      address: z.record(z.unknown()).optional(),
       paymentTerms: z.string().optional(),
       currency: z.string().default('USD'),
       taxId: z.string().optional(),
@@ -123,7 +125,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Create supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
@@ -145,7 +147,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
       email: z.string().email().optional().nullable(),
       phone: z.string().optional().nullable(),
       website: z.string().url().optional().nullable(),
-      address: z.any().optional(),
+      address: z.record(z.unknown()).optional(),
       paymentTerms: z.string().optional().nullable(),
       currency: z.string().optional(),
       taxId: z.string().optional().nullable(),
@@ -176,7 +178,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
     }
     logger.error('Update supplier error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });

@@ -31,7 +31,7 @@ jest.mock('@ims/database', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req, res, next) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -69,7 +69,7 @@ describe('Dashboard API Routes', () => {
         { standard: 'ISO_14001', _count: { id: 3 } },
       ] as any);
       mockPrisma.risk.findMany.mockResolvedValue([
-        { id: 'risk-1', title: 'Risk 1', riskScore: 25, riskLevel: 'CRITICAL' },
+        { id: '10000000-0000-4000-a000-000000000001', title: 'Risk 1', riskScore: 25, riskLevel: 'CRITICAL' },
       ] as any);
 
       mockPrisma.incident.count.mockResolvedValue(5);
@@ -79,7 +79,7 @@ describe('Dashboard API Routes', () => {
 
       mockPrisma.action.count.mockResolvedValue(20);
       mockPrisma.action.findMany.mockResolvedValue([
-        { id: 'action-1', title: 'Overdue Action', dueDate: new Date() },
+        { id: '13000000-0000-4000-a000-000000000001', title: 'Overdue Action', dueDate: new Date() },
       ] as any);
 
       mockPrisma.aIAnalysis.findMany.mockResolvedValue([

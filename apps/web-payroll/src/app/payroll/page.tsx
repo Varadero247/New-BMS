@@ -429,7 +429,7 @@ export default function PayrollPage() {
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
               >
                 <option value="WEEKLY">Weekly</option>
-                <option value="BIWEEKLY">Biweekly</option>
+                <option value="BI_WEEKLY">Bi-Weekly</option>
                 <option value="SEMI_MONTHLY">Semi-Monthly</option>
                 <option value="MONTHLY">Monthly</option>
               </select>

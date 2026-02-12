@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
@@ -27,8 +27,8 @@ import tasksRouter from '../src/routes/tasks';
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const mockTask = {
-  id: 'task-001',
-  projectId: 'proj-001',
+  id: '3d000000-0000-4000-a000-000000000001',
+  projectId: '44000000-0000-4000-a000-000000000001',
   taskCode: 'TSK-001',
   taskName: 'Implement Feature X',
   taskDescription: 'Build the feature X module',
@@ -64,7 +64,7 @@ const mockTask = {
 };
 
 const mockGanttTask = {
-  id: 'task-001',
+  id: '3d000000-0000-4000-a000-000000000001',
   taskCode: 'TSK-001',
   taskName: 'Implement Feature X',
   taskType: 'TASK',
@@ -110,7 +110,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
       (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(1);
 
-      const res = await request(app).get('/api/tasks?projectId=proj-001');
+      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -132,7 +132,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
       (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(50);
 
-      const res = await request(app).get('/api/tasks?projectId=proj-001&page=2&limit=10');
+      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001&page=2&limit=10');
 
       expect(res.status).toBe(200);
       expect(res.body.meta).toEqual({ page: 2, limit: 10, total: 50, totalPages: 5 });
@@ -148,7 +148,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
       (mockPrisma.projectTask.count as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).get('/api/tasks?projectId=proj-001');
+      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -162,7 +162,7 @@ describe('Tasks API Routes', () => {
     it('should return Gantt chart data for a project', async () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockGanttTask]);
 
-      const res = await request(app).get('/api/tasks/gantt/proj-001');
+      const res = await request(app).get('/api/tasks/gantt/44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -171,7 +171,7 @@ describe('Tasks API Routes', () => {
       expect(res.body.data[0].isCriticalPath).toBe(false);
       expect(mockPrisma.projectTask.findMany as jest.Mock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { projectId: 'proj-001' },
+          where: { projectId: '44000000-0000-4000-a000-000000000001' },
           orderBy: [{ wbsLevel: 'asc' }, { sortOrder: 'asc' }],
           select: expect.objectContaining({
             id: true,
@@ -187,7 +187,7 @@ describe('Tasks API Routes', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).get('/api/tasks/gantt/proj-001');
+      const res = await request(app).get('/api/tasks/gantt/44000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -207,14 +207,14 @@ describe('Tasks API Routes', () => {
       };
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(taskWithRelations);
 
-      const res = await request(app).get('/api/tasks/task-001');
+      const res = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('task-001');
+      expect(res.body.data.id).toBe('3d000000-0000-4000-a000-000000000001');
       expect(mockPrisma.projectTask.findUnique as jest.Mock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'task-001' },
+          where: { id: '3d000000-0000-4000-a000-000000000001' },
           include: { childTasks: true, parentTask: true, timesheets: true },
         }),
       );
@@ -223,7 +223,7 @@ describe('Tasks API Routes', () => {
     it('should return 404 if task not found', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/tasks/nonexistent');
+      const res = await request(app).get('/api/tasks/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -233,7 +233,7 @@ describe('Tasks API Routes', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).get('/api/tasks/task-001');
+      const res = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -248,7 +248,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.create as jest.Mock).mockResolvedValueOnce(mockTask);
 
       const res = await request(app).post('/api/tasks').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         taskCode: 'TSK-001',
         taskName: 'Implement Feature X',
       });
@@ -274,7 +274,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.create as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
       const res = await request(app).post('/api/tasks').send({
-        projectId: 'proj-001',
+        projectId: '44000000-0000-4000-a000-000000000001',
         taskCode: 'TSK-002',
         taskName: 'Another Task',
       });
@@ -295,7 +295,7 @@ describe('Tasks API Routes', () => {
         taskName: 'Updated Task Name',
       });
 
-      const res = await request(app).put('/api/tasks/task-001').send({
+      const res = await request(app).put('/api/tasks/3d000000-0000-4000-a000-000000000001').send({
         taskName: 'Updated Task Name',
       });
 
@@ -307,7 +307,7 @@ describe('Tasks API Routes', () => {
     it('should return 404 if task not found', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/tasks/nonexistent').send({
+      const res = await request(app).put('/api/tasks/00000000-0000-4000-a000-ffffffffffff').send({
         taskName: 'Updated',
       });
 
@@ -325,7 +325,7 @@ describe('Tasks API Routes', () => {
         actualStartDate: new Date(),
       });
 
-      const res = await request(app).put('/api/tasks/task-001').send({
+      const res = await request(app).put('/api/tasks/3d000000-0000-4000-a000-000000000001').send({
         status: 'IN_PROGRESS',
       });
 
@@ -344,7 +344,7 @@ describe('Tasks API Routes', () => {
         actualEndDate: new Date(),
       });
 
-      const res = await request(app).put('/api/tasks/task-001').send({
+      const res = await request(app).put('/api/tasks/3d000000-0000-4000-a000-000000000001').send({
         status: 'COMPLETED',
       });
 
@@ -358,7 +358,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
       (mockPrisma.projectTask.update as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).put('/api/tasks/task-001').send({
+      const res = await request(app).put('/api/tasks/3d000000-0000-4000-a000-000000000001').send({
         taskName: 'Updated',
       });
 
@@ -375,7 +375,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
       (mockPrisma.projectTask.delete as jest.Mock).mockResolvedValueOnce(mockTask);
 
-      const res = await request(app).delete('/api/tasks/task-001');
+      const res = await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -383,7 +383,7 @@ describe('Tasks API Routes', () => {
     it('should return 404 if task not found', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/tasks/nonexistent');
+      const res = await request(app).delete('/api/tasks/00000000-0000-4000-a000-ffffffffffff');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -394,7 +394,7 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
       (mockPrisma.projectTask.delete as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).delete('/api/tasks/task-001');
+      const res = await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

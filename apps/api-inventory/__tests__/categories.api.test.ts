@@ -16,13 +16,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -46,7 +46,7 @@ describe('Inventory Categories API Routes', () => {
   describe('GET /api/categories', () => {
     const mockCategories = [
       {
-        id: 'cat-1',
+        id: '4d000000-0000-4000-a000-000000000001',
         name: 'Electronics',
         description: 'Electronic components',
         parentId: null,
@@ -59,7 +59,7 @@ describe('Inventory Categories API Routes', () => {
         id: 'cat-2',
         name: 'Resistors',
         description: 'Resistor components',
-        parentId: 'cat-1',
+        parentId: '4d000000-0000-4000-a000-000000000001',
         code: 'RES',
         sortOrder: 1,
         isActive: true,
@@ -136,12 +136,12 @@ describe('Inventory Categories API Routes', () => {
 
   describe('GET /api/categories/:id', () => {
     const mockCategory = {
-      id: 'cat-1',
+      id: '4d000000-0000-4000-a000-000000000001',
       name: 'Electronics',
       description: 'Electronic components',
       parent: null,
       children: [{ id: 'cat-2', name: 'Resistors', code: 'RES' }],
-      products: [{ id: 'prod-1', sku: 'SKU001', name: 'Resistor 10k', status: 'ACTIVE' }],
+      products: [{ id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Resistor 10k', status: 'ACTIVE' }],
       _count: { products: 5 },
     };
 
@@ -149,20 +149,20 @@ describe('Inventory Categories API Routes', () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce(mockCategory);
 
       const response = await request(app)
-        .get('/api/categories/cat-1')
+        .get('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('cat-1');
+      expect(response.body.data.id).toBe('4d000000-0000-4000-a000-000000000001');
       expect(response.body.data.children).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent category', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff category', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/categories/non-existent')
+        .get('/api/categories/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -173,7 +173,7 @@ describe('Inventory Categories API Routes', () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/categories/cat-1')
+        .get('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -191,7 +191,7 @@ describe('Inventory Categories API Routes', () => {
     it('should create a category successfully', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValue(null); // No duplicate code
       (mockPrisma.productCategory.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         isActive: true,
         parent: null,
@@ -213,7 +213,7 @@ describe('Inventory Categories API Routes', () => {
       const response = await request(app)
         .post('/api/categories')
         .set('Authorization', 'Bearer token')
-        .send({ ...createPayload, parentId: 'non-existent-parent' });
+        .send({ ...createPayload, parentId: '00000000-0000-4000-a000-ffffffffffff-parent' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INVALID_PARENT');
@@ -258,7 +258,7 @@ describe('Inventory Categories API Routes', () => {
 
   describe('PATCH /api/categories/:id', () => {
     const existingCategory = {
-      id: 'cat-1',
+      id: '4d000000-0000-4000-a000-000000000001',
       name: 'Electronics',
       code: 'ELEC',
       parentId: null,
@@ -273,7 +273,7 @@ describe('Inventory Categories API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/categories/cat-1')
+        .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ name: 'Updated Electronics' });
 
@@ -281,11 +281,11 @@ describe('Inventory Categories API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent category', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff category', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/categories/non-existent')
+        .patch('/api/categories/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ name: 'Updated' });
 
@@ -297,9 +297,9 @@ describe('Inventory Categories API Routes', () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce(existingCategory);
 
       const response = await request(app)
-        .patch('/api/categories/cat-1')
+        .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
-        .send({ parentId: 'cat-1' });
+        .send({ parentId: '4d000000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('CIRCULAR_REFERENCE');
@@ -311,7 +311,7 @@ describe('Inventory Categories API Routes', () => {
         .mockResolvedValueOnce({ id: 'other' }); // Duplicate code check
 
       const response = await request(app)
-        .patch('/api/categories/cat-1')
+        .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ code: 'EXISTING_CODE' });
 
@@ -323,7 +323,7 @@ describe('Inventory Categories API Routes', () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .patch('/api/categories/cat-1')
+        .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ name: 'Updated' });
 
@@ -335,27 +335,27 @@ describe('Inventory Categories API Routes', () => {
   describe('DELETE /api/categories/:id', () => {
     it('should delete category successfully', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'cat-1',
+        id: '4d000000-0000-4000-a000-000000000001',
         children: [],
         products: [],
       });
       (mockPrisma.productCategory.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/categories/cat-1')
+        .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.productCategory.delete).toHaveBeenCalledWith({
-        where: { id: 'cat-1' },
+        where: { id: '4d000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent category', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff category', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/categories/non-existent')
+        .delete('/api/categories/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -364,13 +364,13 @@ describe('Inventory Categories API Routes', () => {
 
     it('should prevent deletion if category has children', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'cat-1',
+        id: '4d000000-0000-4000-a000-000000000001',
         children: [{ id: 'child-1' }],
         products: [],
       });
 
       const response = await request(app)
-        .delete('/api/categories/cat-1')
+        .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -379,13 +379,13 @@ describe('Inventory Categories API Routes', () => {
 
     it('should prevent deletion if category has products', async () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'cat-1',
+        id: '4d000000-0000-4000-a000-000000000001',
         children: [],
-        products: [{ id: 'prod-1' }],
+        products: [{ id: '27000000-0000-4000-a000-000000000001' }],
       });
 
       const response = await request(app)
-        .delete('/api/categories/cat-1')
+        .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -396,7 +396,7 @@ describe('Inventory Categories API Routes', () => {
       (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/categories/cat-1')
+        .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

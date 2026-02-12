@@ -150,7 +150,7 @@ describe('AccountLockoutManager', () => {
       expect(await manager.isLocked('test@example.com')).toBe(false);
     });
 
-    it('should handle reset for non-existent account', async () => {
+    it('should handle reset for 00000000-0000-4000-a000-ffffffffffff account', async () => {
       // Should not throw
       await expect(manager.reset('nonexistent@example.com')).resolves.not.toThrow();
     });

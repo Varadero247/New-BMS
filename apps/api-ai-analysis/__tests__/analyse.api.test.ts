@@ -24,6 +24,14 @@ jest.mock('../src/prisma', () => ({
   },
 }));
 
+jest.mock('@ims/resilience', () => ({
+  createCircuitBreaker: (fn: any) => ({
+    fire: fn,
+    on: () => {},
+    fallback: () => {},
+  }),
+}), { virtual: true });
+
 jest.mock('@ims/auth', () => ({
   authenticate: (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
@@ -33,7 +41,7 @@ jest.mock('@ims/auth', () => ({
         error: { code: 'UNAUTHORIZED', message: 'No token provided' },
       });
     }
-    req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
     next();
   },
   requireRole: () => (req: any, res: any, next: any) => next(),
@@ -119,8 +127,8 @@ describe('POST /api/analyse', () => {
   };
 
   const mockAnalysis = {
-    id: 'analysis-1',
-    userId: 'user-1',
+    id: '52000000-0000-4000-a000-000000000001',
+    userId: '20000000-0000-4000-a000-000000000001',
     sourceType: 'risk',
     sourceId: 'source-1',
     sourceData: mockRiskSource,
@@ -250,7 +258,7 @@ describe('POST /api/analyse', () => {
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body.data).toBeDefined();
-    expect(response.body.data.id).toBe('analysis-1');
+    expect(response.body.data.id).toBe('52000000-0000-4000-a000-000000000001');
 
     // Verify prisma.risk.findUnique was called for risk sourceType
     expect(mockPrisma.risk.findUnique).toHaveBeenCalledWith({
@@ -261,7 +269,7 @@ describe('POST /api/analyse', () => {
     // Verify analysis was saved
     expect(mockPrisma.aIAnalysis.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
-        userId: 'user-1',
+        userId: '20000000-0000-4000-a000-000000000001',
         sourceType: 'risk',
         sourceId: 'source-1',
         provider: 'OPENAI',
@@ -405,7 +413,7 @@ describe('POST /api/analyse', () => {
     expect(response.status).toBe(502);
     expect(response.body.success).toBe(false);
     expect(response.body.error.code).toBe('AI_ERROR');
-    expect(response.body.error.message).toContain('Rate limit exceeded');
+    expect(response.body.error.message).toContain('AI analysis failed');
   });
 
   // -------------------------------------------------------

@@ -88,7 +88,6 @@ enum PayrollRunStatus {
 enum PayFrequency {
   WEEKLY
   BI_WEEKLY
-  BIWEEKLY
   SEMI_MONTHLY
   MONTHLY
   QUARTERLY

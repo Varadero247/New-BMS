@@ -350,7 +350,7 @@ export default function StakeholdersPage() {
                 >
                   <option value="DAILY">Daily</option>
                   <option value="WEEKLY">Weekly</option>
-                  <option value="BIWEEKLY">Bi-weekly</option>
+                  <option value="BI_WEEKLY">Bi-Weekly</option>
                   <option value="MONTHLY">Monthly</option>
                   <option value="QUARTERLY">Quarterly</option>
                   <option value="AS_NEEDED">As Needed</option>

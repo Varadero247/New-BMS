@@ -23,13 +23,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -53,7 +53,7 @@ describe('Health & Safety Objectives API', () => {
   describe('GET /api/objectives', () => {
     const mockObjectives = [
       {
-        id: 'obj-1',
+        id: '15000000-0000-4000-a000-000000000001',
         referenceNumber: 'OBJ-001',
         title: 'Reduce incidents by 20%',
         category: 'INCIDENT_REDUCTION',
@@ -126,24 +126,24 @@ describe('Health & Safety Objectives API', () => {
   describe('GET /api/objectives/:id', () => {
     it('should return single objective with milestones', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'obj-1',
+        id: '15000000-0000-4000-a000-000000000001',
         title: 'Reduce incidents',
-        milestones: [{ id: 'ms-1', title: 'Phase 1', completed: false }],
+        milestones: [{ id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1', completed: false }],
       });
 
       const response = await request(app)
-        .get('/api/objectives/obj-1')
+        .get('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data.milestones).toHaveLength(1);
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/objectives/non-existent')
+        .get('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -165,12 +165,12 @@ describe('Health & Safety Objectives API', () => {
     it('should create objective with milestones and auto ref#', async () => {
       (mockPrisma.ohsObjective.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.ohsObjective.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'OBJ-001',
         ...createPayload,
         status: 'ACTIVE',
         milestones: [
-          { id: 'ms-1', title: 'Baseline assessment', completed: false },
+          { id: '1b000000-0000-4000-a000-000000000001', title: 'Baseline assessment', completed: false },
           { id: 'ms-2', title: 'Training rollout', completed: false },
         ],
       });
@@ -204,7 +204,7 @@ describe('Health & Safety Objectives API', () => {
         referenceNumber: 'OBJ-003',
       });
       (mockPrisma.ohsObjective.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'OBJ-004',
       });
 
@@ -243,11 +243,11 @@ describe('Health & Safety Objectives API', () => {
 
   describe('PATCH /api/objectives/:id', () => {
     const existing = {
-      id: 'obj-1',
+      id: '15000000-0000-4000-a000-000000000001',
       title: 'Existing',
       status: 'ACTIVE',
       milestones: [
-        { id: 'ms-1', completed: true },
+        { id: '1b000000-0000-4000-a000-000000000001', completed: true },
         { id: 'ms-2', completed: false },
         { id: 'ms-3', completed: false },
       ],
@@ -262,7 +262,7 @@ describe('Health & Safety Objectives API', () => {
       });
 
       const response = await request(app)
-        .patch('/api/objectives/obj-1')
+        .patch('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -283,7 +283,7 @@ describe('Health & Safety Objectives API', () => {
       });
 
       await request(app)
-        .patch('/api/objectives/obj-1')
+        .patch('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'ACHIEVED' });
 
@@ -297,11 +297,11 @@ describe('Health & Safety Objectives API', () => {
       );
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/objectives/non-existent')
+        .patch('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -311,21 +311,21 @@ describe('Health & Safety Objectives API', () => {
 
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective (cascades milestones)', async () => {
-      (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'obj-1' });
+      (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
       (mockPrisma.ohsObjective.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/objectives/obj-1')
+        .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
     });
 
-    it('should return 404 for non-existent objective', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff objective', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/objectives/non-existent')
+        .delete('/api/objectives/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -335,24 +335,24 @@ describe('Health & Safety Objectives API', () => {
   describe('POST /api/objectives/:id/milestones', () => {
     it('should add milestone to objective', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'obj-1',
-        milestones: [{ id: 'ms-1' }, { id: 'ms-2' }],
+        id: '15000000-0000-4000-a000-000000000001',
+        milestones: [{ id: '1b000000-0000-4000-a000-000000000001' }, { id: 'ms-2' }],
       });
       (mockPrisma.objectiveMilestone.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         title: 'New milestone',
         sortOrder: 2,
       });
 
       const response = await request(app)
-        .post('/api/objectives/obj-1/milestones')
+        .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
         .set('Authorization', 'Bearer token')
         .send({ title: 'New milestone', dueDate: '2026-06-30' });
 
       expect(response.status).toBe(201);
       expect(mockPrisma.objectiveMilestone.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          objectiveId: 'obj-1',
+          objectiveId: '15000000-0000-4000-a000-000000000001',
           title: 'New milestone',
           sortOrder: 2,
         }),
@@ -363,7 +363,7 @@ describe('Health & Safety Objectives API', () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/objectives/non-existent/milestones')
+        .post('/api/objectives/00000000-0000-4000-a000-ffffffffffff/milestones')
         .set('Authorization', 'Bearer token')
         .send({ title: 'New', dueDate: '2026-06-30' });
 
@@ -374,12 +374,12 @@ describe('Health & Safety Objectives API', () => {
   describe('PATCH /api/objectives/:id/milestones/:mid', () => {
     it('should toggle milestone completed and recalculate progress', async () => {
       (mockPrisma.objectiveMilestone.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
-        objectiveId: 'obj-1',
+        id: '1b000000-0000-4000-a000-000000000001',
+        objectiveId: '15000000-0000-4000-a000-000000000001',
         completed: false,
       });
       (mockPrisma.objectiveMilestone.update as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
+        id: '1b000000-0000-4000-a000-000000000001',
         completed: true,
         completedDate: new Date(),
       });
@@ -390,32 +390,32 @@ describe('Health & Safety Objectives API', () => {
       (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .patch('/api/objectives/obj-1/milestones/ms-1')
+        .patch('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ completed: true });
 
       expect(response.status).toBe(200);
       expect(mockPrisma.objectiveMilestone.update).toHaveBeenCalledWith({
-        where: { id: 'ms-1' },
+        where: { id: '1b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           completed: true,
           completedDate: expect.any(Date),
         }),
       });
       expect(mockPrisma.ohsObjective.update).toHaveBeenCalledWith({
-        where: { id: 'obj-1' },
+        where: { id: '15000000-0000-4000-a000-000000000001' },
         data: { progressPercent: 50 },
       });
     });
 
     it('should clear completedDate when uncompleting', async () => {
       (mockPrisma.objectiveMilestone.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
-        objectiveId: 'obj-1',
+        id: '1b000000-0000-4000-a000-000000000001',
+        objectiveId: '15000000-0000-4000-a000-000000000001',
         completed: true,
       });
       (mockPrisma.objectiveMilestone.update as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
+        id: '1b000000-0000-4000-a000-000000000001',
         completed: false,
       });
       (mockPrisma.objectiveMilestone.findMany as jest.Mock).mockResolvedValueOnce([
@@ -425,12 +425,12 @@ describe('Health & Safety Objectives API', () => {
       (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       await request(app)
-        .patch('/api/objectives/obj-1/milestones/ms-1')
+        .patch('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ completed: false });
 
       expect(mockPrisma.objectiveMilestone.update).toHaveBeenCalledWith({
-        where: { id: 'ms-1' },
+        where: { id: '1b000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           completed: false,
           completedDate: null,
@@ -440,12 +440,12 @@ describe('Health & Safety Objectives API', () => {
 
     it('should return 404 if milestone not found or wrong objective', async () => {
       (mockPrisma.objectiveMilestone.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'ms-1',
+        id: '1b000000-0000-4000-a000-000000000001',
         objectiveId: 'obj-OTHER',
       });
 
       const response = await request(app)
-        .patch('/api/objectives/obj-1/milestones/ms-1')
+        .patch('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ completed: true });
 

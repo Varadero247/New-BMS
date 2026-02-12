@@ -1,11 +1,43 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { createCircuitBreaker } from '@ims/resilience';
+
+interface AIProviderResponse {
+  content: string;
+  tokensUsed: number;
+  model: string;
+}
+
+interface SuggestedAction {
+  title: string;
+  description: string;
+  priority: string;
+  type: string;
+}
+
+interface ComplianceGap {
+  clause: string;
+  gap: string;
+  recommendation: string;
+}
+
+interface AIHighlight {
+  text: string;
+  reason: string;
+  type: string;
+}
+
+interface ParsedAIResponse {
+  rootCause: string;
+  actions: SuggestedAction[];
+  gaps: ComplianceGap[];
+  highlights: AIHighlight[];
+}
 
 const logger = createLogger('api-ai-analysis');
 
@@ -73,7 +105,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     // Get source data
-    let sourceData: any = null;
+    let sourceData: Record<string, unknown> | null = null;
 
     if (data.sourceType === 'risk' || data.sourceType === 'aspect') {
       sourceData = await prisma.risk.findUnique({ where: { id: data.sourceId } });
@@ -95,7 +127,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }`;
 
     // Call AI provider
-    let aiResponse: any = null;
+    let aiResponse: AIProviderResponse | null = null;
 
     try {
       if (settings.provider === 'OPENAI') {
@@ -105,10 +137,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       } else if (settings.provider === 'GROK') {
         aiResponse = await grokBreaker.fire(settings.apiKey, fullPrompt);
       }
-    } catch (aiError: any) {
+    } catch (aiError: unknown) {
+      const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI error';
+      logger.error('AI provider error', { error: errorMessage, provider: settings.provider });
       return res.status(502).json({
         success: false,
-        error: { code: 'AI_ERROR', message: `AI provider error: ${aiError.message}` },
+        error: { code: 'AI_ERROR', message: 'AI analysis failed. Please try again later.' },
       });
     }
 
@@ -122,15 +156,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         userId: req.user!.id,
         sourceType: data.sourceType,
         sourceId: data.sourceId,
-        sourceData: sourceData as any,
+        sourceData: sourceData as Prisma.InputJsonValue,
         prompt: fullPrompt,
         provider: settings.provider,
         model: settings.model,
-        response: aiResponse as any,
+        response: aiResponse as unknown as Prisma.InputJsonValue,
         suggestedRootCause: parsedResponse.rootCause,
-        suggestedActions: parsedResponse.actions as any,
-        complianceGaps: parsedResponse.gaps as any,
-        highlights: parsedResponse.highlights as any,
+        suggestedActions: parsedResponse.actions as unknown as Prisma.InputJsonValue,
+        complianceGaps: parsedResponse.gaps as unknown as Prisma.InputJsonValue,
+        highlights: parsedResponse.highlights as unknown as Prisma.InputJsonValue,
         status: 'COMPLETED',
       },
     });
@@ -147,9 +181,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: analysis });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const fields = error.errors.map(e => e.path.join('.'));
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
       });
     }
     logger.error('AI analysis error', { error: (error as Error).message });
@@ -161,7 +196,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // Helper functions for AI providers
-async function callOpenAIImpl(apiKey: string, model: string, prompt: string) {
+async function callOpenAIImpl(apiKey: string, model: string, prompt: string): Promise<AIProviderResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
@@ -187,22 +222,33 @@ async function callOpenAIImpl(apiKey: string, model: string, prompt: string) {
   });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'OpenAI API error');
+      let errorMessage = 'OpenAI API error';
+      try {
+        const error = await response.json();
+        errorMessage = error.error?.message || errorMessage;
+      } catch { /* non-JSON error response */ }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    let data: Record<string, unknown>;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error('Invalid response from OpenAI');
+    }
+    const choices = data.choices as Array<{ message: { content: string } }>;
+    const usage = data.usage as { total_tokens?: number } | undefined;
     return {
-      content: data.choices[0].message.content,
-      tokensUsed: data.usage?.total_tokens || 0,
-      model: data.model,
+      content: choices[0].message.content,
+      tokensUsed: usage?.total_tokens || 0,
+      model: data.model as string,
     };
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-async function callAnthropicImpl(apiKey: string, model: string, prompt: string) {
+async function callAnthropicImpl(apiKey: string, model: string, prompt: string): Promise<AIProviderResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
@@ -223,22 +269,33 @@ async function callAnthropicImpl(apiKey: string, model: string, prompt: string) 
   });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Anthropic API error');
+      let errorMessage = 'Anthropic API error';
+      try {
+        const error = await response.json();
+        errorMessage = error.error?.message || errorMessage;
+      } catch { /* non-JSON error response */ }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    let data: Record<string, unknown>;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error('Invalid response from Anthropic');
+    }
+    const content = data.content as Array<{ text: string }>;
+    const usage = data.usage as { input_tokens?: number; output_tokens?: number } | undefined;
     return {
-      content: data.content[0].text,
-      tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
-      model: data.model,
+      content: content[0].text,
+      tokensUsed: (usage?.input_tokens || 0) + (usage?.output_tokens || 0),
+      model: data.model as string,
     };
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-async function callGrokImpl(apiKey: string, prompt: string) {
+async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderResponse> {
   // Grok API (X.AI) - placeholder implementation
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -263,14 +320,25 @@ async function callGrokImpl(apiKey: string, prompt: string) {
   });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Grok API error');
+      let errorMessage = 'Grok API error';
+      try {
+        const error = await response.json();
+        errorMessage = error.error?.message || errorMessage;
+      } catch { /* non-JSON error response */ }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    let data: Record<string, unknown>;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error('Invalid response from Grok');
+    }
+    const choices = data.choices as Array<{ message: { content: string } }>;
+    const usage = data.usage as { total_tokens?: number } | undefined;
     return {
-      content: data.choices[0].message.content,
-      tokensUsed: data.usage?.total_tokens || 0,
+      content: choices[0].message.content,
+      tokensUsed: usage?.total_tokens || 0,
       model: 'grok-beta',
     };
   } finally {
@@ -278,12 +346,7 @@ async function callGrokImpl(apiKey: string, prompt: string) {
   }
 }
 
-function parseAIResponse(response: any): {
-  rootCause: string;
-  actions: any[];
-  gaps: any[];
-  highlights: any[];
-} {
+function parseAIResponse(response: AIProviderResponse): ParsedAIResponse {
   // Basic parsing - in production this would be more sophisticated
   const content = response.content || '';
 
@@ -295,7 +358,7 @@ function parseAIResponse(response: any): {
   }
 
   // Extract actions (look for numbered lists or action keywords)
-  const actions: any[] = [];
+  const actions: SuggestedAction[] = [];
   const actionMatches = content.matchAll(/(?:action|recommendation)[:\s]*([^\n]+)/gi);
   for (const match of actionMatches) {
     actions.push({
@@ -307,7 +370,7 @@ function parseAIResponse(response: any): {
   }
 
   // Extract compliance gaps
-  const gaps: any[] = [];
+  const gaps: ComplianceGap[] = [];
   const gapMatches = content.matchAll(/(?:ISO|clause)\s*(\d+\.?\d*)[:\s]*([^\n]+)/gi);
   for (const match of gapMatches) {
     gaps.push({
@@ -318,7 +381,7 @@ function parseAIResponse(response: any): {
   }
 
   // Extract highlights
-  const highlights: any[] = [];
+  const highlights: AIHighlight[] = [];
   const warningMatches = content.matchAll(/(?:warning|critical|important)[:\s]*([^\n]+)/gi);
   for (const match of warningMatches) {
     highlights.push({

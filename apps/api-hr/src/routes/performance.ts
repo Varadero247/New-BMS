@@ -3,11 +3,13 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-hr');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/performance/cycles - Get performance cycles
 router.get('/cycles', async (req: Request, res: Response) => {
@@ -339,7 +341,7 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
       progressAfter: z.number().min(0).max(100),
       updateNotes: z.string(),
       updatedById: z.string(),
-      evidence: z.any().optional(),
+      evidence: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);

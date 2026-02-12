@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Health & Safety Incidents API Routes', () => {
   describe('GET /api/incidents', () => {
     const mockIncidents = [
       {
-        id: 'incident-1',
+        id: '11000000-0000-4000-a000-000000000001',
         referenceNumber: 'INC-2601-0001',
         title: 'Slip and fall',
         description: 'Employee slipped on wet floor',
@@ -183,7 +183,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
   describe('GET /api/incidents/:id', () => {
     const mockIncident = {
-      id: 'incident-1',
+      id: '11000000-0000-4000-a000-000000000001',
       referenceNumber: 'INC-2601-0001',
       title: 'Slip and fall',
       description: 'Employee slipped on wet floor',
@@ -199,32 +199,32 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const response = await request(app)
-        .get('/api/incidents/incident-1')
+        .get('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('incident-1');
+      expect(response.body.data.id).toBe('11000000-0000-4000-a000-000000000001');
     });
 
     it('should use findUnique with includes', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       await request(app)
-        .get('/api/incidents/incident-1')
+        .get('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.incident.findUnique).toHaveBeenCalledWith({
-        where: { id: 'incident-1' },
+        where: { id: '11000000-0000-4000-a000-000000000001' },
         include: { actions: true, fiveWhyAnalyses: true, fishboneAnalyses: true },
       });
     });
 
-    it('should return 404 for non-existent incident', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff incident', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/incidents/non-existent')
+        .get('/api/incidents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -235,7 +235,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/incidents/incident-1')
+        .get('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -255,11 +255,11 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should create an incident successfully', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'INC-2601-1234',
         status: 'OPEN',
-        reporterId: 'user-123',
+        reporterId: '20000000-0000-4000-a000-000000000123',
         riddorReportable: false,
         investigationRequired: false,
       });
@@ -276,7 +276,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should set initial status to OPEN', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'OPEN',
       });
 
@@ -292,7 +292,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should generate a reference number with INC-YYMM-XXXX format', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'INC-2601-1234',
       });
 
@@ -310,7 +310,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should auto-set RIDDOR reportable for CRITICAL severity', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         riddorReportable: true,
         investigationRequired: true,
       });
@@ -331,7 +331,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should auto-set RIDDOR reportable for MAJOR severity', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         riddorReportable: true,
       });
 
@@ -350,7 +350,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should NOT auto-set RIDDOR for MINOR severity', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         riddorReportable: false,
       });
 
@@ -369,7 +369,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should accept new H&S fields', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         injuredPersonName: 'John Doe',
         injuredPersonRole: 'Operator',
         employmentType: 'Full-time',
@@ -403,7 +403,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
     it('should accept AI analysis fields', async () => {
       (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         aiAnalysisGenerated: true,
       });
 
@@ -475,7 +475,7 @@ describe('Health & Safety Incidents API Routes', () => {
 
   describe('PATCH /api/incidents/:id', () => {
     const existingIncident = {
-      id: 'incident-1',
+      id: '11000000-0000-4000-a000-000000000001',
       title: 'Existing Incident',
       status: 'OPEN',
       closedAt: null,
@@ -489,7 +489,7 @@ describe('Health & Safety Incidents API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/incidents/incident-1')
+        .patch('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -497,11 +497,11 @@ describe('Health & Safety Incidents API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent incident', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff incident', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/incidents/non-existent')
+        .patch('/api/incidents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -512,18 +512,18 @@ describe('Health & Safety Incidents API Routes', () => {
     it('should set closedAt when status is CLOSED', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(existingIncident);
       (mockPrisma.incident.update as jest.Mock).mockResolvedValueOnce({
-        id: 'incident-1',
+        id: '11000000-0000-4000-a000-000000000001',
         status: 'CLOSED',
         closedAt: new Date(),
       });
 
       await request(app)
-        .patch('/api/incidents/incident-1')
+        .patch('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED' });
 
       expect(mockPrisma.incident.update).toHaveBeenCalledWith({
-        where: { id: 'incident-1' },
+        where: { id: '11000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           closedAt: expect.any(Date),
         }),
@@ -534,7 +534,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(existingIncident);
 
       const response = await request(app)
-        .patch('/api/incidents/incident-1')
+        .patch('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -546,7 +546,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .patch('/api/incidents/incident-1')
+        .patch('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -557,24 +557,24 @@ describe('Health & Safety Incidents API Routes', () => {
 
   describe('DELETE /api/incidents/:id', () => {
     it('should delete incident successfully', async () => {
-      (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'incident-1' });
+      (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({ id: '11000000-0000-4000-a000-000000000001' });
       (mockPrisma.incident.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/incidents/incident-1')
+        .delete('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.incident.delete).toHaveBeenCalledWith({
-        where: { id: 'incident-1' },
+        where: { id: '11000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent incident', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff incident', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/incidents/non-existent')
+        .delete('/api/incidents/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -585,7 +585,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/incidents/incident-1')
+        .delete('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

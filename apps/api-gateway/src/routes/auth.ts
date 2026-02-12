@@ -53,7 +53,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
       await lockoutManager.recordFailedAttempt(email);
       const remaining = await lockoutManager.getRemainingAttempts(email);
 
-      logger.info('Login failed - invalid credentials', { email, ip: req.ip });
+      logger.info('Login failed - invalid credentials', { ip: req.ip });
 
       return res.status(401).json({
         success: false,
@@ -70,7 +70,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     if (!isValid) {
       const { locked, remainingAttempts } = await lockoutManager.recordFailedAttempt(email);
 
-      logger.info('Login failed - wrong password', { email, ip: req.ip, locked });
+      logger.info('Login failed - wrong password', { userId: user.id, ip: req.ip, locked });
 
       if (locked) {
         const timeRemaining = await lockoutManager.getLockoutTimeRemaining(email);
@@ -115,7 +115,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
       },
     });
 
-    logger.info('Login successful', { userId: user.id, email: user.email, ip: req.ip });
+    logger.info('Login successful', { userId: user.id, ip: req.ip });
 
     res.json({
       success: true,
@@ -139,7 +139,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
       });
     }
     logger.error('Login error', { error });
@@ -159,7 +159,7 @@ router.post('/register', registerLimiter, async (req, res) => {
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (existingUser) {
-      logger.info('Registration failed - user exists', { email: data.email, ip: req.ip });
+      logger.info('Registration failed - user exists', { ip: req.ip });
       return res.status(409).json({
         success: false,
         error: { code: 'USER_EXISTS', message: 'User with this email already exists' },
@@ -200,7 +200,7 @@ router.post('/register', registerLimiter, async (req, res) => {
       },
     });
 
-    logger.info('Registration successful', { userId: user.id, email: user.email, ip: req.ip });
+    logger.info('Registration successful', { userId: user.id, ip: req.ip });
 
     res.status(201).json({
       success: true,
@@ -222,7 +222,7 @@ router.post('/register', registerLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
       });
     }
     logger.error('Registration error', { error });
@@ -362,7 +362,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
   try {
     const { email } = z.object({ email: z.string().email() }).parse(req.body);
 
-    logger.info('Password reset requested', { email, ip: req.ip });
+    logger.info('Password reset requested', { ip: req.ip });
 
     // Find user (but don't reveal if they exist)
     const user = await prisma.user.findUnique({ where: { email } });
@@ -502,7 +502,7 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
       });
     }
     logger.error('Reset password error', { error });

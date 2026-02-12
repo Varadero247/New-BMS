@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
 import { Plus, Search, Users, Building2, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -68,6 +68,7 @@ const initialFormState = {
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
@@ -81,21 +82,36 @@ export default function EmployeesPage() {
   const [positions, setPositions] = useState<Position[]>([]);
   const [allEmployees, setAllEmployees] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
 
+  // Debounced search: wait 300ms after user stops typing before firing API call
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     loadEmployees();
+  }, [debouncedSearch, statusFilter, departmentFilter]);
+
+  useEffect(() => {
     loadDepartments();
-  }, [searchTerm, statusFilter, departmentFilter]);
+  }, []);
 
   async function loadEmployees() {
     try {
+      setError(null);
       const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
+      if (debouncedSearch) params.append('search', debouncedSearch);
       if (statusFilter) params.append('status', statusFilter);
       if (departmentFilter) params.append('department', departmentFilter);
 
       const res = await api.get(`/employees?${params.toString()}`);
       setEmployees(res.data.data || []);
     } catch (error) {
+      setError('Failed to load employees. Please try again.');
       console.error('Error loading employees:', error);
     } finally {
       setLoading(false);
@@ -241,6 +257,14 @@ export default function EmployeesPage() {
             <Plus className="h-4 w-4" /> Add Employee
           </Button>
         </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold">×</button>
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="mb-6">

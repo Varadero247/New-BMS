@@ -18,13 +18,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -48,7 +48,7 @@ describe('Health & Safety Risks API Routes', () => {
   describe('GET /api/risks', () => {
     const mockRisks = [
       {
-        id: 'risk-1',
+        id: '10000000-0000-4000-a000-000000000001',
         title: 'Fall from height',
         description: 'Risk of falls when working at height',
         riskScore: 20,
@@ -56,7 +56,7 @@ describe('Health & Safety Risks API Routes', () => {
         status: 'ACTIVE',
       },
       {
-        id: 'risk-2',
+        id: '10000000-0000-4000-a000-000000000002',
         title: 'Chemical exposure',
         description: 'Risk from handling chemicals',
         riskScore: 12,
@@ -208,7 +208,7 @@ describe('Health & Safety Risks API Routes', () => {
 
   describe('GET /api/risks/:id', () => {
     const mockRisk = {
-      id: 'risk-1',
+      id: '10000000-0000-4000-a000-000000000001',
       title: 'Fall from height',
       description: 'Risk of falls',
       riskScore: 20,
@@ -218,19 +218,19 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(mockRisk);
 
       const response = await request(app)
-        .get('/api/risks/risk-1')
+        .get('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('risk-1');
+      expect(response.body.data.id).toBe('10000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/risks/non-existent')
+        .get('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -241,7 +241,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/risks/risk-1')
+        .get('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -260,7 +260,7 @@ describe('Health & Safety Risks API Routes', () => {
     it('should create a risk successfully', async () => {
       (mockPrisma.risk.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.risk.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         referenceNumber: 'HS-001',
         riskScore: 12,
@@ -281,7 +281,7 @@ describe('Health & Safety Risks API Routes', () => {
     it('should calculate risk score from L x S', async () => {
       (mockPrisma.risk.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.risk.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         riskScore: 12,
         riskLevel: 'MEDIUM',
       });
@@ -334,7 +334,7 @@ describe('Health & Safety Risks API Routes', () => {
 
   describe('PATCH /api/risks/:id', () => {
     const existingRisk = {
-      id: 'risk-1',
+      id: '10000000-0000-4000-a000-000000000001',
       title: 'Existing Risk',
       likelihood: 3,
       severity: 3,
@@ -348,7 +348,7 @@ describe('Health & Safety Risks API Routes', () => {
       });
 
       const response = await request(app)
-        .patch('/api/risks/risk-1')
+        .patch('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -356,11 +356,11 @@ describe('Health & Safety Risks API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .patch('/api/risks/non-existent')
+        .patch('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -372,7 +372,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(existingRisk);
 
       const response = await request(app)
-        .patch('/api/risks/risk-1')
+        .patch('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -384,7 +384,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .patch('/api/risks/risk-1')
+        .patch('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -395,24 +395,24 @@ describe('Health & Safety Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete risk successfully', async () => {
-      (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'risk-1' });
+      (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
       (mockPrisma.risk.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.risk.delete).toHaveBeenCalledWith({
-        where: { id: 'risk-1' },
+        where: { id: '10000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent risk', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff risk', async () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/risks/non-existent')
+        .delete('/api/risks/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -423,7 +423,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/risks/risk-1')
+        .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

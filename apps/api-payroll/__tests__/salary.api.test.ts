@@ -23,13 +23,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -233,8 +233,8 @@ describe('Payroll Salary API Routes', () => {
   describe('GET /api/salary/employees/:employeeId', () => {
     const mockSalaries = [
       {
-        id: 'sal-1',
-        employeeId: 'emp-1',
+        id: '36000000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         baseSalary: 5000,
         currency: 'USD',
         payFrequency: 'MONTHLY',
@@ -251,7 +251,7 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce(mockSalaries);
 
       const response = await request(app)
-        .get('/api/salary/employees/emp-1')
+        .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -264,12 +264,12 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/salary/employees/emp-1')
+        .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeSalary.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { employeeId: 'emp-1' },
+          where: { employeeId: '2a000000-0000-4000-a000-000000000001' },
         })
       );
     });
@@ -278,7 +278,7 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/salary/employees/emp-1')
+        .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeSalary.findMany).toHaveBeenCalledWith(
@@ -292,7 +292,7 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/salary/employees/emp-1')
+        .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -314,8 +314,8 @@ describe('Payroll Salary API Routes', () => {
         baseSalary: 5000,
       });
       (mockPrisma.employeeSalary.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-sal-123',
-        employeeId: 'emp-1',
+        id: '30000000-0000-4000-a000-000000000123',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         baseSalary: 6000,
         isActive: true,
         previousSalary: 5000,
@@ -323,7 +323,7 @@ describe('Payroll Salary API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/salary/employees/emp-1')
+        .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
@@ -335,24 +335,24 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.updateMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
       (mockPrisma.employeeSalary.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.employeeSalary.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-sal-123',
+        id: '30000000-0000-4000-a000-000000000123',
         components: [],
       });
 
       await request(app)
-        .post('/api/salary/employees/emp-1')
+        .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
       expect(mockPrisma.employeeSalary.updateMany).toHaveBeenCalledWith({
-        where: { employeeId: 'emp-1', isActive: true },
+        where: { employeeId: '2a000000-0000-4000-a000-000000000001', isActive: true },
         data: { isActive: false, effectiveTo: expect.any(Date) },
       });
     });
 
     it('should return 400 for missing required fields', async () => {
       const response = await request(app)
-        .post('/api/salary/employees/emp-1')
+        .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ changeReason: 'Incomplete' });
 
@@ -362,7 +362,7 @@ describe('Payroll Salary API Routes', () => {
 
     it('should return 400 for non-positive baseSalary', async () => {
       const response = await request(app)
-        .post('/api/salary/employees/emp-1')
+        .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ ...createPayload, baseSalary: -100 });
 
@@ -374,7 +374,7 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.employeeSalary.updateMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/salary/employees/emp-1')
+        .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
@@ -403,7 +403,7 @@ describe('Payroll Salary API Routes', () => {
     it('should update salary components successfully', async () => {
       (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 2 });
       (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({
-        id: 'sal-1',
+        id: '36000000-0000-4000-a000-000000000001',
         components: [
           { id: 'comp-1', amount: 5000, componentType: { name: 'Basic' } },
           { id: 'comp-2', amount: 1000, componentType: { name: 'HRA' } },
@@ -411,7 +411,7 @@ describe('Payroll Salary API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/salary/sal-1/components')
+        .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 
@@ -422,23 +422,23 @@ describe('Payroll Salary API Routes', () => {
     it('should delete existing components before creating new ones', async () => {
       (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
       (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({
-        id: 'sal-1',
+        id: '36000000-0000-4000-a000-000000000001',
         components: [],
       });
 
       await request(app)
-        .put('/api/salary/sal-1/components')
+        .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 
       expect(mockPrisma.salaryComponent.deleteMany).toHaveBeenCalledWith({
-        where: { employeeSalaryId: 'sal-1' },
+        where: { employeeSalaryId: '36000000-0000-4000-a000-000000000001' },
       });
     });
 
     it('should return 400 for invalid data', async () => {
       const response = await request(app)
-        .put('/api/salary/sal-1/components')
+        .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
         .set('Authorization', 'Bearer token')
         .send({ components: 'invalid' });
 
@@ -450,7 +450,7 @@ describe('Payroll Salary API Routes', () => {
       (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/salary/sal-1/components')
+        .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
         .set('Authorization', 'Bearer token')
         .send(updatePayload);
 

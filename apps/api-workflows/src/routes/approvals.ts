@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ============================================
 // APPROVAL CHAINS
@@ -70,9 +72,9 @@ router.post('/chains', async (req: Request, res: Response) => {
       name: z.string().min(1),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']),
-      levels: z.any(),
-      skipConditions: z.any().optional(),
-      escalationConfig: z.any().optional(),
+      levels: z.array(z.record(z.unknown())),
+      skipConditions: z.record(z.unknown()).optional(),
+      escalationConfig: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);
@@ -112,9 +114,9 @@ router.put('/chains/:id', async (req: Request, res: Response) => {
       name: z.string().min(1).optional(),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']).optional(),
-      levels: z.any().optional(),
-      skipConditions: z.any().optional(),
-      escalationConfig: z.any().optional(),
+      levels: z.array(z.record(z.unknown())).optional(),
+      skipConditions: z.record(z.unknown()).optional(),
+      escalationConfig: z.record(z.unknown()).optional(),
       isActive: z.boolean().optional(),
     });
 
@@ -318,7 +320,7 @@ router.post('/requests', async (req: Request, res: Response) => {
       departmentId: z.string().optional(),
       entityType: z.string().optional(),
       entityId: z.string().optional(),
-      entityData: z.any().optional(),
+      entityData: z.record(z.unknown()).optional(),
       approvalChainId: z.string().optional(),
       totalLevels: z.number().int().min(1).default(1),
       dueDate: z.string().datetime().optional(),
@@ -375,7 +377,7 @@ router.put('/requests/:id/respond', async (req: Request, res: Response) => {
       ]),
       comments: z.string().optional(),
       conditions: z.string().optional(),
-      attachments: z.any().optional(),
+      attachments: z.record(z.unknown()).optional(),
     });
 
     const data = schema.parse(req.body);

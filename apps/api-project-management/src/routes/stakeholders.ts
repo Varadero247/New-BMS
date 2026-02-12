@@ -4,11 +4,13 @@ import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-project-management');
 
 const router: IRouter = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Helper: calculate stakeholder category from power/interest grid
 function getStakeholderCategory(powerLevel: number, interestLevel: number): string {

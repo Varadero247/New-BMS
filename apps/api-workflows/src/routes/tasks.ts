@@ -4,11 +4,13 @@ import type { Prisma } from '@ims/database/workflows';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-workflows');
 
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Valid WorkflowTaskType enum values
 const taskTypeEnum = z.enum(['REVIEW', 'APPROVE', 'COMPLETE_FORM', 'UPLOAD_DOCUMENT', 'VERIFICATION', 'DATA_ENTRY', 'NOTIFICATION', 'CUSTOM']);
@@ -203,7 +205,7 @@ router.put('/:id/claim', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      result: z.any().optional(),
+      result: z.record(z.unknown()).optional(),
       notes: z.string().optional(),
       completedBy: z.string().uuid().optional(),
     });

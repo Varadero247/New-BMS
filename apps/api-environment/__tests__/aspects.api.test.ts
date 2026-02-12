@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -47,7 +47,7 @@ describe('Environment Aspects API Routes', () => {
   describe('GET /api/aspects', () => {
     const mockAspects = [
       {
-        id: 'aspect-1',
+        id: '16000000-0000-4000-a000-000000000001',
         referenceNumber: 'ENV-ASP-2026-001',
         activityProcess: 'Manufacturing',
         aspect: 'Air emissions',
@@ -203,7 +203,7 @@ describe('Environment Aspects API Routes', () => {
 
   describe('GET /api/aspects/:id', () => {
     const mockAspect = {
-      id: 'aspect-1',
+      id: '16000000-0000-4000-a000-000000000001',
       referenceNumber: 'ENV-ASP-2026-001',
       activityProcess: 'Manufacturing',
       aspect: 'Air emissions',
@@ -215,19 +215,19 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce(mockAspect);
 
       const response = await request(app)
-        .get('/api/aspects/aspect-1')
+        .get('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('aspect-1');
+      expect(response.body.data.id).toBe('16000000-0000-4000-a000-000000000001');
     });
 
-    it('should return 404 for non-existent aspect', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff aspect', async () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/aspects/non-existent')
+        .get('/api/aspects/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -238,7 +238,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/aspects/aspect-1')
+        .get('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -265,7 +265,7 @@ describe('Environment Aspects API Routes', () => {
     it('should create an aspect successfully', async () => {
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envAspect.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'ENV-ASP-2026-001',
         ...createPayload,
         significanceScore: 22,
@@ -286,7 +286,7 @@ describe('Environment Aspects API Routes', () => {
     it('should calculate significance score from input scores', async () => {
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.envAspect.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         significanceScore: 22,
         isSignificant: true,
       });
@@ -361,7 +361,7 @@ describe('Environment Aspects API Routes', () => {
 
   describe('PUT /api/aspects/:id', () => {
     const existingAspect = {
-      id: 'aspect-1',
+      id: '16000000-0000-4000-a000-000000000001',
       activityProcess: 'Manufacturing',
       aspect: 'Air emissions',
       impact: 'Air pollution',
@@ -383,7 +383,7 @@ describe('Environment Aspects API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/aspects/aspect-1')
+        .put('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ activityProcess: 'Updated Manufacturing' });
 
@@ -391,11 +391,11 @@ describe('Environment Aspects API Routes', () => {
       expect(response.body.success).toBe(true);
     });
 
-    it('should return 404 for non-existent aspect', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff aspect', async () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/aspects/non-existent')
+        .put('/api/aspects/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ activityProcess: 'Updated' });
 
@@ -413,7 +413,7 @@ describe('Environment Aspects API Routes', () => {
       });
 
       await request(app)
-        .put('/api/aspects/aspect-1')
+        .put('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ scoreSeverity: 5 });
 
@@ -431,7 +431,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/aspects/aspect-1')
+        .put('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ activityProcess: 'Updated' });
 
@@ -442,24 +442,24 @@ describe('Environment Aspects API Routes', () => {
 
   describe('DELETE /api/aspects/:id', () => {
     it('should delete aspect successfully', async () => {
-      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'aspect-1' });
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({ id: '16000000-0000-4000-a000-000000000001' });
       (mockPrisma.envAspect.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/aspects/aspect-1')
+        .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.envAspect.delete).toHaveBeenCalledWith({
-        where: { id: 'aspect-1' },
+        where: { id: '16000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent aspect', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff aspect', async () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/aspects/non-existent')
+        .delete('/api/aspects/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -470,7 +470,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/aspects/aspect-1')
+        .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

@@ -17,13 +17,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -50,7 +50,7 @@ describe('Quality Changes API Routes', () => {
   describe('GET /api/changes', () => {
     const mockChanges = [
       {
-        id: 'chg-1',
+        id: '26000000-0000-4000-a000-000000000001',
         referenceNumber: 'QMS-CHG-2026-001',
         title: 'Update SOP for welding',
         changeType: 'DOCUMENT_UPDATE',
@@ -208,7 +208,7 @@ describe('Quality Changes API Routes', () => {
   // ============================================
   describe('GET /api/changes/:id', () => {
     const mockChange = {
-      id: 'chg-1',
+      id: '26000000-0000-4000-a000-000000000001',
       referenceNumber: 'QMS-CHG-2026-001',
       title: 'Update SOP for welding',
       changeType: 'DOCUMENT_UPDATE',
@@ -224,20 +224,20 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(mockChange);
 
       const response = await request(app)
-        .get('/api/changes/chg-1')
+        .get('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('chg-1');
+      expect(response.body.data.id).toBe('26000000-0000-4000-a000-000000000001');
       expect(response.body.data.title).toBe('Update SOP for welding');
     });
 
-    it('should return 404 for non-existent change', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change', async () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/changes/non-existent')
+        .get('/api/changes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -248,7 +248,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/changes/chg-1')
+        .get('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -273,7 +273,7 @@ describe('Quality Changes API Routes', () => {
     it('should create a change successfully', async () => {
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.qualChange.create as jest.Mock).mockResolvedValueOnce({
-        id: 'mock-uuid-123',
+        id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-CHG-2026-001',
         ...createPayload,
         priority: 'ROUTINE',
@@ -391,7 +391,7 @@ describe('Quality Changes API Routes', () => {
   // ============================================
   describe('PUT /api/changes/:id', () => {
     const existingChange = {
-      id: 'chg-1',
+      id: '26000000-0000-4000-a000-000000000001',
       title: 'Existing Change',
       changeType: 'DOCUMENT_UPDATE',
       status: 'REQUESTED',
@@ -405,7 +405,7 @@ describe('Quality Changes API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/changes/chg-1')
+        .put('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Change' });
 
@@ -422,7 +422,7 @@ describe('Quality Changes API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/changes/chg-1')
+        .put('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'APPROVED' });
 
@@ -431,11 +431,11 @@ describe('Quality Changes API Routes', () => {
       expect(response.body.data.status).toBe('APPROVED');
     });
 
-    it('should return 404 for non-existent change', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change', async () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/changes/non-existent')
+        .put('/api/changes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -447,7 +447,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(existingChange);
 
       const response = await request(app)
-        .put('/api/changes/chg-1')
+        .put('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -459,7 +459,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(existingChange);
 
       const response = await request(app)
-        .put('/api/changes/chg-1')
+        .put('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ changeType: 'INVALID_TYPE' });
 
@@ -471,7 +471,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/changes/chg-1')
+        .put('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -485,24 +485,24 @@ describe('Quality Changes API Routes', () => {
   // ============================================
   describe('DELETE /api/changes/:id', () => {
     it('should delete change successfully', async () => {
-      (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'chg-1' });
+      (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: '26000000-0000-4000-a000-000000000001' });
       (mockPrisma.qualChange.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/changes/chg-1')
+        .delete('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.qualChange.delete).toHaveBeenCalledWith({
-        where: { id: 'chg-1' },
+        where: { id: '26000000-0000-4000-a000-000000000001' },
       });
     });
 
-    it('should return 404 for non-existent change', async () => {
+    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff change', async () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/changes/non-existent')
+        .delete('/api/changes/00000000-0000-4000-a000-ffffffffffff')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -513,7 +513,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/changes/chg-1')
+        .delete('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

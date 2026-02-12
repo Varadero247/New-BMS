@@ -18,13 +18,13 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'USER' };
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
     next();
   }),
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
+  v4: jest.fn(() => '30000000-0000-4000-a000-000000000123'),
 }));
 
 import { prisma } from '../src/prisma';
@@ -195,8 +195,8 @@ describe('Payroll Benefits API Routes', () => {
   describe('GET /api/benefits/employees/:employeeId', () => {
     const mockBenefits = [
       {
-        id: 'ben-1',
-        employeeId: 'emp-1',
+        id: '37000000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         coverageLevel: 'FAMILY',
         status: 'ACTIVE',
         benefitPlan: { id: 'plan-1', name: 'Health Insurance', category: 'HEALTH_INSURANCE' },
@@ -207,7 +207,7 @@ describe('Payroll Benefits API Routes', () => {
       (mockPrisma.employeeBenefit.findMany as jest.Mock).mockResolvedValueOnce(mockBenefits);
 
       const response = await request(app)
-        .get('/api/benefits/employees/emp-1')
+        .get('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -219,12 +219,12 @@ describe('Payroll Benefits API Routes', () => {
       (mockPrisma.employeeBenefit.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/benefits/employees/emp-1')
+        .get('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeBenefit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { employeeId: 'emp-1' },
+          where: { employeeId: '2a000000-0000-4000-a000-000000000001' },
         })
       );
     });
@@ -233,7 +233,7 @@ describe('Payroll Benefits API Routes', () => {
       (mockPrisma.employeeBenefit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/benefits/employees/emp-1')
+        .get('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -250,15 +250,15 @@ describe('Payroll Benefits API Routes', () => {
 
     it('should enroll employee in benefit successfully', async () => {
       (mockPrisma.employeeBenefit.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-ben-123',
-        employeeId: 'emp-1',
+        id: '30000000-0000-4000-a000-000000000123',
+        employeeId: '2a000000-0000-4000-a000-000000000001',
         ...createPayload,
         status: 'ACTIVE',
         benefitPlan: { name: 'Health Insurance' },
       });
 
       const response = await request(app)
-        .post('/api/benefits/employees/emp-1')
+        .post('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
@@ -268,13 +268,13 @@ describe('Payroll Benefits API Routes', () => {
 
     it('should set initial status to ACTIVE', async () => {
       (mockPrisma.employeeBenefit.create as jest.Mock).mockResolvedValueOnce({
-        id: 'new-ben-123',
+        id: '30000000-0000-4000-a000-000000000123',
         status: 'ACTIVE',
         benefitPlan: {},
       });
 
       await request(app)
-        .post('/api/benefits/employees/emp-1')
+        .post('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
@@ -282,7 +282,7 @@ describe('Payroll Benefits API Routes', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'ACTIVE',
-            employeeId: 'emp-1',
+            employeeId: '2a000000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -290,7 +290,7 @@ describe('Payroll Benefits API Routes', () => {
 
     it('should return 400 for missing required fields', async () => {
       const response = await request(app)
-        .post('/api/benefits/employees/emp-1')
+        .post('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ benefitPlanId: '11111111-1111-1111-1111-111111111111' });
 
@@ -300,7 +300,7 @@ describe('Payroll Benefits API Routes', () => {
 
     it('should return 400 for invalid coverageLevel', async () => {
       const response = await request(app)
-        .post('/api/benefits/employees/emp-1')
+        .post('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ ...createPayload, coverageLevel: 'INVALID' });
 
@@ -312,7 +312,7 @@ describe('Payroll Benefits API Routes', () => {
       (mockPrisma.employeeBenefit.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/benefits/employees/emp-1')
+        .post('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
@@ -324,14 +324,14 @@ describe('Payroll Benefits API Routes', () => {
   describe('PUT /api/benefits/:id/terminate', () => {
     it('should terminate benefit successfully', async () => {
       (mockPrisma.employeeBenefit.update as jest.Mock).mockResolvedValueOnce({
-        id: 'ben-1',
+        id: '37000000-0000-4000-a000-000000000001',
         status: 'TERMINATED',
         terminationDate: new Date('2024-06-30'),
         effectiveTo: new Date('2024-06-30'),
       });
 
       const response = await request(app)
-        .put('/api/benefits/ben-1/terminate')
+        .put('/api/benefits/37000000-0000-4000-a000-000000000001/terminate')
         .set('Authorization', 'Bearer token')
         .send({ terminationDate: '2024-06-30' });
 
@@ -341,17 +341,17 @@ describe('Payroll Benefits API Routes', () => {
 
     it('should set status to TERMINATED', async () => {
       (mockPrisma.employeeBenefit.update as jest.Mock).mockResolvedValueOnce({
-        id: 'ben-1',
+        id: '37000000-0000-4000-a000-000000000001',
         status: 'TERMINATED',
       });
 
       await request(app)
-        .put('/api/benefits/ben-1/terminate')
+        .put('/api/benefits/37000000-0000-4000-a000-000000000001/terminate')
         .set('Authorization', 'Bearer token')
         .send({ terminationDate: '2024-06-30' });
 
       expect(mockPrisma.employeeBenefit.update).toHaveBeenCalledWith({
-        where: { id: 'ben-1' },
+        where: { id: '37000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           status: 'TERMINATED',
           terminationDate: expect.any(Date),
@@ -364,7 +364,7 @@ describe('Payroll Benefits API Routes', () => {
       (mockPrisma.employeeBenefit.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/benefits/ben-1/terminate')
+        .put('/api/benefits/37000000-0000-4000-a000-000000000001/terminate')
         .set('Authorization', 'Bearer token')
         .send({ terminationDate: '2024-06-30' });
 

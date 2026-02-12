@@ -3,12 +3,14 @@ import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/inventory/transactions - List transactions (audit trail)
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -93,19 +95,35 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     });
 
     // Get daily transaction volumes
-    const dailyTransactions = await prisma.$queryRaw`
-      SELECT
-        DATE("transactionDate") as date,
-        COUNT(*) as count,
-        SUM(CASE WHEN "quantityChange" > 0 THEN "quantityChange" ELSE 0 END) as total_in,
-        SUM(CASE WHEN "quantityChange" < 0 THEN ABS("quantityChange") ELSE 0 END) as total_out
-      FROM inventory_transactions
-      WHERE "transactionDate" >= ${start} AND "transactionDate" <= ${end}
-      ${warehouseId ? prisma.$queryRaw`AND "warehouseId" = ${warehouseId}` : prisma.$queryRaw``}
-      GROUP BY DATE("transactionDate")
-      ORDER BY date DESC
-      LIMIT 30
-    ` as any[];
+    let dailyTransactions: any[];
+    if (warehouseId) {
+      dailyTransactions = await prisma.$queryRaw`
+        SELECT
+          DATE("transactionDate") as date,
+          COUNT(*) as count,
+          SUM(CASE WHEN "quantityChange" > 0 THEN "quantityChange" ELSE 0 END) as total_in,
+          SUM(CASE WHEN "quantityChange" < 0 THEN ABS("quantityChange") ELSE 0 END) as total_out
+        FROM inventory_transactions
+        WHERE "transactionDate" >= ${start} AND "transactionDate" <= ${end}
+        AND "warehouseId" = ${warehouseId}
+        GROUP BY DATE("transactionDate")
+        ORDER BY date DESC
+        LIMIT 30
+      `;
+    } else {
+      dailyTransactions = await prisma.$queryRaw`
+        SELECT
+          DATE("transactionDate") as date,
+          COUNT(*) as count,
+          SUM(CASE WHEN "quantityChange" > 0 THEN "quantityChange" ELSE 0 END) as total_in,
+          SUM(CASE WHEN "quantityChange" < 0 THEN ABS("quantityChange") ELSE 0 END) as total_out
+        FROM inventory_transactions
+        WHERE "transactionDate" >= ${start} AND "transactionDate" <= ${end}
+        GROUP BY DATE("transactionDate")
+        ORDER BY date DESC
+        LIMIT 30
+      `;
+    }
 
     // Calculate totals
     const totals = transactionsByType.reduce((acc, t) => {
