@@ -164,8 +164,8 @@ describe('Payroll Salary API Routes', () => {
     const createPayload = {
       code: 'TRANSPORT',
       name: 'Transport Allowance',
-      category: 'ALLOWANCE',
-      type: 'EARNING',
+      category: 'EARNING',
+      type: 'ALLOWANCE',
     };
 
     it('should create a component type successfully', async () => {
@@ -174,7 +174,6 @@ describe('Payroll Salary API Routes', () => {
         ...createPayload,
         isActive: true,
         isTaxable: true,
-        isRecurring: true,
       });
 
       const response = await request(app)

@@ -86,7 +86,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       activityProcess: z.string().min(1),
-      activityCategory: z.string(),
+      activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']),
       department: z.string().min(1),
       location: z.string().optional(),
       lifecyclePhases: z.array(z.string()).optional().default([]),

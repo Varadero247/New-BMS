@@ -66,10 +66,10 @@ services:
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
       SERVICE_AI_URL: http://api-ai-analysis:4004
       SERVICE_INVENTORY_URL: http://api-inventory:4005
-      SERVICE_HR_URL: http://api-hr:4006
-      SERVICE_PAYROLL_URL: http://api-payroll:4007
-      SERVICE_WORKFLOWS_URL: http://api-workflows:4008
-      SERVICE_PROJECT_MANAGEMENT_URL: http://api-project-management:4009
+      SERVICE_HR_URL: http://host.docker.internal:4006
+      SERVICE_PAYROLL_URL: http://host.docker.internal:4007
+      SERVICE_WORKFLOWS_URL: http://host.docker.internal:4008
+      SERVICE_PROJECT_MANAGEMENT_URL: http://host.docker.internal:4009
       CSRF_ENABLED: "false"
     depends_on:
       postgres:

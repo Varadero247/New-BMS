@@ -39,14 +39,15 @@ router.post('/component-types', async (req: Request, res: Response) => {
       code: z.string().min(1),
       name: z.string().min(1),
       description: z.string().optional(),
-      category: z.enum(['BASIC', 'ALLOWANCE', 'BONUS', 'COMMISSION', 'OVERTIME', 'REIMBURSEMENT', 'STATUTORY', 'DEDUCTION', 'OTHER']),
-      type: z.enum(['EARNING', 'DEDUCTION']),
-      isTaxable: z.boolean().default(true),
-      isRecurring: z.boolean().default(true),
-      isStatutory: z.boolean().default(false),
-      defaultCalculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'FORMULA', 'ATTENDANCE_BASED']).default('FIXED'),
+      category: z.enum(['EARNING', 'DEDUCTION', 'EMPLOYER_CONTRIBUTION', 'REIMBURSEMENT']),
+      type: z.enum(['BASIC_SALARY', 'ALLOWANCE', 'BONUS', 'COMMISSION', 'OVERTIME', 'STATUTORY_DEDUCTION', 'VOLUNTARY_DEDUCTION', 'LOAN_REPAYMENT', 'BENEFIT_CONTRIBUTION', 'TAX', 'OTHER']),
+      calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
+      defaultAmount: z.number().optional(),
       defaultPercentage: z.number().optional(),
+      isTaxable: z.boolean().default(true),
+      taxCode: z.string().optional(),
       showInPayslip: z.boolean().default(true),
+      sortOrder: z.number().int().default(0),
     });
 
     const data = schema.parse(req.body);
@@ -97,7 +98,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
         componentTypeId: z.string().uuid(),
         amount: z.number(),
         percentage: z.number().optional(),
-        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'FORMULA', 'ATTENDANCE_BASED']).default('FIXED'),
+        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
       })).default([]),
     });
 
@@ -160,7 +161,7 @@ router.put('/:id/components', async (req: Request, res: Response) => {
         componentTypeId: z.string().uuid(),
         amount: z.number(),
         percentage: z.number().optional(),
-        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'FORMULA', 'ATTENDANCE_BASED']).default('FIXED'),
+        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
         isActive: z.boolean().default(true),
       })),
     });

@@ -249,7 +249,7 @@ describe('Environment Aspects API Routes', () => {
   describe('POST /api/aspects', () => {
     const createPayload = {
       activityProcess: 'Manufacturing',
-      activityCategory: 'PRODUCTION',
+      activityCategory: 'EMISSIONS_TO_AIR',
       department: 'Operations',
       aspect: 'Air emissions from stack',
       impact: 'Air quality degradation',
@@ -309,7 +309,7 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ aspect: 'Some aspect', impact: 'Some impact', activityCategory: 'PRODUCTION', department: 'Ops' });
+        .send({ aspect: 'Some aspect', impact: 'Some impact', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -319,7 +319,7 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'PRODUCTION', department: 'Ops', impact: 'Some impact' });
+        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops', impact: 'Some impact' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -329,7 +329,7 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'PRODUCTION', department: 'Ops', aspect: 'Air emissions' });
+        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops', aspect: 'Air emissions' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -339,7 +339,7 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'PRODUCTION', aspect: 'Air emissions', impact: 'Pollution' });
+        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', aspect: 'Air emissions', impact: 'Pollution' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
