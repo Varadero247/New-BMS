@@ -16,6 +16,7 @@ import {
   Clock,
   BarChart3,
   TrendingUp,
+  FileText,
   Home,
   Settings,
 } from 'lucide-react';
@@ -34,6 +35,7 @@ const navigation = [
   { name: 'Timesheets', href: '/timesheets', icon: Clock },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Benefits', href: '/benefits', icon: TrendingUp },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

@@ -38,6 +38,7 @@ const modulesNavigation = [
   { name: 'Customer Specific', href: '/customer-reqs', icon: Users },
   { name: 'CSR Register', href: '/csr', icon: BookOpen },
   { name: 'Layered Process Audits', href: '/lpa', icon: Layers },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

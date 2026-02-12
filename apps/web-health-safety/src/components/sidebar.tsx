@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Home,
   Settings,
+  FileText,
 } from 'lucide-react';
 
 const navigation = [
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'Training', href: '/training', icon: GraduationCap },
   { name: 'Metrics', href: '/metrics', icon: BarChart3 },
   { name: 'Communications', href: '/communications', icon: MessageSquare },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

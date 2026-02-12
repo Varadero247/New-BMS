@@ -605,3 +605,121 @@ model GeneratedReport {
   @@index([createdAt])
   @@map("generated_reports")
 }
+
+// ============================================
+// TEMPLATE LIBRARY
+// ============================================
+
+enum TemplateModule {
+  HEALTH_SAFETY
+  ENVIRONMENT
+  QUALITY
+  AUTOMOTIVE
+  MEDICAL
+  AEROSPACE
+  HR
+  PAYROLL
+  WORKFLOWS
+  PROJECT_MANAGEMENT
+  INVENTORY
+}
+
+enum TemplateCategory {
+  RISK_ASSESSMENT
+  INCIDENT_INVESTIGATION
+  AUDIT
+  MANAGEMENT_REVIEW
+  CAPA
+  COMPLIANCE
+  INSPECTION
+  TRAINING
+  DESIGN_DEVELOPMENT
+  PROCESS_CONTROL
+  SUPPLIER
+  CUSTOMER
+  REGULATORY
+  PLANNING
+  REPORTING
+  GENERAL
+  CERTIFICATION
+}
+
+enum TemplateStatus {
+  DRAFT
+  ACTIVE
+  DEPRECATED
+  ARCHIVED
+}
+
+model Template {
+  id             String           @id @default(cuid())
+  code           String           @unique // TPL-{MODULE}-{NNN}
+  name           String
+  description    String?
+  module         TemplateModule
+  category       TemplateCategory
+  status         TemplateStatus   @default(ACTIVE)
+  version        Int              @default(1)
+  tags           String[]
+  fields         Json             // Array of FieldDefinition
+  defaultContent Json?            // Default pre-filled values
+  usageCount     Int              @default(0)
+  isBuiltIn      Boolean          @default(true)
+  createdBy      String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  versions  TemplateVersion[]
+  instances TemplateInstance[]
+
+  @@index([module])
+  @@index([category])
+  @@index([status])
+  @@index([module, category])
+  @@index([module, status])
+  @@index([isBuiltIn])
+  @@index([usageCount])
+  @@index([createdAt])
+  @@map("templates")
+}
+
+model TemplateVersion {
+  id             String   @id @default(cuid())
+  templateId     String
+  version        Int
+  fields         Json
+  defaultContent Json?
+  changedById    String?
+  changeNote     String?
+  createdAt      DateTime @default(now())
+
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, version])
+  @@index([templateId])
+  @@index([createdAt])
+  @@map("template_versions")
+}
+
+model TemplateInstance {
+  id           String         @id @default(cuid())
+  templateId   String
+  templateCode String
+  templateName String
+  module       TemplateModule
+  filledData   Json           // User-filled form data
+  createdById  String
+  referenceId  String?        // Link to created entity (e.g., risk ID, incident ID)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@index([templateId])
+  @@index([module])
+  @@index([createdById])
+  @@index([referenceId])
+  @@index([createdAt])
+  @@map("template_instances")
+}

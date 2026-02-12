@@ -19,6 +19,7 @@
     "@ims/esig": "workspace:*",
     "@ims/iso-checklists": "workspace:*",
     "@ims/monitoring": "workspace:*",
+    "@ims/templates": "workspace:*",
     "@ims/secrets": "workspace:*",
     "@ims/service-auth": "workspace:*",
     "@ims/types": "workspace:*",

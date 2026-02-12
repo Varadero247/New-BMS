@@ -23,6 +23,7 @@ const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Employees', href: '/employees', icon: Users },
   { name: 'Departments', href: '/departments', icon: Building2 },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const timeNavigation = [

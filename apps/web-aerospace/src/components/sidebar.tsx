@@ -17,6 +17,7 @@ import {
   Award,
   Wrench,
   Users,
+  FileText,
 } from 'lucide-react';
 
 // Aerospace Section
@@ -37,6 +38,7 @@ const modulesNavigation = [
   { name: 'FOD Prevention', href: '/fod', icon: Eye },
   { name: 'MRO Work Orders', href: '/workorders', icon: Wrench },
   { name: 'Human Factors', href: '/human-factors', icon: Users },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

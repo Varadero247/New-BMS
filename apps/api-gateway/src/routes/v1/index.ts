@@ -9,6 +9,7 @@ import complianceScoresRoutes from '../compliance-scores';
 import gdprRoutes from '../gdpr';
 import reportRoutes from '../reports';
 import securityControlsRoutes from '../security-controls';
+import templateRoutes from '../templates';
 
 const router: RouterType = Router();
 
@@ -23,5 +24,6 @@ router.use('/dashboard/compliance-scores', complianceScoresRoutes);
 router.use('/gdpr', gdprRoutes);
 router.use('/reports', reportRoutes);
 router.use('/security-controls', securityControlsRoutes);
+router.use('/templates', templateRoutes);
 
 export default router;

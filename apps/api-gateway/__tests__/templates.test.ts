@@ -1,0 +1,684 @@
+import express from 'express';
+import request from 'supertest';
+
+// ---- Mocks ----
+
+jest.mock('@ims/database', () => ({
+  prisma: {
+    template: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+      aggregate: jest.fn(),
+    },
+    templateVersion: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+    },
+    templateInstance: {
+      create: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+    next();
+  }),
+  requireRole: jest.fn((..._roles: string[]) => (_req: any, _res: any, next: any) => next()),
+}));
+
+jest.mock('@ims/templates', () => ({
+  renderTemplateToHtml: jest.fn(() => '<html><body>Mock HTML</body></html>'),
+}));
+
+import { prisma } from '@ims/database';
+import templateRoutes from '../src/routes/templates';
+
+const mockPrisma = prisma as any;
+
+// ---- App Setup ----
+
+function createApp() {
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/templates', templateRoutes);
+  return app;
+}
+
+// ---- Sample Data ----
+
+const mockTemplate = {
+  id: 'tpl-1',
+  code: 'TPL-HS-001',
+  name: 'Generic Risk Assessment',
+  description: 'Standard risk assessment form',
+  module: 'HEALTH_SAFETY',
+  category: 'RISK_ASSESSMENT',
+  status: 'ACTIVE',
+  version: 1,
+  tags: ['risk', 'assessment', 'iso-45001'],
+  fields: [
+    { id: 'activity', label: 'Activity', type: 'text', required: true },
+    { id: 'hazards', label: 'Hazards', type: 'textarea', required: true },
+  ],
+  defaultContent: null,
+  usageCount: 5,
+  isBuiltIn: true,
+  createdBy: null,
+  createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-01'),
+  deletedAt: null,
+};
+
+const mockTemplate2 = {
+  ...mockTemplate,
+  id: 'tpl-2',
+  code: 'TPL-ENV-001',
+  name: 'Aspect & Impact Register',
+  module: 'ENVIRONMENT',
+  category: 'COMPLIANCE',
+  usageCount: 12,
+  isBuiltIn: true,
+};
+
+const mockCustomTemplate = {
+  ...mockTemplate,
+  id: 'tpl-3',
+  code: 'TPL-HS-009',
+  name: 'Custom Safety Form',
+  isBuiltIn: false,
+  createdBy: 'user-1',
+};
+
+// ---- Tests ----
+
+describe('Templates API', () => {
+  const app = createApp();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates — List
+  // =========================================================================
+
+  describe('GET /api/v1/templates', () => {
+    it('should return paginated templates', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([mockTemplate, mockTemplate2]);
+      mockPrisma.template.count.mockResolvedValue(2);
+
+      const res = await request(app).get('/api/v1/templates');
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveLength(2);
+      expect(res.body.pagination).toEqual({
+        page: 1,
+        limit: 20,
+        total: 2,
+        pages: 1,
+      });
+    });
+
+    it('should filter by module', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([mockTemplate]);
+      mockPrisma.template.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/v1/templates?module=HEALTH_SAFETY');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ module: 'HEALTH_SAFETY' }),
+        }),
+      );
+    });
+
+    it('should filter by category and status', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([]);
+      mockPrisma.template.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/v1/templates?category=AUDIT&status=ACTIVE');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ category: 'AUDIT', status: 'ACTIVE' }),
+        }),
+      );
+    });
+
+    it('should support search across name, description, code, tags', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([mockTemplate]);
+      mockPrisma.template.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/v1/templates?search=risk');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            OR: expect.arrayContaining([
+              expect.objectContaining({ name: { contains: 'risk', mode: 'insensitive' } }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should respect pagination params', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([]);
+      mockPrisma.template.count.mockResolvedValue(50);
+
+      const res = await request(app).get('/api/v1/templates?page=3&limit=10');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 10 }),
+      );
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockPrisma.template.findMany.mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).get('/api/v1/templates');
+
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates/stats — Statistics
+  // =========================================================================
+
+  describe('GET /api/v1/templates/stats', () => {
+    it('should return aggregated statistics', async () => {
+      mockPrisma.template.groupBy
+        .mockResolvedValueOnce([
+          { module: 'HEALTH_SAFETY', _count: 8 },
+          { module: 'ENVIRONMENT', _count: 9 },
+        ])
+        .mockResolvedValueOnce([
+          { category: 'RISK_ASSESSMENT', _count: 5 },
+          { category: 'AUDIT', _count: 4 },
+        ]);
+      mockPrisma.template.findMany.mockResolvedValue([
+        { id: 'tpl-1', code: 'TPL-ENV-001', name: 'Aspect Register', module: 'ENVIRONMENT', usageCount: 12 },
+      ]);
+      mockPrisma.template.aggregate.mockResolvedValue({
+        _count: 57,
+        _sum: { usageCount: 200 },
+      });
+
+      const res = await request(app).get('/api/v1/templates/stats');
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.byModule).toHaveLength(2);
+      expect(res.body.data.total).toBe(57);
+      expect(res.body.data.totalUsages).toBe(200);
+    });
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates/search — Full-text search
+  // =========================================================================
+
+  describe('GET /api/v1/templates/search', () => {
+    it('should search templates', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([mockTemplate]);
+
+      const res = await request(app).get('/api/v1/templates/search?q=risk');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+    });
+
+    it('should return empty for blank query', async () => {
+      const res = await request(app).get('/api/v1/templates/search?q=');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([]);
+      expect(mockPrisma.template.findMany).not.toHaveBeenCalled();
+    });
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates/:id — Single template
+  // =========================================================================
+
+  describe('GET /api/v1/templates/:id', () => {
+    it('should return a single template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+
+      const res = await request(app).get('/api/v1/templates/tpl-1');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.code).toBe('TPL-HS-001');
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).get('/api/v1/templates/nonexistent');
+
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  // =========================================================================
+  // POST /api/v1/templates — Create
+  // =========================================================================
+
+  describe('POST /api/v1/templates', () => {
+    const validPayload = {
+      name: 'New Template',
+      description: 'A new custom template',
+      module: 'HEALTH_SAFETY',
+      category: 'RISK_ASSESSMENT',
+      tags: ['custom'],
+      fields: [{ id: 'field1', label: 'Field 1', type: 'text', required: true }],
+    };
+
+    it('should create a template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null); // for code generation
+      mockPrisma.template.create.mockResolvedValue({
+        ...mockTemplate,
+        id: 'tpl-new',
+        code: 'TPL-HS-001',
+        ...validPayload,
+        isBuiltIn: false,
+      });
+
+      const res = await request(app)
+        .post('/api/v1/templates')
+        .send(validPayload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.isBuiltIn).toBe(false);
+    });
+
+    it('should reject invalid payload (missing fields)', async () => {
+      const res = await request(app)
+        .post('/api/v1/templates')
+        .send({ name: 'No Fields' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should reject empty fields array', async () => {
+      const res = await request(app)
+        .post('/api/v1/templates')
+        .send({ ...validPayload, fields: [] });
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  // =========================================================================
+  // PUT /api/v1/templates/:id — Update (auto-versioning)
+  // =========================================================================
+
+  describe('PUT /api/v1/templates/:id', () => {
+    it('should update and auto-version', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+      mockPrisma.templateVersion.create.mockResolvedValue({ id: 'ver-1' });
+      mockPrisma.template.update.mockResolvedValue({
+        ...mockTemplate,
+        name: 'Updated Name',
+        version: 2,
+      });
+
+      const res = await request(app)
+        .put('/api/v1/templates/tpl-1')
+        .send({ name: 'Updated Name', changeNote: 'Updated title' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.version).toBe(2);
+      // Should snapshot old version
+      expect(mockPrisma.templateVersion.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            templateId: 'tpl-1',
+            version: 1,
+          }),
+        }),
+      );
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .put('/api/v1/templates/nonexistent')
+        .send({ name: 'Updated' });
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =========================================================================
+  // DELETE /api/v1/templates/:id — Soft-delete
+  // =========================================================================
+
+  describe('DELETE /api/v1/templates/:id', () => {
+    it('should soft-delete a template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockCustomTemplate);
+      mockPrisma.template.update.mockResolvedValue({
+        ...mockCustomTemplate,
+        deletedAt: new Date(),
+      });
+
+      const res = await request(app).delete('/api/v1/templates/tpl-3');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.message).toBe('Template deleted');
+      expect(mockPrisma.template.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+        }),
+      );
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).delete('/api/v1/templates/nonexistent');
+
+      expect(res.status).toBe(404);
+    });
+
+    it('should block non-ADMIN from deleting built-in templates', async () => {
+      // Override the authenticate mock for this test
+      const { authenticate } = require('@ims/auth');
+      (authenticate as jest.Mock).mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = { id: 'user-2', email: 'mgr@ims.local', role: 'MANAGER' };
+        next();
+      });
+
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate); // isBuiltIn: true
+
+      const res = await request(app).delete('/api/v1/templates/tpl-1');
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toMatch(/administrators/i);
+    });
+  });
+
+  // =========================================================================
+  // POST /api/v1/templates/:id/clone — Clone
+  // =========================================================================
+
+  describe('POST /api/v1/templates/:id/clone', () => {
+    it('should clone a template', async () => {
+      mockPrisma.template.findFirst
+        .mockResolvedValueOnce(mockTemplate) // original
+        .mockResolvedValueOnce({ code: 'TPL-HS-008' }); // for code gen
+      mockPrisma.template.create.mockResolvedValue({
+        ...mockTemplate,
+        id: 'tpl-clone',
+        code: 'TPL-HS-009',
+        name: 'Generic Risk Assessment (Copy)',
+        isBuiltIn: false,
+        usageCount: 0,
+        status: 'DRAFT',
+      });
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/clone')
+        .send({});
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.isBuiltIn).toBe(false);
+      expect(res.body.data.usageCount).toBe(0);
+      expect(res.body.data.status).toBe('DRAFT');
+    });
+
+    it('should allow custom name for clone', async () => {
+      mockPrisma.template.findFirst
+        .mockResolvedValueOnce(mockTemplate)
+        .mockResolvedValueOnce(null);
+      mockPrisma.template.create.mockResolvedValue({
+        ...mockTemplate,
+        id: 'tpl-clone',
+        code: 'TPL-HS-001',
+        name: 'My Custom RA',
+        isBuiltIn: false,
+      });
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/clone')
+        .send({ name: 'My Custom RA' });
+
+      expect(res.status).toBe(201);
+      expect(mockPrisma.template.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ name: 'My Custom RA' }),
+        }),
+      );
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/v1/templates/nonexistent/clone')
+        .send({});
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =========================================================================
+  // POST /api/v1/templates/:id/use — Create Instance
+  // =========================================================================
+
+  describe('POST /api/v1/templates/:id/use', () => {
+    it('should create an instance and increment usage count', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+      mockPrisma.templateInstance.create.mockResolvedValue({
+        id: 'inst-1',
+        templateId: 'tpl-1',
+        templateCode: 'TPL-HS-001',
+        templateName: 'Generic Risk Assessment',
+        module: 'HEALTH_SAFETY',
+        filledData: { activity: 'Welding', hazards: 'Fumes, burns' },
+        createdById: 'user-1',
+        referenceId: null,
+      });
+      mockPrisma.template.update.mockResolvedValue({
+        ...mockTemplate,
+        usageCount: 6,
+      });
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/use')
+        .send({
+          filledData: { activity: 'Welding', hazards: 'Fumes, burns' },
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.templateCode).toBe('TPL-HS-001');
+      expect(mockPrisma.template.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { usageCount: { increment: 1 } },
+        }),
+      );
+    });
+
+    it('should reject missing filledData', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/use')
+        .send({});
+
+      expect(res.status).toBe(400);
+    });
+
+    it('should accept optional referenceId', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+      mockPrisma.templateInstance.create.mockResolvedValue({
+        id: 'inst-2',
+        templateId: 'tpl-1',
+        templateCode: 'TPL-HS-001',
+        templateName: 'Generic Risk Assessment',
+        module: 'HEALTH_SAFETY',
+        filledData: { activity: 'Painting' },
+        createdById: 'user-1',
+        referenceId: 'risk-42',
+      });
+      mockPrisma.template.update.mockResolvedValue(mockTemplate);
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/use')
+        .send({
+          filledData: { activity: 'Painting' },
+          referenceId: 'risk-42',
+        });
+
+      expect(res.status).toBe(201);
+      expect(mockPrisma.templateInstance.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ referenceId: 'risk-42' }),
+        }),
+      );
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/v1/templates/nonexistent/use')
+        .send({ filledData: { x: 1 } });
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates/:id/versions — Version history
+  // =========================================================================
+
+  describe('GET /api/v1/templates/:id/versions', () => {
+    it('should return version history', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue({ id: 'tpl-1' });
+      mockPrisma.templateVersion.findMany.mockResolvedValue([
+        { id: 'ver-2', templateId: 'tpl-1', version: 2, changeNote: 'Updated fields' },
+        { id: 'ver-1', templateId: 'tpl-1', version: 1, changeNote: 'Initial' },
+      ]);
+
+      const res = await request(app).get('/api/v1/templates/tpl-1/versions');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(2);
+      expect(res.body.data[0].version).toBe(2);
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).get('/api/v1/templates/nonexistent/versions');
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =========================================================================
+  // POST /api/v1/templates/:id/versions/:version/restore — Restore version
+  // =========================================================================
+
+  describe('POST /api/v1/templates/:id/versions/:version/restore', () => {
+    it('should restore a previous version', async () => {
+      const oldVersion = {
+        id: 'ver-1',
+        templateId: 'tpl-1',
+        version: 1,
+        fields: [{ id: 'old-field', label: 'Old', type: 'text' }],
+        defaultContent: null,
+      };
+      mockPrisma.templateVersion.findFirst.mockResolvedValue(oldVersion);
+      mockPrisma.template.findFirst.mockResolvedValue({
+        ...mockTemplate,
+        version: 3,
+      });
+      mockPrisma.templateVersion.create.mockResolvedValue({ id: 'ver-snapshot' });
+      mockPrisma.template.update.mockResolvedValue({
+        ...mockTemplate,
+        version: 4,
+        fields: oldVersion.fields,
+      });
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/versions/1/restore')
+        .send({});
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.version).toBe(4);
+      // Should snapshot current state before restoring
+      expect(mockPrisma.templateVersion.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ version: 3 }),
+        }),
+      );
+    });
+
+    it('should return 404 for non-existent version', async () => {
+      mockPrisma.templateVersion.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/v1/templates/tpl-1/versions/999/restore')
+        .send({});
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =========================================================================
+  // GET /api/v1/templates/:id/export — Export
+  // =========================================================================
+
+  describe('GET /api/v1/templates/:id/export', () => {
+    it('should export as HTML by default', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+
+      const res = await request(app).get('/api/v1/templates/tpl-1/export');
+
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/text\/html/);
+      expect(res.headers['content-disposition']).toMatch(/tpl-hs-001\.html/);
+    });
+
+    it('should export as JSON when format=json', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+
+      const res = await request(app).get('/api/v1/templates/tpl-1/export?format=json');
+
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/application\/json/);
+      expect(res.headers['content-disposition']).toMatch(/tpl-hs-001\.json/);
+      const body = JSON.parse(res.text);
+      expect(body.code).toBe('TPL-HS-001');
+      expect(body.fields).toHaveLength(2);
+    });
+
+    it('should return 404 for non-existent template', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).get('/api/v1/templates/nonexistent/export');
+
+      expect(res.status).toBe(404);
+    });
+  });
+});

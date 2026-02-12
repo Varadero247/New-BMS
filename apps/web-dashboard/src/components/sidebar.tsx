@@ -12,12 +12,20 @@ import {
   ChevronRight,
   Users,
   DollarSign,
+  FileText,
 } from 'lucide-react';
 const modules = [
   {
     name: 'Dashboard',
     href: '/',
     icon: LayoutDashboard,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100',
+  },
+  {
+    name: 'Templates',
+    href: '/templates',
+    icon: FileText,
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
   },

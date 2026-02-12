@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   GitBranch,
   FileCode,
+  FileText,
   Play,
   CheckSquare,
   Users,
@@ -19,7 +20,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
 
   // Design
-  { name: 'Templates', href: '/templates', icon: LayoutTemplate },
+  { name: 'Templates', href: '/templates', icon: FileText },
   { name: 'Definitions', href: '/definitions', icon: FileCode },
 
   // Execution

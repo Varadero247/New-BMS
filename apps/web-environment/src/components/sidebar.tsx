@@ -16,6 +16,7 @@ import {
   Recycle,
   BarChart3,
   MessageSquare,
+  FileText,
 } from 'lucide-react';
 
 const navigation = [
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Life Cycle Assessment', href: '/lifecycle', icon: Recycle },
   { name: 'ESG / Sustainability', href: '/esg', icon: BarChart3 },
   { name: 'Communications', href: '/communications', icon: MessageSquare },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

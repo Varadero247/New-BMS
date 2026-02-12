@@ -10,6 +10,7 @@ import {
   History,
   Warehouse,
   BarChart3,
+  FileText,
   Home,
   Settings,
   Tags,
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Transactions', href: '/transactions', icon: History },
   { name: 'Warehouses', href: '/warehouses', icon: Warehouse },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
 const externalLinks = [

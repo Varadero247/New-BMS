@@ -35,6 +35,7 @@ const navigation = [
 
   // Reports
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Templates', href: '/templates', icon: FileText },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
