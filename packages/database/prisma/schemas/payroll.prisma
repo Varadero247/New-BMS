@@ -70,6 +70,7 @@ model PayrollRun {
 
   @@index([periodStart, periodEnd])
   @@index([status])
+  @@index([createdAt])
   @@map("payroll_runs")
 }
 

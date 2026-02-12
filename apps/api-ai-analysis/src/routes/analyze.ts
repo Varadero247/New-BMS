@@ -36,6 +36,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'MEDICAL_DESIGN_INPUT_REVIEW',
         'AEROSPACE_COUNTERFEIT_RISK_ASSESSMENT',
         'AEROSPACE_AIRWORTHINESS_DIRECTIVE_IMPACT',
+        'AUTOMOTIVE_APQP_RISK_ASSESSMENT',
+        'AUTOMOTIVE_PPAP_READINESS',
       ]),
       context: z.record(z.unknown()),
     });
@@ -850,6 +852,142 @@ Derive comprehensive design inputs. Respond with ONLY valid JSON:
   "verificationApproach": ["..."],
   "validationApproach": ["..."],
   "gaps": ["..."]
+}`;
+    }
+
+    if (data.type === 'AUTOMOTIVE_APQP_RISK_ASSESSMENT') {
+      prompt = `You are an IATF 16949 / AIAG APQP (Advanced Product Quality Planning) expert specializing in automotive quality management.
+
+Assess the APQP risks for the following product program:
+
+Product Description: ${data.context.productDescription || 'Not specified'}
+Customer OEM: ${data.context.customer || 'Not specified'}
+Industry Segment: ${data.context.industrySegment || 'Automotive'}
+Complexity Factors: ${JSON.stringify(data.context.complexityFactors || [])}
+New Technology: ${data.context.newTechnology || 'No'}
+Similar Programs History: ${data.context.similarProgramsHistory || 'None'}
+Supply Chain Tiers: ${data.context.supplyChainTiers || 'Not specified'}
+Production Volume: ${data.context.productionVolume || 'Not specified'}
+
+Provide a comprehensive APQP risk assessment. Respond with ONLY valid JSON:
+{
+  "overallRiskLevel": "LOW|MEDIUM|HIGH|CRITICAL",
+  "overallRiskScore": <0-100>,
+  "topRisks": [
+    {
+      "rank": <1-10>,
+      "riskArea": "...",
+      "description": "...",
+      "probability": <1-5>,
+      "impact": <1-5>,
+      "riskScore": <number>,
+      "apqpPhase": "PLAN_AND_DEFINE|PRODUCT_DESIGN|PROCESS_DESIGN|VALIDATION|PRODUCTION",
+      "mitigation": "..."
+    }
+  ],
+  "criticalDeliverables": [
+    {
+      "deliverable": "...",
+      "apqpPhase": "...",
+      "priority": "CRITICAL|HIGH|MEDIUM|LOW",
+      "rationale": "..."
+    }
+  ],
+  "recommendedMitigations": [
+    {
+      "action": "...",
+      "targetPhase": "...",
+      "responsible": "...",
+      "effectiveness": "HIGH|MEDIUM|LOW"
+    }
+  ],
+  "typicalTimeline": {
+    "totalWeeks": <number>,
+    "phases": [
+      {"phase": "...", "durationWeeks": <number>, "keyActivities": ["..."]}
+    ]
+  },
+  "oemSpecificConsiderations": ["..."],
+  "lessonsLearned": ["..."]
+}`;
+    } else if (data.type === 'AUTOMOTIVE_PPAP_READINESS') {
+      prompt = `You are an AIAG PPAP (Production Part Approval Process) expert specializing in IATF 16949 automotive quality submissions.
+
+Assess PPAP readiness for the following submission:
+
+Customer OEM: ${data.context.customerOem || 'Not specified'}
+PPAP Level: ${data.context.ppapLevel || 'Level 3'}
+Part Name: ${data.context.partName || 'Not specified'}
+Part Number: ${data.context.partNumber || 'Not specified'}
+Submission Reason: ${data.context.submissionReason || 'New Part'}
+
+PPAP Element Status (18 Elements):
+1. Design Records: ${data.context.designRecords || 'INCOMPLETE'}
+2. Engineering Change Documents: ${data.context.engineeringChangeDocs || 'INCOMPLETE'}
+3. Customer Engineering Approval: ${data.context.customerApproval || 'INCOMPLETE'}
+4. DFMEA: ${data.context.dfmea || 'INCOMPLETE'}
+5. Process Flow Diagram: ${data.context.processFlow || 'INCOMPLETE'}
+6. PFMEA: ${data.context.pfmea || 'INCOMPLETE'}
+7. Control Plan: ${data.context.controlPlan || 'INCOMPLETE'}
+8. MSA Studies: ${data.context.msaStudies || 'INCOMPLETE'}
+9. Dimensional Results: ${data.context.dimensionalResults || 'INCOMPLETE'}
+10. Material/Performance Tests: ${data.context.materialTests || 'INCOMPLETE'}
+11. Initial Process Studies (SPC): ${data.context.initialProcessStudies || 'INCOMPLETE'}
+12. Qualified Lab Documentation: ${data.context.qualifiedLabDocs || 'INCOMPLETE'}
+13. Appearance Approval Report: ${data.context.appearanceApproval || 'INCOMPLETE'}
+14. Sample Production Parts: ${data.context.sampleParts || 'INCOMPLETE'}
+15. Master Sample: ${data.context.masterSample || 'INCOMPLETE'}
+16. Checking Aids: ${data.context.checkingAids || 'INCOMPLETE'}
+17. Customer-Specific Requirements: ${data.context.customerSpecificReqs || 'INCOMPLETE'}
+18. Part Submission Warrant (PSW): ${data.context.psw || 'INCOMPLETE'}
+
+Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
+{
+  "readinessScore": <0-100>,
+  "readinessLevel": "NOT_READY|PARTIALLY_READY|NEARLY_READY|READY",
+  "elementsStatus": {
+    "complete": <number>,
+    "incomplete": <number>,
+    "notApplicable": <number>,
+    "total": 18
+  },
+  "gaps": [
+    {
+      "element": "...",
+      "elementNumber": <1-18>,
+      "currentStatus": "...",
+      "requiredActions": ["..."],
+      "estimatedEffort": "...",
+      "priority": "CRITICAL|HIGH|MEDIUM|LOW"
+    }
+  ],
+  "oemSpecificRequirements": [
+    {
+      "requirement": "...",
+      "oem": "...",
+      "status": "MET|NOT_MET|PARTIAL",
+      "action": "..."
+    }
+  ],
+  "recommendedSequence": [
+    {
+      "step": <number>,
+      "element": "...",
+      "action": "...",
+      "dependency": "...",
+      "estimatedDays": <number>
+    }
+  ],
+  "submissionRisks": [
+    {
+      "risk": "...",
+      "likelihood": "HIGH|MEDIUM|LOW",
+      "impact": "...",
+      "mitigation": "..."
+    }
+  ],
+  "estimatedCompletionDays": <number>,
+  "recommendations": ["..."]
 }`;
     }
 

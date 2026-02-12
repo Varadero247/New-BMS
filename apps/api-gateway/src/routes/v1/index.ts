@@ -6,6 +6,9 @@ import sessionsRoutes from '../sessions';
 import auditRoutes from '../audit';
 import unifiedAuditRoutes from '../unified-audit';
 import complianceScoresRoutes from '../compliance-scores';
+import gdprRoutes from '../gdpr';
+import reportRoutes from '../reports';
+import securityControlsRoutes from '../security-controls';
 
 const router: RouterType = Router();
 
@@ -17,5 +20,8 @@ router.use('/sessions', sessionsRoutes);
 router.use('/audit', auditRoutes);
 router.use('/unified-audit', unifiedAuditRoutes);
 router.use('/dashboard/compliance-scores', complianceScoresRoutes);
+router.use('/gdpr', gdprRoutes);
+router.use('/reports', reportRoutes);
+router.use('/security-controls', securityControlsRoutes);
 
 export default router;

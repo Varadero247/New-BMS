@@ -21,6 +21,7 @@ import dashboardRoutes from './routes/dashboard';
 import complianceCalendarRoutes from './routes/compliance-calendar';
 import complianceScoresRoutes from './routes/compliance-scores';
 import sessionsRoutes from './routes/sessions';
+import reportRoutes from './routes/reports';
 import v1Routes from './routes/v1';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
@@ -198,6 +199,7 @@ app.use('/api/dashboard', deprecatedRoute('/api/v1/dashboard'), dashboardRoutes)
 app.use('/api/dashboard/compliance-calendar', complianceCalendarRoutes);
 app.use('/api/dashboard/compliance-scores', complianceScoresRoutes);
 app.use('/api/sessions', deprecatedRoute('/api/v1/sessions'), sessionsRoutes);
+app.use('/api/reports', deprecatedRoute('/api/v1/reports'), reportRoutes);
 
 // ============================================
 // API v1 Proxy Routes (current version)

@@ -38,6 +38,7 @@ model ProductCategory {
   products    Product[]
 
   @@index([parentId])
+  @@index([isActive])
   @@map("product_categories")
 }
 
@@ -78,6 +79,7 @@ model Supplier {
   products    Product[]
 
   @@index([status])
+  @@index([createdAt])
   @@map("suppliers")
 }
 

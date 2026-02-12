@@ -6,6 +6,17 @@ export { isValidId, validateIdParam } from './validation';
 // Shared type utilities (PaginatedResponse, AuthUser, parsePaginationWithTake)
 export * from './types';
 
+// Cursor-based pagination utilities
+export {
+  parseCursorParams,
+  buildCursorQuery,
+  formatCursorResult,
+  type CursorPaginationParams,
+  type CursorPaginationMeta,
+  type CursorPaginationResult,
+  type PrismaCursorQuery,
+} from './cursor-pagination';
+
 // ============================================
 // Shared Utilities
 // ============================================
@@ -303,7 +314,12 @@ export type IncidentType =
   | 'SUPPLIER_ISSUE'
   | 'PROCESS_DEVIATION'
   | 'PRODUCT_DEFECT'
-  | 'AUDIT_FINDING';
+  | 'AUDIT_FINDING'
+  // Information Security (ISO 27001)
+  | 'SECURITY_BREACH'
+  | 'DATA_BREACH'
+  | 'UNAUTHORIZED_ACCESS'
+  | 'PHISHING_ATTEMPT';
 
 export type IncidentSeverity = 'MINOR' | 'MODERATE' | 'MAJOR' | 'CRITICAL' | 'CATASTROPHIC';
 

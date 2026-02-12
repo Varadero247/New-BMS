@@ -35,6 +35,7 @@ model ConfigBaseline {
 
   @@index([tenantId, status])
   @@index([effectiveDate])
+  @@index([createdAt])
   @@map("config_baselines")
 }
 
@@ -225,6 +226,7 @@ model FirstArticleInspection {
 
   @@index([tenantId, status])
   @@index([partNumber])
+  @@index([createdAt])
   @@map("first_article_inspections")
 }
 
@@ -289,6 +291,9 @@ model WorkOrder {
 
   @@index([tenantId, status])
   @@index([aircraftReg])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt])
   @@map("work_orders")
 }
 
@@ -312,6 +317,7 @@ model TaskCard {
   workOrder       WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
 
   @@index([workOrderId])
+  @@index([status])
   @@map("task_cards")
 }
 
@@ -371,6 +377,9 @@ model HumanFactorIncident {
 
   @@index([tenantId, category])
   @@index([incidentDate])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
   @@map("human_factor_incidents")
 }
 

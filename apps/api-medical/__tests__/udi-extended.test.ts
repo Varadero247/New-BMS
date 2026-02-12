@@ -1,0 +1,287 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    udiDevice: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    udiDiRecord: { create: jest.fn() },
+    udiPiRecord: { create: jest.fn() },
+    udiSubmission: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+  },
+  Prisma: { UdiDeviceWhereInput: {}, UdiSubmissionWhereInput: {} },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+import { prisma } from '../src/prisma';
+import udiRouter from '../src/routes/udi';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const app = express();
+app.use(express.json());
+app.use('/api/udi', udiRouter);
+
+describe('UDI Routes', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  describe('POST /api/udi/devices', () => {
+    const validBody = {
+      deviceName: 'Pacemaker X1',
+      modelNumber: 'PM-X1-100',
+      manufacturer: 'CardioTech Inc',
+      deviceClass: 'CLASS_III',
+    };
+
+    it('should register a UDI device', async () => {
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({
+        id: 'udi-1', refNumber: 'UDI-2602-0001', ...validBody, status: 'DRAFT',
+      });
+
+      const res = await request(app).post('/api/udi/devices').send(validBody);
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return 400 for missing deviceName', async () => {
+      const { deviceName, ...no } = validBody;
+      const res = await request(app).post('/api/udi/devices').send(no);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing modelNumber', async () => {
+      const { modelNumber, ...no } = validBody;
+      const res = await request(app).post('/api/udi/devices').send(no);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing manufacturer', async () => {
+      const { manufacturer, ...no } = validBody;
+      const res = await request(app).post('/api/udi/devices').send(no);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for invalid deviceClass', async () => {
+      const res = await request(app).post('/api/udi/devices').send({ ...validBody, deviceClass: 'INVALID' });
+      expect(res.status).toBe(400);
+    });
+
+    it('should accept CLASS_I', async () => {
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ id: 'udi-2' });
+
+      const res = await request(app).post('/api/udi/devices').send({ ...validBody, deviceClass: 'CLASS_I' });
+      expect(res.status).toBe(201);
+    });
+
+    it('should accept CLASS_IIA', async () => {
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ id: 'udi-3' });
+
+      const res = await request(app).post('/api/udi/devices').send({ ...validBody, deviceClass: 'CLASS_IIA' });
+      expect(res.status).toBe(201);
+    });
+
+    it('should accept optional gmdn and emdn', async () => {
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ id: 'udi-4' });
+
+      const res = await request(app).post('/api/udi/devices').send({
+        ...validBody, gmdn: '12345', emdn: 'Y01',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 500 on database error', async () => {
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.udiDevice.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).post('/api/udi/devices').send(validBody);
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('GET /api/udi/devices', () => {
+    it('should list UDI devices', async () => {
+      (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([{ id: 'udi-1' }]);
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/udi/devices');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+    });
+
+    it('should support pagination', async () => {
+      (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(50);
+
+      const res = await request(app).get('/api/udi/devices?page=2&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.page).toBe(2);
+    });
+
+    it('should return 500 on error', async () => {
+      (mockPrisma.udiDevice.findMany as jest.Mock).mockRejectedValue(new Error('DB'));
+      (mockPrisma.udiDevice.count as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).get('/api/udi/devices');
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('GET /api/udi/devices/:id', () => {
+    it('should get device with DI, PI records, submissions', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+        id: 'udi-1', deletedAt: null, diRecords: [], piRecords: [], submissions: [],
+      });
+
+      const res = await request(app).get('/api/udi/devices/udi-1');
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 if not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).get('/api/udi/devices/fake');
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 404 for soft-deleted', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+        id: 'udi-1', deletedAt: new Date(),
+      });
+
+      const res = await request(app).get('/api/udi/devices/udi-1');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('POST /api/udi/devices/:id/di', () => {
+    it('should create a DI record', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiDiRecord.create as jest.Mock).mockResolvedValue({ id: 'di-1' });
+
+      const res = await request(app).post('/api/udi/devices/udi-1/di').send({
+        issuingAgency: 'GS1', diCode: '(01)12345678901234',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 404 if device not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).post('/api/udi/devices/fake/di').send({
+        issuingAgency: 'GS1', diCode: '123',
+      });
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 400 for missing issuingAgency', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+
+      const res = await request(app).post('/api/udi/devices/udi-1/di').send({ diCode: '123' });
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing diCode', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+
+      const res = await request(app).post('/api/udi/devices/udi-1/di').send({ issuingAgency: 'GS1' });
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 409 for duplicate DI code', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiDiRecord.create as jest.Mock).mockRejectedValue({ code: 'P2002' });
+
+      const res = await request(app).post('/api/udi/devices/udi-1/di').send({
+        issuingAgency: 'GS1', diCode: 'duplicate',
+      });
+      expect(res.status).toBe(409);
+    });
+  });
+
+  describe('POST /api/udi/devices/:id/pi', () => {
+    it('should create a PI record', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiPiRecord.create as jest.Mock).mockResolvedValue({ id: 'pi-1' });
+
+      const res = await request(app).post('/api/udi/devices/udi-1/pi').send({
+        lotNumber: 'LOT-001', serialNumber: 'SN-001',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 404 if device not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).post('/api/udi/devices/fake/pi').send({ lotNumber: 'L1' });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/udi/devices/:id/submissions', () => {
+    it('should list submissions for a device', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiSubmission.findMany as jest.Mock).mockResolvedValue([{ id: 'sub-1' }]);
+      (mockPrisma.udiSubmission.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/udi/devices/udi-1/submissions');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+    });
+
+    it('should return 404 if device not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).get('/api/udi/devices/fake/submissions');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('PUT /api/udi/devices/:id/submissions/:sid', () => {
+    it('should update a submission', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiSubmission.findFirst as jest.Mock).mockResolvedValue({ id: 'sub-1', deviceId: 'udi-1' });
+      (mockPrisma.udiSubmission.update as jest.Mock).mockResolvedValue({ id: 'sub-1', status: 'SUBMITTED' });
+
+      const res = await request(app).put('/api/udi/devices/udi-1/submissions/sub-1').send({
+        status: 'SUBMITTED',
+      });
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 if device not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).put('/api/udi/devices/fake/submissions/sub-1').send({ status: 'SUBMITTED' });
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 404 if submission not found', async () => {
+      (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({ id: 'udi-1', deletedAt: null });
+      (mockPrisma.udiSubmission.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).put('/api/udi/devices/udi-1/submissions/fake').send({ status: 'SUBMITTED' });
+      expect(res.status).toBe(404);
+    });
+  });
+});

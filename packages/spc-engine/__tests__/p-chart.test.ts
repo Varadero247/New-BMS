@@ -1,0 +1,207 @@
+import { pChart } from '../src';
+import type { PChartDataPoint } from '../src';
+
+function makePData(samples: Array<[number, number]>): PChartDataPoint[] {
+  const baseTime = new Date('2026-01-01T00:00:00Z');
+  return samples.map(([defectives, sampleSize], i) => ({
+    defectives,
+    sampleSize,
+    timestamp: new Date(baseTime.getTime() + i * 86400000),
+  }));
+}
+
+describe('pChart — comprehensive', () => {
+  describe('input validation', () => {
+    it('should throw for empty data', () => {
+      expect(() => pChart([])).toThrow('Need at least 2 samples');
+    });
+
+    it('should throw for single sample', () => {
+      const data = makePData([[5, 100]]);
+      expect(() => pChart(data)).toThrow('Need at least 2 samples');
+    });
+
+    it('should throw for zero sample size', () => {
+      const data = makePData([[0, 0], [3, 100]]);
+      expect(() => pChart(data)).toThrow('Sample size must be positive');
+    });
+
+    it('should throw for negative sample size', () => {
+      const data = makePData([[0, -10], [3, 100]]);
+      expect(() => pChart(data)).toThrow('Sample size must be positive');
+    });
+
+    it('should throw when defectives exceed sample size', () => {
+      const data = makePData([[101, 100], [3, 100]]);
+      expect(() => pChart(data)).toThrow('Defectives must be between 0 and sample size');
+    });
+
+    it('should throw for negative defectives', () => {
+      const data: PChartDataPoint[] = [
+        { defectives: -1, sampleSize: 100, timestamp: new Date() },
+        { defectives: 5, sampleSize: 100, timestamp: new Date() },
+      ];
+      expect(() => pChart(data)).toThrow('Defectives must be between 0 and sample size');
+    });
+
+    it('should accept exactly 2 samples', () => {
+      const data = makePData([[5, 100], [3, 100]]);
+      expect(() => pChart(data)).not.toThrow();
+    });
+
+    it('should accept zero defectives', () => {
+      const data = makePData([[0, 100], [0, 100]]);
+      const chart = pChart(data);
+      expect(chart.centerLine).toBe(0);
+    });
+
+    it('should accept defectives equal to sample size', () => {
+      const data = makePData([[100, 100], [50, 100]]);
+      const chart = pChart(data);
+      expect(chart.centerLine).toBeCloseTo(0.75, 4);
+    });
+  });
+
+  describe('chart structure', () => {
+    it('should return chart type P', () => {
+      const data = makePData([[5, 100], [3, 100], [7, 100]]);
+      const chart = pChart(data);
+      expect(chart.type).toBe('P');
+    });
+
+    it('should have correct number of data points', () => {
+      const data = makePData([[5, 100], [3, 100], [7, 100], [4, 100], [6, 100]]);
+      const chart = pChart(data);
+      expect(chart.dataPoints).toHaveLength(5);
+    });
+
+    it('should not have range chart data', () => {
+      const data = makePData([[5, 100], [3, 100]]);
+      const chart = pChart(data);
+      expect(chart.rangeUcl).toBeUndefined();
+      expect(chart.rangeLcl).toBeUndefined();
+      expect(chart.rangePoints).toBeUndefined();
+    });
+  });
+
+  describe('center line (p-bar) calculation', () => {
+    it('should compute p-bar = total defectives / total inspected', () => {
+      const data = makePData([[5, 100], [10, 100], [15, 100]]);
+      const chart = pChart(data);
+      // p-bar = 30 / 300 = 0.1
+      expect(chart.centerLine).toBeCloseTo(0.1, 4);
+    });
+
+    it('should handle unequal sample sizes', () => {
+      const data = makePData([[10, 200], [5, 100]]);
+      const chart = pChart(data);
+      // p-bar = 15 / 300 = 0.05
+      expect(chart.centerLine).toBeCloseTo(0.05, 4);
+    });
+
+    it('should compute p-bar correctly with many samples', () => {
+      const data = makePData([
+        [5, 100], [3, 100], [7, 100], [4, 100], [6, 100],
+        [8, 100], [2, 100], [5, 100], [4, 100], [6, 100],
+      ]);
+      const chart = pChart(data);
+      // total defectives = 50, total inspected = 1000
+      expect(chart.centerLine).toBeCloseTo(0.05, 4);
+    });
+  });
+
+  describe('control limits', () => {
+    it('should compute 3-sigma limits using average sample size', () => {
+      const data = makePData([
+        [5, 100], [3, 100], [7, 100], [4, 100], [6, 100],
+      ]);
+      const chart = pChart(data);
+
+      const pBar = 25 / 500;
+      const sigma = Math.sqrt((pBar * (1 - pBar)) / 100);
+      expect(chart.ucl).toBeCloseTo(pBar + 3 * sigma, 4);
+      expect(chart.lcl).toBeCloseTo(Math.max(0, pBar - 3 * sigma), 4);
+    });
+
+    it('should clamp LCL to 0 for low defect rates', () => {
+      const data = makePData([[0, 10], [1, 10], [0, 10]]);
+      const chart = pChart(data);
+      expect(chart.lcl).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should have UCL > center line > LCL', () => {
+      const data = makePData([
+        [5, 100], [3, 100], [7, 100], [4, 100], [6, 100],
+      ]);
+      const chart = pChart(data);
+      expect(chart.ucl).toBeGreaterThan(chart.centerLine);
+      expect(chart.centerLine).toBeGreaterThanOrEqual(chart.lcl);
+    });
+
+    it('should handle 100% defective rate', () => {
+      const data = makePData([[100, 100], [100, 100]]);
+      const chart = pChart(data);
+      expect(chart.centerLine).toBe(1);
+      // sigma = sqrt(1 * 0 / 100) = 0, so UCL = LCL = 1
+      expect(chart.ucl).toBe(1);
+    });
+  });
+
+  describe('out-of-control detection', () => {
+    it('should flag points above UCL', () => {
+      const data = makePData([
+        [5, 100], [5, 100], [5, 100], [5, 100], [50, 100],
+      ]);
+      const chart = pChart(data);
+
+      const ooc = chart.outOfControl;
+      expect(ooc.length).toBeGreaterThan(0);
+      expect(ooc.some(p => p.rules.includes('Above UCL'))).toBe(true);
+    });
+
+    it('should not flag in-control points', () => {
+      const data = makePData([
+        [5, 100], [5, 100], [5, 100], [5, 100], [5, 100],
+      ]);
+      const chart = pChart(data);
+      expect(chart.outOfControl).toHaveLength(0);
+    });
+
+    it('should detect all OOC points', () => {
+      // Two extreme samples
+      const data = makePData([
+        [5, 100], [5, 100], [5, 100], [90, 100], [95, 100],
+      ]);
+      const chart = pChart(data);
+      expect(chart.outOfControl.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  describe('plotted point values', () => {
+    it('should compute proportions correctly', () => {
+      const data = makePData([[10, 200], [5, 100], [15, 300]]);
+      const chart = pChart(data);
+
+      expect(chart.dataPoints[0].value).toBeCloseTo(10 / 200, 4); // 0.05
+      expect(chart.dataPoints[1].value).toBeCloseTo(5 / 100, 4);  // 0.05
+      expect(chart.dataPoints[2].value).toBeCloseTo(15 / 300, 4); // 0.05
+    });
+
+    it('should include correct indices', () => {
+      const data = makePData([[5, 100], [3, 100], [7, 100]]);
+      const chart = pChart(data);
+
+      expect(chart.dataPoints[0].index).toBe(0);
+      expect(chart.dataPoints[1].index).toBe(1);
+      expect(chart.dataPoints[2].index).toBe(2);
+    });
+
+    it('should include timestamps from original data', () => {
+      const data = makePData([[5, 100], [3, 100]]);
+      const chart = pChart(data);
+
+      expect(chart.dataPoints[0].timestamp).toEqual(data[0].timestamp);
+      expect(chart.dataPoints[1].timestamp).toEqual(data[1].timestamp);
+    });
+  });
+});

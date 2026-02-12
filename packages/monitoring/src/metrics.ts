@@ -80,6 +80,34 @@ export const metricsHandler = async (_req: Request, res: Response) => {
 };
 
 /**
+ * Track the duration of an arbitrary database query and record it in
+ * the databaseQueryDuration histogram.
+ *
+ * Usage:
+ * ```typescript
+ * const users = await trackDbQuery('findMany', 'User', () =>
+ *   prisma.user.findMany({ where: { isActive: true } })
+ * );
+ * ```
+ */
+export async function trackDbQuery<T>(
+  operation: string,
+  model: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  const start = Date.now();
+  try {
+    return await fn();
+  } finally {
+    const duration = (Date.now() - start) / 1000;
+    databaseQueryDuration.observe({ operation, model }, duration);
+  }
+}
+
+/** Alias for databaseQueryDuration histogram — convenient named export */
+export const dbQueryHistogram = databaseQueryDuration;
+
+/**
  * Prisma middleware to record query duration metrics.
  * Usage: prisma.$use(prismaMetricsMiddleware);
  */

@@ -1,0 +1,382 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    envEmergencyPlan: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn(), groupBy: jest.fn() },
+    envEmergencyDrill: { findMany: jest.fn(), create: jest.fn(), count: jest.fn(), groupBy: jest.fn() },
+    envEmergencyIncident: { findMany: jest.fn(), create: jest.fn(), count: jest.fn() },
+  },
+  Prisma: { EnvEmergencyPlanWhereInput: {}, EnvEmergencyDrillWhereInput: {} },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+import { prisma } from '../src/prisma';
+import emergencyRouter from '../src/routes/emergency';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const app = express();
+app.use(express.json());
+app.use('/api/emergency', emergencyRouter);
+
+describe('Emergency Routes', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  // =============================================
+  // PLANS
+  // =============================================
+  describe('POST /api/emergency/plans', () => {
+    const validBody = {
+      title: 'Chemical Spill Response',
+      scenario: 'Chemical spill in production area',
+      triggerConditions: 'Visible liquid chemical release',
+      immediateResponse: 'Evacuate area, notify EHS',
+    };
+
+    it('should create an emergency plan', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyPlan.create as jest.Mock).mockResolvedValue({
+        id: 'ep-1', refNumber: 'EEP-2602-0001', ...validBody, status: 'DRAFT',
+      });
+
+      const res = await request(app).post('/api/emergency/plans').send(validBody);
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return 400 for missing title', async () => {
+      const { title, ...noTitle } = validBody;
+      const res = await request(app).post('/api/emergency/plans').send(noTitle);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing scenario', async () => {
+      const { scenario, ...noScenario } = validBody;
+      const res = await request(app).post('/api/emergency/plans').send(noScenario);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing triggerConditions', async () => {
+      const { triggerConditions, ...noTrigger } = validBody;
+      const res = await request(app).post('/api/emergency/plans').send(noTrigger);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing immediateResponse', async () => {
+      const { immediateResponse, ...noResponse } = validBody;
+      const res = await request(app).post('/api/emergency/plans').send(noResponse);
+      expect(res.status).toBe(400);
+    });
+
+    it('should accept ACTIVE status', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyPlan.create as jest.Mock).mockResolvedValue({ id: 'ep-2' });
+
+      const res = await request(app).post('/api/emergency/plans').send({
+        ...validBody, status: 'ACTIVE',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should accept optional fields', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyPlan.create as jest.Mock).mockResolvedValue({ id: 'ep-3' });
+
+      const res = await request(app).post('/api/emergency/plans').send({
+        ...validBody,
+        notificationReqs: 'Notify fire dept',
+        containmentProcs: 'Deploy spill kit',
+        impactMitigation: 'Prevent groundwater contamination',
+        recoveryActions: 'Remediate affected soil',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 500 on database error', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyPlan.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).post('/api/emergency/plans').send(validBody);
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('GET /api/emergency/plans', () => {
+    it('should list emergency plans', async () => {
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([{ id: 'ep-1' }]);
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/emergency/plans');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.meta.total).toBe(1);
+    });
+
+    it('should support pagination', async () => {
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(100);
+
+      const res = await request(app).get('/api/emergency/plans?page=3&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.page).toBe(3);
+    });
+
+    it('should filter by status', async () => {
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+
+      await request(app).get('/api/emergency/plans?status=ACTIVE');
+      expect(mockPrisma.envEmergencyPlan.findMany).toHaveBeenCalled();
+    });
+
+    it('should support search', async () => {
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+
+      await request(app).get('/api/emergency/plans?search=spill');
+      expect(mockPrisma.envEmergencyPlan.findMany).toHaveBeenCalled();
+    });
+
+    it('should return 500 on error', async () => {
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockRejectedValue(new Error('DB'));
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).get('/api/emergency/plans');
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('PUT /api/emergency/plans/:id', () => {
+    it('should update an emergency plan', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'ep-1' });
+      (mockPrisma.envEmergencyPlan.update as jest.Mock).mockResolvedValue({ id: 'ep-1', status: 'ACTIVE' });
+
+      const res = await request(app).put('/api/emergency/plans/ep-1').send({ status: 'ACTIVE' });
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 for non-existent', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).put('/api/emergency/plans/fake').send({ status: 'ACTIVE' });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // =============================================
+  // DRILLS
+  // =============================================
+  describe('POST /api/emergency/drills', () => {
+    const validDrill = {
+      planId: 'ep-1',
+      drillDate: '2026-02-15',
+      drillType: 'TABLETOP',
+      participants: ['John Doe', 'Jane Smith'],
+    };
+
+    it('should create a drill', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'ep-1' });
+      (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'dr-1', ...validDrill });
+
+      const res = await request(app).post('/api/emergency/drills').send(validDrill);
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 404 if plan does not exist', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).post('/api/emergency/drills').send(validDrill);
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 400 for missing participants', async () => {
+      const { participants, ...noPart } = validDrill;
+      const res = await request(app).post('/api/emergency/drills').send(noPart);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for empty participants array', async () => {
+      const res = await request(app).post('/api/emergency/drills').send({ ...validDrill, participants: [] });
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for invalid drillType', async () => {
+      const res = await request(app).post('/api/emergency/drills').send({
+        ...validDrill, drillType: 'INVALID',
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('should accept FUNCTIONAL drillType', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'ep-1' });
+      (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'dr-2' });
+
+      const res = await request(app).post('/api/emergency/drills').send({
+        ...validDrill, drillType: 'FUNCTIONAL',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should accept FULL_SCALE drillType', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'ep-1' });
+      (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'dr-3' });
+
+      const res = await request(app).post('/api/emergency/drills').send({
+        ...validDrill, drillType: 'FULL_SCALE',
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 500 on database error', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'ep-1' });
+      (mockPrisma.envEmergencyDrill.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).post('/api/emergency/drills').send(validDrill);
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('GET /api/emergency/drills', () => {
+    it('should list drills', async () => {
+      (mockPrisma.envEmergencyDrill.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.envEmergencyDrill.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await request(app).get('/api/emergency/drills');
+      expect(res.status).toBe(200);
+    });
+
+    it('should filter by planId', async () => {
+      (mockPrisma.envEmergencyDrill.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.envEmergencyDrill.count as jest.Mock).mockResolvedValue(0);
+
+      await request(app).get('/api/emergency/drills?planId=ep-1');
+      expect(mockPrisma.envEmergencyDrill.findMany).toHaveBeenCalled();
+    });
+
+    it('should return 500 on error', async () => {
+      (mockPrisma.envEmergencyDrill.findMany as jest.Mock).mockRejectedValue(new Error('DB'));
+      (mockPrisma.envEmergencyDrill.count as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).get('/api/emergency/drills');
+      expect(res.status).toBe(500);
+    });
+  });
+
+  // =============================================
+  // INCIDENTS
+  // =============================================
+  describe('POST /api/emergency/incidents', () => {
+    const validIncident = {
+      title: 'Chemical leak in warehouse',
+      description: 'Solvent container breach',
+      incidentDate: '2026-02-10',
+    };
+
+    it('should create an emergency incident', async () => {
+      (mockPrisma.envEmergencyIncident.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyIncident.create as jest.Mock).mockResolvedValue({ id: 'ei-1', refNumber: 'EEI-2602-0001' });
+
+      const res = await request(app).post('/api/emergency/incidents').send(validIncident);
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 400 for missing title', async () => {
+      const res = await request(app).post('/api/emergency/incidents').send({
+        description: 'Test', incidentDate: '2026-02-10',
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for missing description', async () => {
+      const res = await request(app).post('/api/emergency/incidents').send({
+        title: 'Test', incidentDate: '2026-02-10',
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 404 if linked plan does not exist', async () => {
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).post('/api/emergency/incidents').send({
+        ...validIncident, linkedPlanId: 'fake-plan',
+      });
+      expect(res.status).toBe(404);
+    });
+
+    it('should accept optional fields', async () => {
+      (mockPrisma.envEmergencyIncident.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyIncident.create as jest.Mock).mockResolvedValue({ id: 'ei-2' });
+
+      const res = await request(app).post('/api/emergency/incidents').send({
+        ...validIncident,
+        location: 'Building A',
+        environmentalImpact: 'Soil contamination',
+        containmentActions: 'Deployed absorbent pads',
+        regulatoryNotified: true,
+      });
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 500 on database error', async () => {
+      (mockPrisma.envEmergencyIncident.count as jest.Mock).mockResolvedValue(0);
+      (mockPrisma.envEmergencyIncident.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).post('/api/emergency/incidents').send(validIncident);
+      expect(res.status).toBe(500);
+    });
+  });
+
+  // =============================================
+  // DASHBOARD
+  // =============================================
+  describe('GET /api/emergency/dashboard', () => {
+    it('should return dashboard stats', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock)
+        .mockResolvedValueOnce(10)  // totalPlans
+        .mockResolvedValueOnce(5);   // activePlans
+      (mockPrisma.envEmergencyDrill.count as jest.Mock).mockResolvedValue(3);
+      (mockPrisma.envEmergencyIncident.count as jest.Mock)
+        .mockResolvedValueOnce(2)  // open
+        .mockResolvedValueOnce(8); // total
+      (mockPrisma.envEmergencyPlan.groupBy as jest.Mock).mockResolvedValue([
+        { status: 'ACTIVE', _count: { id: 5 } },
+        { status: 'DRAFT', _count: { id: 3 } },
+      ]);
+      (mockPrisma.envEmergencyDrill.groupBy as jest.Mock).mockResolvedValue([
+        { outcome: 'SATISFACTORY', _count: { id: 2 } },
+      ]);
+
+      const res = await request(app).get('/api/emergency/dashboard');
+      expect(res.status).toBe(200);
+      expect(res.body.data.totalPlans).toBe(10);
+      expect(res.body.data.activePlans).toBe(5);
+      expect(res.body.data.drillCompliance).toBeDefined();
+    });
+
+    it('should return 500 on error', async () => {
+      (mockPrisma.envEmergencyPlan.count as jest.Mock).mockRejectedValue(new Error('DB'));
+
+      const res = await request(app).get('/api/emergency/dashboard');
+      expect(res.status).toBe(500);
+    });
+  });
+});

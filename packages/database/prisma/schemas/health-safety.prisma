@@ -112,6 +112,11 @@ enum IncidentType {
   FIRST_AID
   MEDICAL_TREATMENT
   LOST_TIME
+  // ISO 27001 Information Security Incident Types
+  SECURITY_BREACH
+  DATA_BREACH
+  UNAUTHORIZED_ACCESS
+  PHISHING_ATTEMPT
 }
 
 enum IncidentSeverity {
@@ -193,6 +198,7 @@ model Risk {
 
   @@index([status])
   @@index([riskLevel])
+  @@index([createdAt])
   @@map("hs_risks")
 }
 
@@ -515,6 +521,9 @@ model SafetyPermit {
 
   @@index([status])
   @@index([permitType])
+  @@index([requestedById])
+  @@index([validFrom])
+  @@index([createdAt])
   @@map("hs_safety_permits")
 }
 
@@ -579,6 +588,9 @@ model SafetyInspection {
 
   @@index([status])
   @@index([inspectionType])
+  @@index([inspectorId])
+  @@index([scheduledDate])
+  @@index([createdAt])
   @@map("hs_safety_inspections")
 }
 
@@ -647,6 +659,8 @@ model LegalRequirement {
 
   @@index([complianceStatus])
   @@index([category])
+  @@index([status])
+  @@index([createdAt])
   @@map("hs_legal_requirements")
 }
 
@@ -746,6 +760,7 @@ model ObjectiveMilestone {
   objective     OhsObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([objectiveId])
+  @@index([dueDate])
   @@map("hs_objective_milestones")
 }
 
@@ -852,6 +867,8 @@ model CapaAction {
   capa            Capa @relation(fields: [capaId], references: [id], onDelete: Cascade)
 
   @@index([capaId])
+  @@index([status])
+  @@index([dueDate])
   @@map("hs_capa_actions")
 }
 

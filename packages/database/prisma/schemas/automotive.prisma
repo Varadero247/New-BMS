@@ -41,6 +41,7 @@ model ApqpProject {
   @@index([tenantId, status])
   @@index([customer])
   @@index([partNumber])
+  @@index([createdAt])
   @@map("apqp_projects")
 }
 
@@ -101,6 +102,8 @@ model ApqpGateReview {
 
   phase         ApqpPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
 
+  @@index([decision])
+  @@index([reviewDate])
   @@map("apqp_gate_reviews")
 }
 
@@ -204,6 +207,8 @@ model PpapSubmission {
   project         PpapProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
   @@map("ppap_submissions")
 }
 
@@ -492,6 +497,8 @@ model CsrRequirement {
   @@index([tenantId, oem])
   @@index([iatfClause])
   @@index([complianceStatus])
+  @@index([dueDate])
+  @@index([createdAt])
   @@map("csr_requirements")
 }
 

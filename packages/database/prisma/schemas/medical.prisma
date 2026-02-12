@@ -48,6 +48,7 @@ model DesignProject {
   @@index([tenantId, status])
   @@index([currentStage])
   @@index([deviceClass])
+  @@index([createdAt])
   @@map("design_projects")
 }
 
@@ -111,6 +112,7 @@ model DesignReview {
 
   @@index([projectId])
   @@index([stage])
+  @@index([reviewDate])
   @@map("design_reviews")
 }
 
@@ -494,6 +496,8 @@ model Complaint {
   @@index([deviceName])
   @@index([mdrReportable])
   @@index([complaintDate])
+  @@index([severity])
+  @@index([createdAt])
   @@map("complaints")
 }
 
@@ -831,6 +835,9 @@ model SoftwareAnomaly {
   project         SoftwareProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
   @@map("software_anomalies")
 }
 
@@ -926,6 +933,7 @@ model RegulatorySubmission {
 
   @@index([tenantId, market])
   @@index([status])
+  @@index([createdAt])
   @@map("regulatory_submissions")
 }
 

@@ -58,6 +58,7 @@ model WorkflowDefinition {
 
   @@index([status])
   @@index([category])
+  @@index([createdAt])
   @@map("wf_definitions")
 }
 
@@ -916,6 +917,54 @@ enum ApprovalOutcome {
   PARTIALLY_APPROVED
   CANCELLED
   EXPIRED
+}
+
+// ============================================
+// WEBHOOKS
+// ============================================
+
+model Webhook {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  secret      String   // HMAC secret for signature verification
+  events      String[] // Array of event types to subscribe to
+  isActive    Boolean  @default(true)
+  headers     Json?    // Custom headers to send
+  retryCount  Int      @default(3)
+  timeout     Int      @default(5000) // ms
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  deliveries WebhookDelivery[]
+
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id          String   @id @default(cuid())
+  webhookId   String
+  event       String   // e.g., "incident.created"
+  payload     Json
+  statusCode  Int?
+  response    String?
+  success     Boolean  @default(false)
+  attempts    Int      @default(0)
+  lastError   String?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([event])
+  @@index([success])
+  @@index([createdAt])
+  @@map("webhook_deliveries")
 }
 
 // ============================================

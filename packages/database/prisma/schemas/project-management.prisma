@@ -884,6 +884,8 @@ model Benefit {
 
   @@index([tenantId, benefitType])
   @@index([status])
+  @@index([projectId])
+  @@index([createdAt])
   @@map("benefits")
 }
 

@@ -44,6 +44,7 @@ model QualInterestedParty {
 
   @@index([partyType])
   @@index([status])
+  @@index([createdAt])
   @@map("qual_interested_parties")
 }
 
@@ -449,6 +450,7 @@ model QualNonConformance {
   @@index([severity])
   @@index([dateReported])
   @@index([department])
+  @@index([createdAt])
   @@map("qual_nonconformances")
 }
 
@@ -807,6 +809,8 @@ model QualCapa {
   @@index([capaType])
   @@index([status])
   @@index([severity])
+  @@index([targetClosureDate])
+  @@index([createdAt])
   @@map("qual_capas")
 }
 
@@ -987,6 +991,7 @@ model QualFmea {
 
   @@index([fmeaType])
   @@index([status])
+  @@index([createdAt])
   @@map("qual_fmeas")
 }
 
@@ -1408,6 +1413,8 @@ model QualChange {
   @@index([changeType])
   @@index([status])
   @@index([priority])
+  @@index([targetDate])
+  @@index([createdAt])
   @@map("qual_changes")
 }
 
@@ -1519,6 +1526,7 @@ model QualMilestone {
   objective       QualObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([objectiveId])
+  @@index([targetDate])
   @@map("qual_milestones")
 }
 

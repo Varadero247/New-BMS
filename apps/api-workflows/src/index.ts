@@ -32,6 +32,7 @@ import instancesRouter from './routes/instances';
 import tasksRouter from './routes/tasks';
 import approvalsRouter from './routes/approvals';
 import automationRouter from './routes/automation';
+import webhooksRouter from './routes/webhooks';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4008;
@@ -65,6 +66,7 @@ app.use('/api/instances', instancesRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/approvals', approvalsRouter);
 app.use('/api/automation', automationRouter);
+app.use('/api/webhooks', webhooksRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

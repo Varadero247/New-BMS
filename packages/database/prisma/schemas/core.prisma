@@ -250,6 +250,8 @@ model Risk {
   deletedAt      DateTime?
 
   @@index([standard, status])
+  @@index([createdAt])
+  @@index([riskLevel])
   @@map("risks")
 }
 
@@ -273,6 +275,11 @@ enum IncidentType {
   PROCESS_DEVIATION
   PRODUCT_DEFECT
   AUDIT_FINDING
+  // ISO 27001 Information Security Incident Types
+  SECURITY_BREACH
+  DATA_BREACH
+  UNAUTHORIZED_ACCESS
+  PHISHING_ATTEMPT
 }
 
 enum IncidentSeverity {
@@ -330,6 +337,8 @@ model Incident {
 
   @@index([standard, status])
   @@index([dateOccurred])
+  @@index([reporterId])
+  @@index([createdAt])
   @@map("incidents")
 }
 
@@ -392,6 +401,8 @@ model Action {
   @@index([priority])
   @@index([riskId])
   @@index([incidentId])
+  @@index([createdById])
+  @@index([createdAt])
   @@map("actions")
 }
 
@@ -532,5 +543,65 @@ model ComplianceEvent {
   @@index([status])
   @@index([standard, status])
   @@index([dueDate, status])
+  @@index([assigneeId])
+  @@index([createdAt])
   @@map("compliance_events")
+}
+
+// ============================================
+// GDPR / DATA PROTECTION
+// ============================================
+
+model DataRetentionPolicy {
+  id             String   @id @default(cuid())
+  dataCategory   String   // e.g., "audit_logs", "incidents", "user_sessions"
+  module         String   // e.g., "health-safety", "environment", "quality"
+  retentionDays  Int      // Days to retain
+  action         String   // "ARCHIVE" | "DELETE" | "ANONYMIZE"
+  legalBasis     String?  // GDPR article or other legal basis
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([dataCategory, module])
+  @@map("data_retention_policies")
+}
+
+model ErasureRequest {
+  id          String    @id @default(cuid())
+  userId      String
+  userEmail   String
+  reason      String?
+  status      String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, REJECTED
+  processedBy String?
+  processedAt DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("erasure_requests")
+}
+
+// ============================================
+// AUTO-REPORT GENERATION
+// ============================================
+
+model GeneratedReport {
+  id           String   @id @default(cuid())
+  title        String
+  type         String   // MANAGEMENT_REVIEW, AUDIT, KPI_PACK, COMPLIANCE_SUMMARY
+  module       String?  // health-safety, environment, quality, etc.
+  parameters   Json?    // Input parameters used to generate
+  content      Json     // Report content/data
+  htmlTemplate String?  // HTML template for PDF rendering
+  format       String   @default("JSON") // JSON, HTML, PDF
+  generatedBy  String
+  createdAt    DateTime @default(now())
+
+  @@index([type])
+  @@index([module])
+  @@index([createdAt])
+  @@map("generated_reports")
 }

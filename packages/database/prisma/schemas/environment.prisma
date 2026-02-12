@@ -75,6 +75,7 @@ model EnvAspect {
   @@index([isSignificant])
   @@index([activityCategory])
   @@index([department])
+  @@index([createdAt])
   @@map("env_aspects")
 }
 
@@ -156,6 +157,8 @@ model EnvEvent {
   @@index([severity])
   @@index([dateOfEvent])
   @@index([linkedAspectId])
+  @@index([department])
+  @@index([createdAt])
   @@map("env_events")
 }
 
@@ -216,6 +219,7 @@ model EnvLegal {
   @@index([complianceStatus])
   @@index([obligationType])
   @@index([status])
+  @@index([createdAt])
   @@map("env_legal")
 }
 
@@ -273,6 +277,8 @@ model EnvObjective {
 
   @@index([status])
   @@index([category])
+  @@index([targetDate])
+  @@index([createdAt])
   @@map("env_objectives")
 }
 
@@ -291,6 +297,7 @@ model EnvMilestone {
   objective     EnvObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([objectiveId])
+  @@index([dueDate])
   @@map("env_milestones")
 }
 
