@@ -22,6 +22,7 @@ import {
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
+import { attachPermissions, requirePermission, PermissionLevel } from '@ims/rbac';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-payroll');
@@ -33,6 +34,7 @@ import benefitsRouter from './routes/benefits';
 import expensesRouter from './routes/expenses';
 import loansRouter from './routes/loans';
 import taxRouter from './routes/tax';
+import jurisdictionsRouter from './routes/jurisdictions';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4007;
@@ -47,6 +49,7 @@ app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
 app.use(express.urlencoded({ extended: true }));
 app.use(optionalServiceAuth);
+app.use(attachPermissions());
 
 // Health check, readiness, and metrics
 app.get('/health', createHealthCheck('api-payroll', prisma, '1.0.0'));
@@ -60,13 +63,14 @@ app.get('/ready', async (_req, res) => {
 });
 app.get('/metrics', metricsHandler);
 
-// API Routes
-app.use('/api/payroll', payrollRouter);
+// API Routes (gateway rewrites /api/v1/payroll/* → /api/*)
+app.use('/api', payrollRouter);
 app.use('/api/salary', salaryRouter);
 app.use('/api/benefits', benefitsRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/loans', loansRouter);
 app.use('/api/tax', taxRouter);
+app.use('/api/jurisdictions', jurisdictionsRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

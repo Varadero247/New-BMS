@@ -1,0 +1,302 @@
+import { Router, Request, Response } from 'express';
+import { prisma, Prisma } from '../prisma';
+import { z } from 'zod';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-cmms');
+const router: Router = Router();
+router.use(authenticate);
+
+// ---------------------------------------------------------------------------
+// Zod Schemas
+// ---------------------------------------------------------------------------
+
+const vendorCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  code: z.string().min(1).max(50),
+  contactName: z.string().max(200).optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  phone: z.string().max(50).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  specialization: z.string().max(200).optional().nullable(),
+  rating: z.number().min(0).max(5).optional().nullable(),
+  isPreferred: z.boolean().optional(),
+  contractExpiry: z.string().optional().nullable(),
+});
+
+const vendorUpdateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  contactName: z.string().max(200).optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  phone: z.string().max(50).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  specialization: z.string().max(200).optional().nullable(),
+  rating: z.number().min(0).max(5).optional().nullable(),
+  isPreferred: z.boolean().optional(),
+  contractExpiry: z.string().optional().nullable(),
+});
+
+const contractCreateSchema = z.object({
+  assetId: z.string().uuid().optional().nullable(),
+  contractNumber: z.string().min(1).max(50),
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional().nullable(),
+  startDate: z.string(),
+  endDate: z.string(),
+  value: z.number().optional().nullable(),
+  type: z.enum(['FULL_SERVICE', 'PARTS_ONLY', 'LABOR_ONLY', 'WARRANTY', 'SLA']),
+  status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
+  slaResponseHours: z.number().int().optional().nullable(),
+  slaResolutionHours: z.number().int().optional().nullable(),
+});
+
+const contractUpdateSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).optional().nullable(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  value: z.number().optional().nullable(),
+  type: z.enum(['FULL_SERVICE', 'PARTS_ONLY', 'LABOR_ONLY', 'WARRANTY', 'SLA']).optional(),
+  status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
+  slaResponseHours: z.number().int().optional().nullable(),
+  slaResolutionHours: z.number().int().optional().nullable(),
+});
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function parseIntParam(val: unknown, fallback: number): number {
+  const n = parseInt(String(val), 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// ===================================================================
+// VENDORS CRUD
+// ===================================================================
+
+// GET /vendors — List vendors
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { specialization, isPreferred, search } = req.query;
+    const page = parseIntParam(req.query.page, 1);
+    const limit = parseIntParam(req.query.limit, 50);
+    const skip = (page - 1) * limit;
+
+    const where: any = { deletedAt: null };
+    if (specialization) where.specialization = { contains: String(specialization), mode: 'insensitive' };
+    if (isPreferred !== undefined) where.isPreferred = isPreferred === 'true';
+    if (search) {
+      where.OR = [
+        { name: { contains: String(search), mode: 'insensitive' } },
+        { code: { contains: String(search), mode: 'insensitive' } },
+      ];
+    }
+
+    const [vendors, total] = await Promise.all([
+      prisma.cmmsVendor.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.cmmsVendor.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: vendors,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error: any) {
+    logger.error('Failed to list vendors', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendors' } });
+  }
+});
+
+// POST /vendors — Create vendor
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const parsed = vendorCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+    }
+
+    const authReq = req as AuthRequest;
+    const data = parsed.data;
+
+    const vendor = await prisma.cmmsVendor.create({
+      data: {
+        name: data.name,
+        code: data.code,
+        contactName: data.contactName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        specialization: data.specialization,
+        rating: data.rating != null ? new Prisma.Decimal(data.rating) : null,
+        isPreferred: data.isPreferred || false,
+        contractExpiry: data.contractExpiry ? new Date(data.contractExpiry) : null,
+        createdBy: authReq.user?.id || 'system',
+      },
+    });
+
+    res.status(201).json({ success: true, data: vendor });
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Vendor code already exists' } });
+    }
+    logger.error('Failed to create vendor', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create vendor' } });
+  }
+});
+
+// GET /vendors/:id — Get vendor by ID
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const vendor = await prisma.cmmsVendor.findFirst({
+      where: { id: req.params.id, deletedAt: null },
+      include: { serviceContracts: { where: { deletedAt: null } } },
+    });
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+    }
+
+    res.json({ success: true, data: vendor });
+  } catch (error: any) {
+    logger.error('Failed to get vendor', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get vendor' } });
+  }
+});
+
+// PUT /vendors/:id — Update vendor
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const parsed = vendorUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+    }
+
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+    }
+
+    const data = parsed.data;
+    const updateData: any = { ...data };
+    if (data.rating !== undefined) updateData.rating = data.rating != null ? new Prisma.Decimal(data.rating) : null;
+    if (data.contractExpiry !== undefined) updateData.contractExpiry = data.contractExpiry ? new Date(data.contractExpiry) : null;
+
+    const vendor = await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: updateData });
+    res.json({ success: true, data: vendor });
+  } catch (error: any) {
+    logger.error('Failed to update vendor', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update vendor' } });
+  }
+});
+
+// DELETE /vendors/:id — Soft delete vendor
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+    }
+
+    await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    res.json({ success: true, data: { message: 'Vendor deleted successfully' } });
+  } catch (error: any) {
+    logger.error('Failed to delete vendor', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete vendor' } });
+  }
+});
+
+// GET /vendors/:id/contracts — List vendor contracts
+router.get('/:id/contracts', async (req: Request, res: Response) => {
+  try {
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+    }
+
+    const contracts = await prisma.cmmsServiceContract.findMany({
+      where: { vendorId: req.params.id, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json({ success: true, data: contracts });
+  } catch (error: any) {
+    logger.error('Failed to list vendor contracts', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendor contracts' } });
+  }
+});
+
+// POST /vendors/:id/contracts — Create contract for vendor
+router.post('/:id/contracts', async (req: Request, res: Response) => {
+  try {
+    const parsed = contractCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+    }
+
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+    }
+
+    const authReq = req as AuthRequest;
+    const data = parsed.data;
+
+    const contract = await prisma.cmmsServiceContract.create({
+      data: {
+        vendorId: req.params.id,
+        assetId: data.assetId,
+        contractNumber: data.contractNumber,
+        title: data.title,
+        description: data.description,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        value: data.value != null ? new Prisma.Decimal(data.value) : null,
+        type: data.type,
+        status: data.status || 'PENDING',
+        slaResponseHours: data.slaResponseHours,
+        slaResolutionHours: data.slaResolutionHours,
+        createdBy: authReq.user?.id || 'system',
+      },
+    });
+
+    res.status(201).json({ success: true, data: contract });
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Contract number already exists' } });
+    }
+    logger.error('Failed to create contract', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' } });
+  }
+});
+
+// PUT /contracts/:id — Update contract (mounted at /api/contracts/:id)
+router.put('/contracts/:id', async (req: Request, res: Response) => {
+  try {
+    const parsed = contractUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+    }
+
+    const existing = await prisma.cmmsServiceContract.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+    }
+
+    const data = parsed.data;
+    const updateData: any = { ...data };
+    if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
+    if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
+    if (data.value !== undefined) updateData.value = data.value != null ? new Prisma.Decimal(data.value) : null;
+
+    const contract = await prisma.cmmsServiceContract.update({ where: { id: req.params.id }, data: updateData });
+    res.json({ success: true, data: contract });
+  } catch (error: any) {
+    logger.error('Failed to update contract', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' } });
+  }
+});
+
+export default router;

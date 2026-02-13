@@ -1,0 +1,447 @@
+// Portal Schema - Customer & Supplier Portal Module (Phase 6)
+// This schema is used by the Portal microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/portal"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PORTAL_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum PortalUserRole {
+  CUSTOMER_ADMIN
+  CUSTOMER_USER
+  SUPPLIER_ADMIN
+  SUPPLIER_USER
+}
+
+enum PortalType {
+  CUSTOMER
+  SUPPLIER
+}
+
+enum PortalUserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum PortalDocCategory {
+  CONTRACT
+  INVOICE
+  SPECIFICATION
+  CERTIFICATE
+  REPORT
+  MANUAL
+  OTHER
+}
+
+enum PortalVisibility {
+  PUBLIC
+  PRIVATE
+  SHARED
+}
+
+enum PortalTicketCategory {
+  TECHNICAL
+  BILLING
+  ORDER
+  QUALITY
+  DELIVERY
+  OTHER
+}
+
+enum PortalPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum PortalTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING
+  RESOLVED
+  CLOSED
+}
+
+enum PortalAuthorType {
+  PORTAL_USER
+  INTERNAL_STAFF
+}
+
+enum PortalOrderType {
+  PURCHASE
+  SALES
+  RETURN
+}
+
+enum PortalOrderStatus {
+  DRAFT
+  SUBMITTED
+  CONFIRMED
+  IN_PROGRESS
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PortalNotificationType {
+  ORDER_UPDATE
+  TICKET_UPDATE
+  DOCUMENT_SHARED
+  SYSTEM
+  APPROVAL_REQUIRED
+}
+
+enum PortalApprovalType {
+  DOCUMENT
+  ORDER
+  CHANGE_REQUEST
+  QUALITY
+}
+
+enum PortalApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PortalQualityType {
+  NCR
+  COMPLAINT
+  INSPECTION
+  AUDIT
+}
+
+enum PortalSeverity {
+  CRITICAL
+  MAJOR
+  MINOR
+}
+
+enum PortalQualityStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+// ============================================
+// PORTAL USERS
+// ============================================
+
+model PortalUser {
+  id           String           @id @default(uuid())
+  email        String           @unique
+  name         String
+  company      String
+  role         PortalUserRole
+  portalType   PortalType
+  status       PortalUserStatus @default(PENDING)
+  lastLogin    DateTime?
+  passwordHash String
+  phone        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+  createdBy    String
+
+  @@map("portal_users")
+  @@index([portalType])
+  @@index([status])
+  @@index([email])
+  @@index([company])
+}
+
+// ============================================
+// PORTAL INVITATIONS
+// ============================================
+
+model PortalInvitation {
+  id         String         @id @default(uuid())
+  email      String
+  name       String
+  company    String
+  role       PortalUserRole
+  portalType PortalType
+  token      String         @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  invitedBy  String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  deletedAt  DateTime?
+  createdBy  String
+
+  @@map("portal_invitations")
+  @@index([email])
+  @@index([token])
+  @@index([portalType])
+}
+
+// ============================================
+// PORTAL DOCUMENTS
+// ============================================
+
+model PortalDocument {
+  id          String            @id @default(uuid())
+  title       String
+  description String?
+  fileName    String
+  fileSize    Int
+  mimeType    String
+  category    PortalDocCategory
+  uploadedBy  String
+  portalType  PortalType
+  visibility  PortalVisibility  @default(PRIVATE)
+  sharedWith  Json?
+  tags        Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@map("portal_documents")
+  @@index([portalType])
+  @@index([category])
+  @@index([uploadedBy])
+  @@index([visibility])
+}
+
+// ============================================
+// PORTAL TICKETS
+// ============================================
+
+model PortalTicket {
+  id          String               @id @default(uuid())
+  number      String               @unique
+  subject     String
+  description String
+  category    PortalTicketCategory
+  priority    PortalPriority
+  status      PortalTicketStatus   @default(OPEN)
+  submittedBy String
+  assignedTo  String?
+  portalType  PortalType
+  resolvedAt  DateTime?
+  resolution  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  messages    PortalTicketMessage[]
+
+  @@map("portal_tickets")
+  @@index([status])
+  @@index([portalType])
+  @@index([submittedBy])
+  @@index([assignedTo])
+}
+
+// ============================================
+// PORTAL TICKET MESSAGES
+// ============================================
+
+model PortalTicketMessage {
+  id          String          @id @default(uuid())
+  ticketId    String
+  authorId    String
+  authorType  PortalAuthorType
+  message     String
+  attachments Json?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  ticket      PortalTicket    @relation(fields: [ticketId], references: [id])
+
+  @@map("portal_ticket_messages")
+  @@index([ticketId])
+  @@index([authorId])
+}
+
+// ============================================
+// PORTAL ORDERS
+// ============================================
+
+model PortalOrder {
+  id               String            @id @default(uuid())
+  orderNumber      String            @unique
+  portalUserId     String
+  type             PortalOrderType
+  status           PortalOrderStatus @default(DRAFT)
+  totalAmount      Decimal
+  currency         String            @default("GBP")
+  items            Json
+  shippingAddress  Json?
+  notes            String?
+  expectedDelivery DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  createdBy        String
+
+  @@map("portal_orders")
+  @@index([portalUserId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([type])
+}
+
+// ============================================
+// PORTAL NOTIFICATIONS
+// ============================================
+
+model PortalNotification {
+  id           String                  @id @default(uuid())
+  portalUserId String
+  title        String
+  message      String
+  type         PortalNotificationType
+  isRead       Boolean                 @default(false)
+  readAt       DateTime?
+  link         String?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  deletedAt    DateTime?
+  createdBy    String
+
+  @@map("portal_notifications")
+  @@index([portalUserId])
+  @@index([isRead])
+  @@index([type])
+}
+
+// ============================================
+// PORTAL ANNOUNCEMENTS
+// ============================================
+
+model PortalAnnouncement {
+  id          String         @id @default(uuid())
+  title       String
+  content     String
+  portalType  PortalType
+  isActive    Boolean        @default(true)
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  priority    PortalPriority
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@map("portal_announcements")
+  @@index([portalType])
+  @@index([isActive])
+}
+
+// ============================================
+// PORTAL APPROVALS
+// ============================================
+
+model PortalApproval {
+  id          String               @id @default(uuid())
+  type        PortalApprovalType
+  referenceId String
+  requestedBy String
+  approvedBy  String?
+  status      PortalApprovalStatus @default(PENDING)
+  notes       String?
+  decidedAt   DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@map("portal_approvals")
+  @@index([status])
+  @@index([requestedBy])
+  @@index([referenceId])
+  @@index([type])
+}
+
+// ============================================
+// PORTAL QUALITY REPORTS
+// ============================================
+
+model PortalQualityReport {
+  id              String              @id @default(uuid())
+  portalUserId    String
+  reportType      PortalQualityType
+  referenceNumber String              @unique
+  description     String
+  severity        PortalSeverity
+  status          PortalQualityStatus @default(OPEN)
+  resolution      String?
+  attachments     Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  @@map("portal_quality_reports")
+  @@index([portalUserId])
+  @@index([status])
+  @@index([severity])
+  @@index([reportType])
+}
+
+// ============================================
+// PORTAL SCORECARDS
+// ============================================
+
+model PortalScorecard {
+  id              String   @id @default(uuid())
+  portalUserId    String
+  period          String
+  overallScore    Decimal
+  qualityScore    Decimal?
+  deliveryScore   Decimal?
+  responseScore   Decimal?
+  complianceScore Decimal?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  @@map("portal_scorecards")
+  @@index([portalUserId])
+  @@index([period])
+}
+
+// ============================================
+// PORTAL AUDIT LOG
+// ============================================
+
+model PortalAuditLog {
+  id           String   @id @default(uuid())
+  portalUserId String
+  action       String
+  resource     String
+  resourceId   String?
+  details      Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+  createdBy    String
+
+  @@map("portal_audit_log")
+  @@index([portalUserId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}

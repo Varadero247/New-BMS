@@ -1,0 +1,130 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    portalOrder: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import customerInvoicesRouter from '../src/routes/customer-invoices';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/customer/invoices', customerInvoicesRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/customer/invoices', () => {
+  it('should list invoices with pagination', async () => {
+    const items = [
+      { id: 'o-1', orderNumber: 'ORD-001', type: 'SALES', totalAmount: 100 },
+    ];
+    (prisma as any).portalOrder.findMany.mockResolvedValue(items);
+    (prisma as any).portalOrder.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/customer/invoices');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('should handle pagination params', async () => {
+    (prisma as any).portalOrder.findMany.mockResolvedValue([]);
+    (prisma as any).portalOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/invoices?page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect((prisma as any).portalOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('should handle server error', async () => {
+    (prisma as any).portalOrder.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/customer/invoices');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/customer/invoices/:id', () => {
+  it('should return an invoice', async () => {
+    const invoice = { id: 'o-1', orderNumber: 'ORD-001', portalUserId: 'user-123' };
+    (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
+
+    const res = await request(app).get('/api/customer/invoices/o-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('o-1');
+  });
+
+  it('should return 404 if not found', async () => {
+    (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/customer/invoices/nonexistent');
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('POST /api/customer/invoices/:id/pay', () => {
+  it('should record payment intent', async () => {
+    const invoice = { id: 'o-1', orderNumber: 'ORD-001', portalUserId: 'user-123', notes: null };
+    (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
+    (prisma as any).portalOrder.update.mockResolvedValue({ ...invoice, notes: 'Payment intent: BANK_TRANSFER' });
+
+    const res = await request(app)
+      .post('/api/customer/invoices/o-1/pay')
+      .send({ paymentMethod: 'BANK_TRANSFER' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 if invoice not found for payment', async () => {
+    (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post('/api/customer/invoices/nonexistent/pay')
+      .send({ paymentMethod: 'BANK_TRANSFER' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('should handle server error on pay', async () => {
+    (prisma as any).portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/customer/invoices/o-1/pay')
+      .send({ paymentMethod: 'BANK_TRANSFER' });
+
+    expect(res.status).toBe(500);
+  });
+});

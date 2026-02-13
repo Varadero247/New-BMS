@@ -42,16 +42,7 @@ const contentSecurityPolicy = {
         : (process.env.CSP_CONNECT_SOURCES
             ? process.env.CSP_CONNECT_SOURCES.split(',').map(s => s.trim())
             : [
-                'http://localhost:4000',
-                'http://localhost:4001',
-                'http://localhost:4002',
-                'http://localhost:4003',
-                'http://localhost:4004',
-                'http://localhost:4005',
-                'http://localhost:4006',
-                'http://localhost:4007',
-                'http://localhost:4008',
-                'http://localhost:4009',
+                ...Array.from({ length: 25 }, (_, i) => `http://localhost:${4000 + i}`),
                 'ws://localhost:*',
               ])),
     ],

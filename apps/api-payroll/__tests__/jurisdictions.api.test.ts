@@ -1,0 +1,546 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies
+jest.mock('../src/prisma', () => ({
+  prisma: {},
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+import jurisdictionsRoutes, { activeJurisdictions } from '../src/routes/jurisdictions';
+
+describe('Payroll Jurisdictions API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/jurisdictions', jurisdictionsRoutes);
+  });
+
+  beforeEach(() => {
+    activeJurisdictions.clear();
+  });
+
+  // ---------------------------------------------------------------------------
+  // POST /api/jurisdictions
+  // ---------------------------------------------------------------------------
+  describe('POST /api/jurisdictions', () => {
+    it('should register a supported jurisdiction (GB)', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.code).toBe('GB');
+      expect(response.body.data.name).toBe('United Kingdom');
+      expect(response.body.data.status).toBe('ACTIVE');
+    });
+
+    it('should register UAE jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'AE' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('AE');
+      expect(response.body.data.name).toBe('United Arab Emirates');
+    });
+
+    it('should register US jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'US' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('US');
+    });
+
+    it('should register AU jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'AU' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('AU');
+    });
+
+    it('should register CA jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'CA' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('CA');
+    });
+
+    it('should register DE jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'DE' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('DE');
+    });
+
+    it('should register NL jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'NL' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('NL');
+    });
+
+    it('should accept lowercase code and normalize to uppercase', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'gb' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.code).toBe('GB');
+    });
+
+    it('should return 400 for unsupported jurisdiction', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'ZZ' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('UNSUPPORTED_JURISDICTION');
+    });
+
+    it('should return 409 if jurisdiction already active', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      expect(response.status).toBe(409);
+      expect(response.body.error.code).toBe('ALREADY_ACTIVE');
+    });
+
+    it('should accept custom rules', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB', customRules: { pensionRate: 0.06 } });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.customRules).toEqual({ pensionRate: 0.06 });
+    });
+
+    it('should return 400 for missing code', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('should return 400 for code with wrong length', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GBR' });
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // GET /api/jurisdictions
+  // ---------------------------------------------------------------------------
+  describe('GET /api/jurisdictions', () => {
+    it('should return empty list when no jurisdictions active', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual([]);
+    });
+
+    it('should return list of active jurisdictions', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'US' });
+
+      const response = await request(app)
+        .get('/api/jurisdictions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.data.map((j: any) => j.code).sort()).toEqual(['GB', 'US']);
+    });
+
+    it('should not include deactivated jurisdictions', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+      await request(app)
+        .delete('/api/jurisdictions/GB')
+        .set('Authorization', 'Bearer token');
+
+      const response = await request(app)
+        .get('/api/jurisdictions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body.data).toHaveLength(0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // GET /api/jurisdictions/:code/rules
+  // ---------------------------------------------------------------------------
+  describe('GET /api/jurisdictions/:code/rules', () => {
+    it('should return UAE rules', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/AE/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('AE');
+      expect(response.body.data.incomeTax.rate).toBe(0);
+      expect(response.body.data.wps.required).toBe(true);
+      expect(response.body.data.gratuity.first5Years).toBe(21);
+      expect(response.body.data.gratuity.after5Years).toBe(30);
+    });
+
+    it('should return UK rules with bands', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('GB');
+      expect(response.body.data.incomeTax.personalAllowance).toBe(12570);
+      expect(response.body.data.incomeTax.bands).toHaveLength(3);
+      expect(response.body.data.nationalInsurance.class1Employee.rate).toBe(0.08);
+      expect(response.body.data.scottishRates.bands).toHaveLength(5);
+      expect(response.body.data.pension.employeeMin).toBe(0.05);
+      expect(response.body.data.rti.required).toBe(true);
+    });
+
+    it('should return AU rules with superannuation', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/AU/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('AU');
+      expect(response.body.data.superannuation.rate).toBe(0.115);
+      expect(response.body.data.medicareLevy.rate).toBe(0.02);
+      expect(response.body.data.stp.phase).toBe(2);
+    });
+
+    it('should return US rules with FICA', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/US/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('US');
+      expect(response.body.data.federalTax.brackets).toHaveLength(7);
+      expect(response.body.data.fica.socialSecurity.wageBase).toBe(168600);
+      expect(response.body.data.fica.additionalMedicare.threshold).toBe(200000);
+    });
+
+    it('should return CA rules with CPP and EI', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/CA/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('CA');
+      expect(response.body.data.federalTax.basicPersonalAmount).toBe(15705);
+      expect(response.body.data.cpp.rate).toBe(0.0595);
+      expect(response.body.data.ei.employeeRate).toBe(0.0166);
+    });
+
+    it('should return DE rules with social insurance', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/DE/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('DE');
+      expect(response.body.data.socialInsurance.pension.rate).toBe(0.186);
+      expect(response.body.data.socialInsurance.pension.split).toBe('equal');
+      expect(response.body.data.incomeTax.solidaritySurcharge).toBe(0.055);
+    });
+
+    it('should return NL rules with two bands', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/NL/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('NL');
+      expect(response.body.data.incomeTax.bands).toHaveLength(2);
+      expect(response.body.data.socialContributions.zvw.rate).toBe(0.0657);
+    });
+
+    it('should return 404 for unsupported jurisdiction', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/ZZ/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should accept lowercase code', async () => {
+      const response = await request(app)
+        .get('/api/jurisdictions/gb/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.code).toBe('GB');
+    });
+
+    it('should include custom overrides when jurisdiction is active with custom rules', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB', customRules: { pensionRate: 0.06 } });
+
+      const response = await request(app)
+        .get('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.customOverrides).toEqual({ pensionRate: 0.06 });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // PUT /api/jurisdictions/:code/rules
+  // ---------------------------------------------------------------------------
+  describe('PUT /api/jurisdictions/:code/rules', () => {
+    it('should update custom rules for active jurisdiction', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      const response = await request(app)
+        .put('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token')
+        .send({ customRules: { pensionRate: 0.07 } });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.customOverrides).toEqual({ pensionRate: 0.07 });
+    });
+
+    it('should auto-activate jurisdiction if not active', async () => {
+      const response = await request(app)
+        .put('/api/jurisdictions/US/rules')
+        .set('Authorization', 'Bearer token')
+        .send({ customRules: { stateTax: { CA: 0.133 } } });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.customOverrides).toEqual({ stateTax: { CA: 0.133 } });
+      expect(activeJurisdictions.has('US')).toBe(true);
+    });
+
+    it('should merge custom rules on subsequent updates', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      await request(app)
+        .put('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token')
+        .send({ customRules: { pensionRate: 0.07 } });
+
+      await request(app)
+        .put('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token')
+        .send({ customRules: { studentLoanPlan: 2 } });
+
+      const response = await request(app)
+        .get('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body.data.customOverrides).toEqual({ pensionRate: 0.07, studentLoanPlan: 2 });
+    });
+
+    it('should return 404 for unsupported jurisdiction', async () => {
+      const response = await request(app)
+        .put('/api/jurisdictions/ZZ/rules')
+        .set('Authorization', 'Bearer token')
+        .send({ customRules: { rate: 0.1 } });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 400 for missing customRules', async () => {
+      const response = await request(app)
+        .put('/api/jurisdictions/GB/rules')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // DELETE /api/jurisdictions/:code
+  // ---------------------------------------------------------------------------
+  describe('DELETE /api/jurisdictions/:code', () => {
+    it('should deactivate an active jurisdiction', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'GB' });
+
+      const response = await request(app)
+        .delete('/api/jurisdictions/GB')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('INACTIVE');
+      expect(response.body.data).toHaveProperty('deactivatedAt');
+    });
+
+    it('should return 404 if jurisdiction not active', async () => {
+      const response = await request(app)
+        .delete('/api/jurisdictions/GB')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should remove from active list after deactivation', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'US' });
+
+      await request(app)
+        .delete('/api/jurisdictions/US')
+        .set('Authorization', 'Bearer token');
+
+      expect(activeJurisdictions.has('US')).toBe(false);
+    });
+
+    it('should accept lowercase code', async () => {
+      await request(app)
+        .post('/api/jurisdictions')
+        .set('Authorization', 'Bearer token')
+        .send({ code: 'AU' });
+
+      const response = await request(app)
+        .delete('/api/jurisdictions/au')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // POST /api/jurisdictions/:code/calculate
+  // ---------------------------------------------------------------------------
+  describe('POST /api/jurisdictions/:code/calculate', () => {
+    it('should calculate UK tax', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/GB/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({ grossAnnual: 50000 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.grossPay).toBe(50000);
+      expect(response.body.data.incomeTax).toBeGreaterThan(0);
+      expect(response.body.data.netPay).toBeLessThan(50000);
+    });
+
+    it('should calculate US tax', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/US/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({ grossAnnual: 75000 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.grossPay).toBe(75000);
+      expect(response.body.data.incomeTax).toBeGreaterThan(0);
+    });
+
+    it('should calculate UAE gratuity', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/AE/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({ monthlySalary: 10000, yearsOfService: 3 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.gratuity).toBeGreaterThan(0);
+      expect(response.body.data.incomeTax).toBe(0);
+    });
+
+    it('should return 400 if grossAnnual missing for UK', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/GB/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({});
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should return 400 if monthlySalary missing for UAE', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/AE/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({ yearsOfService: 3 });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should return 404 for unsupported jurisdiction calculation', async () => {
+      const response = await request(app)
+        .post('/api/jurisdictions/ZZ/calculate')
+        .set('Authorization', 'Bearer token')
+        .send({ grossAnnual: 50000 });
+
+      expect(response.status).toBe(404);
+    });
+  });
+});

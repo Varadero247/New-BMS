@@ -1,0 +1,353 @@
+// ISO 42001:2023 AI Management System Schema
+// Comprehensive schema for AI governance, risk management, and compliance
+// Covers AI system register, risk assessments, policies, incidents, controls, impact assessments
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/iso42001"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ISO42001_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum AiSystemStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  DEPRECATED
+  DECOMMISSIONED
+}
+
+enum AiSystemRiskTier {
+  UNACCEPTABLE
+  HIGH
+  LIMITED
+  MINIMAL
+}
+
+enum AiSystemCategory {
+  DECISION_MAKING
+  CONTENT_GENERATION
+  ANALYTICS
+  AUTOMATION
+  RECOMMENDATION
+  MONITORING
+  OTHER
+}
+
+enum AiRiskLikelihood {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum AiRiskImpact {
+  NEGLIGIBLE
+  MINOR
+  MODERATE
+  MAJOR
+  SEVERE
+}
+
+enum AiRiskStatus {
+  IDENTIFIED
+  ASSESSED
+  MITIGATED
+  ACCEPTED
+  CLOSED
+}
+
+enum AiRiskCategory {
+  BIAS
+  SAFETY
+  PRIVACY
+  ACCOUNTABILITY
+  TRANSPARENCY
+  RELIABILITY
+  SECURITY
+  ENVIRONMENTAL
+}
+
+enum AiPolicyStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AiIncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AiIncidentStatus {
+  REPORTED
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum AiControlStatus {
+  NOT_IMPLEMENTED
+  PARTIALLY_IMPLEMENTED
+  IMPLEMENTED
+  NOT_APPLICABLE
+}
+
+enum AiImpactLevel {
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum AiImpactAssessmentStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+}
+
+enum AiSelfDeclarationStatus {
+  DRAFT
+  PUBLISHED
+  EXPIRED
+}
+
+// ============================================
+// AI SYSTEM REGISTER
+// ============================================
+
+model AiSystem {
+  id              String             @id @default(cuid())
+  name            String
+  description     String?
+  version         String?
+  vendor          String?
+  purpose         String?
+  category        AiSystemCategory   @default(OTHER)
+  riskTier        AiSystemRiskTier   @default(MINIMAL)
+  status          AiSystemStatus     @default(DRAFT)
+  owner           String?
+  custodian       String?
+  dataInputs      String[]
+  dataOutputs     String[]
+  deploymentDate  DateTime?
+  lastReviewDate  DateTime?
+  nextReviewDate  DateTime?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  risks             AiRiskAssessment[]
+  incidents         AiIncident[]
+  impactAssessments AiImpactAssessment[]
+
+  @@map("ai_systems")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([riskTier])
+  @@index([category])
+}
+
+// ============================================
+// AI RISK ASSESSMENTS
+// ============================================
+
+model AiRiskAssessment {
+  id              String           @id @default(cuid())
+  systemId        String
+  system          AiSystem         @relation(fields: [systemId], references: [id])
+  title           String
+  description     String?
+  category        AiRiskCategory   @default(BIAS)
+  likelihood      AiRiskLikelihood @default(MEDIUM)
+  impact          AiRiskImpact     @default(MODERATE)
+  riskScore       Int              @default(0)
+  status          AiRiskStatus     @default(IDENTIFIED)
+  mitigationPlan  String?
+  residualRisk    String?
+  owner           String?
+  reviewDate      DateTime?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  @@map("ai_risk_assessments")
+  @@index([organisationId, deletedAt])
+  @@index([systemId])
+  @@index([status])
+  @@index([category])
+  @@index([riskScore])
+}
+
+// ============================================
+// AI GOVERNANCE POLICIES
+// ============================================
+
+model AiPolicy {
+  id              String          @id @default(cuid())
+  title           String
+  description     String?
+  content         String
+  version         String          @default("1.0")
+  status          AiPolicyStatus  @default(DRAFT)
+  approvedBy      String?
+  approvedAt      DateTime?
+  effectiveDate   DateTime?
+  reviewDate      DateTime?
+  policyType      String          // AI_ETHICS, AI_GOVERNANCE, HUMAN_OVERSIGHT, DATA_GOVERNANCE, TRANSPARENCY
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  @@map("ai_policies")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([policyType])
+}
+
+// ============================================
+// AI INCIDENT LOG
+// ============================================
+
+model AiIncident {
+  id              String              @id @default(cuid())
+  systemId        String
+  system          AiSystem            @relation(fields: [systemId], references: [id])
+  title           String
+  description     String?
+  severity        AiIncidentSeverity  @default(LOW)
+  status          AiIncidentStatus    @default(REPORTED)
+  incidentDate    DateTime
+  reportedBy      String
+  rootCause       String?
+  resolution      String?
+  resolvedAt      DateTime?
+  lessonsLearned  String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  @@map("ai_incidents")
+  @@index([organisationId, deletedAt])
+  @@index([systemId])
+  @@index([severity])
+  @@index([status])
+  @@index([incidentDate])
+}
+
+// ============================================
+// ISO 42001 ANNEX A CONTROLS
+// ============================================
+
+model AiControl {
+  id                  String          @id @default(cuid())
+  code                String          @unique
+  title               String
+  description         String?
+  domain              String          // AI_GOVERNANCE, AI_RISK, AI_DEVELOPMENT, AI_DATA, AI_MONITORING
+  status              AiControlStatus @default(NOT_IMPLEMENTED)
+  justification       String?
+  implementationNotes String?
+  evidenceLinks       String[]
+  owner               String?
+  targetDate          DateTime?
+
+  organisationId      String
+  createdBy           String
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
+
+  @@map("ai_controls")
+  @@index([organisationId, deletedAt])
+  @@index([domain])
+  @@index([status])
+  @@index([code])
+}
+
+// ============================================
+// EU AI ACT IMPACT ASSESSMENTS
+// ============================================
+
+model AiImpactAssessment {
+  id                      String                    @id @default(cuid())
+  systemId                String
+  system                  AiSystem                  @relation(fields: [systemId], references: [id])
+  title                   String
+  description             String?
+  impactLevel             AiImpactLevel             @default(LOW)
+  humanRightsImpact       String?
+  safetyImpact            String?
+  privacyImpact           String?
+  biasAssessment          String?
+  transparencyAssessment  String?
+  mitigationMeasures      String?
+  approvedBy              String?
+  approvedAt              DateTime?
+  status                  AiImpactAssessmentStatus  @default(DRAFT)
+
+  organisationId          String
+  createdBy               String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  deletedAt               DateTime?
+
+  @@map("ai_impact_assessments")
+  @@index([organisationId, deletedAt])
+  @@index([systemId])
+  @@index([status])
+  @@index([impactLevel])
+}
+
+// ============================================
+// RESOLVEX ISO 42001 SELF-DECLARATION
+// ============================================
+
+model AiSelfDeclaration {
+  id                    String                    @id @default(cuid())
+  title                 String
+  standard              String                    @default("ISO 42001:2023")
+  declarationDate       DateTime
+  validUntil            DateTime?
+  scope                 String
+  conformanceStatement  String
+  signedBy              String?
+  status                AiSelfDeclarationStatus   @default(DRAFT)
+
+  organisationId        String
+  createdBy             String
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  deletedAt             DateTime?
+
+  @@map("ai_self_declarations")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([standard])
+}

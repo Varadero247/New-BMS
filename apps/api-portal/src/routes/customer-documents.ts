@@ -1,0 +1,83 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '../prisma';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-portal');
+const router: Router = Router();
+router.use(authenticate);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function parseIntParam(val: unknown, fallback: number): number {
+  const n = parseInt(String(val), 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// ---------------------------------------------------------------------------
+// GET / — List documents shared with customer
+// ---------------------------------------------------------------------------
+
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const auth = req as AuthRequest;
+    const page = parseIntParam(req.query.page, 1);
+    const limit = parseIntParam(req.query.limit, 20);
+    const skip = (page - 1) * limit;
+    const category = req.query.category as string | undefined;
+
+    const where: any = {
+      portalType: 'CUSTOMER',
+      deletedAt: null,
+      OR: [
+        { visibility: 'PUBLIC' },
+        { visibility: 'SHARED', uploadedBy: auth.user!.id },
+      ],
+    };
+    if (category) where.category = category;
+
+    const [items, total] = await Promise.all([
+      prisma.portalDocument.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalDocument.count({ where }),
+    ]);
+
+    return res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error: any) {
+    logger.error('Error listing customer documents', { error: error.message });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /:id — Document detail
+// ---------------------------------------------------------------------------
+
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const document = await prisma.portalDocument.findFirst({
+      where: {
+        id: req.params.id,
+        portalType: 'CUSTOMER',
+        deletedAt: null,
+        visibility: { not: 'PRIVATE' },
+      },
+    });
+
+    if (!document) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+    }
+
+    return res.json({ success: true, data: document });
+  } catch (error: any) {
+    logger.error('Error fetching document', { error: error.message });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' } });
+  }
+});
+
+export default router;

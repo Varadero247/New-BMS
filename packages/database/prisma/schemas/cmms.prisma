@@ -1,0 +1,628 @@
+// CMMS Schema - Computerized Maintenance Management System (Asset & Maintenance)
+// Phase 5: Asset lifecycle, work orders, preventive maintenance, parts inventory, KPIs
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/cmms"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CMMS_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum CmmsAssetType {
+  EQUIPMENT
+  VEHICLE
+  BUILDING
+  INFRASTRUCTURE
+  IT_ASSET
+  TOOL
+}
+
+enum CmmsAssetStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_MAINTENANCE
+  DECOMMISSIONED
+  DISPOSED
+}
+
+enum CmmsCriticality {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum CmmsWorkOrderType {
+  CORRECTIVE
+  PREVENTIVE
+  PREDICTIVE
+  EMERGENCY
+  INSPECTION
+}
+
+enum CmmsPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum CmmsWorkOrderStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum CmmsFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUALLY
+  ANNUALLY
+}
+
+enum CmmsInspectionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum CmmsInspectionResult {
+  PASS
+  FAIL
+  CONDITIONAL
+  NA
+}
+
+enum CmmsMeterType {
+  HOURS
+  MILES
+  KILOMETERS
+  CYCLES
+  UNITS
+}
+
+enum CmmsDowntimeImpact {
+  PRODUCTION_STOP
+  REDUCED_OUTPUT
+  QUALITY_IMPACT
+  SAFETY_RISK
+  NONE
+}
+
+enum CmmsContractType {
+  FULL_SERVICE
+  PARTS_ONLY
+  LABOR_ONLY
+  WARRANTY
+  SLA
+}
+
+enum CmmsContractStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+enum CmmsLocationType {
+  SITE
+  BUILDING
+  FLOOR
+  ROOM
+  AREA
+  ZONE
+}
+
+enum CmmsRequestStatus {
+  NEW
+  APPROVED
+  REJECTED
+  CONVERTED
+}
+
+enum CmmsKpiType {
+  MTBF
+  MTTR
+  OEE
+  AVAILABILITY
+  COMPLIANCE
+  COST
+}
+
+// ============================================
+// ASSETS
+// ============================================
+
+model CmmsAsset {
+  id              String          @id @default(uuid())
+  name            String
+  code            String          @unique
+  description     String?
+  assetType       CmmsAssetType
+  category        String?
+  manufacturer    String?
+  model           String?
+  serialNumber    String?
+  location        String?
+  department      String?
+  status          CmmsAssetStatus @default(ACTIVE)
+  purchaseDate    DateTime?
+  purchaseCost    Decimal?
+  warrantyExpiry  DateTime?
+  parentAssetId   String?
+  criticality     CmmsCriticality @default(MEDIUM)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  workOrders      CmmsWorkOrder[]
+  preventivePlans CmmsPreventivePlan[]
+  inspections     CmmsInspection[]
+  meterReadings   CmmsMeterReading[]
+  downtimes       CmmsDowntime[]
+  checklistResults CmmsChecklistResult[]
+  requests        CmmsRequest[]
+  kpis            CmmsKpi[]
+  serviceContracts CmmsServiceContract[]
+
+  @@index([status])
+  @@index([assetType])
+  @@index([criticality])
+  @@index([parentAssetId])
+  @@map("cmms_assets")
+}
+
+// ============================================
+// WORK ORDERS
+// ============================================
+
+model CmmsWorkOrder {
+  id              String              @id @default(uuid())
+  number          String              @unique
+  title           String
+  description     String?
+  assetId         String
+  type            CmmsWorkOrderType
+  priority        CmmsPriority        @default(MEDIUM)
+  status          CmmsWorkOrderStatus @default(OPEN)
+  assignedTo      String?
+  requestedBy     String?
+  scheduledStart  DateTime?
+  scheduledEnd    DateTime?
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  laborHours      Decimal?
+  laborCost       Decimal?
+  partsCost       Decimal?
+  totalCost       Decimal?
+  completionNotes String?
+  failureCode     String?
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  asset           CmmsAsset           @relation(fields: [assetId], references: [id])
+  partUsages      CmmsPartUsage[]
+  downtimes       CmmsDowntime[]
+  checklistResults CmmsChecklistResult[]
+
+  @@index([assetId])
+  @@index([status])
+  @@index([scheduledStart])
+  @@index([assignedTo])
+  @@index([type])
+  @@map("cmms_work_orders")
+}
+
+// ============================================
+// PREVENTIVE MAINTENANCE PLANS
+// ============================================
+
+model CmmsPreventivePlan {
+  id                String        @id @default(uuid())
+  name              String
+  assetId           String
+  description       String?
+  frequency         CmmsFrequency
+  lastPerformed     DateTime?
+  nextDue           DateTime?
+  tasks             Json
+  assignedTo        String?
+  isActive          Boolean       @default(true)
+  estimatedDuration Int?
+  estimatedCost     Decimal?
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+  createdBy         String
+
+  asset             CmmsAsset     @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+  @@index([nextDue])
+  @@index([isActive])
+  @@map("cmms_preventive_plans")
+}
+
+// ============================================
+// PARTS INVENTORY
+// ============================================
+
+model CmmsPart {
+  id            String    @id @default(uuid())
+  name          String
+  partNumber    String    @unique
+  description   String?
+  category      String?
+  manufacturer  String?
+  unitCost      Decimal?
+  quantity      Int       @default(0)
+  minStock      Int       @default(0)
+  maxStock      Int?
+  location      String?
+  supplier      String?
+  reorderPoint  Int?
+  leadTimeDays  Int?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  partUsages    CmmsPartUsage[]
+
+  @@index([partNumber])
+  @@index([category])
+  @@map("cmms_parts")
+}
+
+// ============================================
+// PART USAGE (Work Order <-> Part junction)
+// ============================================
+
+model CmmsPartUsage {
+  id          String   @id @default(uuid())
+  workOrderId String
+  partId      String
+  quantity    Int
+  unitCost    Decimal
+  totalCost   Decimal
+  usedAt      DateTime @default(now())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  workOrder   CmmsWorkOrder @relation(fields: [workOrderId], references: [id])
+  part        CmmsPart      @relation(fields: [partId], references: [id])
+
+  @@index([workOrderId])
+  @@index([partId])
+  @@map("cmms_part_usages")
+}
+
+// ============================================
+// INSPECTIONS
+// ============================================
+
+model CmmsInspection {
+  id                 String               @id @default(uuid())
+  assetId            String
+  inspectionType     String
+  inspector          String
+  scheduledDate      DateTime
+  completedDate      DateTime?
+  status             CmmsInspectionStatus @default(SCHEDULED)
+  result             CmmsInspectionResult?
+  findings           Json?
+  nextInspectionDate DateTime?
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  deletedAt          DateTime?
+  createdBy          String
+
+  asset              CmmsAsset            @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@map("cmms_inspections")
+}
+
+// ============================================
+// METER READINGS
+// ============================================
+
+model CmmsMeterReading {
+  id              String        @id @default(uuid())
+  assetId         String
+  meterType       CmmsMeterType
+  reading         Decimal
+  readingDate     DateTime
+  previousReading Decimal?
+  delta           Decimal?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  asset           CmmsAsset     @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+  @@index([readingDate])
+  @@map("cmms_meter_readings")
+}
+
+// ============================================
+// DOWNTIME TRACKING
+// ============================================
+
+model CmmsDowntime {
+  id            String             @id @default(uuid())
+  assetId       String
+  workOrderId   String?
+  startTime     DateTime
+  endTime       DateTime?
+  duration      Decimal?
+  reason        String
+  impact        CmmsDowntimeImpact @default(NONE)
+  estimatedLoss Decimal?
+
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  asset         CmmsAsset          @relation(fields: [assetId], references: [id])
+  workOrder     CmmsWorkOrder?     @relation(fields: [workOrderId], references: [id])
+
+  @@index([assetId])
+  @@index([workOrderId])
+  @@index([startTime])
+  @@map("cmms_downtimes")
+}
+
+// ============================================
+// VENDORS
+// ============================================
+
+model CmmsVendor {
+  id              String    @id @default(uuid())
+  name            String
+  code            String    @unique
+  contactName     String?
+  email           String?
+  phone           String?
+  address         String?
+  specialization  String?
+  rating          Decimal?
+  isPreferred     Boolean   @default(false)
+  contractExpiry  DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  serviceContracts CmmsServiceContract[]
+
+  @@index([code])
+  @@map("cmms_vendors")
+}
+
+// ============================================
+// SERVICE CONTRACTS
+// ============================================
+
+model CmmsServiceContract {
+  id                 String             @id @default(uuid())
+  vendorId           String
+  assetId            String?
+  contractNumber     String             @unique
+  title              String
+  description        String?
+  startDate          DateTime
+  endDate            DateTime
+  value              Decimal?
+  type               CmmsContractType
+  status             CmmsContractStatus @default(PENDING)
+  slaResponseHours   Int?
+  slaResolutionHours Int?
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  deletedAt          DateTime?
+  createdBy          String
+
+  vendor             CmmsVendor         @relation(fields: [vendorId], references: [id])
+  asset              CmmsAsset?         @relation(fields: [assetId], references: [id])
+
+  @@index([vendorId])
+  @@index([assetId])
+  @@index([status])
+  @@map("cmms_service_contracts")
+}
+
+// ============================================
+// FAILURE CODES
+// ============================================
+
+model CmmsFailureCode {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  description   String
+  category      String?
+  causeCategory String?
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  @@index([code])
+  @@index([category])
+  @@map("cmms_failure_codes")
+}
+
+// ============================================
+// CHECKLISTS
+// ============================================
+
+model CmmsChecklist {
+  id        String         @id @default(uuid())
+  name      String
+  description String?
+  assetType CmmsAssetType?
+  items     Json
+  isActive  Boolean        @default(true)
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+  createdBy String
+
+  results   CmmsChecklistResult[]
+
+  @@index([assetType])
+  @@map("cmms_checklists")
+}
+
+// ============================================
+// CHECKLIST RESULTS
+// ============================================
+
+model CmmsChecklistResult {
+  id            String              @id @default(uuid())
+  checklistId   String
+  workOrderId   String?
+  assetId       String
+  completedBy   String
+  completedAt   DateTime
+  results       Json
+  overallResult CmmsInspectionResult
+  notes         String?
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  checklist     CmmsChecklist       @relation(fields: [checklistId], references: [id])
+  workOrder     CmmsWorkOrder?      @relation(fields: [workOrderId], references: [id])
+  asset         CmmsAsset           @relation(fields: [assetId], references: [id])
+
+  @@index([checklistId])
+  @@index([workOrderId])
+  @@index([assetId])
+  @@map("cmms_checklist_results")
+}
+
+// ============================================
+// LOCATIONS
+// ============================================
+
+model CmmsLocation {
+  id               String           @id @default(uuid())
+  name             String
+  code             String           @unique
+  description      String?
+  parentLocationId String?
+  type             CmmsLocationType
+  address          String?
+  coordinates      String?
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
+  createdBy        String
+
+  requests         CmmsRequest[]
+
+  @@index([code])
+  @@index([parentLocationId])
+  @@index([type])
+  @@map("cmms_locations")
+}
+
+// ============================================
+// MAINTENANCE REQUESTS
+// ============================================
+
+model CmmsRequest {
+  id          String            @id @default(uuid())
+  number      String            @unique
+  title       String
+  description String?
+  requestedBy String
+  assetId     String?
+  locationId  String?
+  priority    CmmsPriority      @default(MEDIUM)
+  status      CmmsRequestStatus @default(NEW)
+  workOrderId String?
+  notes       String?
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  asset       CmmsAsset?        @relation(fields: [assetId], references: [id])
+  location    CmmsLocation?     @relation(fields: [locationId], references: [id])
+
+  @@index([assetId])
+  @@index([locationId])
+  @@index([status])
+  @@index([requestedBy])
+  @@map("cmms_requests")
+}
+
+// ============================================
+// KPI METRICS
+// ============================================
+
+model CmmsKpi {
+  id          String      @id @default(uuid())
+  name        String
+  metricType  CmmsKpiType
+  assetId     String?
+  value       Decimal
+  unit        String
+  periodStart DateTime
+  periodEnd   DateTime
+  target      Decimal?
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  asset       CmmsAsset?  @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+  @@index([metricType])
+  @@index([periodStart])
+  @@map("cmms_kpis")
+}

@@ -1,0 +1,180 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    fsAudit: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import auditsRouter from '../src/routes/audits';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/audits', auditsRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/audits', () => {
+  it('should return audits with pagination', async () => {
+    (prisma as any).fsAudit.findMany.mockResolvedValue([{ id: 'a-1', title: 'Internal Audit' }]);
+    (prisma as any).fsAudit.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('should filter by type', async () => {
+    (prisma as any).fsAudit.findMany.mockResolvedValue([]);
+    (prisma as any).fsAudit.count.mockResolvedValue(0);
+
+    await request(app).get('/api/audits?type=INTERNAL');
+    expect((prisma as any).fsAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'INTERNAL' }) })
+    );
+  });
+
+  it('should filter by status', async () => {
+    (prisma as any).fsAudit.findMany.mockResolvedValue([]);
+    (prisma as any).fsAudit.count.mockResolvedValue(0);
+
+    await request(app).get('/api/audits?status=PLANNED');
+    expect((prisma as any).fsAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'PLANNED' }) })
+    );
+  });
+
+  it('should handle database errors', async () => {
+    (prisma as any).fsAudit.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/audits', () => {
+  it('should create an audit', async () => {
+    const input = { title: 'Internal Audit', type: 'INTERNAL', auditor: 'John', scheduledDate: '2026-03-01' };
+    (prisma as any).fsAudit.create.mockResolvedValue({ id: 'a-1', ...input });
+
+    const res = await request(app).post('/api/audits').send(input);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject invalid input', async () => {
+    const res = await request(app).post('/api/audits').send({ title: 'Test' });
+    expect(res.status).toBe(400);
+  });
+
+  it('should handle database errors', async () => {
+    (prisma as any).fsAudit.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/audits').send({
+      title: 'Audit', type: 'INTERNAL', auditor: 'John', scheduledDate: '2026-03-01',
+    });
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/audits/:id', () => {
+  it('should return an audit by id', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue({ id: 'a-1', title: 'Internal Audit' });
+
+    const res = await request(app).get('/api/audits/a-1');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('a-1');
+  });
+
+  it('should return 404 for non-existent audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/audits/non-existent');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/audits/:id', () => {
+  it('should update an audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue({ id: 'a-1' });
+    (prisma as any).fsAudit.update.mockResolvedValue({ id: 'a-1', title: 'Updated' });
+
+    const res = await request(app).put('/api/audits/a-1').send({ title: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 for non-existent audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/audits/non-existent').send({ title: 'Test' });
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/audits/:id', () => {
+  it('should soft delete an audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue({ id: 'a-1' });
+    (prisma as any).fsAudit.update.mockResolvedValue({ id: 'a-1' });
+
+    const res = await request(app).delete('/api/audits/a-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 for non-existent audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/audits/non-existent');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/audits/:id/complete', () => {
+  it('should complete an audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue({ id: 'a-1', status: 'IN_PROGRESS' });
+    (prisma as any).fsAudit.update.mockResolvedValue({ id: 'a-1', status: 'COMPLETED', completedDate: new Date() });
+
+    const res = await request(app).put('/api/audits/a-1/complete').send({ score: 85 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject completing an already completed audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue({ id: 'a-1', status: 'COMPLETED' });
+
+    const res = await request(app).put('/api/audits/a-1/complete').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('ALREADY_COMPLETED');
+  });
+
+  it('should return 404 for non-existent audit', async () => {
+    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/audits/non-existent/complete').send({});
+    expect(res.status).toBe(404);
+  });
+});

@@ -718,3 +718,176 @@ jest.mock('@ims/database', () => ({ prisma: { ... } }));
 - CD: 9/9 Docker builds PASS, Deploy to Staging skipped (no K8s)
 
 **Lesson Learned:** CI environments set additional env vars (`REDIS_URL`, `JWT_SECRET`) that aren't present locally. Tests that manipulate environment variables must account for module-level caching (values captured at import time) and Redis connections (created in constructors). Always run full test suite in CI-like conditions before assuming tests pass.
+
+---
+
+## Session 6 — Phase 2-5: Finance, CRM, InfoSec, ESG, CMMS (2026-02-12)
+
+Built 5 new API services and 5 web applications covering financial management, customer relationships, information security, ESG reporting, and maintenance management.
+
+### CHANGE 24 — Finance Module (Phase 2)
+- **API**: `api-finance` on port 4013, 7 route files, ~321 tests
+- **Web**: `web-finance` on port 3013
+- **Schema**: `finance.prisma` — 23 models (accounts, transactions, budgets, invoices, journal entries)
+- **Package**: `@ims/finance-calculations` — financial calculation engine
+
+### CHANGE 25 — CRM Module (Phase 3)
+- **API**: `api-crm` on port 4014, 8 route files
+- **Web**: `web-crm` on port 3014
+- **Schema**: `crm.prisma` — 17 models (contacts, companies, opportunities, campaigns)
+
+### CHANGE 26 — InfoSec Module (Phase 3)
+- **API**: `api-infosec` on port 4015, 7 route files
+- **Web**: `web-infosec` on port 3015
+- **Schema**: `infosec.prisma` — 14 models (ISO 27001 controls, risks, incidents)
+
+### CHANGE 27 — ESG Module (Phase 4)
+- **API**: `api-esg` on port 4016, 14 route files, ~207 tests
+- **Web**: `web-esg` on port 3016
+- **Schema**: `esg.prisma` — 15 models (environmental, social, governance metrics)
+- **Package**: `@ims/emission-factors` — GHG emission factor database
+
+### CHANGE 28 — CMMS Module (Phase 5)
+- **API**: `api-cmms` on port 4017, 12 route files, ~226 tests
+- **Web**: `web-cmms` on port 3017
+- **Schema**: `cmms.prisma` — 16 models (work orders, assets, preventive maintenance)
+- **Package**: `@ims/oee-engine` — Overall Equipment Effectiveness engine
+
+---
+
+## Session 7 — Phase 6-7: Portals, Food Safety, Energy (2026-02-12)
+
+Built portal system for external stakeholders and two industry-specific compliance modules.
+
+### CHANGE 29 — Portal Module (Phase 6)
+- **API**: `api-portal` on port 4018, 16 route files, ~168 tests
+- **Web**: `web-customer-portal` on port 3018, `web-supplier-portal` on port 3019
+- **Schema**: `portal.prisma` — 12 models (portal users, documents, messages)
+- **Package**: `@ims/portal-auth` — portal authentication
+
+### CHANGE 30 — Food Safety Module (Phase 7a)
+- **API**: `api-food-safety` on port 4019, 14 route files, ~241 tests
+- **Web**: `web-food-safety` on port 3020
+- **Schema**: `food-safety.prisma` — 14 models (HACCP plans, hazard analyses, CCPs)
+
+### CHANGE 31 — Energy Module (Phase 7b)
+- **API**: `api-energy` on port 4020, 12 route files, ~196 tests
+- **Web**: `web-energy` on port 3021
+- **Schema**: `energy.prisma` — 12 models (ISO 50001 baselines, meters, consumption)
+
+---
+
+## Session 8 — Phase 8-10: Analytics, Payroll Localisation, Field Service (2026-02-12)
+
+Built analytics platform, extended payroll with multi-jurisdiction support, and added field service management.
+
+### CHANGE 32 — Analytics Module (Phase 8)
+- **API**: `api-analytics` on port 4021, 9 route files, ~142 tests
+- **Web**: `web-analytics` on port 3022
+- **Schema**: `analytics.prisma` — 10 models (dashboards, reports, datasets)
+- **Package**: `@ims/nlq` — natural language query engine
+
+### CHANGE 33 — Payroll Localisation (Phase 9)
+- 2 new route files: `jurisdictions.ts`, `tax-calculator.ts`
+- ~140 additional tests
+- **Package**: `@ims/tax-engine` — multi-jurisdiction tax calculation
+
+### CHANGE 34 — Field Service Module (Phase 10)
+- **API**: `api-field-service` on port 4022, 13 route files, ~189 tests
+- **Web**: `web-field-service` on port 3023
+- **Schema**: `field-service.prisma` — 14 models (work orders, dispatch, technicians)
+
+---
+
+## Session 9 — Phase 0: Platform Hardening (2026-02-13)
+
+Retrofitted cross-cutting platform capabilities across all 24 API services.
+
+### CHANGE 35 — RBAC Retrofit
+- `attachPermissions()` middleware added to all 24 API services
+- **Package**: `@ims/rbac` — 39 roles, 17 modules, 7 permission levels
+- **Tests**: `rbac.test.ts` (65 tests)
+
+### CHANGE 36 — Role Management UI
+- `web-settings/src/app/roles/page.tsx` — Role assignment interface
+- `web-settings/src/app/users/page.tsx` — User RBAC management
+- `web-settings/src/app/access-log/page.tsx` — Access audit log
+- `web-settings/src/app/my-profile/page.tsx` — User profile
+
+### CHANGE 37 — Role Management API
+- 8 endpoints in `api-gateway/src/routes/roles.ts`
+- **Tests**: `roles.test.ts` (51 tests)
+
+### CHANGE 38 — WebSocket Notifications
+- **Package**: `@ims/notifications` — WebSocket server + notification bell React component
+- 5 gateway endpoints for notification management
+- **Tests**: `notifications.test.ts` (31 tests)
+
+### CHANGE 39 — Visual Workflow Builder
+- `web-workflows/src/app/builder/` — 1,171-line client with 4 node types and 6 ISO templates
+
+### CHANGE 40 — PWA Offline
+- **Package**: `@ims/pwa` — service worker, sync queue, offline cache, React hook
+- **Tests**: 33 tests
+
+### CHANGE 41 — Performance Baseline
+- **Package**: `@ims/performance` — k6 load tests, Lighthouse CI, axe-core WCAG 2.2 AA, 56-item checklist
+- **Tests**: 10 tests
+
+---
+
+## Session 10 — Phase 11: Unique Differentiators (2026-02-13)
+
+Built competitive differentiators: evidence packs, headstart tool, MSP mode, regulatory feed, and two new ISO standards.
+
+### CHANGE 42 — Evidence Pack Generator
+- 4 endpoints at `api-quality /api/evidence-pack`
+- **Tests**: `evidence-pack.test.ts`
+
+### CHANGE 43 — Headstart Tool
+- 4 endpoints at `api-quality /api/headstart` with 8 ISO standard templates
+- **Tests**: `headstart.test.ts`
+
+### CHANGE 44 — MSP Mode
+- 6 endpoints at `api-gateway /api/organisations/msp-*`
+- **Tests**: `msp.test.ts`
+
+### CHANGE 45 — Regulatory Feed
+- 5 endpoints at `api-gateway /api/compliance/regulations` with 10 seeded regulations
+- **Package**: `@ims/regulatory-feed`
+- **Tests**: `compliance.test.ts`
+
+### CHANGE 46 — ISO 42001 (AI Management System)
+- **API**: `api-iso42001` on port 4023, 7 test files
+- **Web**: `web-iso42001` on port 3024
+- **Schema**: `iso42001.prisma` — 7 models
+
+### CHANGE 47 — ISO 37001 (Anti-Bribery)
+- **API**: `api-iso37001` on port 4024, 6 test files
+- **Web**: `web-iso37001` on port 3025
+- **Schema**: `iso37001.prisma` — 6 models
+
+### CHANGE 48 — Template Library
+- 67 built-in templates across 11 modules
+- 3 Prisma models (Template, TemplateVersion, TemplateInstance)
+- 12 API endpoints at `/api/v1/templates`
+- 12 frontend integrations
+- **Package**: `@ims/templates`
+
+### CHANGE 49 — Docker Compose Update
+- Updated `docker-compose.yml` with all 25 API services + 26 web apps
+- Updated all startup/stop/check scripts for 52 services
+
+---
+
+### Sessions 6-10 Summary
+
+| Session | Changes | Category | New Services |
+|---------|---------|----------|-------------|
+| 6 | 24-28 | Phases 2-5 | Finance, CRM, InfoSec, ESG, CMMS |
+| 7 | 29-31 | Phases 6-7 | Portal (+ 2 web apps), Food Safety, Energy |
+| 8 | 32-34 | Phases 8-10 | Analytics, Payroll extensions, Field Service |
+| 9 | 35-41 | Phase 0 | Platform hardening (RBAC, notifications, PWA, etc.) |
+| 10 | 42-49 | Phase 11 | ISO 42001, ISO 37001, differentiators, templates |
+
+**Total across all sessions: 49 changes, 25 API services, 26 web apps, 39 packages, 25 Prisma schemas, ~5,450+ tests.**

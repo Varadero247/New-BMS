@@ -30,8 +30,9 @@ model AISettings {
   totalTokensUsed Int       @default(0)
   lastUsedAt      DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@map("ai_settings")
 }
@@ -88,8 +89,9 @@ model AIAnalysis {
   // Processing time
   processingTimeMs Int?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Relations
   actions    AIAction[]
@@ -99,6 +101,7 @@ model AIAnalysis {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([deletedAt])
   @@map("ai_analyses")
 }
 

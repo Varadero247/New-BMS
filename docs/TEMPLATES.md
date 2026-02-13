@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IMS Template Library provides 67 built-in templates across 11 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database.
+The IMS Template Library provides 67 built-in templates across 11 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 25 API services, 26 web apps, and 39 shared packages — templates integrate with 12 of the 26 web frontends.
 
 ## Architecture
 

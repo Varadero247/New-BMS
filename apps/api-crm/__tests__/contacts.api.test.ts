@@ -1,0 +1,575 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    crmContact: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    crmActivity: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import contactsRouter from '../src/routes/contacts';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/contacts', contactsRouter);
+
+beforeEach(() => { jest.clearAllMocks(); });
+
+const mockContact = {
+  id: 'contact-1',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  phone: '+1234567890',
+  accountId: null,
+  source: 'INBOUND',
+  tags: [],
+  createdBy: 'user-123',
+  updatedBy: 'user-123',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+// ===================================================================
+// POST /api/contacts
+// ===================================================================
+
+describe('POST /api/contacts', () => {
+  it('should create a contact with valid data', async () => {
+    (prisma as any).crmContact.create.mockResolvedValue(mockContact);
+
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.firstName).toBe('John');
+  });
+
+  it('should create a contact with all optional fields', async () => {
+    const fullContact = {
+      ...mockContact,
+      phone: '+1234567890',
+      mobile: '+0987654321',
+      jobTitle: 'CTO',
+      department: 'Engineering',
+      accountId: '550e8400-e29b-41d4-a716-446655440000',
+      source: 'REFERRAL',
+      tags: ['vip', 'tech'],
+      address: '123 Main St',
+      city: 'London',
+      state: 'England',
+      country: 'UK',
+      postalCode: 'EC1A 1BB',
+      notes: 'Important contact',
+    };
+    (prisma as any).crmContact.create.mockResolvedValue(fullContact);
+
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      phone: '+1234567890',
+      mobile: '+0987654321',
+      jobTitle: 'CTO',
+      department: 'Engineering',
+      accountId: '550e8400-e29b-41d4-a716-446655440000',
+      source: 'REFERRAL',
+      tags: ['vip', 'tech'],
+      address: '123 Main St',
+      city: 'London',
+      state: 'England',
+      country: 'UK',
+      postalCode: 'EC1A 1BB',
+      notes: 'Important contact',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 400 for missing firstName', async () => {
+    const res = await request(app).post('/api/contacts').send({
+      lastName: 'Doe',
+      email: 'john@example.com',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for missing lastName', async () => {
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      email: 'john@example.com',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for missing email', async () => {
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      lastName: 'Doe',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for invalid email format', async () => {
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'not-an-email',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for empty firstName', async () => {
+    const res = await request(app).post('/api/contacts').send({
+      firstName: '',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/contacts').send({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+// ===================================================================
+// GET /api/contacts
+// ===================================================================
+
+describe('GET /api/contacts', () => {
+  it('should return paginated list', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([mockContact]);
+    (prisma as any).crmContact.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/contacts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('should return empty array when no contacts', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('should handle pagination params', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/contacts?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('should filter by accountId', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts?accountId=acc-123');
+
+    expect(res.status).toBe(200);
+    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ accountId: 'acc-123' }),
+      })
+    );
+  });
+
+  it('should search by name/email', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts?search=john');
+
+    expect(res.status).toBe(200);
+    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            expect.objectContaining({ firstName: expect.objectContaining({ contains: 'john' }) }),
+          ]),
+        }),
+      })
+    );
+  });
+
+  it('should filter by source', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts?source=INBOUND');
+
+    expect(res.status).toBe(200);
+    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ source: 'INBOUND' }),
+      })
+    );
+  });
+
+  it('should filter by tags', async () => {
+    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    (prisma as any).crmContact.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts?tags=vip,tech');
+
+    expect(res.status).toBe(200);
+    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ tags: { hasSome: ['vip', 'tech'] } }),
+      })
+    );
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/contacts');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
+// GET /api/contacts/:id
+// ===================================================================
+
+describe('GET /api/contacts/:id', () => {
+  it('should return contact detail', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+
+    const res = await request(app).get('/api/contacts/contact-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('contact-1');
+  });
+
+  it('should return 404 when not found', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/contacts/nonexistent');
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/contacts/contact-1');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
+// PUT /api/contacts/:id
+// ===================================================================
+
+describe('PUT /api/contacts/:id', () => {
+  it('should update contact fields', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, firstName: 'Jane' });
+
+    const res = await request(app).put('/api/contacts/contact-1').send({ firstName: 'Jane' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.firstName).toBe('Jane');
+  });
+
+  it('should return 404 when not found', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/contacts/nonexistent').send({ firstName: 'Jane' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should update multiple fields', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmContact.update.mockResolvedValue({
+      ...mockContact,
+      firstName: 'Jane',
+      jobTitle: 'CEO',
+    });
+
+    const res = await request(app).put('/api/contacts/contact-1').send({
+      firstName: 'Jane',
+      jobTitle: 'CEO',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put('/api/contacts/contact-1').send({ firstName: 'Jane' });
+
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
+// DELETE /api/contacts/:id
+// ===================================================================
+
+describe('DELETE /api/contacts/:id', () => {
+  it('should soft delete contact (sets deletedAt)', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/contacts/contact-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.message).toBe('Contact deleted');
+    expect((prisma as any).crmContact.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('should return 404 when not found', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/contacts/nonexistent');
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/contacts/contact-1');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
+// POST /api/contacts/:id/activities
+// ===================================================================
+
+describe('POST /api/contacts/:id/activities', () => {
+  const validActivity = { type: 'CALL', subject: 'Follow up call' };
+
+  it('should create an activity', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.create.mockResolvedValue({
+      id: 'activity-1',
+      contactId: 'contact-1',
+      ...validActivity,
+      createdBy: 'user-123',
+    });
+
+    const res = await request(app).post('/api/contacts/contact-1/activities').send(validActivity);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.type).toBe('CALL');
+  });
+
+  it('should create an activity with optional fields', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.create.mockResolvedValue({
+      id: 'activity-1',
+      contactId: 'contact-1',
+      type: 'MEETING',
+      subject: 'Quarterly review',
+      description: 'Discuss Q1 performance',
+      duration: 60,
+      outcome: 'Positive',
+    });
+
+    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+      type: 'MEETING',
+      subject: 'Quarterly review',
+      description: 'Discuss Q1 performance',
+      duration: 60,
+      outcome: 'Positive',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 400 for missing type', async () => {
+    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+      subject: 'Follow up call',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for missing subject', async () => {
+    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+      type: 'CALL',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 400 for invalid type', async () => {
+    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+      type: 'INVALID',
+      subject: 'Test',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 404 when contact not found', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).post('/api/contacts/nonexistent/activities').send(validActivity);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/contacts/contact-1/activities').send(validActivity);
+
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
+// GET /api/contacts/:id/activities
+// ===================================================================
+
+describe('GET /api/contacts/:id/activities', () => {
+  it('should return activities list', async () => {
+    const activities = [
+      { id: 'act-1', contactId: 'contact-1', type: 'CALL', subject: 'Call 1', createdAt: new Date() },
+      { id: 'act-2', contactId: 'contact-1', type: 'EMAIL', subject: 'Email 1', createdAt: new Date() },
+    ];
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.findMany.mockResolvedValue(activities);
+    (prisma as any).crmActivity.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/contacts/contact-1/activities');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('should return empty array when no activities', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.findMany.mockResolvedValue([]);
+    (prisma as any).crmActivity.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/contacts/contact-1/activities');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('should return 404 when contact not found', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/contacts/nonexistent/activities');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('should handle pagination params', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.findMany.mockResolvedValue([]);
+    (prisma as any).crmActivity.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/contacts/contact-1/activities?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    (prisma as any).crmActivity.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/contacts/contact-1/activities');
+
+    expect(res.status).toBe(500);
+  });
+});

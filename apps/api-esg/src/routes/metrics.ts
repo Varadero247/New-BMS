@@ -1,0 +1,87 @@
+import { Router, Request, Response } from 'express';
+import { prisma, Prisma } from '../prisma';
+import { z } from 'zod';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-esg');
+const router: Router = Router();
+router.use(authenticate);
+
+const dataPointCreateSchema = z.object({
+  periodStart: z.string(),
+  periodEnd: z.string(),
+  value: z.number(),
+  unit: z.string().min(1).max(50),
+  source: z.string().max(200).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
+  status: z.enum(['DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED']).optional(),
+});
+
+// GET /api/metrics/:id/data-points
+router.get('/:id/data-points', async (req: Request, res: Response) => {
+  try {
+    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!metric) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+    }
+
+    const { page = '1', limit = '20' } = req.query;
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const take = parseInt(limit as string, 10);
+
+    const where: any = { metricId: req.params.id, deletedAt: null };
+
+    const [data, total] = await Promise.all([
+      prisma.esgDataPoint.findMany({ where, skip, take, orderBy: { periodStart: 'desc' } }),
+      prisma.esgDataPoint.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data,
+      pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
+    });
+  } catch (error: any) {
+    logger.error('Error fetching data points', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch data points' } });
+  }
+});
+
+// POST /api/metrics/:id/data-points
+router.post('/:id/data-points', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthRequest;
+    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    if (!metric) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+    }
+
+    const parsed = dataPointCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+    }
+
+    const data = parsed.data;
+    const dataPoint = await prisma.esgDataPoint.create({
+      data: {
+        metricId: req.params.id,
+        periodStart: new Date(data.periodStart),
+        periodEnd: new Date(data.periodEnd),
+        value: new Prisma.Decimal(data.value),
+        unit: data.unit,
+        source: data.source || null,
+        notes: data.notes || null,
+        status: data.status || 'DRAFT',
+        createdBy: authReq.user?.id || 'system',
+      },
+    });
+
+    res.status(201).json({ success: true, data: dataPoint });
+  } catch (error: any) {
+    logger.error('Error creating data point', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create data point' } });
+  }
+});
+
+export default router;

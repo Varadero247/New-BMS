@@ -1,0 +1,296 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '../prisma';
+import { z } from 'zod';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-analytics');
+const router: Router = Router();
+router.use(authenticate);
+
+// ---------------------------------------------------------------------------
+// Zod Schemas
+// ---------------------------------------------------------------------------
+
+const trendEnum = z.enum(['UP', 'DOWN', 'STABLE']);
+const frequencyEnum = z.enum(['REALTIME', 'DAILY', 'WEEKLY', 'MONTHLY']);
+
+const kpiCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).optional().nullable(),
+  module: z.string().min(1).max(100),
+  formula: z.string().max(500).optional().nullable(),
+  unit: z.string().max(50).optional().nullable(),
+  currentValue: z.number().optional().nullable(),
+  previousValue: z.number().optional().nullable(),
+  targetValue: z.number().optional().nullable(),
+  trend: trendEnum,
+  frequency: frequencyEnum,
+});
+
+const kpiUpdateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(1000).optional().nullable(),
+  module: z.string().min(1).max(100).optional(),
+  formula: z.string().max(500).optional().nullable(),
+  unit: z.string().max(50).optional().nullable(),
+  currentValue: z.number().optional().nullable(),
+  previousValue: z.number().optional().nullable(),
+  targetValue: z.number().optional().nullable(),
+  trend: trendEnum.optional(),
+  frequency: frequencyEnum.optional(),
+});
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function parseIntParam(val: unknown, fallback: number): number {
+  const n = parseInt(String(val), 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+const RESERVED_PATHS = new Set(['executive-dashboard', 'modules']);
+
+// ===================================================================
+// GET /api/kpis/executive-dashboard — All KPIs grouped by module
+// ===================================================================
+
+router.get('/executive-dashboard', async (req: Request, res: Response) => {
+  try {
+    const kpis = await prisma.analyticsKpi.findMany({
+      where: { deletedAt: null },
+      orderBy: [{ module: 'asc' }, { name: 'asc' }],
+    });
+
+    const grouped: Record<string, any[]> = {};
+    for (const kpi of kpis) {
+      if (!grouped[kpi.module]) grouped[kpi.module] = [];
+      grouped[kpi.module].push(kpi);
+    }
+
+    res.json({ success: true, data: grouped });
+  } catch (error: any) {
+    logger.error('Failed to get executive dashboard', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get executive dashboard' } });
+  }
+});
+
+// ===================================================================
+// GET /api/kpis/modules/:module — KPIs for specific module
+// ===================================================================
+
+router.get('/modules/:module', async (req: Request, res: Response) => {
+  try {
+    const { module } = req.params;
+
+    const kpis = await prisma.analyticsKpi.findMany({
+      where: { module, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+
+    res.json({ success: true, data: kpis });
+  } catch (error: any) {
+    logger.error('Failed to get module KPIs', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get module KPIs' } });
+  }
+});
+
+// ===================================================================
+// GET /api/kpis — List KPIs
+// ===================================================================
+
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { module, frequency, trend, search } = req.query;
+    const page = parseIntParam(req.query.page, 1);
+    const limit = parseIntParam(req.query.limit, 50);
+    const skip = (page - 1) * limit;
+
+    const where: any = { deletedAt: null };
+
+    if (typeof module === 'string' && module.length > 0) where.module = module;
+    if (typeof frequency === 'string' && frequency.length > 0) where.frequency = frequency;
+    if (typeof trend === 'string' && trend.length > 0) where.trend = trend;
+    if (typeof search === 'string' && search.length > 0) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    const [kpis, total] = await Promise.all([
+      prisma.analyticsKpi.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.analyticsKpi.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: kpis,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error: any) {
+    logger.error('Failed to list KPIs', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list KPIs' } });
+  }
+});
+
+// ===================================================================
+// POST /api/kpis — Create KPI
+// ===================================================================
+
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthRequest;
+    const parsed = kpiCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+    }
+
+    const data = parsed.data;
+    const kpi = await prisma.analyticsKpi.create({
+      data: {
+        name: data.name,
+        description: data.description || null,
+        module: data.module,
+        formula: data.formula || null,
+        unit: data.unit || null,
+        currentValue: data.currentValue != null ? data.currentValue : null,
+        previousValue: data.previousValue != null ? data.previousValue : null,
+        targetValue: data.targetValue != null ? data.targetValue : null,
+        trend: data.trend,
+        frequency: data.frequency,
+        createdBy: authReq.user!.id,
+      },
+    });
+
+    logger.info('KPI created', { id: kpi.id, name: kpi.name });
+    res.status(201).json({ success: true, data: kpi });
+  } catch (error: any) {
+    logger.error('Failed to create KPI', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create KPI' } });
+  }
+});
+
+// ===================================================================
+// POST /api/kpis/:id/calculate — Recalculate KPI
+// ===================================================================
+
+router.post('/:id/calculate', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const kpi = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    if (!kpi) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+    }
+
+    // Simulate recalculation
+    const newValue = Math.round(Math.random() * 10000) / 100;
+    const previousValue = kpi.currentValue;
+    let trend: 'UP' | 'DOWN' | 'STABLE' = 'STABLE';
+    if (previousValue != null) {
+      const prev = Number(previousValue);
+      if (newValue > prev) trend = 'UP';
+      else if (newValue < prev) trend = 'DOWN';
+    }
+
+    const updated = await prisma.analyticsKpi.update({
+      where: { id },
+      data: {
+        previousValue: kpi.currentValue,
+        currentValue: newValue,
+        trend,
+        lastCalculated: new Date(),
+      },
+    });
+
+    logger.info('KPI recalculated', { id, newValue });
+    res.json({ success: true, data: updated });
+  } catch (error: any) {
+    logger.error('Failed to calculate KPI', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate KPI' } });
+  }
+});
+
+// ===================================================================
+// GET /api/kpis/:id — Get KPI by ID
+// ===================================================================
+
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    if (RESERVED_PATHS.has(req.params.id)) return (req as any).next('route');
+
+    const kpi = await prisma.analyticsKpi.findFirst({
+      where: { id: req.params.id, deletedAt: null },
+    });
+
+    if (!kpi) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+    }
+
+    res.json({ success: true, data: kpi });
+  } catch (error: any) {
+    logger.error('Failed to get KPI', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI' } });
+  }
+});
+
+// ===================================================================
+// PUT /api/kpis/:id — Update KPI
+// ===================================================================
+
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+    }
+
+    const parsed = kpiUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+    }
+
+    const updated = await prisma.analyticsKpi.update({
+      where: { id },
+      data: parsed.data,
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (error: any) {
+    logger.error('Failed to update KPI', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update KPI' } });
+  }
+});
+
+// ===================================================================
+// DELETE /api/kpis/:id — Soft delete KPI
+// ===================================================================
+
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+    }
+
+    await prisma.analyticsKpi.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    res.json({ success: true, data: { message: 'KPI deleted' } });
+  } catch (error: any) {
+    logger.error('Failed to delete KPI', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete KPI' } });
+  }
+});
+
+export default router;

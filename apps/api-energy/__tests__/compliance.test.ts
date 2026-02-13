@@ -1,0 +1,223 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    energyComplianceObligation: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import complianceRouter from '../src/routes/compliance';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/compliance', complianceRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/compliance', () => {
+  it('should return paginated obligations', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([{ id: '1', title: 'ESOS' }]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/compliance');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('should filter by status', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/compliance?status=COMPLIANT');
+
+    expect(prisma.energyComplianceObligation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLIANT' }),
+      })
+    );
+  });
+
+  it('should handle errors', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    (prisma.energyComplianceObligation.count as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/compliance');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/compliance', () => {
+  const validBody = {
+    title: 'ESOS Phase 3',
+    regulation: 'ESOS',
+    requirement: 'Complete energy audit by Dec 2024',
+    jurisdiction: 'UK',
+  };
+
+  it('should create a compliance obligation', async () => {
+    (prisma.energyComplianceObligation.create as jest.Mock).mockResolvedValue({
+      id: 'new-id', ...validBody, status: 'NOT_ASSESSED',
+    });
+
+    const res = await request(app).post('/api/compliance').send(validBody);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('ESOS Phase 3');
+  });
+
+  it('should reject invalid body', async () => {
+    const res = await request(app).post('/api/compliance').send({ title: '' });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /api/compliance/:id', () => {
+  it('should return an obligation', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1', title: 'ESOS' });
+
+    const res = await request(app).get('/api/compliance/1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('1');
+  });
+
+  it('should return 404 if not found', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get('/api/compliance/nonexistent');
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/compliance/:id', () => {
+  it('should update an obligation', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '1', title: 'Updated' });
+
+    const res = await request(app).put('/api/compliance/1').send({ title: 'Updated' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Updated');
+  });
+
+  it('should return 404 if not found', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).put('/api/compliance/nonexistent').send({ title: 'X' });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/compliance/:id', () => {
+  it('should soft delete an obligation', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '1' });
+
+    const res = await request(app).delete('/api/compliance/1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('should return 404 if not found', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/compliance/nonexistent');
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/compliance/:id/assess', () => {
+  it('should assess an obligation as COMPLIANT', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1', notes: null });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({
+      id: '1', status: 'COMPLIANT', assessedBy: 'user-123',
+    });
+
+    const res = await request(app).put('/api/compliance/1/assess').send({ status: 'COMPLIANT' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLIANT');
+  });
+
+  it('should reject invalid status', async () => {
+    const res = await request(app).put('/api/compliance/1/assess').send({ status: 'INVALID' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('should reject missing status', async () => {
+    const res = await request(app).put('/api/compliance/1/assess').send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it('should return 404 if not found', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).put('/api/compliance/nonexistent/assess').send({ status: 'COMPLIANT' });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/compliance/dashboard', () => {
+  it('should return compliance dashboard data', async () => {
+    const obligations = [
+      { id: '1', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
+      { id: '2', status: 'NON_COMPLIANT', regulation: 'ESOS', dueDate: new Date('2020-01-01') },
+      { id: '3', status: 'NOT_ASSESSED', regulation: 'SECR', dueDate: null },
+      { id: '4', status: 'PARTIALLY_COMPLIANT', regulation: 'SECR', dueDate: new Date('2099-01-01') },
+    ];
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue(obligations);
+
+    const res = await request(app).get('/api/compliance/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(4);
+    expect(res.body.data.compliant).toBe(1);
+    expect(res.body.data.nonCompliant).toBe(1);
+    expect(res.body.data.notAssessed).toBe(1);
+    expect(res.body.data.partiallyCompliant).toBe(1);
+    expect(res.body.data.complianceRate).toBe(25);
+    expect(res.body.data.byRegulation).toHaveLength(2);
+  });
+
+  it('should handle empty obligations', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/compliance/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(0);
+    expect(res.body.data.complianceRate).toBe(0);
+  });
+});

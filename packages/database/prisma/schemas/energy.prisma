@@ -1,0 +1,489 @@
+// Energy Schema - Energy Management Domain (ISO 50001:2018)
+// This schema is used by the Energy microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/energy"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ENERGY_DATABASE_URL")
+}
+
+// ============================================
+// ENERGY BASELINES (ISO 50001 Clause 3.4.7)
+// ============================================
+
+model EnergyBaseline {
+  id                String               @id @default(uuid())
+  name              String
+  year              Int
+  description       String?
+  totalConsumption  Decimal
+  unit              String
+  methodology       String
+  adjustmentFactors Json?
+  status            EnergyBaselineStatus  @default(DRAFT)
+  approvedBy        String?
+  approvedAt        DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  deletedAt         DateTime?
+  createdBy         String
+
+  targets           EnergyTarget[]
+
+  @@index([year])
+  @@index([status])
+  @@index([createdAt])
+  @@map("energy_baselines")
+}
+
+// ============================================
+// ENERGY METERS (ISO 50001 Clause 6.6)
+// ============================================
+
+model EnergyMeter {
+  id            String            @id @default(uuid())
+  name          String
+  code          String            @unique
+  type          EnergyMeterType
+  location      String?
+  facility      String?
+  unit          String
+  multiplier    Decimal           @default(1)
+  isVirtual     Boolean           @default(false)
+  parentMeterId String?
+  status        EnergyMeterStatus @default(ACTIVE)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  parent        EnergyMeter?      @relation("MeterHierarchy", fields: [parentMeterId], references: [id])
+  children      EnergyMeter[]     @relation("MeterHierarchy")
+  readings      EnergyReading[]
+  bills         EnergyBill[]
+  alerts        EnergyAlert[]
+
+  @@index([type])
+  @@index([facility])
+  @@index([status])
+  @@index([parentMeterId])
+  @@index([createdAt])
+  @@map("energy_meters")
+}
+
+// ============================================
+// ENERGY READINGS (ISO 50001 Clause 6.6)
+// ============================================
+
+model EnergyReading {
+  id          String              @id @default(uuid())
+  meterId     String
+  value       Decimal
+  readingDate DateTime
+  source      EnergyReadingSource @default(MANUAL)
+  cost        Decimal?
+  notes       String?
+  verifiedBy  String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  meter       EnergyMeter         @relation(fields: [meterId], references: [id])
+
+  @@index([meterId])
+  @@index([readingDate])
+  @@index([source])
+  @@index([createdAt])
+  @@map("energy_readings")
+}
+
+// ============================================
+// SIGNIFICANT ENERGY USES (ISO 50001 Clause 3.4.8)
+// ============================================
+
+model EnergySeu {
+  id                      String           @id @default(uuid())
+  name                    String
+  description             String?
+  facility                String?
+  process                 String?
+  consumptionPercentage   Decimal
+  annualConsumption       Decimal
+  unit                    String
+  variables               Json?
+  status                  EnergySeuStatus  @default(IDENTIFIED)
+  priority                EnergySeuPriority @default(MEDIUM)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  deletedAt               DateTime?
+  createdBy               String
+
+  @@index([facility])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("energy_seus")
+}
+
+// ============================================
+// ENERGY TARGETS (ISO 50001 Clause 6.2)
+// ============================================
+
+model EnergyTarget {
+  id          String             @id @default(uuid())
+  name        String
+  metricType  EnergyMetricType
+  baselineId  String?
+  year        Int
+  targetValue Decimal
+  actualValue Decimal?
+  unit        String
+  status      EnergyTargetStatus @default(ON_TRACK)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  baseline    EnergyBaseline?    @relation(fields: [baselineId], references: [id])
+
+  @@index([year])
+  @@index([status])
+  @@index([metricType])
+  @@index([baselineId])
+  @@index([createdAt])
+  @@map("energy_targets")
+}
+
+// ============================================
+// ENERGY PROJECTS (ISO 50001 Clause 6.3)
+// ============================================
+
+model EnergyProject {
+  id               String              @id @default(uuid())
+  title            String
+  description      String?
+  type             EnergyProjectType
+  status           EnergyProjectStatus @default(PROPOSED)
+  estimatedSavings Decimal?
+  actualSavings    Decimal?
+  investmentCost   Decimal?
+  paybackMonths    Int?
+  startDate        DateTime?
+  completedDate    DateTime?
+  owner            String?
+  roi              Decimal?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  deletedAt        DateTime?
+  createdBy        String
+
+  @@index([type])
+  @@index([status])
+  @@index([startDate])
+  @@index([createdAt])
+  @@map("energy_projects")
+}
+
+// ============================================
+// ENERGY AUDITS (ISO 50001 Clause 9.2)
+// ============================================
+
+model EnergyAudit {
+  id              String            @id @default(uuid())
+  title           String
+  type            EnergyAuditType
+  auditor         String
+  facility        String?
+  scheduledDate   DateTime
+  completedDate   DateTime?
+  status          EnergyAuditStatus @default(PLANNED)
+  findings        Json?
+  recommendations Json?
+  score           Decimal?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  @@index([type])
+  @@index([facility])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([createdAt])
+  @@map("energy_audits")
+}
+
+// ============================================
+// ENERGY BILLS (ISO 50001 Clause 6.6)
+// ============================================
+
+model EnergyBill {
+  id            String           @id @default(uuid())
+  meterId       String?
+  provider      String
+  accountNumber String?
+  invoiceNumber String?
+  periodStart   DateTime
+  periodEnd     DateTime
+  consumption   Decimal
+  unit          String
+  cost          Decimal
+  currency      String           @default("GBP")
+  status        EnergyBillStatus @default(PENDING)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  meter         EnergyMeter?     @relation(fields: [meterId], references: [id])
+
+  @@index([meterId])
+  @@index([status])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([createdAt])
+  @@map("energy_bills")
+}
+
+// ============================================
+// ENERGY PERFORMANCE INDICATORS (ISO 50001 Clause 3.4.9)
+// ============================================
+
+model EnergyEnpi {
+  id            String             @id @default(uuid())
+  name          String
+  description   String?
+  formula       String
+  unit          String
+  baselineValue Decimal?
+  currentValue  Decimal?
+  targetValue   Decimal?
+  frequency     EnergyEnpiFrequency @default(MONTHLY)
+  lastCalculated DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  dataPoints    EnergyEnpiData[]
+
+  @@index([frequency])
+  @@index([createdAt])
+  @@map("energy_enpis")
+}
+
+// ============================================
+// ENERGY EnPI DATA POINTS
+// ============================================
+
+model EnergyEnpiData {
+  id          String   @id @default(uuid())
+  enpiId      String
+  value       Decimal
+  periodStart DateTime
+  periodEnd   DateTime
+  variables   Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  enpi        EnergyEnpi @relation(fields: [enpiId], references: [id])
+
+  @@index([enpiId])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([createdAt])
+  @@map("energy_enpi_data")
+}
+
+// ============================================
+// ENERGY ALERTS
+// ============================================
+
+model EnergyAlert {
+  id             String              @id @default(uuid())
+  meterId        String?
+  type           EnergyAlertType
+  severity       EnergyAlertSeverity @default(MEDIUM)
+  message        String
+  acknowledged   Boolean             @default(false)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  details        Json?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  meter          EnergyMeter?        @relation(fields: [meterId], references: [id])
+
+  @@index([meterId])
+  @@index([type])
+  @@index([severity])
+  @@index([acknowledged])
+  @@index([createdAt])
+  @@map("energy_alerts")
+}
+
+// ============================================
+// ENERGY COMPLIANCE OBLIGATIONS (ISO 50001 Clause 4.2)
+// ============================================
+
+model EnergyComplianceObligation {
+  id               String                 @id @default(uuid())
+  title            String
+  description      String?
+  regulation       String
+  jurisdiction     String?
+  requirement      String
+  evidenceRequired String?
+  status           EnergyComplianceStatus @default(NOT_ASSESSED)
+  dueDate          DateTime?
+  lastAssessed     DateTime?
+  assessedBy       String?
+  notes            String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  deletedAt        DateTime?
+  createdBy        String
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([regulation])
+  @@index([createdAt])
+  @@map("energy_compliance_obligations")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum EnergyBaselineStatus {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+}
+
+enum EnergyMeterType {
+  ELECTRICITY
+  GAS
+  WATER
+  STEAM
+  COMPRESSED_AIR
+  FUEL
+}
+
+enum EnergyMeterStatus {
+  ACTIVE
+  INACTIVE
+  FAULTY
+  DECOMMISSIONED
+}
+
+enum EnergyReadingSource {
+  MANUAL
+  AUTOMATIC
+  ESTIMATED
+  INVOICE
+}
+
+enum EnergySeuStatus {
+  IDENTIFIED
+  ANALYZED
+  OPTIMIZED
+}
+
+enum EnergySeuPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum EnergyMetricType {
+  CONSUMPTION
+  INTENSITY
+  COST
+  EMISSIONS
+  RENEWABLE_PERCENTAGE
+}
+
+enum EnergyTargetStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  ACHIEVED
+}
+
+enum EnergyProjectType {
+  EFFICIENCY
+  RENEWABLE
+  BEHAVIORAL
+  PROCESS
+  EQUIPMENT
+}
+
+enum EnergyProjectStatus {
+  PROPOSED
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EnergyAuditType {
+  INTERNAL
+  EXTERNAL
+  REGULATORY
+  ISO_50001
+}
+
+enum EnergyAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum EnergyBillStatus {
+  PENDING
+  VERIFIED
+  DISPUTED
+  PAID
+}
+
+enum EnergyEnpiFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum EnergyAlertType {
+  OVERCONSUMPTION
+  ANOMALY
+  THRESHOLD_BREACH
+  EQUIPMENT_FAULT
+  BILLING_DISCREPANCY
+}
+
+enum EnergyAlertSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum EnergyComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  PARTIALLY_COMPLIANT
+  NOT_ASSESSED
+}

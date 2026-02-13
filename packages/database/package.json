@@ -62,13 +62,53 @@
     "./aerospace": {
       "import": "./generated/aerospace/index.js",
       "require": "./generated/aerospace/index.js"
+    },
+    "./finance": {
+      "import": "./generated/finance/index.js",
+      "require": "./generated/finance/index.js"
+    },
+    "./crm": {
+      "import": "./generated/crm/index.js",
+      "require": "./generated/crm/index.js"
+    },
+    "./infosec": {
+      "import": "./generated/infosec/index.js",
+      "require": "./generated/infosec/index.js"
+    },
+    "./esg": {
+      "import": "./generated/esg/index.js",
+      "require": "./generated/esg/index.js"
+    },
+    "./cmms": {
+      "import": "./generated/cmms/index.js",
+      "require": "./generated/cmms/index.js"
+    },
+    "./portal": {
+      "import": "./generated/portal/index.js",
+      "require": "./generated/portal/index.js"
+    },
+    "./food-safety": {
+      "import": "./generated/food-safety/index.js",
+      "require": "./generated/food-safety/index.js"
+    },
+    "./energy": {
+      "import": "./generated/energy/index.js",
+      "require": "./generated/energy/index.js"
+    },
+    "./analytics": {
+      "import": "./generated/analytics/index.js",
+      "require": "./generated/analytics/index.js"
+    },
+    "./field-service": {
+      "import": "./generated/field-service/index.js",
+      "require": "./generated/field-service/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -82,8 +122,18 @@
     "generate:automotive": "prisma generate --schema=prisma/schemas/automotive.prisma",
     "generate:medical": "prisma generate --schema=prisma/schemas/medical.prisma",
     "generate:aerospace": "prisma generate --schema=prisma/schemas/aerospace.prisma",
+    "generate:finance": "prisma generate --schema=prisma/schemas/finance.prisma",
+    "generate:crm": "prisma generate --schema=prisma/schemas/crm.prisma",
+    "generate:infosec": "prisma generate --schema=prisma/schemas/infosec.prisma",
+    "generate:esg": "prisma generate --schema=prisma/schemas/esg.prisma",
+    "generate:cmms": "prisma generate --schema=prisma/schemas/cmms.prisma",
+    "generate:portal": "prisma generate --schema=prisma/schemas/portal.prisma",
+    "generate:food-safety": "prisma generate --schema=prisma/schemas/food-safety.prisma",
+    "generate:energy": "prisma generate --schema=prisma/schemas/energy.prisma",
+    "generate:analytics": "prisma generate --schema=prisma/schemas/analytics.prisma",
+    "generate:field-service": "prisma generate --schema=prisma/schemas/field-service.prisma",
     "push": "prisma db push",
-    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace push:finance",
     "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
     "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
     "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
@@ -97,6 +147,16 @@
     "push:automotive": "prisma db push --schema=prisma/schemas/automotive.prisma",
     "push:medical": "prisma db push --schema=prisma/schemas/medical.prisma",
     "push:aerospace": "prisma db push --schema=prisma/schemas/aerospace.prisma",
+    "push:finance": "prisma db push --schema=prisma/schemas/finance.prisma",
+    "push:crm": "prisma db push --schema=prisma/schemas/crm.prisma",
+    "push:infosec": "prisma db push --schema=prisma/schemas/infosec.prisma",
+    "push:esg": "prisma db push --schema=prisma/schemas/esg.prisma",
+    "push:cmms": "prisma db push --schema=prisma/schemas/cmms.prisma",
+    "push:portal": "prisma db push --schema=prisma/schemas/portal.prisma",
+    "push:food-safety": "prisma db push --schema=prisma/schemas/food-safety.prisma",
+    "push:energy": "prisma db push --schema=prisma/schemas/energy.prisma",
+    "push:analytics": "prisma db push --schema=prisma/schemas/analytics.prisma",
+    "push:field-service": "prisma db push --schema=prisma/schemas/field-service.prisma",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",

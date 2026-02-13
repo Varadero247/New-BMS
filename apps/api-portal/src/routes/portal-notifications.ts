@@ -1,0 +1,104 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '../prisma';
+import { authenticate, type AuthRequest } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+
+const logger = createLogger('api-portal');
+const router: Router = Router();
+router.use(authenticate);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function parseIntParam(val: unknown, fallback: number): number {
+  const n = parseInt(String(val), 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// ---------------------------------------------------------------------------
+// GET / — List notifications
+// ---------------------------------------------------------------------------
+
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const auth = req as AuthRequest;
+    const page = parseIntParam(req.query.page, 1);
+    const limit = parseIntParam(req.query.limit, 20);
+    const skip = (page - 1) * limit;
+    const isRead = req.query.isRead as string | undefined;
+
+    const where: any = {
+      portalUserId: auth.user!.id,
+      deletedAt: null,
+    };
+    if (isRead === 'true') where.isRead = true;
+    if (isRead === 'false') where.isRead = false;
+
+    const [items, total] = await Promise.all([
+      prisma.portalNotification.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalNotification.count({ where }),
+    ]);
+
+    return res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error: any) {
+    logger.error('Error listing notifications', { error: error.message });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' } });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /read-all — Mark all as read
+// ---------------------------------------------------------------------------
+
+router.put('/read-all', async (req: Request, res: Response) => {
+  try {
+    const auth = req as AuthRequest;
+
+    const result = await prisma.portalNotification.updateMany({
+      where: { portalUserId: auth.user!.id, isRead: false, deletedAt: null },
+      data: { isRead: true, readAt: new Date() },
+    });
+
+    logger.info('All notifications marked as read', { count: result.count });
+    return res.json({ success: true, data: { updated: result.count } });
+  } catch (error: any) {
+    logger.error('Error marking all as read', { error: error.message });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' } });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /:id/read — Mark single notification as read
+// ---------------------------------------------------------------------------
+
+router.put('/:id/read', async (req: Request, res: Response) => {
+  try {
+    const auth = req as AuthRequest;
+
+    const notification = await prisma.portalNotification.findFirst({
+      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null },
+    });
+
+    if (!notification) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Notification not found' } });
+    }
+
+    const updated = await prisma.portalNotification.update({
+      where: { id: req.params.id },
+      data: { isRead: true, readAt: new Date() },
+    });
+
+    logger.info('Notification marked as read', { id: updated.id });
+    return res.json({ success: true, data: updated });
+  } catch (error: any) {
+    logger.error('Error marking notification as read', { error: error.message });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark as read' } });
+  }
+});
+
+export default router;

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 10 API services, 10 web apps, and 16 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose.
+Integrated Management System (IMS) monorepo with 25 API services, 26 web apps, and 39 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 25 Prisma schemas with 373 database models. ~5,450+ unit tests across 200+ suites.
 
 ## Known Issues & Fixes
 
@@ -97,11 +97,12 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ## Architecture Quick Reference
 
 ### Service Ports
-- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (Project Management)
-- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (Project Management)
+- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001)
+- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (PM), 3010 (Automotive), 3011 (Medical), 3012 (Aerospace), 3013 (Finance), 3014 (CRM), 3015 (InfoSec), 3016 (ESG), 3017 (CMMS), 3018 (Customer Portal), 3019 (Supplier Portal), 3020 (Food Safety), 3021 (Energy), 3022 (Analytics), 3023 (Field Service), 3024 (ISO 42001), 3025 (ISO 37001)
 
 ### Gateway Routing
 - `/api/auth/*`, `/api/users/*`, `/api/dashboard/*` → handled locally by gateway
+- `/api/notifications/*`, `/api/organisations/*`, `/api/compliance/*`, `/api/roles/*` → handled locally by gateway
 - `/api/health-safety/*` → api-health-safety:4001
 - `/api/environment/*` → api-environment:4002
 - `/api/quality/*` → api-quality:4003
@@ -110,7 +111,23 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 - `/api/hr/*` → api-hr:4006
 - `/api/payroll/*` → api-payroll:4007
 - `/api/workflows/*` → api-workflows:4008
-- `/api/v1/project-management/*` → api-project-management:4009
+- `/api/project-management/*` → api-project-management:4009
+- `/api/automotive/*` → api-automotive:4010
+- `/api/medical/*` → api-medical:4011
+- `/api/aerospace/*` → api-aerospace:4012
+- `/api/finance/*` → api-finance:4013
+- `/api/crm/*` → api-crm:4014
+- `/api/infosec/*` → api-infosec:4015
+- `/api/esg/*` → api-esg:4016
+- `/api/cmms/*` → api-cmms:4017
+- `/api/portal/*` → api-portal:4018
+- `/api/food-safety/*` → api-food-safety:4019
+- `/api/energy/*` → api-energy:4020
+- `/api/analytics/*` → api-analytics:4021
+- `/api/field-service/*` → api-field-service:4022
+- `/api/iso42001/*` → api-iso42001:4023
+- `/api/iso37001/*` → api-iso37001:4024
+- All routes also available under `/api/v1/` prefix
 
 ### Database
 - Separate Prisma schemas per domain in `packages/database/prisma/schemas/`
@@ -125,9 +142,9 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # 2,579 Jest unit tests (99 suites)
-./scripts/test-all-modules.sh    # All integration tests (8 modules, ~425 assertions)
-./scripts/test-hs-modules.sh     # H&S integration tests (70 assertions)
+pnpm test                        # ~5,450+ Jest unit tests (200+ suites)
+./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
+./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)
 ./scripts/test-quality-modules.sh # Quality integration tests (~80)
 ./scripts/test-hr-modules.sh     # HR integration tests (~50)
@@ -135,7 +152,8 @@ pnpm test                        # 2,579 Jest unit tests (99 suites)
 ./scripts/test-inventory-modules.sh # Inventory integration tests (~40)
 ./scripts/test-workflows-modules.sh # Workflows integration tests (~40)
 ./scripts/test-pm-modules.sh     # PM integration tests (~45)
-./scripts/check-services.sh      # Service health checks
+./scripts/test-finance-modules.sh # Finance integration tests (~40)
+./scripts/check-services.sh      # Service health checks (52 services)
 ```
 
 ## Environment Module (ISO 14001:2015)
@@ -162,12 +180,31 @@ npx prisma migrate diff --from-empty --to-schema-datamodel=prisma/schemas/enviro
   PGPASSWORD=... psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
+### Shared Packages (39)
+See `SYSTEM_STATE.md` for the complete list. Key packages:
+- `@ims/rbac` — Role-based access control (39 roles, 17 modules, 7 permission levels)
+- `@ims/notifications` — WebSocket real-time notifications
+- `@ims/pwa` — Progressive Web App (service worker, offline sync)
+- `@ims/performance` — k6 load tests, Lighthouse CI, WCAG audit
+- `@ims/templates` — 67 built-in document/report templates
+- `@ims/emission-factors` — GHG emission factor database
+- `@ims/finance-calculations` — Financial calculation engine
+- `@ims/tax-engine` — Multi-jurisdiction tax calculation
+- `@ims/nlq` — Natural language query engine
+- `@ims/oee-engine` — Overall Equipment Effectiveness engine
+- `@ims/portal-auth` — Portal authentication (customer/supplier)
+- `@ims/regulatory-feed` — Live regulatory change feed
+- `@ims/standards-convergence` — Cross-standard mapping engine
+- `@ims/event-bus` — Cross-service event bus
+
 ## Documentation
-- `docs/FIXES_LOG.md` — Detailed log of all changes (Session 1: 6 critical fixes, Session 2: 5 startup fixes, Session 3: Environment modules)
-- `docs/API_REFERENCE.md` — Full API reference (H&S + Environment + AI + Gateway)
+- `SYSTEM_STATE.md` — Single source of truth (all services, packages, schemas, ports)
+- `QUICK_REFERENCE.md` — Quick reference card
+- `docs/FIXES_LOG.md` — Detailed log of all changes (Sessions 1-5 + Phases 0-11)
+- `docs/API_REFERENCE.md` — Full API reference (all 25 services)
 - `docs/DEPLOYMENT_CHECKLIST.md` — Step-by-step deployment guide + restart procedure
 - `docs/SYSTEM-ARCHITECTURE.md` — System architecture overview
 - `docs/SECURITY.md` — Security implementation details
-- `docs/DATABASE_ARCHITECTURE.md` — Database design
+- `docs/DATABASE_ARCHITECTURE.md` — Database design (25 schemas)
 - `docs/DATABASE_SCHEMA_NOTES.md` — Schema recreation, missing columns, OpenSSL issues
-- `QUICK_REFERENCE.md` — Quick reference card
+- `docs/TEMPLATES.md` — Template library developer guide

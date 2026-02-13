@@ -11,6 +11,7 @@ import {
   CheckSquare,
   Users,
   Zap,
+  Workflow,
   LayoutTemplate,
   BarChart3,
   Settings,
@@ -20,6 +21,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
 
   // Design
+  { name: 'Builder', href: '/builder', icon: Workflow },
   { name: 'Templates', href: '/templates', icon: FileText },
   { name: 'Definitions', href: '/definitions', icon: FileCode },
 

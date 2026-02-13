@@ -14,7 +14,7 @@ router.get('/stats', authenticate, async (req, res, next) => {
     endOfWeek.setDate(now.getDate() + 7);
 
     // Get compliance scores
-    const complianceScores = await prisma.complianceScore.findMany();
+    const complianceScores = await prisma.complianceScore.findMany({ take: 100 });
     const compliance = {
       iso45001: complianceScores.find((s) => s.standard === 'ISO_45001')?.overallScore || 0,
       iso14001: complianceScores.find((s) => s.standard === 'ISO_14001')?.overallScore || 0,
@@ -149,7 +149,7 @@ router.get('/stats', authenticate, async (req, res, next) => {
 // GET /api/dashboard/compliance - Get detailed compliance data
 router.get('/compliance', authenticate, async (req, res, next) => {
   try {
-    const scores = await prisma.complianceScore.findMany();
+    const scores = await prisma.complianceScore.findMany({ take: 100 });
 
     // If no scores exist, calculate them
     if (scores.length === 0) {

@@ -19,8 +19,20 @@ Last updated: 2026-02-13
 | Medical Devices | ISO 13485 | api-medical | 4011 | Active | 66 | 584 | 2026-02-13 |
 | Aerospace | AS9100D | api-aerospace | 4012 | Active | 41 | 338 | 2026-02-13 |
 | Gateway | Cross-cutting | api-gateway | 4000 | Active | 67 | 454 | 2026-02-13 |
+| Finance | Financial Management | api-finance | 4013 | Active | 35 | 321 | 2026-02-13 |
+| CRM | Customer Relationship | api-crm | 4014 | Active | 40 | 180 | 2026-02-13 |
+| InfoSec | ISO 27001 | api-infosec | 4015 | Active | 35 | 175 | 2026-02-13 |
+| ESG | ESG Reporting | api-esg | 4016 | Active | 70 | 207 | 2026-02-13 |
+| CMMS | Maintenance | api-cmms | 4017 | Active | 60 | 226 | 2026-02-13 |
+| Portal | Customer/Supplier | api-portal | 4018 | Active | 80 | 168 | 2026-02-13 |
+| Food Safety | HACCP/ISO 22000 | api-food-safety | 4019 | Active | 70 | 241 | 2026-02-13 |
+| Energy | ISO 50001 | api-energy | 4020 | Active | 60 | 196 | 2026-02-13 |
+| Analytics | Business Intelligence | api-analytics | 4021 | Active | 45 | 142 | 2026-02-13 |
+| Field Service | Field Operations | api-field-service | 4022 | Active | 65 | 189 | 2026-02-13 |
+| ISO 42001 | AI Management | api-iso42001 | 4023 | Active | 35 | 120 | 2026-02-13 |
+| ISO 37001 | Anti-Bribery | api-iso37001 | 4024 | Active | 30 | 105 | 2026-02-13 |
 
-**Total: 13 services | 759 endpoints | 4,539 tests**
+**Total: 25 services | ~1,469 endpoints | ~7,829 tests**
 
 ## Shared Packages
 
@@ -50,7 +62,23 @@ Last updated: 2026-02-13
 | @ims/sdk | @resolvex/sdk NPM package | - |
 | @ims/testing | Test utilities | - |
 
-**Total: 23 packages | 970 package-level tests**
+| @ims/rbac | Role-based access control (39 roles, 17 modules) | 65 |
+| @ims/notifications | WebSocket notifications + bell component | 31 |
+| @ims/pwa | PWA offline support (service worker, sync queue) | 33 |
+| @ims/performance | Load tests, Lighthouse CI, WCAG 2.2 AA | 10 |
+| @ims/finance-calculations | Financial calculation engine | - |
+| @ims/emission-factors | GHG emission factor database | - |
+| @ims/oee-engine | Overall Equipment Effectiveness engine | - |
+| @ims/portal-auth | Portal authentication | - |
+| @ims/nlq | Natural language query engine | - |
+| @ims/tax-engine | Multi-jurisdiction tax calculation | - |
+| @ims/event-bus | Inter-service event bus | - |
+| @ims/standards-convergence | Standards overlap analysis | - |
+| @ims/pdf-generator | PDF document generation | - |
+| @ims/regulatory-feed | Regulatory update feeds | - |
+| @ims/benchmarks | Performance benchmarking | - |
+
+**Total: 39 packages | ~1,109 package-level tests**
 
 ## Standards Compliance Matrix
 
@@ -88,3 +116,9 @@ Last updated: 2026-02-13
 | AS9100D | 8.5.1 | First Article Inspection (AS9102C) | Implemented | Aerospace |
 | AS9100D | 8.1.4 | Configuration Management | Implemented | Aerospace |
 | AS9100D | 8.5.2 | Key Characteristics | Implemented | Aerospace |
+| ISO 27001 | A.5-A.18 | Information Security Controls | Implemented | InfoSec |
+| ISO 22000 | 7-8 | HACCP & Food Safety | Implemented | Food Safety |
+| ISO 50001 | 4-10 | Energy Management | Implemented | Energy |
+| ISO 42001 | 4-10 | AI Management System | Implemented | ISO 42001 |
+| ISO 37001 | 4-10 | Anti-Bribery Management | Implemented | ISO 37001 |
+| GRI/SASB/TCFD | - | ESG Reporting Frameworks | Implemented | ESG |

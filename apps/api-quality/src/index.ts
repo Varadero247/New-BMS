@@ -23,6 +23,7 @@ import {
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
+import { attachPermissions, requirePermission, PermissionLevel } from '@ims/rbac';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-quality');
@@ -47,6 +48,8 @@ import customerSatisfactionRouter from './routes/customer-satisfaction';
 import counterfeitRouter from './routes/counterfeit';
 import productSafetyRouter from './routes/product-safety';
 import designDevelopmentRouter from './routes/design-development';
+import evidencePackRouter from './routes/evidence-pack';
+import headstartRouter from './routes/headstart';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -60,6 +63,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
 app.use(optionalServiceAuth);
+app.use(attachPermissions());
 
 // Health check, readiness, and metrics
 app.get('/health', createHealthCheck('api-quality', prisma as any, '1.0.0'));
@@ -93,6 +97,8 @@ app.use('/api/customer-satisfaction', customerSatisfactionRouter);
 app.use('/api/counterfeit', counterfeitRouter);
 app.use('/api/product-safety', productSafetyRouter);
 app.use('/api/design-development', designDevelopmentRouter);
+app.use('/api/evidence-pack', evidencePackRouter);
+app.use('/api/headstart', headstartRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

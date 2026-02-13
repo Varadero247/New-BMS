@@ -1,0 +1,299 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    cmmsWorkOrder: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsAsset: { findFirst: jest.fn() },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import workOrdersRouter from '../src/routes/work-orders';
+const { prisma } = require('../src/prisma');
+
+const app = express();
+app.use(express.json());
+app.use('/api/work-orders', workOrdersRouter);
+
+const mockWorkOrder = {
+  id: 'wo-1',
+  number: 'WO-2602-1234',
+  title: 'Replace bearing',
+  description: 'Replace main bearing on CNC',
+  assetId: 'asset-1',
+  type: 'CORRECTIVE',
+  priority: 'HIGH',
+  status: 'OPEN',
+  assignedTo: 'tech-1',
+  requestedBy: 'user-1',
+  scheduledStart: new Date('2026-02-15'),
+  scheduledEnd: new Date('2026-02-16'),
+  actualStart: null,
+  actualEnd: null,
+  laborHours: null,
+  laborCost: null,
+  partsCost: null,
+  totalCost: null,
+  completionNotes: null,
+  failureCode: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+  createdBy: 'user-123',
+  asset: { id: 'asset-1', name: 'CNC Machine', code: 'ASSET-1001' },
+};
+
+describe('Work Orders Routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // --- GET / ---
+  describe('GET /api/work-orders', () => {
+    it('should return paginated work orders', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([mockWorkOrder]);
+      prisma.cmmsWorkOrder.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/work-orders');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.pagination.total).toBe(1);
+    });
+
+    it('should filter by status', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+      prisma.cmmsWorkOrder.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/work-orders?status=OPEN');
+      expect(res.status).toBe(200);
+      expect(prisma.cmmsWorkOrder.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ status: 'OPEN' }) })
+      );
+    });
+
+    it('should filter by type', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+      prisma.cmmsWorkOrder.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/work-orders?type=PREVENTIVE');
+      expect(res.status).toBe(200);
+    });
+
+    it('should handle errors gracefully', async () => {
+      prisma.cmmsWorkOrder.findMany.mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).get('/api/work-orders');
+      expect(res.status).toBe(500);
+    });
+  });
+
+  // --- POST / ---
+  describe('POST /api/work-orders', () => {
+    it('should create a work order', async () => {
+      prisma.cmmsWorkOrder.create.mockResolvedValue(mockWorkOrder);
+
+      const res = await request(app).post('/api/work-orders').send({
+        title: 'Replace bearing',
+        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        type: 'CORRECTIVE',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const res = await request(app).post('/api/work-orders').send({});
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 400 for invalid type', async () => {
+      const res = await request(app).post('/api/work-orders').send({
+        title: 'Test',
+        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        type: 'INVALID',
+      });
+      expect(res.status).toBe(400);
+    });
+  });
+
+  // --- GET /:id ---
+  describe('GET /api/work-orders/:id', () => {
+    it('should return a work order by ID', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, partUsages: [], downtimes: [] });
+
+      const res = await request(app).get('/api/work-orders/wo-1');
+      expect(res.status).toBe(200);
+      expect(res.body.data.id).toBe('wo-1');
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).get('/api/work-orders/non-existent');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- PUT /:id ---
+  describe('PUT /api/work-orders/:id', () => {
+    it('should update a work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, title: 'Updated' });
+
+      const res = await request(app).put('/api/work-orders/wo-1').send({ title: 'Updated' });
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).put('/api/work-orders/non-existent').send({ title: 'Updated' });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- DELETE /:id ---
+  describe('DELETE /api/work-orders/:id', () => {
+    it('should soft delete a work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, deletedAt: new Date() });
+
+      const res = await request(app).delete('/api/work-orders/wo-1');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).delete('/api/work-orders/non-existent');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- PUT /:id/assign ---
+  describe('PUT /api/work-orders/:id/assign', () => {
+    it('should assign a technician', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, assignedTo: 'tech-2' });
+
+      const res = await request(app).put('/api/work-orders/wo-1/assign').send({ assignedTo: 'tech-2' });
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 400 without assignedTo', async () => {
+      const res = await request(app).put('/api/work-orders/wo-1/assign').send({});
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).put('/api/work-orders/non-existent/assign').send({ assignedTo: 'tech-2' });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- PUT /:id/start ---
+  describe('PUT /api/work-orders/:id/start', () => {
+    it('should start a work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'IN_PROGRESS', actualStart: new Date() });
+
+      const res = await request(app).put('/api/work-orders/wo-1/start');
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).put('/api/work-orders/non-existent/start');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- PUT /:id/complete ---
+  describe('PUT /api/work-orders/:id/complete', () => {
+    it('should complete a work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'COMPLETED' });
+
+      const res = await request(app).put('/api/work-orders/wo-1/complete').send({ completionNotes: 'Done' });
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).put('/api/work-orders/non-existent/complete');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- PUT /:id/close ---
+  describe('PUT /api/work-orders/:id/close', () => {
+    it('should close a completed work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, status: 'COMPLETED' });
+      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'CANCELLED' });
+
+      const res = await request(app).put('/api/work-orders/wo-1/close');
+      expect(res.status).toBe(200);
+    });
+
+    it('should return 400 for non-completed work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, status: 'OPEN' });
+
+      const res = await request(app).put('/api/work-orders/wo-1/close');
+      expect(res.status).toBe(400);
+    });
+
+    it('should return 404 for non-existent work order', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+
+      const res = await request(app).put('/api/work-orders/non-existent/close');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // --- GET /overdue ---
+  describe('GET /api/work-orders/overdue', () => {
+    it('should return overdue work orders', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([mockWorkOrder]);
+
+      const res = await request(app).get('/api/work-orders/overdue');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
+  // --- GET /upcoming ---
+  describe('GET /api/work-orders/upcoming', () => {
+    it('should return upcoming work orders', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+
+      const res = await request(app).get('/api/work-orders/upcoming');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should accept days parameter', async () => {
+      prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+
+      const res = await request(app).get('/api/work-orders/upcoming?days=30');
+      expect(res.status).toBe(200);
+    });
+  });
+});

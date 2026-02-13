@@ -66,11 +66,28 @@ services:
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
       SERVICE_AI_URL: http://api-ai-analysis:4004
       SERVICE_INVENTORY_URL: http://api-inventory:4005
-      SERVICE_HR_URL: http://api-hr:4006
-      SERVICE_PAYROLL_URL: http://api-payroll:4007
-      SERVICE_WORKFLOWS_URL: http://api-workflows:4008
-      SERVICE_PROJECT_MANAGEMENT_URL: http://api-project-management:4009
+      SERVICE_HR_URL: http://host.docker.internal:4006
+      SERVICE_PAYROLL_URL: http://host.docker.internal:4007
+      SERVICE_WORKFLOWS_URL: http://host.docker.internal:4008
+      SERVICE_PROJECT_MANAGEMENT_URL: http://host.docker.internal:4009
+      SERVICE_AUTOMOTIVE_URL: http://host.docker.internal:4010
+      SERVICE_MEDICAL_URL: http://host.docker.internal:4011
+      SERVICE_AEROSPACE_URL: http://host.docker.internal:4012
+      SERVICE_FINANCE_URL: http://host.docker.internal:4013
+      SERVICE_CRM_URL: http://host.docker.internal:4014
+      SERVICE_INFOSEC_URL: http://host.docker.internal:4015
+      SERVICE_ESG_URL: http://host.docker.internal:4016
+      SERVICE_CMMS_URL: http://host.docker.internal:4017
+      SERVICE_PORTAL_URL: http://host.docker.internal:4018
+      SERVICE_FOOD_SAFETY_URL: http://host.docker.internal:4019
+      SERVICE_ENERGY_URL: http://host.docker.internal:4020
+      SERVICE_ANALYTICS_URL: http://host.docker.internal:4021
+      SERVICE_FIELD_SERVICE_URL: http://host.docker.internal:4022
+      SERVICE_ISO42001_URL: http://host.docker.internal:4023
+      SERVICE_ISO37001_URL: http://host.docker.internal:4024
       CSRF_ENABLED: "false"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,14 +102,6 @@ services:
       api-ai-analysis:
         condition: service_started
       api-inventory:
-        condition: service_started
-      api-hr:
-        condition: service_started
-      api-payroll:
-        condition: service_started
-      api-workflows:
-        condition: service_started
-      api-project-management:
         condition: service_started
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
@@ -521,6 +530,353 @@ services:
       timeout: 10s
       retries: 3
       start_period: 45s
+
+  # ── Phase 1-10 API Services ──────────────────────────────────────
+
+  api-automotive:
+    build:
+      context: .
+      dockerfile: ./apps/api-automotive/Dockerfile
+    container_name: ims-api-automotive
+    restart: unless-stopped
+    expose:
+      - '4010'
+    environment:
+      NODE_ENV: production
+      PORT: 4010
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-medical:
+    build:
+      context: .
+      dockerfile: ./apps/api-medical/Dockerfile
+    container_name: ims-api-medical
+    restart: unless-stopped
+    expose:
+      - '4011'
+    environment:
+      NODE_ENV: production
+      PORT: 4011
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-aerospace:
+    build:
+      context: .
+      dockerfile: ./apps/api-aerospace/Dockerfile
+    container_name: ims-api-aerospace
+    restart: unless-stopped
+    expose:
+      - '4012'
+    environment:
+      NODE_ENV: production
+      PORT: 4012
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4012/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-finance:
+    build:
+      context: .
+      dockerfile: ./apps/api-finance/Dockerfile
+    container_name: ims-api-finance
+    restart: unless-stopped
+    expose:
+      - '4013'
+    environment:
+      NODE_ENV: production
+      PORT: 4013
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4013/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-crm:
+    build:
+      context: .
+      dockerfile: ./apps/api-crm/Dockerfile
+    container_name: ims-api-crm
+    restart: unless-stopped
+    expose:
+      - '4014'
+    environment:
+      NODE_ENV: production
+      PORT: 4014
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4014/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-infosec:
+    build:
+      context: .
+      dockerfile: ./apps/api-infosec/Dockerfile
+    container_name: ims-api-infosec
+    restart: unless-stopped
+    expose:
+      - '4015'
+    environment:
+      NODE_ENV: production
+      PORT: 4015
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-esg:
+    build:
+      context: .
+      dockerfile: ./apps/api-esg/Dockerfile
+    container_name: ims-api-esg
+    restart: unless-stopped
+    expose:
+      - '4016'
+    environment:
+      NODE_ENV: production
+      PORT: 4016
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4016/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-cmms:
+    build:
+      context: .
+      dockerfile: ./apps/api-cmms/Dockerfile
+    container_name: ims-api-cmms
+    restart: unless-stopped
+    expose:
+      - '4017'
+    environment:
+      NODE_ENV: production
+      PORT: 4017
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4017/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-portal:
+    build:
+      context: .
+      dockerfile: ./apps/api-portal/Dockerfile
+    container_name: ims-api-portal
+    restart: unless-stopped
+    expose:
+      - '4018'
+    environment:
+      NODE_ENV: production
+      PORT: 4018
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4018/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-food-safety:
+    build:
+      context: .
+      dockerfile: ./apps/api-food-safety/Dockerfile
+    container_name: ims-api-food-safety
+    restart: unless-stopped
+    expose:
+      - '4019'
+    environment:
+      NODE_ENV: production
+      PORT: 4019
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4019/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-energy:
+    build:
+      context: .
+      dockerfile: ./apps/api-energy/Dockerfile
+    container_name: ims-api-energy
+    restart: unless-stopped
+    expose:
+      - '4020'
+    environment:
+      NODE_ENV: production
+      PORT: 4020
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-analytics:
+    build:
+      context: .
+      dockerfile: ./apps/api-analytics/Dockerfile
+    container_name: ims-api-analytics
+    restart: unless-stopped
+    expose:
+      - '4021'
+    environment:
+      NODE_ENV: production
+      PORT: 4021
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4021/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-field-service:
+    build:
+      context: .
+      dockerfile: ./apps/api-field-service/Dockerfile
+    container_name: ims-api-field-service
+    restart: unless-stopped
+    expose:
+      - '4022'
+    environment:
+      NODE_ENV: production
+      PORT: 4022
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4022/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-iso42001:
+    build:
+      context: .
+      dockerfile: ./apps/api-iso42001/Dockerfile
+    container_name: ims-api-iso42001
+    restart: unless-stopped
+    expose:
+      - '4023'
+    environment:
+      NODE_ENV: production
+      PORT: 4023
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4023/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  api-iso37001:
+    build:
+      context: .
+      dockerfile: ./apps/api-iso37001/Dockerfile
+    container_name: ims-api-iso37001
+    restart: unless-stopped
+    expose:
+      - '4024'
+    environment:
+      NODE_ENV: production
+      PORT: 4024
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4024/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   postgres_data:

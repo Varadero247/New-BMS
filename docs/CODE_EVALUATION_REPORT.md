@@ -820,7 +820,7 @@ Total Findings:              55
 │ Category: CODE_QUALITY      │ Estimated Fix: 8 hours            │
 ├─────────────────────────────────────────────────────────────────┤
 │ Title: try/catch Error Pattern Repeated 600+ Times (DRY)        │
-│ Files: All 93 route files across 10 API services                │
+│ Files: All route files across 25 API services                   │
 │ Rule:  DRY Principle / Clean Code                               │
 │                                                                 │
 │ Every route handler follows the identical 5-line pattern:      │

@@ -55,12 +55,52 @@ For production-scale deployments, each microservice should have its own database
 │  - Movements │  │  - Tasks     │  │  - Metrics   │
 └──────────────┘  └──────────────┘  └──────────────┘
 
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ims_project_  │  │ims_automotive│  │  ims_medical │
+│  management  │  │  - APQP      │  │  - DHF       │
+│  - Projects  │  │  - PPAP      │  │  - DMR       │
+│  - Tasks     │  │  - FMEA      │  │  - Complaints│
+│  - Sprints   │  │  - SPC       │  │  - PMS       │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ims_aerospace │  │ ims_finance  │  │   ims_crm    │
+│  - FAI       │  │  - Accounts  │  │  - Contacts  │
+│  - ConfigMgmt│  │  - Budgets   │  │  - Opportun. │
+│  - WorkOrders│  │  - Invoices  │  │  - Campaigns │
+│  - OASIS     │  │  - Transact. │  │  - Pipelines │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ ims_infosec  │  │   ims_esg    │  │  ims_cmms    │
+│  - Controls  │  │  - Environ.  │  │  - Assets    │
+│  - Risks     │  │  - Social    │  │  - WorkOrders│
+│  - Incidents │  │  - Governance│  │  - Maint.    │
+│  - Assets    │  │  - Metrics   │  │  - Inventory │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  ims_portal  │  │ims_food_     │  │  ims_energy  │
+│  - PortalUser│  │   safety     │  │  - Baselines │
+│  - Documents │  │  - HACCP     │  │  - Meters    │
+│  - Tickets   │  │  - Hazards   │  │  - EnPIs     │
+│  - Invites   │  │  - Audits    │  │  - Actions   │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ims_analytics │  │ims_field_    │  │ims_iso42001  │
+│  - Dashboards│  │   service    │  │  - AISystem  │
+│  - Reports   │  │  - WorkOrders│  │  - RiskAsmt  │
+│  - Datasets  │  │  - Dispatch  │  │  - Controls  │
+│  - Widgets   │  │  - Technician│  │  - Audits    │
+└──────────────┘  └──────────────┘  └──────────────┘
+
 ┌──────────────┐
-│ims_project_  │
-│  management  │
-│  - Projects  │
-│  - Tasks     │
-│  - Sprints   │
+│ims_iso37001  │
+│  - BriberyRsk│
+│  - DueDilig. │
+│  - Controls  │
+│  - Reports   │
 └──────────────┘
 ```
 
@@ -96,6 +136,23 @@ Each microservice has its own schema file:
 | Workflows | `workflows.prisma` | `ims_workflows` | Definition, Instance, Task |
 | AI Analysis | `ai.prisma` | `ims_ai_analysis` | Analysis, Insight, Metric |
 | Project Management | `project-management.prisma` | `ims_project_management` | Project, ProjectTask, ProjectMilestone, ProjectRisk, ProjectIssue, ProjectChange, ProjectResource, ProjectStakeholder, ProjectDocument, ProjectSprint, ProjectUserStory, ProjectTimesheet, ProjectExpense, ProjectStatusReport (14 models) |
+| Automotive | `automotive.prisma` | `ims_automotive` | APQP, PPAP, FMEA, ControlPlan, MSA, SPC, LPA, CSR (18 models) |
+| Medical | `medical.prisma` | `ims_medical` | DHF, DMR, DHR, Complaint, PMS, RiskMgmt, UDI, SoftwareValidation (27 models) |
+| Aerospace | `aerospace.prisma` | `ims_aerospace` | FAI, ConfigMgmt, WorkOrder, HumanFactors, OASIS (11 models) |
+| Finance | `finance.prisma` | `ims_finance` | Accounts, Transactions, Budgets, Invoices (23 models) |
+| CRM | `crm.prisma` | `ims_crm` | Contacts, Opportunities, Campaigns (17 models) |
+| InfoSec | `infosec.prisma` | `ims_infosec` | ISO 27001 controls, risks, incidents (14 models) |
+| ESG | `esg.prisma` | `ims_esg` | Environmental, Social, Governance metrics (15 models) |
+| CMMS | `cmms.prisma` | `ims_cmms` | Work orders, Assets, Maintenance (16 models) |
+| Portal | `portal.prisma` | `ims_portal` | Portal users, Documents (12 models) |
+| Food Safety | `food-safety.prisma` | `ims_food_safety` | HACCP, hazard analysis (14 models) |
+| Energy | `energy.prisma` | `ims_energy` | ISO 50001, energy baselines (12 models) |
+| Analytics | `analytics.prisma` | `ims_analytics` | Dashboards, Reports, Datasets (10 models) |
+| Field Service | `field-service.prisma` | `ims_field_service` | Work orders, Dispatch (14 models) |
+| ISO 42001 | `iso42001.prisma` | `ims_iso42001` | AI Management System (7 models) |
+| ISO 37001 | `iso37001.prisma` | `ims_iso37001` | Anti-Bribery (6 models) |
+
+**Total: 25 schemas, 373 models across all domains.**
 
 ## Migration Strategy
 
@@ -116,6 +173,21 @@ Each microservice has its own schema file:
 - `workflows.prisma` - Definitions, Instances, Tasks
 - `ai.prisma` - Analyses, Insights, Embeddings
 - `project-management.prisma` - Projects, Tasks, Milestones, Risks, Issues, Changes, Resources, Stakeholders, Documents, Sprints, User Stories, Timesheets, Expenses, Reports (14 models)
+- `automotive.prisma` - APQP, PPAP, FMEA, ControlPlan, MSA, SPC, LPA, CSR (18 models)
+- `medical.prisma` - DHF, DMR, DHR, Complaint, PMS, RiskMgmt, UDI, SoftwareValidation (27 models)
+- `aerospace.prisma` - FAI, ConfigMgmt, WorkOrder, HumanFactors, OASIS (11 models)
+- `finance.prisma` - Accounts, Transactions, Budgets, Invoices (23 models)
+- `crm.prisma` - Contacts, Opportunities, Campaigns (17 models)
+- `infosec.prisma` - ISO 27001 controls, risks, incidents (14 models)
+- `esg.prisma` - Environmental, Social, Governance metrics (15 models)
+- `cmms.prisma` - Work orders, Assets, Maintenance (16 models)
+- `portal.prisma` - Portal users, Documents (12 models)
+- `food-safety.prisma` - HACCP, hazard analysis (14 models)
+- `energy.prisma` - ISO 50001, energy baselines (12 models)
+- `analytics.prisma` - Dashboards, Reports, Datasets (10 models)
+- `field-service.prisma` - Work orders, Dispatch (14 models)
+- `iso42001.prisma` - AI Management System (7 models)
+- `iso37001.prisma` - Anti-Bribery (6 models)
 
 ### Phase 2: Database Creation (Complete)
 
@@ -136,6 +208,21 @@ This creates:
 - `ims_workflows`
 - `ims_ai_analysis`
 - `ims_project_management`
+- `ims_automotive`
+- `ims_medical`
+- `ims_aerospace`
+- `ims_finance`
+- `ims_crm`
+- `ims_infosec`
+- `ims_esg`
+- `ims_cmms`
+- `ims_portal`
+- `ims_food_safety`
+- `ims_energy`
+- `ims_analytics`
+- `ims_field_service`
+- `ims_iso42001`
+- `ims_iso37001`
 
 ### Phase 3: Data Migration (Complete)
 
@@ -256,6 +343,21 @@ INVENTORY_DATABASE_URL=postgresql://ims_inv:pass@db-inv.prod:5432/ims_inventory
 WORKFLOWS_DATABASE_URL=postgresql://ims_wf:pass@db-wf.prod:5432/ims_workflows
 AI_DATABASE_URL=postgresql://ims_ai:pass@db-ai.prod:5432/ims_ai_analysis
 PROJECT_MANAGEMENT_DATABASE_URL=postgresql://ims_pm:pass@db-pm.prod:5432/ims_project_management
+AUTOMOTIVE_DATABASE_URL=postgresql://ims_auto:pass@db-auto.prod:5432/ims_automotive
+MEDICAL_DATABASE_URL=postgresql://ims_med:pass@db-med.prod:5432/ims_medical
+AEROSPACE_DATABASE_URL=postgresql://ims_aero:pass@db-aero.prod:5432/ims_aerospace
+FINANCE_DATABASE_URL=postgresql://ims_fin:pass@db-fin.prod:5432/ims_finance
+CRM_DATABASE_URL=postgresql://ims_crm:pass@db-crm.prod:5432/ims_crm
+INFOSEC_DATABASE_URL=postgresql://ims_infosec:pass@db-infosec.prod:5432/ims_infosec
+ESG_DATABASE_URL=postgresql://ims_esg:pass@db-esg.prod:5432/ims_esg
+CMMS_DATABASE_URL=postgresql://ims_cmms:pass@db-cmms.prod:5432/ims_cmms
+PORTAL_DATABASE_URL=postgresql://ims_portal:pass@db-portal.prod:5432/ims_portal
+FOOD_SAFETY_DATABASE_URL=postgresql://ims_fs:pass@db-fs.prod:5432/ims_food_safety
+ENERGY_DATABASE_URL=postgresql://ims_energy:pass@db-energy.prod:5432/ims_energy
+ANALYTICS_DATABASE_URL=postgresql://ims_analytics:pass@db-analytics.prod:5432/ims_analytics
+FIELD_SERVICE_DATABASE_URL=postgresql://ims_field:pass@db-field.prod:5432/ims_field_service
+ISO42001_DATABASE_URL=postgresql://ims_iso42001:pass@db-iso42001.prod:5432/ims_iso42001
+ISO37001_DATABASE_URL=postgresql://ims_iso37001:pass@db-iso37001.prod:5432/ims_iso37001
 ```
 
 ## Benefits of Database Per Service

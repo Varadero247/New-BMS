@@ -673,13 +673,6 @@ model UdiSubmission {
   @@map("udi_submissions")
 }
 
-enum DeviceClass {
-  CLASS_I
-  CLASS_IIA
-  CLASS_IIB
-  CLASS_III
-}
-
 enum UdiDeviceStatus {
   DRAFT
   ACTIVE

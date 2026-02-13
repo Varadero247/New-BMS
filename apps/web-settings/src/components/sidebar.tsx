@@ -9,12 +9,16 @@ import {
   Sparkles,
   Settings as SettingsIcon,
   Home,
+  Activity,
+  UserCircle,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Overview', href: '/', icon: LayoutDashboard },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Roles & Permissions', href: '/roles', icon: Shield },
+  { name: 'Access Log', href: '/access-log', icon: Activity },
+  { name: 'My Profile', href: '/my-profile', icon: UserCircle },
   { name: 'AI Configuration', href: '/ai-config', icon: Sparkles },
   { name: 'System Settings', href: '/system', icon: SettingsIcon },
 ];

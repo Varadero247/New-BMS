@@ -15,6 +15,7 @@
     "@ims/auth": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
+    "@ims/rbac": "workspace:*",
     "@ims/resilience": "workspace:*",
     "@ims/types": "workspace:*",
     "cors": "^2.8.5",

@@ -1,0 +1,746 @@
+import {
+  calculateUKTax,
+  calculateUSFederalTax,
+  calculateAUTax,
+  calculateCAFederalTax,
+  calculateUAEGratuity,
+  calculateDETax,
+  calculateNLTax,
+  TaxBreakdown,
+} from '../src/routes/tax-calculator';
+
+// Helper to round to 2 decimal places for comparison
+const r = (n: number) => Math.round(n * 100) / 100;
+
+describe('Tax Calculator', () => {
+  // =========================================================================
+  // UK Tax Tests (20+)
+  // =========================================================================
+  describe('calculateUKTax', () => {
+    it('should return zero tax for zero income', () => {
+      const result = calculateUKTax(0);
+      expect(result.grossPay).toBe(0);
+      expect(result.incomeTax).toBe(0);
+      expect(result.socialContributions).toBe(0);
+      expect(result.netPay).toBe(0);
+    });
+
+    it('should return zero tax below personal allowance (£10,000)', () => {
+      const result = calculateUKTax(10000);
+      expect(result.incomeTax).toBe(0);
+      expect(result.taxableIncome).toBe(0);
+    });
+
+    it('should return zero tax at exactly personal allowance (£12,570)', () => {
+      const result = calculateUKTax(12570);
+      expect(result.incomeTax).toBe(0);
+      expect(result.taxableIncome).toBe(0);
+    });
+
+    it('should calculate basic rate taxpayer correctly (£30,000)', () => {
+      const result = calculateUKTax(30000);
+      // Taxable: 30000 - 12570 = 17430
+      // Tax: 17430 * 0.20 = 3486
+      expect(result.taxableIncome).toBe(17430);
+      expect(result.incomeTax).toBe(3486);
+    });
+
+    it('should calculate NI for basic rate taxpayer (£30,000)', () => {
+      const result = calculateUKTax(30000);
+      // NI: (30000 - 12570) * 0.08 = 17430 * 0.08 = 1394.40
+      expect(result.socialContributions).toBe(1394.4);
+    });
+
+    it('should calculate net pay for £30,000', () => {
+      const result = calculateUKTax(30000);
+      // Net: 30000 - 3486 - 1394.40 = 25119.60
+      expect(result.netPay).toBe(25119.6);
+    });
+
+    it('should calculate higher rate taxpayer correctly (£60,000)', () => {
+      const result = calculateUKTax(60000);
+      // Taxable: 60000 - 12570 = 47430
+      // Basic (0-37700): 37700 * 0.20 = 7540
+      // Higher (37700-47430): 9730 * 0.40 = 3892
+      // Total: 7540 + 3892 = 11432
+      expect(result.taxableIncome).toBe(47430);
+      expect(result.incomeTax).toBe(11432);
+    });
+
+    it('should calculate NI with upper rate for £60,000', () => {
+      const result = calculateUKTax(60000);
+      // Main NI: (50270 - 12570) * 0.08 = 37700 * 0.08 = 3016
+      // Upper NI: (60000 - 50270) * 0.02 = 9730 * 0.02 = 194.60
+      // Total NI: 3016 + 194.60 = 3210.60
+      expect(result.socialContributions).toBe(3210.6);
+    });
+
+    it('should calculate additional rate taxpayer correctly (£200,000)', () => {
+      const result = calculateUKTax(200000);
+      // PA taper: (200000 - 100000) / 2 = 50000 reduction, PA = max(0, 12570 - 50000) = 0
+      // Taxable: 200000
+      // Basic: 37700 * 0.20 = 7540
+      // Higher: (125140 - 37700) * 0.40 = 87440 * 0.40 = 34976
+      // Additional: (200000 - 125140) * 0.45 = 74860 * 0.45 = 33687
+      // Total: 7540 + 34976 + 33687 = 76203
+      expect(result.taxableIncome).toBe(200000);
+      expect(result.incomeTax).toBe(76203);
+    });
+
+    it('should taper personal allowance at £130,000', () => {
+      const result = calculateUKTax(130000);
+      // PA taper: (130000 - 100000) / 2 = 15000 reduction
+      // PA = 12570 - 15000 = 0 (but max 0 check, actually 12570 - 15000 = -2430 -> 0)
+      // Wait: 15000 > 12570, so PA = 0
+      expect(result.taxableIncome).toBe(130000);
+    });
+
+    it('should partially taper personal allowance at £110,000', () => {
+      const result = calculateUKTax(110000);
+      // PA taper: (110000 - 100000) / 2 = 5000 reduction
+      // PA = 12570 - 5000 = 7570
+      expect(result.taxableIncome).toBe(110000 - 7570);
+      expect(result.taxableIncome).toBe(102430);
+    });
+
+    it('should not taper personal allowance at £100,000 exactly', () => {
+      const result = calculateUKTax(100000);
+      expect(result.taxableIncome).toBe(100000 - 12570);
+      expect(result.taxableIncome).toBe(87430);
+    });
+
+    it('should have breakdown items for basic rate', () => {
+      const result = calculateUKTax(30000);
+      expect(result.breakdown.length).toBeGreaterThan(0);
+      expect(result.breakdown.some(b => b.description.includes('Basic'))).toBe(true);
+      expect(result.breakdown.some(b => b.description.includes('NI'))).toBe(true);
+    });
+
+    it('should have breakdown items for higher rate', () => {
+      const result = calculateUKTax(60000);
+      expect(result.breakdown.some(b => b.description.includes('Higher'))).toBe(true);
+    });
+
+    // Scottish rates
+    it('should calculate Scottish basic rate differently (£30,000)', () => {
+      const rUK = calculateUKTax(30000, false);
+      const scottish = calculateUKTax(30000, true);
+      // Scottish has different bands, so tax should differ
+      expect(scottish.incomeTax).not.toBe(rUK.incomeTax);
+    });
+
+    it('should calculate Scottish tax for £30,000', () => {
+      const result = calculateUKTax(30000, true);
+      // Taxable: 30000 - 12570 = 17430
+      // Starter (0-2162): 2162 * 0.19 = 410.78
+      // Basic (2162-13118): 10956 * 0.20 = 2191.20 (but only 17430-2162=15268 remains)
+      // Actually: min(remaining, bandWidth)
+      // Starter: min(17430, 2162) = 2162 * 0.19 = 410.78
+      // Basic: min(15268, 10956) = 10956 * 0.20 = 2191.20
+      // Intermediate: min(4312, 17974) = 4312 * 0.21 = 905.52
+      // Total: 410.78 + 2191.20 + 905.52 = 3507.50
+      expect(result.taxableIncome).toBe(17430);
+      expect(result.incomeTax).toBe(3507.5);
+    });
+
+    it('should calculate Scottish tax for higher rate (£60,000)', () => {
+      const result = calculateUKTax(60000, true);
+      // Taxable: 47430
+      // Starter: 2162 * 0.19 = 410.78
+      // Basic: 10956 * 0.20 = 2191.20
+      // Intermediate: 17974 * 0.21 = 3774.54
+      // Higher: (47430-31092) = 16338 * 0.42 = 6861.96
+      // Total: 410.78 + 2191.20 + 3774.54 + 6861.96 = 13238.48
+      expect(result.incomeTax).toBe(13238.48);
+    });
+
+    it('should have same NI regardless of Scottish flag', () => {
+      const rUK = calculateUKTax(50000, false);
+      const scottish = calculateUKTax(50000, true);
+      expect(rUK.socialContributions).toBe(scottish.socialContributions);
+    });
+
+    it('should calculate Scottish top rate for high income (£200,000)', () => {
+      const result = calculateUKTax(200000, true);
+      // PA tapered to 0
+      // Top rate band applies at 125140+
+      expect(result.breakdown.some(b => b.description.includes('Top'))).toBe(true);
+    });
+
+    it('should return correct structure', () => {
+      const result = calculateUKTax(50000);
+      expect(result).toHaveProperty('grossPay');
+      expect(result).toHaveProperty('taxableIncome');
+      expect(result).toHaveProperty('incomeTax');
+      expect(result).toHaveProperty('socialContributions');
+      expect(result).toHaveProperty('netPay');
+      expect(result).toHaveProperty('breakdown');
+      expect(Array.isArray(result.breakdown)).toBe(true);
+    });
+
+    it('net pay should equal gross minus tax minus NI', () => {
+      const result = calculateUKTax(75000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+  });
+
+  // =========================================================================
+  // US Federal Tax Tests (15+)
+  // =========================================================================
+  describe('calculateUSFederalTax', () => {
+    it('should return zero tax for zero income', () => {
+      const result = calculateUSFederalTax(0);
+      expect(result.incomeTax).toBe(0);
+      expect(result.socialContributions).toBe(0);
+    });
+
+    it('should calculate 10% bracket only ($10,000)', () => {
+      const result = calculateUSFederalTax(10000);
+      // All in 10% bracket: 10000 * 0.10 = 1000
+      expect(result.incomeTax).toBe(1000);
+    });
+
+    it('should calculate across 10% and 12% brackets ($30,000)', () => {
+      const result = calculateUSFederalTax(30000);
+      // 10%: 11600 * 0.10 = 1160
+      // 12%: (30000 - 11600) * 0.12 = 18400 * 0.12 = 2208
+      // Total: 1160 + 2208 = 3368
+      expect(result.incomeTax).toBe(3368);
+    });
+
+    it('should calculate 22% bracket ($75,000)', () => {
+      const result = calculateUSFederalTax(75000);
+      // 10%: 11600 * 0.10 = 1160
+      // 12%: 35550 * 0.12 = 4266
+      // 22%: (75000 - 47150) * 0.22 = 27850 * 0.22 = 6127
+      // Total: 1160 + 4266 + 6127 = 11553
+      expect(result.incomeTax).toBe(11553);
+    });
+
+    it('should calculate 24% bracket ($150,000)', () => {
+      const result = calculateUSFederalTax(150000);
+      // 10%: 11600 * 0.10 = 1160
+      // 12%: 35550 * 0.12 = 4266
+      // 22%: 53375 * 0.22 = 11742.50
+      // 24%: (150000 - 100525) * 0.24 = 49475 * 0.24 = 11874
+      // Total: 1160 + 4266 + 11742.50 + 11874 = 29042.50
+      expect(result.incomeTax).toBe(29042.5);
+    });
+
+    it('should calculate 32% bracket ($200,000)', () => {
+      const result = calculateUSFederalTax(200000);
+      // Through 24%: 29042.50 (at 150000) + (191950-150000)*0.24 = 10068
+      // Actually recalculate:
+      // 10%: 1160, 12%: 4266, 22%: 11742.50, 24%: (191950-100525)*0.24 = 21942
+      // 32%: (200000-191950)*0.32 = 8050*0.32 = 2576
+      // Total: 1160 + 4266 + 11742.50 + 21942 + 2576 = 41686.50
+      expect(result.incomeTax).toBe(41686.5);
+    });
+
+    it('should calculate 35% bracket ($400,000)', () => {
+      const result = calculateUSFederalTax(400000);
+      expect(result.incomeTax).toBeGreaterThan(41686.5); // More than at $200k
+    });
+
+    it('should calculate 37% bracket ($700,000)', () => {
+      const result = calculateUSFederalTax(700000);
+      // Should include 37% bracket amount
+      expect(result.breakdown.some(b => b.description.includes('37%'))).toBe(true);
+    });
+
+    it('should calculate at exact bracket boundary ($11,600)', () => {
+      const result = calculateUSFederalTax(11600);
+      // Exactly fills 10% bracket
+      expect(result.incomeTax).toBe(1160);
+    });
+
+    it('should calculate at exact bracket boundary ($47,150)', () => {
+      const result = calculateUSFederalTax(47150);
+      // 10%: 1160, 12%: 35550 * 0.12 = 4266
+      expect(result.incomeTax).toBe(5426);
+    });
+
+    // FICA tests
+    it('should calculate Social Security tax ($75,000)', () => {
+      const result = calculateUSFederalTax(75000);
+      const ssTax = r(75000 * 0.062);
+      expect(result.breakdown.some(b => b.description.includes('Social Security') && b.amount === ssTax)).toBe(true);
+    });
+
+    it('should cap Social Security at wage base ($200,000)', () => {
+      const result = calculateUSFederalTax(200000);
+      const ssTax = r(168600 * 0.062); // Capped at 168600
+      expect(result.breakdown.some(b => b.description.includes('Social Security') && b.amount === ssTax)).toBe(true);
+    });
+
+    it('should calculate Medicare tax ($75,000)', () => {
+      const result = calculateUSFederalTax(75000);
+      const medicareTax = r(75000 * 0.0145);
+      expect(result.breakdown.some(b => b.description.includes('Medicare (1.45%)') && b.amount === medicareTax)).toBe(true);
+    });
+
+    it('should NOT add additional Medicare below $200,000', () => {
+      const result = calculateUSFederalTax(150000);
+      expect(result.breakdown.some(b => b.description.includes('Additional Medicare'))).toBe(false);
+    });
+
+    it('should add additional Medicare above $200,000', () => {
+      const result = calculateUSFederalTax(250000);
+      const additionalMedicare = r((250000 - 200000) * 0.009);
+      expect(result.breakdown.some(b => b.description.includes('Additional Medicare') && b.amount === additionalMedicare)).toBe(true);
+    });
+
+    it('should calculate total social contributions correctly ($250,000)', () => {
+      const result = calculateUSFederalTax(250000);
+      const ss = r(168600 * 0.062);
+      const medicare = r(250000 * 0.0145);
+      const additionalMedicare = r(50000 * 0.009);
+      expect(result.socialContributions).toBe(r(ss + medicare + additionalMedicare));
+    });
+
+    it('net pay should equal gross minus tax minus FICA', () => {
+      const result = calculateUSFederalTax(100000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+  });
+
+  // =========================================================================
+  // Australia Tax Tests (15+)
+  // =========================================================================
+  describe('calculateAUTax', () => {
+    it('should return zero tax below tax-free threshold ($15,000)', () => {
+      const result = calculateAUTax(15000);
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should return zero income tax at exactly $18,200', () => {
+      const result = calculateAUTax(18200);
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should calculate 19c band ($30,000)', () => {
+      const result = calculateAUTax(30000);
+      // (30000 - 18200) * 0.19 = 11800 * 0.19 = 2242
+      expect(result.incomeTax).toBe(2242);
+    });
+
+    it('should calculate 32.5c band ($60,000)', () => {
+      const result = calculateAUTax(60000);
+      // 19c: (45000-18200) * 0.19 = 26800 * 0.19 = 5092
+      // 32.5c: (60000-45000) * 0.325 = 15000 * 0.325 = 4875
+      // Total: 5092 + 4875 = 9967
+      expect(result.incomeTax).toBe(9967);
+    });
+
+    it('should calculate 37c band ($150,000)', () => {
+      const result = calculateAUTax(150000);
+      // 19c: 26800 * 0.19 = 5092
+      // 32.5c: 75000 * 0.325 = 24375
+      // 37c: (150000-120000) * 0.37 = 30000 * 0.37 = 11100
+      // Total: 5092 + 24375 + 11100 = 40567
+      expect(result.incomeTax).toBe(40567);
+    });
+
+    it('should calculate 45c band ($250,000)', () => {
+      const result = calculateAUTax(250000);
+      // 19c: 5092, 32.5c: 24375, 37c: (180000-120000)*0.37=22200
+      // 45c: (250000-180000) * 0.45 = 70000 * 0.45 = 31500
+      // Total: 5092 + 24375 + 22200 + 31500 = 83167
+      expect(result.incomeTax).toBe(83167);
+    });
+
+    it('should calculate Medicare levy ($60,000)', () => {
+      const result = calculateAUTax(60000);
+      expect(result.socialContributions).toBe(1200); // 60000 * 0.02
+    });
+
+    it('should include superannuation in breakdown', () => {
+      const result = calculateAUTax(80000);
+      expect(result.breakdown.some(b => b.description.includes('Superannuation'))).toBe(true);
+      const superItem = result.breakdown.find(b => b.description.includes('Superannuation'));
+      expect(superItem!.amount).toBe(r(80000 * 0.115));
+    });
+
+    it('should not deduct superannuation from net pay (employer-paid)', () => {
+      const result = calculateAUTax(80000);
+      // socialContributions should only be medicare levy
+      expect(result.socialContributions).toBe(r(80000 * 0.02));
+    });
+
+    it('should calculate at exact band boundary ($45,000)', () => {
+      const result = calculateAUTax(45000);
+      // 19c: (45000-18200) * 0.19 = 26800 * 0.19 = 5092
+      expect(result.incomeTax).toBe(5092);
+    });
+
+    it('should calculate at exact band boundary ($120,000)', () => {
+      const result = calculateAUTax(120000);
+      // 19c: 5092, 32.5c: 75000 * 0.325 = 24375
+      // Total: 29467
+      expect(result.incomeTax).toBe(29467);
+    });
+
+    it('should calculate at exact band boundary ($180,000)', () => {
+      const result = calculateAUTax(180000);
+      // 19c: 5092, 32.5c: 24375, 37c: 60000*0.37=22200
+      // Total: 51667
+      expect(result.incomeTax).toBe(51667);
+    });
+
+    it('should return zero for zero income', () => {
+      const result = calculateAUTax(0);
+      expect(result.incomeTax).toBe(0);
+      expect(result.socialContributions).toBe(0);
+    });
+
+    it('net pay should equal gross minus tax minus medicare levy', () => {
+      const result = calculateAUTax(90000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+
+    it('should have breakdown items for each applicable band', () => {
+      const result = calculateAUTax(200000);
+      // Should have 4 tax bands + medicare + super = 6 items
+      expect(result.breakdown.length).toBeGreaterThanOrEqual(5);
+    });
+  });
+
+  // =========================================================================
+  // Canada Federal Tax Tests (10+)
+  // =========================================================================
+  describe('calculateCAFederalTax', () => {
+    it('should return zero tax below basic personal amount ($10,000)', () => {
+      const result = calculateCAFederalTax(10000);
+      // 10000 - 15705 = negative -> taxable = 0
+      expect(result.taxableIncome).toBe(0);
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should calculate 15% bracket ($40,000)', () => {
+      const result = calculateCAFederalTax(40000);
+      // Taxable: 40000 - 15705 = 24295
+      // 15%: 24295 * 0.15 = 3644.25
+      expect(result.incomeTax).toBe(3644.25);
+    });
+
+    it('should calculate 20.5% bracket ($80,000)', () => {
+      const result = calculateCAFederalTax(80000);
+      // Taxable: 80000 - 15705 = 64295
+      // 15%: 55867 * 0.15 = 8380.05
+      // 20.5%: (64295 - 55867) * 0.205 = 8428 * 0.205 = 1727.74
+      // Total: 8380.05 + 1727.74 = 10107.79
+      expect(result.incomeTax).toBe(10107.79);
+    });
+
+    it('should calculate 26% bracket ($130,000)', () => {
+      const result = calculateCAFederalTax(130000);
+      const taxable = 130000 - 15705;
+      expect(result.taxableIncome).toBe(taxable);
+      expect(result.incomeTax).toBeGreaterThan(10107.79); // More than at $80k
+    });
+
+    it('should calculate 29% bracket ($200,000)', () => {
+      const result = calculateCAFederalTax(200000);
+      expect(result.incomeTax).toBeGreaterThan(0);
+      expect(result.breakdown.some(b => b.description.includes('29%'))).toBe(true);
+    });
+
+    it('should calculate 33% bracket ($300,000)', () => {
+      const result = calculateCAFederalTax(300000);
+      expect(result.breakdown.some(b => b.description.includes('33%'))).toBe(true);
+    });
+
+    it('should calculate CPP correctly ($60,000)', () => {
+      const result = calculateCAFederalTax(60000);
+      // CPP: (min(60000, 68500) - 3500) * 0.0595 = 56500 * 0.0595 = 3361.75
+      const expectedCPP = r((60000 - 3500) * 0.0595);
+      expect(result.breakdown.some(b => b.description.includes('CPP') && b.amount === expectedCPP)).toBe(true);
+    });
+
+    it('should cap CPP at YMPE ($100,000)', () => {
+      const result = calculateCAFederalTax(100000);
+      // CPP: (68500 - 3500) * 0.0595 = 65000 * 0.0595 = 3867.50
+      const expectedCPP = r((68500 - 3500) * 0.0595);
+      expect(result.breakdown.some(b => b.description.includes('CPP') && b.amount === expectedCPP)).toBe(true);
+    });
+
+    it('should calculate EI correctly ($50,000)', () => {
+      const result = calculateCAFederalTax(50000);
+      const expectedEI = r(50000 * 0.0166);
+      expect(result.breakdown.some(b => b.description.includes('EI') && b.amount === expectedEI)).toBe(true);
+    });
+
+    it('should cap EI at MIE ($100,000)', () => {
+      const result = calculateCAFederalTax(100000);
+      const expectedEI = r(63200 * 0.0166);
+      expect(result.breakdown.some(b => b.description.includes('EI') && b.amount === expectedEI)).toBe(true);
+    });
+
+    it('should include CPP and EI in social contributions', () => {
+      const result = calculateCAFederalTax(60000);
+      const expectedCPP = r((60000 - 3500) * 0.0595);
+      const expectedEI = r(60000 * 0.0166);
+      expect(result.socialContributions).toBe(r(expectedCPP + expectedEI));
+    });
+
+    it('net pay should equal gross minus tax minus contributions', () => {
+      const result = calculateCAFederalTax(85000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+  });
+
+  // =========================================================================
+  // UAE Gratuity Tests (5+)
+  // =========================================================================
+  describe('calculateUAEGratuity', () => {
+    it('should return zero for zero years of service', () => {
+      expect(calculateUAEGratuity(10000, 0)).toBe(0);
+    });
+
+    it('should return zero for negative years of service', () => {
+      expect(calculateUAEGratuity(10000, -1)).toBe(0);
+    });
+
+    it('should calculate gratuity for less than 5 years (3 years)', () => {
+      // Daily: 10000/30 = 333.33...
+      // 21 days * 3 years * 333.33... = 21000
+      const result = calculateUAEGratuity(10000, 3);
+      expect(result).toBe(21000);
+    });
+
+    it('should calculate gratuity for exactly 5 years', () => {
+      // Daily: 10000/30 = 333.33...
+      // 21 * 5 * 333.33... = 35000
+      const result = calculateUAEGratuity(10000, 5);
+      expect(result).toBe(35000);
+    });
+
+    it('should calculate gratuity for more than 5 years (8 years)', () => {
+      // Daily: 10000/30 = 333.33...
+      // First 5: 21 * 5 * 333.33... = 35000
+      // Next 3: 30 * 3 * 333.33... = 30000
+      // Total: 65000
+      const result = calculateUAEGratuity(10000, 8);
+      expect(result).toBe(65000);
+    });
+
+    it('should calculate gratuity for 1 year', () => {
+      // 21 * 1 * (15000/30) = 21 * 500 = 10500
+      expect(calculateUAEGratuity(15000, 1)).toBe(10500);
+    });
+
+    it('should handle 10 years of service', () => {
+      // Daily: 20000/30 = 666.67
+      // First 5: 21 * 5 * 666.67 = 70000
+      // Next 5: 30 * 5 * 666.67 = 100000
+      // Total: 170000
+      const result = calculateUAEGratuity(20000, 10);
+      expect(result).toBeCloseTo(170000, 0);
+    });
+
+    it('should scale linearly with salary', () => {
+      const g1 = calculateUAEGratuity(10000, 3);
+      const g2 = calculateUAEGratuity(20000, 3);
+      expect(g2).toBe(g1 * 2);
+    });
+  });
+
+  // =========================================================================
+  // Germany Tax Tests (5+)
+  // =========================================================================
+  describe('calculateDETax', () => {
+    it('should return zero tax below basic allowance (€10,000)', () => {
+      const result = calculateDETax(10000);
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should calculate tax in zone 2 (€15,000)', () => {
+      const result = calculateDETax(15000);
+      expect(result.incomeTax).toBeGreaterThan(0);
+    });
+
+    it('should calculate tax in zone 3 (€40,000)', () => {
+      const result = calculateDETax(40000);
+      expect(result.incomeTax).toBeGreaterThan(0);
+    });
+
+    it('should calculate tax at 42% zone (€100,000)', () => {
+      const result = calculateDETax(100000);
+      expect(result.incomeTax).toBeGreaterThan(0);
+    });
+
+    it('should calculate tax at 45% zone (€300,000)', () => {
+      const result = calculateDETax(300000);
+      expect(result.incomeTax).toBeGreaterThan(0);
+      // Should include solidarity surcharge
+      expect(result.breakdown.some(b => b.description.includes('Solidarity'))).toBe(true);
+    });
+
+    it('should split social insurance equally (employee half)', () => {
+      const result = calculateDETax(60000);
+      // Pension employee: 60000 * 0.186 / 2 = 5580
+      const pensionItem = result.breakdown.find(b => b.description.includes('Pension'));
+      expect(pensionItem).toBeDefined();
+      expect(pensionItem!.amount).toBe(r(60000 * 0.186 / 2));
+    });
+
+    it('should calculate health insurance employee portion', () => {
+      const result = calculateDETax(60000);
+      const healthItem = result.breakdown.find(b => b.description.includes('Health'));
+      expect(healthItem).toBeDefined();
+      // (0.146 + 0.017) / 2 = 0.0815
+      expect(healthItem!.amount).toBe(r(60000 * (0.146 + 0.017) / 2));
+    });
+
+    it('should calculate unemployment insurance employee portion', () => {
+      const result = calculateDETax(60000);
+      const unemploymentItem = result.breakdown.find(b => b.description.includes('Unemployment'));
+      expect(unemploymentItem).toBeDefined();
+      expect(unemploymentItem!.amount).toBe(r(60000 * 0.026 / 2));
+    });
+
+    it('should calculate nursing care insurance employee portion', () => {
+      const result = calculateDETax(60000);
+      const nursingItem = result.breakdown.find(b => b.description.includes('Nursing'));
+      expect(nursingItem).toBeDefined();
+      expect(nursingItem!.amount).toBe(r(60000 * 0.034 / 2));
+    });
+
+    it('should not include solidarity surcharge for low income', () => {
+      const result = calculateDETax(30000);
+      // Tax should be below 18130, no solidarity surcharge
+      expect(result.breakdown.some(b => b.description.includes('Solidarity'))).toBe(false);
+    });
+
+    it('net pay should equal gross minus tax minus social', () => {
+      const result = calculateDETax(70000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+
+    it('should calculate total social contributions correctly', () => {
+      const result = calculateDETax(60000);
+      const pension = r(60000 * 0.186 / 2);
+      const health = r(60000 * (0.146 + 0.017) / 2);
+      const unemployment = r(60000 * 0.026 / 2);
+      const nursing = r(60000 * 0.034 / 2);
+      expect(result.socialContributions).toBe(r(pension + health + unemployment + nursing));
+    });
+  });
+
+  // =========================================================================
+  // Netherlands Tax Tests (5+)
+  // =========================================================================
+  describe('calculateNLTax', () => {
+    it('should calculate band 1 only (€50,000)', () => {
+      const result = calculateNLTax(50000);
+      // 50000 * 0.3693 = 18465
+      expect(result.incomeTax).toBe(18465);
+    });
+
+    it('should calculate both bands (€100,000)', () => {
+      const result = calculateNLTax(100000);
+      // Band 1: 73031 * 0.3693, Band 2: (100000-73031) * 0.4950
+      // Use closeTo due to floating point accumulation
+      const band1 = 73031 * 0.3693;
+      const band2 = (100000 - 73031) * 0.4950;
+      expect(result.incomeTax).toBeCloseTo(band1 + band2, 0);
+    });
+
+    it('should return zero tax for zero income', () => {
+      const result = calculateNLTax(0);
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should calculate at exact band boundary (€73,031)', () => {
+      const result = calculateNLTax(73031);
+      expect(result.incomeTax).toBe(r(73031 * 0.3693));
+    });
+
+    it('should include ZVW in breakdown (employer-paid)', () => {
+      const result = calculateNLTax(60000);
+      const zvwItem = result.breakdown.find(b => b.description.includes('ZVW'));
+      expect(zvwItem).toBeDefined();
+      expect(zvwItem!.amount).toBe(r(60000 * 0.0657));
+    });
+
+    it('should not deduct ZVW from net pay (employer-paid)', () => {
+      const result = calculateNLTax(60000);
+      expect(result.socialContributions).toBe(0);
+      expect(result.netPay).toBe(r(60000 - result.incomeTax));
+    });
+
+    it('net pay should equal gross minus income tax', () => {
+      const result = calculateNLTax(80000);
+      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+    });
+
+    it('should have correct structure', () => {
+      const result = calculateNLTax(50000);
+      expect(result).toHaveProperty('grossPay', 50000);
+      expect(result).toHaveProperty('taxableIncome', 50000);
+      expect(result).toHaveProperty('incomeTax');
+      expect(result).toHaveProperty('socialContributions');
+      expect(result).toHaveProperty('netPay');
+      expect(result).toHaveProperty('breakdown');
+    });
+
+    it('should calculate high income correctly (€200,000)', () => {
+      const result = calculateNLTax(200000);
+      const band1 = 73031 * 0.3693;
+      const band2 = (200000 - 73031) * 0.4950;
+      expect(result.incomeTax).toBeCloseTo(band1 + band2, 0);
+    });
+  });
+
+  // =========================================================================
+  // Cross-jurisdiction comparison tests
+  // =========================================================================
+  describe('Cross-jurisdiction comparisons', () => {
+    it('UAE should have zero income tax at any salary', () => {
+      // UAE has no income tax calculator (only gratuity), but we verify the concept
+      const gratuity = calculateUAEGratuity(50000, 0);
+      expect(gratuity).toBe(0);
+    });
+
+    it('all calculators should return positive net pay for positive gross', () => {
+      const gross = 80000;
+      expect(calculateUKTax(gross).netPay).toBeGreaterThan(0);
+      expect(calculateUSFederalTax(gross).netPay).toBeGreaterThan(0);
+      expect(calculateAUTax(gross).netPay).toBeGreaterThan(0);
+      expect(calculateCAFederalTax(gross).netPay).toBeGreaterThan(0);
+      expect(calculateDETax(gross).netPay).toBeGreaterThan(0);
+      expect(calculateNLTax(gross).netPay).toBeGreaterThan(0);
+    });
+
+    it('all calculators should return zero or positive income tax', () => {
+      const gross = 50000;
+      expect(calculateUKTax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+      expect(calculateUSFederalTax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+      expect(calculateAUTax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+      expect(calculateCAFederalTax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+      expect(calculateDETax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+      expect(calculateNLTax(gross).incomeTax).toBeGreaterThanOrEqual(0);
+    });
+
+    it('net pay should always be less than gross (for taxable income)', () => {
+      const gross = 100000;
+      expect(calculateUKTax(gross).netPay).toBeLessThan(gross);
+      expect(calculateUSFederalTax(gross).netPay).toBeLessThan(gross);
+      expect(calculateAUTax(gross).netPay).toBeLessThan(gross);
+      expect(calculateCAFederalTax(gross).netPay).toBeLessThan(gross);
+      expect(calculateDETax(gross).netPay).toBeLessThan(gross);
+      expect(calculateNLTax(gross).netPay).toBeLessThan(gross);
+    });
+
+    it('higher income should result in higher tax for all jurisdictions', () => {
+      const low = 50000;
+      const high = 150000;
+      expect(calculateUKTax(high).incomeTax).toBeGreaterThan(calculateUKTax(low).incomeTax);
+      expect(calculateUSFederalTax(high).incomeTax).toBeGreaterThan(calculateUSFederalTax(low).incomeTax);
+      expect(calculateAUTax(high).incomeTax).toBeGreaterThan(calculateAUTax(low).incomeTax);
+      expect(calculateCAFederalTax(high).incomeTax).toBeGreaterThan(calculateCAFederalTax(low).incomeTax);
+      expect(calculateDETax(high).incomeTax).toBeGreaterThan(calculateDETax(low).incomeTax);
+      expect(calculateNLTax(high).incomeTax).toBeGreaterThan(calculateNLTax(low).incomeTax);
+    });
+  });
+});

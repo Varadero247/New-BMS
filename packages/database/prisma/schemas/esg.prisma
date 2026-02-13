@@ -1,0 +1,519 @@
+// ESG & Sustainability Schema - Environmental, Social & Governance Module (Phase 4)
+// This schema is used by the ESG microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/esg"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ESG_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum EsgCategory {
+  ENVIRONMENTAL
+  SOCIAL
+  GOVERNANCE
+}
+
+enum EsgFrequency {
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum EsgDataStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum EsgTargetStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  ACHIEVED
+}
+
+enum EsgReportType {
+  ANNUAL
+  QUARTERLY
+  SUSTAINABILITY
+  GRI
+  SASB
+  TCFD
+  CDP
+}
+
+enum EsgReportStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+}
+
+enum EsgInitiativeStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EsgEmissionScope {
+  SCOPE_1
+  SCOPE_2
+  SCOPE_3
+}
+
+enum EsgWasteType {
+  HAZARDOUS
+  NON_HAZARDOUS
+  RECYCLABLE
+  ORGANIC
+  ELECTRONIC
+}
+
+enum EsgDisposalMethod {
+  LANDFILL
+  RECYCLED
+  INCINERATED
+  COMPOSTED
+  REUSED
+}
+
+enum EsgWaterType {
+  INTAKE
+  DISCHARGE
+  RECYCLED
+  CONSUMED
+}
+
+enum EsgEnergyType {
+  ELECTRICITY
+  NATURAL_GAS
+  SOLAR
+  WIND
+  DIESEL
+  OTHER
+}
+
+enum EsgSocialCategory {
+  DIVERSITY
+  HEALTH_SAFETY
+  TRAINING
+  COMMUNITY
+  HUMAN_RIGHTS
+  LABOR
+}
+
+enum EsgGovernanceCategory {
+  BOARD
+  ETHICS
+  RISK
+  COMPLIANCE
+  TRANSPARENCY
+  ANTI_CORRUPTION
+}
+
+enum EsgAuditType {
+  INTERNAL
+  EXTERNAL
+  REGULATORY
+}
+
+enum EsgAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum EsgStakeholderType {
+  INVESTOR
+  CUSTOMER
+  EMPLOYEE
+  REGULATOR
+  COMMUNITY
+  SUPPLIER
+  NGO
+}
+
+enum EsgEngagementLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============================================
+// FRAMEWORKS
+// ============================================
+
+model EsgFramework {
+  id          String    @id @default(uuid())
+  name        String
+  code        String    @unique
+  version     String
+  description String?
+  isActive    Boolean   @default(true)
+  modules     Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  metrics EsgMetric[]
+
+  @@map("esg_frameworks")
+}
+
+// ============================================
+// METRICS
+// ============================================
+
+model EsgMetric {
+  id          String       @id @default(uuid())
+  frameworkId String
+  category    EsgCategory
+  subcategory String
+  name        String
+  code        String       @unique
+  unit        String
+  targetValue Decimal?
+  description String?
+  frequency   EsgFrequency
+  isRequired  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  framework  EsgFramework  @relation(fields: [frameworkId], references: [id])
+  dataPoints EsgDataPoint[]
+  targets    EsgTarget[]
+
+  @@index([frameworkId])
+  @@index([category])
+  @@index([code])
+  @@map("esg_metrics")
+}
+
+// ============================================
+// DATA POINTS
+// ============================================
+
+model EsgDataPoint {
+  id          String        @id @default(uuid())
+  metricId    String
+  periodStart DateTime
+  periodEnd   DateTime
+  value       Decimal
+  unit        String
+  source      String?
+  verifiedBy  String?
+  verifiedAt  DateTime?
+  notes       String?
+  status      EsgDataStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  metric EsgMetric @relation(fields: [metricId], references: [id])
+
+  @@index([metricId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+  @@map("esg_data_points")
+}
+
+// ============================================
+// TARGETS
+// ============================================
+
+model EsgTarget {
+  id            String          @id @default(uuid())
+  metricId      String
+  year          Int
+  targetValue   Decimal
+  actualValue   Decimal?
+  baselineYear  Int?
+  baselineValue Decimal?
+  status        EsgTargetStatus @default(ON_TRACK)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  metric EsgMetric @relation(fields: [metricId], references: [id])
+
+  @@index([metricId])
+  @@index([year])
+  @@index([status])
+  @@map("esg_targets")
+}
+
+// ============================================
+// REPORTS
+// ============================================
+
+model EsgReport {
+  id          String          @id @default(uuid())
+  title       String
+  reportType  EsgReportType
+  year        Int
+  quarter     Int?
+  status      EsgReportStatus @default(DRAFT)
+  publishedAt DateTime?
+  content     Json?
+  generatedBy String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([reportType])
+  @@index([year])
+  @@index([status])
+  @@map("esg_reports")
+}
+
+// ============================================
+// INITIATIVES
+// ============================================
+
+model EsgInitiative {
+  id          String              @id @default(uuid())
+  title       String
+  description String?
+  category    EsgCategory
+  status      EsgInitiativeStatus @default(PLANNED)
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Decimal?
+  actualCost  Decimal?
+  owner       String?
+  impact      Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([category])
+  @@index([status])
+  @@map("esg_initiatives")
+}
+
+// ============================================
+// EMISSIONS (GHG Protocol Scopes 1-3)
+// ============================================
+
+model EsgEmission {
+  id            String           @id @default(uuid())
+  scope         EsgEmissionScope
+  category      String
+  source        String
+  quantity      Decimal
+  unit          String
+  co2Equivalent Decimal
+  periodStart   DateTime
+  periodEnd     DateTime
+  methodology   String?
+  verifiedBy    String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  @@index([scope])
+  @@index([periodStart, periodEnd])
+  @@map("esg_emissions")
+}
+
+// ============================================
+// WASTE MANAGEMENT
+// ============================================
+
+model EsgWaste {
+  id             String           @id @default(uuid())
+  wasteType      EsgWasteType
+  quantity       Decimal
+  unit           String
+  disposalMethod EsgDisposalMethod
+  periodStart    DateTime
+  periodEnd      DateTime
+  facility       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  @@index([wasteType])
+  @@index([periodStart, periodEnd])
+  @@map("esg_waste")
+}
+
+// ============================================
+// WATER USAGE
+// ============================================
+
+model EsgWater {
+  id          String       @id @default(uuid())
+  usageType   EsgWaterType
+  source      String?
+  quantity    Decimal
+  unit        String
+  periodStart DateTime
+  periodEnd   DateTime
+  facility    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([usageType])
+  @@index([periodStart, periodEnd])
+  @@map("esg_water")
+}
+
+// ============================================
+// ENERGY CONSUMPTION
+// ============================================
+
+model EsgEnergy {
+  id          String        @id @default(uuid())
+  energyType  EsgEnergyType
+  quantity    Decimal
+  unit        String
+  renewable   Boolean       @default(false)
+  periodStart DateTime
+  periodEnd   DateTime
+  facility    String?
+  cost        Decimal?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([energyType])
+  @@index([periodStart, periodEnd])
+  @@map("esg_energy")
+}
+
+// ============================================
+// SOCIAL METRICS
+// ============================================
+
+model EsgSocialMetric {
+  id          String            @id @default(uuid())
+  category    EsgSocialCategory
+  metric      String
+  value       Decimal
+  unit        String?
+  periodStart DateTime
+  periodEnd   DateTime
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([category])
+  @@index([periodStart, periodEnd])
+  @@map("esg_social_metrics")
+}
+
+// ============================================
+// GOVERNANCE METRICS
+// ============================================
+
+model EsgGovernanceMetric {
+  id          String                @id @default(uuid())
+  category    EsgGovernanceCategory
+  metric      String
+  value       String
+  periodStart DateTime
+  periodEnd   DateTime
+  notes       String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([category])
+  @@index([periodStart, periodEnd])
+  @@map("esg_governance_metrics")
+}
+
+// ============================================
+// ESG AUDITS
+// ============================================
+
+model EsgAudit {
+  id        String         @id @default(uuid())
+  title     String
+  auditType EsgAuditType
+  framework String?
+  auditor   String?
+  startDate DateTime?
+  endDate   DateTime?
+  status    EsgAuditStatus @default(PLANNED)
+  findings  Json?
+  score     Decimal?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+  createdBy String
+
+  @@index([auditType])
+  @@index([status])
+  @@map("esg_audits")
+}
+
+// ============================================
+// STAKEHOLDERS
+// ============================================
+
+model EsgStakeholder {
+  id              String             @id @default(uuid())
+  name            String
+  type            EsgStakeholderType
+  contactEmail    String?
+  engagementLevel EsgEngagementLevel @default(MEDIUM)
+  lastEngagement  DateTime?
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  @@index([type])
+  @@index([engagementLevel])
+  @@map("esg_stakeholders")
+}
+
+// ============================================
+// MATERIALITY ASSESSMENT
+// ============================================
+
+model EsgMateriality {
+  id                       String      @id @default(uuid())
+  topic                    String
+  category                 EsgCategory
+  importanceToStakeholders Decimal
+  importanceToBusiness     Decimal
+  isMaterial               Boolean     @default(false)
+  description              String?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+  deletedAt                DateTime?
+  createdBy                String
+
+  @@index([category])
+  @@map("esg_materiality")
+}

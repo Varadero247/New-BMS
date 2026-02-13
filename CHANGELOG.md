@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] — 2026-02-07
 
 ### Added
-- Full platform: 10 API services, 10 web apps, mobile app
+- Full platform: 25 API services, 26 web apps, 39 shared packages
 - ISO 9001:2015 Quality Management (15 sub-modules, 125 endpoints)
 - ISO 14001:2015 Environmental Management (77 endpoints)
 - ISO 45001:2018 Health & Safety with AI integration (52 endpoints)

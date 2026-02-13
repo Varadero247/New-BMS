@@ -27,3 +27,15 @@ export {
   requireRole,
   optionalAuth,
 } from './middleware';
+
+// RBAC (re-exported from @ims/rbac)
+export {
+  requirePermission,
+  requireOwnership,
+  attachPermissions,
+  PermissionLevel,
+  type ImsModule,
+  type ModulePermissions,
+  type RoleDefinition,
+  type ResolvedPermissions,
+} from '@ims/rbac';

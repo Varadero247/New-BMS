@@ -1,0 +1,247 @@
+import { calculateUKIncomeTax } from '../src/uk';
+import { calculateUAEPayroll } from '../src/uae';
+import { calculateAUPayroll } from '../src/australia';
+import { calculateUSFederal } from '../src/usa';
+import { calculateCAFederal } from '../src/canada';
+import { calculateTax } from '../src/engine';
+
+describe('tax-engine', () => {
+  describe('UK Income Tax', () => {
+    it('should calculate zero tax for income within personal allowance', () => {
+      const result = calculateUKIncomeTax(12000, '1257L', 'annual');
+      expect(result.incomeTax).toBe(0);
+      expect(result.nationalInsurance).toBe(0);
+      expect(result.netPay).toBe(12000);
+    });
+
+    it('should calculate 20% basic rate tax', () => {
+      const result = calculateUKIncomeTax(30000, '1257L', 'annual');
+      // Tax: (30000 - 12570) * 0.20 = 3486
+      expect(result.incomeTax).toBe(3486);
+    });
+
+    it('should calculate NI correctly for basic rate', () => {
+      const result = calculateUKIncomeTax(30000, '1257L', 'annual');
+      // NI: (30000 - 12570) * 0.08 = 1394.40
+      expect(result.nationalInsurance).toBe(1394.4);
+    });
+
+    it('should calculate higher rate tax', () => {
+      const result = calculateUKIncomeTax(80000, '1257L', 'annual');
+      // Basic: (50270 - 12570) * 0.20 = 7540
+      // Higher: (80000 - 50270) * 0.40 = 11892
+      // Total: 19432
+      expect(result.incomeTax).toBe(19432);
+    });
+
+    it('should calculate additional rate tax', () => {
+      const result = calculateUKIncomeTax(150000, '1257L', 'annual');
+      // Basic: 37700 * 0.20 = 7540
+      // Higher: 74870 * 0.40 = 29948
+      // Additional: (150000 - 125140) * 0.45 = 11187
+      // Total: 48675
+      expect(result.incomeTax).toBe(48675);
+    });
+
+    it('should handle monthly period', () => {
+      const result = calculateUKIncomeTax(5000, '1257L', 'monthly');
+      // Annual: 60000
+      // Tax: 7540 + (60000-50270)*0.40 = 7540 + 3892 = 11432
+      // Monthly: 11432/12 = 952.67
+      expect(result.incomeTax).toBeCloseTo(952.67, 1);
+    });
+
+    it('should provide breakdown of tax bands', () => {
+      const result = calculateUKIncomeTax(50000, '1257L', 'annual');
+      expect(result.breakdown.length).toBeGreaterThan(0);
+      expect(result.breakdown[0]).toHaveProperty('bracket');
+      expect(result.breakdown[0]).toHaveProperty('rate');
+      expect(result.breakdown[0]).toHaveProperty('tax');
+    });
+  });
+
+  describe('UAE Payroll', () => {
+    it('should have zero income tax', () => {
+      const result = calculateUAEPayroll(25000, 'IN', 3);
+      expect(result.tax).toBe(0);
+    });
+
+    it('should calculate gratuity for less than 5 years', () => {
+      const result = calculateUAEPayroll(15000, 'IN', 3);
+      // Daily rate = 15000/30 = 500
+      // Gratuity days = 3 * 21 = 63
+      // Gratuity = 500 * 63 = 31500
+      expect(result.gratuity).toBe(31500);
+    });
+
+    it('should calculate gratuity for more than 5 years', () => {
+      const result = calculateUAEPayroll(15000, 'IN', 8);
+      // First 5: 5 * 21 = 105 days
+      // Next 3: 3 * 30 = 90 days
+      // Total: 195 days * 500 = 97500
+      expect(result.gratuity).toBe(97500);
+    });
+
+    it('should have zero social security for non-GCC nationals', () => {
+      const result = calculateUAEPayroll(20000, 'IN', 2);
+      expect(result.socialSecurity).toBe(0);
+    });
+
+    it('should calculate social security for UAE nationals', () => {
+      const result = calculateUAEPayroll(20000, 'UAE', 2);
+      // 5% of 20000 = 1000
+      expect(result.socialSecurity).toBe(1000);
+    });
+
+    it('should calculate net pay correctly', () => {
+      const result = calculateUAEPayroll(20000, 'IN', 0);
+      expect(result.netPay).toBe(20000);
+    });
+  });
+
+  describe('Australian Payroll', () => {
+    it('should calculate zero tax below threshold', () => {
+      const result = calculateAUPayroll(18000, 'annual');
+      expect(result.incomeTax).toBe(0);
+    });
+
+    it('should calculate tax in first bracket', () => {
+      const result = calculateAUPayroll(40000, 'annual');
+      // (40000 - 18200) * 0.16 = 3488
+      expect(result.incomeTax).toBe(3488);
+    });
+
+    it('should calculate superannuation at 11.5%', () => {
+      const result = calculateAUPayroll(100000, 'annual');
+      expect(result.superannuation).toBe(11500);
+    });
+
+    it('should calculate Medicare levy at 2%', () => {
+      const result = calculateAUPayroll(100000, 'annual');
+      expect(result.medicareLevy).toBe(2000);
+    });
+
+    it('should calculate net pay correctly', () => {
+      const result = calculateAUPayroll(100000, 'annual');
+      // Tax: (45000-18200)*0.16 + (100000-45000)*0.30 = 4288 + 16500 = 20788
+      // Medicare: 2000
+      // Net: 100000 - 20788 - 2000 = 77212
+      expect(result.netPay).toBe(77212);
+    });
+
+    it('should handle monthly period', () => {
+      const result = calculateAUPayroll(10000, 'monthly');
+      expect(result.superannuation).toBeCloseTo(1150, 0);
+    });
+  });
+
+  describe('US Federal Tax', () => {
+    it('should calculate 10% bracket for low income', () => {
+      const result = calculateUSFederal(10000, 'single', 'annual');
+      // 10000 * 0.10 = 1000
+      expect(result.federalTax).toBe(1000);
+    });
+
+    it('should calculate Social Security (capped)', () => {
+      const result = calculateUSFederal(200000, 'single', 'annual');
+      // Capped at 168600 * 6.2% = 10453.20
+      expect(result.socialSecurity).toBeCloseTo(10453.2, 1);
+    });
+
+    it('should calculate Medicare (uncapped)', () => {
+      const result = calculateUSFederal(100000, 'single', 'annual');
+      // 100000 * 1.45% = 1450
+      expect(result.medicare).toBe(1450);
+    });
+
+    it('should use married brackets when specified', () => {
+      const single = calculateUSFederal(50000, 'single', 'annual');
+      const married = calculateUSFederal(50000, 'married', 'annual');
+      expect(married.federalTax).toBeLessThan(single.federalTax);
+    });
+
+    it('should calculate correct net pay', () => {
+      const result = calculateUSFederal(75000, 'single', 'annual');
+      expect(result.netPay).toBe(
+        75000 - result.federalTax - result.socialSecurity - result.medicare
+      );
+    });
+
+    it('should handle monthly period', () => {
+      const result = calculateUSFederal(8000, 'single', 'monthly');
+      expect(result.grossPay).toBe(8000);
+      expect(result.netPay).toBeLessThan(8000);
+    });
+  });
+
+  describe('Canadian Federal Tax', () => {
+    it('should apply basic personal amount', () => {
+      const result = calculateCAFederal(15000, 'annual');
+      // Taxable: 15000 - 15705 = 0 (below BPA)
+      expect(result.federalTax).toBe(0);
+    });
+
+    it('should calculate first bracket tax', () => {
+      const result = calculateCAFederal(50000, 'annual');
+      // Taxable: 50000 - 15705 = 34295
+      // Tax: 34295 * 0.15 = 5144.25
+      expect(result.federalTax).toBeCloseTo(5144.25, 1);
+    });
+
+    it('should calculate CPP contributions', () => {
+      const result = calculateCAFederal(60000, 'annual');
+      // CPP: (60000 - 3500) * 0.0595 = 3361.75
+      expect(result.cpp).toBeCloseTo(3361.75, 1);
+    });
+
+    it('should cap CPP at maximum pensionable earnings', () => {
+      const result = calculateCAFederal(100000, 'annual');
+      // Capped: (68500 - 3500) * 0.0595 = 3867.50
+      expect(result.cpp).toBeCloseTo(3867.5, 1);
+    });
+
+    it('should calculate EI premiums', () => {
+      const result = calculateCAFederal(50000, 'annual');
+      // EI: 50000 * 0.0166 = 830
+      expect(result.ei).toBe(830);
+    });
+
+    it('should cap EI at maximum insurable earnings', () => {
+      const result = calculateCAFederal(100000, 'annual');
+      // Capped: 63200 * 0.0166 = 1049.12
+      expect(result.ei).toBeCloseTo(1049.12, 1);
+    });
+  });
+
+  describe('calculateTax dispatcher', () => {
+    it('should route to UK calculator', () => {
+      const result = calculateTax('UK', 50000);
+      expect(result).toHaveProperty('incomeTax');
+      expect(result).toHaveProperty('nationalInsurance');
+    });
+
+    it('should route to UAE calculator', () => {
+      const result = calculateTax('UAE', 20000, { nationality: 'UAE', yearsOfService: 3 });
+      expect(result).toHaveProperty('gratuity');
+    });
+
+    it('should route to AU calculator', () => {
+      const result = calculateTax('AU', 80000);
+      expect(result).toHaveProperty('superannuation');
+    });
+
+    it('should route to US calculator', () => {
+      const result = calculateTax('US', 60000, { filingStatus: 'single' });
+      expect(result).toHaveProperty('federalTax');
+    });
+
+    it('should route to CA calculator', () => {
+      const result = calculateTax('CA', 70000);
+      expect(result).toHaveProperty('cpp');
+    });
+
+    it('should throw for unsupported jurisdiction', () => {
+      expect(() => calculateTax('XX' as any, 50000)).toThrow('Unsupported jurisdiction');
+    });
+  });
+});

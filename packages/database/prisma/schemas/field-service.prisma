@@ -1,0 +1,507 @@
+// Field Service Management Schema - Phase 10
+// Used by the Field Service microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/field-service"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("FIELD_SERVICE_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum FsSvcTechStatus {
+  AVAILABLE
+  ON_JOB
+  OFF_DUTY
+  ON_LEAVE
+}
+
+enum FsSvcJobType {
+  INSTALLATION
+  REPAIR
+  MAINTENANCE
+  INSPECTION
+  WARRANTY
+  EMERGENCY
+}
+
+enum FsSvcPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum FsSvcJobStatus {
+  UNASSIGNED
+  ASSIGNED
+  EN_ROUTE
+  ON_SITE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum FsSvcContractType {
+  WARRANTY
+  SLA
+  PREVENTIVE
+  FULL_SERVICE
+  TIME_AND_MATERIAL
+}
+
+enum FsSvcContractStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+enum FsSvcTimeType {
+  TRAVEL
+  WORK
+  BREAK
+  ADMIN
+}
+
+enum FsSvcNoteType {
+  NOTE
+  PHOTO
+  SIGNATURE
+  CHECKLIST
+  FORM
+}
+
+enum FsSvcRouteStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum FsSvcInvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum FsSvcCheckResult {
+  PASS
+  FAIL
+  PARTIAL
+}
+
+enum FsSvcKpiType {
+  FIRST_TIME_FIX
+  RESPONSE_TIME
+  RESOLUTION_TIME
+  CUSTOMER_SATISFACTION
+  UTILIZATION
+  JOBS_COMPLETED
+}
+
+// ============================================
+// TECHNICIANS
+// ============================================
+
+model FsSvcTechnician {
+  id              String           @id @default(uuid())
+  name            String
+  email           String           @unique
+  phone           String?
+  skills          Json
+  certifications  Json?
+  zone            String?
+  status          FsSvcTechStatus  @default(AVAILABLE)
+  currentLocation Json?
+  maxJobsPerDay   Int              @default(4)
+  rating          Decimal?
+  createdBy       String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  jobs            FsSvcJob[]
+  timeEntries     FsSvcTimeEntry[]
+  routes          FsSvcRoute[]
+  schedules       FsSvcSchedule[]
+  kpis            FsSvcKpi[]
+
+  @@index([status])
+  @@index([zone])
+  @@index([email])
+  @@map("fs_svc_technicians")
+}
+
+// ============================================
+// CUSTOMERS
+// ============================================
+
+model FsSvcCustomer {
+  id             String    @id @default(uuid())
+  name           String
+  code           String    @unique
+  contactName    String?
+  email          String?
+  phone          String?
+  address        Json
+  billingAddress Json?
+  contractId     String?
+  notes          String?
+  isActive       Boolean   @default(true)
+  createdBy      String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  sites          FsSvcSite[]
+  jobs           FsSvcJob[]
+  contracts      FsSvcContract[]
+  invoices       FsSvcInvoice[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("fs_svc_customers")
+}
+
+// ============================================
+// SITES
+// ============================================
+
+model FsSvcSite {
+  id                  String        @id @default(uuid())
+  customerId          String
+  customer            FsSvcCustomer @relation(fields: [customerId], references: [id])
+  name                String
+  address             Json
+  coordinates         Json?
+  accessInstructions  String?
+  contactName         String?
+  contactPhone        String?
+  specialRequirements Json?
+  equipment           Json?
+  createdBy           String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  deletedAt           DateTime?
+
+  jobs                FsSvcJob[]
+
+  @@index([customerId])
+  @@map("fs_svc_sites")
+}
+
+// ============================================
+// CONTRACTS
+// ============================================
+
+model FsSvcContract {
+  id                String             @id @default(uuid())
+  customerId        String
+  customer          FsSvcCustomer      @relation(fields: [customerId], references: [id])
+  number            String             @unique
+  title             String
+  type              FsSvcContractType
+  status            FsSvcContractStatus @default(PENDING)
+  startDate         DateTime
+  endDate           DateTime?
+  value             Decimal?
+  responseTimeSla   Int?
+  resolutionTimeSla Int?
+  coveredEquipment  Json?
+  terms             String?
+  createdBy         String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+
+  jobs              FsSvcJob[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([number])
+  @@map("fs_svc_contracts")
+}
+
+// ============================================
+// JOBS
+// ============================================
+
+model FsSvcJob {
+  id                String         @id @default(uuid())
+  number            String         @unique
+  title             String
+  description       String?
+  customerId        String
+  customer          FsSvcCustomer  @relation(fields: [customerId], references: [id])
+  siteId            String
+  site              FsSvcSite      @relation(fields: [siteId], references: [id])
+  technicianId      String?
+  technician        FsSvcTechnician? @relation(fields: [technicianId], references: [id])
+  contractId        String?
+  contract          FsSvcContract? @relation(fields: [contractId], references: [id])
+  type              FsSvcJobType
+  priority          FsSvcPriority  @default(MEDIUM)
+  status            FsSvcJobStatus @default(UNASSIGNED)
+  scheduledStart    DateTime?
+  scheduledEnd      DateTime?
+  actualStart       DateTime?
+  actualEnd         DateTime?
+  estimatedDuration Int?
+  skills            Json?
+  notes             String?
+  createdBy         String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  timeEntries       FsSvcTimeEntry[]
+  partsUsed         FsSvcPartUsed[]
+  jobNotes          FsSvcJobNote[]
+  checklistResults  FsSvcChecklistResult[]
+  invoices          FsSvcInvoice[]
+
+  @@index([customerId])
+  @@index([siteId])
+  @@index([technicianId])
+  @@index([contractId])
+  @@index([status])
+  @@index([priority])
+  @@index([scheduledStart])
+  @@index([number])
+  @@map("fs_svc_jobs")
+}
+
+// ============================================
+// TIME ENTRIES
+// ============================================
+
+model FsSvcTimeEntry {
+  id           String          @id @default(uuid())
+  jobId        String
+  job          FsSvcJob        @relation(fields: [jobId], references: [id])
+  technicianId String
+  technician   FsSvcTechnician @relation(fields: [technicianId], references: [id])
+  type         FsSvcTimeType
+  startTime    DateTime
+  endTime      DateTime?
+  duration     Decimal?
+  notes        String?
+  billable     Boolean         @default(true)
+  createdBy    String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+
+  @@index([jobId])
+  @@index([technicianId])
+  @@map("fs_svc_time_entries")
+}
+
+// ============================================
+// PARTS USED
+// ============================================
+
+model FsSvcPartUsed {
+  id            String   @id @default(uuid())
+  jobId         String
+  job           FsSvcJob @relation(fields: [jobId], references: [id])
+  partName      String
+  partNumber    String
+  quantity      Int
+  unitCost      Decimal
+  totalCost     Decimal
+  fromInventory Boolean  @default(true)
+  serialNumber  String?
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  @@index([jobId])
+  @@map("fs_svc_parts_used")
+}
+
+// ============================================
+// JOB NOTES
+// ============================================
+
+model FsSvcJobNote {
+  id          String       @id @default(uuid())
+  jobId       String
+  job         FsSvcJob     @relation(fields: [jobId], references: [id])
+  authorId    String
+  type        FsSvcNoteType @default(NOTE)
+  content     String
+  attachments Json?
+  isInternal  Boolean      @default(false)
+  createdBy   String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  @@index([jobId])
+  @@map("fs_svc_job_notes")
+}
+
+// ============================================
+// ROUTES
+// ============================================
+
+model FsSvcRoute {
+  id             String          @id @default(uuid())
+  technicianId   String
+  technician     FsSvcTechnician @relation(fields: [technicianId], references: [id])
+  date           DateTime
+  stops          Json
+  optimizedOrder Json?
+  totalDistance   Decimal?
+  totalDuration  Int?
+  status         FsSvcRouteStatus @default(PLANNED)
+  createdBy      String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  @@index([technicianId])
+  @@index([date])
+  @@index([status])
+  @@map("fs_svc_routes")
+}
+
+// ============================================
+// INVOICES
+// ============================================
+
+model FsSvcInvoice {
+  id         String             @id @default(uuid())
+  jobId      String
+  job        FsSvcJob           @relation(fields: [jobId], references: [id])
+  customerId String
+  customer   FsSvcCustomer      @relation(fields: [customerId], references: [id])
+  number     String             @unique
+  lineItems  Json
+  laborTotal Decimal
+  partsTotal Decimal
+  total      Decimal
+  tax        Decimal?
+  status     FsSvcInvoiceStatus @default(DRAFT)
+  dueDate    DateTime
+  paidDate   DateTime?
+  currency   String             @default("GBP")
+  createdBy  String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  deletedAt  DateTime?
+
+  @@index([jobId])
+  @@index([customerId])
+  @@index([status])
+  @@index([number])
+  @@map("fs_svc_invoices")
+}
+
+// ============================================
+// CHECKLISTS
+// ============================================
+
+model FsSvcChecklist {
+  id        String    @id @default(uuid())
+  name      String
+  category  String
+  items     Json
+  isActive  Boolean   @default(true)
+  createdBy String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  results   FsSvcChecklistResult[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("fs_svc_checklists")
+}
+
+// ============================================
+// CHECKLIST RESULTS
+// ============================================
+
+model FsSvcChecklistResult {
+  id            String          @id @default(uuid())
+  jobId         String
+  job           FsSvcJob        @relation(fields: [jobId], references: [id])
+  checklistId   String
+  checklist     FsSvcChecklist  @relation(fields: [checklistId], references: [id])
+  completedBy   String
+  completedAt   DateTime
+  results       Json
+  overallResult FsSvcCheckResult
+  notes         String?
+  signature     String?
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  @@index([jobId])
+  @@index([checklistId])
+  @@map("fs_svc_checklist_results")
+}
+
+// ============================================
+// SCHEDULES
+// ============================================
+
+model FsSvcSchedule {
+  id           String          @id @default(uuid())
+  technicianId String
+  technician   FsSvcTechnician @relation(fields: [technicianId], references: [id])
+  date         DateTime
+  slots        Json
+  isAvailable  Boolean         @default(true)
+  notes        String?
+  createdBy    String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+
+  @@index([technicianId])
+  @@index([date])
+  @@index([isAvailable])
+  @@map("fs_svc_schedules")
+}
+
+// ============================================
+// KPIs
+// ============================================
+
+model FsSvcKpi {
+  id           String           @id @default(uuid())
+  technicianId String?
+  technician   FsSvcTechnician? @relation(fields: [technicianId], references: [id])
+  metricType   FsSvcKpiType
+  value        Decimal
+  unit         String
+  periodStart  DateTime
+  periodEnd    DateTime
+  target       Decimal?
+  createdBy    String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+
+  @@index([technicianId])
+  @@index([metricType])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@map("fs_svc_kpis")
+}

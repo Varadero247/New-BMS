@@ -1,0 +1,364 @@
+// Analytics Schema - Business Intelligence & Analytics Module (Phase 8)
+// This schema is used by the Analytics microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/analytics"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ANALYTICS_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum AnalyticsWidgetType {
+  CHART
+  TABLE
+  KPI
+  MAP
+  GAUGE
+  HEATMAP
+  FUNNEL
+  TIMELINE
+}
+
+enum AnalyticsDataSource {
+  HEALTH_SAFETY
+  ENVIRONMENT
+  QUALITY
+  HR
+  FINANCE
+  CRM
+  INVENTORY
+  CMMS
+  ALL
+}
+
+enum AnalyticsReportType {
+  SCHEDULED
+  AD_HOC
+  TEMPLATE
+}
+
+enum AnalyticsFormat {
+  PDF
+  EXCEL
+  CSV
+  HTML
+}
+
+enum AnalyticsRunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum AnalyticsCondition {
+  ABOVE
+  BELOW
+  EQUALS
+  CHANGE_PERCENT
+  ANOMALY
+}
+
+enum AnalyticsAlertStatus {
+  ACTIVE
+  TRIGGERED
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum AnalyticsTrend {
+  UP
+  DOWN
+  STABLE
+}
+
+enum AnalyticsFrequency {
+  REALTIME
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AnalyticsExportType {
+  FULL
+  FILTERED
+  CUSTOM
+}
+
+enum AnalyticsScheduleType {
+  REPORT
+  EXPORT
+  REFRESH
+  ALERT_CHECK
+}
+
+// ============================================
+// DASHBOARDS
+// ============================================
+
+model AnalyticsDashboard {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  layout      Json
+  widgets     Json
+  isDefault   Boolean   @default(false)
+  isPublic    Boolean   @default(false)
+  ownerId     String
+  tags        Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  analyticsWidgets AnalyticsWidget[]
+
+  @@index([ownerId])
+  @@index([isPublic])
+  @@index([isDefault])
+  @@map("analytics_dashboards")
+}
+
+// ============================================
+// WIDGETS
+// ============================================
+
+model AnalyticsWidget {
+  id              String               @id @default(uuid())
+  dashboardId     String
+  title           String
+  type            AnalyticsWidgetType
+  config          Json
+  dataSource      AnalyticsDataSource
+  query           Json?
+  position        Json
+  refreshInterval Int?
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  dashboard AnalyticsDashboard @relation(fields: [dashboardId], references: [id])
+
+  @@index([dashboardId])
+  @@index([dataSource])
+  @@index([isActive])
+  @@map("analytics_widgets")
+}
+
+// ============================================
+// REPORTS
+// ============================================
+
+model AnalyticsReport {
+  id            String               @id @default(uuid())
+  name          String
+  description   String?
+  type          AnalyticsReportType
+  format        AnalyticsFormat
+  schedule      Json?
+  lastGenerated DateTime?
+  query         Json
+  filters       Json?
+  recipients    Json?
+  isActive      Boolean              @default(true)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  deletedAt     DateTime?
+  createdBy     String
+
+  runs AnalyticsReportRun[]
+
+  @@index([isActive])
+  @@index([type])
+  @@map("analytics_reports")
+}
+
+// ============================================
+// REPORT RUNS
+// ============================================
+
+model AnalyticsReportRun {
+  id          String             @id @default(uuid())
+  reportId    String
+  status      AnalyticsRunStatus
+  startedAt   DateTime           @default(now())
+  completedAt DateTime?
+  fileUrl     String?
+  fileSize    Int?
+  error       String?
+  parameters  Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  report AnalyticsReport @relation(fields: [reportId], references: [id])
+
+  @@index([reportId])
+  @@index([status])
+  @@map("analytics_report_runs")
+}
+
+// ============================================
+// DATASETS
+// ============================================
+
+model AnalyticsDataset {
+  id              String              @id @default(uuid())
+  name            String
+  description     String?
+  source          AnalyticsDataSource
+  query           String
+  schema          Json
+  refreshSchedule String?
+  lastRefreshed   DateTime?
+  rowCount        Int?
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
+
+  @@index([source])
+  @@index([isActive])
+  @@map("analytics_datasets")
+}
+
+// ============================================
+// ALERTS
+// ============================================
+
+model AnalyticsAlert {
+  id                   String                @id @default(uuid())
+  name                 String
+  metric               String
+  condition            AnalyticsCondition
+  threshold            Decimal
+  currentValue         Decimal?
+  status               AnalyticsAlertStatus
+  triggeredAt          DateTime?
+  acknowledgedBy       String?
+  notificationChannels Json?
+  cooldownMinutes      Int                   @default(60)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  deletedAt            DateTime?
+  createdBy            String
+
+  @@index([status])
+  @@index([metric])
+  @@map("analytics_alerts")
+}
+
+// ============================================
+// KPIs
+// ============================================
+
+model AnalyticsKpi {
+  id             String             @id @default(uuid())
+  name           String
+  description    String?
+  module         String
+  formula        String?
+  unit           String?
+  currentValue   Decimal?
+  previousValue  Decimal?
+  targetValue    Decimal?
+  trend          AnalyticsTrend
+  lastCalculated DateTime?
+  frequency      AnalyticsFrequency
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  @@index([module])
+  @@index([frequency])
+  @@map("analytics_kpis")
+}
+
+// ============================================
+// EXPORTS
+// ============================================
+
+model AnalyticsExport {
+  id          String              @id @default(uuid())
+  name        String
+  type        AnalyticsExportType
+  format      AnalyticsFormat
+  filters     Json?
+  status      AnalyticsRunStatus
+  requestedBy String
+  completedAt DateTime?
+  fileUrl     String?
+  fileSize    Int?
+  rowCount    Int?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  @@index([status])
+  @@index([requestedBy])
+  @@map("analytics_exports")
+}
+
+// ============================================
+// SAVED QUERIES
+// ============================================
+
+model AnalyticsQuery {
+  id             String    @id @default(uuid())
+  name           String
+  description    String?
+  sql            String
+  parameters     Json?
+  isPublic       Boolean   @default(false)
+  lastRun        DateTime?
+  avgExecutionMs Int?
+  ownerId        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  @@index([ownerId])
+  @@index([isPublic])
+  @@map("analytics_queries")
+}
+
+// ============================================
+// SCHEDULES
+// ============================================
+
+model AnalyticsSchedule {
+  id             String                @id @default(uuid())
+  name           String
+  type           AnalyticsScheduleType
+  referenceId    String
+  cronExpression String
+  isActive       Boolean               @default(true)
+  lastRun        DateTime?
+  nextRun        DateTime?
+  timezone       String                @default("UTC")
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  @@index([isActive])
+  @@index([type])
+  @@index([referenceId])
+  @@index([nextRun])
+  @@map("analytics_schedules")
+}

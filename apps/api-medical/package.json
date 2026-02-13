@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ims/auth": "workspace:*",
+    "@ims/rbac": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
     "@ims/service-auth": "workspace:*",

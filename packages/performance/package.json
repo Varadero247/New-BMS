@@ -1,0 +1,15 @@
+{
+  "name": "@ims/performance",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:load": "k6 run src/load-tests/api-gateway.js",
+    "test:load:all": "bash scripts/run-all-load-tests.sh",
+    "test:lighthouse": "node src/lighthouse/run.js",
+    "test:a11y": "node src/accessibility/audit.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

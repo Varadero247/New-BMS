@@ -32,10 +32,10 @@ VAULT_TOKEN=<token>           # For HashiCorp Vault secrets management
 
 ### 2. Verify Docker Compose
 
-Ensure `docker-compose.yml` has all 20 services:
+Ensure `docker-compose.yml` has all 54 services:
 - **Infrastructure**: `postgres`, `redis`
-- **APIs** (10): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`
-- **Web Apps** (10): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`
+- **APIs** (25): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`, `api-automotive`, `api-medical`, `api-aerospace`, `api-finance`, `api-crm`, `api-infosec`, `api-esg`, `api-cmms`, `api-portal`, `api-food-safety`, `api-energy`, `api-analytics`, `api-field-service`, `api-iso42001`, `api-iso37001`
+- **Web Apps** (26): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`, `web-automotive`, `web-medical`, `web-aerospace`, `web-finance`, `web-crm`, `web-infosec`, `web-esg`, `web-cmms`, `web-customer-portal`, `web-supplier-portal`, `web-food-safety`, `web-energy`, `web-analytics`, `web-field-service`, `web-iso42001`, `web-iso37001`
 
 ---
 
@@ -86,6 +86,54 @@ npx prisma db push --schema=prisma/schemas/workflows.prisma
 
 # Project Management schema
 npx prisma db push --schema=prisma/schemas/project-management.prisma
+
+# Automotive schema
+npx prisma db push --schema=prisma/schemas/automotive.prisma
+
+# Medical schema
+npx prisma db push --schema=prisma/schemas/medical.prisma
+
+# Aerospace schema
+npx prisma db push --schema=prisma/schemas/aerospace.prisma
+
+# AI schema
+npx prisma db push --schema=prisma/schemas/ai.prisma
+
+# Finance schema
+npx prisma db push --schema=prisma/schemas/finance.prisma
+
+# CRM schema
+npx prisma db push --schema=prisma/schemas/crm.prisma
+
+# InfoSec schema
+npx prisma db push --schema=prisma/schemas/infosec.prisma
+
+# ESG schema
+npx prisma db push --schema=prisma/schemas/esg.prisma
+
+# CMMS schema
+npx prisma db push --schema=prisma/schemas/cmms.prisma
+
+# Portal schema
+npx prisma db push --schema=prisma/schemas/portal.prisma
+
+# Food Safety schema
+npx prisma db push --schema=prisma/schemas/food-safety.prisma
+
+# Energy schema
+npx prisma db push --schema=prisma/schemas/energy.prisma
+
+# Analytics schema
+npx prisma db push --schema=prisma/schemas/analytics.prisma
+
+# Field Service schema
+npx prisma db push --schema=prisma/schemas/field-service.prisma
+
+# ISO 42001 schema
+npx prisma db push --schema=prisma/schemas/iso42001.prisma
+
+# ISO 37001 schema
+npx prisma db push --schema=prisma/schemas/iso37001.prisma
 ```
 
 ### Step 3: Generate Prisma Clients
@@ -99,6 +147,22 @@ npx prisma generate --schema=prisma/schemas/payroll.prisma
 npx prisma generate --schema=prisma/schemas/inventory.prisma
 npx prisma generate --schema=prisma/schemas/workflows.prisma
 npx prisma generate --schema=prisma/schemas/project-management.prisma
+npx prisma generate --schema=prisma/schemas/automotive.prisma
+npx prisma generate --schema=prisma/schemas/medical.prisma
+npx prisma generate --schema=prisma/schemas/aerospace.prisma
+npx prisma generate --schema=prisma/schemas/ai.prisma
+npx prisma generate --schema=prisma/schemas/finance.prisma
+npx prisma generate --schema=prisma/schemas/crm.prisma
+npx prisma generate --schema=prisma/schemas/infosec.prisma
+npx prisma generate --schema=prisma/schemas/esg.prisma
+npx prisma generate --schema=prisma/schemas/cmms.prisma
+npx prisma generate --schema=prisma/schemas/portal.prisma
+npx prisma generate --schema=prisma/schemas/food-safety.prisma
+npx prisma generate --schema=prisma/schemas/energy.prisma
+npx prisma generate --schema=prisma/schemas/analytics.prisma
+npx prisma generate --schema=prisma/schemas/field-service.prisma
+npx prisma generate --schema=prisma/schemas/iso42001.prisma
+npx prisma generate --schema=prisma/schemas/iso37001.prisma
 ```
 
 ### Step 4: Seed Database (First Deploy Only)
@@ -132,7 +196,7 @@ docker compose up -d
 docker compose ps
 
 # Check health endpoints
-for port in 4000 4001 4002 4003 4004 4005 4006 4007 4008 4009; do
+for port in $(seq 4000 4024); do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health)
   echo "Port $port: $CODE"
 done
@@ -236,7 +300,7 @@ curl -s -I http://localhost:4000/api/health-safety/incidents \
 
 ### Web App Verification
 ```bash
-for port in 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009; do
+for port in $(seq 3000 3025); do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port)
   echo "Web port $port: $CODE"
 done
@@ -341,7 +405,7 @@ export DOCKER_API_VERSION=1.41
 # 1. Kill conflicting ports
 sudo systemctl stop postgresql 2>/dev/null || true
 sudo systemctl stop redis 2>/dev/null || true
-for port in 5432 6379 4000 4001 4002 4003 4004 4005 4006 4007 4008 4009 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009; do
+for port in 5432 6379 $(seq 4000 4024) $(seq 3000 3025); do
   sudo fuser -k ${port}/tcp 2>/dev/null || true
 done
 sleep 3
@@ -383,6 +447,7 @@ export DOCKER_API_VERSION=1.41
 |---------|---------------|-----------|
 | PostgreSQL | 5432 | 5432 |
 | Redis | 6379 | 6379 |
+| **APIs** | | |
 | API Gateway | 4000 | 4000 |
 | API Health & Safety | 4001 | 4001 |
 | API Environment | 4002 | 4002 |
@@ -392,6 +457,23 @@ export DOCKER_API_VERSION=1.41
 | API HR | 4006 | 4006 |
 | API Payroll | 4007 | 4007 |
 | API Workflows | 4008 | 4008 |
+| API Project Management | 4009 | 4009 |
+| API Automotive | 4010 | 4010 |
+| API Medical | 4011 | 4011 |
+| API Aerospace | 4012 | 4012 |
+| API Finance | 4013 | 4013 |
+| API CRM | 4014 | 4014 |
+| API InfoSec | 4015 | 4015 |
+| API ESG | 4016 | 4016 |
+| API CMMS | 4017 | 4017 |
+| API Portal | 4018 | 4018 |
+| API Food Safety | 4019 | 4019 |
+| API Energy | 4020 | 4020 |
+| API Analytics | 4021 | 4021 |
+| API Field Service | 4022 | 4022 |
+| API ISO 42001 | 4023 | 4023 |
+| API ISO 37001 | 4024 | 4024 |
+| **Web Apps** | | |
 | Web Dashboard | 3000 | 3000 |
 | Web Health & Safety | 3001 | 3001 |
 | Web Environment | 3002 | 3002 |
@@ -401,8 +483,23 @@ export DOCKER_API_VERSION=1.41
 | Web HR | 3006 | 3006 |
 | Web Payroll | 3007 | 3007 |
 | Web Workflows | 3008 | 3008 |
-| API Project Management | 4009 | 4009 |
 | Web Project Management | 3009 | 3009 |
+| Web Automotive | 3010 | 3010 |
+| Web Medical | 3011 | 3011 |
+| Web Aerospace | 3012 | 3012 |
+| Web Finance | 3013 | 3013 |
+| Web CRM | 3014 | 3014 |
+| Web InfoSec | 3015 | 3015 |
+| Web ESG | 3016 | 3016 |
+| Web CMMS | 3017 | 3017 |
+| Web Customer Portal | 3018 | 3018 |
+| Web Supplier Portal | 3019 | 3019 |
+| Web Food Safety | 3020 | 3020 |
+| Web Energy | 3021 | 3021 |
+| Web Analytics | 3022 | 3022 |
+| Web Field Service | 3023 | 3023 |
+| Web ISO 42001 | 3024 | 3024 |
+| Web ISO 37001 | 3025 | 3025 |
 
 ---
 
@@ -422,3 +519,51 @@ export DOCKER_API_VERSION=1.41
 
 ### Project Management
 `projects`, `project_tasks`, `project_milestones`, `project_risks`, `project_issues`, `project_changes`, `project_resources`, `project_stakeholders`, `project_documents`, `project_sprints`, `project_user_stories`, `project_timesheets`, `project_expenses`, `project_status_reports`
+
+### Automotive (IATF 16949)
+`auto_ppaps`, `auto_apqps`, `auto_fmeas`, `auto_fmea_rows`, `auto_spcs`, `auto_msas`, `auto_control_plans`, `auto_control_plan_chars`, `auto_8ds`, `auto_8d_actions`, `auto_lpas`, `auto_lpa_questions`, `auto_lpa_findings`
+
+### Medical (ISO 13485)
+`med_devices`, `med_design_controls`, `med_design_reviews`, `med_risk_analyses`, `med_risk_items`, `med_capas`, `med_capa_actions`, `med_complaints`, `med_audits`, `med_audit_findings`, `med_trainings`, `med_training_records`, `med_suppliers`, `med_supplier_evaluations`
+
+### Aerospace (AS9100)
+`aero_products`, `aero_first_articles`, `aero_fai_chars`, `aero_special_processes`, `aero_process_approvals`, `aero_ofi_items`, `aero_risk_analyses`, `aero_risk_items`, `aero_counterfeit_controls`, `aero_test_records`, `aero_flowdowns`, `aero_flowdown_items`
+
+### AI
+`ai_analyses`, `ai_analysis_results`
+
+### Finance
+`fin_accounts`, `fin_journal_entries`, `fin_journal_lines`, `fin_invoices`, `fin_invoice_lines`, `fin_payments`, `fin_budgets`, `fin_budget_lines`, `fin_fixed_assets`, `fin_bank_reconciliations`, `fin_bank_transactions`, `fin_tax_records`
+
+### CRM
+`crm_contacts`, `crm_companies`, `crm_deals`, `crm_activities`, `crm_pipelines`, `crm_pipeline_stages`, `crm_campaigns`, `crm_campaign_contacts`
+
+### InfoSec (ISO 27001)
+`isec_assets`, `isec_risks`, `isec_risk_treatments`, `isec_controls`, `isec_incidents`, `isec_incident_actions`, `isec_policies`, `isec_policy_versions`, `isec_audits`, `isec_audit_findings`, `isec_access_reviews`, `isec_access_review_items`
+
+### ESG
+`esg_metrics`, `esg_metric_values`, `esg_targets`, `esg_initiatives`, `esg_initiative_milestones`, `esg_reports`, `esg_report_sections`, `esg_frameworks`, `esg_framework_mappings`, `esg_stakeholders`, `esg_stakeholder_engagements`, `esg_materiality_topics`, `esg_materiality_assessments`, `esg_supply_chain_assessments`, `esg_assessment_items`
+
+### CMMS
+`cmms_assets`, `cmms_locations`, `cmms_work_orders`, `cmms_work_order_parts`, `cmms_work_order_labor`, `cmms_preventive_schedules`, `cmms_preventive_tasks`, `cmms_meter_readings`, `cmms_failure_codes`, `cmms_failure_analyses`, `cmms_parts`, `cmms_part_transactions`, `cmms_vendors`, `cmms_purchase_orders`, `cmms_purchase_order_items`, `cmms_downtime_records`
+
+### Portal
+`portal_organisations`, `portal_portal_users`, `portal_portal_sessions`, `portal_documents`, `portal_document_shares`, `portal_tickets`, `portal_ticket_messages`, `portal_orders`, `portal_order_items`, `portal_invoices`, `portal_supplier_profiles`, `portal_rfqs`
+
+### Food Safety (HACCP / ISO 22000)
+`fs_haccp_plans`, `fs_hazard_analyses`, `fs_ccps`, `fs_ccp_monitoring`, `fs_corrective_actions`, `fs_verification_records`, `fs_prp_programs`, `fs_prp_tasks`, `fs_audits`, `fs_audit_findings`, `fs_supplier_approvals`, `fs_supplier_evaluations`, `fs_traceability_records`, `fs_recall_events`
+
+### Energy (ISO 50001)
+`en_baselines`, `en_baseline_data`, `en_performance_indicators`, `en_indicator_values`, `en_audits`, `en_audit_findings`, `en_action_plans`, `en_action_items`, `en_meters`, `en_meter_readings`, `en_projects`, `en_project_savings`
+
+### Analytics
+`an_dashboards`, `an_dashboard_widgets`, `an_reports`, `an_report_schedules`, `an_data_sources`, `an_data_connections`, `an_kpis`, `an_kpi_values`, `an_alerts`, `an_alert_notifications`
+
+### Field Service
+`fld_work_orders`, `fld_work_order_tasks`, `fld_technicians`, `fld_technician_skills`, `fld_customers`, `fld_customer_sites`, `fld_service_contracts`, `fld_contract_slas`, `fld_inventory_items`, `fld_inventory_transactions`, `fld_schedules`, `fld_schedule_slots`, `fld_timesheets`, `fld_timesheet_entries`
+
+### ISO 42001 (AI Management)
+`ai42_systems`, `ai42_risk_assessments`, `ai42_risk_items`, `ai42_controls`, `ai42_impact_assessments`, `ai42_impact_items`, `ai42_audits`, `ai42_audit_findings`, `ai42_data_governance`, `ai42_data_records`
+
+### ISO 37001 (Anti-Bribery)
+`ab_risk_assessments`, `ab_risk_items`, `ab_due_diligences`, `ab_due_diligence_checks`, `ab_controls`, `ab_control_reviews`, `ab_incidents`, `ab_incident_actions`, `ab_trainings`, `ab_training_records`, `ab_gifts`, `ab_policies`

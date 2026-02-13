@@ -1,0 +1,579 @@
+// Food Safety Schema - ISO 22000 / HACCP Domain
+// Used by the Food Safety microservice
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/food-safety"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("FOOD_SAFETY_DATABASE_URL")
+}
+
+// ============================================
+// HAZARD ANALYSIS (HACCP Principle 1)
+// ============================================
+
+model FsHazard {
+  id             String        @id @default(uuid())
+  name           String
+  type           FsHazardType
+  description    String?
+  source         String?
+  severity       FsSeverity
+  likelihood     FsLikelihood
+  riskScore      Int
+  controlMeasure String?
+  processStep    String?
+  isSignificant  Boolean       @default(false)
+  category       String?
+  ccps           FsCcp[]
+  createdBy      String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  @@index([type])
+  @@index([severity])
+  @@index([isSignificant])
+  @@index([createdAt])
+  @@map("fs_hazards")
+}
+
+// ============================================
+// CRITICAL CONTROL POINTS (HACCP Principle 2)
+// ============================================
+
+model FsCcp {
+  id                  String              @id @default(uuid())
+  name                String
+  number              String              @unique
+  processStep         String
+  hazardId            String?
+  hazard              FsHazard?           @relation(fields: [hazardId], references: [id])
+  criticalLimit       String
+  monitoringMethod    String
+  monitoringFrequency FsFrequency
+  correctiveAction    String?
+  verificationMethod  String?
+  recordKeeping       String?
+  isActive            Boolean             @default(true)
+  monitoringRecords   FsMonitoringRecord[]
+  createdBy           String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?
+
+  @@index([hazardId])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("fs_ccps")
+}
+
+// ============================================
+// MONITORING RECORDS (HACCP Principle 4)
+// ============================================
+
+model FsMonitoringRecord {
+  id                    String    @id @default(uuid())
+  ccpId                 String
+  ccp                   FsCcp     @relation(fields: [ccpId], references: [id])
+  monitoredBy           String?
+  monitoredAt           DateTime
+  value                 String
+  unit                  String?
+  withinLimits          Boolean
+  deviation             String?
+  correctiveActionTaken String?
+  verifiedBy            String?
+  verifiedAt            DateTime?
+  createdBy             String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  @@index([ccpId])
+  @@index([monitoredAt])
+  @@index([withinLimits])
+  @@map("fs_monitoring_records")
+}
+
+// ============================================
+// AUDITS (ISO 22000 Clause 9.2)
+// ============================================
+
+model FsAudit {
+  id            String        @id @default(uuid())
+  title         String
+  type          FsAuditType
+  auditor       String
+  scope         String?
+  scheduledDate DateTime
+  completedDate DateTime?
+  status        FsAuditStatus @default(PLANNED)
+  score         Decimal?
+  findings      Json?
+  certificate   String?
+  createdBy     String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([type])
+  @@index([createdAt])
+  @@map("fs_audits")
+}
+
+// ============================================
+// SUPPLIER MANAGEMENT (ISO 22000 Clause 7.1.6)
+// ============================================
+
+model FsSupplier {
+  id             String             @id @default(uuid())
+  name           String
+  code           String             @unique
+  contactName    String?
+  email          String?
+  phone          String?
+  address        String?
+  category       FsSupplierCategory
+  status         FsSupplierStatus   @default(APPROVED)
+  lastAuditDate  DateTime?
+  nextAuditDate  DateTime?
+  rating         Decimal?
+  certifications Json?
+  createdBy      String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
+
+  @@index([status])
+  @@index([category])
+  @@index([nextAuditDate])
+  @@index([createdAt])
+  @@map("fs_suppliers")
+}
+
+// ============================================
+// RECALL MANAGEMENT
+// ============================================
+
+model FsRecall {
+  id                 String         @id @default(uuid())
+  number             String         @unique
+  productName        String
+  batchNumber        String
+  reason             String
+  type               FsRecallType
+  status             FsRecallStatus @default(INITIATED)
+  severity           FsSeverity
+  initiatedDate      DateTime
+  completedDate      DateTime?
+  unitsAffected      Int?
+  unitsRecovered     Int?
+  regulatoryNotified Boolean        @default(false)
+  publicNotice       Boolean        @default(false)
+  rootCause          String?
+  notes              String?
+  createdBy          String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  deletedAt          DateTime?
+
+  @@index([status])
+  @@index([severity])
+  @@index([productName])
+  @@index([batchNumber])
+  @@index([createdAt])
+  @@map("fs_recalls")
+}
+
+// ============================================
+// TRACEABILITY (ISO 22000 Clause 8.3)
+// ============================================
+
+model FsTraceability {
+  id                  String         @id @default(uuid())
+  productName         String
+  batchNumber         String         @unique
+  productionDate      DateTime
+  expiryDate          DateTime?
+  ingredients         Json
+  suppliers           Json?
+  processRecords      Json?
+  distributionRecords Json?
+  status              FsTraceStatus  @default(IN_PRODUCTION)
+  createdBy           String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  deletedAt           DateTime?
+
+  @@index([batchNumber])
+  @@index([productName])
+  @@index([status])
+  @@index([productionDate])
+  @@index([createdAt])
+  @@map("fs_traceability")
+}
+
+// ============================================
+// SANITATION & HYGIENE (PRP)
+// ============================================
+
+model FsSanitation {
+  id            String             @id @default(uuid())
+  area          String
+  procedure     String
+  frequency     FsFrequency
+  scheduledDate DateTime
+  completedDate DateTime?
+  completedBy   String?
+  status        FsSanitationStatus @default(SCHEDULED)
+  result        FsSanitationResult?
+  findings      String?
+  verifiedBy    String?
+  createdBy     String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([area])
+  @@index([createdAt])
+  @@map("fs_sanitation")
+}
+
+// ============================================
+// ALLERGEN MANAGEMENT
+// ============================================
+
+model FsAllergen {
+  id               String        @id @default(uuid())
+  name             String
+  code             String        @unique
+  type             FsAllergenType
+  description      String?
+  controlMeasures  String?
+  labellingRequired Boolean      @default(true)
+  isActive         Boolean       @default(true)
+  createdBy        String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+
+  @@index([type])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("fs_allergens")
+}
+
+// ============================================
+// PRODUCT MANAGEMENT
+// ============================================
+
+model FsProduct {
+  id                  String          @id @default(uuid())
+  name                String
+  code                String          @unique
+  description         String?
+  category            String?
+  allergens           Json?
+  shelfLifeDays       Int?
+  storageRequirements String?
+  labellingInfo       Json?
+  nutritionalInfo     Json?
+  status              FsProductStatus @default(ACTIVE)
+  createdBy           String
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("fs_products")
+}
+
+// ============================================
+// NON-CONFORMANCE REPORTS
+// ============================================
+
+model FsNcr {
+  id               String        @id @default(uuid())
+  number           String        @unique
+  title            String
+  description      String?
+  area             String?
+  category         FsNcrCategory
+  severity         FsSeverity
+  status           FsNcrStatus   @default(OPEN)
+  rootCause        String?
+  correctiveAction String?
+  preventiveAction String?
+  dueDate          DateTime?
+  closedDate       DateTime?
+  assignedTo       String?
+  createdBy        String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+
+  @@index([status])
+  @@index([severity])
+  @@index([category])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@map("fs_ncrs")
+}
+
+// ============================================
+// TRAINING MANAGEMENT (ISO 22000 Clause 7.2)
+// ============================================
+
+model FsTraining {
+  id            String           @id @default(uuid())
+  title         String
+  description   String?
+  type          FsTrainingType
+  trainer       String?
+  scheduledDate DateTime
+  completedDate DateTime?
+  attendees     Json?
+  status        FsTrainingStatus @default(PLANNED)
+  certificate   String?
+  validUntil    DateTime?
+  createdBy     String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([type])
+  @@index([createdAt])
+  @@map("fs_training")
+}
+
+// ============================================
+// ENVIRONMENTAL MONITORING (PRP)
+// ============================================
+
+model FsEnvironmentalMonitoring {
+  id         String     @id @default(uuid())
+  location   String
+  testType   FsTestType
+  parameter  String
+  result     String
+  unit       String?
+  limit      String?
+  withinSpec Boolean
+  testedBy   String?
+  testedAt   DateTime
+  notes      String?
+  createdBy  String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deletedAt  DateTime?
+
+  @@index([testType])
+  @@index([withinSpec])
+  @@index([testedAt])
+  @@index([location])
+  @@index([createdAt])
+  @@map("fs_environmental_monitoring")
+}
+
+// ============================================
+// FOOD DEFENSE (TACCP/VACCP)
+// ============================================
+
+model FsFoodDefense {
+  id                      String          @id @default(uuid())
+  title                   String
+  description             String?
+  threatType              FsThreatType
+  vulnerabilityAssessment String?
+  mitigationMeasure       String?
+  status                  FsDefenseStatus @default(IDENTIFIED)
+  riskLevel               FsSeverity
+  assessedDate            DateTime?
+  reviewDate              DateTime?
+  createdBy               String
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  deletedAt               DateTime?
+
+  @@index([status])
+  @@index([riskLevel])
+  @@index([threatType])
+  @@index([reviewDate])
+  @@index([createdAt])
+  @@map("fs_food_defense")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum FsHazardType {
+  BIOLOGICAL
+  CHEMICAL
+  PHYSICAL
+  ALLERGEN
+  RADIOLOGICAL
+}
+
+enum FsSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum FsLikelihood {
+  ALMOST_CERTAIN
+  LIKELY
+  POSSIBLE
+  UNLIKELY
+  RARE
+}
+
+enum FsFrequency {
+  CONTINUOUS
+  HOURLY
+  PER_BATCH
+  DAILY
+  WEEKLY
+}
+
+enum FsAuditType {
+  INTERNAL
+  EXTERNAL
+  REGULATORY
+  CERTIFICATION
+  SUPPLIER
+}
+
+enum FsAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum FsSupplierCategory {
+  RAW_MATERIAL
+  PACKAGING
+  INGREDIENT
+  SERVICE
+}
+
+enum FsSupplierStatus {
+  APPROVED
+  CONDITIONAL
+  SUSPENDED
+  REJECTED
+}
+
+enum FsRecallType {
+  VOLUNTARY
+  MANDATORY
+  MARKET_WITHDRAWAL
+}
+
+enum FsRecallStatus {
+  INITIATED
+  IN_PROGRESS
+  COMPLETED
+  CLOSED
+}
+
+enum FsTraceStatus {
+  IN_PRODUCTION
+  IN_STORAGE
+  DISTRIBUTED
+  RECALLED
+  EXPIRED
+}
+
+enum FsSanitationStatus {
+  SCHEDULED
+  COMPLETED
+  OVERDUE
+  FAILED
+}
+
+enum FsSanitationResult {
+  PASS
+  FAIL
+  CONDITIONAL
+}
+
+enum FsAllergenType {
+  MAJOR
+  MINOR
+}
+
+enum FsProductStatus {
+  ACTIVE
+  DISCONTINUED
+  DEVELOPMENT
+}
+
+enum FsNcrCategory {
+  PROCESS
+  PRODUCT
+  DOCUMENTATION
+  FACILITY
+  SUPPLIER
+}
+
+enum FsNcrStatus {
+  OPEN
+  INVESTIGATING
+  CORRECTIVE_ACTION
+  CLOSED
+}
+
+enum FsTrainingType {
+  INDUCTION
+  REFRESHER
+  HACCP
+  GMP
+  HYGIENE
+  ALLERGEN
+  FOOD_DEFENSE
+}
+
+enum FsTrainingStatus {
+  PLANNED
+  COMPLETED
+  CANCELLED
+}
+
+enum FsTestType {
+  SWAB
+  AIR
+  WATER
+  SURFACE
+}
+
+enum FsThreatType {
+  INTENTIONAL_CONTAMINATION
+  SABOTAGE
+  TAMPERING
+  BIOTERRORISM
+  CYBER
+}
+
+enum FsDefenseStatus {
+  IDENTIFIED
+  ASSESSED
+  MITIGATED
+  MONITORED
+}

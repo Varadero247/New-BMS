@@ -1,0 +1,301 @@
+// ISO 37001:2016 Anti-Bribery Management System Schema
+// Comprehensive schema for anti-bribery policy, due diligence, gifts register,
+// training, risk assessment, and investigation management
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/iso37001"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ISO37001_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum AbPolicyStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AbDueDiligenceLevel {
+  STANDARD
+  ENHANCED
+  SIMPLIFIED
+}
+
+enum AbDueDiligenceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
+enum AbThirdPartyType {
+  SUPPLIER
+  AGENT
+  INTERMEDIARY
+  JOINT_VENTURE
+  CONSULTANT
+  SUBCONTRACTOR
+  OTHER
+}
+
+enum AbRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum AbGiftType {
+  GIFT
+  HOSPITALITY
+  ENTERTAINMENT
+  TRAVEL
+  FACILITATION_PAYMENT
+  DONATION
+  SPONSORSHIP
+}
+
+enum AbGiftStatus {
+  PENDING_APPROVAL
+  APPROVED
+  DECLINED
+  REPORTED
+}
+
+enum AbGiftDirection {
+  GIVEN
+  RECEIVED
+}
+
+enum AbTrainingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+  EXPIRED
+}
+
+enum AbInvestigationStatus {
+  REPORTED
+  UNDER_INVESTIGATION
+  SUBSTANTIATED
+  UNSUBSTANTIATED
+  CLOSED
+}
+
+enum AbInvestigationOutcome {
+  NO_ACTION
+  DISCIPLINARY
+  TERMINATION
+  PROSECUTION_REFERRAL
+  POLICY_CHANGE
+}
+
+enum AbRiskCategory {
+  COUNTRY
+  SECTOR
+  TRANSACTION
+  BUSINESS_OPPORTUNITY
+  BUSINESS_PARTNER
+}
+
+enum AbRiskAssessmentStatus {
+  IDENTIFIED
+  ASSESSED
+  MITIGATED
+  ACCEPTED
+  CLOSED
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+/// Anti-bribery policy management — tracks policies, approvals, and versioning
+model AbPolicy {
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+  organisationId String
+  createdBy      String
+
+  title          String
+  description    String
+  content        String
+  version        String
+  status         AbPolicyStatus @default(DRAFT)
+  approvedBy     String?
+  approvedAt     DateTime?
+  effectiveDate  DateTime?
+  reviewDate     DateTime?
+  policyType     String         // ANTI_BRIBERY, GIFTS_HOSPITALITY, WHISTLEBLOWING, DUE_DILIGENCE, FACILITATION_PAYMENTS
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, policyType])
+  @@map("ab_policies")
+}
+
+/// Third-party due diligence register — risk-based screening of business partners
+model AbDueDiligence {
+  id                String              @id @default(cuid())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
+  organisationId    String
+  createdBy         String
+
+  thirdPartyName    String
+  thirdPartyType    AbThirdPartyType
+  level             AbDueDiligenceLevel @default(STANDARD)
+  status            AbDueDiligenceStatus @default(PENDING)
+  country           String
+  sector            String?
+  riskLevel         AbRiskLevel          @default(MEDIUM)
+  riskJustification String?
+  assessmentDate    DateTime?
+  expiryDate        DateTime?
+  findings          String?
+  recommendations   String?
+  approvedBy        String?
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, thirdPartyType])
+  @@index([organisationId, riskLevel])
+  @@map("ab_due_diligence")
+}
+
+/// Gifts, hospitality, and facilitation payments register
+model AbGiftRegister {
+  id               String         @id @default(cuid())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+  organisationId   String
+  createdBy        String
+
+  description      String
+  giftType         AbGiftType
+  direction        AbGiftDirection
+  value            Decimal        @db.Decimal(10, 2)
+  currency         String         @default("GBP")
+  recipientOrGiver String
+  organisation     String?
+  date             DateTime
+  reason           String?
+  status           AbGiftStatus   @default(PENDING_APPROVAL)
+  approvedBy       String?
+  approvedAt       DateTime?
+  policyReference  String?
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, giftType])
+  @@index([organisationId, direction])
+  @@index([organisationId, date])
+  @@map("ab_gift_register")
+}
+
+/// Anti-bribery awareness and compliance training records
+model AbTrainingRecord {
+  id            String           @id @default(cuid())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+  organisationId String
+  createdBy     String
+
+  employeeId    String
+  employeeName  String
+  department    String?
+  courseName    String
+  courseType     String          // INDUCTION, ANNUAL_REFRESHER, ROLE_SPECIFIC, MANAGEMENT
+  status        AbTrainingStatus @default(NOT_STARTED)
+  assignedDate  DateTime
+  dueDate       DateTime
+  completedDate DateTime?
+  score         Int?
+  passRequired  Boolean          @default(true)
+  passMark      Int              @default(80)
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, employeeId])
+  @@index([organisationId, dueDate])
+  @@map("ab_training_records")
+}
+
+/// Bribery risk assessment — identifies, scores, and tracks mitigation of bribery risks
+model AbRiskAssessment {
+  id                 String                  @id @default(cuid())
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  deletedAt          DateTime?
+  organisationId     String
+  createdBy          String
+
+  title              String
+  description        String
+  category           AbRiskCategory
+  riskLevel          AbRiskLevel             @default(MEDIUM)
+  businessFunction   String
+  jurisdiction       String?
+  likelihood         Int
+  impact             Int
+  riskScore          Int
+  mitigationMeasures String?
+  residualRisk       AbRiskLevel?
+  owner              String
+  reviewDate         DateTime?
+  status             AbRiskAssessmentStatus  @default(IDENTIFIED)
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, category])
+  @@index([organisationId, riskLevel])
+  @@map("ab_risk_assessments")
+}
+
+/// Investigation log — tracks reports, investigations, outcomes, and lessons learned
+model AbInvestigation {
+  id              String                   @id @default(cuid())
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  deletedAt       DateTime?
+  organisationId  String
+  createdBy       String
+
+  referenceNumber String                   @unique
+  title           String
+  description     String
+  allegationType  String
+  reportedBy      String
+  reportedDate    DateTime
+  status          AbInvestigationStatus    @default(REPORTED)
+  outcome         AbInvestigationOutcome?
+  investigator    String?
+  findings        String?
+  actionsTaken    String?
+  closedDate      DateTime?
+  lessonsLearned  String?
+  isAnonymous     Boolean                  @default(false)
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([organisationId, reportedDate])
+  @@index([referenceNumber])
+  @@map("ab_investigations")
+}

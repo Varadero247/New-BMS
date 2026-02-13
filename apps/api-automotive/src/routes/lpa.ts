@@ -392,10 +392,11 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       prisma.lpaAudit.count({ where: { status: 'COMPLETED' } }),
     ]);
 
-    // Average score by layer
+    // Average score by layer (bounded to prevent memory issues)
     const completedByLayer = await prisma.lpaAudit.findMany({
       where: { status: 'COMPLETED', score: { not: null } },
       select: { layer: true, score: true },
+      take: 10000,
     });
 
     const layerMap: Record<number, { total: number; count: number }> = {};
@@ -415,10 +416,11 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       }))
       .sort((a, b) => a.layer - b.layer);
 
-    // Fail rate by process area
+    // Fail rate by process area (bounded to prevent memory issues)
     const completedByArea = await prisma.lpaAudit.findMany({
       where: { status: 'COMPLETED' },
       select: { processArea: true, passCount: true, failCount: true, naCount: true, totalQuestions: true },
+      take: 10000,
     });
 
     const areaMap: Record<string, { totalApplicable: number; totalFails: number; auditCount: number }> = {};

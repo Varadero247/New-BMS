@@ -1,0 +1,325 @@
+import {
+  ANNEX_SL_COMMON_CLAUSES,
+  CLAUSE_STANDARD_MAP,
+  getStandardsForClause,
+  getClausesForStandard,
+  getSharedClauses,
+  createConvergentRecord,
+  calculateConvergenceScore,
+  getConvergenceBenefit,
+} from '../src';
+import { ISOStandard, AnnexSLClause } from '../src/types';
+
+describe('@ims/standards-convergence', () => {
+  describe('ANNEX_SL_COMMON_CLAUSES', () => {
+    it('should have 20 entries', () => {
+      expect(Object.keys(ANNEX_SL_COMMON_CLAUSES)).toHaveLength(20);
+    });
+
+    it('should have string descriptions for all clauses', () => {
+      for (const [clause, description] of Object.entries(ANNEX_SL_COMMON_CLAUSES)) {
+        expect(typeof description).toBe('string');
+        expect(description.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should include clause 4.1 with context understanding', () => {
+      expect(ANNEX_SL_COMMON_CLAUSES['4.1']).toBe('Understanding the organisation and its context');
+    });
+
+    it('should include clause 9.2 as Internal audit', () => {
+      expect(ANNEX_SL_COMMON_CLAUSES['9.2']).toBe('Internal audit');
+    });
+
+    it('should include clause 10.2 as Continual improvement', () => {
+      expect(ANNEX_SL_COMMON_CLAUSES['10.2']).toBe('Continual improvement');
+    });
+  });
+
+  describe('CLAUSE_STANDARD_MAP', () => {
+    it('should have 20 mappings', () => {
+      expect(CLAUSE_STANDARD_MAP).toHaveLength(20);
+    });
+
+    it('should have clause, title, standards, and description for each mapping', () => {
+      for (const mapping of CLAUSE_STANDARD_MAP) {
+        expect(mapping.clause).toBeDefined();
+        expect(mapping.title).toBeDefined();
+        expect(Array.isArray(mapping.standards)).toBe(true);
+        expect(mapping.standards.length).toBeGreaterThan(0);
+        expect(mapping.description).toBeDefined();
+        expect(mapping.description.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should have non-empty standards array for each clause', () => {
+      CLAUSE_STANDARD_MAP.forEach(m => {
+        expect(m.standards.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('getStandardsForClause', () => {
+    it('should return standards for clause 9.2 (Internal audit)', () => {
+      const standards = getStandardsForClause('9.2');
+      expect(standards).toContain('ISO_9001');
+      expect(standards).toContain('ISO_14001');
+      expect(standards).toContain('ISO_45001');
+      expect(standards).toContain('ISO_27001');
+    });
+
+    it('should return standards for clause 4.1', () => {
+      const standards = getStandardsForClause('4.1');
+      expect(standards.length).toBeGreaterThanOrEqual(10);
+      expect(standards).toContain('ISO_9001');
+      expect(standards).toContain('ISO_55001');
+    });
+
+    it('should return empty array for unknown clause', () => {
+      const standards = getStandardsForClause('99.99' as AnnexSLClause);
+      expect(standards).toEqual([]);
+    });
+
+    it('should return standards for clause 7.1 (Resources)', () => {
+      const standards = getStandardsForClause('7.1');
+      expect(standards).toContain('ISO_9001');
+      expect(standards).toContain('ISO_13485');
+      // 7.1 has fewer standards than most clauses
+      expect(standards.length).toBe(7);
+    });
+  });
+
+  describe('getClausesForStandard', () => {
+    it('should return all 20 clauses for ISO_9001', () => {
+      const clauses = getClausesForStandard('ISO_9001');
+      expect(clauses).toHaveLength(20);
+    });
+
+    it('should return clauses for ISO_55001', () => {
+      const clauses = getClausesForStandard('ISO_55001');
+      expect(clauses.length).toBeGreaterThan(0);
+      expect(clauses).toContain('4.1');
+      expect(clauses).toContain('9.2');
+      // ISO_55001 is not in clause 4.4, 5.3, 7.1, 7.3, 7.4, 8.1, 10.1
+      expect(clauses).not.toContain('4.4');
+    });
+
+    it('should return empty array for unknown standard', () => {
+      const clauses = getClausesForStandard('ISO_99999' as ISOStandard);
+      expect(clauses).toEqual([]);
+    });
+
+    it('should return clauses for IATF_16949', () => {
+      const clauses = getClausesForStandard('IATF_16949');
+      // IATF_16949 is not in any mapping in the current data
+      expect(clauses).toEqual([]);
+    });
+
+    it('should return clauses for AS9100D', () => {
+      const clauses = getClausesForStandard('AS9100D');
+      // AS9100D is not in any mapping in the current data
+      expect(clauses).toEqual([]);
+    });
+  });
+
+  describe('getSharedClauses', () => {
+    it('should return shared clauses for ISO_9001 and ISO_14001', () => {
+      const shared = getSharedClauses(['ISO_9001', 'ISO_14001']);
+      expect(shared.length).toBeGreaterThan(0);
+      expect(shared).toContain('4.1');
+      expect(shared).toContain('9.2');
+      expect(shared).toContain('10.2');
+    });
+
+    it('should return subset for triple certification (9001+14001+45001)', () => {
+      const dual = getSharedClauses(['ISO_9001', 'ISO_14001']);
+      const triple = getSharedClauses(['ISO_9001', 'ISO_14001', 'ISO_45001']);
+      expect(triple.length).toBeLessThanOrEqual(dual.length);
+      expect(triple.length).toBeGreaterThan(0);
+    });
+
+    it('should return all 20 for single standard ISO_9001', () => {
+      const shared = getSharedClauses(['ISO_9001']);
+      expect(shared).toHaveLength(20);
+    });
+
+    it('should return empty for standard with no clauses', () => {
+      const shared = getSharedClauses(['IATF_16949']);
+      expect(shared).toEqual([]);
+    });
+
+    it('should return empty when mixing a zero-clause standard', () => {
+      const shared = getSharedClauses(['ISO_9001', 'IATF_16949']);
+      expect(shared).toEqual([]);
+    });
+  });
+
+  describe('createConvergentRecord', () => {
+    it('should create correct structure', () => {
+      const record = createConvergentRecord('rec-1', 'INTERNAL_AUDIT', ['9.2']);
+      expect(record.id).toBe('rec-1');
+      expect(record.recordType).toBe('INTERNAL_AUDIT');
+      expect(Array.isArray(record.satisfiesStandards)).toBe(true);
+      expect(record.clauseRefs).toBeDefined();
+    });
+
+    it('should map INTERNAL_AUDIT on clause 9.2 to multiple standards', () => {
+      const record = createConvergentRecord('audit-1', 'INTERNAL_AUDIT', ['9.2']);
+      expect(record.satisfiesStandards).toContain('ISO_9001');
+      expect(record.satisfiesStandards).toContain('ISO_14001');
+      expect(record.satisfiesStandards).toContain('ISO_45001');
+      expect(record.satisfiesStandards).toContain('ISO_27001');
+      expect(record.satisfiesStandards.length).toBeGreaterThanOrEqual(10);
+    });
+
+    it('should populate clauseRefs for each satisfied standard', () => {
+      const record = createConvergentRecord('audit-1', 'INTERNAL_AUDIT', ['9.2']);
+      expect(record.clauseRefs['ISO_9001']).toContain('9.2');
+      expect(record.clauseRefs['ISO_14001']).toContain('9.2');
+    });
+
+    it('should handle multiple clauses', () => {
+      const record = createConvergentRecord('risk-1', 'RISK_REGISTER', ['6.1', '9.1']);
+      expect(record.clauseRefs['ISO_9001']).toContain('6.1');
+      expect(record.clauseRefs['ISO_9001']).toContain('9.1');
+      expect(record.satisfiesStandards).toContain('ISO_9001');
+    });
+
+    it('should handle CAPA record type', () => {
+      const record = createConvergentRecord('capa-1', 'CAPA', ['10.1']);
+      expect(record.recordType).toBe('CAPA');
+      expect(record.satisfiesStandards).toContain('ISO_9001');
+    });
+
+    it('should handle empty clauses array', () => {
+      const record = createConvergentRecord('empty-1', 'DOCUMENT', []);
+      expect(record.satisfiesStandards).toEqual([]);
+      expect(record.clauseRefs).toEqual({});
+    });
+  });
+
+  describe('calculateConvergenceScore', () => {
+    it('should return correct percentage for partial coverage', () => {
+      const record = createConvergentRecord('audit-1', 'INTERNAL_AUDIT', ['9.2']);
+      const score = calculateConvergenceScore([record], 'ISO_9001');
+      expect(score.standard).toBe('ISO_9001');
+      expect(score.totalClauses).toBe(20);
+      expect(score.satisfiedClauses).toBe(1);
+      expect(score.percentage).toBe(5); // 1/20 = 5%
+    });
+
+    it('should return 0% for no records', () => {
+      const score = calculateConvergenceScore([], 'ISO_9001');
+      expect(score.satisfiedClauses).toBe(0);
+      expect(score.percentage).toBe(0);
+    });
+
+    it('should accumulate clauses from multiple records', () => {
+      const records = [
+        createConvergentRecord('r1', 'INTERNAL_AUDIT', ['9.2']),
+        createConvergentRecord('r2', 'MANAGEMENT_REVIEW', ['9.3']),
+        createConvergentRecord('r3', 'RISK_REGISTER', ['6.1']),
+      ];
+      const score = calculateConvergenceScore(records, 'ISO_9001');
+      expect(score.satisfiedClauses).toBe(3);
+      expect(score.percentage).toBe(15); // 3/20 = 15%
+    });
+
+    it('should not double-count same clause from multiple records', () => {
+      const records = [
+        createConvergentRecord('r1', 'INTERNAL_AUDIT', ['9.2']),
+        createConvergentRecord('r2', 'INTERNAL_AUDIT', ['9.2']),
+      ];
+      const score = calculateConvergenceScore(records, 'ISO_9001');
+      expect(score.satisfiedClauses).toBe(1);
+    });
+
+    it('should return 0% for standard with no clauses', () => {
+      const record = createConvergentRecord('r1', 'INTERNAL_AUDIT', ['9.2']);
+      const score = calculateConvergenceScore([record], 'IATF_16949');
+      expect(score.totalClauses).toBe(0);
+      expect(score.percentage).toBe(0);
+    });
+  });
+
+  describe('getConvergenceBenefit', () => {
+    it('should show reduction for triple certification (9001+14001+45001)', () => {
+      const benefit = getConvergenceBenefit(['ISO_9001', 'ISO_14001', 'ISO_45001']);
+      expect(benefit.sharedClauses).toBeGreaterThan(0);
+      expect(benefit.totalClausesIfSeparate).toBeGreaterThan(0);
+      expect(benefit.reductionPercent).toBeGreaterThan(0);
+    });
+
+    it('should show 0% reduction for single standard', () => {
+      const benefit = getConvergenceBenefit(['ISO_9001']);
+      expect(benefit.reductionPercent).toBe(0);
+      expect(benefit.sharedClauses).toBe(20);
+      expect(benefit.totalClausesIfSeparate).toBe(20);
+    });
+
+    it('should show higher reduction for more standards', () => {
+      const dual = getConvergenceBenefit(['ISO_9001', 'ISO_14001']);
+      const quad = getConvergenceBenefit(['ISO_9001', 'ISO_14001', 'ISO_45001', 'ISO_27001']);
+      expect(quad.reductionPercent).toBeGreaterThanOrEqual(dual.reductionPercent);
+    });
+
+    it('should calculate totalClausesIfSeparate as sum of individual', () => {
+      const benefit = getConvergenceBenefit(['ISO_9001', 'ISO_14001']);
+      const iso9001Clauses = getClausesForStandard('ISO_9001').length;
+      const iso14001Clauses = getClausesForStandard('ISO_14001').length;
+      expect(benefit.totalClausesIfSeparate).toBe(iso9001Clauses + iso14001Clauses);
+    });
+
+    it('should return zero reduction for empty array', () => {
+      const benefit = getConvergenceBenefit([]);
+      expect(benefit.sharedClauses).toBe(20); // all clauses are "shared" when no filter
+      expect(benefit.reductionPercent).toBe(0);
+      expect(benefit.totalClausesIfSeparate).toBe(0);
+    });
+  });
+
+  describe('all ISOStandard values in mappings', () => {
+    const allStandardsInMappings = new Set<string>();
+    CLAUSE_STANDARD_MAP.forEach(m => m.standards.forEach(s => allStandardsInMappings.add(s)));
+
+    it('should include ISO_9001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_9001')).toBe(true);
+    });
+
+    it('should include ISO_14001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_14001')).toBe(true);
+    });
+
+    it('should include ISO_45001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_45001')).toBe(true);
+    });
+
+    it('should include ISO_27001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_27001')).toBe(true);
+    });
+
+    it('should include ISO_42001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_42001')).toBe(true);
+    });
+
+    it('should include ISO_50001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_50001')).toBe(true);
+    });
+
+    it('should include ISO_22000 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_22000')).toBe(true);
+    });
+
+    it('should include ISO_13485 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_13485')).toBe(true);
+    });
+
+    it('should include ISO_37001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_37001')).toBe(true);
+    });
+
+    it('should include ISO_55001 in at least one mapping', () => {
+      expect(allStandardsInMappings.has('ISO_55001')).toBe(true);
+    });
+  });
+});

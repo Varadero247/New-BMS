@@ -1,5 +1,7 @@
 # IMS API Reference
 
+> **Note:** This reference covers all 25 API services. See SYSTEM_STATE.md for the complete inventory.
+
 ## Base URL
 
 All API requests go through the API Gateway:
@@ -55,7 +57,7 @@ On 401 response, the frontend clears `localStorage` and redirects to `/login`.
 
 ### Requirements
 - Gateway handles CORS for all services
-- Allowed origins: `http://localhost:3000` through `http://localhost:3009`
+- Allowed origins: `http://localhost:3000` through `http://localhost:3025`
 - Credentials: enabled
 - Methods: `GET, POST, PUT, PATCH, DELETE, OPTIONS`
 - Allowed headers: `Content-Type, Authorization, X-CSRF-Token, X-Correlation-ID`
@@ -1006,6 +1008,96 @@ KPI tracking with baseline/current/target values and nested milestones.
 
 ---
 
+## Automotive API (IATF 16949)
+
+All Automotive endpoints are proxied: `/api/automotive/*` → `api-automotive:4010/api/*`
+
+### Routes
+```http
+GET|POST       /api/automotive/apqp
+GET|PUT|DELETE  /api/automotive/apqp/:id
+
+GET|POST       /api/automotive/ppap
+GET|PUT|DELETE  /api/automotive/ppap/:id
+
+GET|POST       /api/automotive/fmea
+GET|PUT|DELETE  /api/automotive/fmea/:id
+
+GET|POST       /api/automotive/control-plans
+GET|PUT|DELETE  /api/automotive/control-plans/:id
+
+GET|POST       /api/automotive/msa
+GET|PUT|DELETE  /api/automotive/msa/:id
+
+GET|POST       /api/automotive/spc
+GET|PUT|DELETE  /api/automotive/spc/:id
+
+GET|POST       /api/automotive/lpa
+GET|PUT|DELETE  /api/automotive/lpa/:id
+
+GET|POST       /api/automotive/csr
+GET|PUT|DELETE  /api/automotive/csr/:id
+```
+
+---
+
+## Medical API (ISO 13485)
+
+All Medical endpoints are proxied: `/api/medical/*` → `api-medical:4011/api/*`
+
+### Routes
+```http
+GET|POST       /api/medical/dhf
+GET|PUT|DELETE  /api/medical/dhf/:id
+
+GET|POST       /api/medical/dmr
+GET|PUT|DELETE  /api/medical/dmr/:id
+
+GET|POST       /api/medical/dhr
+GET|PUT|DELETE  /api/medical/dhr/:id
+
+GET|POST       /api/medical/complaints
+GET|PUT|DELETE  /api/medical/complaints/:id
+
+GET|POST       /api/medical/pms
+GET|PUT|DELETE  /api/medical/pms/:id
+
+GET|POST       /api/medical/risk-management
+GET|PUT|DELETE  /api/medical/risk-management/:id
+
+GET|POST       /api/medical/udi
+GET|PUT|DELETE  /api/medical/udi/:id
+
+GET|POST       /api/medical/software-validation
+GET|PUT|DELETE  /api/medical/software-validation/:id
+```
+
+---
+
+## Aerospace API (AS9100D)
+
+All Aerospace endpoints are proxied: `/api/aerospace/*` → `api-aerospace:4012/api/*`
+
+### Routes
+```http
+GET|POST       /api/aerospace/fai
+GET|PUT|DELETE  /api/aerospace/fai/:id
+
+GET|POST       /api/aerospace/configuration
+GET|PUT|DELETE  /api/aerospace/configuration/:id
+
+GET|POST       /api/aerospace/work-orders
+GET|PUT|DELETE  /api/aerospace/work-orders/:id
+
+GET|POST       /api/aerospace/human-factors
+GET|PUT|DELETE  /api/aerospace/human-factors/:id
+
+GET|POST       /api/aerospace/oasis
+GET|PUT|DELETE  /api/aerospace/oasis/:id
+```
+
+---
+
 ## Project Management API (PMBOK/ISO 21502)
 
 All PM endpoints are proxied: `GET /api/v1/project-management/*` → `api-project-management:4009/api/*`
@@ -1127,6 +1219,489 @@ POST /api/v1/project-management/reports
 GET /api/v1/project-management/reports/:id
 PUT /api/v1/project-management/reports/:id
 DELETE /api/v1/project-management/reports/:id
+```
+
+---
+
+## Finance API
+
+All Finance endpoints are proxied: `/api/finance/*` → `api-finance:4013/api/*`
+
+### Routes
+```http
+GET|POST       /api/finance/accounts
+GET|PUT|DELETE  /api/finance/accounts/:id
+
+GET|POST       /api/finance/transactions
+GET|PUT|DELETE  /api/finance/transactions/:id
+
+GET|POST       /api/finance/budgets
+GET|PUT|DELETE  /api/finance/budgets/:id
+
+GET|POST       /api/finance/invoices
+GET|PUT|DELETE  /api/finance/invoices/:id
+
+GET|POST       /api/finance/journal-entries
+GET|PUT|DELETE  /api/finance/journal-entries/:id
+
+GET|POST       /api/finance/reports
+GET|PUT|DELETE  /api/finance/reports/:id
+
+GET|POST       /api/finance/tax
+GET|PUT|DELETE  /api/finance/tax/:id
+```
+
+---
+
+## CRM API
+
+All CRM endpoints are proxied: `/api/crm/*` → `api-crm:4014/api/*`
+
+### Routes
+```http
+GET|POST       /api/crm/contacts
+GET|PUT|DELETE  /api/crm/contacts/:id
+
+GET|POST       /api/crm/companies
+GET|PUT|DELETE  /api/crm/companies/:id
+
+GET|POST       /api/crm/opportunities
+GET|PUT|DELETE  /api/crm/opportunities/:id
+
+GET|POST       /api/crm/activities
+GET|PUT|DELETE  /api/crm/activities/:id
+
+GET|POST       /api/crm/campaigns
+GET|PUT|DELETE  /api/crm/campaigns/:id
+
+GET|POST       /api/crm/deals
+GET|PUT|DELETE  /api/crm/deals/:id
+
+GET|POST       /api/crm/pipelines
+GET|PUT|DELETE  /api/crm/pipelines/:id
+
+GET|POST       /api/crm/tasks
+GET|PUT|DELETE  /api/crm/tasks/:id
+```
+
+---
+
+## InfoSec API (ISO 27001)
+
+All InfoSec endpoints are proxied: `/api/infosec/*` → `api-infosec:4015/api/*`
+
+### Routes
+```http
+GET|POST       /api/infosec/controls
+GET|PUT|DELETE  /api/infosec/controls/:id
+
+GET|POST       /api/infosec/risks
+GET|PUT|DELETE  /api/infosec/risks/:id
+
+GET|POST       /api/infosec/incidents
+GET|PUT|DELETE  /api/infosec/incidents/:id
+
+GET|POST       /api/infosec/assets
+GET|PUT|DELETE  /api/infosec/assets/:id
+
+GET|POST       /api/infosec/policies
+GET|PUT|DELETE  /api/infosec/policies/:id
+
+GET|POST       /api/infosec/audits
+GET|PUT|DELETE  /api/infosec/audits/:id
+
+GET|POST       /api/infosec/vulnerabilities
+GET|PUT|DELETE  /api/infosec/vulnerabilities/:id
+```
+
+---
+
+## ESG API
+
+All ESG endpoints are proxied: `/api/esg/*` → `api-esg:4016/api/*`
+
+### Routes
+```http
+GET|POST       /api/esg/environmental-metrics
+GET|PUT|DELETE  /api/esg/environmental-metrics/:id
+
+GET|POST       /api/esg/social-metrics
+GET|PUT|DELETE  /api/esg/social-metrics/:id
+
+GET|POST       /api/esg/governance-metrics
+GET|PUT|DELETE  /api/esg/governance-metrics/:id
+
+GET|POST       /api/esg/reports
+GET|PUT|DELETE  /api/esg/reports/:id
+
+GET|POST       /api/esg/goals
+GET|PUT|DELETE  /api/esg/goals/:id
+
+GET|POST       /api/esg/frameworks
+GET|PUT|DELETE  /api/esg/frameworks/:id
+
+GET|POST       /api/esg/materiality
+GET|PUT|DELETE  /api/esg/materiality/:id
+
+GET|POST       /api/esg/disclosures
+GET|PUT|DELETE  /api/esg/disclosures/:id
+
+GET|POST       /api/esg/benchmarks
+GET|PUT|DELETE  /api/esg/benchmarks/:id
+
+GET|POST       /api/esg/initiatives
+GET|PUT|DELETE  /api/esg/initiatives/:id
+
+GET|POST       /api/esg/stakeholder-engagement
+GET|PUT|DELETE  /api/esg/stakeholder-engagement/:id
+
+GET|POST       /api/esg/supply-chain
+GET|PUT|DELETE  /api/esg/supply-chain/:id
+
+GET|POST       /api/esg/certifications
+GET|PUT|DELETE  /api/esg/certifications/:id
+
+GET|POST       /api/esg/training
+GET|PUT|DELETE  /api/esg/training/:id
+```
+
+---
+
+## CMMS API
+
+All CMMS endpoints are proxied: `/api/cmms/*` → `api-cmms:4017/api/*`
+
+### Routes
+```http
+GET|POST       /api/cmms/work-orders
+GET|PUT|DELETE  /api/cmms/work-orders/:id
+
+GET|POST       /api/cmms/assets
+GET|PUT|DELETE  /api/cmms/assets/:id
+
+GET|POST       /api/cmms/preventive-maintenance
+GET|PUT|DELETE  /api/cmms/preventive-maintenance/:id
+
+GET|POST       /api/cmms/parts
+GET|PUT|DELETE  /api/cmms/parts/:id
+
+GET|POST       /api/cmms/locations
+GET|PUT|DELETE  /api/cmms/locations/:id
+
+GET|POST       /api/cmms/meters
+GET|PUT|DELETE  /api/cmms/meters/:id
+
+GET|POST       /api/cmms/failures
+GET|PUT|DELETE  /api/cmms/failures/:id
+
+GET|POST       /api/cmms/vendors
+GET|PUT|DELETE  /api/cmms/vendors/:id
+
+GET|POST       /api/cmms/schedules
+GET|PUT|DELETE  /api/cmms/schedules/:id
+
+GET|POST       /api/cmms/checklists
+GET|PUT|DELETE  /api/cmms/checklists/:id
+
+GET|POST       /api/cmms/downtime
+GET|PUT|DELETE  /api/cmms/downtime/:id
+
+GET|POST       /api/cmms/labor
+GET|PUT|DELETE  /api/cmms/labor/:id
+```
+
+---
+
+## Portal API
+
+All Portal endpoints are proxied: `/api/portal/*` → `api-portal:4018/api/*`
+
+### Routes
+```http
+GET|POST       /api/portal/portal-users
+GET|PUT|DELETE  /api/portal/portal-users/:id
+
+GET|POST       /api/portal/documents
+GET|PUT|DELETE  /api/portal/documents/:id
+
+GET|POST       /api/portal/messages
+GET|PUT|DELETE  /api/portal/messages/:id
+
+GET|POST       /api/portal/orders
+GET|PUT|DELETE  /api/portal/orders/:id
+
+GET|POST       /api/portal/invoices
+GET|PUT|DELETE  /api/portal/invoices/:id
+
+GET|POST       /api/portal/tickets
+GET|PUT|DELETE  /api/portal/tickets/:id
+
+GET|POST       /api/portal/reviews
+GET|PUT|DELETE  /api/portal/reviews/:id
+
+GET|POST       /api/portal/certifications
+GET|PUT|DELETE  /api/portal/certifications/:id
+
+GET|POST       /api/portal/audits
+GET|PUT|DELETE  /api/portal/audits/:id
+
+GET|POST       /api/portal/ncrs
+GET|PUT|DELETE  /api/portal/ncrs/:id
+
+GET|POST       /api/portal/corrective-actions
+GET|PUT|DELETE  /api/portal/corrective-actions/:id
+
+GET|POST       /api/portal/performance
+GET|PUT|DELETE  /api/portal/performance/:id
+
+GET|POST       /api/portal/notifications
+GET|PUT|DELETE  /api/portal/notifications/:id
+
+GET|POST       /api/portal/announcements
+GET|PUT|DELETE  /api/portal/announcements/:id
+
+GET|POST       /api/portal/training
+GET|PUT|DELETE  /api/portal/training/:id
+
+GET|POST       /api/portal/self-service
+GET|PUT|DELETE  /api/portal/self-service/:id
+```
+
+---
+
+## Food Safety API (HACCP/ISO 22000)
+
+All Food Safety endpoints are proxied: `/api/food-safety/*` → `api-food-safety:4019/api/*`
+
+### Routes
+```http
+GET|POST       /api/food-safety/haccp-plans
+GET|PUT|DELETE  /api/food-safety/haccp-plans/:id
+
+GET|POST       /api/food-safety/hazard-analyses
+GET|PUT|DELETE  /api/food-safety/hazard-analyses/:id
+
+GET|POST       /api/food-safety/critical-control-points
+GET|PUT|DELETE  /api/food-safety/critical-control-points/:id
+
+GET|POST       /api/food-safety/monitoring
+GET|PUT|DELETE  /api/food-safety/monitoring/:id
+
+GET|POST       /api/food-safety/corrective-actions
+GET|PUT|DELETE  /api/food-safety/corrective-actions/:id
+
+GET|POST       /api/food-safety/verification
+GET|PUT|DELETE  /api/food-safety/verification/:id
+
+GET|POST       /api/food-safety/validation
+GET|PUT|DELETE  /api/food-safety/validation/:id
+
+GET|POST       /api/food-safety/prerequisites
+GET|PUT|DELETE  /api/food-safety/prerequisites/:id
+
+GET|POST       /api/food-safety/allergens
+GET|PUT|DELETE  /api/food-safety/allergens/:id
+
+GET|POST       /api/food-safety/recalls
+GET|PUT|DELETE  /api/food-safety/recalls/:id
+
+GET|POST       /api/food-safety/supplier-approval
+GET|PUT|DELETE  /api/food-safety/supplier-approval/:id
+
+GET|POST       /api/food-safety/audits
+GET|PUT|DELETE  /api/food-safety/audits/:id
+
+GET|POST       /api/food-safety/training
+GET|PUT|DELETE  /api/food-safety/training/:id
+
+GET|POST       /api/food-safety/documents
+GET|PUT|DELETE  /api/food-safety/documents/:id
+```
+
+---
+
+## Energy API (ISO 50001)
+
+All Energy endpoints are proxied: `/api/energy/*` → `api-energy:4020/api/*`
+
+### Routes
+```http
+GET|POST       /api/energy/baselines
+GET|PUT|DELETE  /api/energy/baselines/:id
+
+GET|POST       /api/energy/targets
+GET|PUT|DELETE  /api/energy/targets/:id
+
+GET|POST       /api/energy/meters
+GET|PUT|DELETE  /api/energy/meters/:id
+
+GET|POST       /api/energy/consumption
+GET|PUT|DELETE  /api/energy/consumption/:id
+
+GET|POST       /api/energy/audits
+GET|PUT|DELETE  /api/energy/audits/:id
+
+GET|POST       /api/energy/opportunities
+GET|PUT|DELETE  /api/energy/opportunities/:id
+
+GET|POST       /api/energy/action-plans
+GET|PUT|DELETE  /api/energy/action-plans/:id
+
+GET|POST       /api/energy/monitoring
+GET|PUT|DELETE  /api/energy/monitoring/:id
+
+GET|POST       /api/energy/reports
+GET|PUT|DELETE  /api/energy/reports/:id
+
+GET|POST       /api/energy/regulations
+GET|PUT|DELETE  /api/energy/regulations/:id
+
+GET|POST       /api/energy/training
+GET|PUT|DELETE  /api/energy/training/:id
+
+GET|POST       /api/energy/reviews
+GET|PUT|DELETE  /api/energy/reviews/:id
+```
+
+---
+
+## Analytics API
+
+All Analytics endpoints are proxied: `/api/analytics/*` → `api-analytics:4021/api/*`
+
+### Routes
+```http
+GET|POST       /api/analytics/dashboards
+GET|PUT|DELETE  /api/analytics/dashboards/:id
+
+GET|POST       /api/analytics/reports
+GET|PUT|DELETE  /api/analytics/reports/:id
+
+GET|POST       /api/analytics/datasets
+GET|PUT|DELETE  /api/analytics/datasets/:id
+
+GET|POST       /api/analytics/widgets
+GET|PUT|DELETE  /api/analytics/widgets/:id
+
+GET|POST       /api/analytics/queries
+GET|PUT|DELETE  /api/analytics/queries/:id
+
+GET|POST       /api/analytics/exports
+GET|PUT|DELETE  /api/analytics/exports/:id
+
+GET|POST       /api/analytics/schedules
+GET|PUT|DELETE  /api/analytics/schedules/:id
+
+GET|POST       /api/analytics/alerts
+GET|PUT|DELETE  /api/analytics/alerts/:id
+
+GET|POST       /api/analytics/benchmarks
+GET|PUT|DELETE  /api/analytics/benchmarks/:id
+```
+
+---
+
+## Field Service API
+
+All Field Service endpoints are proxied: `/api/field-service/*` → `api-field-service:4022/api/*`
+
+### Routes
+```http
+GET|POST       /api/field-service/work-orders
+GET|PUT|DELETE  /api/field-service/work-orders/:id
+
+GET|POST       /api/field-service/dispatch
+GET|PUT|DELETE  /api/field-service/dispatch/:id
+
+GET|POST       /api/field-service/technicians
+GET|PUT|DELETE  /api/field-service/technicians/:id
+
+GET|POST       /api/field-service/schedules
+GET|PUT|DELETE  /api/field-service/schedules/:id
+
+GET|POST       /api/field-service/parts
+GET|PUT|DELETE  /api/field-service/parts/:id
+
+GET|POST       /api/field-service/customers
+GET|PUT|DELETE  /api/field-service/customers/:id
+
+GET|POST       /api/field-service/invoices
+GET|PUT|DELETE  /api/field-service/invoices/:id
+
+GET|POST       /api/field-service/routes
+GET|PUT|DELETE  /api/field-service/routes/:id
+
+GET|POST       /api/field-service/inspections
+GET|PUT|DELETE  /api/field-service/inspections/:id
+
+GET|POST       /api/field-service/equipment
+GET|PUT|DELETE  /api/field-service/equipment/:id
+
+GET|POST       /api/field-service/timesheets
+GET|PUT|DELETE  /api/field-service/timesheets/:id
+
+GET|POST       /api/field-service/reports
+GET|PUT|DELETE  /api/field-service/reports/:id
+
+GET|POST       /api/field-service/sla
+GET|PUT|DELETE  /api/field-service/sla/:id
+```
+
+---
+
+## ISO 42001 API (AI Management)
+
+All ISO 42001 endpoints are proxied: `/api/iso42001/*` → `api-iso42001:4023/api/*`
+
+### Routes
+```http
+GET|POST       /api/iso42001/ai-systems
+GET|PUT|DELETE  /api/iso42001/ai-systems/:id
+
+GET|POST       /api/iso42001/risk-assessments
+GET|PUT|DELETE  /api/iso42001/risk-assessments/:id
+
+GET|POST       /api/iso42001/impact-assessments
+GET|PUT|DELETE  /api/iso42001/impact-assessments/:id
+
+GET|POST       /api/iso42001/controls
+GET|PUT|DELETE  /api/iso42001/controls/:id
+
+GET|POST       /api/iso42001/policies
+GET|PUT|DELETE  /api/iso42001/policies/:id
+
+GET|POST       /api/iso42001/audits
+GET|PUT|DELETE  /api/iso42001/audits/:id
+
+GET|POST       /api/iso42001/training
+GET|PUT|DELETE  /api/iso42001/training/:id
+```
+
+---
+
+## ISO 37001 API (Anti-Bribery)
+
+All ISO 37001 endpoints are proxied: `/api/iso37001/*` → `api-iso37001:4024/api/*`
+
+### Routes
+```http
+GET|POST       /api/iso37001/risk-assessments
+GET|PUT|DELETE  /api/iso37001/risk-assessments/:id
+
+GET|POST       /api/iso37001/due-diligence
+GET|PUT|DELETE  /api/iso37001/due-diligence/:id
+
+GET|POST       /api/iso37001/gifts-hospitality
+GET|PUT|DELETE  /api/iso37001/gifts-hospitality/:id
+
+GET|POST       /api/iso37001/policies
+GET|PUT|DELETE  /api/iso37001/policies/:id
+
+GET|POST       /api/iso37001/training
+GET|PUT|DELETE  /api/iso37001/training/:id
+
+GET|POST       /api/iso37001/whistleblowing
+GET|PUT|DELETE  /api/iso37001/whistleblowing/:id
 ```
 
 ---
@@ -1332,6 +1907,50 @@ GET /api/sessions                 # List active sessions
 DELETE /api/sessions/:id          # Revoke session
 ```
 
+### Notifications (WebSocket)
+```http
+GET /api/notifications            # List notifications for current user
+POST /api/notifications           # Create notification
+PATCH /api/notifications/:id/read # Mark notification as read
+PATCH /api/notifications/read-all # Mark all as read
+DELETE /api/notifications/:id     # Delete notification
+```
+
+WebSocket endpoint: `ws://localhost:4000/ws` (authenticated via token query param)
+
+### Roles & Access Log
+```http
+GET /api/roles                    # List all roles
+POST /api/roles                   # Create role
+GET /api/roles/:id                # Get role by ID
+PUT /api/roles/:id                # Update role
+DELETE /api/roles/:id             # Delete role
+GET /api/roles/:id/permissions    # Get role permissions
+PUT /api/roles/:id/permissions    # Update role permissions
+GET /api/access-log               # View access audit log
+```
+
+### Organisations (MSP Mode)
+```http
+GET /api/organisations/msp-tenants      # List MSP tenants
+POST /api/organisations/msp-tenants     # Create tenant
+GET /api/organisations/msp-tenants/:id  # Get tenant
+PUT /api/organisations/msp-tenants/:id  # Update tenant
+DELETE /api/organisations/msp-tenants/:id # Delete tenant
+GET /api/organisations/msp-dashboard    # MSP dashboard stats
+```
+
+### Compliance (Regulatory Feed)
+```http
+GET /api/compliance/regulations         # List regulations (with filters)
+POST /api/compliance/regulations        # Create regulation
+GET /api/compliance/regulations/:id     # Get regulation
+PUT /api/compliance/regulations/:id     # Update regulation
+DELETE /api/compliance/regulations/:id  # Delete regulation
+```
+
+Query parameters: `search`, `jurisdiction`, `standard`, `status`
+
 ---
 
 ## Health Checks
@@ -1363,6 +1982,21 @@ Response:
 | Payroll | `http://localhost:4007/health` |
 | Workflows | `http://localhost:4008/health` |
 | Project Management | `http://localhost:4009/health` |
+| Automotive | `http://localhost:4010/health` |
+| Medical | `http://localhost:4011/health` |
+| Aerospace | `http://localhost:4012/health` |
+| Finance | `http://localhost:4013/health` |
+| CRM | `http://localhost:4014/health` |
+| InfoSec | `http://localhost:4015/health` |
+| ESG | `http://localhost:4016/health` |
+| CMMS | `http://localhost:4017/health` |
+| Portal | `http://localhost:4018/health` |
+| Food Safety | `http://localhost:4019/health` |
+| Energy | `http://localhost:4020/health` |
+| Analytics | `http://localhost:4021/health` |
+| Field Service | `http://localhost:4022/health` |
+| ISO 42001 | `http://localhost:4023/health` |
+| ISO 37001 | `http://localhost:4024/health` |
 
 ---
 

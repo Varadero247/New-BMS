@@ -1,6 +1,6 @@
 # Resolvex IMS - Integrated Management System
 
-A comprehensive, multi-standard Integrated Management System covering ISO 9001, ISO 14001, ISO 45001, IATF 16949, ISO 13485, AS9100D, and PMBOK/ISO 21502 -- with 13 API services, 13 web applications, 23 shared packages, 759 API endpoints, and 283,533 lines of TypeScript.
+A comprehensive, multi-standard Integrated Management System covering ISO 9001, ISO 14001, ISO 45001, IATF 16949, ISO 13485, AS9100D, ISO 27001, ISO 50001, ISO 22000, ISO 42001, ISO 37001, and PMBOK/ISO 21502 -- with 25 API services, 26 web applications, 39 shared packages, and 373 database models.
 
 ## Tech Stack
 
@@ -11,20 +11,19 @@ A comprehensive, multi-standard Integrated Management System covering ISO 9001, 
 - **Mobile**: Capacitor (iOS/Android)
 - **Monorepo**: pnpm workspaces + Turborepo
 - **AI**: Anthropic Claude (Sonnet 4.5), OpenAI, Grok -- multi-provider analysis across all domains
-- **Deployment**: Docker Compose with 28 containerized services (13 APIs + 13 web apps + PostgreSQL + Redis)
+- **Deployment**: Docker Compose with 54 containerized services (25 APIs + 26 web apps + PostgreSQL + Redis + main API)
 
 ## Platform Metrics
 
 | Metric | Count |
 |--------|-------|
-| API Services | 13 |
-| Web Applications | 13 |
-| Shared Packages | 23 |
-| API Endpoints | 759 |
-| React Components | 265 |
-| Lines of TypeScript | 283,533 |
-| Test Files | 184 |
-| Unit Tests | ~4,600+ across ~182 suites |
+| API Services | 25 |
+| Web Applications | 26 |
+| Shared Packages | 39 |
+| Prisma Schemas | 25 |
+| Database Models | 373 |
+| Unit Tests | ~5,450+ across 200+ suites |
+| Integration Tests | 9 scripts (~465+ assertions) |
 | Mobile Apps | 1 (Capacitor) |
 
 ## Architecture
@@ -45,6 +44,19 @@ ims-monorepo/
 │   ├── web-automotive/         # IATF 16949 Module (Port 3010)
 │   ├── web-medical/            # ISO 13485 Module (Port 3011)
 │   ├── web-aerospace/          # AS9100D Module (Port 3012)
+│   ├── web-finance/            # Finance Module (Port 3013)
+│   ├── web-crm/                # CRM Module (Port 3014)
+│   ├── web-infosec/            # ISO 27001 InfoSec Module (Port 3015)
+│   ├── web-esg/                # ESG Module (Port 3016)
+│   ├── web-cmms/               # CMMS Module (Port 3017)
+│   ├── web-customer-portal/    # Customer Portal (Port 3018)
+│   ├── web-supplier-portal/    # Supplier Portal (Port 3019)
+│   ├── web-food-safety/        # ISO 22000 Food Safety (Port 3020)
+│   ├── web-energy/             # ISO 50001 Energy (Port 3021)
+│   ├── web-analytics/          # Analytics Module (Port 3022)
+│   ├── web-field-service/      # Field Service Module (Port 3023)
+│   ├── web-iso42001/           # ISO 42001 AI Management (Port 3024)
+│   ├── web-iso37001/           # ISO 37001 Anti-Bribery (Port 3025)
 │   ├── api-gateway/            # API Gateway (Port 4000)
 │   ├── api-health-safety/      # H&S API Service (Port 4001)
 │   ├── api-environment/        # Environmental API (Port 4002)
@@ -58,6 +70,18 @@ ims-monorepo/
 │   ├── api-automotive/         # Automotive API (Port 4010)
 │   ├── api-medical/            # Medical Devices API (Port 4011)
 │   ├── api-aerospace/          # Aerospace API (Port 4012)
+│   ├── api-finance/            # Finance API (Port 4013)
+│   ├── api-crm/                # CRM API (Port 4014)
+│   ├── api-infosec/            # InfoSec API (Port 4015)
+│   ├── api-esg/                # ESG API (Port 4016)
+│   ├── api-cmms/               # CMMS API (Port 4017)
+│   ├── api-portal/             # Portal API (Port 4018)
+│   ├── api-food-safety/        # Food Safety API (Port 4019)
+│   ├── api-energy/             # Energy API (Port 4020)
+│   ├── api-analytics/          # Analytics API (Port 4021)
+│   ├── api-field-service/      # Field Service API (Port 4022)
+│   ├── api-iso42001/           # ISO 42001 API (Port 4023)
+│   ├── api-iso37001/           # ISO 37001 API (Port 4024)
 │   └── mobile/                 # Capacitor mobile app (iOS/Android)
 ├── packages/
 │   ├── database/               # Prisma schemas and clients (multi-domain)
@@ -82,7 +106,22 @@ ims-monorepo/
 │   ├── cache/                  # Redis caching layer
 │   ├── a11y/                   # WCAG 2.2 AA accessibility utilities
 │   ├── sdk/                    # @resolvex/sdk external SDK
-│   └── testing/                # Shared test utilities
+│   ├── testing/                # Shared test utilities
+│   ├── emission-factors/       # GHG emission factor database
+│   ├── event-bus/              # Inter-service event bus
+│   ├── finance-calculations/   # Financial calculation engine
+│   ├── nlq/                    # Natural language query engine
+│   ├── notifications/          # WebSocket notification system
+│   ├── oee-engine/             # Overall Equipment Effectiveness engine
+│   ├── pdf-generator/          # PDF report generation
+│   ├── performance/            # k6 load tests, Lighthouse CI, WCAG audits
+│   ├── portal-auth/            # Portal authentication (customer/supplier)
+│   ├── pwa/                    # Progressive Web App (service worker, offline)
+│   ├── rbac/                   # Role-based access control (39 roles, 17 modules)
+│   ├── regulatory-feed/        # Regulatory change feed
+│   ├── standards-convergence/  # Multi-standard convergence mapping
+│   ├── tax-engine/             # Multi-jurisdiction tax engine
+│   └── benchmarks/             # Performance benchmarks
 ├── scripts/                    # Service management & test scripts
 ├── docker-compose.yml
 └── turbo.json
@@ -143,7 +182,7 @@ pnpm --filter @ims/database seed
 ### 5. Start Development
 
 ```bash
-# Start all 26 apps (13 APIs + 13 web apps)
+# Start all 52 apps (25 APIs + 26 web apps + main API)
 pnpm dev
 
 # Or start specific modules
@@ -167,7 +206,7 @@ pnpm dev:web
 # Full startup script: kills conflicting ports, starts Docker, seeds DB, recreates tables
 ./scripts/startup.sh
 
-# Start all 26 services with staggered delays
+# Start all 52 services with staggered delays
 ./scripts/start-all-services.sh
 
 # Check all services are healthy
@@ -185,6 +224,18 @@ pnpm dev:web
 | IATF 16949 | Automotive Quality | api-automotive (4010) | 43 |
 | ISO 13485 | Medical Devices | api-medical (4011) | 66 |
 | AS9100D | Aerospace Quality | api-aerospace (4012) | 41 |
+| ISO 27001 | Information Security | api-infosec (4015) | -- |
+| ISO 50001 | Energy Management | api-energy (4020) | -- |
+| ISO 22000/HACCP | Food Safety | api-food-safety (4019) | -- |
+| ISO 42001 | AI Management | api-iso42001 (4023) | -- |
+| ISO 37001 | Anti-Bribery | api-iso37001 (4024) | -- |
+| -- | Finance | api-finance (4013) | -- |
+| -- | CRM | api-crm (4014) | -- |
+| -- | ESG | api-esg (4016) | -- |
+| -- | CMMS | api-cmms (4017) | -- |
+| -- | Analytics | api-analytics (4021) | -- |
+| -- | Field Service | api-field-service (4022) | -- |
+| -- | Portal (Customer/Supplier) | api-portal (4018) | -- |
 
 ## Module Overview
 
@@ -203,6 +254,18 @@ pnpm dev:web
 | **Automotive** | IATF 16949 | 4010 | 43 | 502 (12) | APQP, PPAP, FMEA, Control Plans, MSA, SPC, LPA, CSR |
 | **Medical** | ISO 13485 | 4011 | 66 | 584 (14) | DHF, DMR/DHR, Complaints, PMS, Risk Mgmt, UDI, Software Validation |
 | **Aerospace** | AS9100D | 4012 | 41 | 338 (8) | FAI AS9102C, Configuration Mgmt, Work Orders, Human Factors, OASIS |
+| **Finance** | -- | 4013 | -- | ~321 | GL, AP/AR, budgets, fixed assets, bank reconciliation, financial reporting |
+| **CRM** | -- | 4014 | -- | -- | Contacts, accounts, opportunities, campaigns, tickets, pipelines |
+| **InfoSec** | ISO 27001 | 4015 | -- | -- | Asset register, risk assessment, controls, incidents, Annex A mapping |
+| **ESG** | -- | 4016 | -- | ~207 | Carbon tracking, social metrics, governance, CSRD/TCFD reporting |
+| **CMMS** | -- | 4017 | -- | ~226 | Work orders, preventive maintenance, asset management, spare parts, OEE |
+| **Portal** | -- | 4018 | -- | ~168 | Customer portal, supplier portal, document sharing, self-service |
+| **Food Safety** | ISO 22000/HACCP | 4019 | -- | ~241 | HACCP plans, hazard analysis, CCPs, monitoring, recalls, allergens |
+| **Energy** | ISO 50001 | 4020 | -- | ~196 | Energy baselines, meters, targets, EnPIs, audits, renewables |
+| **Analytics** | -- | 4021 | -- | ~142 | Dashboards, KPIs, reports, data export, trend analysis |
+| **Field Service** | -- | 4022 | -- | ~189 | Work orders, dispatch, scheduling, inventory, SLA tracking |
+| **ISO 42001** | ISO 42001 | 4023 | -- | -- | AI system register, risk assessment, impact assessment, controls |
+| **ISO 37001** | ISO 37001 | 4024 | -- | -- | Risk assessment, due diligence, gifts register, training, whistleblowing |
 
 ### Health & Safety (ISO 45001:2018)
 
@@ -398,6 +461,18 @@ All traffic flows through the API Gateway on port 4000, which handles authentica
 | `/api/automotive/*` | api-automotive:4010 | IATF 16949 -- APQP, PPAP, FMEA, SPC, MSA, LPA, CSR |
 | `/api/medical/*` | api-medical:4011 | ISO 13485 -- DHF, DMR/DHR, complaints, PMS, UDI |
 | `/api/aerospace/*` | api-aerospace:4012 | AS9100D -- FAI, config mgmt, work orders, human factors |
+| `/api/finance/*` | api-finance:4013 | Finance -- GL, AP/AR, budgets, fixed assets, reporting |
+| `/api/crm/*` | api-crm:4014 | CRM -- contacts, accounts, opportunities, campaigns |
+| `/api/infosec/*` | api-infosec:4015 | ISO 27001 -- asset register, controls, incidents, Annex A |
+| `/api/esg/*` | api-esg:4016 | ESG -- carbon tracking, social metrics, CSRD/TCFD |
+| `/api/cmms/*` | api-cmms:4017 | CMMS -- work orders, preventive maintenance, OEE |
+| `/api/portal/*` | api-portal:4018 | Portal -- customer/supplier self-service |
+| `/api/food-safety/*` | api-food-safety:4019 | ISO 22000 -- HACCP, hazard analysis, CCPs, recalls |
+| `/api/energy/*` | api-energy:4020 | ISO 50001 -- baselines, meters, targets, EnPIs |
+| `/api/analytics/*` | api-analytics:4021 | Analytics -- dashboards, KPIs, reports, trends |
+| `/api/field-service/*` | api-field-service:4022 | Field Service -- dispatch, scheduling, SLA tracking |
+| `/api/iso42001/*` | api-iso42001:4023 | ISO 42001 -- AI system register, risk/impact assessment |
+| `/api/iso37001/*` | api-iso37001:4024 | ISO 37001 -- anti-bribery, due diligence, gifts register |
 
 ## Security
 
@@ -414,7 +489,7 @@ All traffic flows through the API Gateway on port 4000, which handles authentica
 
 ## Docker Deployment
 
-28 containerized services: 13 API services + 13 web applications + PostgreSQL + Redis.
+54 containerized services: 25 API services + 26 web applications + PostgreSQL + Redis + main API.
 
 ```bash
 # Build and start all services
@@ -441,7 +516,7 @@ Password: admin123
 
 ## Testing
 
-### Unit Tests (~4,600+ tests across ~182 suites)
+### Unit Tests (~5,450+ tests across 200+ suites)
 
 ```bash
 # Run all Jest unit tests
@@ -468,14 +543,26 @@ Test distribution by service:
 | api-payroll | 163 | 6 |
 | api-inventory | 160 | 6 |
 | api-ai-analysis | 75 | 5 |
-| **Shared packages** | **948** | **--** |
+| api-finance | ~321 | -- |
+| api-esg | ~207 | -- |
+| api-food-safety | ~241 | -- |
+| api-cmms | ~226 | -- |
+| api-energy | ~196 | -- |
+| api-field-service | ~189 | -- |
+| api-portal | ~168 | -- |
+| api-analytics | ~142 | -- |
+| api-crm | -- | -- |
+| api-infosec | -- | -- |
+| api-iso42001 | -- | -- |
+| api-iso37001 | -- | -- |
+| **Shared packages** | **948+** | **--** |
 
-Package test breakdown: auth (108), spc-engine (177), validation (104), esig (103), iso-checklists (101), resilience (71), secrets (64), service-auth (63), file-upload (62), audit (51), monitoring (44).
+Package test breakdown: auth (108), spc-engine (177), validation (104), esig (103), iso-checklists (101), resilience (71), secrets (64), service-auth (63), file-upload (62), audit (51), monitoring (44), rbac, pwa (33), performance (10), notifications (31), benchmarks.
 
-### Integration Tests (~425 assertions)
+### Integration Tests (~465+ assertions)
 
 ```bash
-# Run all integration tests (8 modules)
+# Run all integration tests (9 modules)
 ./scripts/test-all-modules.sh
 
 # Run per-module integration tests
@@ -487,6 +574,7 @@ Package test breakdown: auth (108), spc-engine (177), validation (104), esig (10
 ./scripts/test-inventory-modules.sh # Inventory (~40)
 ./scripts/test-workflows-modules.sh # Workflows (~40)
 ./scripts/test-pm-modules.sh        # PM (~45)
+./scripts/test-finance-modules.sh   # Finance (~40)
 ```
 
 ## Available Scripts
@@ -508,7 +596,7 @@ Package test breakdown: auth (108), spc-engine (177), validation (104), esig (10
 | `pnpm db:migrate` | Run database migrations |
 | `pnpm db:studio` | Open Prisma Studio |
 | `./scripts/startup.sh` | Full startup (ports, Docker, seed, tables) |
-| `./scripts/start-all-services.sh` | Start all 26 services |
+| `./scripts/start-all-services.sh` | Start all 52 services |
 | `./scripts/stop-all-services.sh` | Stop all services |
 | `./scripts/check-services.sh` | Health check all services |
 | `./scripts/test-all-modules.sh` | Run all integration tests |

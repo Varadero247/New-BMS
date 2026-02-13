@@ -1,0 +1,167 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    fsProduct: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import productsRouter from '../src/routes/products';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/products', productsRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/products', () => {
+  it('should return products with pagination', async () => {
+    (prisma as any).fsProduct.findMany.mockResolvedValue([{ id: 'p-1', name: 'Product A' }]);
+    (prisma as any).fsProduct.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/products');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('should filter by status', async () => {
+    (prisma as any).fsProduct.findMany.mockResolvedValue([]);
+    (prisma as any).fsProduct.count.mockResolvedValue(0);
+
+    await request(app).get('/api/products?status=ACTIVE');
+    expect((prisma as any).fsProduct.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('should filter by category', async () => {
+    (prisma as any).fsProduct.findMany.mockResolvedValue([]);
+    (prisma as any).fsProduct.count.mockResolvedValue(0);
+
+    await request(app).get('/api/products?category=Dairy');
+    expect((prisma as any).fsProduct.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          category: expect.objectContaining({ contains: 'Dairy' }),
+        }),
+      })
+    );
+  });
+
+  it('should handle database errors', async () => {
+    (prisma as any).fsProduct.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/products');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/products', () => {
+  it('should create a product', async () => {
+    const created = { id: 'p-1', name: 'Product A', code: 'PROD-001' };
+    (prisma as any).fsProduct.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Product A', code: 'PROD-001',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject invalid input', async () => {
+    const res = await request(app).post('/api/products').send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('should handle database errors', async () => {
+    (prisma as any).fsProduct.create.mockRejectedValue(new Error('Unique constraint'));
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Product A', code: 'PROD-001',
+    });
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/products/:id', () => {
+  it('should return a product by id', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: 'p-1', name: 'Product A' });
+
+    const res = await request(app).get('/api/products/p-1');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('p-1');
+  });
+
+  it('should return 404 for non-existent product', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/products/non-existent');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/products/:id', () => {
+  it('should update a product', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: 'p-1' });
+    (prisma as any).fsProduct.update.mockResolvedValue({ id: 'p-1', name: 'Updated' });
+
+    const res = await request(app).put('/api/products/p-1').send({ name: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 for non-existent product', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/products/non-existent').send({ name: 'Test' });
+    expect(res.status).toBe(404);
+  });
+
+  it('should reject invalid update', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: 'p-1' });
+
+    const res = await request(app).put('/api/products/p-1').send({ status: 'INVALID' });
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('DELETE /api/products/:id', () => {
+  it('should soft delete a product', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: 'p-1' });
+    (prisma as any).fsProduct.update.mockResolvedValue({ id: 'p-1' });
+
+    const res = await request(app).delete('/api/products/p-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 for non-existent product', async () => {
+    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/products/non-existent');
+    expect(res.status).toBe(404);
+  });
+});

@@ -1,0 +1,165 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    fsSvcPartUsed: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: {
+    Decimal: jest.fn((v: any) => v),
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import partsUsedRouter from '../src/routes/parts-used';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/parts-used', partsUsedRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/parts-used', () => {
+  it('should return parts used with pagination', async () => {
+    const parts = [{ id: 'pu-1', partName: 'Filter', quantity: 2, job: {} }];
+    (prisma as any).fsSvcPartUsed.findMany.mockResolvedValue(parts);
+    (prisma as any).fsSvcPartUsed.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('should filter by jobId', async () => {
+    (prisma as any).fsSvcPartUsed.findMany.mockResolvedValue([]);
+    (prisma as any).fsSvcPartUsed.count.mockResolvedValue(0);
+
+    await request(app).get('/api/parts-used?jobId=job-1');
+
+    expect((prisma as any).fsSvcPartUsed.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jobId: 'job-1' }),
+      })
+    );
+  });
+
+  it('should handle server errors', async () => {
+    (prisma as any).fsSvcPartUsed.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/parts-used', () => {
+  it('should create a part used entry', async () => {
+    const created = { id: 'pu-new', partName: 'Compressor', quantity: 1, unitCost: 150, totalCost: 150 };
+    (prisma as any).fsSvcPartUsed.create.mockResolvedValue(created);
+
+    const res = await request(app)
+      .post('/api/parts-used')
+      .send({
+        jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        partName: 'Compressor',
+        partNumber: 'CMP-001',
+        quantity: 1,
+        unitCost: 150,
+        totalCost: 150,
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject invalid data', async () => {
+    const res = await request(app)
+      .post('/api/parts-used')
+      .send({ partName: '' });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /api/parts-used/:id', () => {
+  it('should return a part used entry', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: 'pu-1', partName: 'Filter', job: {} });
+
+    const res = await request(app).get('/api/parts-used/pu-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('pu-1');
+  });
+
+  it('should return 404 for not found', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/parts-used/missing');
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/parts-used/:id', () => {
+  it('should update a part used entry', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: 'pu-1' });
+    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({ id: 'pu-1', quantity: 3 });
+
+    const res = await request(app)
+      .put('/api/parts-used/pu-1')
+      .send({ quantity: 3 });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('should return 404 for not found', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+
+    const res = await request(app)
+      .put('/api/parts-used/missing')
+      .send({ quantity: 3 });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/parts-used/:id', () => {
+  it('should soft delete a part used entry', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: 'pu-1' });
+    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({ id: 'pu-1', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/parts-used/pu-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Part used deleted');
+  });
+
+  it('should return 404 for not found', async () => {
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/parts-used/missing');
+
+    expect(res.status).toBe(404);
+  });
+});

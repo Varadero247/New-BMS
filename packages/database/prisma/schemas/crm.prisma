@@ -1,0 +1,576 @@
+// CRM Schema - Customer Relationship Management
+// Contacts, Accounts, Deals, Quotes, Leads, Campaigns, Partners
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/crm"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CRM_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum CrmAccountType {
+  PROSPECT
+  CUSTOMER
+  PARTNER
+  SUPPLIER
+}
+
+enum CrmDealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum CrmDealSource {
+  INBOUND
+  REFERRAL
+  PARTNER
+  OUTBOUND
+  EVENT
+}
+
+enum CrmActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  TASK
+}
+
+enum CrmQuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum CrmLeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  DISQUALIFIED
+}
+
+enum CrmCampaignType {
+  EMAIL
+  EVENT
+  SOCIAL
+  CONTENT
+  PAID_ADS
+  REFERRAL
+}
+
+enum CrmCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum CrmCampaignMemberStatus {
+  ENROLLED
+  SENT
+  OPENED
+  CLICKED
+  CONVERTED
+  UNSUBSCRIBED
+}
+
+enum CrmSequenceStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+}
+
+enum CrmEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  UNSUBSCRIBED
+}
+
+enum CrmPartnerTier {
+  TIER_1_REFERRAL
+  TIER_2_COSELL
+  TIER_3_RESELLER
+}
+
+enum CrmPartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum CrmReferralStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum CrmCommissionType {
+  COMMISSION
+  BOUNTY
+}
+
+enum CrmCommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+}
+
+// ============================================
+// CONTACTS
+// ============================================
+
+model CrmContact {
+  id            String          @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String          @unique
+  phone         String?
+  title         String?
+  department    String?
+  accountId     String?
+  account       CrmAccount?     @relation(fields: [accountId], references: [id])
+  tags          String[]        @default([])
+  source        CrmDealSource
+  notes         String?
+  avatarUrl     String?
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  dealContacts      CrmDealContact[]
+  activities        CrmActivity[]
+  campaignMembers   CrmCampaignMember[]
+  emailEnrollments  CrmEmailEnrollment[]
+
+  @@map("crm_contacts")
+  @@index([accountId])
+  @@index([email])
+}
+
+// ============================================
+// ACCOUNTS
+// ============================================
+
+model CrmAccount {
+  id                  String          @id @default(cuid())
+  name                String
+  type                CrmAccountType
+  industry            String?
+  size                String?
+  website             String?
+  address             String?
+  phone               String?
+  assignedTo          String?
+  tags                String[]        @default([])
+  customFields        Json?           @default("{}")
+  qualitySupplierScore Int?           @default(0)
+  openNCRCount        Int?            @default(0)
+  openComplaintCount  Int?            @default(0)
+  lifetimeRevenue     Decimal?        @db.Decimal(14, 2)
+  openInvoiceValue    Decimal?        @db.Decimal(14, 2)
+  lastInvoiceDate     DateTime?
+  createdBy           String
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
+
+  contacts    CrmContact[]
+  deals       CrmDeal[]
+  activities  CrmActivity[]
+  quotes      CrmQuote[]
+  partner     CrmPartner?
+
+  @@map("crm_accounts")
+}
+
+// ============================================
+// PIPELINES
+// ============================================
+
+model CrmPipeline {
+  id            String              @id @default(cuid())
+  name          String
+  isDefault     Boolean             @default(false)
+  createdBy     String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
+
+  stages        CrmPipelineStage[]
+  deals         CrmDeal[]
+
+  @@map("crm_pipelines")
+}
+
+model CrmPipelineStage {
+  id            String       @id @default(cuid())
+  pipelineId    String
+  pipeline      CrmPipeline  @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name          String
+  order         Int
+  probability   Int          @default(0)
+  color         String?
+  createdBy     String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  deals         CrmDeal[]
+
+  @@map("crm_pipeline_stages")
+  @@index([pipelineId])
+}
+
+// ============================================
+// DEALS
+// ============================================
+
+model CrmDeal {
+  id                String         @id @default(cuid())
+  refNumber         String         @unique
+  title             String
+  value             Decimal        @db.Decimal(14, 2)
+  currency          String         @default("GBP")
+  probability       Int            @default(0)
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  assignedTo        String?
+  accountId         String?
+  account           CrmAccount?    @relation(fields: [accountId], references: [id])
+  pipelineId        String?
+  pipeline          CrmPipeline?   @relation(fields: [pipelineId], references: [id])
+  stageId           String?
+  stage             CrmPipelineStage? @relation(fields: [stageId], references: [id])
+  source            CrmDealSource?
+  lostReason        String?
+  wonNotes          String?
+  status            CrmDealStatus  @default(OPEN)
+  createdBy         String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  contacts          CrmDealContact[]
+  activities        CrmActivity[]
+  quotes            CrmQuote[]
+  referrals         CrmReferral[]
+
+  @@map("crm_deals")
+  @@index([accountId])
+  @@index([pipelineId])
+  @@index([stageId])
+  @@index([status])
+}
+
+// ============================================
+// DEAL-CONTACT JOIN
+// ============================================
+
+model CrmDealContact {
+  id            String     @id @default(cuid())
+  dealId        String
+  deal          CrmDeal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  contactId     String
+  contact       CrmContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  role          String?
+  createdBy     String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_deal_contacts")
+  @@unique([dealId, contactId])
+}
+
+// ============================================
+// ACTIVITIES
+// ============================================
+
+model CrmActivity {
+  id            String          @id @default(cuid())
+  type          CrmActivityType
+  subject       String
+  description   String?
+  contactId     String?
+  contact       CrmContact?     @relation(fields: [contactId], references: [id])
+  dealId        String?
+  deal          CrmDeal?        @relation(fields: [dealId], references: [id])
+  accountId     String?
+  account       CrmAccount?     @relation(fields: [accountId], references: [id])
+  dueDate       DateTime?
+  completed     Boolean         @default(false)
+  completedAt   DateTime?
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_activities")
+  @@index([contactId])
+  @@index([dealId])
+  @@index([accountId])
+}
+
+// ============================================
+// QUOTES
+// ============================================
+
+model CrmQuote {
+  id            String          @id @default(cuid())
+  refNumber     String          @unique
+  dealId        String?
+  deal          CrmDeal?        @relation(fields: [dealId], references: [id])
+  accountId     String?
+  account       CrmAccount?     @relation(fields: [accountId], references: [id])
+  contactId     String?
+  title         String
+  status        CrmQuoteStatus  @default(DRAFT)
+  validUntil    DateTime?
+  subtotal      Decimal         @db.Decimal(14, 2)
+  taxTotal      Decimal         @db.Decimal(14, 2)
+  total         Decimal         @db.Decimal(14, 2)
+  currency      String          @default("GBP")
+  notes         String?
+  terms         String?
+  sentAt        DateTime?
+  acceptedAt    DateTime?
+  rejectedAt    DateTime?
+  createdBy     String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  lines         CrmQuoteLine[]
+
+  @@map("crm_quotes")
+  @@index([dealId])
+  @@index([accountId])
+  @@index([status])
+}
+
+model CrmQuoteLine {
+  id            String    @id @default(cuid())
+  quoteId       String
+  quote         CrmQuote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  description   String
+  quantity      Decimal   @db.Decimal(14, 4)
+  unitPrice     Decimal   @db.Decimal(14, 2)
+  discount      Decimal   @default(0) @db.Decimal(5, 2)
+  taxRate       Decimal   @default(0) @db.Decimal(5, 2)
+  subtotal      Decimal   @db.Decimal(14, 2)
+  taxAmount     Decimal   @db.Decimal(14, 2)
+  total         Decimal   @db.Decimal(14, 2)
+  sortOrder     Int       @default(0)
+  createdBy     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_quote_lines")
+  @@index([quoteId])
+}
+
+// ============================================
+// LEADS
+// ============================================
+
+model CrmLead {
+  id                  String        @id @default(cuid())
+  refNumber           String        @unique
+  firstName           String
+  lastName            String
+  email               String
+  phone               String?
+  company             String?
+  source              String?
+  status              CrmLeadStatus @default(NEW)
+  score               Int           @default(0)
+  notes               String?
+  qualifiedAt         DateTime?
+  disqualifiedAt      DateTime?
+  disqualifyReason    String?
+  convertedDealId     String?
+  convertedContactId  String?
+  convertedAccountId  String?
+  createdBy           String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  deletedAt           DateTime?
+
+  @@map("crm_leads")
+  @@index([status])
+  @@index([email])
+}
+
+// ============================================
+// CAMPAIGNS
+// ============================================
+
+model CrmCampaign {
+  id              String             @id @default(cuid())
+  name            String
+  type            CrmCampaignType
+  status          CrmCampaignStatus  @default(DRAFT)
+  startDate       DateTime?
+  endDate         DateTime?
+  budget          Decimal?           @db.Decimal(14, 2)
+  spent           Decimal?           @default(0) @db.Decimal(14, 2)
+  targetAudience  String?
+  description     String?
+  createdBy       String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  members         CrmCampaignMember[]
+
+  @@map("crm_campaigns")
+}
+
+model CrmCampaignMember {
+  id            String                   @id @default(cuid())
+  campaignId    String
+  campaign      CrmCampaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId     String
+  contact       CrmContact               @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  status        CrmCampaignMemberStatus  @default(ENROLLED)
+  enrolledAt    DateTime                 @default(now())
+  respondedAt   DateTime?
+  createdBy     String
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_campaign_members")
+  @@unique([campaignId, contactId])
+}
+
+// ============================================
+// EMAIL SEQUENCES
+// ============================================
+
+model CrmEmailSequence {
+  id            String             @id @default(cuid())
+  name          String
+  description   String?
+  steps         Json               @default("[]")
+  status        CrmSequenceStatus  @default(DRAFT)
+  createdBy     String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+
+  enrollments   CrmEmailEnrollment[]
+
+  @@map("crm_email_sequences")
+}
+
+model CrmEmailEnrollment {
+  id            String                @id @default(cuid())
+  sequenceId    String
+  sequence      CrmEmailSequence      @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  contactId     String
+  contact       CrmContact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  currentStep   Int                   @default(0)
+  status        CrmEnrollmentStatus   @default(ACTIVE)
+  enrolledAt    DateTime              @default(now())
+  completedAt   DateTime?
+  createdBy     String
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_email_enrollments")
+  @@unique([sequenceId, contactId])
+}
+
+// ============================================
+// PARTNERS
+// ============================================
+
+model CrmPartner {
+  id                  String           @id @default(cuid())
+  accountId           String           @unique
+  account             CrmAccount       @relation(fields: [accountId], references: [id])
+  tier                CrmPartnerTier
+  status              CrmPartnerStatus @default(PENDING)
+  commissionRate      Decimal          @db.Decimal(5, 2)
+  bountyAmount        Decimal          @default(0) @db.Decimal(14, 2)
+  commissionDuration  Int              @default(12)
+  totalReferrals      Int              @default(0)
+  totalCommissionPaid Decimal          @default(0) @db.Decimal(14, 2)
+  notes               String?
+  createdBy           String
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  deletedAt           DateTime?
+
+  referrals           CrmReferral[]
+  commissions         CrmCommission[]
+
+  @@map("crm_partners")
+}
+
+// ============================================
+// REFERRALS
+// ============================================
+
+model CrmReferral {
+  id               String            @id @default(cuid())
+  partnerId        String
+  partner          CrmPartner        @relation(fields: [partnerId], references: [id])
+  dealId           String
+  deal             CrmDeal           @relation(fields: [dealId], references: [id])
+  status           CrmReferralStatus @default(PENDING)
+  commissionAmount Decimal?          @db.Decimal(14, 2)
+  paidAt           DateTime?
+  createdBy        String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+
+  commissions      CrmCommission[]
+
+  @@map("crm_referrals")
+  @@index([partnerId])
+  @@index([dealId])
+}
+
+// ============================================
+// COMMISSIONS
+// ============================================
+
+model CrmCommission {
+  id            String              @id @default(cuid())
+  partnerId     String
+  partner       CrmPartner          @relation(fields: [partnerId], references: [id])
+  referralId    String?
+  referral      CrmReferral?        @relation(fields: [referralId], references: [id])
+  amount        Decimal             @db.Decimal(14, 2)
+  type          CrmCommissionType
+  status        CrmCommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  invoiceRef    String?
+  createdBy     String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
+
+  @@map("crm_commissions")
+  @@index([partnerId])
+}

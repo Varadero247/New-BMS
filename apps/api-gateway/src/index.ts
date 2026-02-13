@@ -23,6 +23,10 @@ import complianceScoresRoutes from './routes/compliance-scores';
 import sessionsRoutes from './routes/sessions';
 import reportRoutes from './routes/reports';
 import v1Routes from './routes/v1';
+import mspRoutes from './routes/msp';
+import notificationsRoutes from './routes/notifications';
+import complianceRoutes from './routes/compliance';
+import rolesRouter from './routes/roles';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter, strictApiLimiter } from './middleware/rate-limiter';
@@ -51,6 +55,18 @@ const SERVICES = {
   automotive: process.env.SERVICE_AUTOMOTIVE_URL || process.env.AUTOMOTIVE_URL || 'http://localhost:4010',
   medical: process.env.SERVICE_MEDICAL_URL || process.env.MEDICAL_URL || 'http://localhost:4011',
   aerospace: process.env.SERVICE_AEROSPACE_URL || process.env.AEROSPACE_URL || 'http://localhost:4012',
+  finance: process.env.SERVICE_FINANCE_URL || process.env.FINANCE_URL || 'http://localhost:4013',
+  crm: process.env.SERVICE_CRM_URL || process.env.CRM_URL || 'http://localhost:4014',
+  infosec: process.env.SERVICE_INFOSEC_URL || process.env.INFOSEC_URL || 'http://localhost:4015',
+  esg: process.env.SERVICE_ESG_URL || process.env.ESG_URL || 'http://localhost:4016',
+  cmms: process.env.SERVICE_CMMS_URL || process.env.CMMS_URL || 'http://localhost:4017',
+  portal: process.env.SERVICE_PORTAL_URL || process.env.PORTAL_URL || 'http://localhost:4018',
+  foodSafety: process.env.SERVICE_FOOD_SAFETY_URL || process.env.FOOD_SAFETY_URL || 'http://localhost:4019',
+  energy: process.env.SERVICE_ENERGY_URL || process.env.ENERGY_URL || 'http://localhost:4020',
+  analytics: process.env.SERVICE_ANALYTICS_URL || process.env.ANALYTICS_URL || 'http://localhost:4021',
+  fieldService: process.env.SERVICE_FIELD_SERVICE_URL || process.env.FIELD_SERVICE_URL || 'http://localhost:4022',
+  iso42001: process.env.SERVICE_ISO42001_URL || process.env.ISO42001_URL || 'http://localhost:4023',
+  iso37001: process.env.SERVICE_ISO37001_URL || process.env.ISO37001_URL || 'http://localhost:4024',
 };
 
 // Generate service token for inter-service authentication
@@ -91,6 +107,11 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008',
   'http://localhost:3009', 'http://localhost:3010', 'http://localhost:3011',
   'http://localhost:3012',
+  'http://localhost:3013',
+  'http://localhost:3014', 'http://localhost:3015', 'http://localhost:3016',
+  'http://localhost:3017', 'http://localhost:3018', 'http://localhost:3019',
+  'http://localhost:3020', 'http://localhost:3021', 'http://localhost:3022',
+  'http://localhost:3023', 'http://localhost:3024', 'http://localhost:3025',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -200,6 +221,14 @@ app.use('/api/dashboard/compliance-calendar', complianceCalendarRoutes);
 app.use('/api/dashboard/compliance-scores', complianceScoresRoutes);
 app.use('/api/sessions', deprecatedRoute('/api/v1/sessions'), sessionsRoutes);
 app.use('/api/reports', deprecatedRoute('/api/v1/reports'), reportRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/v1/notifications', addVersionHeader('v1'), notificationsRoutes);
+app.use('/api/organisations', mspRoutes);
+app.use('/api/v1/organisations', addVersionHeader('v1'), mspRoutes);
+app.use('/api/compliance', complianceRoutes);
+app.use('/api/v1/compliance', addVersionHeader('v1'), complianceRoutes);
+app.use('/api/roles', rolesRouter);
+app.use('/api/access-log', rolesRouter);
 
 // ============================================
 // API v1 Proxy Routes (current version)
@@ -259,6 +288,18 @@ app.use('/api/v1/project-management', addVersionHeader('v1'), createServiceProxy
 app.use('/api/v1/automotive', addVersionHeader('v1'), createServiceProxy('Automotive', SERVICES.automotive, '/api/v1/automotive', 'Automotive service unavailable'));
 app.use('/api/v1/medical', addVersionHeader('v1'), createServiceProxy('Medical', SERVICES.medical, '/api/v1/medical', 'Medical service unavailable'));
 app.use('/api/v1/aerospace', addVersionHeader('v1'), createServiceProxy('Aerospace', SERVICES.aerospace, '/api/v1/aerospace', 'Aerospace service unavailable'));
+app.use('/api/v1/finance', addVersionHeader('v1'), createServiceProxy('Finance', SERVICES.finance, '/api/v1/finance', 'Finance service unavailable'));
+app.use('/api/v1/crm', addVersionHeader('v1'), createServiceProxy('CRM', SERVICES.crm, '/api/v1/crm', 'CRM service unavailable'));
+app.use('/api/v1/infosec', addVersionHeader('v1'), createServiceProxy('InfoSec', SERVICES.infosec, '/api/v1/infosec', 'InfoSec service unavailable'));
+app.use('/api/v1/esg', addVersionHeader('v1'), createServiceProxy('ESG', SERVICES.esg, '/api/v1/esg', 'ESG service unavailable'));
+app.use('/api/v1/cmms', addVersionHeader('v1'), createServiceProxy('CMMS', SERVICES.cmms, '/api/v1/cmms', 'CMMS service unavailable'));
+app.use('/api/v1/portal', addVersionHeader('v1'), createServiceProxy('Portal', SERVICES.portal, '/api/v1/portal', 'Portal service unavailable'));
+app.use('/api/v1/food-safety', addVersionHeader('v1'), createServiceProxy('Food Safety', SERVICES.foodSafety, '/api/v1/food-safety', 'Food Safety service unavailable'));
+app.use('/api/v1/energy', addVersionHeader('v1'), createServiceProxy('Energy', SERVICES.energy, '/api/v1/energy', 'Energy service unavailable'));
+app.use('/api/v1/analytics', addVersionHeader('v1'), createServiceProxy('Analytics', SERVICES.analytics, '/api/v1/analytics', 'Analytics service unavailable'));
+app.use('/api/v1/field-service', addVersionHeader('v1'), createServiceProxy('Field Service', SERVICES.fieldService, '/api/v1/field-service', 'Field Service service unavailable'));
+app.use('/api/v1/iso42001', addVersionHeader('v1'), createServiceProxy('ISO 42001', SERVICES.iso42001, '/api/v1/iso42001', 'ISO 42001 AI Management service unavailable'));
+app.use('/api/v1/iso37001', addVersionHeader('v1'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/v1/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -275,6 +316,18 @@ app.use('/api/project-management', deprecatedRoute('/api/v1/project-management')
 app.use('/api/automotive', deprecatedRoute('/api/v1/automotive'), createServiceProxy('Automotive', SERVICES.automotive, '/api/automotive', 'Automotive service unavailable'));
 app.use('/api/medical', deprecatedRoute('/api/v1/medical'), createServiceProxy('Medical', SERVICES.medical, '/api/medical', 'Medical service unavailable'));
 app.use('/api/aerospace', deprecatedRoute('/api/v1/aerospace'), createServiceProxy('Aerospace', SERVICES.aerospace, '/api/aerospace', 'Aerospace service unavailable'));
+app.use('/api/finance', deprecatedRoute('/api/v1/finance'), createServiceProxy('Finance', SERVICES.finance, '/api/finance', 'Finance service unavailable'));
+app.use('/api/crm', deprecatedRoute('/api/v1/crm'), createServiceProxy('CRM', SERVICES.crm, '/api/crm', 'CRM service unavailable'));
+app.use('/api/infosec', deprecatedRoute('/api/v1/infosec'), createServiceProxy('InfoSec', SERVICES.infosec, '/api/infosec', 'InfoSec service unavailable'));
+app.use('/api/esg', deprecatedRoute('/api/v1/esg'), createServiceProxy('ESG', SERVICES.esg, '/api/esg', 'ESG service unavailable'));
+app.use('/api/cmms', deprecatedRoute('/api/v1/cmms'), createServiceProxy('CMMS', SERVICES.cmms, '/api/cmms', 'CMMS service unavailable'));
+app.use('/api/portal', deprecatedRoute('/api/v1/portal'), createServiceProxy('Portal', SERVICES.portal, '/api/portal', 'Portal service unavailable'));
+app.use('/api/food-safety', deprecatedRoute('/api/v1/food-safety'), createServiceProxy('Food Safety', SERVICES.foodSafety, '/api/food-safety', 'Food Safety service unavailable'));
+app.use('/api/energy', deprecatedRoute('/api/v1/energy'), createServiceProxy('Energy', SERVICES.energy, '/api/energy', 'Energy service unavailable'));
+app.use('/api/analytics', deprecatedRoute('/api/v1/analytics'), createServiceProxy('Analytics', SERVICES.analytics, '/api/analytics', 'Analytics service unavailable'));
+app.use('/api/field-service', deprecatedRoute('/api/v1/field-service'), createServiceProxy('Field Service', SERVICES.fieldService, '/api/field-service', 'Field Service service unavailable'));
+app.use('/api/iso42001', deprecatedRoute('/api/v1/iso42001'), createServiceProxy('ISO 42001', SERVICES.iso42001, '/api/iso42001', 'ISO 42001 AI Management service unavailable'));
+app.use('/api/iso37001', deprecatedRoute('/api/v1/iso37001'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

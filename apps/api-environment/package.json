@@ -15,6 +15,7 @@
     "@ims/calculations": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
+    "@ims/rbac": "workspace:*",
     "@ims/types": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
