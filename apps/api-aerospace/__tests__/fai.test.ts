@@ -1597,6 +1597,8 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when openItems array is empty', async () => {
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
+
       const response = await request(app)
         .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
         .set('Authorization', 'Bearer token')
@@ -1607,6 +1609,8 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when openItems contains empty strings', async () => {
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
+
       const response = await request(app)
         .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
         .set('Authorization', 'Bearer token')
@@ -1617,6 +1621,8 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when openItems field is missing', async () => {
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
+
       const response = await request(app)
         .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
         .set('Authorization', 'Bearer token')
@@ -1627,6 +1633,8 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when openItems is not an array', async () => {
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
+
       const response = await request(app)
         .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
         .set('Authorization', 'Bearer token')
