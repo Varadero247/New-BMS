@@ -16,11 +16,13 @@ import {
   Home,
   Settings,
   FileText,
+  Grid3X3,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Risks', href: '/risks', icon: AlertTriangle },
+  { name: 'Risk Matrix', href: '/risk-matrix', icon: Grid3X3 },
   { name: 'Incidents', href: '/incidents', icon: FileWarning },
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },

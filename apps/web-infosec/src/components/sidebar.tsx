@@ -19,6 +19,8 @@ import {
   Clock,
   Home,
   Settings,
+  Map,
+  BarChart3,
 } from 'lucide-react';
 
 const ismsNavigation = [
@@ -29,6 +31,7 @@ const ismsNavigation = [
 
 const controlsNavigation = [
   { name: 'Annex A Controls', href: '/controls', icon: Shield },
+  { name: 'Controls Dashboard', href: '/controls-dashboard', icon: BarChart3 },
   { name: 'SoA', href: '/controls/soa', icon: CheckSquare },
 ];
 
@@ -51,6 +54,7 @@ const privacyNavigation = [
   { name: 'ROPA', href: '/privacy/ropa', icon: FileText },
   { name: 'DPIA', href: '/privacy/dpia', icon: Eye },
   { name: 'DSAR', href: '/privacy/dsar', icon: UserCheck },
+  { name: 'Data Map', href: '/data-map', icon: Map },
 ];
 
 const quickLinks = [

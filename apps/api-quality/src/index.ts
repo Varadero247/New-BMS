@@ -50,6 +50,11 @@ import productSafetyRouter from './routes/product-safety';
 import designDevelopmentRouter from './routes/design-development';
 import evidencePackRouter from './routes/evidence-pack';
 import headstartRouter from './routes/headstart';
+import calibrationsRouter from './routes/calibrations';
+import competencesRouter from './routes/competences';
+import raciRouter from './routes/raci';
+import releasesRouter from './routes/releases';
+import managementReviewsRouter from './routes/management-reviews';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -99,6 +104,11 @@ app.use('/api/product-safety', productSafetyRouter);
 app.use('/api/design-development', designDevelopmentRouter);
 app.use('/api/evidence-pack', evidencePackRouter);
 app.use('/api/headstart', headstartRouter);
+app.use('/api/calibrations', calibrationsRouter);
+app.use('/api/competences', competencesRouter);
+app.use('/api/raci', raciRouter);
+app.use('/api/releases', releasesRouter);
+app.use('/api/management-reviews', managementReviewsRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

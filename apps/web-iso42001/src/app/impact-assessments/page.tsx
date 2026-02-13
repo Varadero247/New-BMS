@@ -150,9 +150,14 @@ export default function ImpactAssessmentsPage() {
             <h1 className="text-3xl font-bold text-gray-900">Impact Assessments</h1>
             <p className="text-gray-500 mt-1">AI system impact assessments per ISO 42001 Clause 6.1.4</p>
           </div>
-          <button onClick={openAddModal} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-            New Assessment
-          </button>
+          <div className="flex gap-2">
+            <a href="/impact-assessments/wizard" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+              Guided Wizard
+            </a>
+            <button onClick={openAddModal} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              Quick Create
+            </button>
+          </div>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}

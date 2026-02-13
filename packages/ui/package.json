@@ -11,7 +11,15 @@
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./tailwind-preset": {
+      "import": "./tailwind-preset.ts",
+      "require": "./tailwind-preset.ts"
+    },
+    "./tokens": {
+      "import": "./src/tokens.ts",
+      "require": "./src/tokens.ts"
+    }
   },
   "scripts": {
     "build": "tsup --no-dts",

@@ -10,12 +10,14 @@ import {
   GraduationCap,
   ShieldAlert,
   FileSearch,
+  CheckCircle,
   Home,
   Settings,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Compliance', href: '/compliance', icon: CheckCircle },
   { name: 'Policies', href: '/policies', icon: FileText },
   { name: 'Due Diligence', href: '/due-diligence', icon: Search },
   { name: 'Gifts Register', href: '/gifts', icon: Gift },

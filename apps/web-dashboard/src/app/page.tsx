@@ -299,6 +299,69 @@ export default function DashboardPage() {
             </Card>
           </div>
 
+          {/* Quick Actions + Activity Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {[
+                  { label: 'Report Incident', href: 'http://localhost:3001/incidents', color: 'bg-red-50 text-red-700 hover:bg-red-100 border-red-200' },
+                  { label: 'Raise NCR', href: 'http://localhost:3003/nonconformances', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
+                  { label: 'New CAPA', href: 'http://localhost:3003/capa', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
+                  { label: 'Log Environmental Event', href: 'http://localhost:3002/events', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
+                  { label: 'Create Work Order', href: 'http://localhost:3017/work-orders', color: 'bg-stone-50 text-stone-700 hover:bg-stone-100 border-stone-200' },
+                  { label: 'New Risk Assessment', href: 'http://localhost:3001/risks', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200' },
+                ].map(action => (
+                  <a key={action.label} href={action.href} className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}>
+                    {action.label}
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Cross-Module Activity Feed */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { module: 'Quality', action: 'NCR created', detail: 'NCR-2026-0042 — Supplier material out of spec', time: '5m ago', color: 'bg-blue-500' },
+                    { module: 'H&S', action: 'Incident resolved', detail: 'INC-2026-0118 — Slip hazard in warehouse', time: '22m ago', color: 'bg-red-500' },
+                    { module: 'CMMS', action: 'PM completed', detail: 'WO-2026-0315 — HVAC quarterly maintenance', time: '45m ago', color: 'bg-stone-500' },
+                    { module: 'Environment', action: 'Aspect reviewed', detail: 'ENV-ASP-2026-012 — Water discharge monitoring', time: '1h ago', color: 'bg-green-500' },
+                    { module: 'CRM', action: 'Deal closed', detail: 'Enterprise license — Acme Corp ($48,000)', time: '2h ago', color: 'bg-pink-500' },
+                    { module: 'InfoSec', action: 'Risk mitigated', detail: 'ISR-2026-008 — Endpoint encryption deployed', time: '3h ago', color: 'bg-cyan-500' },
+                    { module: 'Field Service', action: 'Job dispatched', detail: 'FSJ-2026-0089 — Emergency repair at Site 7', time: '4h ago', color: 'bg-blue-500' },
+                    { module: 'Finance', action: 'Invoice approved', detail: 'INV-2026-0401 — Q1 supplier payment batch', time: '5h ago', color: 'bg-lime-500' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="mt-1 flex flex-col items-center">
+                        <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+                        {i < 7 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-semibold text-gray-400 uppercase">{item.module}</span>
+                          <span className="text-xs text-gray-500">{item.action}</span>
+                          <span className="text-[10px] text-gray-400 ml-auto shrink-0">{item.time}</span>
+                        </div>
+                        <p className="text-sm text-gray-700 truncate">{item.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Top Risks */}

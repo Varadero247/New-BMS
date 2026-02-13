@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans, Sora } from 'next/font/google';
 import './globals.css';
 import { I18nProvider } from '@ims/i18n/src/provider';
 
-const inter = Inter({ subsets: ['latin'] });
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
+const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700'] });
 
 export const metadata: Metadata = {
   title: 'IMS - Field Service Management',
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}><I18nProvider>{children}</I18nProvider></body>
+      <body className={`${dmSans.variable} ${sora.variable} font-body`}><I18nProvider>{children}</I18nProvider></body>
     </html>
   );
 }

@@ -22,11 +22,14 @@ import {
   ShieldAlert,
   Shield,
   Layers,
+  CheckCircle,
+  Columns,
 } from 'lucide-react';
 
 // Quality Section
 const qualityNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Compliance Dashboard', href: '/compliance-dashboard', icon: CheckCircle },
   { name: 'Risks & Opportunities', href: '/risks', icon: AlertTriangle },
   { name: 'Processes', href: '/processes', icon: Workflow },
   { name: 'Non-Conformance', href: '/nonconformances', icon: AlertOctagon },
@@ -36,7 +39,9 @@ const qualityNavigation = [
 // Modules Section
 const modulesNavigation = [
   { name: 'Documents', href: '/documents', icon: FileText },
+  { name: 'Document Register', href: '/document-register', icon: FileSpreadsheet },
   { name: 'CAPA', href: '/capa', icon: ClipboardCheck },
+  { name: 'CAPA Board', href: '/capa/board', icon: Columns },
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'FMEA', href: '/fmea', icon: FileSpreadsheet },
   { name: 'Continual Improvement', href: '/improvements', icon: Lightbulb },
@@ -46,6 +51,11 @@ const modulesNavigation = [
   { name: 'Product Safety', href: '/product-safety', icon: Shield },
   { name: 'Design & Development', href: '/design-development', icon: Layers },
   { name: 'Objectives', href: '/objectives', icon: Target },
+  { name: 'Calibrations', href: '/calibrations', icon: BarChart3 },
+  { name: 'Competences', href: '/competences', icon: ClipboardList },
+  { name: 'RACI Matrix', href: '/raci', icon: BarChart3 },
+  { name: 'Releases', href: '/releases', icon: ClipboardCheck },
+  { name: 'Management Reviews', href: '/management-reviews', icon: ClipboardList },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 

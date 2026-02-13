@@ -35,6 +35,7 @@ const navigation = [
   { name: 'Timesheets', href: '/timesheets', icon: Clock },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Benefits', href: '/benefits', icon: TrendingUp },
+  { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 

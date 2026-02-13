@@ -11,6 +11,10 @@ import {
   Home,
   Activity,
   UserCircle,
+  Bell,
+  Palette,
+  Plug,
+  Key,
 } from 'lucide-react';
 
 const navigation = [
@@ -20,6 +24,11 @@ const navigation = [
   { name: 'Access Log', href: '/access-log', icon: Activity },
   { name: 'My Profile', href: '/my-profile', icon: UserCircle },
   { name: 'AI Configuration', href: '/ai-config', icon: Sparkles },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Appearance', href: '/appearance', icon: Palette },
+  { name: 'Integrations', href: '/integrations', icon: Plug },
+  { name: 'API Keys', href: '/api-keys', icon: Key },
+  { name: 'Audit Log', href: '/audit-log', icon: Shield },
   { name: 'System Settings', href: '/system', icon: SettingsIcon },
 ];
 

@@ -1,0 +1,279 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    qualManagementReview: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN', organisationId: 'org-1' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import { prisma } from '../src/prisma';
+import managementReviewsRouter from '../src/routes/management-reviews';
+
+const app = express();
+app.use(express.json());
+app.use('/api/management-reviews', managementReviewsRouter);
+
+const mockReview = {
+  id: '00000000-0000-0000-0000-000000000001',
+  referenceNumber: 'MR-2026-001',
+  title: 'Q1 2026 Management Review',
+  meetingDate: '2026-03-15T00:00:00.000Z',
+  status: 'PLANNED',
+  chairperson: 'Jane Director',
+  attendees: ['Quality Manager', 'Operations Manager', 'HR Manager'],
+  agenda: 'Review QMS performance, audit results, customer feedback',
+  minutes: null,
+  decisions: null,
+  completedAt: null,
+  organisationId: 'org-1',
+  createdAt: '2026-02-01T00:00:00.000Z',
+  updatedAt: '2026-02-01T00:00:00.000Z',
+};
+
+describe('Management Reviews Routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/management-reviews', () => {
+    it('should return a list of management reviews', async () => {
+      (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/management-reviews');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].title).toBe('Q1 2026 Management Review');
+    });
+
+    it('should filter by status', async () => {
+      (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/management-reviews?status=PLANNED');
+      expect(res.status).toBe(200);
+      expect(prisma.qualManagementReview.findMany).toHaveBeenCalled();
+    });
+
+    it('should support pagination', async () => {
+      (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/management-reviews?page=1&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should support search by title', async () => {
+      (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/management-reviews?search=Q1');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should handle errors', async () => {
+      (prisma.qualManagementReview.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).get('/api/management-reviews');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('POST /api/management-reviews', () => {
+    it('should create a management review', async () => {
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(0);
+      (prisma.qualManagementReview.create as jest.Mock).mockResolvedValue(mockReview);
+
+      const res = await request(app).post('/api/management-reviews').send({
+        title: 'Q1 2026 Management Review',
+        meetingDate: '2026-03-15',
+        status: 'PLANNED',
+        chairperson: 'Jane Director',
+        agenda: 'Review QMS performance, audit results, customer feedback',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.title).toBe('Q1 2026 Management Review');
+    });
+
+    it('should validate required fields', async () => {
+      const res = await request(app).post('/api/management-reviews').send({});
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should handle creation errors', async () => {
+      (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(0);
+      (prisma.qualManagementReview.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).post('/api/management-reviews').send({
+        title: 'Q1 2026 Management Review',
+        meetingDate: '2026-03-15',
+        status: 'PLANNED',
+        chairperson: 'Jane Director',
+        agenda: 'Review QMS performance',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('GET /api/management-reviews/:id', () => {
+    it('should return a management review by id', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+
+      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe('PLANNED');
+    });
+
+    it('should return 404 if not found', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should handle errors', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('PUT /api/management-reviews/:id', () => {
+    it('should update a management review', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({ ...mockReview, status: 'IN_PROGRESS' });
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001').send({
+        status: 'IN_PROGRESS',
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe('IN_PROGRESS');
+    });
+
+    it('should return 404 if not found', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000099').send({
+        status: 'IN_PROGRESS',
+      });
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should handle update errors', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+      (prisma.qualManagementReview.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001').send({
+        status: 'IN_PROGRESS',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('PUT /api/management-reviews/:id/complete', () => {
+    it('should complete a management review', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({
+        ...mockReview,
+        status: 'COMPLETED',
+        minutes: 'All items reviewed and approved',
+        decisions: 'Continue current QMS approach',
+        completedAt: '2026-03-15T16:00:00.000Z',
+      });
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete').send({
+        minutes: 'All items reviewed and approved',
+        decisions: 'Continue current QMS approach',
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe('COMPLETED');
+      expect(res.body.data.completedAt).toBeTruthy();
+    });
+
+    it('should return 404 if review not found for complete', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000099/complete').send({
+        minutes: 'Minutes',
+        decisions: 'Decisions',
+      });
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should handle complete errors', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+      (prisma.qualManagementReview.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete').send({
+        minutes: 'Minutes',
+        decisions: 'Decisions',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('DELETE /api/management-reviews/:id', () => {
+    it('should soft delete a management review', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({ ...mockReview, deletedAt: new Date().toISOString() });
+
+      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(prisma.qualManagementReview.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+      );
+    });
+
+    it('should return 404 if not found', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('should handle delete errors', async () => {
+      (prisma.qualManagementReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+});

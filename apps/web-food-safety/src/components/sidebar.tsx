@@ -1,9 +1,9 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, AlertTriangle, Crosshair, Activity, ClipboardCheck, Building2, RotateCcw, Link2, Sparkles, Apple, Package, AlertOctagon, GraduationCap, Microscope, Shield, Home, Settings } from 'lucide-react';
+import { LayoutDashboard, AlertTriangle, Crosshair, Activity, ClipboardCheck, Building2, RotateCcw, Link2, Sparkles, Apple, Package, AlertOctagon, GraduationCap, Microscope, Shield, GitBranch, Home, Settings } from 'lucide-react';
 
-const mainNav = [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }, { name: 'Hazards', href: '/hazards', icon: AlertTriangle }, { name: 'CCPs', href: '/ccps', icon: Crosshair }, { name: 'Monitoring', href: '/monitoring', icon: Activity }];
+const mainNav = [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }, { name: 'HACCP Flow', href: '/haccp-flow', icon: GitBranch }, { name: 'Hazards', href: '/hazards', icon: AlertTriangle }, { name: 'CCPs', href: '/ccps', icon: Crosshair }, { name: 'Monitoring', href: '/monitoring', icon: Activity }];
 const qualityNav = [{ name: 'NCRs', href: '/ncrs', icon: AlertOctagon }, { name: 'Audits', href: '/audits', icon: ClipboardCheck }, { name: 'Suppliers', href: '/suppliers', icon: Building2 }, { name: 'Recalls', href: '/recalls', icon: RotateCcw }];
 const operationsNav = [{ name: 'Products', href: '/products', icon: Package }, { name: 'Allergens', href: '/allergens', icon: Sparkles }, { name: 'Traceability', href: '/traceability', icon: Link2 }, { name: 'Sanitation', href: '/sanitation', icon: Apple }, { name: 'Training', href: '/training', icon: GraduationCap }];
 const complianceNav = [{ name: 'Env Monitoring', href: '/environmental-monitoring', icon: Microscope }, { name: 'Food Defense', href: '/food-defense', icon: Shield }];

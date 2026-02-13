@@ -42,6 +42,7 @@ const modulesNavigation = [
   { name: 'UDI Management', href: '/udi', icon: Barcode },
   { name: 'Post-Market Surveillance', href: '/pms', icon: Activity },
   { name: 'Software Validation', href: '/software', icon: Code },
+  { name: 'Regulatory Submissions', href: '/submissions', icon: FileCheck },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 

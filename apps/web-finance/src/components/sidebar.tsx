@@ -46,6 +46,7 @@ const bankingNavigation = [
 const reportsNavigation = [
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Budgets', href: '/budgets', icon: PiggyBank },
+  { name: 'Budget Dashboard', href: '/budget-dashboard', icon: BarChart3 },
   { name: 'Integrations', href: '/integrations', icon: LinkIcon },
 ];
 

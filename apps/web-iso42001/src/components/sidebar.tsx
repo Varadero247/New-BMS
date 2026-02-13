@@ -11,6 +11,9 @@ import {
   Shield,
   Scale,
   Award,
+  ScrollText,
+  UserCheck,
+  Activity,
   Home,
   Settings,
 } from 'lucide-react';
@@ -24,6 +27,9 @@ const navigation = [
   { name: 'Controls', href: '/controls', icon: Shield },
   { name: 'Impact Assessments', href: '/impact-assessments', icon: Scale },
   { name: 'Self-Declaration', href: '/self-declaration', icon: Award },
+  { name: 'Audit Log', href: '/audit-log', icon: ScrollText },
+  { name: 'Human Review', href: '/human-review', icon: UserCheck },
+  { name: 'Monitoring', href: '/monitoring', icon: Activity },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 

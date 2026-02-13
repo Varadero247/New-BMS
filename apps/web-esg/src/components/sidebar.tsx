@@ -18,11 +18,13 @@ import {
   ClipboardCheck,
   Home,
   Settings,
+  BarChart3,
 } from 'lucide-react';
 
 const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Emissions', href: '/emissions', icon: Cloud },
+  { name: 'Emissions Dashboard', href: '/emissions-dashboard', icon: BarChart3 },
   { name: 'Targets', href: '/targets', icon: Target },
 ];
 
@@ -43,6 +45,8 @@ const reportingNavigation = [
   { name: 'Materiality', href: '/materiality', icon: Grid3X3 },
   { name: 'Stakeholders', href: '/stakeholders', icon: UserCheck },
   { name: 'Audits', href: '/audits', icon: ClipboardCheck },
+  { name: 'Initiatives', href: '/initiatives', icon: Target },
+  { name: 'Metrics Dashboard', href: '/metrics-dashboard', icon: BarChart3 },
 ];
 
 const externalLinks = [

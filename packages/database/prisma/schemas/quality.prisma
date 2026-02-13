@@ -1971,3 +1971,223 @@ enum RecallStatus {
   COMPLETED
   CLOSED
 }
+
+// ============================================
+// CALIBRATION REGISTER (ISO 9001 §7.1.5)
+// ============================================
+
+enum CalibrationStatus {
+  CURRENT
+  DUE
+  OVERDUE
+  OUT_OF_SERVICE
+  RETIRED
+}
+
+model QualCalibration {
+  id                String            @id @default(cuid())
+  referenceNumber   String            @unique
+  equipmentName     String
+  equipmentId       String?
+  manufacturer      String?
+  modelNumber       String?
+  serialNumber      String?
+  location          String?
+  calibrationMethod String?
+  standardUsed      String?
+  acceptanceCriteria String?
+  status            CalibrationStatus @default(CURRENT)
+  lastCalibrationDate DateTime?
+  nextCalibrationDate DateTime?
+  calibrationFrequency String?
+  calibratedBy      String?
+  certificateNumber String?
+  results           String?
+  deviation         String?
+  adjustments       String?
+  notes             String?
+
+  organisationId    String
+  createdBy         String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  deletedAt         DateTime?
+
+  @@map("qual_calibrations")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([nextCalibrationDate])
+}
+
+// ============================================
+// COMPETENCE RECORDS (ISO 9001 §7.2)
+// ============================================
+
+enum CompetenceStatus {
+  COMPETENT
+  IN_TRAINING
+  NOT_COMPETENT
+  EXPIRED
+}
+
+model QualCompetence {
+  id                String           @id @default(cuid())
+  referenceNumber   String           @unique
+  employeeName      String
+  employeeId        String?
+  role              String?
+  department        String?
+  competencyArea    String
+  requiredLevel     String?
+  currentLevel      String?
+  status            CompetenceStatus @default(IN_TRAINING)
+  trainingCompleted String?
+  certifications    String?
+  assessmentDate    DateTime?
+  nextReviewDate    DateTime?
+  assessor          String?
+  evidence          String?
+  gapAnalysis       String?
+  actionPlan        String?
+  notes             String?
+
+  organisationId    String
+  createdBy         String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
+
+  @@map("qual_competences")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([nextReviewDate])
+  @@index([employeeId])
+}
+
+// ============================================
+// RACI MATRIX (ISO 9001 §5.3)
+// ============================================
+
+enum RaciRole {
+  RESPONSIBLE
+  ACCOUNTABLE
+  CONSULTED
+  INFORMED
+}
+
+model QualRaci {
+  id                String    @id @default(cuid())
+  referenceNumber   String    @unique
+  processName       String
+  processId         String?
+  activityName      String
+  roleName          String
+  personName        String?
+  raciType          RaciRole
+  notes             String?
+
+  organisationId    String
+  createdBy         String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  @@map("qual_raci")
+  @@index([organisationId, deletedAt])
+  @@index([processId])
+  @@index([raciType])
+}
+
+// ============================================
+// RELEASE RECORDS (ISO 9001 §8.6)
+// ============================================
+
+enum ReleaseDecision {
+  APPROVED
+  REJECTED
+  CONDITIONAL
+  ON_HOLD
+}
+
+model QualRelease {
+  id                String          @id @default(cuid())
+  referenceNumber   String          @unique
+  productName       String
+  productId         String?
+  batchNumber       String?
+  releaseStage      String?
+  inspectionCriteria String?
+  testResults       String?
+  decision          ReleaseDecision @default(ON_HOLD)
+  authorisedBy      String?
+  authorisedAt      DateTime?
+  conditions        String?
+  nonconformanceRef String?
+  evidence          String?
+  notes             String?
+
+  organisationId    String
+  createdBy         String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
+
+  @@map("qual_releases")
+  @@index([organisationId, deletedAt])
+  @@index([decision])
+  @@index([productId])
+}
+
+// ============================================
+// MANAGEMENT REVIEW (ISO 9001 §9.3)
+// ============================================
+
+enum ManagementReviewStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model QualManagementReview {
+  id                String                 @id @default(cuid())
+  referenceNumber   String                 @unique
+  title             String
+  meetingDate       DateTime
+  chairperson       String?
+  attendees         String?
+  status            ManagementReviewStatus @default(PLANNED)
+
+  // ISO 9001 §9.3.2 inputs
+  previousActions   String?
+  changesInContext   String?
+  customerFeedback  String?
+  qualityObjectives String?
+  processPerformance String?
+  nonconformanceSummary String?
+  auditResults      String?
+  supplierPerformance String?
+  resourceAdequacy  String?
+  riskAssessment    String?
+
+  // ISO 9001 §9.3.3 outputs
+  improvements      String?
+  resourceNeeds     String?
+  decisions         String?
+  actionItems       String?
+  nextReviewDate    DateTime?
+
+  minutes           String?
+  notes             String?
+
+  organisationId    String
+  createdBy         String
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  deletedAt         DateTime?
+
+  @@map("qual_management_reviews")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([meetingDate])
+}

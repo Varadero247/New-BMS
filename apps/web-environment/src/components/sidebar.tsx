@@ -22,6 +22,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Aspects & Impacts', href: '/aspects', icon: Leaf },
+  { name: 'Aspect Register', href: '/aspect-register', icon: ClipboardList },
   { name: 'Environmental Events', href: '/events', icon: AlertCircle },
   { name: 'Legal Register', href: '/legal', icon: Scale },
   { name: 'Objectives', href: '/objectives', icon: Target },

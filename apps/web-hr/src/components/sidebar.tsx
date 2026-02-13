@@ -17,12 +17,14 @@ import {
   UserPlus,
   Award,
   ClipboardList,
+  Network,
 } from 'lucide-react';
 
 const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Employees', href: '/employees', icon: Users },
   { name: 'Departments', href: '/departments', icon: Building2 },
+  { name: 'Org Chart', href: '/org-chart', icon: Network },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 

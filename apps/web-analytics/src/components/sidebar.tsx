@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, PieChart, FileText, Database, BarChart3, Bell, Download, Code, Calendar, GitCompare, Home, Settings } from 'lucide-react';
 
 const mainNav = [{ name: 'Executive Dashboard', href: '/', icon: LayoutDashboard }, { name: 'Custom Dashboards', href: '/dashboards', icon: PieChart }];
-const reportsNav = [{ name: 'Reports', href: '/reports', icon: FileText }, { name: 'Datasets', href: '/datasets', icon: Database }, { name: 'Queries', href: '/queries', icon: Code }];
+const reportsNav = [{ name: 'Reports', href: '/reports', icon: FileText }, { name: 'Datasets', href: '/datasets', icon: Database }, { name: 'Queries', href: '/queries', icon: Code }, { name: 'Natural Language Query', href: '/nlq', icon: Code }];
 const monitorNav = [{ name: 'KPIs', href: '/kpis', icon: BarChart3 }, { name: 'Alerts', href: '/alerts', icon: Bell }, { name: 'Exports', href: '/exports', icon: Download }, { name: 'Schedules', href: '/schedules', icon: Calendar }, { name: 'Benchmarks', href: '/benchmarks', icon: GitCompare }];
 const extLinks = [{ name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home }, { name: 'Settings', href: 'http://localhost:3004', icon: Settings }];
 

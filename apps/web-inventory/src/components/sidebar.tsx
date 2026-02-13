@@ -25,6 +25,8 @@ const navigation = [
   { name: 'Stock Adjustments', href: '/adjustments', icon: ArrowRightLeft },
   { name: 'Transactions', href: '/transactions', icon: History },
   { name: 'Warehouses', href: '/warehouses', icon: Warehouse },
+  { name: 'Categories', href: '/categories', icon: Tags },
+  { name: 'Suppliers', href: '/suppliers', icon: Truck },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Templates', href: '/templates', icon: FileText },
 ];

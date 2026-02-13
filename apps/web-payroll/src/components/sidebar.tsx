@@ -32,6 +32,8 @@ const navigation = [
 
   // Compliance
   { name: 'Tax Compliance', href: '/tax', icon: Calculator },
+  { name: 'Tax Calculator', href: '/tax-calculator', icon: Calculator },
+  { name: 'Jurisdictions', href: '/jurisdictions', icon: Calculator },
 
   // Reports
   { name: 'Reports', href: '/reports', icon: BarChart3 },

@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { DM_Sans, Sora } from 'next/font/google';
 import "./globals.css";
 import { I18nProvider } from '@ims/i18n/src/provider';
 import Sidebar from "@/components/sidebar";
+
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
+const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700'] });
 
 export const metadata: Metadata = {
   title: "IMS - Workflow Management",
@@ -15,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={`${dmSans.variable} ${sora.variable} font-body antialiased`}>
         <I18nProvider>
           <div className="flex h-screen">
             <Sidebar />

@@ -1,6 +1,8 @@
 import type { Config } from 'tailwindcss';
+import uiPreset from '@ims/ui/tailwind-preset';
 
 const config: Config = {
+  presets: [uiPreset as Config],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,24 +10,6 @@ const config: Config = {
     '../../packages/ui/src/**/*.{js,ts,jsx,tsx}',
     '../../packages/charts/src/**/*.{js,ts,jsx,tsx}',
   ],
-  theme: {
-    extend: {
-      colors: {
-        inventory: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-        },
-      },
-    },
-  },
   plugins: [],
 };
 

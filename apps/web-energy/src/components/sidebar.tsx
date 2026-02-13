@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Gauge, BarChart3, TrendingDown, Target, Zap, FolderKanban, Activity, ClipboardCheck, Receipt, Bell, Shield, FileText, Home, Settings } from 'lucide-react';
 
-const mainNav = [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }, { name: 'Meters', href: '/meters', icon: Gauge }, { name: 'Readings', href: '/readings', icon: BarChart3 }, { name: 'Baselines', href: '/baselines', icon: TrendingDown }];
+const mainNav = [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }, { name: 'Performance', href: '/performance-dashboard', icon: Activity }, { name: 'Meters', href: '/meters', icon: Gauge }, { name: 'Readings', href: '/readings', icon: BarChart3 }, { name: 'Baselines', href: '/baselines', icon: TrendingDown }];
 const mgmtNav = [{ name: 'Targets', href: '/targets', icon: Target }, { name: 'SEUs', href: '/seus', icon: Zap }, { name: 'Projects', href: '/projects', icon: FolderKanban }, { name: 'EnPIs', href: '/enpis', icon: Activity }];
 const compNav = [{ name: 'Audits', href: '/audits', icon: ClipboardCheck }, { name: 'Bills', href: '/bills', icon: Receipt }, { name: 'Alerts', href: '/alerts', icon: Bell }, { name: 'Compliance', href: '/compliance', icon: Shield }, { name: 'Reports', href: '/reports', icon: FileText }];
 const extLinks = [{ name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home }, { name: 'Settings', href: 'http://localhost:3004', icon: Settings }];

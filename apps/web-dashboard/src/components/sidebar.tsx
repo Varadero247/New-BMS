@@ -33,6 +33,8 @@ import {
   Zap,
   Brain,
   Scale,
+  Activity,
+  ClipboardList,
 } from 'lucide-react';
 
 interface NavItem {
@@ -58,6 +60,13 @@ const internalLinks: NavItem[] = [
     bgColor: 'bg-purple-100',
   },
   {
+    name: 'Executive Summary',
+    href: '/executive-summary',
+    icon: BarChart3,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-100',
+  },
+  {
     name: 'Templates',
     href: '/templates',
     icon: FileText,
@@ -70,6 +79,20 @@ const internalLinks: NavItem[] = [
     icon: CalendarCheck,
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-100',
+  },
+  {
+    name: 'Audit Trail',
+    href: '/audit-trail',
+    icon: ClipboardList,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-100',
+  },
+  {
+    name: 'System Status',
+    href: '/system-status',
+    icon: Activity,
+    color: 'text-green-600',
+    bgColor: 'bg-green-100',
   },
 ];
 

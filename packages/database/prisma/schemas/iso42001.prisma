@@ -351,3 +351,84 @@ model AiSelfDeclaration {
   @@index([status])
   @@index([standard])
 }
+
+// ============================================
+// AI AUDIT LOG — automatic decision logging
+// ============================================
+
+enum AiAuditAction {
+  DECISION
+  OVERRIDE
+  REVIEW
+  APPROVAL
+  REJECTION
+  ESCALATION
+  CONFIG_CHANGE
+}
+
+model AiAuditLog {
+  id              String          @id @default(cuid())
+  systemId        String?
+  action          AiAuditAction
+  description     String
+  inputSummary    String?
+  outputSummary   String?
+  userId          String
+  userName        String?
+  ipAddress       String?
+  metadata        Json?
+  riskScore       Int?
+
+  organisationId  String
+  createdAt       DateTime        @default(now())
+
+  @@map("ai_audit_logs")
+  @@index([organisationId])
+  @@index([systemId])
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ============================================
+// HUMAN REVIEW GATE — approval workflow for AI decisions
+// ============================================
+
+enum HumanReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ESCALATED
+  EXPIRED
+}
+
+model AiHumanReview {
+  id              String            @id @default(cuid())
+  systemId        String
+  title           String
+  description     String?
+  aiDecision      String
+  aiConfidence    Float?
+  aiReasoning     String?
+  reviewerUserId  String?
+  reviewerName    String?
+  status          HumanReviewStatus @default(PENDING)
+  decision        String?
+  justification   String?
+  reviewedAt      DateTime?
+  expiresAt       DateTime?
+  metadata        Json?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  @@map("ai_human_reviews")
+  @@index([organisationId, deletedAt])
+  @@index([systemId])
+  @@index([status])
+  @@index([reviewerUserId])
+  @@index([expiresAt])
+}

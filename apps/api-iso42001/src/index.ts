@@ -32,6 +32,8 @@ import incidentsRouter from './routes/incidents';
 import controlsRouter from './routes/controls';
 import impactAssessmentsRouter from './routes/impact-assessments';
 import selfDeclarationRouter from './routes/self-declaration';
+import auditLogRouter from './routes/audit-log';
+import humanReviewRouter from './routes/human-review';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4023;
@@ -67,6 +69,8 @@ app.use('/api/incidents', incidentsRouter);
 app.use('/api/controls', controlsRouter);
 app.use('/api/impact-assessments', impactAssessmentsRouter);
 app.use('/api/self-declaration', selfDeclarationRouter);
+app.use('/api/audit-log', auditLogRouter);
+app.use('/api/human-review', humanReviewRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

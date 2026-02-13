@@ -16,6 +16,7 @@ const sections: NavSection[] = [
     items: [
       { label: 'Dashboard', href: '/', icon: <LayoutDashboard className="h-5 w-5" /> },
       { label: 'Jobs', href: '/jobs', icon: <Truck className="h-5 w-5" /> },
+      { label: 'Map View', href: '/map-view', icon: <MapPin className="h-5 w-5" /> },
       { label: 'Technicians', href: '/technicians', icon: <Users className="h-5 w-5" /> },
     ],
   },

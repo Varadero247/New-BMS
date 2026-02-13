@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'NPS Survey', href: '/nps', icon: ThumbsUp },
   { name: 'Tickets', href: '/tickets', icon: Ticket },
+  { name: 'Self-Service', href: '/self-service', icon: LayoutDashboard },
 ];
 
 const externalLinks = [

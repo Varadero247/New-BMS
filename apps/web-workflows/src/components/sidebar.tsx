@@ -32,6 +32,7 @@ const navigation = [
   // Management
   { name: 'Approvals', href: '/approvals', icon: Users },
   { name: 'Automation', href: '/automation', icon: Zap },
+  { name: 'Automation Rules', href: '/automations', icon: Zap },
 
   // Analytics
   { name: 'Reports', href: '/reports', icon: BarChart3 },

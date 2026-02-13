@@ -45,7 +45,7 @@ const partnersNavigation = [
 
 const reportsNavigation = [
   { name: 'Sales Dashboard', href: '/reports', icon: BarChart3 },
-  { name: 'Forecast', href: '/reports/forecast', icon: TrendingUp },
+  { name: 'Forecast', href: '/forecast', icon: TrendingUp },
 ];
 
 const quickLinks = [

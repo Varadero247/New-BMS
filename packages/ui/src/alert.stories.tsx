@@ -1,70 +1,5 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-
-// Alert component (inline definition — not yet in the UI package as a standalone)
-interface AlertProps {
-  variant?: 'info' | 'success' | 'warning' | 'error';
-  title?: string;
-  children: React.ReactNode;
-  onDismiss?: () => void;
-}
-
-const variantStyles: Record<string, { container: string; icon: string; title: string }> = {
-  info: {
-    container: 'background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;display:flex;gap:12px',
-    icon: 'color:#3b82f6',
-    title: 'color:#1e40af',
-  },
-  success: {
-    container: 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;display:flex;gap:12px',
-    icon: 'color:#22c55e',
-    title: 'color:#15803d',
-  },
-  warning: {
-    container: 'background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;display:flex;gap:12px',
-    icon: 'color:#f59e0b',
-    title: 'color:#92400e',
-  },
-  error: {
-    container: 'background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;display:flex;gap:12px',
-    icon: 'color:#ef4444',
-    title: 'color:#991b1b',
-  },
-};
-
-const icons: Record<string, string> = {
-  info: 'ℹ',
-  success: '✓',
-  warning: '⚠',
-  error: '✕',
-};
-
-function Alert({ variant = 'info', title, children, onDismiss }: AlertProps) {
-  const styles = variantStyles[variant];
-  return (
-    <div style={{ cssText: styles.container } as React.CSSProperties}>
-      <span style={{ fontSize: '1.25rem', lineHeight: 1, color: styles.icon.split(':')[1] }}>
-        {icons[variant]}
-      </span>
-      <div style={{ flex: 1 }}>
-        {title && (
-          <p style={{ fontWeight: 600, fontSize: '0.875rem', color: styles.title.split(':')[1], marginBottom: '4px' }}>
-            {title}
-          </p>
-        )}
-        <p style={{ fontSize: '0.875rem', color: '#374151' }}>{children}</p>
-      </div>
-      {onDismiss && (
-        <button
-          onClick={onDismiss}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: '1rem' }}
-        >
-          ×
-        </button>
-      )}
-    </div>
-  );
-}
+import { Alert } from './alert';
 
 const meta: Meta<typeof Alert> = {
   title: 'Components/Alert',
@@ -75,22 +10,45 @@ const meta: Meta<typeof Alert> = {
       control: 'select',
       options: ['info', 'success', 'warning', 'error'],
     },
-    title: { control: 'text' },
+    dismissible: {
+      control: 'boolean',
+    },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof Alert>;
 
-export const Info: Story = {
+export const Default: Story = {
   args: {
     variant: 'info',
-    title: 'Information',
     children: 'This is an informational alert message.',
   },
 };
 
+export const Info: Story = {
+  args: {
+    variant: 'info',
+    children: 'This is an informational message. You can use this to provide helpful context or tips.',
+  },
+};
+
+export const InfoWithTitle: Story = {
+  args: {
+    variant: 'info',
+    title: 'Information',
+    children: 'This is an informational alert with a title and additional details.',
+  },
+};
+
 export const Success: Story = {
+  args: {
+    variant: 'success',
+    children: 'Operation completed successfully!',
+  },
+};
+
+export const SuccessWithTitle: Story = {
   args: {
     variant: 'success',
     title: 'Success',
@@ -101,51 +59,147 @@ export const Success: Story = {
 export const Warning: Story = {
   args: {
     variant: 'warning',
+    children: 'Please be careful. This action may have unintended consequences.',
+  },
+};
+
+export const WarningWithTitle: Story = {
+  args: {
+    variant: 'warning',
     title: 'Warning',
-    children: 'This action may have unintended side effects. Please review before proceeding.',
+    children: 'This field is required before you can proceed. Please provide a value.',
   },
 };
 
 export const Error: Story = {
   args: {
     variant: 'error',
-    title: 'Error',
-    children: 'Something went wrong. Please try again or contact support.',
+    children: 'An error occurred while processing your request. Please try again.',
   },
 };
 
-export const WithoutTitle: Story = {
+export const ErrorWithTitle: Story = {
   args: {
-    variant: 'info',
-    children: 'A simple alert without a title heading.',
+    variant: 'error',
+    title: 'Error',
+    children: 'Failed to load the data. Please check your connection and try again.',
   },
 };
 
 export const Dismissible: Story = {
-  render: () => {
-    const [visible, setVisible] = React.useState(true);
-    return visible ? (
-      <Alert variant="success" title="Upload Complete" onDismiss={() => setVisible(false)}>
-        Your file has been uploaded and processed successfully.
-      </Alert>
-    ) : (
-      <button
-        style={{ padding: '6px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}
-        onClick={() => setVisible(true)}
-      >
-        Show Alert
-      </button>
-    );
+  args: {
+    variant: 'info',
+    dismissible: true,
+    children: 'Click the X button to dismiss this alert.',
   },
 };
 
-export const AllVariants: Story = {
+export const DismissibleWithTitle: Story = {
+  args: {
+    variant: 'success',
+    title: 'Setup Complete',
+    dismissible: true,
+    children: 'Your account has been created successfully. You can now log in with your credentials.',
+  },
+};
+
+export const DismissibleWarning: Story = {
+  args: {
+    variant: 'warning',
+    title: 'Browser Compatibility',
+    dismissible: true,
+    children: 'You are using an older browser. Some features may not work correctly. Please consider updating.',
+  },
+};
+
+export const DismissibleError: Story = {
+  args: {
+    variant: 'error',
+    title: 'Connection Lost',
+    dismissible: true,
+    children: 'Unable to connect to the server. Please check your internet connection and try again.',
+  },
+};
+
+export const LongContent: Story = {
+  args: {
+    variant: 'info',
+    title: 'Important Notice',
+    children: (
+      <div>
+        <p>This system has been updated with several new features and improvements.</p>
+        <ul className="mt-2 ml-4 list-disc">
+          <li>Enhanced security protocols</li>
+          <li>Improved performance</li>
+          <li>New reporting capabilities</li>
+        </ul>
+      </div>
+    ),
+  },
+};
+
+export const Multiple: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '500px' }}>
-      <Alert variant="info" title="Info">An informational message.</Alert>
-      <Alert variant="success" title="Success">Operation completed successfully.</Alert>
-      <Alert variant="warning" title="Warning">Please review before continuing.</Alert>
-      <Alert variant="error" title="Error">Something went wrong.</Alert>
+    <div className="space-y-4 max-w-2xl">
+      <Alert variant="info" title="Information">
+        This is how an info alert looks with a title.
+      </Alert>
+      <Alert variant="success" title="Success">
+        Your operation was successful!
+      </Alert>
+      <Alert variant="warning" title="Warning">
+        Please review this warning before proceeding.
+      </Alert>
+      <Alert variant="error" title="Error">
+        An error has occurred. Please contact support if this persists.
+      </Alert>
+    </div>
+  ),
+};
+
+export const MultipleWithDismiss: Story = {
+  render: () => (
+    <div className="space-y-4 max-w-2xl">
+      <Alert variant="info" dismissible title="Info">
+        Informational message with dismiss button.
+      </Alert>
+      <Alert variant="success" dismissible title="Success">
+        Success message with dismiss button.
+      </Alert>
+      <Alert variant="warning" dismissible title="Warning">
+        Warning message with dismiss button.
+      </Alert>
+      <Alert variant="error" dismissible title="Error">
+        Error message with dismiss button.
+      </Alert>
+    </div>
+  ),
+};
+
+export const FormValidation: Story = {
+  render: () => (
+    <div className="space-y-4 max-w-md">
+      <Alert variant="error" title="Validation Error">
+        Please correct the following errors:
+        <ul className="mt-2 ml-4 list-disc text-sm">
+          <li>Email address is required</li>
+          <li>Password must be at least 8 characters</li>
+          <li>Terms must be accepted</li>
+        </ul>
+      </Alert>
+    </div>
+  ),
+};
+
+export const SystemStatus: Story = {
+  render: () => (
+    <div className="space-y-4 max-w-2xl">
+      <Alert variant="success" dismissible title="System Online">
+        All systems are operational and running normally.
+      </Alert>
+      <Alert variant="warning" title="Maintenance Scheduled">
+        Scheduled maintenance will occur on Friday at 2:00 AM UTC. Some services may be unavailable.
+      </Alert>
     </div>
   ),
 };

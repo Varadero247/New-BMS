@@ -16,6 +16,8 @@ import {
   Clock,
   Gauge,
   MessageSquare,
+  CalendarDays,
+  HeartPulse,
   Home,
   Settings,
 } from 'lucide-react';
@@ -23,7 +25,9 @@ import {
 const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Assets', href: '/assets', icon: Server },
+  { name: 'Asset Health', href: '/asset-health', icon: HeartPulse },
   { name: 'Work Orders', href: '/work-orders', icon: Wrench },
+  { name: 'Scheduler', href: '/scheduler', icon: CalendarDays },
 ];
 
 const maintenanceNavigation = [

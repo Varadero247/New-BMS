@@ -28,6 +28,7 @@ const aerospaceNavigation = [
   { name: 'Baselines', href: '/baselines', icon: Database },
   { name: 'Configuration Audits', href: '/audits', icon: Search },
   { name: 'Product Safety', href: '/product-safety', icon: Shield },
+  { name: 'Compliance Tracker', href: '/compliance-tracker', icon: FileCheck },
 ];
 
 // Modules Section
