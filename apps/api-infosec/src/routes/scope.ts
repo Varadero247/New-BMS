@@ -30,7 +30,7 @@ const scopeUpdateSchema = z.object({
 // ---------------------------------------------------------------------------
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    const scope = await prisma.ismsScope.findFirst({
+    const scope = await prisma.isScope.findFirst({
       orderBy: { createdAt: 'desc' },
     });
 
@@ -39,8 +39,8 @@ router.get('/', async (_req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: scope });
-  } catch (error: any) {
-    logger.error('Failed to get ISMS scope', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get ISMS scope' });
   }
 });
@@ -56,13 +56,13 @@ router.put('/', async (req: Request, res: Response) => {
     }
 
     const authReq = req as AuthRequest;
-    const existing = await prisma.ismsScope.findFirst({
+    const existing = await prisma.isScope.findFirst({
       orderBy: { createdAt: 'desc' },
     });
 
     let scope;
     if (existing) {
-      scope = await prisma.ismsScope.update({
+      scope = await prisma.isScope.update({
         where: { id: existing.id },
         data: {
           ...parsed.data,
@@ -71,7 +71,7 @@ router.put('/', async (req: Request, res: Response) => {
         },
       });
     } else {
-      scope = await prisma.ismsScope.create({
+      scope = await prisma.isScope.create({
         data: {
           name: parsed.data.name || 'ISMS Scope',
           description: parsed.data.description || null,
@@ -90,8 +90,8 @@ router.put('/', async (req: Request, res: Response) => {
 
     logger.info('ISMS scope updated', { scopeId: scope.id });
     res.json({ success: true, data: scope });
-  } catch (error: any) {
-    logger.error('Failed to update ISMS scope', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update ISMS scope' });
   }
 });

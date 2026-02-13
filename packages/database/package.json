@@ -102,13 +102,21 @@
     "./field-service": {
       "import": "./generated/field-service/index.js",
       "require": "./generated/field-service/index.js"
+    },
+    "./iso42001": {
+      "import": "./generated/iso42001/index.js",
+      "require": "./generated/iso42001/index.js"
+    },
+    "./iso37001": {
+      "import": "./generated/iso37001/index.js",
+      "require": "./generated/iso37001/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -161,7 +169,11 @@
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "clean": "rm -rf dist node_modules .turbo generated",
-    "test": "jest"
+    "test": "jest",
+    "generate:iso42001": "prisma generate --schema=prisma/schemas/iso42001.prisma",
+    "generate:iso37001": "prisma generate --schema=prisma/schemas/iso37001.prisma",
+    "push:iso42001": "prisma db push --schema=prisma/schemas/iso42001.prisma",
+    "push:iso37001": "prisma db push --schema=prisma/schemas/iso37001.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

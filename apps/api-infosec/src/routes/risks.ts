@@ -87,7 +87,7 @@ router.post('/', async (req: Request, res: Response) => {
     const riskScore = parsed.data.likelihood * parsed.data.impact;
     const riskLevel = calculateRiskLevel(riskScore);
 
-    const risk = await prisma.infoSecRisk.create({
+    const risk = await prisma.isRisk.create({
       data: {
         refNumber,
         title: parsed.data.title,
@@ -108,8 +108,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Information security risk created', { riskId: risk.id, refNumber, riskScore, riskLevel });
     res.status(201).json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to create risk', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create risk', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create risk' });
   }
 });
@@ -144,13 +144,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [risks, total] = await Promise.all([
-      prisma.infoSecRisk.findMany({
+      prisma.isRisk.findMany({
         where,
         skip,
         take: limit,
         orderBy: { riskScore: 'desc' },
       }),
-      prisma.infoSecRisk.count({ where }),
+      prisma.isRisk.count({ where }),
     ]);
 
     res.json({
@@ -158,8 +158,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: risks,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list risks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list risks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list risks' });
   }
 });
@@ -169,7 +169,7 @@ router.get('/', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/heat-map', async (_req: Request, res: Response) => {
   try {
-    const risks = await prisma.infoSecRisk.findMany({
+    const risks = await prisma.isRisk.findMany({
       where: { deletedAt: null },
       select: { likelihood: true, impact: true },
     });
@@ -196,8 +196,8 @@ router.get('/heat-map', async (_req: Request, res: Response) => {
         totalRisks: risks.length,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate heat map', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate heat map', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate heat map' });
   }
 });
@@ -210,7 +210,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const risk = await prisma.infoSecRisk.findFirst({
+    const risk = await prisma.isRisk.findFirst({
       where: { id, deletedAt: null },
     });
 
@@ -219,8 +219,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to get risk', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get risk', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get risk' });
   }
 });
@@ -237,7 +237,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.infoSecRisk.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk not found' });
     }
@@ -248,7 +248,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const riskScore = likelihood * impact;
     const riskLevel = calculateRiskLevel(riskScore);
 
-    const risk = await prisma.infoSecRisk.update({
+    const risk = await prisma.isRisk.update({
       where: { id },
       data: {
         ...parsed.data,
@@ -263,8 +263,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Risk updated', { riskId: id, riskScore, riskLevel });
     res.json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to update risk', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update risk', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update risk' });
   }
 });
@@ -280,7 +280,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.infoSecRisk.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk not found' });
     }
@@ -303,15 +303,15 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
       updateData.residualRiskLevel = calculateRiskLevel(updateData.residualRiskScore);
     }
 
-    const risk = await prisma.infoSecRisk.update({
+    const risk = await prisma.isRisk.update({
       where: { id },
       data: updateData,
     });
 
     logger.info('Risk treatment assigned', { riskId: id, treatment: parsed.data.treatment });
     res.json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to assign treatment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to assign treatment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to assign treatment' });
   }
 });

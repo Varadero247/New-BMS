@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    ismsAudit: {
+    isAudit: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -11,17 +11,17 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    auditFinding: {
+    isAuditFinding: {
       findMany: jest.fn(),
       create: jest.fn(),
       count: jest.fn(),
     },
-    vulnerabilityScan: {
+    isVulnerabilityScan: {
       findMany: jest.fn(),
       create: jest.fn(),
       count: jest.fn(),
     },
-    penetrationTest: {
+    isPenetrationTest: {
       findMany: jest.fn(),
       create: jest.fn(),
       count: jest.fn(),
@@ -132,7 +132,7 @@ describe('InfoSec Audits API', () => {
 
   describe('POST /api/audits', () => {
     it('should create audit', async () => {
-      (mockPrisma.ismsAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       const res = await request(app)
         .post('/api/audits')
@@ -175,29 +175,29 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should generate ref number starting with ISA-', async () => {
-      (mockPrisma.ismsAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       await request(app)
         .post('/api/audits')
         .send({ title: 'Audit', auditDate: '2026-03-15', leadAuditor: 'Jane' });
 
-      const createCall = (mockPrisma.ismsAudit.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAudit.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^ISA-/);
     });
 
     it('should set status to PLANNED on create', async () => {
-      (mockPrisma.ismsAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       await request(app)
         .post('/api/audits')
         .send({ title: 'Audit', auditDate: '2026-03-15', leadAuditor: 'Jane' });
 
-      const createCall = (mockPrisma.ismsAudit.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAudit.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('PLANNED');
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.ismsAudit.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isAudit.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/audits')
@@ -212,8 +212,8 @@ describe('InfoSec Audits API', () => {
 
   describe('GET /api/audits', () => {
     it('should return paginated list', async () => {
-      (mockPrisma.ismsAudit.findMany as jest.Mock).mockResolvedValueOnce([mockAudit]);
-      (mockPrisma.ismsAudit.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isAudit.findMany as jest.Mock).mockResolvedValueOnce([mockAudit]);
+      (mockPrisma.isAudit.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/audits');
 
@@ -224,37 +224,37 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.ismsAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ismsAudit.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/audits?status=COMPLETED');
 
-      const findCall = (mockPrisma.ismsAudit.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAudit.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.status).toBe('COMPLETED');
     });
 
     it('should filter by auditType', async () => {
-      (mockPrisma.ismsAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ismsAudit.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/audits?auditType=EXTERNAL');
 
-      const findCall = (mockPrisma.ismsAudit.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAudit.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.auditType).toBe('EXTERNAL');
     });
 
     it('should exclude soft-deleted audits', async () => {
-      (mockPrisma.ismsAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ismsAudit.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/audits');
 
-      const findCall = (mockPrisma.ismsAudit.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAudit.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.deletedAt).toBeNull();
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.ismsAudit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isAudit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/audits');
 
@@ -267,7 +267,7 @@ describe('InfoSec Audits API', () => {
 
   describe('GET /api/audits/:id', () => {
     it('should return audit with findings', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce({
         ...mockAudit,
         findings: [mockFinding],
       });
@@ -280,7 +280,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 404 when audit not found', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/audits/nonexistent');
 
@@ -289,11 +289,11 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should include findings ordered by createdAt', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       await request(app).get('/api/audits/audit-1');
 
-      const findCall = (mockPrisma.ismsAudit.findFirst as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAudit.findFirst as jest.Mock).mock.calls[0][0];
       expect(findCall.include.findings).toBeDefined();
     });
   });
@@ -302,7 +302,7 @@ describe('InfoSec Audits API', () => {
 
   describe('GET /api/audits/:id/checklist', () => {
     it('should return clause checklist', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       const res = await request(app).get('/api/audits/audit-1/checklist');
 
@@ -314,7 +314,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 404 when audit not found', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/audits/nonexistent/checklist');
 
@@ -323,7 +323,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should include auditId in response', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       const res = await request(app).get('/api/audits/audit-1/checklist');
 
@@ -335,8 +335,8 @@ describe('InfoSec Audits API', () => {
 
   describe('POST /api/audits/:id/findings', () => {
     it('should add finding to audit', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
-      (mockPrisma.auditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAuditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
 
       const res = await request(app)
         .post('/api/audits/audit-1/findings')
@@ -379,7 +379,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 404 when audit not found', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .post('/api/audits/nonexistent/findings')
@@ -390,14 +390,14 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should set finding status to OPEN', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
-      (mockPrisma.auditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAuditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
 
       await request(app)
         .post('/api/audits/audit-1/findings')
         .send({ clause: '6.1', type: 'OBSERVATION', description: 'Minor observation' });
 
-      const createCall = (mockPrisma.auditFinding.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAuditFinding.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('OPEN');
     });
   });
@@ -406,8 +406,8 @@ describe('InfoSec Audits API', () => {
 
   describe('PUT /api/audits/:id/complete', () => {
     it('should complete audit with summary', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
-      (mockPrisma.ismsAudit.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.update as jest.Mock).mockResolvedValueOnce({
         ...mockAudit,
         summary: 'Audit completed successfully',
         status: 'COMPLETED',
@@ -420,7 +420,7 @@ describe('InfoSec Audits API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.ismsAudit.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isAudit.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('COMPLETED');
     });
 
@@ -434,7 +434,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 404 when audit not found', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/audits/nonexistent/complete')
@@ -445,14 +445,14 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should set completedAt timestamp', async () => {
-      (mockPrisma.ismsAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
-      (mockPrisma.ismsAudit.update as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
+      (mockPrisma.isAudit.update as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       await request(app)
         .put('/api/audits/audit-1/complete')
         .send({ summary: 'Completed' });
 
-      const updateCall = (mockPrisma.ismsAudit.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isAudit.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.completedAt).toBeDefined();
     });
   });
@@ -461,8 +461,8 @@ describe('InfoSec Audits API', () => {
 
   describe('GET /api/audits/vulnerability-scans', () => {
     it('should list vulnerability scans', async () => {
-      (mockPrisma.vulnerabilityScan.findMany as jest.Mock).mockResolvedValueOnce([mockScan]);
-      (mockPrisma.vulnerabilityScan.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isVulnerabilityScan.findMany as jest.Mock).mockResolvedValueOnce([mockScan]);
+      (mockPrisma.isVulnerabilityScan.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/audits/vulnerability-scans');
 
@@ -473,7 +473,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.vulnerabilityScan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isVulnerabilityScan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/audits/vulnerability-scans');
 
@@ -486,7 +486,7 @@ describe('InfoSec Audits API', () => {
 
   describe('POST /api/audits/vulnerability-scans', () => {
     it('should create vulnerability scan', async () => {
-      (mockPrisma.vulnerabilityScan.create as jest.Mock).mockResolvedValueOnce(mockScan);
+      (mockPrisma.isVulnerabilityScan.create as jest.Mock).mockResolvedValueOnce(mockScan);
 
       const res = await request(app)
         .post('/api/audits/vulnerability-scans')
@@ -506,13 +506,13 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should generate ref number starting with VS-', async () => {
-      (mockPrisma.vulnerabilityScan.create as jest.Mock).mockResolvedValueOnce(mockScan);
+      (mockPrisma.isVulnerabilityScan.create as jest.Mock).mockResolvedValueOnce(mockScan);
 
       await request(app)
         .post('/api/audits/vulnerability-scans')
         .send({ scanName: 'Q1 Scan', scanDate: '2026-01-15' });
 
-      const createCall = (mockPrisma.vulnerabilityScan.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isVulnerabilityScan.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^VS-/);
     });
   });
@@ -521,8 +521,8 @@ describe('InfoSec Audits API', () => {
 
   describe('GET /api/audits/penetration-tests', () => {
     it('should list penetration tests', async () => {
-      (mockPrisma.penetrationTest.findMany as jest.Mock).mockResolvedValueOnce([mockPenTest]);
-      (mockPrisma.penetrationTest.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isPenetrationTest.findMany as jest.Mock).mockResolvedValueOnce([mockPenTest]);
+      (mockPrisma.isPenetrationTest.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/audits/penetration-tests');
 
@@ -532,7 +532,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.penetrationTest.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isPenetrationTest.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/audits/penetration-tests');
 
@@ -545,7 +545,7 @@ describe('InfoSec Audits API', () => {
 
   describe('POST /api/audits/penetration-tests', () => {
     it('should create penetration test', async () => {
-      (mockPrisma.penetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
+      (mockPrisma.isPenetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
 
       const res = await request(app)
         .post('/api/audits/penetration-tests')
@@ -565,18 +565,18 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should generate ref number starting with PT-', async () => {
-      (mockPrisma.penetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
+      (mockPrisma.isPenetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
 
       await request(app)
         .post('/api/audits/penetration-tests')
         .send({ testName: 'Pen Test', testDate: '2026-02-01' });
 
-      const createCall = (mockPrisma.penetrationTest.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isPenetrationTest.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^PT-/);
     });
 
     it('should accept optional fields', async () => {
-      (mockPrisma.penetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
+      (mockPrisma.isPenetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
 
       const res = await request(app)
         .post('/api/audits/penetration-tests')
@@ -595,7 +595,7 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.penetrationTest.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isPenetrationTest.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/audits/penetration-tests')

@@ -128,13 +128,13 @@ router.get('/ropa', async (req: Request, res: Response) => {
     }
 
     const [records, total] = await Promise.all([
-      prisma.ropaEntry.findMany({
+      prisma.isRopa.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.ropaEntry.count({ where }),
+      prisma.isRopa.count({ where }),
     ]);
 
     res.json({
@@ -142,8 +142,8 @@ router.get('/ropa', async (req: Request, res: Response) => {
       data: records,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list ROPA entries', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list ROPA entries', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list ROPA entries' });
   }
 });
@@ -161,7 +161,7 @@ router.post('/ropa', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const refNumber = generateRopaRef();
 
-    const entry = await prisma.ropaEntry.create({
+    const entry = await prisma.isRopa.create({
       data: {
         refNumber,
         name: parsed.data.name,
@@ -183,8 +183,8 @@ router.post('/ropa', async (req: Request, res: Response) => {
 
     logger.info('ROPA entry created', { ropaId: entry.id, refNumber });
     res.status(201).json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to create ROPA entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create ROPA entry' });
   }
 });
@@ -196,7 +196,7 @@ router.get('/ropa/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const entry = await prisma.ropaEntry.findFirst({
+    const entry = await prisma.isRopa.findFirst({
       where: { id, deletedAt: null },
     });
 
@@ -205,8 +205,8 @@ router.get('/ropa/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to get ROPA entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get ROPA entry' });
   }
 });
@@ -222,13 +222,13 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.ropaEntry.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isRopa.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'ROPA entry not found' });
     }
 
     const authReq = req as AuthRequest;
-    const entry = await prisma.ropaEntry.update({
+    const entry = await prisma.isRopa.update({
       where: { id },
       data: {
         ...parsed.data,
@@ -239,8 +239,8 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
 
     logger.info('ROPA entry updated', { ropaId: id });
     res.json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to update ROPA entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update ROPA entry' });
   }
 });
@@ -262,7 +262,7 @@ router.post('/dpia', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const refNumber = generateDpiaRef();
 
-    const dpia = await prisma.dpia.create({
+    const dpia = await prisma.isDpia.create({
       data: {
         refNumber,
         title: parsed.data.title,
@@ -279,8 +279,8 @@ router.post('/dpia', async (req: Request, res: Response) => {
 
     logger.info('DPIA created', { dpiaId: dpia.id, refNumber });
     res.status(201).json({ success: true, data: dpia });
-  } catch (error: any) {
-    logger.error('Failed to create DPIA', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create DPIA', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create DPIA' });
   }
 });
@@ -308,13 +308,13 @@ router.get('/dpia', async (req: Request, res: Response) => {
     }
 
     const [dpias, total] = await Promise.all([
-      prisma.dpia.findMany({
+      prisma.isDpia.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.dpia.count({ where }),
+      prisma.isDpia.count({ where }),
     ]);
 
     res.json({
@@ -322,8 +322,8 @@ router.get('/dpia', async (req: Request, res: Response) => {
       data: dpias,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list DPIAs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list DPIAs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list DPIAs' });
   }
 });
@@ -335,7 +335,7 @@ router.get('/dpia/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const dpia = await prisma.dpia.findFirst({
+    const dpia = await prisma.isDpia.findFirst({
       where: { id, deletedAt: null },
     });
 
@@ -344,8 +344,8 @@ router.get('/dpia/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: dpia });
-  } catch (error: any) {
-    logger.error('Failed to get DPIA', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get DPIA', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get DPIA' });
   }
 });
@@ -361,13 +361,13 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.dpia.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isDpia.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'DPIA not found' });
     }
 
     const authReq = req as AuthRequest;
-    const dpia = await prisma.dpia.update({
+    const dpia = await prisma.isDpia.update({
       where: { id },
       data: {
         approvedBy: authReq.user?.id || 'system',
@@ -381,8 +381,8 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('DPIA approved', { dpiaId: id, approvedBy: authReq.user?.id });
     res.json({ success: true, data: dpia });
-  } catch (error: any) {
-    logger.error('Failed to approve DPIA', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to approve DPIA', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to approve DPIA' });
   }
 });
@@ -418,13 +418,13 @@ router.get('/dsar', async (req: Request, res: Response) => {
     }
 
     const [dsars, total] = await Promise.all([
-      prisma.dsar.findMany({
+      prisma.isDsar.findMany({
         where,
         skip,
         take: limit,
         orderBy: { receivedAt: 'desc' },
       }),
-      prisma.dsar.count({ where }),
+      prisma.isDsar.count({ where }),
     ]);
 
     res.json({
@@ -432,8 +432,8 @@ router.get('/dsar', async (req: Request, res: Response) => {
       data: dsars,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list DSARs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list DSARs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list DSARs' });
   }
 });
@@ -453,7 +453,7 @@ router.post('/dsar', async (req: Request, res: Response) => {
     const receivedAt = new Date();
     const deadline = new Date(receivedAt.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
 
-    const dsar = await prisma.dsar.create({
+    const dsar = await prisma.isDsar.create({
       data: {
         refNumber,
         subjectName: parsed.data.subjectName,
@@ -470,8 +470,8 @@ router.post('/dsar', async (req: Request, res: Response) => {
 
     logger.info('DSAR logged', { dsarId: dsar.id, refNumber, requestType: parsed.data.requestType });
     res.status(201).json({ success: true, data: dsar });
-  } catch (error: any) {
-    logger.error('Failed to log DSAR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to log DSAR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to log DSAR' });
   }
 });
@@ -487,13 +487,13 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.dsar.findUnique({ where: { id } });
+    const existing = await prisma.isDsar.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'DSAR not found' });
     }
 
     const authReq = req as AuthRequest;
-    const dsar = await prisma.dsar.update({
+    const dsar = await prisma.isDsar.update({
       where: { id },
       data: {
         responseNotes: parsed.data.responseNotes,
@@ -507,8 +507,8 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
 
     logger.info('DSAR responded', { dsarId: id });
     res.json({ success: true, data: dsar });
-  } catch (error: any) {
-    logger.error('Failed to respond to DSAR', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to respond to DSAR', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to respond to DSAR' });
   }
 });
@@ -541,13 +541,13 @@ router.get('/consents', async (req: Request, res: Response) => {
     }
 
     const [consents, total] = await Promise.all([
-      prisma.consentRecord.findMany({
+      prisma.isConsent.findMany({
         where,
         skip,
         take: limit,
         orderBy: { consentedAt: 'desc' },
       }),
-      prisma.consentRecord.count({ where }),
+      prisma.isConsent.count({ where }),
     ]);
 
     res.json({
@@ -555,8 +555,8 @@ router.get('/consents', async (req: Request, res: Response) => {
       data: consents,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list consent records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list consent records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list consent records' });
   }
 });
@@ -571,12 +571,12 @@ router.get('/retention', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const [schedules, total] = await Promise.all([
-      prisma.retentionSchedule.findMany({
+      prisma.isRetentionSchedule.findMany({
         skip,
         take: limit,
         orderBy: { dataCategory: 'asc' },
       }),
-      prisma.retentionSchedule.count(),
+      prisma.isRetentionSchedule.count(),
     ]);
 
     res.json({
@@ -584,8 +584,8 @@ router.get('/retention', async (req: Request, res: Response) => {
       data: schedules,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list retention schedules', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list retention schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list retention schedules' });
   }
 });

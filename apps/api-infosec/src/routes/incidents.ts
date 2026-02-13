@@ -88,12 +88,12 @@ router.post('/', async (req: Request, res: Response) => {
       data.gdprNotificationDeadline = new Date(Date.now() + 72 * 60 * 60 * 1000);
     }
 
-    const incident = await prisma.securityIncident.create({ data });
+    const incident = await prisma.isIncident.create({ data });
 
     logger.info('Security incident reported', { incidentId: incident.id, refNumber, severity: parsed.data.severity });
     res.status(201).json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to report security incident', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to report security incident', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to report security incident' });
   }
 });
@@ -128,13 +128,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [incidents, total] = await Promise.all([
-      prisma.securityIncident.findMany({
+      prisma.isIncident.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.securityIncident.count({ where }),
+      prisma.isIncident.count({ where }),
     ]);
 
     res.json({
@@ -142,8 +142,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: incidents,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list security incidents', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list security incidents', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list security incidents' });
   }
 });
@@ -155,7 +155,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const incident = await prisma.securityIncident.findFirst({
+    const incident = await prisma.isIncident.findFirst({
       where: { id, deletedAt: null },
     });
 
@@ -164,8 +164,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to get security incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get security incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get security incident' });
   }
 });
@@ -181,13 +181,13 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.securityIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Security incident not found' });
     }
 
     const authReq = req as AuthRequest;
-    const incident = await prisma.securityIncident.update({
+    const incident = await prisma.isIncident.update({
       where: { id },
       data: {
         investigationNotes: parsed.data.investigationNotes,
@@ -202,8 +202,8 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
 
     logger.info('Security incident investigation updated', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to update investigation', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update investigation' });
   }
 });
@@ -219,13 +219,13 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.securityIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Security incident not found' });
     }
 
     const authReq = req as AuthRequest;
-    const incident = await prisma.securityIncident.update({
+    const incident = await prisma.isIncident.update({
       where: { id },
       data: {
         lessonsLearned: parsed.data.lessonsLearned,
@@ -241,8 +241,8 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     logger.info('Security incident closed', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to close security incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to close security incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to close security incident' });
   }
 });
@@ -254,7 +254,7 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.securityIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Security incident not found' });
     }
@@ -264,7 +264,7 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
     }
 
     const authReq = req as AuthRequest;
-    const incident = await prisma.securityIncident.update({
+    const incident = await prisma.isIncident.update({
       where: { id },
       data: {
         gdprNotifiedAt: new Date(),
@@ -275,8 +275,8 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
 
     logger.info('GDPR breach notification logged', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to log GDPR notification', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to log GDPR notification', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to log GDPR notification' });
   }
 });

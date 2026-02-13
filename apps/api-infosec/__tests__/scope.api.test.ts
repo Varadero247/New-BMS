@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    ismsScope: {
+    isScope: {
       findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
@@ -59,20 +59,20 @@ describe('InfoSec Scope API', () => {
 
   describe('GET /api/scope', () => {
     it('should return the current scope document', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
 
       const res = await request(app).get('/api/scope');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toEqual(mockScope);
-      expect(mockPrisma.ismsScope.findFirst).toHaveBeenCalledWith({
+      expect(mockPrisma.isScope.findFirst).toHaveBeenCalledWith({
         orderBy: { createdAt: 'desc' },
       });
     });
 
     it('should return null when no scope exists', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/scope');
 
@@ -82,7 +82,7 @@ describe('InfoSec Scope API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isScope.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/scope');
 
@@ -95,8 +95,8 @@ describe('InfoSec Scope API', () => {
 
   describe('PUT /api/scope', () => {
     it('should create scope if none exists', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
-      (mockPrisma.ismsScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
 
       const res = await request(app)
         .put('/api/scope')
@@ -104,14 +104,14 @@ describe('InfoSec Scope API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockPrisma.ismsScope.create).toHaveBeenCalled();
-      expect(mockPrisma.ismsScope.update).not.toHaveBeenCalled();
+      expect(mockPrisma.isScope.create).toHaveBeenCalled();
+      expect(mockPrisma.isScope.update).not.toHaveBeenCalled();
     });
 
     it('should update existing scope', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
       const updated = { ...mockScope, name: 'Updated Scope' };
-      (mockPrisma.ismsScope.update as jest.Mock).mockResolvedValueOnce(updated);
+      (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(updated);
 
       const res = await request(app)
         .put('/api/scope')
@@ -119,7 +119,7 @@ describe('InfoSec Scope API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockPrisma.ismsScope.update).toHaveBeenCalledWith(
+      expect(mockPrisma.isScope.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: mockScope.id },
         })
@@ -127,8 +127,8 @@ describe('InfoSec Scope API', () => {
     });
 
     it('should accept valid status values', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
-      (mockPrisma.ismsScope.update as jest.Mock).mockResolvedValueOnce({ ...mockScope, status: 'ACTIVE' });
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({ ...mockScope, status: 'ACTIVE' });
 
       const res = await request(app)
         .put('/api/scope')
@@ -148,8 +148,8 @@ describe('InfoSec Scope API', () => {
     });
 
     it('should accept arrays for interestedParties', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
-      (mockPrisma.ismsScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
 
       const res = await request(app)
         .put('/api/scope')
@@ -172,8 +172,8 @@ describe('InfoSec Scope API', () => {
     });
 
     it('should return 500 on database error during update', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
-      (mockPrisma.ismsScope.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .put('/api/scope')
@@ -184,26 +184,26 @@ describe('InfoSec Scope API', () => {
     });
 
     it('should pass updatedBy from authenticated user when updating', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
-      (mockPrisma.ismsScope.update as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(mockScope);
 
       await request(app)
         .put('/api/scope')
         .send({ description: 'New desc' });
 
-      const updateCall = (mockPrisma.ismsScope.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isScope.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.updatedBy).toBe('user-123');
     });
 
     it('should pass createdBy from authenticated user when creating', async () => {
-      (mockPrisma.ismsScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
-      (mockPrisma.ismsScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
 
       await request(app)
         .put('/api/scope')
         .send({ name: 'New Scope' });
 
-      const createCall = (mockPrisma.ismsScope.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.createdBy).toBe('user-123');
     });
   });

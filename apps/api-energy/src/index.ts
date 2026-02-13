@@ -20,6 +20,7 @@ import {
   createHealthCheck,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
+import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-energy');
@@ -47,6 +48,8 @@ app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-energy'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(sanitizeMiddleware());
+app.use(sanitizeQueryMiddleware());
 app.use(attachPermissions());
 
 // Health check, readiness, and metrics

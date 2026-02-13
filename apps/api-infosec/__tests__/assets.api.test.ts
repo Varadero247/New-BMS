@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    infoAsset: {
+    isAsset: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -71,8 +71,8 @@ describe('InfoSec Assets API', () => {
 
   describe('POST /api/assets', () => {
     it('should create asset with valid data', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.infoAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
       const res = await request(app)
         .post('/api/assets')
@@ -129,56 +129,56 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should auto-generate refNumber (IA-0001)', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.infoAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
       await request(app)
         .post('/api/assets')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.infoAsset.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toBe('IA-0001');
     });
 
     it('should auto-generate sequential refNumber (IA-0005)', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(4);
-      (mockPrisma.infoAsset.create as jest.Mock).mockResolvedValueOnce({ ...mockAsset, refNumber: 'IA-0005' });
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(4);
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce({ ...mockAsset, refNumber: 'IA-0005' });
 
       await request(app)
         .post('/api/assets')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.infoAsset.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toBe('IA-0005');
     });
 
     it('should set status to ACTIVE on create', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.infoAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
       await request(app)
         .post('/api/assets')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.infoAsset.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('ACTIVE');
     });
 
     it('should set createdBy from authenticated user', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.infoAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
       await request(app)
         .post('/api/assets')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.infoAsset.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.createdBy).toBe('user-123');
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.infoAsset.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/assets')
@@ -193,8 +193,8 @@ describe('InfoSec Assets API', () => {
 
   describe('GET /api/assets', () => {
     it('should return paginated list', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([mockAsset]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([mockAsset]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/assets');
 
@@ -206,60 +206,60 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should filter by type', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/assets?type=HARDWARE');
 
-      const findCall = (mockPrisma.infoAsset.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAsset.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.type).toBe('HARDWARE');
     });
 
     it('should filter by classification', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/assets?classification=RESTRICTED');
 
-      const findCall = (mockPrisma.infoAsset.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAsset.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.classification).toBe('RESTRICTED');
     });
 
     it('should support search across name and description', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/assets?search=database');
 
-      const findCall = (mockPrisma.infoAsset.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAsset.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.OR).toBeDefined();
       expect(findCall.where.OR).toHaveLength(3);
     });
 
     it('should support pagination params', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(50);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(50);
 
       const res = await request(app).get('/api/assets?page=2&limit=10');
 
       expect(res.status).toBe(200);
-      const findCall = (mockPrisma.infoAsset.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAsset.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.skip).toBe(10);
       expect(findCall.take).toBe(10);
     });
 
     it('should exclude soft-deleted assets', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.infoAsset.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/assets');
 
-      const findCall = (mockPrisma.infoAsset.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isAsset.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.deletedAt).toBeNull();
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.infoAsset.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isAsset.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/assets');
 
@@ -272,7 +272,7 @@ describe('InfoSec Assets API', () => {
 
   describe('GET /api/assets/:id', () => {
     it('should return asset detail', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
 
       const res = await request(app).get('/api/assets/asset-1');
 
@@ -282,7 +282,7 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should return 404 when asset not found', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/assets/nonexistent');
 
@@ -291,7 +291,7 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/assets/asset-1');
 
@@ -304,9 +304,9 @@ describe('InfoSec Assets API', () => {
 
   describe('PUT /api/assets/:id', () => {
     it('should update asset', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
       const updated = { ...mockAsset, name: 'Updated DB' };
-      (mockPrisma.infoAsset.update as jest.Mock).mockResolvedValueOnce(updated);
+      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce(updated);
 
       const res = await request(app)
         .put('/api/assets/asset-1')
@@ -318,7 +318,7 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should return 404 when asset not found', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/assets/nonexistent')
@@ -342,8 +342,8 @@ describe('InfoSec Assets API', () => {
 
   describe('DELETE /api/assets/:id', () => {
     it('should soft delete asset', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
-      (mockPrisma.infoAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
 
       const res = await request(app).delete('/api/assets/asset-1');
 
@@ -353,7 +353,7 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should return 404 when asset not found for delete', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).delete('/api/assets/nonexistent');
 
@@ -362,12 +362,12 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should set deletedBy from authenticated user', async () => {
-      (mockPrisma.infoAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
-      (mockPrisma.infoAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
+      (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
 
       await request(app).delete('/api/assets/asset-1');
 
-      const updateCall = (mockPrisma.infoAsset.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isAsset.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.deletedBy).toBe('user-123');
     });
   });

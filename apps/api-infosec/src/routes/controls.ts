@@ -63,13 +63,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [controls, total] = await Promise.all([
-      prisma.annexAControl.findMany({
+      prisma.isControl.findMany({
         where,
         skip,
         take: limit,
         orderBy: { controlId: 'asc' },
       }),
-      prisma.annexAControl.count({ where }),
+      prisma.isControl.count({ where }),
     ]);
 
     res.json({
@@ -77,8 +77,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: controls,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list controls', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list controls', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list controls' });
   }
 });
@@ -88,7 +88,7 @@ router.get('/', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/soa', async (_req: Request, res: Response) => {
   try {
-    const controls = await prisma.annexAControl.findMany({
+    const controls = await prisma.isControl.findMany({
       orderBy: { controlId: 'asc' },
       select: {
         id: true,
@@ -113,8 +113,8 @@ router.get('/soa', async (_req: Request, res: Response) => {
     };
 
     res.json({ success: true, data: { controls, summary } });
-  } catch (error: any) {
-    logger.error('Failed to get Statement of Applicability', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get Statement of Applicability', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get Statement of Applicability' });
   }
 });
@@ -124,7 +124,7 @@ router.get('/soa', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/soa/pdf', async (_req: Request, res: Response) => {
   try {
-    const controls = await prisma.annexAControl.findMany({
+    const controls = await prisma.isControl.findMany({
       orderBy: { controlId: 'asc' },
       select: {
         controlId: true,
@@ -148,8 +148,8 @@ router.get('/soa/pdf', async (_req: Request, res: Response) => {
         message: 'PDF generation placeholder - integrate with PDF library for actual output',
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate SoA PDF', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate SoA PDF', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate SoA PDF' });
   }
 });
@@ -162,7 +162,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const control = await prisma.annexAControl.findUnique({
+    const control = await prisma.isControl.findUnique({
       where: { id },
     });
 
@@ -171,8 +171,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: control });
-  } catch (error: any) {
-    logger.error('Failed to get control', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get control', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get control' });
   }
 });
@@ -188,13 +188,13 @@ router.put('/:id/status', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.annexAControl.findUnique({ where: { id } });
+    const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Control not found' });
     }
 
     const authReq = req as AuthRequest;
-    const control = await prisma.annexAControl.update({
+    const control = await prisma.isControl.update({
       where: { id },
       data: {
         applicability: parsed.data.applicability,
@@ -206,8 +206,8 @@ router.put('/:id/status', async (req: Request, res: Response) => {
 
     logger.info('Control applicability updated', { controlId: id, applicability: parsed.data.applicability });
     res.json({ success: true, data: control });
-  } catch (error: any) {
-    logger.error('Failed to update control status', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update control status', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update control status' });
   }
 });
@@ -223,13 +223,13 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.annexAControl.findUnique({ where: { id } });
+    const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Control not found' });
     }
 
     const authReq = req as AuthRequest;
-    const control = await prisma.annexAControl.update({
+    const control = await prisma.isControl.update({
       where: { id },
       data: {
         implementationStatus: parsed.data.implementationStatus,
@@ -244,8 +244,8 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
 
     logger.info('Control implementation updated', { controlId: id, status: parsed.data.implementationStatus });
     res.json({ success: true, data: control });
-  } catch (error: any) {
-    logger.error('Failed to update control implementation', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update control implementation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update control implementation' });
   }
 });

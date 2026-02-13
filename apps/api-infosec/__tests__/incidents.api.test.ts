@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    securityIncident: {
+    isIncident: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -81,7 +81,7 @@ describe('InfoSec Incidents API', () => {
 
   describe('POST /api/incidents', () => {
     it('should create incident', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app)
         .post('/api/incidents')
@@ -135,65 +135,65 @@ describe('InfoSec Incidents API', () => {
         gdprBreachNotification: true,
         gdprNotificationDeadline: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
       };
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(gdprIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(gdprIncident);
 
       const res = await request(app)
         .post('/api/incidents')
         .send({ ...validCreatePayload, personalDataInvolved: true });
 
       expect(res.status).toBe(201);
-      const createCall = (mockPrisma.securityIncident.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.gdprBreachNotification).toBe(true);
       expect(createCall.data.gdprNotificationDeadline).toBeDefined();
     });
 
     it('should NOT set GDPR deadline when personalDataInvolved=false', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       await request(app)
         .post('/api/incidents')
         .send({ ...validCreatePayload, personalDataInvolved: false });
 
-      const createCall = (mockPrisma.securityIncident.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.gdprBreachNotification).toBeUndefined();
       expect(createCall.data.gdprNotificationDeadline).toBeUndefined();
     });
 
     it('should NOT set GDPR deadline when personalDataInvolved is omitted', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       await request(app)
         .post('/api/incidents')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.securityIncident.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.gdprNotificationDeadline).toBeUndefined();
     });
 
     it('should generate ref number starting with ISI-', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       await request(app)
         .post('/api/incidents')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.securityIncident.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^ISI-/);
     });
 
     it('should set status to REPORTED on create', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       await request(app)
         .post('/api/incidents')
         .send(validCreatePayload);
 
-      const createCall = (mockPrisma.securityIncident.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('REPORTED');
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.securityIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/incidents')
@@ -208,8 +208,8 @@ describe('InfoSec Incidents API', () => {
 
   describe('GET /api/incidents', () => {
     it('should return paginated list', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/incidents');
 
@@ -220,57 +220,57 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should filter by type', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/incidents?type=MALWARE');
 
-      const findCall = (mockPrisma.securityIncident.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.type).toBe('MALWARE');
     });
 
     it('should filter by severity', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/incidents?severity=CRITICAL');
 
-      const findCall = (mockPrisma.securityIncident.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.severity).toBe('CRITICAL');
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/incidents?status=INVESTIGATING');
 
-      const findCall = (mockPrisma.securityIncident.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.status).toBe('INVESTIGATING');
     });
 
     it('should support search', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/incidents?search=phishing');
 
-      const findCall = (mockPrisma.securityIncident.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.OR).toBeDefined();
     });
 
     it('should exclude soft-deleted incidents', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.securityIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/incidents');
 
-      const findCall = (mockPrisma.securityIncident.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.deletedAt).toBeNull();
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.securityIncident.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isIncident.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/incidents');
 
@@ -283,7 +283,7 @@ describe('InfoSec Incidents API', () => {
 
   describe('GET /api/incidents/:id', () => {
     it('should return incident detail', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app).get('/api/incidents/inc-1');
 
@@ -293,7 +293,7 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should return 404 when incident not found', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/incidents/nonexistent');
 
@@ -306,8 +306,8 @@ describe('InfoSec Incidents API', () => {
 
   describe('PUT /api/incidents/:id/investigate', () => {
     it('should update investigation notes and set status', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce({
         ...mockIncident,
         investigationNotes: 'Analyzed email headers',
         status: 'INVESTIGATING',
@@ -319,7 +319,7 @@ describe('InfoSec Incidents API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.securityIncident.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isIncident.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('INVESTIGATING');
     });
 
@@ -333,7 +333,7 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should return 404 when incident not found', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/incidents/nonexistent/investigate')
@@ -344,8 +344,8 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should accept optional rootCause and containmentActions', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app)
         .put('/api/incidents/inc-1/investigate')
@@ -363,8 +363,8 @@ describe('InfoSec Incidents API', () => {
 
   describe('PUT /api/incidents/:id/close', () => {
     it('should close with lessons learned', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce({
         ...mockIncident,
         lessonsLearned: 'Improve email filtering',
         status: 'CLOSED',
@@ -377,7 +377,7 @@ describe('InfoSec Incidents API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.securityIncident.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isIncident.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('CLOSED');
       expect(updateCall.data.closedAt).toBeDefined();
     });
@@ -392,7 +392,7 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should return 404 when incident not found', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/incidents/nonexistent/close')
@@ -403,8 +403,8 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should accept optional correctiveActions and preventiveActions', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app)
         .put('/api/incidents/inc-1/close')
@@ -423,8 +423,8 @@ describe('InfoSec Incidents API', () => {
   describe('POST /api/incidents/:id/notify', () => {
     it('should log GDPR notification', async () => {
       const gdprIncident = { ...mockIncident, gdprBreachNotification: true };
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(gdprIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(gdprIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce({
         ...gdprIncident,
         gdprNotifiedAt: new Date().toISOString(),
       });
@@ -435,12 +435,12 @@ describe('InfoSec Incidents API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.securityIncident.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isIncident.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.gdprNotifiedAt).toBeDefined();
     });
 
     it('should return 404 when incident not found', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .post('/api/incidents/nonexistent/notify')
@@ -451,7 +451,7 @@ describe('InfoSec Incidents API', () => {
     });
 
     it('should return 400 when incident does not require GDPR notification', async () => {
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce({
         ...mockIncident,
         gdprBreachNotification: false,
       });
@@ -466,8 +466,8 @@ describe('InfoSec Incidents API', () => {
 
     it('should return 500 on database error', async () => {
       const gdprIncident = { ...mockIncident, gdprBreachNotification: true };
-      (mockPrisma.securityIncident.findFirst as jest.Mock).mockResolvedValueOnce(gdprIncident);
-      (mockPrisma.securityIncident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(gdprIncident);
+      (mockPrisma.isIncident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/incidents/inc-1/notify')

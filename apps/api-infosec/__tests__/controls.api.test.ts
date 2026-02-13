@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    annexAControl: {
+    isControl: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -71,8 +71,8 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls', () => {
     it('should return all controls with pagination', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/controls');
 
@@ -84,58 +84,58 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should filter by domain', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/controls?domain=ORGANISATIONAL');
 
-      const findCall = (mockPrisma.annexAControl.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.domain).toBe('ORGANISATIONAL');
     });
 
     it('should filter by implementationStatus', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/controls?implementationStatus=NOT_IMPLEMENTED');
 
-      const findCall = (mockPrisma.annexAControl.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.implementationStatus).toBe('NOT_IMPLEMENTED');
     });
 
     it('should support search across title and controlId', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/controls?search=policy');
 
-      const findCall = (mockPrisma.annexAControl.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.OR).toBeDefined();
     });
 
     it('should order by controlId ascending', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/controls');
 
-      const findCall = (mockPrisma.annexAControl.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.orderBy).toEqual({ controlId: 'asc' });
     });
 
     it('should default to limit 50 and page 1', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.annexAControl.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/controls');
 
-      const findCall = (mockPrisma.annexAControl.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.skip).toBe(0);
       expect(findCall.take).toBe(50);
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isControl.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/controls');
 
@@ -148,7 +148,7 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls/soa', () => {
     it('should return Statement of Applicability', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
 
       const res = await request(app).get('/api/controls/soa');
 
@@ -161,7 +161,7 @@ describe('InfoSec Controls API', () => {
 
     it('should calculate summary counts correctly', async () => {
       const notApplicable = { ...mockControl, id: 'ctrl-3', applicability: 'NOT_APPLICABLE', implementationStatus: 'NOT_APPLICABLE' };
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, notApplicable]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, notApplicable]);
 
       const res = await request(app).get('/api/controls/soa');
 
@@ -170,7 +170,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isControl.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/controls/soa');
 
@@ -183,7 +183,7 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls/soa/pdf', () => {
     it('should return PDF mock data', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl]);
 
       const res = await request(app).get('/api/controls/soa/pdf');
 
@@ -194,7 +194,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should include generatedAt timestamp', async () => {
-      (mockPrisma.annexAControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       const res = await request(app).get('/api/controls/soa/pdf');
 
@@ -206,7 +206,7 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls/:id', () => {
     it('should return control detail', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
 
       const res = await request(app).get('/api/controls/ctrl-1');
 
@@ -216,7 +216,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 404 when control not found', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/controls/nonexistent');
 
@@ -225,7 +225,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isControl.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/controls/ctrl-1');
 
@@ -238,8 +238,8 @@ describe('InfoSec Controls API', () => {
 
   describe('PUT /api/controls/:id/status', () => {
     it('should update applicability to APPLICABLE', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockResolvedValueOnce({ ...mockControl, applicability: 'APPLICABLE' });
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({ ...mockControl, applicability: 'APPLICABLE' });
 
       const res = await request(app)
         .put('/api/controls/ctrl-1/status')
@@ -250,8 +250,8 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should update applicability to NOT_APPLICABLE with justification', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({
         ...mockControl,
         applicability: 'NOT_APPLICABLE',
         justification: 'Not relevant to scope',
@@ -284,7 +284,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 404 when control not found', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/controls/nonexistent/status')
@@ -295,8 +295,8 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .put('/api/controls/ctrl-1/status')
@@ -311,8 +311,8 @@ describe('InfoSec Controls API', () => {
 
   describe('PUT /api/controls/:id/implementation', () => {
     it('should update implementation status', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({
         ...mockControl,
         implementationStatus: 'FULLY_IMPLEMENTED',
       });
@@ -326,7 +326,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should return 404 when control not found', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/controls/nonexistent/implementation')
@@ -346,8 +346,8 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should accept optional fields like evidence, owner, reviewDate', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
 
       const res = await request(app)
         .put('/api/controls/ctrl-1/implementation')
@@ -364,20 +364,20 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should set updatedBy from authenticated user', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
 
       await request(app)
         .put('/api/controls/ctrl-1/implementation')
         .send({ implementationStatus: 'FULLY_IMPLEMENTED' });
 
-      const updateCall = (mockPrisma.annexAControl.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isControl.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.updatedBy).toBe('user-123');
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.annexAControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.annexAControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
+      (mockPrisma.isControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .put('/api/controls/ctrl-1/implementation')

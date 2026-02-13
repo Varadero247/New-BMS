@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    ropaEntry: {
+    isRopa: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    dpia: {
+    isDpia: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    dsar: {
+    isDsar: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -27,11 +27,11 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    consentRecord: {
+    isConsent: {
       findMany: jest.fn(),
       count: jest.fn(),
     },
-    retentionSchedule: {
+    isRetentionSchedule: {
       findMany: jest.fn(),
       count: jest.fn(),
     },
@@ -161,8 +161,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('GET /api/privacy/ropa', () => {
     it('should list ROPA entries with pagination', async () => {
-      (mockPrisma.ropaEntry.findMany as jest.Mock).mockResolvedValueOnce([mockRopa]);
-      (mockPrisma.ropaEntry.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isRopa.findMany as jest.Mock).mockResolvedValueOnce([mockRopa]);
+      (mockPrisma.isRopa.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/privacy/ropa');
 
@@ -173,37 +173,37 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.ropaEntry.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ropaEntry.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isRopa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isRopa.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/ropa?status=ACTIVE');
 
-      const findCall = (mockPrisma.ropaEntry.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isRopa.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.status).toBe('ACTIVE');
     });
 
     it('should support search', async () => {
-      (mockPrisma.ropaEntry.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ropaEntry.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isRopa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isRopa.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/ropa?search=customer');
 
-      const findCall = (mockPrisma.ropaEntry.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isRopa.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.OR).toBeDefined();
     });
 
     it('should exclude soft-deleted entries', async () => {
-      (mockPrisma.ropaEntry.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.ropaEntry.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isRopa.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isRopa.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/ropa');
 
-      const findCall = (mockPrisma.ropaEntry.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isRopa.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.deletedAt).toBeNull();
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.ropaEntry.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isRopa.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/privacy/ropa');
 
@@ -214,7 +214,7 @@ describe('InfoSec Privacy API', () => {
 
   describe('POST /api/privacy/ropa', () => {
     it('should create ROPA entry', async () => {
-      (mockPrisma.ropaEntry.create as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.create as jest.Mock).mockResolvedValueOnce(mockRopa);
 
       const res = await request(app)
         .post('/api/privacy/ropa')
@@ -256,29 +256,29 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should generate ref number starting with ROPA-', async () => {
-      (mockPrisma.ropaEntry.create as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.create as jest.Mock).mockResolvedValueOnce(mockRopa);
 
       await request(app)
         .post('/api/privacy/ropa')
         .send({ name: 'Test', purpose: 'Test', lawfulBasis: 'CONSENT' });
 
-      const createCall = (mockPrisma.ropaEntry.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isRopa.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^ROPA-/);
     });
 
     it('should set status to ACTIVE on create', async () => {
-      (mockPrisma.ropaEntry.create as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.create as jest.Mock).mockResolvedValueOnce(mockRopa);
 
       await request(app)
         .post('/api/privacy/ropa')
         .send({ name: 'Test', purpose: 'Test', lawfulBasis: 'CONSENT' });
 
-      const createCall = (mockPrisma.ropaEntry.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isRopa.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('ACTIVE');
     });
 
     it('should accept optional arrays', async () => {
-      (mockPrisma.ropaEntry.create as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.create as jest.Mock).mockResolvedValueOnce(mockRopa);
 
       const res = await request(app)
         .post('/api/privacy/ropa')
@@ -295,7 +295,7 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.ropaEntry.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isRopa.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/privacy/ropa')
@@ -308,7 +308,7 @@ describe('InfoSec Privacy API', () => {
 
   describe('GET /api/privacy/ropa/:id', () => {
     it('should return ROPA detail', async () => {
-      (mockPrisma.ropaEntry.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
 
       const res = await request(app).get('/api/privacy/ropa/ropa-1');
 
@@ -318,7 +318,7 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should return 404 when ROPA not found', async () => {
-      (mockPrisma.ropaEntry.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/privacy/ropa/nonexistent');
 
@@ -329,8 +329,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('PUT /api/privacy/ropa/:id', () => {
     it('should update ROPA entry', async () => {
-      (mockPrisma.ropaEntry.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
-      (mockPrisma.ropaEntry.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, name: 'Updated' });
+      (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, name: 'Updated' });
 
       const res = await request(app)
         .put('/api/privacy/ropa/ropa-1')
@@ -341,7 +341,7 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should return 404 when ROPA not found', async () => {
-      (mockPrisma.ropaEntry.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/privacy/ropa/nonexistent')
@@ -352,8 +352,8 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should accept status update', async () => {
-      (mockPrisma.ropaEntry.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
-      (mockPrisma.ropaEntry.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, status: 'ARCHIVED' });
+      (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
+      (mockPrisma.isRopa.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, status: 'ARCHIVED' });
 
       const res = await request(app)
         .put('/api/privacy/ropa/ropa-1')
@@ -369,7 +369,7 @@ describe('InfoSec Privacy API', () => {
 
   describe('POST /api/privacy/dpia', () => {
     it('should create DPIA', async () => {
-      (mockPrisma.dpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       const res = await request(app)
         .post('/api/privacy/dpia')
@@ -389,29 +389,29 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should set status to DRAFT', async () => {
-      (mockPrisma.dpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       await request(app)
         .post('/api/privacy/dpia')
         .send({ title: 'Test DPIA' });
 
-      const createCall = (mockPrisma.dpia.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isDpia.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('DRAFT');
     });
 
     it('should generate ref number starting with DPIA-', async () => {
-      (mockPrisma.dpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.create as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       await request(app)
         .post('/api/privacy/dpia')
         .send({ title: 'Test DPIA' });
 
-      const createCall = (mockPrisma.dpia.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isDpia.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^DPIA-/);
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.dpia.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isDpia.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/privacy/dpia')
@@ -423,8 +423,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('GET /api/privacy/dpia', () => {
     it('should list DPIAs with pagination', async () => {
-      (mockPrisma.dpia.findMany as jest.Mock).mockResolvedValueOnce([mockDpia]);
-      (mockPrisma.dpia.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isDpia.findMany as jest.Mock).mockResolvedValueOnce([mockDpia]);
+      (mockPrisma.isDpia.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/privacy/dpia');
 
@@ -434,30 +434,30 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.dpia.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.dpia.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isDpia.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isDpia.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/dpia?status=APPROVED');
 
-      const findCall = (mockPrisma.dpia.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isDpia.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.status).toBe('APPROVED');
     });
 
     it('should exclude soft-deleted DPIAs', async () => {
-      (mockPrisma.dpia.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.dpia.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isDpia.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isDpia.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/dpia');
 
-      const findCall = (mockPrisma.dpia.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isDpia.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.deletedAt).toBeNull();
     });
   });
 
   describe('PUT /api/privacy/dpia/:id/approve', () => {
     it('should approve DPIA', async () => {
-      (mockPrisma.dpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
-      (mockPrisma.dpia.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isDpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce({
         ...mockDpia,
         status: 'APPROVED',
         approvedBy: 'user-123',
@@ -470,13 +470,13 @@ describe('InfoSec Privacy API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.dpia.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isDpia.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('APPROVED');
       expect(updateCall.data.approvedBy).toBe('user-123');
     });
 
     it('should return 404 when DPIA not found', async () => {
-      (mockPrisma.dpia.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isDpia.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/privacy/dpia/nonexistent/approve')
@@ -487,20 +487,20 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should set approvedAt timestamp', async () => {
-      (mockPrisma.dpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
-      (mockPrisma.dpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       await request(app)
         .put('/api/privacy/dpia/dpia-1/approve')
         .send({ approvalNotes: 'Looks good' });
 
-      const updateCall = (mockPrisma.dpia.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isDpia.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.approvedAt).toBeDefined();
     });
 
     it('should accept optional approvalNotes', async () => {
-      (mockPrisma.dpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
-      (mockPrisma.dpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.findFirst as jest.Mock).mockResolvedValueOnce(mockDpia);
+      (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       const res = await request(app)
         .put('/api/privacy/dpia/dpia-1/approve')
@@ -516,7 +516,7 @@ describe('InfoSec Privacy API', () => {
 
   describe('POST /api/privacy/dsar', () => {
     it('should create DSAR with 30-day deadline', async () => {
-      (mockPrisma.dsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
 
       const res = await request(app)
         .post('/api/privacy/dsar')
@@ -528,7 +528,7 @@ describe('InfoSec Privacy API', () => {
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
-      const createCall = (mockPrisma.dsar.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isDsar.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.deadline).toBeDefined();
       // Verify deadline is approximately 30 days from now
       const deadlineDate = new Date(createCall.data.deadline);
@@ -562,32 +562,32 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should set status to RECEIVED', async () => {
-      (mockPrisma.dsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
 
       await request(app)
         .post('/api/privacy/dsar')
         .send({ subjectName: 'Test', subjectEmail: 'test@test.com', requestType: 'ERASURE' });
 
-      const createCall = (mockPrisma.dsar.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isDsar.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('RECEIVED');
     });
 
     it('should generate ref number starting with DSAR-', async () => {
-      (mockPrisma.dsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.create as jest.Mock).mockResolvedValueOnce(mockDsar);
 
       await request(app)
         .post('/api/privacy/dsar')
         .send({ subjectName: 'Test', subjectEmail: 'test@test.com', requestType: 'ACCESS' });
 
-      const createCall = (mockPrisma.dsar.create as jest.Mock).mock.calls[0][0];
+      const createCall = (mockPrisma.isDsar.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^DSAR-/);
     });
   });
 
   describe('GET /api/privacy/dsar', () => {
     it('should list DSARs with pagination', async () => {
-      (mockPrisma.dsar.findMany as jest.Mock).mockResolvedValueOnce([mockDsar]);
-      (mockPrisma.dsar.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isDsar.findMany as jest.Mock).mockResolvedValueOnce([mockDsar]);
+      (mockPrisma.isDsar.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/privacy/dsar');
 
@@ -597,27 +597,27 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.dsar.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.dsar.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isDsar.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isDsar.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/dsar?status=COMPLETED');
 
-      const findCall = (mockPrisma.dsar.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isDsar.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.status).toBe('COMPLETED');
     });
 
     it('should filter by requestType', async () => {
-      (mockPrisma.dsar.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.dsar.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isDsar.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isDsar.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/dsar?requestType=ERASURE');
 
-      const findCall = (mockPrisma.dsar.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isDsar.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.requestType).toBe('ERASURE');
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.dsar.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isDsar.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/privacy/dsar');
 
@@ -627,8 +627,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('PUT /api/privacy/dsar/:id/respond', () => {
     it('should record DSAR response', async () => {
-      (mockPrisma.dsar.findUnique as jest.Mock).mockResolvedValueOnce(mockDsar);
-      (mockPrisma.dsar.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.isDsar.findUnique as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.update as jest.Mock).mockResolvedValueOnce({
         ...mockDsar,
         responseNotes: 'Data exported and sent',
         status: 'COMPLETED',
@@ -641,7 +641,7 @@ describe('InfoSec Privacy API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      const updateCall = (mockPrisma.dsar.update as jest.Mock).mock.calls[0][0];
+      const updateCall = (mockPrisma.isDsar.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('COMPLETED');
       expect(updateCall.data.respondedAt).toBeDefined();
     });
@@ -656,7 +656,7 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should return 404 when DSAR not found', async () => {
-      (mockPrisma.dsar.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isDsar.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/privacy/dsar/nonexistent/respond')
@@ -667,8 +667,8 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should accept optional actionTaken', async () => {
-      (mockPrisma.dsar.findUnique as jest.Mock).mockResolvedValueOnce(mockDsar);
-      (mockPrisma.dsar.update as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.findUnique as jest.Mock).mockResolvedValueOnce(mockDsar);
+      (mockPrisma.isDsar.update as jest.Mock).mockResolvedValueOnce(mockDsar);
 
       const res = await request(app)
         .put('/api/privacy/dsar/dsar-1/respond')
@@ -687,8 +687,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('GET /api/privacy/consents', () => {
     it('should list consent records with pagination', async () => {
-      (mockPrisma.consentRecord.findMany as jest.Mock).mockResolvedValueOnce([mockConsent]);
-      (mockPrisma.consentRecord.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isConsent.findMany as jest.Mock).mockResolvedValueOnce([mockConsent]);
+      (mockPrisma.isConsent.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/privacy/consents');
 
@@ -699,27 +699,27 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should filter by subjectEmail', async () => {
-      (mockPrisma.consentRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.consentRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isConsent.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isConsent.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/consents?subjectEmail=jane@example.com');
 
-      const findCall = (mockPrisma.consentRecord.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isConsent.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.subjectEmail).toBe('jane@example.com');
     });
 
     it('should support search', async () => {
-      (mockPrisma.consentRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.consentRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isConsent.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isConsent.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/consents?search=marketing');
 
-      const findCall = (mockPrisma.consentRecord.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isConsent.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.where.OR).toBeDefined();
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.consentRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isConsent.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/privacy/consents');
 
@@ -734,8 +734,8 @@ describe('InfoSec Privacy API', () => {
 
   describe('GET /api/privacy/retention', () => {
     it('should list retention schedules', async () => {
-      (mockPrisma.retentionSchedule.findMany as jest.Mock).mockResolvedValueOnce([mockRetention]);
-      (mockPrisma.retentionSchedule.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.isRetentionSchedule.findMany as jest.Mock).mockResolvedValueOnce([mockRetention]);
+      (mockPrisma.isRetentionSchedule.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/privacy/retention');
 
@@ -745,17 +745,17 @@ describe('InfoSec Privacy API', () => {
     });
 
     it('should order by dataCategory ascending', async () => {
-      (mockPrisma.retentionSchedule.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.retentionSchedule.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.isRetentionSchedule.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isRetentionSchedule.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app).get('/api/privacy/retention');
 
-      const findCall = (mockPrisma.retentionSchedule.findMany as jest.Mock).mock.calls[0][0];
+      const findCall = (mockPrisma.isRetentionSchedule.findMany as jest.Mock).mock.calls[0][0];
       expect(findCall.orderBy).toEqual({ dataCategory: 'asc' });
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.retentionSchedule.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isRetentionSchedule.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/privacy/retention');
 
