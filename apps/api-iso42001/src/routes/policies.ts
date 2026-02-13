@@ -136,8 +136,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list policies', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list policies', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' } });
   }
 });
@@ -174,8 +174,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('AI policy created', { policyId: policy.id, reference });
     res.status(201).json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to create policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' } });
   }
 });
@@ -208,8 +208,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('AI policy approved', { policyId: id });
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to approve policy', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to approve policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' } });
   }
 });
@@ -230,8 +230,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to get policy', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
   }
 });
@@ -269,8 +269,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI policy updated', { policyId: id });
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to update policy', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' } });
   }
 });
@@ -297,8 +297,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI policy soft-deleted', { policyId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete policy', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' } });
   }
 });

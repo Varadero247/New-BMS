@@ -72,8 +72,8 @@ router.get('/matrix', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching materiality matrix', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching materiality matrix', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch materiality matrix' } });
   }
 });
@@ -99,8 +99,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing materiality topics', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing materiality topics', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list materiality topics' } });
   }
 });
@@ -128,8 +128,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: materiality });
-  } catch (error: any) {
-    logger.error('Error creating materiality topic', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating materiality topic', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create materiality topic' } });
   }
 });
@@ -143,8 +143,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Materiality topic not found' } });
     }
     res.json({ success: true, data: materiality });
-  } catch (error: any) {
-    logger.error('Error fetching materiality topic', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching materiality topic', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch materiality topic' } });
   }
 });
@@ -168,8 +168,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const materiality = await prisma.esgMateriality.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: materiality });
-  } catch (error: any) {
-    logger.error('Error updating materiality topic', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating materiality topic', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update materiality topic' } });
   }
 });
@@ -184,8 +184,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgMateriality.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Materiality topic deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting materiality topic', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting materiality topic', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete materiality topic' } });
   }
 });

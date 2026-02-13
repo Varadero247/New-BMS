@@ -109,8 +109,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Quote created', { quoteId: quote.id, refNumber });
     return res.status(201).json({ success: true, data: quote });
-  } catch (error: any) {
-    logger.error('Failed to create quote', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create quote', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create quote' });
   }
 });
@@ -145,8 +145,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: quotes,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list quotes', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list quotes', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list quotes' });
   }
 });
@@ -164,8 +164,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: quote });
-  } catch (error: any) {
-    logger.error('Failed to get quote', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get quote', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get quote' });
   }
 });
@@ -246,8 +246,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Quote updated', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
-  } catch (error: any) {
-    logger.error('Failed to update quote', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update quote', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update quote' });
   }
 });
@@ -277,8 +277,8 @@ router.post('/:id/send', async (req: Request, res: Response) => {
 
     logger.info('Quote sent', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
-  } catch (error: any) {
-    logger.error('Failed to send quote', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to send quote', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to send quote' });
   }
 });
@@ -308,8 +308,8 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
 
     logger.info('Quote accepted', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
-  } catch (error: any) {
-    logger.error('Failed to accept quote', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to accept quote', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to accept quote' });
   }
 });
@@ -334,8 +334,8 @@ router.get('/:id/pdf', async (req: Request, res: Response) => {
         generatedAt: new Date().toISOString(),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate quote PDF', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate quote PDF', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to generate quote PDF' });
   }
 });

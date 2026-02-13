@@ -53,8 +53,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing invoices', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' } });
   }
 });
@@ -75,8 +75,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: invoice });
-  } catch (error: any) {
-    logger.error('Error fetching invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch invoice' } });
   }
 });
@@ -111,8 +111,8 @@ router.post('/:id/pay', async (req: Request, res: Response) => {
 
     logger.info('Payment intent recorded', { orderId: updated.id, method: parsed.data.paymentMethod });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error recording payment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error recording payment', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' } });
   }
 });

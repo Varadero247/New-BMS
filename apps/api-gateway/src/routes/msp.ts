@@ -121,8 +121,8 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     logger.info('MSP link created', { linkId: id, consultant: userId, client: clientOrganisationId });
 
     res.status(201).json({ success: true, data: link });
-  } catch (error: any) {
-    logger.error('Failed to create MSP link', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create MSP link' },
@@ -173,8 +173,8 @@ router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list MSP clients', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list MSP clients', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list MSP clients' },
@@ -257,8 +257,8 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
     };
 
     res.json({ success: true, data: dashboard });
-  } catch (error: any) {
-    logger.error('Failed to generate MSP dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate MSP dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate MSP dashboard' },
@@ -311,8 +311,8 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
     logger.info('MSP link updated', { linkId: req.params.id, status, consultant: req.user!.id });
 
     res.json({ success: true, data: link });
-  } catch (error: any) {
-    logger.error('Failed to update MSP link', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update MSP link' },
@@ -352,8 +352,8 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
     logger.info('MSP link revoked', { linkId: req.params.id, consultant: req.user!.id });
 
     res.json({ success: true, data: { message: 'MSP link revoked', linkId: req.params.id } });
-  } catch (error: any) {
-    logger.error('Failed to revoke MSP link', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to revoke MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to revoke MSP link' },
@@ -399,8 +399,8 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
         total: 1,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get MSP audit log', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get MSP audit log', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get MSP audit log' },

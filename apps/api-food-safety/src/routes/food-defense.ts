@@ -70,8 +70,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing food defense records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing food defense records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list food defense records' } });
   }
 });
@@ -100,8 +100,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Food defense record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error creating food defense record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create food defense record' } });
   }
 });
@@ -120,8 +120,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error fetching food defense record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch food defense record' } });
   }
 });
@@ -153,8 +153,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Food defense record updated', { id: record.id });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error updating food defense record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update food defense record' } });
   }
 });
@@ -176,8 +176,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Food defense record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Food defense record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting food defense record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete food defense record' } });
   }
 });

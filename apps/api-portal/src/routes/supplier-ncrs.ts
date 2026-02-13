@@ -55,8 +55,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing NCRs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
   }
 });
@@ -96,8 +96,8 @@ router.post('/:id/response', async (req: Request, res: Response) => {
 
     logger.info('NCR response submitted', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error submitting NCR response', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error submitting NCR response', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NCR response' } });
   }
 });

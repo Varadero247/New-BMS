@@ -58,8 +58,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing targets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing targets', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list targets' } });
   }
 });
@@ -88,8 +88,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Error creating target', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating target', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create target' } });
   }
 });
@@ -126,8 +126,8 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
         trajectory,
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching target trajectory', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching target trajectory', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch trajectory' } });
   }
 });
@@ -143,8 +143,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
     res.json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Error fetching target', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching target', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch target' } });
   }
 });
@@ -169,8 +169,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const target = await prisma.esgTarget.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Error updating target', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating target', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update target' } });
   }
 });
@@ -185,8 +185,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgTarget.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Target deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting target', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting target', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete target' } });
   }
 });

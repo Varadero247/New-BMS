@@ -100,8 +100,8 @@ router.get('/default', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: dashboard });
-  } catch (error: any) {
-    logger.error('Failed to get default dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get default dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get default dashboard' } });
   }
 });
@@ -149,8 +149,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: dashboards,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list dashboards', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list dashboards', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list dashboards' } });
   }
 });
@@ -184,8 +184,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Dashboard created', { id: dashboard.id, name: dashboard.name });
     res.status(201).json({ success: true, data: dashboard });
-  } catch (error: any) {
-    logger.error('Failed to create dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create dashboard' } });
   }
 });
@@ -246,8 +246,8 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
 
     logger.info('Dashboard cloned', { originalId: id, cloneId: clone.id });
     res.status(201).json({ success: true, data: result });
-  } catch (error: any) {
-    logger.error('Failed to clone dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to clone dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clone dashboard' } });
   }
 });
@@ -288,8 +288,8 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
 
     logger.info('Widget created', { id: widget.id, dashboardId: id });
     res.status(201).json({ success: true, data: widget });
-  } catch (error: any) {
-    logger.error('Failed to create widget', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create widget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create widget' } });
   }
 });
@@ -320,8 +320,8 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update widget', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update widget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update widget' } });
   }
 });
@@ -347,8 +347,8 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Widget deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete widget', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete widget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete widget' } });
   }
 });
@@ -371,8 +371,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: dashboard });
-  } catch (error: any) {
-    logger.error('Failed to get dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard' } });
   }
 });
@@ -401,8 +401,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update dashboard' } });
   }
 });
@@ -432,8 +432,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Dashboard deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dashboard' } });
   }
 });

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { I18nProvider } from '@ims/i18n/src/provider';
 import Sidebar from "@/components/sidebar";
 
 export const metadata: Metadata = {
@@ -15,12 +16,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <div className="flex h-screen">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
-            {children}
-          </main>
-        </div>
+        <I18nProvider>
+          <div className="flex h-screen">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
+              {children}
+            </main>
+          </div>
+        </I18nProvider>
       </body>
     </html>
   );

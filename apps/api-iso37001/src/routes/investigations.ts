@@ -171,8 +171,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list investigations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list investigations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list investigations' });
   }
 });
@@ -200,8 +200,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Investigation created', { id: investigation.id, referenceNumber });
     res.status(201).json({ success: true, data: investigation });
-  } catch (error: any) {
-    logger.error('Failed to create investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create investigation' });
   }
 });
@@ -220,8 +220,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: investigation });
-  } catch (error: any) {
-    logger.error('Failed to get investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get investigation' });
   }
 });
@@ -255,8 +255,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Investigation updated', { id: investigation.id });
     res.json({ success: true, data: investigation });
-  } catch (error: any) {
-    logger.error('Failed to update investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update investigation' });
   }
 });
@@ -292,8 +292,8 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
 
     logger.info('Investigation started', { id: investigation.id });
     res.json({ success: true, data: investigation });
-  } catch (error: any) {
-    logger.error('Failed to start investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to start investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to start investigation' });
   }
 });
@@ -334,8 +334,8 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     logger.info('Investigation closed', { id: investigation.id, outcome: parsed.data.outcome });
     res.json({ success: true, data: investigation });
-  } catch (error: any) {
-    logger.error('Failed to close investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to close investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to close investigation' });
   }
 });
@@ -362,8 +362,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Investigation deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Investigation deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete investigation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to delete investigation' });
   }
 });

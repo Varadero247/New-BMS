@@ -90,8 +90,8 @@ router.get('/roi-summary', async (_req: Request, res: Response) => {
         averagePaybackMonths: Math.round(averagePayback * 10) / 10,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get ROI summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get ROI summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get ROI summary' });
   }
 });
@@ -131,8 +131,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: projects,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list projects', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list projects', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list projects' });
   }
 });
@@ -168,8 +168,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Project created', { projectId: project.id });
     res.status(201).json({ success: true, data: project });
-  } catch (error: any) {
-    logger.error('Failed to create project', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create project', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create project' });
   }
 });
@@ -193,8 +193,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: project });
-  } catch (error: any) {
-    logger.error('Failed to get project', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get project' });
   }
 });
@@ -241,8 +241,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Project updated', { projectId: id });
     res.json({ success: true, data: project });
-  } catch (error: any) {
-    logger.error('Failed to update project', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update project' });
   }
 });
@@ -267,8 +267,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Project soft-deleted', { projectId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete project', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete project' });
   }
 });
@@ -310,8 +310,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Project completed', { projectId: id });
     res.json({ success: true, data: project });
-  } catch (error: any) {
-    logger.error('Failed to complete project', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to complete project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to complete project' });
   }
 });

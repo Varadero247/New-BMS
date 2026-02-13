@@ -634,6 +634,7 @@ model UdiDiRecord {
   diCode          String    @unique
   version         String?
   createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
@@ -649,6 +650,7 @@ model UdiPiRecord {
   manufacturingDate DateTime?
   expirationDate  DateTime?
   createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 

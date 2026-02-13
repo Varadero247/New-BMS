@@ -76,8 +76,8 @@ router.get('/summary', async (req: Request, res: Response) => {
         periodEnd: result._max.readingDate,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get reading summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get reading summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get reading summary' });
   }
 });
@@ -125,8 +125,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: readings,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list readings', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list readings', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list readings' });
   }
 });
@@ -168,8 +168,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Reading created', { readingId: reading.id, meterId: data.meterId });
     res.status(201).json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to create reading', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create reading', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create reading' });
   }
 });
@@ -196,8 +196,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to get reading', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get reading' });
   }
 });
@@ -237,8 +237,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Reading updated', { readingId: id });
     res.json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to update reading', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update reading' });
   }
 });
@@ -263,8 +263,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Reading soft-deleted', { readingId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete reading', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete reading' });
   }
 });

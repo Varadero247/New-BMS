@@ -73,8 +73,8 @@ router.get('/due-audit', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Error fetching suppliers due for audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching suppliers due for audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch suppliers due for audit' } });
   }
 });
@@ -103,8 +103,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing suppliers', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing suppliers', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
   }
 });
@@ -135,8 +135,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Supplier created', { id: supplier.id, code });
     res.status(201).json({ success: true, data: supplier });
-  } catch (error: any) {
-    logger.error('Error creating supplier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
   }
 });
@@ -155,8 +155,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: supplier });
-  } catch (error: any) {
-    logger.error('Error fetching supplier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch supplier' } });
   }
 });
@@ -188,8 +188,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Supplier updated', { id: supplier.id });
     res.json({ success: true, data: supplier });
-  } catch (error: any) {
-    logger.error('Error updating supplier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
   }
 });
@@ -211,8 +211,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Supplier deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Supplier deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting supplier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
   }
 });

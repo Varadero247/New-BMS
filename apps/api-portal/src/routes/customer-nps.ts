@@ -68,8 +68,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('NPS score submitted', { id: nps.id, score: data.score });
     return res.status(201).json({ success: true, data: nps });
-  } catch (error: any) {
-    logger.error('Error submitting NPS', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error submitting NPS', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NPS score' } });
   }
 });
@@ -101,8 +101,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing NPS submissions', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing NPS submissions', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NPS submissions' } });
   }
 });

@@ -83,8 +83,8 @@ router.get('/low-stock', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: lowStock });
-  } catch (error: any) {
-    logger.error('Failed to list low-stock parts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list low-stock parts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list low-stock parts' } });
   }
 });
@@ -116,8 +116,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: parts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list parts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list parts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list parts' } });
   }
 });
@@ -153,11 +153,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: part });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Part number already exists' } });
     }
-    logger.error('Failed to create part', { error: error.message });
+    logger.error('Failed to create part', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create part' } });
   }
 });
@@ -176,8 +176,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: part });
-  } catch (error: any) {
-    logger.error('Failed to get part', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get part', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get part' } });
   }
 });
@@ -201,8 +201,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const part = await prisma.cmmsPart.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: part });
-  } catch (error: any) {
-    logger.error('Failed to update part', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update part', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update part' } });
   }
 });
@@ -217,8 +217,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsPart.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Part deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete part', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete part', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete part' } });
   }
 });
@@ -264,8 +264,8 @@ router.post('/:id/usage', async (req: Request, res: Response) => {
     ]);
 
     res.status(201).json({ success: true, data: usage });
-  } catch (error: any) {
-    logger.error('Failed to record part usage', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to record part usage', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record part usage' } });
   }
 });

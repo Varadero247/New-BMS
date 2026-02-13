@@ -70,8 +70,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing products', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing products', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' } });
   }
 });
@@ -98,8 +98,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Product created', { id: product.id, code: product.code });
     res.status(201).json({ success: true, data: product });
-  } catch (error: any) {
-    logger.error('Error creating product', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating product', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' } });
   }
 });
@@ -118,8 +118,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: product });
-  } catch (error: any) {
-    logger.error('Error fetching product', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching product', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch product' } });
   }
 });
@@ -146,8 +146,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Product updated', { id: product.id });
     res.json({ success: true, data: product });
-  } catch (error: any) {
-    logger.error('Error updating product', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating product', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' } });
   }
 });
@@ -169,8 +169,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Product deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Product deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting product', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting product', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' } });
   }
 });

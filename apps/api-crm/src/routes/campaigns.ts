@@ -55,8 +55,8 @@ campaignRouter.post('/', async (req: Request, res: Response) => {
 
     logger.info('Campaign created', { campaignId: campaign.id });
     return res.status(201).json({ success: true, data: campaign });
-  } catch (error: any) {
-    logger.error('Failed to create campaign', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create campaign' });
   }
 });
@@ -87,8 +87,8 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
       data: campaigns,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list campaigns', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list campaigns', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list campaigns' });
   }
 });
@@ -112,8 +112,8 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
       success: true,
       data: { ...campaign, memberCount },
     });
-  } catch (error: any) {
-    logger.error('Failed to get campaign', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get campaign' });
   }
 });
@@ -153,8 +153,8 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
         conversionRate: totalMembers > 0 ? Math.round((converted / totalMembers) * 10000) / 100 : 0,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get campaign performance', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get campaign performance', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get campaign performance' });
   }
 });
@@ -191,9 +191,9 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
           },
         });
         results.push(member);
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err.code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
           logger.warn('Contact already in campaign', { campaignId: req.params.id, contactId });
         } else {
           throw err;
@@ -203,8 +203,8 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
 
     logger.info('Contacts added to campaign', { campaignId: req.params.id, count: results.length });
     return res.status(201).json({ success: true, data: results });
-  } catch (error: any) {
-    logger.error('Failed to add contacts to campaign', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to add contacts to campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to add contacts to campaign' });
   }
 });
@@ -252,8 +252,8 @@ emailSequenceRouter.post('/', async (req: Request, res: Response) => {
 
     logger.info('Email sequence created', { sequenceId: sequence.id });
     return res.status(201).json({ success: true, data: sequence });
-  } catch (error: any) {
-    logger.error('Failed to create email sequence', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create email sequence', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create email sequence' });
   }
 });
@@ -282,8 +282,8 @@ emailSequenceRouter.get('/', async (req: Request, res: Response) => {
       data: sequences,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list email sequences', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list email sequences', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list email sequences' });
   }
 });
@@ -314,8 +314,8 @@ emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Email sequence updated', { sequenceId: sequence.id });
     return res.json({ success: true, data: sequence });
-  } catch (error: any) {
-    logger.error('Failed to update email sequence', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update email sequence', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update email sequence' });
   }
 });
@@ -352,9 +352,9 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
           },
         });
         results.push(enrollment);
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err.code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
           logger.warn('Contact already enrolled in sequence', { sequenceId: req.params.id, contactId });
         } else {
           throw err;
@@ -364,8 +364,8 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
 
     logger.info('Contacts enrolled in sequence', { sequenceId: req.params.id, count: results.length });
     return res.json({ success: true, data: results });
-  } catch (error: any) {
-    logger.error('Failed to enroll contacts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to enroll contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to enroll contacts' });
   }
 });

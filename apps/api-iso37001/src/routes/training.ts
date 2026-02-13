@@ -134,8 +134,8 @@ router.get('/overdue', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list overdue training', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list overdue training', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list overdue training' });
   }
 });
@@ -177,8 +177,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
         })),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get training stats', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get training stats', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get training stats' });
   }
 });
@@ -230,8 +230,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list training records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list training records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list training records' });
   }
 });
@@ -259,8 +259,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Training record created', { id: record.id, referenceNumber });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Failed to create training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create training record' });
   }
 });
@@ -279,8 +279,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Failed to get training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get training record' });
   }
 });
@@ -314,8 +314,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Training record updated', { id: record.id });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Failed to update training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update training record' });
   }
 });
@@ -355,8 +355,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Training record completed', { id: record.id, score: parsed.data.score, passed });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Failed to complete training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to complete training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to complete training record' });
   }
 });

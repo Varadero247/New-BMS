@@ -45,8 +45,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing notifications', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing notifications', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' } });
   }
 });
@@ -66,8 +66,8 @@ router.put('/read-all', async (req: Request, res: Response) => {
 
     logger.info('All notifications marked as read', { count: result.count });
     return res.json({ success: true, data: { updated: result.count } });
-  } catch (error: any) {
-    logger.error('Error marking all as read', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error marking all as read', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' } });
   }
 });
@@ -95,8 +95,8 @@ router.put('/:id/read', async (req: Request, res: Response) => {
 
     logger.info('Notification marked as read', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error marking notification as read', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error marking notification as read', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark as read' } });
   }
 });

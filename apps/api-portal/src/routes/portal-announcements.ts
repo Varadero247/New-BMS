@@ -67,8 +67,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing announcements', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing announcements', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list announcements' } });
   }
 });
@@ -102,8 +102,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Announcement created', { id: announcement.id });
     return res.status(201).json({ success: true, data: announcement });
-  } catch (error: any) {
-    logger.error('Error creating announcement', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create announcement' } });
   }
 });
@@ -137,8 +137,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Announcement updated', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating announcement', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update announcement' } });
   }
 });
@@ -163,8 +163,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Announcement deleted', { id: req.params.id });
     return res.json({ success: true, data: { id: req.params.id } });
-  } catch (error: any) {
-    logger.error('Error deleting announcement', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete announcement' } });
   }
 });

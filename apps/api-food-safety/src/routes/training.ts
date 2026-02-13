@@ -68,8 +68,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing training records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing training records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' } });
   }
 });
@@ -98,8 +98,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Training record created', { id: training.id });
     res.status(201).json({ success: true, data: training });
-  } catch (error: any) {
-    logger.error('Error creating training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' } });
   }
 });
@@ -118,8 +118,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: training });
-  } catch (error: any) {
-    logger.error('Error fetching training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch training record' } });
   }
 });
@@ -154,8 +154,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Training record updated', { id: training.id });
     res.json({ success: true, data: training });
-  } catch (error: any) {
-    logger.error('Error updating training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' } });
   }
 });
@@ -177,8 +177,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Training record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Training record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting training record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting training record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete training record' } });
   }
 });
@@ -210,8 +210,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Training completed', { id: training.id });
     res.json({ success: true, data: training });
-  } catch (error: any) {
-    logger.error('Error completing training', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error completing training', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training' } });
   }
 });

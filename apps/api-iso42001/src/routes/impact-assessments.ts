@@ -126,8 +126,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list impact assessments', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list impact assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list impact assessments' } });
   }
 });
@@ -179,8 +179,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Impact assessment created', { assessmentId: assessment.id, reference });
     res.status(201).json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to create impact assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create impact assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create impact assessment' } });
   }
 });
@@ -216,8 +216,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('Impact assessment approved', { assessmentId: id });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to approve impact assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to approve impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve impact assessment' } });
   }
 });
@@ -241,8 +241,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to get impact assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get impact assessment' } });
   }
 });
@@ -280,8 +280,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Impact assessment updated', { assessmentId: id });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to update impact assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update impact assessment' } });
   }
 });
@@ -308,8 +308,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Impact assessment soft-deleted', { assessmentId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete impact assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete impact assessment' } });
   }
 });

@@ -73,8 +73,8 @@ router.get('/active', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Error fetching active recalls', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching active recalls', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active recalls' } });
   }
 });
@@ -104,8 +104,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing recalls', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing recalls', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list recalls' } });
   }
 });
@@ -135,8 +135,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Recall created', { id: recall.id, number });
     res.status(201).json({ success: true, data: recall });
-  } catch (error: any) {
-    logger.error('Error creating recall', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating recall', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create recall' } });
   }
 });
@@ -155,8 +155,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: recall });
-  } catch (error: any) {
-    logger.error('Error fetching recall', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching recall', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch recall' } });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Recall updated', { id: recall.id });
     res.json({ success: true, data: recall });
-  } catch (error: any) {
-    logger.error('Error updating recall', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating recall', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update recall' } });
   }
 });
@@ -209,8 +209,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Recall deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Recall deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting recall', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting recall', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete recall' } });
   }
 });
@@ -241,8 +241,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Recall completed', { id: recall.id });
     res.json({ success: true, data: recall });
-  } catch (error: any) {
-    logger.error('Error completing recall', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error completing recall', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete recall' } });
   }
 });

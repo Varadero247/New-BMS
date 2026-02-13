@@ -65,8 +65,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list time entries', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list time entries', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list time entries' } });
   }
 });
@@ -111,8 +111,8 @@ router.get('/summary', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: Object.values(summary) });
-  } catch (error: any) {
-    logger.error('Failed to get time entries summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get time entries summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entries summary' } });
   }
 });
@@ -139,8 +139,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create time entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create time entry' } });
   }
 });
@@ -159,8 +159,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get time entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entry' } });
   }
 });
@@ -187,8 +187,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcTimeEntry.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update time entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update time entry' } });
   }
 });
@@ -205,8 +205,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcTimeEntry.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Time entry deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete time entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete time entry' } });
   }
 });

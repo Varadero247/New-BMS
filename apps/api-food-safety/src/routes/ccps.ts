@@ -87,8 +87,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing CCPs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing CCPs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CCPs' } });
   }
 });
@@ -117,8 +117,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('CCP created', { id: ccp.id, number });
     res.status(201).json({ success: true, data: ccp });
-  } catch (error: any) {
-    logger.error('Error creating CCP', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CCP' } });
   }
 });
@@ -141,8 +141,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: ccp });
-  } catch (error: any) {
-    logger.error('Error fetching CCP', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch CCP' } });
   }
 });
@@ -169,8 +169,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('CCP updated', { id: ccp.id });
     res.json({ success: true, data: ccp });
-  } catch (error: any) {
-    logger.error('Error updating CCP', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CCP' } });
   }
 });
@@ -192,8 +192,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('CCP deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'CCP deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting CCP', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CCP' } });
   }
 });
@@ -224,8 +224,8 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error fetching monitoring records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' } });
   }
 });
@@ -260,8 +260,8 @@ router.post('/:id/monitoring-records', async (req: Request, res: Response) => {
 
     logger.info('Monitoring record created for CCP', { id: record.id, ccpId: req.params.id });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error creating monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' } });
   }
 });

@@ -97,8 +97,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list jobs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list jobs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list jobs' } });
   }
 });
@@ -121,8 +121,8 @@ router.get('/dispatch-board', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: board });
-  } catch (error: any) {
-    logger.error('Failed to get dispatch board', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get dispatch board', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dispatch board' } });
   }
 });
@@ -139,8 +139,8 @@ router.get('/unassigned', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to list unassigned jobs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list unassigned jobs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list unassigned jobs' } });
   }
 });
@@ -171,8 +171,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create job' } });
   }
 });
@@ -200,8 +200,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get job' } });
   }
 });
@@ -229,8 +229,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const data = await prisma.fsSvcJob.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job' } });
   }
 });
@@ -247,8 +247,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcJob.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Job deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete job' } });
   }
 });
@@ -279,8 +279,8 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to assign job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to assign job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assign job' } });
   }
 });
@@ -305,8 +305,8 @@ router.put('/:id/dispatch', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data, message: 'Job dispatched to mobile' });
-  } catch (error: any) {
-    logger.error('Failed to dispatch job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to dispatch job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to dispatch job' } });
   }
 });
@@ -327,8 +327,8 @@ router.put('/:id/en-route', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update job en-route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update job en-route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job status' } });
   }
 });
@@ -349,8 +349,8 @@ router.put('/:id/on-site', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update job on-site', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update job on-site', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job status' } });
   }
 });
@@ -377,8 +377,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to complete job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to complete job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete job' } });
   }
 });
@@ -404,8 +404,8 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to cancel job', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to cancel job', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel job' } });
   }
 });

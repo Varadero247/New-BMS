@@ -133,8 +133,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list policies', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list policies', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list policies' });
   }
 });
@@ -162,8 +162,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Policy created', { id: policy.id, referenceNumber });
     res.status(201).json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to create policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create policy' });
   }
 });
@@ -182,8 +182,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to get policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get policy' });
   }
 });
@@ -217,8 +217,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Policy updated', { id: policy.id });
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to update policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update policy' });
   }
 });
@@ -247,8 +247,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('Policy approved', { id: policy.id });
     res.json({ success: true, data: policy });
-  } catch (error: any) {
-    logger.error('Failed to approve policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to approve policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to approve policy' });
   }
 });
@@ -275,8 +275,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Policy deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Policy deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete policy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete policy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to delete policy' });
   }
 });

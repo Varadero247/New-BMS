@@ -141,8 +141,8 @@ router.get('/soa', async (_req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate SOA', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate SOA', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate Statement of Applicability' } });
   }
 });
@@ -191,8 +191,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list controls', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list controls', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list controls' } });
   }
 });
@@ -224,8 +224,8 @@ router.put('/:id/status', async (req: Request, res: Response) => {
 
     logger.info('Control status updated', { controlId: id, status: parsed.data.implementationStatus });
     res.json({ success: true, data: control });
-  } catch (error: any) {
-    logger.error('Failed to update control status', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update control status', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update control status' } });
   }
 });
@@ -264,8 +264,8 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
 
     logger.info('Control implementation updated', { controlId: id });
     res.json({ success: true, data: control });
-  } catch (error: any) {
-    logger.error('Failed to update control implementation', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update control implementation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update control implementation' } });
   }
 });
@@ -296,8 +296,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
         annexDomain: annexData?.domain || null,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get control', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get control', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get control' } });
   }
 });

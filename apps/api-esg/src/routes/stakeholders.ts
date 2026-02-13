@@ -55,8 +55,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing stakeholders', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing stakeholders', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list stakeholders' } });
   }
 });
@@ -84,8 +84,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: stakeholder });
-  } catch (error: any) {
-    logger.error('Error creating stakeholder', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating stakeholder', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create stakeholder' } });
   }
 });
@@ -98,8 +98,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }
     res.json({ success: true, data: stakeholder });
-  } catch (error: any) {
-    logger.error('Error fetching stakeholder', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching stakeholder', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stakeholder' } });
   }
 });
@@ -122,8 +122,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const stakeholder = await prisma.esgStakeholder.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: stakeholder });
-  } catch (error: any) {
-    logger.error('Error updating stakeholder', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating stakeholder', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update stakeholder' } });
   }
 });
@@ -138,8 +138,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgStakeholder.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Stakeholder deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting stakeholder', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting stakeholder', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete stakeholder' } });
   }
 });

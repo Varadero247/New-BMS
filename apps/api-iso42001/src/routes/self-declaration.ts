@@ -104,8 +104,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list self-declarations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list self-declarations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list self-declarations' } });
   }
 });
@@ -141,8 +141,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Self-declaration created', { declarationId: declaration.id, reference });
     res.status(201).json({ success: true, data: declaration });
-  } catch (error: any) {
-    logger.error('Failed to create self-declaration', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create self-declaration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create self-declaration' } });
   }
 });
@@ -175,8 +175,8 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
 
     logger.info('Self-declaration published', { declarationId: id });
     res.json({ success: true, data: declaration });
-  } catch (error: any) {
-    logger.error('Failed to publish self-declaration', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to publish self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to publish self-declaration' } });
   }
 });
@@ -197,8 +197,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: declaration });
-  } catch (error: any) {
-    logger.error('Failed to get self-declaration', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get self-declaration' } });
   }
 });
@@ -234,8 +234,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Self-declaration updated', { declarationId: id });
     res.json({ success: true, data: declaration });
-  } catch (error: any) {
-    logger.error('Failed to update self-declaration', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update self-declaration' } });
   }
 });
@@ -262,8 +262,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Self-declaration soft-deleted', { declarationId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete self-declaration', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete self-declaration' } });
   }
 });

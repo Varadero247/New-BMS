@@ -90,8 +90,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: datasets,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list datasets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list datasets', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list datasets' } });
   }
 });
@@ -124,8 +124,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Dataset created', { id: dataset.id, name: dataset.name });
     res.status(201).json({ success: true, data: dataset });
-  } catch (error: any) {
-    logger.error('Failed to create dataset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create dataset' } });
   }
 });
@@ -153,8 +153,8 @@ router.post('/:id/refresh', async (req: Request, res: Response) => {
 
     logger.info('Dataset refreshed', { id });
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to refresh dataset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to refresh dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to refresh dataset' } });
   }
 });
@@ -174,8 +174,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: dataset });
-  } catch (error: any) {
-    logger.error('Failed to get dataset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dataset' } });
   }
 });
@@ -204,8 +204,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update dataset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update dataset' } });
   }
 });
@@ -229,8 +229,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Dataset deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete dataset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dataset' } });
   }
 });

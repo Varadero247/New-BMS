@@ -71,8 +71,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: locations,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list locations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list locations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list locations' } });
   }
 });
@@ -102,11 +102,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: location });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Location code already exists' } });
     }
-    logger.error('Failed to create location', { error: error.message });
+    logger.error('Failed to create location', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create location' } });
   }
 });
@@ -123,8 +123,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: location });
-  } catch (error: any) {
-    logger.error('Failed to get location', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get location', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get location' } });
   }
 });
@@ -144,8 +144,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const location = await prisma.cmmsLocation.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: location });
-  } catch (error: any) {
-    logger.error('Failed to update location', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update location', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update location' } });
   }
 });
@@ -160,8 +160,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsLocation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Location deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete location', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete location', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete location' } });
   }
 });

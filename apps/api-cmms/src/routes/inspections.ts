@@ -65,8 +65,8 @@ router.get('/overdue', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: inspections });
-  } catch (error: any) {
-    logger.error('Failed to list overdue inspections', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list overdue inspections', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue inspections' } });
   }
 });
@@ -106,8 +106,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: inspections,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list inspections', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list inspections', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list inspections' } });
   }
 });
@@ -139,8 +139,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: inspection });
-  } catch (error: any) {
-    logger.error('Failed to create inspection', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create inspection', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create inspection' } });
   }
 });
@@ -159,8 +159,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: inspection });
-  } catch (error: any) {
-    logger.error('Failed to get inspection', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get inspection', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get inspection' } });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const inspection = await prisma.cmmsInspection.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: inspection });
-  } catch (error: any) {
-    logger.error('Failed to update inspection', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update inspection', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update inspection' } });
   }
 });
@@ -202,8 +202,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsInspection.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Inspection deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete inspection', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete inspection', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete inspection' } });
   }
 });

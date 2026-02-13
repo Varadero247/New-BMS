@@ -68,8 +68,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing audits', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing audits', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
   }
 });
@@ -97,8 +97,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Audit created', { id: audit.id });
     res.status(201).json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error creating audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
   }
 });
@@ -117,8 +117,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error fetching audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch audit' } });
   }
 });
@@ -152,8 +152,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Audit updated', { id: audit.id });
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error updating audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
   }
 });
@@ -175,8 +175,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Audit deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Audit deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
   }
 });
@@ -207,8 +207,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Audit completed', { id: audit.id });
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error completing audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error completing audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' } });
   }
 });

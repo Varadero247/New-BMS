@@ -84,8 +84,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: enpis,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list EnPIs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list EnPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list EnPIs' });
   }
 });
@@ -119,8 +119,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('EnPI created', { enpiId: enpi.id });
     res.status(201).json({ success: true, data: enpi });
-  } catch (error: any) {
-    logger.error('Failed to create EnPI', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create EnPI', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create EnPI' });
   }
 });
@@ -145,8 +145,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: enpi });
-  } catch (error: any) {
-    logger.error('Failed to get EnPI', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get EnPI' });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('EnPI updated', { enpiId: id });
     res.json({ success: true, data: enpi });
-  } catch (error: any) {
-    logger.error('Failed to update EnPI', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update EnPI' });
   }
 });
@@ -212,8 +212,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('EnPI soft-deleted', { enpiId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete EnPI', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete EnPI' });
   }
 });
@@ -260,8 +260,8 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
 
     logger.info('EnPI data point added', { enpiId: id, dataPointId: dataPoint.id });
     res.status(201).json({ success: true, data: dataPoint });
-  } catch (error: any) {
-    logger.error('Failed to add EnPI data point', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to add EnPI data point', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to add data point' });
   }
 });
@@ -299,8 +299,8 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
       data: dataPoints,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list EnPI data points', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to list EnPI data points', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to list data points' });
   }
 });
@@ -360,8 +360,8 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
         })),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get EnPI trend', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get EnPI trend', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get EnPI trend' });
   }
 });

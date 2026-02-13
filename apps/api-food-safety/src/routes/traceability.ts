@@ -59,8 +59,8 @@ router.get('/batch/:batchNumber', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error fetching batch', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching batch', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch batch' } });
   }
 });
@@ -90,8 +90,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing traceability records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing traceability records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list traceability records' } });
   }
 });
@@ -120,8 +120,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Traceability record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error creating traceability record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create traceability record' } });
   }
 });
@@ -140,8 +140,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error fetching traceability record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch traceability record' } });
   }
 });
@@ -173,8 +173,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Traceability record updated', { id: record.id });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error updating traceability record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability record' } });
   }
 });
@@ -196,8 +196,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Traceability record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Traceability record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting traceability record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability record' } });
   }
 });

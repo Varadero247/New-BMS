@@ -72,8 +72,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Lead created', { leadId: lead.id, refNumber });
     return res.status(201).json({ success: true, data: lead });
-  } catch (error: any) {
-    logger.error('Failed to create lead', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create lead', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create lead' });
   }
 });
@@ -115,8 +115,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: leads,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list leads', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list leads', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list leads' });
   }
 });
@@ -133,8 +133,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: lead });
-  } catch (error: any) {
-    logger.error('Failed to get lead', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get lead', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get lead' });
   }
 });
@@ -173,8 +173,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Lead updated', { leadId: lead.id });
     return res.json({ success: true, data: lead });
-  } catch (error: any) {
-    logger.error('Failed to update lead', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update lead', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update lead' });
   }
 });
@@ -279,8 +279,8 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
       success: true,
       data: { contact, account, deal },
     });
-  } catch (error: any) {
-    logger.error('Failed to qualify lead', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to qualify lead', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to qualify lead' });
   }
 });
@@ -319,8 +319,8 @@ router.put('/:id/disqualify', async (req: Request, res: Response) => {
 
     logger.info('Lead disqualified', { leadId: lead.id });
     return res.json({ success: true, data: lead });
-  } catch (error: any) {
-    logger.error('Failed to disqualify lead', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to disqualify lead', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to disqualify lead' });
   }
 });

@@ -55,8 +55,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing purchase orders', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing purchase orders', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' } });
   }
 });
@@ -96,8 +96,8 @@ router.post('/:id/confirm', async (req: Request, res: Response) => {
 
     logger.info('Purchase order confirmed', { id: updated.id, orderNumber: updated.orderNumber });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error confirming order', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error confirming order', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to confirm order' } });
   }
 });

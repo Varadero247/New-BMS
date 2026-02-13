@@ -70,8 +70,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list KPIs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list KPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list KPIs' } });
   }
 });
@@ -131,8 +131,8 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         period: { start: thirtyDaysAgo.toISOString(), end: now.toISOString() },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get KPI dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get KPI dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI dashboard' } });
   }
 });
@@ -160,8 +160,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create KPI', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create KPI' } });
   }
 });
@@ -181,8 +181,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get KPI', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI' } });
   }
 });
@@ -210,8 +210,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcKpi.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update KPI', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update KPI' } });
   }
 });
@@ -228,8 +228,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcKpi.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'KPI deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete KPI', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete KPI' } });
   }
 });

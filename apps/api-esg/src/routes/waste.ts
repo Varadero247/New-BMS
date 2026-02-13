@@ -57,8 +57,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing waste', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing waste', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list waste records' } });
   }
 });
@@ -87,8 +87,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: waste });
-  } catch (error: any) {
-    logger.error('Error creating waste record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating waste record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create waste record' } });
   }
 });
@@ -101,8 +101,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Waste record not found' } });
     }
     res.json({ success: true, data: waste });
-  } catch (error: any) {
-    logger.error('Error fetching waste record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching waste record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch waste record' } });
   }
 });
@@ -127,8 +127,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const waste = await prisma.esgWaste.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: waste });
-  } catch (error: any) {
-    logger.error('Error updating waste record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating waste record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update waste record' } });
   }
 });
@@ -143,8 +143,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgWaste.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Waste record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting waste record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting waste record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete waste record' } });
   }
 });

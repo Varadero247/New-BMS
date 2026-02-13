@@ -56,8 +56,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing water records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing water records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list water records' } });
   }
 });
@@ -86,8 +86,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: water });
-  } catch (error: any) {
-    logger.error('Error creating water record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating water record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create water record' } });
   }
 });
@@ -100,8 +100,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Water record not found' } });
     }
     res.json({ success: true, data: water });
-  } catch (error: any) {
-    logger.error('Error fetching water record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching water record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch water record' } });
   }
 });
@@ -126,8 +126,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const water = await prisma.esgWater.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: water });
-  } catch (error: any) {
-    logger.error('Error updating water record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating water record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update water record' } });
   }
 });
@@ -142,8 +142,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgWater.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Water record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting water record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting water record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete water record' } });
   }
 });

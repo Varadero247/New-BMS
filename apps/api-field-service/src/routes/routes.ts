@@ -69,8 +69,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list routes', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list routes', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list routes' } });
   }
 });
@@ -122,8 +122,8 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
         totalStops: optimizedStops.length,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to optimize route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to optimize route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to optimize route' } });
   }
 });
@@ -151,8 +151,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create route' } });
   }
 });
@@ -172,8 +172,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get route' } });
   }
 });
@@ -200,8 +200,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcRoute.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update route' } });
   }
 });
@@ -218,8 +218,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcRoute.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Route deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete route', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete route', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete route' } });
   }
 });

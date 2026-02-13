@@ -81,8 +81,8 @@ router.get('/summary', async (req: Request, res: Response) => {
       success: true,
       data: { total: hazards.length, byType, bySeverity, significantCount },
     });
-  } catch (error: any) {
-    logger.error('Error fetching hazard summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching hazard summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard summary' } });
   }
 });
@@ -112,8 +112,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing hazards', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing hazards', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list hazards' } });
   }
 });
@@ -142,8 +142,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Hazard created', { id: hazard.id });
     res.status(201).json({ success: true, data: hazard });
-  } catch (error: any) {
-    logger.error('Error creating hazard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create hazard' } });
   }
 });
@@ -163,8 +163,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: hazard });
-  } catch (error: any) {
-    logger.error('Error fetching hazard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard' } });
   }
 });
@@ -196,8 +196,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Hazard updated', { id: hazard.id });
     res.json({ success: true, data: hazard });
-  } catch (error: any) {
-    logger.error('Error updating hazard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update hazard' } });
   }
 });
@@ -219,8 +219,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Hazard deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Hazard deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting hazard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete hazard' } });
   }
 });

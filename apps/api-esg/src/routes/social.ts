@@ -58,8 +58,8 @@ router.get('/workforce', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: summary });
-  } catch (error: any) {
-    logger.error('Error fetching workforce summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching workforce summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch workforce summary' } });
   }
 });
@@ -83,8 +83,8 @@ router.get('/safety', async (req: Request, res: Response) => {
     }));
 
     res.json({ success: true, data: safetyData });
-  } catch (error: any) {
-    logger.error('Error fetching safety summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching safety summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch safety summary' } });
   }
 });
@@ -111,8 +111,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing social metrics', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing social metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list social metrics' } });
   }
 });
@@ -141,8 +141,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: metric });
-  } catch (error: any) {
-    logger.error('Error creating social metric', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create social metric' } });
   }
 });
@@ -156,8 +156,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
     res.json({ success: true, data: metric });
-  } catch (error: any) {
-    logger.error('Error fetching social metric', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch social metric' } });
   }
 });
@@ -182,8 +182,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const metric = await prisma.esgSocialMetric.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: metric });
-  } catch (error: any) {
-    logger.error('Error updating social metric', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update social metric' } });
   }
 });
@@ -198,8 +198,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgSocialMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Social metric deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting social metric', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete social metric' } });
   }
 });

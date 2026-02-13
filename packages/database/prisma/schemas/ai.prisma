@@ -144,6 +144,7 @@ model AIAction {
   confidence  Decimal? @db.Decimal(5, 4) // 0.0000-1.0000
 
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   analysis    AIAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
@@ -185,6 +186,7 @@ model AIFeedback {
   feedbackType FeedbackType @default(GENERAL)
 
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   analysis    AIAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
@@ -304,6 +306,7 @@ model AIInsight {
   linkedActionId String?
 
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   expiresAt   DateTime?
 
   @@index([insightType])
@@ -381,6 +384,7 @@ model AIUsage {
   errorMessage  String?
 
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([userId])
   @@index([provider, model])
@@ -462,6 +466,7 @@ model AIMessage {
   metadata       Json?
 
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
   conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

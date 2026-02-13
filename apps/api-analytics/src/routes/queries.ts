@@ -79,8 +79,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: queries,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list queries', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list queries', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list queries' } });
   }
 });
@@ -112,8 +112,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Query created', { id: query.id, name: query.name });
     res.status(201).json({ success: true, data: query });
-  } catch (error: any) {
-    logger.error('Failed to create query', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create query' } });
   }
 });
@@ -156,8 +156,8 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
 
     logger.info('Query executed', { id, executionMs });
     res.json({ success: true, data: { query: query.sql, results: mockResults, executionMs } });
-  } catch (error: any) {
-    logger.error('Failed to execute query', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to execute query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to execute query' } });
   }
 });
@@ -177,8 +177,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: query });
-  } catch (error: any) {
-    logger.error('Failed to get query', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get query' } });
   }
 });
@@ -207,8 +207,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update query', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update query' } });
   }
 });
@@ -232,8 +232,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Query deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete query', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete query' } });
   }
 });

@@ -67,8 +67,8 @@ router.get('/deviations', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error fetching deviations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching deviations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch deviations' } });
   }
 });
@@ -102,8 +102,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing monitoring records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list monitoring records' } });
   }
 });
@@ -132,8 +132,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Monitoring record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error creating monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' } });
   }
 });
@@ -153,8 +153,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error fetching monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring record' } });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Monitoring record updated', { id: record.id });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error updating monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update monitoring record' } });
   }
 });
@@ -209,8 +209,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Monitoring record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Monitoring record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete monitoring record' } });
   }
 });

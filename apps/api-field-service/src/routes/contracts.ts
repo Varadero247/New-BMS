@@ -83,8 +83,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list contracts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list contracts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list contracts' } });
   }
 });
@@ -109,8 +109,8 @@ router.get('/expiring', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to list expiring contracts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list expiring contracts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list expiring contracts' } });
   }
 });
@@ -138,8 +138,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create contract', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' } });
   }
 });
@@ -158,8 +158,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get contract', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get contract' } });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcContract.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update contract', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' } });
   }
 });
@@ -204,8 +204,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcContract.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Contract deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete contract', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contract' } });
   }
 });

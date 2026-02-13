@@ -166,8 +166,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list risk assessments', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list risk assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list risk assessments' });
   }
 });
@@ -200,8 +200,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Risk assessment created', { id: assessment.id, referenceNumber, riskScore, riskLevel });
     res.status(201).json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to create risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create risk assessment' });
   }
 });
@@ -220,8 +220,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to get risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get risk assessment' });
   }
 });
@@ -263,8 +263,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Risk assessment updated', { id: assessment.id, riskScore, riskLevel });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to update risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update risk assessment' });
   }
 });
@@ -311,8 +311,8 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
       residualRiskLevel,
     });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to mitigate risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to mitigate risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to mitigate risk assessment' });
   }
 });
@@ -339,8 +339,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Risk assessment deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Risk assessment deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to delete risk assessment' });
   }
 });

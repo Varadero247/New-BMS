@@ -58,8 +58,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing scorecards', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing scorecards', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list scorecards' } });
   }
 });
@@ -94,8 +94,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Scorecard created', { id: scorecard.id, portalUserId: data.portalUserId });
     return res.status(201).json({ success: true, data: scorecard });
-  } catch (error: any) {
-    logger.error('Error creating scorecard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating scorecard', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create scorecard' } });
   }
 });
@@ -115,8 +115,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: scorecard });
-  } catch (error: any) {
-    logger.error('Error fetching scorecard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching scorecard', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch scorecard' } });
   }
 });

@@ -64,8 +64,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list parts used', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list parts used', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list parts used' } });
   }
 });
@@ -91,8 +91,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create part used', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create part used', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create part used' } });
   }
 });
@@ -111,8 +111,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part used not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get part used', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get part used', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get part used' } });
   }
 });
@@ -138,8 +138,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcPartUsed.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update part used', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update part used', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update part used' } });
   }
 });
@@ -156,8 +156,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcPartUsed.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Part used deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete part used', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete part used', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete part used' } });
   }
 });

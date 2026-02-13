@@ -70,8 +70,8 @@ router.get('/open', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Error fetching open NCRs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching open NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch open NCRs' } });
   }
 });
@@ -101,8 +101,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing NCRs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
   }
 });
@@ -132,8 +132,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('NCR created', { id: ncr.id, number });
     res.status(201).json({ success: true, data: ncr });
-  } catch (error: any) {
-    logger.error('Error creating NCR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create NCR' } });
   }
 });
@@ -152,8 +152,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: ncr });
-  } catch (error: any) {
-    logger.error('Error fetching NCR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch NCR' } });
   }
 });
@@ -187,8 +187,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('NCR updated', { id: ncr.id });
     res.json({ success: true, data: ncr });
-  } catch (error: any) {
-    logger.error('Error updating NCR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update NCR' } });
   }
 });
@@ -210,8 +210,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('NCR deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'NCR deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting NCR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete NCR' } });
   }
 });
@@ -243,8 +243,8 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     logger.info('NCR closed', { id: ncr.id });
     res.json({ success: true, data: ncr });
-  } catch (error: any) {
-    logger.error('Error closing NCR', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error closing NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close NCR' } });
   }
 });

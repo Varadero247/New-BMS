@@ -94,8 +94,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list baselines', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list baselines', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list baselines' });
   }
 });
@@ -130,8 +130,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Baseline created', { baselineId: baseline.id });
     res.status(201).json({ success: true, data: baseline });
-  } catch (error: any) {
-    logger.error('Failed to create baseline', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create baseline', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create baseline' });
   }
 });
@@ -154,8 +154,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: baseline });
-  } catch (error: any) {
-    logger.error('Failed to get baseline', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get baseline' });
   }
 });
@@ -189,8 +189,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Baseline updated', { baselineId: id });
     res.json({ success: true, data: baseline });
-  } catch (error: any) {
-    logger.error('Failed to update baseline', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update baseline' });
   }
 });
@@ -215,8 +215,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Baseline soft-deleted', { baselineId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete baseline', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete baseline' });
   }
 });
@@ -250,8 +250,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('Baseline approved', { baselineId: id });
     res.json({ success: true, data: baseline });
-  } catch (error: any) {
-    logger.error('Failed to approve baseline', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to approve baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to approve baseline' });
   }
 });

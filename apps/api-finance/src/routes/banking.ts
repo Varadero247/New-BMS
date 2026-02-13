@@ -76,8 +76,8 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: accounts });
-  } catch (error: any) {
-    logger.error('Error listing bank accounts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing bank accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bank accounts' } });
   }
 });
@@ -101,8 +101,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Error getting bank account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error getting bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bank account' } });
   }
 });
@@ -122,11 +122,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: account });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error creating bank account', { error: error.message });
+    logger.error('Error creating bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bank account' } });
   }
 });
@@ -147,11 +147,11 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: account });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error updating bank account', { error: error.message });
+    logger.error('Error updating bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update bank account' } });
   }
 });
@@ -178,8 +178,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Bank account deleted' } });
-  } catch (error: any) {
-    logger.error('Error deleting bank account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bank account' } });
   }
 });
@@ -222,8 +222,8 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
       data: transactions,
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
-  } catch (error: any) {
-    logger.error('Error listing transactions', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' } });
   }
 });
@@ -256,11 +256,11 @@ router.post('/transactions', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: transaction });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error creating transaction', { error: error.message });
+    logger.error('Error creating transaction', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create transaction' } });
   }
 });
@@ -289,11 +289,11 @@ router.post('/import', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: { imported: created.count } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error importing transactions', { error: error.message });
+    logger.error('Error importing transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to import transactions' } });
   }
 });
@@ -321,8 +321,8 @@ router.get('/reconciliations/list', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: reconciliations });
-  } catch (error: any) {
-    logger.error('Error listing reconciliations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing reconciliations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reconciliations' } });
   }
 });
@@ -345,11 +345,11 @@ router.post('/reconciliations', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: reconciliation });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error starting reconciliation', { error: error.message });
+    logger.error('Error starting reconciliation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to start reconciliation' } });
   }
 });
@@ -376,11 +376,11 @@ router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response
     });
 
     res.json({ success: true, data: { reconciled: data.transactionIds.length } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error reconciling transactions', { error: error.message });
+    logger.error('Error reconciling transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reconcile transactions' } });
   }
 });
@@ -411,8 +411,8 @@ router.post('/reconciliations/:id/complete', async (req: Request, res: Response)
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error completing reconciliation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error completing reconciliation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete reconciliation' } });
   }
 });

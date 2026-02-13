@@ -78,8 +78,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list customers', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list customers', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' } });
   }
 });
@@ -106,8 +106,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create customer', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' } });
   }
 });
@@ -129,8 +129,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get customer', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' } });
   }
 });
@@ -151,8 +151,8 @@ router.get('/:id/sites', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get customer sites', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get customer sites', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer sites' } });
   }
 });
@@ -182,8 +182,8 @@ router.get('/:id/jobs', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to get customer jobs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get customer jobs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer jobs' } });
   }
 });
@@ -209,8 +209,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update customer', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' } });
   }
 });
@@ -227,8 +227,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcCustomer.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Customer deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete customer', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' } });
   }
 });

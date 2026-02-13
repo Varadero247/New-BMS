@@ -82,7 +82,7 @@ app.use('/api/esg', esgRouter);
 app.use('/api/communications', communicationsRouter);
 
 // Error handling
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(err.statusCode || 500).json({
     success: false,

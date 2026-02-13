@@ -90,8 +90,8 @@ router.get('/', async (req: Request, res: Response) => {
         organization: customBenchmarks,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get benchmarks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get benchmarks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get benchmarks' } });
   }
 });
@@ -128,8 +128,8 @@ router.get('/:module', async (req: Request, res: Response) => {
         organization: orgData,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get module benchmarks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get module benchmarks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get module benchmarks' } });
   }
 });
@@ -173,8 +173,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Custom benchmark created', { id: kpi.id, name: kpi.name });
     res.status(201).json({ success: true, data: kpi });
-  } catch (error: any) {
-    logger.error('Failed to create benchmark', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create benchmark', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create benchmark' } });
   }
 });

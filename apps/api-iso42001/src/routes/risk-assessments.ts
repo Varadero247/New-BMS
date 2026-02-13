@@ -173,8 +173,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list risk assessments', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list risk assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' } });
   }
 });
@@ -224,8 +224,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('AI risk assessment created', { riskId: risk.id, reference, riskScore, riskLevel });
     res.status(201).json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to create risk assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' } });
   }
 });
@@ -247,8 +247,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to get risk assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' } });
   }
 });
@@ -294,8 +294,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('AI risk assessment updated', { riskId: id, riskScore, riskLevel });
     res.json({ success: true, data: risk });
-  } catch (error: any) {
-    logger.error('Failed to update risk assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' } });
   }
 });
@@ -321,8 +321,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('AI risk assessment soft-deleted', { riskId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete risk assessment', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' } });
   }
 });

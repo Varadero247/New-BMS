@@ -57,8 +57,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Supplier registration submitted', { id: user.id, email: user.email });
     return res.status(201).json({ success: true, data: { id: user.id, email: user.email, status: user.status } });
-  } catch (error: any) {
-    logger.error('Error registering supplier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error registering supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register supplier' } });
   }
 });
@@ -90,8 +90,8 @@ router.get('/status', async (req: Request, res: Response) => {
         createdAt: user.createdAt,
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching registration status', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching registration status', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch status' } });
   }
 });

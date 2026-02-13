@@ -84,8 +84,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: seus,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list SEUs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list SEUs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list SEUs' });
   }
 });
@@ -122,8 +122,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('SEU created', { seuId: seu.id });
     res.status(201).json({ success: true, data: seu });
-  } catch (error: any) {
-    logger.error('Failed to create SEU', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create SEU', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create SEU' });
   }
 });
@@ -145,8 +145,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: seu });
-  } catch (error: any) {
-    logger.error('Failed to get SEU', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get SEU' });
   }
 });
@@ -183,8 +183,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('SEU updated', { seuId: id });
     res.json({ success: true, data: seu });
-  } catch (error: any) {
-    logger.error('Failed to update SEU', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update SEU' });
   }
 });
@@ -209,8 +209,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('SEU soft-deleted', { seuId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete SEU', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete SEU' });
   }
 });

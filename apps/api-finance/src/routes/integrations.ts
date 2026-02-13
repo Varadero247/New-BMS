@@ -31,8 +31,8 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: integrations });
-  } catch (error: any) {
-    logger.error('Error listing integrations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing integrations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list integrations' } });
   }
 });
@@ -55,8 +55,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: integration });
-  } catch (error: any) {
-    logger.error('Error getting integration', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error getting integration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get integration' } });
   }
 });
@@ -75,11 +75,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: integration });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error creating integration', { error: error.message });
+    logger.error('Error creating integration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create integration' } });
   }
 });
@@ -100,11 +100,11 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: integration });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error updating integration', { error: error.message });
+    logger.error('Error updating integration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update integration' } });
   }
 });
@@ -123,8 +123,8 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: integration });
-  } catch (error: any) {
-    logger.error('Error activating integration', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error activating integration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to activate integration' } });
   }
 });
@@ -143,8 +143,8 @@ router.post('/:id/deactivate', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: integration });
-  } catch (error: any) {
-    logger.error('Error deactivating integration', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deactivating integration', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate integration' } });
   }
 });
@@ -186,8 +186,8 @@ router.post('/:id/sync', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Sync triggered successfully', syncLogId: syncLog.id } });
-  } catch (error: any) {
-    logger.error('Error triggering sync', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error triggering sync', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger sync' } });
   }
 });
@@ -215,8 +215,8 @@ router.get('/:id/logs', async (req: Request, res: Response) => {
       data: logs,
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
-  } catch (error: any) {
-    logger.error('Error listing sync logs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing sync logs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sync logs' } });
   }
 });

@@ -76,8 +76,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: schedules,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list schedules', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' } });
   }
 });
@@ -114,8 +114,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Schedule created', { id: schedule.id, name: schedule.name });
     res.status(201).json({ success: true, data: schedule });
-  } catch (error: any) {
-    logger.error('Failed to create schedule', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' } });
   }
 });
@@ -140,8 +140,8 @@ router.put('/:id/toggle', async (req: Request, res: Response) => {
 
     logger.info('Schedule toggled', { id, isActive: updated.isActive });
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to toggle schedule', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to toggle schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to toggle schedule' } });
   }
 });
@@ -161,8 +161,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: schedule });
-  } catch (error: any) {
-    logger.error('Failed to get schedule', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' } });
   }
 });
@@ -191,8 +191,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update schedule', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' } });
   }
 });
@@ -216,8 +216,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Schedule deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete schedule', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' } });
   }
 });

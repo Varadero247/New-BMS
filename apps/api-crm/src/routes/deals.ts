@@ -66,8 +66,8 @@ router.get('/pipelines', async (_req: Request, res: Response) => {
     });
 
     return res.json({ success: true, data: pipelines });
-  } catch (error: any) {
-    logger.error('Failed to list pipelines', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list pipelines', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list pipelines' });
   }
 });
@@ -102,8 +102,8 @@ router.post('/pipelines', async (req: Request, res: Response) => {
 
     logger.info('Pipeline created', { pipelineId: pipeline.id });
     return res.status(201).json({ success: true, data: pipeline });
-  } catch (error: any) {
-    logger.error('Failed to create pipeline', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create pipeline', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create pipeline' });
   }
 });
@@ -149,8 +149,8 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
 
     logger.info('Pipeline stages updated', { pipelineId: req.params.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update pipeline stages', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update pipeline stages', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update pipeline stages' });
   }
 });
@@ -175,8 +175,8 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     );
 
     return res.json({ success: true, data: forecast });
-  } catch (error: any) {
-    logger.error('Failed to get forecast', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get forecast' });
   }
 });
@@ -207,8 +207,8 @@ router.get('/board', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: board });
-  } catch (error: any) {
-    logger.error('Failed to get board data', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get board data', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get board data' });
   }
 });
@@ -240,8 +240,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Deal created', { dealId: deal.id, refNumber: deal.refNumber });
     return res.status(201).json({ success: true, data: deal });
-  } catch (error: any) {
-    logger.error('Failed to create deal', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create deal', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create deal' });
   }
 });
@@ -284,8 +284,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list deals', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list deals', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list deals' });
   }
 });
@@ -320,8 +320,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       success: true,
       data: { ...deal, activities, contacts },
     });
-  } catch (error: any) {
-    logger.error('Failed to get deal', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get deal', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get deal' });
   }
 });
@@ -357,8 +357,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Deal updated', { dealId: deal.id });
     return res.json({ success: true, data: deal });
-  } catch (error: any) {
-    logger.error('Failed to update deal', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update deal', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update deal' });
   }
 });
@@ -402,8 +402,8 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
 
     logger.info('Deal stage updated', { dealId: deal.id, stageId });
     return res.json({ success: true, data: deal });
-  } catch (error: any) {
-    logger.error('Failed to update deal stage', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update deal stage', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update deal stage' });
   }
 });
@@ -442,8 +442,8 @@ router.put('/:id/won', async (req: Request, res: Response) => {
 
     logger.info('Deal closed won', { dealId: deal.id });
     return res.json({ success: true, data: deal });
-  } catch (error: any) {
-    logger.error('Failed to close deal as won', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to close deal as won', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to close deal as won' });
   }
 });
@@ -488,8 +488,8 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
 
     logger.info('Deal closed lost', { dealId: deal.id, lostReason });
     return res.json({ success: true, data: deal });
-  } catch (error: any) {
-    logger.error('Failed to close deal as lost', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to close deal as lost', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to close deal as lost' });
   }
 });

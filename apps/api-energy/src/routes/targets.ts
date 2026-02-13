@@ -82,8 +82,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: targets,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list targets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list targets', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list targets' });
   }
 });
@@ -128,8 +128,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Target created', { targetId: target.id });
     res.status(201).json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Failed to create target', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create target', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create target' });
   }
 });
@@ -172,8 +172,8 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
         onTrack: target.status === 'ON_TRACK' || target.status === 'ACHIEVED',
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get target progress', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get target progress', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get target progress' });
   }
 });
@@ -200,8 +200,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Failed to get target', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get target' });
   }
 });
@@ -238,8 +238,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Target updated', { targetId: id });
     res.json({ success: true, data: target });
-  } catch (error: any) {
-    logger.error('Failed to update target', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update target' });
   }
 });
@@ -264,8 +264,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Target soft-deleted', { targetId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete target', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete target' });
   }
 });

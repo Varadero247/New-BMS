@@ -63,8 +63,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Supplier document uploaded', { id: document.id, title: document.title });
     return res.status(201).json({ success: true, data: document });
-  } catch (error: any) {
-    logger.error('Error uploading document', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error uploading document', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to upload document' } });
   }
 });
@@ -98,8 +98,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing supplier documents', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing supplier documents', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
   }
 });

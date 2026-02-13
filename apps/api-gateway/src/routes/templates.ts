@@ -144,8 +144,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       data: templates,
       pagination: { page: parseInt(page), limit: take, total, pages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -189,8 +189,8 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
         totalUsages: totals._sum?.usageCount ?? 0,
       },
     });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -224,8 +224,8 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
     });
 
     res.json({ success: true, data: templates });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -242,8 +242,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: 'Template not found' });
     }
     res.json({ success: true, data: template });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -277,8 +277,8 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
     });
 
     res.status(201).json({ success: true, data: template });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -321,8 +321,8 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -350,8 +350,8 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
     });
 
     res.json({ success: true, data: { message: 'Template deleted' } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -389,8 +389,8 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
     });
 
     res.status(201).json({ success: true, data: cloned });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -431,8 +431,8 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
     ]);
 
     res.status(201).json({ success: true, data: instance });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -456,8 +456,8 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
     });
 
     res.json({ success: true, data: versions });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -507,8 +507,8 @@ router.post(
       });
 
       res.json({ success: true, data: restored });
-    } catch (error: any) {
-      res.status(500).json({ success: false, error: error.message });
+    } catch (error: unknown) {
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
     }
   },
 );
@@ -559,8 +559,8 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Disposition', `attachment; filename="${slug}.html"`);
     res.send(html);
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 

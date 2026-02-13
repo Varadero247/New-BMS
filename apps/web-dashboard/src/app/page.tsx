@@ -11,11 +11,27 @@ import {
   AlertTriangle,
   Clock,
   Sparkles,
-  Plus,
   ExternalLink,
   Users,
   Wallet,
   GitBranch,
+  FolderKanban,
+  Car,
+  Stethoscope,
+  Plane,
+  PiggyBank,
+  UserCircle,
+  ShieldCheck,
+  TreePine,
+  Wrench,
+  Building2,
+  Truck,
+  BarChart3,
+  UtensilsCrossed,
+  Zap,
+  Brain,
+  Scale,
+  Briefcase,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
@@ -47,6 +63,74 @@ interface DashboardStats {
   topRisks: any[];
   overdueActions: any[];
   recentAIInsights: any[];
+}
+
+interface ModuleCard {
+  name: string;
+  subtitle: string;
+  port: number;
+  icon: any;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  hoverBg: string;
+  textColor: string;
+  subtitleColor: string;
+  iconBg: string;
+}
+
+const isoModules: ModuleCard[] = [
+  { name: 'Health & Safety', subtitle: 'ISO 45001', port: 3001, icon: Shield, color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-200', hoverBg: 'hover:bg-red-100', textColor: 'text-red-900', subtitleColor: 'text-red-600', iconBg: 'bg-red-100' },
+  { name: 'Environmental', subtitle: 'ISO 14001', port: 3002, icon: Leaf, color: 'green', bgColor: 'bg-green-50', borderColor: 'border-green-200', hoverBg: 'hover:bg-green-100', textColor: 'text-green-900', subtitleColor: 'text-green-600', iconBg: 'bg-green-100' },
+  { name: 'Quality', subtitle: 'ISO 9001', port: 3003, icon: Award, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
+  { name: 'ESG', subtitle: 'Sustainability', port: 3016, icon: TreePine, color: 'teal', bgColor: 'bg-teal-50', borderColor: 'border-teal-200', hoverBg: 'hover:bg-teal-100', textColor: 'text-teal-900', subtitleColor: 'text-teal-600', iconBg: 'bg-teal-100' },
+  { name: 'Food Safety', subtitle: 'HACCP / ISO 22000', port: 3020, icon: UtensilsCrossed, color: 'amber', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', hoverBg: 'hover:bg-amber-100', textColor: 'text-amber-900', subtitleColor: 'text-amber-600', iconBg: 'bg-amber-100' },
+  { name: 'Energy', subtitle: 'ISO 50001', port: 3021, icon: Zap, color: 'yellow', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200', hoverBg: 'hover:bg-yellow-100', textColor: 'text-yellow-900', subtitleColor: 'text-yellow-600', iconBg: 'bg-yellow-100' },
+  { name: 'ISO 42001 (AI)', subtitle: 'AI Management', port: 3024, icon: Brain, color: 'fuchsia', bgColor: 'bg-fuchsia-50', borderColor: 'border-fuchsia-200', hoverBg: 'hover:bg-fuchsia-100', textColor: 'text-fuchsia-900', subtitleColor: 'text-fuchsia-600', iconBg: 'bg-fuchsia-100' },
+  { name: 'ISO 37001', subtitle: 'Anti-Bribery', port: 3025, icon: Scale, color: 'rose', bgColor: 'bg-rose-50', borderColor: 'border-rose-200', hoverBg: 'hover:bg-rose-100', textColor: 'text-rose-900', subtitleColor: 'text-rose-600', iconBg: 'bg-rose-100' },
+  { name: 'InfoSec', subtitle: 'ISO 27001', port: 3015, icon: ShieldCheck, color: 'cyan', bgColor: 'bg-cyan-50', borderColor: 'border-cyan-200', hoverBg: 'hover:bg-cyan-100', textColor: 'text-cyan-900', subtitleColor: 'text-cyan-600', iconBg: 'bg-cyan-100' },
+  { name: 'Aerospace', subtitle: 'AS9100', port: 3012, icon: Plane, color: 'slate', bgColor: 'bg-slate-50', borderColor: 'border-slate-200', hoverBg: 'hover:bg-slate-100', textColor: 'text-slate-900', subtitleColor: 'text-slate-600', iconBg: 'bg-slate-100' },
+];
+
+const operationsModules: ModuleCard[] = [
+  { name: 'Inventory', subtitle: 'Stock Control', port: 3005, icon: Package, color: 'sky', bgColor: 'bg-sky-50', borderColor: 'border-sky-200', hoverBg: 'hover:bg-sky-100', textColor: 'text-sky-900', subtitleColor: 'text-sky-600', iconBg: 'bg-sky-100' },
+  { name: 'HR Management', subtitle: 'Employee & Performance', port: 3006, icon: Users, color: 'orange', bgColor: 'bg-orange-50', borderColor: 'border-orange-200', hoverBg: 'hover:bg-orange-100', textColor: 'text-orange-900', subtitleColor: 'text-orange-600', iconBg: 'bg-orange-100' },
+  { name: 'Payroll', subtitle: 'Compensation & Benefits', port: 3007, icon: Wallet, color: 'emerald', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200', hoverBg: 'hover:bg-emerald-100', textColor: 'text-emerald-900', subtitleColor: 'text-emerald-600', iconBg: 'bg-emerald-100' },
+  { name: 'Workflows', subtitle: 'Process Automation', port: 3008, icon: GitBranch, color: 'indigo', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-200', hoverBg: 'hover:bg-indigo-100', textColor: 'text-indigo-900', subtitleColor: 'text-indigo-600', iconBg: 'bg-indigo-100' },
+  { name: 'Project Management', subtitle: 'Tasks & Milestones', port: 3009, icon: FolderKanban, color: 'violet', bgColor: 'bg-violet-50', borderColor: 'border-violet-200', hoverBg: 'hover:bg-violet-100', textColor: 'text-violet-900', subtitleColor: 'text-violet-600', iconBg: 'bg-violet-100' },
+  { name: 'Finance', subtitle: 'Accounts & Budgets', port: 3013, icon: PiggyBank, color: 'lime', bgColor: 'bg-lime-50', borderColor: 'border-lime-200', hoverBg: 'hover:bg-lime-100', textColor: 'text-lime-900', subtitleColor: 'text-lime-600', iconBg: 'bg-lime-100' },
+  { name: 'CRM', subtitle: 'Customer Relations', port: 3014, icon: UserCircle, color: 'pink', bgColor: 'bg-pink-50', borderColor: 'border-pink-200', hoverBg: 'hover:bg-pink-100', textColor: 'text-pink-900', subtitleColor: 'text-pink-600', iconBg: 'bg-pink-100' },
+  { name: 'CMMS', subtitle: 'Maintenance', port: 3017, icon: Wrench, color: 'stone', bgColor: 'bg-stone-50', borderColor: 'border-stone-200', hoverBg: 'hover:bg-stone-100', textColor: 'text-stone-900', subtitleColor: 'text-stone-600', iconBg: 'bg-stone-100' },
+  { name: 'Field Service', subtitle: 'Job Dispatch', port: 3023, icon: Truck, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
+  { name: 'Analytics', subtitle: 'Reports & Dashboards', port: 3022, icon: BarChart3, color: 'purple', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', hoverBg: 'hover:bg-purple-100', textColor: 'text-purple-900', subtitleColor: 'text-purple-600', iconBg: 'bg-purple-100' },
+];
+
+const portalModules: ModuleCard[] = [
+  { name: 'Customer Portal', subtitle: 'Client Access', port: 3018, icon: Building2, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
+  { name: 'Supplier Portal', subtitle: 'Vendor Access', port: 3019, icon: Briefcase, color: 'amber', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', hoverBg: 'hover:bg-amber-100', textColor: 'text-amber-900', subtitleColor: 'text-amber-600', iconBg: 'bg-amber-100' },
+  { name: 'Medical Devices', subtitle: 'ISO 13485', port: 3011, icon: Stethoscope, color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-200', hoverBg: 'hover:bg-red-100', textColor: 'text-red-900', subtitleColor: 'text-red-600', iconBg: 'bg-red-100' },
+  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50', borderColor: 'border-gray-200', hoverBg: 'hover:bg-gray-100', textColor: 'text-gray-900', subtitleColor: 'text-gray-600', iconBg: 'bg-gray-100' },
+];
+
+function ModuleCardLink({ mod }: { mod: ModuleCard }) {
+  const Icon = mod.icon;
+  return (
+    <a
+      href={`http://localhost:${mod.port}`}
+      className={`flex items-center justify-between p-5 ${mod.bgColor} rounded-lg border ${mod.borderColor} ${mod.hoverBg} transition-colors`}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`p-2.5 ${mod.iconBg} rounded-full`}>
+          <Icon className={`h-5 w-5 text-${mod.color}-600`} />
+        </div>
+        <div>
+          <h3 className={`font-semibold ${mod.textColor}`}>{mod.name}</h3>
+          <p className={`text-sm ${mod.subtitleColor}`}>{mod.subtitle}</p>
+        </div>
+      </div>
+      <ExternalLink className={`h-4 w-4 text-${mod.color}-400`} />
+    </a>
+  );
 }
 
 export default function DashboardPage() {
@@ -329,127 +413,33 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Module Links */}
+          {/* ISO Compliance Modules */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Compliance Modules</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <a
-                href="http://localhost:3001"
-                className="flex items-center justify-between p-6 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-red-100 rounded-full">
-                    <Shield className="h-6 w-6 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-900">Health & Safety</h3>
-                    <p className="text-sm text-red-600">ISO 45001</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-red-400" />
-              </a>
-
-              <a
-                href="http://localhost:3002"
-                className="flex items-center justify-between p-6 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 rounded-full">
-                    <Leaf className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-green-900">Environmental</h3>
-                    <p className="text-sm text-green-600">ISO 14001</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-green-400" />
-              </a>
-
-              <a
-                href="http://localhost:3003"
-                className="flex items-center justify-between p-6 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <Award className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-blue-900">Quality</h3>
-                    <p className="text-sm text-blue-600">ISO 9001</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-blue-400" />
-              </a>
-
-              <a
-                href="http://localhost:3005"
-                className="flex items-center justify-between p-6 bg-sky-50 rounded-lg border border-sky-200 hover:bg-sky-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-sky-100 rounded-full">
-                    <Package className="h-6 w-6 text-sky-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-sky-900">Inventory</h3>
-                    <p className="text-sm text-sky-600">Stock Control</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-sky-400" />
-              </a>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">ISO Compliance</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {isoModules.map((mod) => (
+                <ModuleCardLink key={mod.port} mod={mod} />
+              ))}
             </div>
           </div>
 
-          {/* HR, Payroll & Workflow Modules */}
+          {/* Operations Modules */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">HR & Operations</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <a
-                href="http://localhost:3006"
-                className="flex items-center justify-between p-6 bg-violet-50 rounded-lg border border-violet-200 hover:bg-violet-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-violet-100 rounded-full">
-                    <Users className="h-6 w-6 text-violet-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-violet-900">HR Management</h3>
-                    <p className="text-sm text-violet-600">Employee & Performance</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-violet-400" />
-              </a>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Operations</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {operationsModules.map((mod) => (
+                <ModuleCardLink key={mod.port} mod={mod} />
+              ))}
+            </div>
+          </div>
 
-              <a
-                href="http://localhost:3007"
-                className="flex items-center justify-between p-6 bg-emerald-50 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-100 rounded-full">
-                    <Wallet className="h-6 w-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-emerald-900">Payroll</h3>
-                    <p className="text-sm text-emerald-600">Compensation & Benefits</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-emerald-400" />
-              </a>
-
-              <a
-                href="http://localhost:3008"
-                className="flex items-center justify-between p-6 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-indigo-100 rounded-full">
-                    <GitBranch className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-indigo-900">Workflows</h3>
-                    <p className="text-sm text-indigo-600">Process Automation</p>
-                  </div>
-                </div>
-                <ExternalLink className="h-5 w-5 text-indigo-400" />
-              </a>
+          {/* Portals & Specialist Modules */}
+          <div className="mt-8 mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Portals & Specialist</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {portalModules.map((mod) => (
+                <ModuleCardLink key={mod.port} mod={mod} />
+              ))}
             </div>
           </div>
         </div>

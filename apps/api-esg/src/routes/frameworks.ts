@@ -74,8 +74,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing frameworks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing frameworks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list frameworks' } });
   }
 });
@@ -103,11 +103,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: framework });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Framework code already exists' } });
     }
-    logger.error('Error creating framework', { error: error.message });
+    logger.error('Error creating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create framework' } });
   }
 });
@@ -126,8 +126,8 @@ router.get('/:id/metrics', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: metrics });
-  } catch (error: any) {
-    logger.error('Error fetching framework metrics', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching framework metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch metrics' } });
   }
 });
@@ -164,11 +164,11 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: metric });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Metric code already exists' } });
     }
-    logger.error('Error creating metric', { error: error.message });
+    logger.error('Error creating metric', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create metric' } });
   }
 });
@@ -184,8 +184,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
     res.json({ success: true, data: framework });
-  } catch (error: any) {
-    logger.error('Error fetching framework', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching framework', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch framework' } });
   }
 });
@@ -205,8 +205,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const framework = await prisma.esgFramework.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: framework });
-  } catch (error: any) {
-    logger.error('Error updating framework', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update framework' } });
   }
 });
@@ -221,8 +221,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgFramework.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Framework deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting framework', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting framework', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete framework' } });
   }
 });

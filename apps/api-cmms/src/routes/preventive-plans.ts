@@ -86,8 +86,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: plans,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list preventive plans', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list preventive plans', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list preventive plans' } });
   }
 });
@@ -121,8 +121,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: plan });
-  } catch (error: any) {
-    logger.error('Failed to create preventive plan', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create preventive plan' } });
   }
 });
@@ -140,8 +140,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: plan });
-  } catch (error: any) {
-    logger.error('Failed to get preventive plan', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get preventive plan' } });
   }
 });
@@ -167,8 +167,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const plan = await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: plan });
-  } catch (error: any) {
-    logger.error('Failed to update preventive plan', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update preventive plan' } });
   }
 });
@@ -183,8 +183,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Preventive plan deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete preventive plan', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete preventive plan' } });
   }
 });

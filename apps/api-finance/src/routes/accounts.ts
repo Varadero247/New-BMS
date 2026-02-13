@@ -158,8 +158,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list accounts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list accounts' });
   }
 });
@@ -177,8 +177,8 @@ router.get('/tree', async (_req: Request, res: Response) => {
 
     const tree = buildAccountTree(accounts);
     res.json({ success: true, data: tree });
-  } catch (error: any) {
-    logger.error('Failed to build account tree', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to build account tree', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to build account tree' });
   }
 });
@@ -246,8 +246,8 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate trial balance', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate trial balance', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate trial balance' });
   }
 });
@@ -314,8 +314,8 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
         totals: { totalRevenue, totalExpenses, netIncome },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate P&L report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate P&L report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate profit & loss report' });
   }
 });
@@ -403,8 +403,8 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate balance sheet', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate balance sheet', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate balance sheet' });
   }
 });
@@ -477,8 +477,8 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
         netCashFlow: operatingNet + investingNet + financingNet,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to generate cash flow', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate cash flow', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to generate cash flow report' });
   }
 });
@@ -518,8 +518,8 @@ router.get('/periods', async (req: Request, res: Response) => {
       data: periods,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list periods', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list periods', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list periods' });
   }
 });
@@ -562,8 +562,8 @@ router.post('/periods', async (req: Request, res: Response) => {
 
     logger.info('Accounting period created', { periodId: period.id, name });
     res.status(201).json({ success: true, data: period });
-  } catch (error: any) {
-    logger.error('Failed to create period', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create period', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create period' });
   }
 });
@@ -605,8 +605,8 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
 
     logger.info('Accounting period closed', { periodId: id });
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to close period', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to close period', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to close period' });
   }
 });
@@ -635,8 +635,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to get account', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get account' });
   }
 });
@@ -687,9 +687,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Account created', { accountId: account.id, code });
     res.status(201).json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to create account', { error: error.message });
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Account code must be unique' });
     }
     res.status(500).json({ success: false, error: 'Failed to create account' });
@@ -737,8 +737,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Account updated', { accountId: id });
     res.json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to update account', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update account' });
   }
 });
@@ -775,8 +775,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('Account soft-deleted', { accountId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete account', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete account' });
   }
 });
@@ -831,8 +831,8 @@ router.get('/entries', async (req: Request, res: Response) => {
       data: entries,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list journal entries', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list journal entries', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list journal entries' });
   }
 });
@@ -860,8 +860,8 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to get journal entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get journal entry' });
   }
 });
@@ -966,8 +966,8 @@ router.post('/entries', async (req: Request, res: Response) => {
 
     logger.info('Journal entry created', { entryId: entry.id, reference });
     res.status(201).json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to create journal entry', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create journal entry', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create journal entry' });
   }
 });
@@ -1095,8 +1095,8 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
 
     logger.info('Journal entry updated', { entryId: id });
     res.json({ success: true, data: entry });
-  } catch (error: any) {
-    logger.error('Failed to update journal entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update journal entry' });
   }
 });
@@ -1142,8 +1142,8 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
 
     logger.info('Journal entry posted', { entryId: id, reference: entry.reference });
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to post journal entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to post journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to post journal entry' });
   }
 });
@@ -1219,8 +1219,8 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
 
     logger.info('Journal entry reversed', { originalId: id, reversalId: reversal.id, reversalRef });
     res.status(201).json({ success: true, data: reversal });
-  } catch (error: any) {
-    logger.error('Failed to reverse journal entry', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to reverse journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to reverse journal entry' });
   }
 });

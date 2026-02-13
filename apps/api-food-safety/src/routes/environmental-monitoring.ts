@@ -68,8 +68,8 @@ router.get('/out-of-spec', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error fetching out-of-spec records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching out-of-spec records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch out-of-spec records' } });
   }
 });
@@ -99,8 +99,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing environmental monitoring records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing environmental monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list environmental monitoring records' } });
   }
 });
@@ -128,8 +128,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Environmental monitoring record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error creating environmental monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create environmental monitoring record' } });
   }
 });
@@ -148,8 +148,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error fetching environmental monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch environmental monitoring record' } });
   }
 });
@@ -180,8 +180,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Environmental monitoring record updated', { id: record.id });
     res.json({ success: true, data: record });
-  } catch (error: any) {
-    logger.error('Error updating environmental monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update environmental monitoring record' } });
   }
 });
@@ -203,8 +203,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Environmental monitoring record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Environmental monitoring record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting environmental monitoring record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete environmental monitoring record' } });
   }
 });

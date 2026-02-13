@@ -308,8 +308,8 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list regulations', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list regulations', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list regulations' },
@@ -330,8 +330,8 @@ router.get('/regulations/:id', async (req: AuthRequest, res: Response) => {
     }
 
     res.json({ success: true, data: regulation });
-  } catch (error: any) {
-    logger.error('Failed to get regulation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get regulation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulation' },
@@ -393,8 +393,8 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
     });
 
     res.status(201).json({ success: true, data: importRecord });
-  } catch (error: any) {
-    logger.error('Failed to import regulation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to import regulation', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to import regulation' },
@@ -436,8 +436,8 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
     });
 
     res.json({ success: true, data: regulation });
-  } catch (error: any) {
-    logger.error('Failed to update regulation status', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update regulation status', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update regulation status' },
@@ -483,8 +483,8 @@ router.get('/summary', async (_req: AuthRequest, res: Response) => {
     };
 
     res.json({ success: true, data: summary });
-  } catch (error: any) {
-    logger.error('Failed to get regulation summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get regulation summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulation summary' },

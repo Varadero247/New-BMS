@@ -75,8 +75,8 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         governanceMetrics: governanceMetrics.length,
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch dashboard data' } });
   }
 });
@@ -112,8 +112,8 @@ router.get('/csrd', async (req: Request, res: Response) => {
         targets: { total: targets.length, achieved: targets.filter((t: any) => t.status === 'ACHIEVED').length },
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching CSRD data', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching CSRD data', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch CSRD data' } });
   }
 });
@@ -150,8 +150,8 @@ router.get('/tcfd', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching TCFD data', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching TCFD data', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch TCFD data' } });
   }
 });
@@ -178,8 +178,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing reports', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing reports', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' } });
   }
 });
@@ -208,8 +208,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Error creating report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
   }
 });
@@ -223,8 +223,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
     res.json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Error fetching report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch report' } });
   }
 });
@@ -247,8 +247,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const report = await prisma.esgReport.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Error updating report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update report' } });
   }
 });
@@ -263,8 +263,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgReport.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Report deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' } });
   }
 });

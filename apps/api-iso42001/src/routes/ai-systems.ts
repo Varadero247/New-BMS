@@ -139,8 +139,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list AI systems', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list AI systems', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list AI systems' } });
   }
 });
@@ -179,8 +179,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('AI system created', { systemId: system.id, reference });
     res.status(201).json({ success: true, data: system });
-  } catch (error: any) {
-    logger.error('Failed to create AI system', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create AI system', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create AI system' } });
   }
 });
@@ -201,8 +201,8 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: risks });
-  } catch (error: any) {
-    logger.error('Failed to get risks for AI system', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get risks for AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risks for AI system' } });
   }
 });
@@ -223,8 +223,8 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: incidents });
-  } catch (error: any) {
-    logger.error('Failed to get incidents for AI system', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get incidents for AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get incidents for AI system' } });
   }
 });
@@ -245,8 +245,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: system });
-  } catch (error: any) {
-    logger.error('Failed to get AI system', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get AI system' } });
   }
 });
@@ -281,8 +281,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI system updated', { systemId: id });
     res.json({ success: true, data: system });
-  } catch (error: any) {
-    logger.error('Failed to update AI system', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update AI system' } });
   }
 });
@@ -309,8 +309,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI system soft-deleted', { systemId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete AI system', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete AI system' } });
   }
 });

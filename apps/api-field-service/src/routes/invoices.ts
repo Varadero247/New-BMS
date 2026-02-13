@@ -79,8 +79,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list invoices', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' } });
   }
 });
@@ -111,8 +111,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create invoice' } });
   }
 });
@@ -131,8 +131,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoice' } });
   }
 });
@@ -162,8 +162,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcInvoice.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update invoice' } });
   }
 });
@@ -180,8 +180,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcInvoice.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Invoice deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete invoice' } });
   }
 });
@@ -206,8 +206,8 @@ router.put('/:id/send', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to send invoice', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to send invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send invoice' } });
   }
 });
@@ -232,8 +232,8 @@ router.put('/:id/pay', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to mark invoice as paid', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to mark invoice as paid', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark invoice as paid' } });
   }
 });

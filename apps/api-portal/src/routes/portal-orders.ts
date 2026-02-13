@@ -82,8 +82,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing orders', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing orders', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list orders' } });
   }
 });
@@ -121,8 +121,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Order created', { id: order.id, orderNumber });
     return res.status(201).json({ success: true, data: order });
-  } catch (error: any) {
-    logger.error('Error creating order', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating order', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create order' } });
   }
 });
@@ -142,8 +142,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: order });
-  } catch (error: any) {
-    logger.error('Error fetching order', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching order', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch order' } });
   }
 });
@@ -181,8 +181,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Order updated', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating order', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating order', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update order' } });
   }
 });
@@ -212,8 +212,8 @@ router.put('/:id/status', async (req: Request, res: Response) => {
 
     logger.info('Order status updated', { id: updated.id, status: parsed.data.status });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating order status', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating order status', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update order status' } });
   }
 });

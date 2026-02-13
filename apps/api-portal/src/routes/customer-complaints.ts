@@ -70,8 +70,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Customer complaint submitted', { id: complaint.id, referenceNumber });
     return res.status(201).json({ success: true, data: complaint });
-  } catch (error: any) {
-    logger.error('Error creating complaint', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating complaint', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create complaint' } });
   }
 });
@@ -105,8 +105,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing complaints', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing complaints', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list complaints' } });
   }
 });
@@ -127,8 +127,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: complaint });
-  } catch (error: any) {
-    logger.error('Error fetching complaint', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching complaint', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch complaint' } });
   }
 });

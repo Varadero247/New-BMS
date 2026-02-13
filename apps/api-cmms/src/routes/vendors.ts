@@ -104,8 +104,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: vendors,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list vendors', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list vendors', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendors' } });
   }
 });
@@ -138,11 +138,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: vendor });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Vendor code already exists' } });
     }
-    logger.error('Failed to create vendor', { error: error.message });
+    logger.error('Failed to create vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create vendor' } });
   }
 });
@@ -160,8 +160,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: vendor });
-  } catch (error: any) {
-    logger.error('Failed to get vendor', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get vendor' } });
   }
 });
@@ -186,8 +186,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const vendor = await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: vendor });
-  } catch (error: any) {
-    logger.error('Failed to update vendor', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update vendor' } });
   }
 });
@@ -202,8 +202,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Vendor deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete vendor', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete vendor' } });
   }
 });
@@ -222,8 +222,8 @@ router.get('/:id/contracts', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: contracts });
-  } catch (error: any) {
-    logger.error('Failed to list vendor contracts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list vendor contracts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendor contracts' } });
   }
 });
@@ -263,11 +263,11 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: contract });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Contract number already exists' } });
     }
-    logger.error('Failed to create contract', { error: error.message });
+    logger.error('Failed to create contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' } });
   }
 });
@@ -293,8 +293,8 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
 
     const contract = await prisma.cmmsServiceContract.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: contract });
-  } catch (error: any) {
-    logger.error('Failed to update contract', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update contract', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' } });
   }
 });

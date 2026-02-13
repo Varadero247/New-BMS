@@ -25,8 +25,8 @@ router.get('/', authenticate, (req: Request, res: Response) => {
       success: true,
       data: result,
     });
-  } catch (error: any) {
-    logger.error('Failed to list notifications', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list notifications', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' },
@@ -46,8 +46,8 @@ router.get('/unread', authenticate, (req: Request, res: Response) => {
       success: true,
       data: { unreadCount: count },
     });
-  } catch (error: any) {
-    logger.error('Failed to get unread count', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get unread count', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get unread count' },
@@ -67,8 +67,8 @@ router.put('/read-all', authenticate, (req: Request, res: Response) => {
       success: true,
       data: { markedCount: count },
     });
-  } catch (error: any) {
-    logger.error('Failed to mark all as read', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to mark all as read', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' },
@@ -104,8 +104,8 @@ router.put('/:id/read', authenticate, (req: Request, res: Response) => {
       success: true,
       data: { id: notificationId, read: true },
     });
-  } catch (error: any) {
-    logger.error('Failed to mark notification as read', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to mark notification as read', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to mark notification as read' },
@@ -197,8 +197,8 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       success: true,
       data: notification,
     });
-  } catch (error: any) {
-    logger.error('Failed to send test notification', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to send test notification', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to send test notification' },

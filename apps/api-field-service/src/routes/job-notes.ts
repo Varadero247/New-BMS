@@ -59,8 +59,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list job notes', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list job notes', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list job notes' } });
   }
 });
@@ -86,8 +86,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create job note', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create job note', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create job note' } });
   }
 });
@@ -105,8 +105,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job note not found' } });
     }
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to get job note', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get job note', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get job note' } });
   }
 });
@@ -132,8 +132,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update job note', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update job note', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update job note' } });
   }
 });
@@ -150,8 +150,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.fsSvcJobNote.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Job note deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete job note', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete job note', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete job note' } });
   }
 });

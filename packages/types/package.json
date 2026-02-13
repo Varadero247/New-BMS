@@ -18,6 +18,7 @@
     "clean": "rm -rf dist node_modules .turbo"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0"
   }

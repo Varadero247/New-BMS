@@ -54,8 +54,8 @@ router.get('/rates', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: rates });
-  } catch (error: any) {
-    logger.error('Error listing tax rates', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing tax rates', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tax rates' } });
   }
 });
@@ -68,8 +68,8 @@ router.get('/rates/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Tax rate not found' } });
     }
     res.json({ success: true, data: rate });
-  } catch (error: any) {
-    logger.error('Error getting tax rate', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error getting tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get tax rate' } });
   }
 });
@@ -98,14 +98,14 @@ router.post('/rates', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: rate });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Tax rate code already exists' } });
     }
-    logger.error('Error creating tax rate', { error: error.message });
+    logger.error('Error creating tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create tax rate' } });
   }
 });
@@ -130,11 +130,11 @@ router.put('/rates/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: rate });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error updating tax rate', { error: error.message });
+    logger.error('Error updating tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update tax rate' } });
   }
 });
@@ -153,8 +153,8 @@ router.delete('/rates/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Tax rate deleted' } });
-  } catch (error: any) {
-    logger.error('Error deleting tax rate', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete tax rate' } });
   }
 });
@@ -196,8 +196,8 @@ router.get('/returns', async (req: Request, res: Response) => {
       data: returns,
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
-  } catch (error: any) {
-    logger.error('Error listing tax returns', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing tax returns', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tax returns' } });
   }
 });
@@ -215,8 +215,8 @@ router.get('/returns/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: taxReturn });
-  } catch (error: any) {
-    logger.error('Error getting tax return', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error getting tax return', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get tax return' } });
   }
 });
@@ -245,11 +245,11 @@ router.post('/returns', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: taxReturn });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error creating tax return', { error: error.message });
+    logger.error('Error creating tax return', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create tax return' } });
   }
 });
@@ -282,8 +282,8 @@ router.put('/returns/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: taxReturn });
-  } catch (error: any) {
-    logger.error('Error updating tax return', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating tax return', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update tax return' } });
   }
 });
@@ -313,8 +313,8 @@ router.post('/returns/:id/submit', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: taxReturn });
-  } catch (error: any) {
-    logger.error('Error submitting tax return', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error submitting tax return', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit tax return' } });
   }
 });
@@ -352,8 +352,8 @@ router.get('/report', async (req: Request, res: Response) => {
     };
 
     res.json({ success: true, data: summary });
-  } catch (error: any) {
-    logger.error('Error generating tax report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating tax report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate tax report' } });
   }
 });

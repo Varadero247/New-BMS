@@ -61,8 +61,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing audits', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing audits', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
   }
 });
@@ -93,8 +93,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error creating audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
   }
 });
@@ -107,8 +107,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error fetching audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch audit' } });
   }
 });
@@ -133,8 +133,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const audit = await prisma.esgAudit.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Error updating audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
   }
 });
@@ -149,8 +149,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgAudit.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Audit deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
   }
 });

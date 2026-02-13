@@ -63,11 +63,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Partner registered', { partnerId: partner.id, tier: partner.tier });
     return res.status(201).json({ success: true, data: partner });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Account is already registered as a partner' });
     }
-    logger.error('Failed to register partner', { error: error.message });
+    logger.error('Failed to register partner', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to register partner' });
   }
 });
@@ -101,8 +101,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: partners,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list partners', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list partners', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list partners' });
   }
 });
@@ -118,8 +118,8 @@ router.get('/leaderboard', async (_req: Request, res: Response) => {
     });
 
     return res.json({ success: true, data: partners });
-  } catch (error: any) {
-    logger.error('Failed to get partner leaderboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get partner leaderboard', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get partner leaderboard' });
   }
 });
@@ -141,8 +141,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: partner });
-  } catch (error: any) {
-    logger.error('Failed to get partner', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get partner', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get partner' });
   }
 });
@@ -180,8 +180,8 @@ router.put('/:id/tier', async (req: Request, res: Response) => {
 
     logger.info('Partner tier updated', { partnerId: partner.id, tier: partner.tier });
     return res.json({ success: true, data: partner });
-  } catch (error: any) {
-    logger.error('Failed to update partner tier', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update partner tier', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update partner tier' });
   }
 });
@@ -247,8 +247,8 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
 
     logger.info('Referral logged', { partnerId: req.params.id, dealId: validation.data.dealId, referralId: referral.id });
     return res.status(201).json({ success: true, data: referral });
-  } catch (error: any) {
-    logger.error('Failed to log referral', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to log referral', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to log referral' });
   }
 });
@@ -286,8 +286,8 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
       data: commissions,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list commissions', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list commissions', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list commissions' });
   }
 });
@@ -341,8 +341,8 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
       success: true,
       data: { paidCount: validation.data.commissionIds.length, totalPaid },
     });
-  } catch (error: any) {
-    logger.error('Failed to pay commissions', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to pay commissions', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to pay commissions' });
   }
 });

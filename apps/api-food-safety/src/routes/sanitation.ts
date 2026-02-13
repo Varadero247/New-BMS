@@ -58,8 +58,8 @@ router.get('/overdue', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Error fetching overdue sanitation tasks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching overdue sanitation tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue sanitation tasks' } });
   }
 });
@@ -89,8 +89,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing sanitation tasks', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing sanitation tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sanitation tasks' } });
   }
 });
@@ -118,8 +118,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Sanitation task created', { id: task.id });
     res.status(201).json({ success: true, data: task });
-  } catch (error: any) {
-    logger.error('Error creating sanitation task', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create sanitation task' } });
   }
 });
@@ -138,8 +138,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: task });
-  } catch (error: any) {
-    logger.error('Error fetching sanitation task', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sanitation task' } });
   }
 });
@@ -173,8 +173,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Sanitation task updated', { id: task.id });
     res.json({ success: true, data: task });
-  } catch (error: any) {
-    logger.error('Error updating sanitation task', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update sanitation task' } });
   }
 });
@@ -196,8 +196,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Sanitation task deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Sanitation task deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting sanitation task', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete sanitation task' } });
   }
 });
@@ -230,8 +230,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Sanitation task completed', { id: task.id });
     res.json({ success: true, data: task });
-  } catch (error: any) {
-    logger.error('Error completing sanitation task', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error completing sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete sanitation task' } });
   }
 });

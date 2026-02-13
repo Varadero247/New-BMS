@@ -81,8 +81,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: audits,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list audits', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list audits', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list audits' });
   }
 });
@@ -117,8 +117,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Audit created', { auditId: audit.id });
     res.status(201).json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Failed to create audit', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create audit', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create audit' });
   }
 });
@@ -140,8 +140,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Failed to get audit', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get audit' });
   }
 });
@@ -178,8 +178,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Audit updated', { auditId: id });
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Failed to update audit', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update audit' });
   }
 });
@@ -204,8 +204,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Audit soft-deleted', { auditId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete audit', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete audit' });
   }
 });
@@ -241,8 +241,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Audit completed', { auditId: id });
     res.json({ success: true, data: audit });
-  } catch (error: any) {
-    logger.error('Failed to complete audit', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to complete audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to complete audit' });
   }
 });

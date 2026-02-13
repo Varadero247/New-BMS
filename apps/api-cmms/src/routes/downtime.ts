@@ -69,8 +69,8 @@ router.get('/pareto', async (req: Request, res: Response) => {
       .sort((a, b) => b.totalDuration - a.totalDuration);
 
     res.json({ success: true, data: pareto });
-  } catch (error: any) {
-    logger.error('Failed to generate Pareto analysis', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate Pareto analysis', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate Pareto analysis' } });
   }
 });
@@ -111,8 +111,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: downtimes,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list downtime records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list downtime records', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list downtime records' } });
   }
 });
@@ -151,8 +151,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: downtime });
-  } catch (error: any) {
-    logger.error('Failed to create downtime record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create downtime record' } });
   }
 });
@@ -174,8 +174,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: downtime });
-  } catch (error: any) {
-    logger.error('Failed to get downtime record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get downtime record' } });
   }
 });
@@ -204,8 +204,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const downtime = await prisma.cmmsDowntime.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: downtime });
-  } catch (error: any) {
-    logger.error('Failed to update downtime record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update downtime record' } });
   }
 });
@@ -220,8 +220,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsDowntime.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Downtime record deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete downtime record', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete downtime record' } });
   }
 });

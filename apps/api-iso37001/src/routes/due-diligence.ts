@@ -147,8 +147,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list due diligence assessments', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list due diligence assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list due diligence assessments' });
   }
 });
@@ -176,8 +176,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Due diligence assessment created', { id: assessment.id, referenceNumber });
     res.status(201).json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to create due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create due diligence assessment' });
   }
 });
@@ -196,8 +196,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to get due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get due diligence assessment' });
   }
 });
@@ -231,8 +231,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Due diligence assessment updated', { id: assessment.id });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to update due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to update due diligence assessment' });
   }
 });
@@ -270,8 +270,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     logger.info('Due diligence assessment completed', { id: assessment.id });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to complete due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to complete due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to complete due diligence assessment' });
   }
 });
@@ -298,8 +298,8 @@ router.put('/:id/expire', async (req: Request, res: Response) => {
 
     logger.info('Due diligence assessment expired', { id: assessment.id });
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to expire due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to expire due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to expire due diligence assessment' });
   }
 });
@@ -326,8 +326,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Due diligence assessment deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Due diligence assessment deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete due diligence assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to delete due diligence assessment' });
   }
 });

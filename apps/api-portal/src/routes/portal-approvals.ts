@@ -58,8 +58,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing approvals', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing approvals', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list approvals' } });
   }
 });
@@ -91,8 +91,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Approval request created', { id: approval.id, type: data.type });
     return res.status(201).json({ success: true, data: approval });
-  } catch (error: any) {
-    logger.error('Error creating approval', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating approval', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create approval' } });
   }
 });
@@ -132,8 +132,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     logger.info('Approval approved', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error approving', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error approving', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve' } });
   }
 });
@@ -173,8 +173,8 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
 
     logger.info('Approval rejected', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error rejecting', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error rejecting', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject' } });
   }
 });

@@ -78,8 +78,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: checklists,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list checklists', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list checklists', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list checklists' } });
   }
 });
@@ -107,8 +107,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: checklist });
-  } catch (error: any) {
-    logger.error('Failed to create checklist', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create checklist' } });
   }
 });
@@ -125,8 +125,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: checklist });
-  } catch (error: any) {
-    logger.error('Failed to get checklist', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist' } });
   }
 });
@@ -146,8 +146,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const checklist = await prisma.cmmsChecklist.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: checklist });
-  } catch (error: any) {
-    logger.error('Failed to update checklist', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update checklist' } });
   }
 });
@@ -162,8 +162,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsChecklist.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Checklist deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete checklist', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete checklist' } });
   }
 });
@@ -199,8 +199,8 @@ router.post('/:id/results', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: result });
-  } catch (error: any) {
-    logger.error('Failed to submit checklist result', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to submit checklist result', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit checklist result' } });
   }
 });
@@ -222,8 +222,8 @@ router.get('/:id/results', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: results });
-  } catch (error: any) {
-    logger.error('Failed to get checklist results', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get checklist results', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist results' } });
   }
 });

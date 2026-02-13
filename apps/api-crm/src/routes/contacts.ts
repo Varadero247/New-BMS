@@ -62,8 +62,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Contact created', { contactId: contact.id });
     return res.status(201).json({ success: true, data: contact });
-  } catch (error: any) {
-    logger.error('Failed to create contact', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create contact', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create contact' });
   }
 });
@@ -121,8 +121,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list contacts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list contacts' });
   }
 });
@@ -139,8 +139,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: contact });
-  } catch (error: any) {
-    logger.error('Failed to get contact', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get contact', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get contact' });
   }
 });
@@ -174,8 +174,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Contact updated', { contactId: contact.id });
     return res.json({ success: true, data: contact });
-  } catch (error: any) {
-    logger.error('Failed to update contact', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update contact', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update contact' });
   }
 });
@@ -198,8 +198,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Contact soft deleted', { contactId: req.params.id });
     return res.json({ success: true, data: { message: 'Contact deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete contact', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete contact', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to delete contact' });
   }
 });
@@ -235,8 +235,8 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
 
     logger.info('Activity logged', { activityId: activity.id, contactId: req.params.id });
     return res.status(201).json({ success: true, data: activity });
-  } catch (error: any) {
-    logger.error('Failed to log activity', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to log activity', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to log activity' });
   }
 });
@@ -276,8 +276,8 @@ router.get('/:id/activities', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list activities', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list activities', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list activities' });
   }
 });

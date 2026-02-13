@@ -112,8 +112,8 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
-    logger.error('Error generating dashboard KPIs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating dashboard KPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' } });
   }
 });
@@ -151,8 +151,8 @@ router.get('/budgets', async (req: Request, res: Response) => {
       data: budgets,
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
     });
-  } catch (error: any) {
-    logger.error('Error listing budgets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing budgets', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list budgets' } });
   }
 });
@@ -170,8 +170,8 @@ router.get('/budgets/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: budget });
-  } catch (error: any) {
-    logger.error('Error getting budget', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error getting budget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get budget' } });
   }
 });
@@ -196,14 +196,14 @@ router.post('/budgets', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: budget });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Budget already exists for this account/year/month' } });
     }
-    logger.error('Error creating budget', { error: error.message });
+    logger.error('Error creating budget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' } });
   }
 });
@@ -230,11 +230,11 @@ router.put('/budgets/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: budget });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    logger.error('Error updating budget', { error: error.message });
+    logger.error('Error updating budget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update budget' } });
   }
 });
@@ -253,8 +253,8 @@ router.delete('/budgets/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Budget deleted' } });
-  } catch (error: any) {
-    logger.error('Error deleting budget', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting budget', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete budget' } });
   }
 });
@@ -307,8 +307,8 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
         accounts: Object.values(byAccount),
       },
     });
-  } catch (error: any) {
-    logger.error('Error generating budget vs actual report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating budget vs actual report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
   }
 });
@@ -353,8 +353,8 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
         byCustomer: Object.values(byCustomer).sort((a, b) => b.total - a.total),
       },
     });
-  } catch (error: any) {
-    logger.error('Error generating revenue breakdown', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating revenue breakdown', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
   }
 });
@@ -395,8 +395,8 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
         bySupplier: Object.values(bySupplier).sort((a, b) => b.total - a.total),
       },
     });
-  } catch (error: any) {
-    logger.error('Error generating expense breakdown', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating expense breakdown', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
   }
 });
@@ -458,8 +458,8 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
         outflows: outflows.map(o => ({ dueDate: o.dueDate, amount: Number(o.amountDue) })),
       },
     });
-  } catch (error: any) {
-    logger.error('Error generating cash forecast', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error generating cash forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate forecast' } });
   }
 });

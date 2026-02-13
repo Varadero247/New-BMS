@@ -93,8 +93,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: requests,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list requests', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list requests', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list requests' } });
   }
 });
@@ -125,8 +125,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: request });
-  } catch (error: any) {
-    logger.error('Failed to create request', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create request', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create request' } });
   }
 });
@@ -147,8 +147,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: request });
-  } catch (error: any) {
-    logger.error('Failed to get request', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get request', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get request' } });
   }
 });
@@ -168,8 +168,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const request = await prisma.cmmsRequest.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: request });
-  } catch (error: any) {
-    logger.error('Failed to update request', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update request', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update request' } });
   }
 });
@@ -220,8 +220,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { request, workOrder } });
-  } catch (error: any) {
-    logger.error('Failed to approve request', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to approve request', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve request' } });
   }
 });
@@ -236,8 +236,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsRequest.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Request deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete request', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete request', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete request' } });
   }
 });

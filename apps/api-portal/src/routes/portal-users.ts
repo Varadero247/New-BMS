@@ -82,8 +82,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing portal users', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing portal users', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list users' } });
   }
 });
@@ -125,8 +125,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Portal user created', { id: user.id, email: user.email });
     return res.status(201).json({ success: true, data: user });
-  } catch (error: any) {
-    logger.error('Error creating portal user', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating portal user', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create user' } });
   }
 });
@@ -166,8 +166,8 @@ router.post('/invite', async (req: Request, res: Response) => {
 
     logger.info('Portal invitation sent', { id: invitation.id, email: invitation.email });
     return res.status(201).json({ success: true, data: invitation });
-  } catch (error: any) {
-    logger.error('Error sending invitation', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error sending invitation', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send invitation' } });
   }
 });
@@ -189,8 +189,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: user });
-  } catch (error: any) {
-    logger.error('Error fetching user', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching user', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch user' } });
   }
 });
@@ -220,8 +220,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Portal user updated', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating user', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating user', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update user' } });
   }
 });
@@ -246,8 +246,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Portal user deactivated', { id: deactivated.id });
     return res.json({ success: true, data: { id: deactivated.id, status: 'INACTIVE' } });
-  } catch (error: any) {
-    logger.error('Error deactivating user', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deactivating user', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate user' } });
   }
 });

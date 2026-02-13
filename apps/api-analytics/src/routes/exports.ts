@@ -74,8 +74,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: exports,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list exports', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list exports', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list exports' } });
   }
 });
@@ -107,8 +107,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Export requested', { id: exportRecord.id, name: exportRecord.name });
     res.status(201).json({ success: true, data: exportRecord });
-  } catch (error: any) {
-    logger.error('Failed to create export', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create export', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create export' } });
   }
 });
@@ -138,8 +138,8 @@ router.get('/:id/download', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: { downloadUrl: exportRecord.fileUrl, fileName: `${exportRecord.name}.${exportRecord.format.toLowerCase()}` } });
-  } catch (error: any) {
-    logger.error('Failed to download export', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to download export', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to download export' } });
   }
 });
@@ -159,8 +159,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: exportRecord });
-  } catch (error: any) {
-    logger.error('Failed to get export', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get export', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get export' } });
   }
 });
@@ -184,8 +184,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Export deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete export', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete export', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete export' } });
   }
 });

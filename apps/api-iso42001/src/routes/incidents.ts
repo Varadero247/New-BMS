@@ -149,8 +149,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list incidents', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list incidents', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list incidents' } });
   }
 });
@@ -195,8 +195,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('AI incident created', { incidentId: incident.id, reference, severity: parsed.data.severity });
     res.status(201).json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to create incident', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create incident', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create incident' } });
   }
 });
@@ -239,8 +239,8 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
 
     logger.info('AI incident investigation updated', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to update investigation', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' } });
   }
 });
@@ -283,8 +283,8 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     logger.info('AI incident closed', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to close incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to close incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close incident' } });
   }
 });
@@ -308,8 +308,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to get incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get incident' } });
   }
 });
@@ -344,8 +344,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI incident updated', { incidentId: id });
     res.json({ success: true, data: incident });
-  } catch (error: any) {
-    logger.error('Failed to update incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' } });
   }
 });
@@ -372,8 +372,8 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     logger.info('AI incident soft-deleted', { incidentId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete incident', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete incident' } });
   }
 });

@@ -77,8 +77,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing quality reports', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing quality reports', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list quality reports' } });
   }
 });
@@ -113,8 +113,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Quality report created', { id: report.id, referenceNumber });
     return res.status(201).json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Error creating quality report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create quality report' } });
   }
 });
@@ -134,8 +134,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Error fetching quality report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch quality report' } });
   }
 });
@@ -165,8 +165,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Quality report updated', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating quality report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update quality report' } });
   }
 });

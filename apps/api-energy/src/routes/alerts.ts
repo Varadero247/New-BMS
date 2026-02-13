@@ -77,8 +77,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: alerts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list alerts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list alerts', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list alerts' });
   }
 });
@@ -121,8 +121,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Alert created', { alertId: alert.id, type: data.type, severity: data.severity });
     res.status(201).json({ success: true, data: alert });
-  } catch (error: any) {
-    logger.error('Failed to create alert', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create alert', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create alert' });
   }
 });
@@ -147,8 +147,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: alert });
-  } catch (error: any) {
-    logger.error('Failed to get alert', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get alert' });
   }
 });
@@ -177,8 +177,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Alert updated', { alertId: id });
     res.json({ success: true, data: alert });
-  } catch (error: any) {
-    logger.error('Failed to update alert', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update alert' });
   }
 });
@@ -203,8 +203,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Alert soft-deleted', { alertId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete alert', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete alert' });
   }
 });
@@ -238,8 +238,8 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
 
     logger.info('Alert acknowledged', { alertId: id });
     res.json({ success: true, data: alert });
-  } catch (error: any) {
-    logger.error('Failed to acknowledge alert', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to acknowledge alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to acknowledge alert' });
   }
 });
@@ -273,8 +273,8 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     logger.info('Alert resolved', { alertId: id });
     res.json({ success: true, data: alert });
-  } catch (error: any) {
-    logger.error('Failed to resolve alert', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to resolve alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to resolve alert' });
   }
 });

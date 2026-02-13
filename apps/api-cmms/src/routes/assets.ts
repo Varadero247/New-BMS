@@ -101,8 +101,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: assets,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list assets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list assets', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list assets' } });
   }
 });
@@ -141,8 +141,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: asset });
-  } catch (error: any) {
-    logger.error('Failed to create asset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create asset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create asset' } });
   }
 });
@@ -164,8 +164,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: asset });
-  } catch (error: any) {
-    logger.error('Failed to get asset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get asset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset' } });
   }
 });
@@ -191,8 +191,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const asset = await prisma.cmmsAsset.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: asset });
-  } catch (error: any) {
-    logger.error('Failed to update asset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update asset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update asset' } });
   }
 });
@@ -207,8 +207,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsAsset.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Asset deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete asset', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete asset', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete asset' } });
   }
 });
@@ -241,8 +241,8 @@ router.get('/:id/history', async (req: Request, res: Response) => {
     ]);
 
     res.json({ success: true, data: { workOrders, inspections, meterReadings, downtimes } });
-  } catch (error: any) {
-    logger.error('Failed to get asset history', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get asset history', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset history' } });
   }
 });
@@ -271,8 +271,8 @@ router.get('/:id/qr-code', async (req: Request, res: Response) => {
     };
 
     res.json({ success: true, data: qrData });
-  } catch (error: any) {
-    logger.error('Failed to get QR code data', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get QR code data', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get QR code data' } });
   }
 });

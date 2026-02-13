@@ -114,8 +114,8 @@ router.get('/summary', async (req: Request, res: Response) => {
         })),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get bill summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get bill summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to get bill summary' });
   }
 });
@@ -163,8 +163,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: bills,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list bills', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list bills', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list bills' });
   }
 });
@@ -213,8 +213,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Bill created', { billId: bill.id });
     res.status(201).json({ success: true, data: bill });
-  } catch (error: any) {
-    logger.error('Failed to create bill', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create bill', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to create bill' });
   }
 });
@@ -241,8 +241,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: bill });
-  } catch (error: any) {
-    logger.error('Failed to get bill', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get bill' });
   }
 });
@@ -285,8 +285,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Bill updated', { billId: id });
     res.json({ success: true, data: bill });
-  } catch (error: any) {
-    logger.error('Failed to update bill', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update bill' });
   }
 });
@@ -311,8 +311,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Bill soft-deleted', { billId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete bill', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete bill' });
   }
 });
@@ -341,8 +341,8 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
 
     logger.info('Bill verified', { billId: id });
     res.json({ success: true, data: bill });
-  } catch (error: any) {
-    logger.error('Failed to verify bill', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to verify bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to verify bill' });
   }
 });

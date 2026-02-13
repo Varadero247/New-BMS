@@ -74,8 +74,8 @@ router.get('/summary', async (req: Request, res: Response) => {
         count: emissions.length,
       },
     });
-  } catch (error: any) {
-    logger.error('Error fetching emissions summary', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching emissions summary', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions summary' } });
   }
 });
@@ -111,8 +111,8 @@ router.get('/trend', async (req: Request, res: Response) => {
     }));
 
     res.json({ success: true, data: trend });
-  } catch (error: any) {
-    logger.error('Error fetching emissions trend', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching emissions trend', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions trend' } });
   }
 });
@@ -140,8 +140,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error listing emissions', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing emissions', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list emissions' } });
   }
 });
@@ -173,8 +173,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: emission });
-  } catch (error: any) {
-    logger.error('Error creating emission', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating emission', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create emission' } });
   }
 });
@@ -188,8 +188,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
     res.json({ success: true, data: emission });
-  } catch (error: any) {
-    logger.error('Error fetching emission', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching emission', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emission' } });
   }
 });
@@ -215,8 +215,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const emission = await prisma.esgEmission.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: emission });
-  } catch (error: any) {
-    logger.error('Error updating emission', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating emission', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update emission' } });
   }
 });
@@ -231,8 +231,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.esgEmission.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Emission deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting emission', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting emission', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete emission' } });
   }
 });

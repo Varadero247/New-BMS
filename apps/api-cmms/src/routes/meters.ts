@@ -70,8 +70,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: readings,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list meter readings', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list meter readings', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list meter readings' } });
   }
 });
@@ -106,8 +106,8 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to create meter reading', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create meter reading', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create meter reading' } });
   }
 });
@@ -125,8 +125,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to get meter reading', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get meter reading', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get meter reading' } });
   }
 });
@@ -154,8 +154,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const reading = await prisma.cmmsMeterReading.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: reading });
-  } catch (error: any) {
-    logger.error('Failed to update meter reading', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update meter reading', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update meter reading' } });
   }
 });
@@ -170,8 +170,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.cmmsMeterReading.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Meter reading deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete meter reading', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete meter reading', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete meter reading' } });
   }
 });

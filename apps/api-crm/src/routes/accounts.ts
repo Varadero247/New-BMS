@@ -55,8 +55,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Account created', { accountId: account.id });
     return res.status(201).json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to create account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to create account' });
   }
 });
@@ -107,8 +107,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list accounts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list accounts' });
   }
 });
@@ -125,8 +125,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to get account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get account', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get account' });
   }
 });
@@ -160,8 +160,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Account updated', { accountId: account.id });
     return res.json({ success: true, data: account });
-  } catch (error: any) {
-    logger.error('Failed to update account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update account', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to update account' });
   }
 });
@@ -184,8 +184,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Account soft deleted', { accountId: req.params.id });
     return res.json({ success: true, data: { message: 'Account deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete account', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete account', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to delete account' });
   }
 });
@@ -207,8 +207,8 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     });
 
     return res.json({ success: true, data: contacts });
-  } catch (error: any) {
-    logger.error('Failed to list account contacts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list account contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list account contacts' });
   }
 });
@@ -230,8 +230,8 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     });
 
     return res.json({ success: true, data: deals });
-  } catch (error: any) {
-    logger.error('Failed to list account deals', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list account deals', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to list account deals' });
   }
 });
@@ -266,8 +266,8 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
           (account.openNCRCount || 0) + (account.openComplaintCount || 0) > 2 ? 'MEDIUM' : 'LOW',
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to get compliance data', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get compliance data', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get compliance data' });
   }
 });
@@ -289,8 +289,8 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
       data: [],
       message: 'Invoice integration pending — connect to Finance module',
     });
-  } catch (error: any) {
-    logger.error('Failed to get invoices', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: 'Failed to get invoices' });
   }
 });

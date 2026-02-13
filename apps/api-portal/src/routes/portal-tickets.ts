@@ -91,8 +91,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing tickets', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing tickets', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tickets' } });
   }
 });
@@ -128,8 +128,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Ticket created', { id: ticket.id, number });
     return res.status(201).json({ success: true, data: ticket });
-  } catch (error: any) {
-    logger.error('Error creating ticket', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ticket' } });
   }
 });
@@ -152,8 +152,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: ticket });
-  } catch (error: any) {
-    logger.error('Error fetching ticket', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch ticket' } });
   }
 });
@@ -185,8 +185,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Ticket updated', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error updating ticket', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ticket' } });
   }
 });
@@ -231,8 +231,8 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
 
     logger.info('Ticket message added', { ticketId: req.params.id, messageId: message.id });
     return res.status(201).json({ success: true, data: message });
-  } catch (error: any) {
-    logger.error('Error adding message', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error adding message', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add message' } });
   }
 });
@@ -256,8 +256,8 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
     });
 
     return res.json({ success: true, data: messages });
-  } catch (error: any) {
-    logger.error('Error listing messages', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing messages', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list messages' } });
   }
 });
@@ -293,8 +293,8 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     logger.info('Ticket resolved', { id: updated.id });
     return res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Error resolving ticket', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error resolving ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve ticket' } });
   }
 });

@@ -42,8 +42,8 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
       data,
       pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
-  } catch (error: any) {
-    logger.error('Error fetching data points', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching data points', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch data points' } });
   }
 });
@@ -78,8 +78,8 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: dataPoint });
-  } catch (error: any) {
-    logger.error('Error creating data point', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating data point', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create data point' } });
   }
 });

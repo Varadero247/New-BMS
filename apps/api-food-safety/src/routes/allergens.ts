@@ -68,8 +68,8 @@ router.get('/', async (req: Request, res: Response) => {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Error listing allergens', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error listing allergens', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list allergens' } });
   }
 });
@@ -98,8 +98,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Allergen created', { id: allergen.id, code });
     res.status(201).json({ success: true, data: allergen });
-  } catch (error: any) {
-    logger.error('Error creating allergen', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error creating allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create allergen' } });
   }
 });
@@ -118,8 +118,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: allergen });
-  } catch (error: any) {
-    logger.error('Error fetching allergen', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error fetching allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch allergen' } });
   }
 });
@@ -146,8 +146,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Allergen updated', { id: allergen.id });
     res.json({ success: true, data: allergen });
-  } catch (error: any) {
-    logger.error('Error updating allergen', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error updating allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update allergen' } });
   }
 });
@@ -169,8 +169,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Allergen deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Allergen deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Error deleting allergen', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Error deleting allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete allergen' } });
   }
 });

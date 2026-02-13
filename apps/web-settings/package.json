@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ims/i18n": "workspace:*",
     "@ims/types": "workspace:*",
     "@ims/ui": "workspace:*",
     "@tanstack/react-query": "^5.17.0",

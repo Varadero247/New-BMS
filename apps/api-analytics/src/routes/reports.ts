@@ -94,8 +94,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: reports,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list reports', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list reports', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' } });
   }
 });
@@ -130,8 +130,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Report created', { id: report.id, name: report.name });
     res.status(201).json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Failed to create report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to create report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
   }
 });
@@ -167,8 +167,8 @@ router.post('/:id/run', async (req: Request, res: Response) => {
 
     logger.info('Report run queued', { reportId: id, runId: run.id });
     res.status(201).json({ success: true, data: run });
-  } catch (error: any) {
-    logger.error('Failed to run report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to run report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to run report' } });
   }
 });
@@ -204,8 +204,8 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
       data: runs,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to list report runs', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list report runs', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list report runs' } });
   }
 });
@@ -228,8 +228,8 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: run });
-  } catch (error: any) {
-    logger.error('Failed to get report run', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get report run', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report run' } });
   }
 });
@@ -252,8 +252,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: report });
-  } catch (error: any) {
-    logger.error('Failed to get report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' } });
   }
 });
@@ -282,8 +282,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
-  } catch (error: any) {
-    logger.error('Failed to update report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to update report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update report' } });
   }
 });
@@ -307,8 +307,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: { message: 'Report deleted' } });
-  } catch (error: any) {
-    logger.error('Failed to delete report', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to delete report', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' } });
   }
 });

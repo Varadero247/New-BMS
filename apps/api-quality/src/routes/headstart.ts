@@ -632,8 +632,8 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
 
     res.status(201).json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to generate headstart assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to generate headstart assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate headstart assessment' },
@@ -662,8 +662,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
         totalPages: Math.ceil(items.length / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list headstart assessments', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list headstart assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list headstart assessments' },
@@ -704,8 +704,8 @@ router.get('/:id', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     res.json({ success: true, data: assessment });
-  } catch (error: any) {
-    logger.error('Failed to get headstart assessment', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to get headstart assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get headstart assessment' },

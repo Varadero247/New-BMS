@@ -78,8 +78,8 @@ router.get('/hierarchy', async (_req: Request, res: Response) => {
 
     const tree = buildMeterTree(meters);
     res.json({ success: true, data: tree });
-  } catch (error: any) {
-    logger.error('Failed to build meter hierarchy', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to build meter hierarchy', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to build meter hierarchy' });
   }
 });
@@ -131,8 +131,8 @@ router.get('/', async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to list meters', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to list meters', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: 'Failed to list meters' });
   }
 });
@@ -183,9 +183,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Meter created', { meterId: meter.id, code: data.code });
     res.status(201).json({ success: true, data: meter });
-  } catch (error: any) {
-    logger.error('Failed to create meter', { error: error.message });
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    logger.error('Failed to create meter', { error: error instanceof Error ? error.message : 'Unknown error' });
+    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Meter code must be unique' });
     }
     res.status(500).json({ success: false, error: 'Failed to create meter' });
@@ -215,8 +215,8 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     }
 
     res.json({ success: true, data: meter });
-  } catch (error: any) {
-    logger.error('Failed to get meter', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get meter' });
   }
 });
@@ -250,8 +250,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     logger.info('Meter updated', { meterId: id });
     res.json({ success: true, data: meter });
-  } catch (error: any) {
-    logger.error('Failed to update meter', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to update meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to update meter' });
   }
 });
@@ -276,8 +276,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     logger.info('Meter soft-deleted', { meterId: id });
     res.json({ success: true, data: { id, deleted: true } });
-  } catch (error: any) {
-    logger.error('Failed to delete meter', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to delete meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to delete meter' });
   }
 });
@@ -315,8 +315,8 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
       data: readings,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    logger.error('Failed to get meter readings', { error: error.message, id: req.params.id });
+  } catch (error: unknown) {
+    logger.error('Failed to get meter readings', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
     res.status(500).json({ success: false, error: 'Failed to get meter readings' });
   }
 });
