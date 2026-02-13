@@ -44,7 +44,7 @@ router.get('/rates', async (req: Request, res: Response) => {
   try {
     const { jurisdiction, isActive } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (jurisdiction) where.jurisdiction = jurisdiction;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -172,7 +172,7 @@ router.get('/returns', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (taxRateId) where.taxRateId = taxRateId;
     if (year) {
@@ -324,7 +324,7 @@ router.get('/report', async (req: Request, res: Response) => {
   try {
     const { periodStart, periodEnd, jurisdiction } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (jurisdiction) where.taxRate = { jurisdiction };
     if (periodStart || periodEnd) {
       if (periodStart) where.periodStart = { gte: new Date(periodStart as string) };

@@ -45,9 +45,9 @@ function parseIntParam(val: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
-function buildMeterTree(meters: any[]): any[] {
-  const map = new Map<string, any>();
-  const roots: any[] = [];
+function buildMeterTree(meters: Record<string, unknown>[]): Record<string, unknown>[] {
+  const map = new Map<string, Record<string, unknown>>();
+  const roots: Record<string, unknown>[] = [];
 
   for (const m of meters) {
     map.set(m.id, { ...m, children: [] });
@@ -95,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (type && typeof type === 'string') {
       where.type = type;
@@ -238,7 +238,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Meter not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.multiplier !== undefined) {
       updateData.multiplier = new Prisma.Decimal(updateData.multiplier);
     }
@@ -298,7 +298,7 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Meter not found' });
     }
 
-    const where: any = { meterId: id, deletedAt: null };
+    const where: Record<string, unknown> = { meterId: id, deletedAt: null };
 
     const [readings, total] = await Promise.all([
       prisma.energyReading.findMany({

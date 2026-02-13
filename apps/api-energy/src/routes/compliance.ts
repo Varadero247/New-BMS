@@ -115,7 +115,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status && typeof status === 'string') {
       where.status = status;
@@ -223,7 +223,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Compliance obligation not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.dueDate) {
       updateData.dueDate = new Date(updateData.dueDate);
     }

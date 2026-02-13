@@ -39,14 +39,14 @@ const RESERVED_PATHS = new Set(['policies', 'ethics']);
 // GET /api/governance/policies
 router.get('/policies', async (req: Request, res: Response) => {
   try {
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       category: { in: ['COMPLIANCE', 'TRANSPARENCY'] },
     };
 
     const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
 
-    const policies = metrics.map((m: any) => ({
+    const policies = metrics.map((m: Record<string, unknown>) => ({
       id: m.id,
       category: m.category,
       metric: m.metric,
@@ -65,14 +65,14 @@ router.get('/policies', async (req: Request, res: Response) => {
 // GET /api/governance/ethics
 router.get('/ethics', async (req: Request, res: Response) => {
   try {
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       category: { in: ['ETHICS', 'ANTI_CORRUPTION'] },
     };
 
     const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
 
-    const ethicsData = metrics.map((m: any) => ({
+    const ethicsData = metrics.map((m: Record<string, unknown>) => ({
       id: m.id,
       category: m.category,
       metric: m.metric,
@@ -95,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (category) where.category = category as string;
     if (periodStart) where.periodStart = { gte: new Date(periodStart as string) };
     if (periodEnd) where.periodEnd = { lte: new Date(periodEnd as string) };
@@ -173,7 +173,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Governance metric not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
 

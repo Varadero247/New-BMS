@@ -125,7 +125,7 @@ router.get('/', async (req: Request, res: Response) => {
     const dealId = req.query.dealId as string;
     const accountId = req.query.accountId as string;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (dealId) where.dealId = dealId;
     if (accountId) where.accountId = accountId;
@@ -199,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { lines, validUntil, ...quoteData } = validation.data;
     const userId = (req as any).user?.id || 'system';
 
-    let updateData: any = {
+    let updateData: Record<string, unknown> = {
       ...quoteData,
       validUntil: validUntil ? new Date(validUntil) : undefined,
     };

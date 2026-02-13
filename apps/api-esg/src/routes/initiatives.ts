@@ -49,7 +49,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (category) where.category = category as string;
     if (status) where.status = status as string;
 
@@ -129,7 +129,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Initiative not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.budget !== undefined) updateData.budget = updateData.budget != null ? new Prisma.Decimal(updateData.budget) : null;
     if (updateData.actualCost !== undefined) updateData.actualCost = updateData.actualCost != null ? new Prisma.Decimal(updateData.actualCost) : null;
     if (updateData.startDate !== undefined) updateData.startDate = updateData.startDate ? new Date(updateData.startDate) : null;

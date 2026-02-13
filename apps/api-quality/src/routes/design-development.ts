@@ -76,7 +76,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateRefNumber();
 
-    const project = await prisma.$transaction(async (tx: any) => {
+    const project = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const created = await tx.designDevelopment.create({
         data: {
           refNumber,
@@ -134,7 +134,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status as string;
     if (stage) where.currentStage = stage as string;
     if (search) {
@@ -352,7 +352,7 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
     const stageIdx = STAGES.indexOf(stage as any);
     const nextStage = stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null;
 
-    const updated = await prisma.$transaction(async (tx: any) => {
+    const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const approvedStage = await tx.designStage.update({
         where: { id: stageRecord.id },
         data: {

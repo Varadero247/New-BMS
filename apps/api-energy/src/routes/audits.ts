@@ -54,7 +54,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (type && typeof type === 'string') {
       where.type = type;
@@ -163,7 +163,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Audit not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.scheduledDate) {
       updateData.scheduledDate = new Date(updateData.scheduledDate);
     }

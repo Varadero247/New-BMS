@@ -30,7 +30,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { metricId: req.params.id, deletedAt: null };
+    const where: Record<string, unknown> = { metricId: req.params.id, deletedAt: null };
 
     const [data, total] = await Promise.all([
       prisma.esgDataPoint.findMany({ where, skip, take, orderBy: { periodStart: 'desc' } }),

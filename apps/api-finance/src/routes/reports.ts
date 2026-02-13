@@ -131,7 +131,7 @@ router.get('/budgets', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 50, 200);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (fiscalYear) where.fiscalYear = parseInt(fiscalYear as string);
     if (accountId) where.accountId = accountId;
 
@@ -276,7 +276,7 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
     });
 
     // Group by account
-    const byAccount: Record<string, { account: any; months: any[]; totalBudget: number; totalActual: number }> = {};
+    const byAccount: Record<string, { account: Record<string, unknown>; months: Record<string, unknown>[]; totalBudget: number; totalActual: number }> = {};
     for (const b of budgets) {
       if (!byAccount[b.accountId]) {
         byAccount[b.accountId] = {
@@ -322,7 +322,7 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
   try {
     const { dateFrom, dateTo } = req.query;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
@@ -336,7 +336,7 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
     });
 
     // Group by customer
-    const byCustomer: Record<string, { customer: any; total: number; count: number }> = {};
+    const byCustomer: Record<string, { customer: Record<string, unknown>; total: number; count: number }> = {};
     for (const inv of invoices) {
       if (!byCustomer[inv.customerId]) {
         byCustomer[inv.customerId] = { customer: inv.customer, total: 0, count: 0 };
@@ -364,7 +364,7 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
   try {
     const { dateFrom, dateTo } = req.query;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
@@ -378,7 +378,7 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
     });
 
     // Group by supplier
-    const bySupplier: Record<string, { supplier: any; total: number; count: number }> = {};
+    const bySupplier: Record<string, { supplier: Record<string, unknown>; total: number; count: number }> = {};
     for (const bill of bills) {
       if (!bySupplier[bill.supplierId]) {
         bySupplier[bill.supplierId] = { supplier: bill.supplier, total: 0, count: 0 };

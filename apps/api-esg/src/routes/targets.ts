@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (year) where.year = parseInt(year as string, 10);
     if (status) where.status = status as string;
     if (metricId) where.metricId = metricId as string;
@@ -107,7 +107,7 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
     }
 
     const dataPoints = target.metric?.dataPoints || [];
-    const trajectory = dataPoints.map((dp: any) => ({
+    const trajectory = dataPoints.map((dp: Record<string, unknown>) => ({
       period: dp.periodStart,
       actual: Number(dp.value),
       target: Number(target.targetValue),
@@ -162,7 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.targetValue !== undefined) updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
     if (updateData.actualValue !== undefined) updateData.actualValue = updateData.actualValue != null ? new Prisma.Decimal(updateData.actualValue) : null;
     if (updateData.baselineValue !== undefined) updateData.baselineValue = updateData.baselineValue != null ? new Prisma.Decimal(updateData.baselineValue) : null;

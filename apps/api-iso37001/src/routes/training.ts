@@ -108,7 +108,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       dueDate: { lt: new Date() },
       status: { not: 'COMPLETED' },
@@ -191,7 +191,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status && typeof status === 'string') {
       where.status = status;

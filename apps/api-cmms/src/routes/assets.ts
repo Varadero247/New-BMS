@@ -78,7 +78,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (assetType) where.assetType = String(assetType);
     if (status) where.status = String(status);
     if (criticality) where.criticality = String(criticality);
@@ -184,7 +184,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.purchaseDate !== undefined) updateData.purchaseDate = data.purchaseDate ? new Date(data.purchaseDate) : null;
     if (data.purchaseCost !== undefined) updateData.purchaseCost = data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost) : null;
     if (data.warrantyExpiry !== undefined) updateData.warrantyExpiry = data.warrantyExpiry ? new Date(data.warrantyExpiry) : null;

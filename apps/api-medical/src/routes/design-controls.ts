@@ -187,7 +187,7 @@ router.put('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.startDate) updateData.startDate = new Date(data.startDate);
     if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
     if (data.completedDate) updateData.completedDate = new Date(data.completedDate);

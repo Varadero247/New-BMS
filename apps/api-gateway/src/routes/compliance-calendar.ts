@@ -55,7 +55,7 @@ function computeStatus(dueDate: Date, completedAt: Date | null): string {
   return 'UPCOMING';
 }
 
-function enrichEvent(event: any) {
+function enrichEvent(event: Record<string, unknown>) {
   return {
     ...event,
     daysUntilDue: calculateDaysUntilDue(event.dueDate),
@@ -110,7 +110,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 50, 200);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (standard) {
       const standards = (standard as string).split(',');
@@ -282,7 +282,7 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
 
     const data = updateEventSchema.parse(req.body);
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.type !== undefined) updateData.type = data.type;

@@ -65,7 +65,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (year) {
       where.year = parseInt(String(year), 10);
@@ -177,7 +177,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Baseline not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.totalConsumption !== undefined) {
       updateData.totalConsumption = new Prisma.Decimal(updateData.totalConsumption);
     }

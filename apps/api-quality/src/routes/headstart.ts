@@ -610,10 +610,10 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       certificationStatus,
       standardPacks,
       convergenceInfo,
-      totalDocuments: standardPacks.reduce((sum, p: any) => sum + p.documents.length, 0),
-      totalRisks: standardPacks.reduce((sum, p: any) => sum + p.risks.length, 0),
-      totalObjectives: standardPacks.reduce((sum, p: any) => sum + p.objectives.length, 0),
-      totalAudits: standardPacks.reduce((sum, p: any) => sum + p.auditSchedule.length, 0),
+      totalDocuments: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.documents.length, 0),
+      totalRisks: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.risks.length, 0),
+      totalObjectives: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.objectives.length, 0),
+      totalAudits: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.auditSchedule.length, 0),
       overallCompletenessScore: certificationStatus === 'ALREADY_CERTIFIED' ? 85 : 90,
       status: 'COMPLETE',
       generatedAt: new Date().toISOString(),
@@ -655,7 +655,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: {
-        items: items.slice(start, start + limit).map(({ standardPacks, ...rest }: any) => rest),
+        items: items.slice(start, start + limit).map(({ standardPacks, ...rest }: Record<string, unknown>) => rest),
         total: items.length,
         page,
         limit,

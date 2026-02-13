@@ -81,7 +81,7 @@ router.get('/', async (req: Request, res: Response) => {
     const tier = req.query.tier as string;
     const status = req.query.status as string;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (tier) where.tier = tier;
     if (status) where.status = status;
 
@@ -268,7 +268,7 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (page - 1) * limit;
 
-    const where: any = { partnerId: req.params.id, deletedAt: null };
+    const where: Record<string, unknown> = { partnerId: req.params.id, deletedAt: null };
 
     const [commissions, total] = await Promise.all([
       prisma.crmCommission.findMany({

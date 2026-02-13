@@ -247,7 +247,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     const data = schema.parse(req.body);
 
     // Build hazard update data
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (data.hazardDescription !== undefined) updateData.hazardDescription = data.hazardDescription;
     if (data.hazardousSituation !== undefined) updateData.hazardousSituation = data.hazardousSituation;
     if (data.harm !== undefined) updateData.harm = data.harm;
@@ -264,7 +264,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     }
 
     // Create new risk controls if provided
-    let createdControls: any[] = [];
+    let createdControls: Record<string, unknown>[] = [];
     if (data.controls && data.controls.length > 0) {
       createdControls = await Promise.all(
         data.controls.map(control =>

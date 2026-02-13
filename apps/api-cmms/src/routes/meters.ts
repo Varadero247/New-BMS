@@ -50,7 +50,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (assetId) where.assetId = String(assetId);
     if (meterType) where.meterType = String(meterType);
 
@@ -145,7 +145,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (data.meterType !== undefined) updateData.meterType = data.meterType;
     if (data.reading !== undefined) updateData.reading = new Prisma.Decimal(data.reading);
     if (data.readingDate !== undefined) updateData.readingDate = new Date(data.readingDate);

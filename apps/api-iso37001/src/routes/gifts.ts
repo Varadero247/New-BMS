@@ -105,7 +105,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (giftType && typeof giftType === 'string') {
       where.giftType = giftType;
@@ -222,7 +222,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const userId = (req as AuthRequest).user?.id || 'system';
     const { value, ...rest } = parsed.data;
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       ...rest,
       updatedBy: userId,
     };

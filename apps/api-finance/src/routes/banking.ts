@@ -63,7 +63,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { isActive, type } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (type) where.type = type;
 
@@ -197,7 +197,7 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 50, 200);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (bankAccountId) where.bankAccountId = bankAccountId;
     if (isReconciled !== undefined) where.isReconciled = isReconciled === 'true';
     if (dateFrom || dateTo) {
@@ -307,7 +307,7 @@ router.get('/reconciliations/list', async (req: Request, res: Response) => {
   try {
     const { bankAccountId, status } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (bankAccountId) where.bankAccountId = bankAccountId;
     if (status) where.status = status;
 

@@ -114,7 +114,7 @@ router.get('/ropa', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status && typeof status === 'string') {
       where.status = status;
@@ -295,7 +295,7 @@ router.get('/dpia', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status && typeof status === 'string') {
       where.status = status;
@@ -401,7 +401,7 @@ router.get('/dsar', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (status && typeof status === 'string') {
       where.status = status;
@@ -527,7 +527,7 @@ router.get('/consents', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (subjectEmail && typeof subjectEmail === 'string') {
       where.subjectEmail = subjectEmail;

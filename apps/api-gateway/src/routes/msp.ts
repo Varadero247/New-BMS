@@ -57,7 +57,7 @@ const updateLinkSchema = z.object({
 
 // ── Helper: check if user has MSP/consultant role ───────────────────
 
-function isMspUser(user: any): boolean {
+function isMspUser(user: Record<string, unknown>): boolean {
   const roles = user.roles || user.role || [];
   const roleList = Array.isArray(roles) ? roles : [roles];
   return roleList.some((r: string) =>

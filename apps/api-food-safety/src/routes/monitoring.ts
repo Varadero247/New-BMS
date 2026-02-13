@@ -55,7 +55,7 @@ router.get('/deviations', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null, withinLimits: false };
+    const where: Record<string, unknown> = { deletedAt: null, withinLimits: false };
 
     const [data, total] = await Promise.all([
       prisma.fsMonitoringRecord.findMany({ where, skip, take: limit, orderBy: { monitoredAt: 'desc' }, include: { ccp: true } }),
@@ -83,7 +83,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (ccpId) where.ccpId = String(ccpId);
     if (withinLimits !== undefined) where.withinLimits = withinLimits === 'true';
     if (dateFrom || dateTo) {
@@ -175,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const body = parsed.data;
-    const updateData: any = { ...body };
+    const updateData: Record<string, unknown> = { ...body };
     if (body.monitoredAt) updateData.monitoredAt = new Date(body.monitoredAt);
     if (body.verifiedAt) updateData.verifiedAt = new Date(body.verifiedAt);
 

@@ -282,7 +282,7 @@ See `scripts/startup.sh` for the automated procedure.
 **Solution:** Push schema from HOST machine using `prisma migrate diff`:
 ```bash
 cd ~/New-BMS/packages/database
-HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
   node_modules/.bin/prisma migrate diff \
   --from-empty \
   --to-schema-datamodel prisma/schemas/health-safety.prisma \

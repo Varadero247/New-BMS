@@ -64,7 +64,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (jobId) where.jobId = String(jobId);
     if (customerId) where.customerId = String(customerId);
     if (status) where.status = String(status);
@@ -152,7 +152,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.lineItems) updateData.lineItems = parsed.data.lineItems as any;
     if (parsed.data.laborTotal !== undefined) updateData.laborTotal = new Prisma.Decimal(parsed.data.laborTotal);
     if (parsed.data.partsTotal !== undefined) updateData.partsTotal = new Prisma.Decimal(parsed.data.partsTotal);

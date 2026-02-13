@@ -50,7 +50,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { year } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (year) {
       const y = parseInt(year as string, 10);
       where.periodStart = { gte: new Date(`${y}-01-01`) };
@@ -87,7 +87,7 @@ router.get('/trend', async (req: Request, res: Response) => {
     const { year } = req.query;
     const y = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       periodStart: { gte: new Date(`${y}-01-01`) },
       periodEnd: { lte: new Date(`${y}-12-31`) },
@@ -124,7 +124,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (scope) where.scope = scope as string;
     if (category) where.category = { contains: category as string, mode: 'insensitive' };
     if (periodStart) where.periodStart = { gte: new Date(periodStart as string) };
@@ -207,7 +207,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.co2Equivalent !== undefined) updateData.co2Equivalent = new Prisma.Decimal(updateData.co2Equivalent);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);

@@ -660,7 +660,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (type) where.type = type;
     if (module) where.module = module;
 

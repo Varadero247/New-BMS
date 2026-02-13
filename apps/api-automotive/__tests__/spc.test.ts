@@ -286,7 +286,14 @@ describe('Automotive SPC API Routes', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
+    // Reset return-value queues on spc-engine mocks to prevent bleed between tests
+    mockXbarRChart.mockReset();
+    mockIMrChart.mockReset();
+    mockPChart.mockReset();
+    mockCalculateCpk.mockReset();
+    mockCalculatePpk.mockReset();
+    mockDetectWesternElectricRules.mockReset();
   });
 
   // ==========================================
@@ -1517,6 +1524,8 @@ describe('Automotive SPC API Routes', () => {
       expect(mockPrisma.spcDataPoint.findMany).toHaveBeenCalledWith({
         where: { chartId: mockChart.id },
         orderBy: { timestamp: 'asc' },
+        take: 50,
+        skip: 0,
       });
     });
 

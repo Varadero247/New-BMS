@@ -69,7 +69,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const status = req.query.status as string;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
 
     const [campaigns, total] = await Promise.all([
@@ -265,7 +265,7 @@ emailSequenceRouter.get('/', async (req: Request, res: Response) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     const [sequences, total] = await Promise.all([
       prisma.crmEmailSequence.findMany({

@@ -60,7 +60,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (assetId) where.assetId = String(assetId);
     if (frequency) where.frequency = String(frequency);
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -160,7 +160,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.lastPerformed !== undefined) updateData.lastPerformed = data.lastPerformed ? new Date(data.lastPerformed) : null;
     if (data.nextDue !== undefined) updateData.nextDue = data.nextDue ? new Date(data.nextDue) : null;
     if (data.estimatedCost !== undefined) updateData.estimatedCost = data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost) : null;

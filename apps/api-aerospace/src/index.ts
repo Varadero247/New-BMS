@@ -9,7 +9,7 @@ dotenv.config();
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    console.error(`FATAL: Required environment variable ${envVar} is not set`);
+    createLogger('startup').error(`FATAL: Missing required env var: ${envVar}`);
     process.exit(1);
   }
 }

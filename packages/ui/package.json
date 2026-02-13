@@ -16,7 +16,9 @@
   "scripts": {
     "build": "tsup --no-dts",
     "dev": "tsup --watch",
-    "clean": "rm -rf dist node_modules .turbo"
+    "clean": "rm -rf dist node_modules .turbo",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",
@@ -24,17 +26,23 @@
     "tailwind-merge": "^2.2.0"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/blocks": "^8.6.14",
+    "@storybook/react": "^8.6.15",
+    "@storybook/react-vite": "^8.6.15",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "storybook": "^8.6.15",
     "tsup": "^8.0.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "vite": "^5.4.21"
   },
   "peerDependencies": {
+    "lucide-react": ">=0.300.0",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
-    "lucide-react": ">=0.300.0"
+    "react-dom": ">=18.0.0"
   },
   "peerDependenciesMeta": {
     "lucide-react": {

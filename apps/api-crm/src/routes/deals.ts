@@ -186,7 +186,7 @@ router.get('/board', async (req: Request, res: Response) => {
   try {
     const pipelineId = req.query.pipelineId as string;
 
-    const where: any = { deletedAt: null, status: 'OPEN' };
+    const where: Record<string, unknown> = { deletedAt: null, status: 'OPEN' };
     if (pipelineId) {
       where.pipelineId = pipelineId;
     }
@@ -257,7 +257,7 @@ router.get('/', async (req: Request, res: Response) => {
     const assignedTo = req.query.assignedTo as string;
     const status = req.query.status as string;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (pipelineId) where.pipelineId = pipelineId;
     if (stageId) where.stageId = stageId;
@@ -345,7 +345,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Deal not found' });
     }
 
-    const data: any = { ...validation.data, updatedBy: (req as any).user?.id || 'system' };
+    const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as any).user?.id || 'system' };
     if (data.expectedCloseDate) {
       data.expectedCloseDate = new Date(data.expectedCloseDate);
     }

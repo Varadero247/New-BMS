@@ -128,7 +128,7 @@ router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
     const startDate = new Date(now.getFullYear(), now.getMonth() - monthCount + 1, 1);
     const startPeriod = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       period: { gte: startPeriod },
     };
     if (category) where.category = category as string;

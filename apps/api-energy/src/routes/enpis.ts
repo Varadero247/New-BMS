@@ -60,7 +60,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (frequency && typeof frequency === 'string') {
       where.frequency = frequency;
@@ -168,7 +168,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.baselineValue !== undefined && updateData.baselineValue !== null) {
       updateData.baselineValue = new Prisma.Decimal(updateData.baselineValue);
     }
@@ -282,7 +282,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
 
-    const where: any = { enpiId: id, deletedAt: null };
+    const where: Record<string, unknown> = { enpiId: id, deletedAt: null };
 
     const [dataPoints, total] = await Promise.all([
       prisma.energyEnpiData.findMany({

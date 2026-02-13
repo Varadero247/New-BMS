@@ -38,7 +38,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const status = req.query.status as string | undefined;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       portalUserId: auth.user!.id,
       type: 'PURCHASE',
       deletedAt: null,

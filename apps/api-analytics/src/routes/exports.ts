@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (typeof status === 'string' && status.length > 0) where.status = status;
     if (typeof format === 'string' && format.length > 0) where.format = format;

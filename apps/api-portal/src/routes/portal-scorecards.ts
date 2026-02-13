@@ -44,7 +44,7 @@ router.get('/', async (req: Request, res: Response) => {
     const portalUserId = req.query.portalUserId as string | undefined;
     const period = req.query.period as string | undefined;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (portalUserId) where.portalUserId = portalUserId;
     if (period) where.period = period;
 

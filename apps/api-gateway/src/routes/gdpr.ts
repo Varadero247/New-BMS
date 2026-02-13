@@ -259,7 +259,7 @@ router.get('/erasure-request', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) {
       where.status = status;
     }
@@ -316,7 +316,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status: data.status,
       notes: data.notes,
       processedBy: req.user!.id,
@@ -368,7 +368,7 @@ router.get('/retention-policies', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 50, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (module) {
       where.module = module;
     }

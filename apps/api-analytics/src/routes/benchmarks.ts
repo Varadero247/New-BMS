@@ -69,6 +69,8 @@ router.get('/', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { deletedAt: null },
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
+      take: Math.min(Number(req.query.limit) || 50, 200),
+      skip: Number(req.query.offset) || 0,
     });
 
     const customBenchmarks: Record<string, any[]> = {};
@@ -110,6 +112,8 @@ router.get('/:module', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { module: moduleKey, deletedAt: null },
       orderBy: { name: 'asc' },
+      take: Math.min(Number(req.query.limit) || 50, 200),
+      skip: Number(req.query.offset) || 0,
     });
 
     const orgData = kpis.map((kpi) => ({

@@ -74,7 +74,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (area) where.area = { contains: String(area), mode: 'insensitive' };
     if (status) where.status = String(status);
     if (frequency) where.frequency = String(frequency);
@@ -163,7 +163,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const body = parsed.data;
-    const updateData: any = { ...body };
+    const updateData: Record<string, unknown> = { ...body };
     if (body.scheduledDate) updateData.scheduledDate = new Date(body.scheduledDate);
 
     const task = await prisma.fsSanitation.update({

@@ -45,7 +45,7 @@ Use `prisma migrate diff` to generate SQL, then pipe it directly to psql in the 
 export DOCKER_API_VERSION=1.41
 
 cd ~/New-BMS/packages/database
-HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
   node_modules/.bin/prisma migrate diff \
   --from-empty \
   --to-schema-datamodel prisma/schemas/health-safety.prisma \

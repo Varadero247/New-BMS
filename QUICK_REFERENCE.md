@@ -245,7 +245,7 @@ cd packages/database
 # Generic pattern for any schema:
 npx prisma migrate diff --from-empty \
   --to-schema-datamodel=prisma/schemas/<domain>.prisma --script | \
-  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
+  PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
 
 # Generate Prisma client
 npx prisma generate --schema=prisma/schemas/<domain>.prisma

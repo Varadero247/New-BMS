@@ -112,7 +112,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (direction) where.direction = direction as string;
     if (type) where.type = type as string;
     if (status) where.status = status as string;
@@ -161,7 +161,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     const [total, communications] = await Promise.all([
       prisma.hsCommunication.count({ where }),

@@ -74,7 +74,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const [data, total] = await Promise.all([
@@ -212,7 +212,7 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
-    const where: any = { ccpId: req.params.id, deletedAt: null };
+    const where: Record<string, unknown> = { ccpId: req.params.id, deletedAt: null };
 
     const [data, total] = await Promise.all([
       prisma.fsMonitoringRecord.findMany({ where, skip, take: limit, orderBy: { monitoredAt: 'desc' } }),

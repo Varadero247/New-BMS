@@ -83,7 +83,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (assetId) where.assetId = String(assetId);
     if (impact) where.impact = String(impact);
     if (search) {
@@ -194,7 +194,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (data.startTime !== undefined) updateData.startTime = new Date(data.startTime);
     if (data.endTime !== undefined) updateData.endTime = data.endTime ? new Date(data.endTime) : null;
     if (data.duration !== undefined) updateData.duration = data.duration != null ? new Prisma.Decimal(data.duration) : null;

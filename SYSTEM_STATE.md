@@ -318,6 +318,6 @@ All routes also available under `/api/v1/` prefix.
 
 ### Database Credentials (Docker)
 - User: `postgres`
-- Password: `ims_secure_password_2026`
+- Password: `${POSTGRES_PASSWORD}`
 - Port: `5432`
 - Database: `ims`

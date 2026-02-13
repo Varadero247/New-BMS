@@ -462,7 +462,7 @@ GET    /api/{resource}/stats    # Statistics
 DATABASE_URL="postgresql://user:pass@localhost:5432/ims"
 
 # Authentication
-JWT_SECRET="your-secret-key-min-32-chars"
+JWT_SECRET="${JWT_SECRET}"
 
 # Service URLs (for gateway)
 HEALTH_SAFETY_URL=http://localhost:4001

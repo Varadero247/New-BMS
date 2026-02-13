@@ -67,7 +67,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const refNumber = generateIncidentRef();
 
-    const data: any = {
+    const data: Record<string, unknown> = {
       refNumber,
       title: parsed.data.title,
       description: parsed.data.description || null,
@@ -108,7 +108,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (type && typeof type === 'string') {
       where.type = type;

@@ -62,7 +62,7 @@ router.get('/', async (req: Request, res: Response) => {
     const reportType = req.query.reportType as string | undefined;
     const severity = req.query.severity as string | undefined;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (reportType) where.reportType = reportType;
     if (severity) where.severity = severity;

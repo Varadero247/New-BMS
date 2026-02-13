@@ -46,7 +46,7 @@ router.get('/summary', async (req: Request, res: Response) => {
   try {
     const { meterId, dateFrom, dateTo } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (meterId && typeof meterId === 'string') {
       where.meterId = meterId;
     }
@@ -93,7 +93,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (meterId && typeof meterId === 'string') {
       where.meterId = meterId;
@@ -219,7 +219,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Reading not found' });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.value !== undefined) {
       updateData.value = new Prisma.Decimal(updateData.value);
     }

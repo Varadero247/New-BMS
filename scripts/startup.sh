@@ -2,6 +2,12 @@
 set -e
 export DOCKER_API_VERSION=1.41
 
+# Source root .env for database credentials
+if [ -f "$(dirname "$0")/../.env" ]; then
+  set -a; source "$(dirname "$0")/../.env"; set +a
+fi
+: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD not set — create .env from .env.example or run scripts/generate-secrets.sh}"
+
 echo "=== IMS Startup Script ==="
 
 # Step 1: Kill conflicting host services
@@ -51,7 +57,7 @@ TABLE_COUNT=$(docker exec ims-postgres psql -U postgres -d ims -t -c "SELECT COU
 if [ "$TABLE_COUNT" -lt "13" ]; then
   echo "Recreating health-safety tables..."
   cd ~/New-BMS/packages/database
-  HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+  HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
     node_modules/.bin/prisma migrate diff \
     --from-empty \
     --to-schema-datamodel prisma/schemas/health-safety.prisma \

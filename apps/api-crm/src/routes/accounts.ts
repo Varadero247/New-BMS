@@ -71,7 +71,7 @@ router.get('/', async (req: Request, res: Response) => {
     const type = req.query.type as string;
     const tags = req.query.tags as string;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (search) {
       where.OR = [

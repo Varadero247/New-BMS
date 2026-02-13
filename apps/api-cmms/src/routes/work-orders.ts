@@ -126,7 +126,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = String(status);
     if (type) where.type = String(type);
     if (assetId) where.assetId = String(assetId);
@@ -238,7 +238,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.scheduledStart !== undefined) updateData.scheduledStart = data.scheduledStart ? new Date(data.scheduledStart) : null;
     if (data.scheduledEnd !== undefined) updateData.scheduledEnd = data.scheduledEnd ? new Date(data.scheduledEnd) : null;
     if (data.laborHours !== undefined) updateData.laborHours = data.laborHours != null ? new Prisma.Decimal(data.laborHours) : null;
@@ -325,7 +325,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status: 'COMPLETED',
       actualEnd: new Date(),
       completionNotes: completionNotes || null,

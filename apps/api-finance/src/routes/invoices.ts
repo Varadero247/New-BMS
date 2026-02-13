@@ -338,7 +338,7 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
     });
 
     const now = new Date();
-    const buckets: Record<string, { total: number; count: number; invoices: any[] }> = {
+    const buckets: Record<string, { total: number; count: number; invoices: Record<string, unknown>[] }> = {
       '0-30': { total: 0, count: 0, invoices: [] },
       '31-60': { total: 0, count: 0, invoices: [] },
       '61-90': { total: 0, count: 0, invoices: [] },
@@ -601,7 +601,7 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
     }
 
     // Validate invoice if provided
-    let invoice: any = null;
+    let invoice: Record<string, unknown> | null = null;
     if (data.invoiceId) {
       invoice = await prisma.finInvoice.findUnique({ where: { id: data.invoiceId } });
       if (!invoice) {
@@ -800,7 +800,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     }
 
     // Recalculate totals if lines provided
-    let updateData: any = {
+    let updateData: Record<string, unknown> = {
       customerId: data.customerId,
       issueDate: data.issueDate ? new Date(data.issueDate) : undefined,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,

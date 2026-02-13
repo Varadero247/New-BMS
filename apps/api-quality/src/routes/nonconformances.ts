@@ -85,11 +85,11 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         total,
-        byStatus: byStatus.reduce((acc: any, item) => {
+        byStatus: byStatus.reduce((acc: Record<string, unknown>, item) => {
           acc[item.status] = item._count.id;
           return acc;
         }, {}),
-        bySeverity: bySeverity.reduce((acc: any, item) => {
+        bySeverity: bySeverity.reduce((acc: Record<string, unknown>, item) => {
           acc[item.severity] = item._count.id;
           return acc;
         }, {}),

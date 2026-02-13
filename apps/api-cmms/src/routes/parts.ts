@@ -77,7 +77,7 @@ router.get('/low-stock', async (req: Request, res: Response) => {
       orderBy: { quantity: 'asc' },
     });
 
-    const lowStock = parts.filter((p: any) => {
+    const lowStock = parts.filter((p: Record<string, unknown>) => {
       const threshold = p.reorderPoint ?? p.minStock;
       return p.quantity <= threshold;
     });
@@ -97,7 +97,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (category) where.category = { contains: String(category), mode: 'insensitive' };
     if (search) {
       where.OR = [
@@ -196,7 +196,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.unitCost !== undefined) updateData.unitCost = data.unitCost != null ? new Prisma.Decimal(data.unitCost) : null;
 
     const part = await prisma.cmmsPart.update({ where: { id: req.params.id }, data: updateData });

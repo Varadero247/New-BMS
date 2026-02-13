@@ -84,7 +84,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (specialization) where.specialization = { contains: String(specialization), mode: 'insensitive' };
     if (isPreferred !== undefined) where.isPreferred = isPreferred === 'true';
     if (search) {
@@ -180,7 +180,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.rating !== undefined) updateData.rating = data.rating != null ? new Prisma.Decimal(data.rating) : null;
     if (data.contractExpiry !== undefined) updateData.contractExpiry = data.contractExpiry ? new Date(data.contractExpiry) : null;
 
@@ -286,7 +286,7 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
     if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
     if (data.value !== undefined) updateData.value = data.value != null ? new Prisma.Decimal(data.value) : null;

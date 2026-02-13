@@ -108,7 +108,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status as string;
     if (type) where.type = type as string;
     if (projectId) where.projectId = projectId as string;
@@ -151,7 +151,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     const [total, realised, tracking, identified, benefits] = await Promise.all([
       prisma.benefit.count({ where }),

@@ -59,9 +59,9 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       }),
     ]);
 
-    const totalEmissions = emissions.reduce((sum: number, e: any) => sum + Number(e.co2Equivalent), 0);
-    const targetsOnTrack = targets.filter((t: any) => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
-    const activeInitiatives = initiatives.filter((i: any) => i.status === 'IN_PROGRESS').length;
+    const totalEmissions = emissions.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.co2Equivalent), 0);
+    const targetsOnTrack = targets.filter((t: Record<string, unknown>) => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
+    const activeInitiatives = initiatives.filter((i: Record<string, unknown>) => i.status === 'IN_PROGRESS').length;
 
     res.json({
       success: true,
@@ -105,11 +105,11 @@ router.get('/csrd', async (req: Request, res: Response) => {
         year,
         environmental: {
           emissions: emissions.length,
-          totalCo2: emissions.reduce((s: number, e: any) => s + Number(e.co2Equivalent), 0),
+          totalCo2: emissions.reduce((s: number, e: Record<string, unknown>) => s + Number(e.co2Equivalent), 0),
         },
         social: { metrics: socialMetrics.length },
         governance: { metrics: governanceMetrics.length },
-        targets: { total: targets.length, achieved: targets.filter((t: any) => t.status === 'ACHIEVED').length },
+        targets: { total: targets.length, achieved: targets.filter((t: Record<string, unknown>) => t.status === 'ACHIEVED').length },
       },
     });
   } catch (error: unknown) {
@@ -146,7 +146,7 @@ router.get('/tcfd', async (req: Request, res: Response) => {
         metricsAndTargets: {
           emissions: scopeTotals,
           totalEmissions: scopeTotals.SCOPE_1 + scopeTotals.SCOPE_2 + scopeTotals.SCOPE_3,
-          targets: targets.map((t: any) => ({ id: t.id, year: t.year, target: Number(t.targetValue), actual: t.actualValue ? Number(t.actualValue) : null, status: t.status })),
+          targets: targets.map((t: Record<string, unknown>) => ({ id: t.id, year: t.year, target: Number(t.targetValue), actual: t.actualValue ? Number(t.actualValue) : null, status: t.status })),
         },
       },
     });
@@ -163,7 +163,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (reportType) where.reportType = reportType as string;
     if (year) where.year = parseInt(year as string, 10);
     if (status) where.status = status as string;
@@ -242,7 +242,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.publishedAt) updateData.publishedAt = new Date(updateData.publishedAt);
 
     const report = await prisma.esgReport.update({ where: { id: req.params.id }, data: updateData });

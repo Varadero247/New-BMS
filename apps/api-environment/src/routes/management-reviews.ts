@@ -172,7 +172,7 @@ router.put('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthR
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
 
     // Convert date strings to Date objects
     if (data.reviewDate && typeof data.reviewDate === 'string') updateData.reviewDate = new Date(data.reviewDate);
@@ -294,7 +294,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     });
 
     const data = schema.parse(req.body);
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
 
     // Convert date strings to Date objects
     if (data.dueDate && typeof data.dueDate === 'string') updateData.dueDate = new Date(data.dueDate);

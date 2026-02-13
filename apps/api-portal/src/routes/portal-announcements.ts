@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const portalType = req.query.portalType as string | undefined;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       isActive: true,
       deletedAt: null,
     };
@@ -126,7 +126,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.publishedAt) updateData.publishedAt = new Date(updateData.publishedAt);
     if (updateData.expiresAt) updateData.expiresAt = new Date(updateData.expiresAt);
 

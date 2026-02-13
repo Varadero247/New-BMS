@@ -75,7 +75,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (productName) where.productName = { contains: String(productName), mode: 'insensitive' };
     if (batchNumber) where.batchNumber = { contains: String(batchNumber), mode: 'insensitive' };
     if (status) where.status = String(status);
@@ -162,7 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const body = parsed.data;
-    const updateData: any = { ...body };
+    const updateData: Record<string, unknown> = { ...body };
     if (body.productionDate) updateData.productionDate = new Date(body.productionDate);
     if (body.expiryDate) updateData.expiryDate = new Date(body.expiryDate);
 

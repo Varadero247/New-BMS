@@ -6,10 +6,10 @@
 
 **Required in `.env`:**
 ```env
-DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
-HEALTH_SAFETY_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
-ENVIRONMENT_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
-QUALITY_DATABASE_URL=postgresql://postgres:ims_secure_password_2026@postgres:5432/ims
+DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ims
+HEALTH_SAFETY_DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ims
+ENVIRONMENT_DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ims
+QUALITY_DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ims
 REDIS_URL=redis://redis:6379
 JWT_SECRET=<strong-random-string>
 JWT_REFRESH_SECRET=<strong-random-string>
@@ -382,19 +382,19 @@ This script handles all 5 known restart issues automatically:
 **Environment tables:** If env_* tables are missing after restart, recreate from host:
 ```bash
 cd ~/New-BMS/packages/database
-ENVIRONMENT_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+ENVIRONMENT_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
   npx prisma migrate diff --from-empty \
   --to-schema-datamodel=prisma/schemas/environment.prisma --script | \
-  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
+  PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
 **Quality tables:** If qual_* tables are missing after restart, recreate from host:
 ```bash
 cd ~/New-BMS/packages/database
-QUALITY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+QUALITY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
   npx prisma migrate diff --from-empty \
   --to-schema-datamodel=prisma/schemas/quality.prisma --script | \
-  PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
+  PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -p 5432 -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
 ### Manual Restart (If Script Fails)
@@ -424,7 +424,7 @@ docker exec ims-postgres psql -U postgres -d ims -t -c \
 
 # 5. If tables missing, recreate from host
 cd ~/New-BMS/packages/database
-HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
   node_modules/.bin/prisma migrate diff \
   --from-empty \
   --to-schema-datamodel prisma/schemas/health-safety.prisma \

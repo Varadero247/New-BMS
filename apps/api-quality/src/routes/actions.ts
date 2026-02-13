@@ -90,15 +90,15 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         total,
-        byStatus: byStatus.reduce((acc: any, item) => {
+        byStatus: byStatus.reduce((acc: Record<string, unknown>, item) => {
           acc[item.status] = item._count.id;
           return acc;
         }, {}),
-        byPriority: byPriority.reduce((acc: any, item) => {
+        byPriority: byPriority.reduce((acc: Record<string, unknown>, item) => {
           acc[item.priority] = item._count.id;
           return acc;
         }, {}),
-        byActionType: byActionType.reduce((acc: any, item) => {
+        byActionType: byActionType.reduce((acc: Record<string, unknown>, item) => {
           acc[item.actionType] = item._count.id;
           return acc;
         }, {}),

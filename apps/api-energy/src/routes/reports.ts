@@ -235,7 +235,7 @@ router.get('/consumption', async (req: Request, res: Response) => {
   try {
     const { groupBy, dateFrom, dateTo, facility } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (dateFrom || dateTo) {
       where.readingDate = {};
       if (dateFrom) where.readingDate.gte = new Date(String(dateFrom));

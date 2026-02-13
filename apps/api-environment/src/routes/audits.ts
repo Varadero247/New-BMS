@@ -240,7 +240,7 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
     const data = schema.parse(req.body);
 
     // Convert date strings to Date objects
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.auditDate) updateData.auditDate = new Date(data.auditDate);
     if (data.openingMeetingDate) updateData.openingMeetingDate = new Date(data.openingMeetingDate);
     if (data.closingMeetingDate) updateData.closingMeetingDate = new Date(data.closingMeetingDate);
@@ -348,7 +348,7 @@ router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.closedDate) updateData.closedDate = new Date(data.closedDate);
 
@@ -382,10 +382,10 @@ router.get('/:id/checklist', async (req: AuthRequest, res: Response) => {
     if (!audit) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const checklist = audit.iso14001Clauses.map((clause: string) => {
-      const clauseFindings = audit.findings.filter((f: any) => f.clause === clause);
-      const hasNonConformity = clauseFindings.some((f: any) => f.type === 'MINOR_NC' || f.type === 'MAJOR_NC');
-      const hasConformity = clauseFindings.some((f: any) => f.type === 'CONFORMITY');
-      const openFindings = clauseFindings.filter((f: any) => f.status === 'OPEN').length;
+      const clauseFindings = audit.findings.filter((f: Record<string, unknown>) => f.clause === clause);
+      const hasNonConformity = clauseFindings.some((f: Record<string, unknown>) => f.type === 'MINOR_NC' || f.type === 'MAJOR_NC');
+      const hasConformity = clauseFindings.some((f: Record<string, unknown>) => f.type === 'CONFORMITY');
+      const openFindings = clauseFindings.filter((f: Record<string, unknown>) => f.status === 'OPEN').length;
 
       let status: string;
       if (clauseFindings.length === 0) {

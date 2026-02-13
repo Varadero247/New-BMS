@@ -55,7 +55,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (threatType) where.threatType = String(threatType);
     if (status) where.status = String(status);
     if (riskLevel) where.riskLevel = String(riskLevel);
@@ -142,7 +142,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const body = parsed.data;
-    const updateData: any = { ...body };
+    const updateData: Record<string, unknown> = { ...body };
     if (body.assessedDate) updateData.assessedDate = new Date(body.assessedDate);
     if (body.reviewDate) updateData.reviewDate = new Date(body.reviewDate);
 

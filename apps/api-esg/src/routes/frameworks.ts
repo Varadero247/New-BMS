@@ -62,7 +62,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     const [data, total] = await Promise.all([
       prisma.esgFramework.findMany({ where, skip, take, orderBy: { createdAt: 'desc' }, include: { metrics: { where: { deletedAt: null } } } }),

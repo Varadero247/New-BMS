@@ -124,7 +124,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (riskLevel && typeof riskLevel === 'string') {
       where.riskLevel = riskLevel;
@@ -287,7 +287,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
 
     const authReq = req as AuthRequest;
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       treatment: parsed.data.treatment,
       treatmentPlan: parsed.data.treatmentPlan,
       controlIds: parsed.data.controlIds || [],

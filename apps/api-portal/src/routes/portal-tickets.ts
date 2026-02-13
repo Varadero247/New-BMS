@@ -70,7 +70,7 @@ router.get('/', async (req: Request, res: Response) => {
     const category = req.query.category as string | undefined;
     const portalType = req.query.portalType as string | undefined;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (portalType) where.portalType = portalType;

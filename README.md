@@ -153,7 +153,7 @@ Configure your environment variables:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ims
-JWT_SECRET=your-secret-key
+JWT_SECRET=${JWT_SECRET}
 OPENAI_API_KEY=your-openai-key          # optional
 ANTHROPIC_API_KEY=your-anthropic-key    # optional
 ```

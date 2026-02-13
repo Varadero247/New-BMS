@@ -47,7 +47,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (auditType) where.auditType = auditType as string;
     if (status) where.status = status as string;
 
@@ -126,7 +126,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.startDate !== undefined) updateData.startDate = updateData.startDate ? new Date(updateData.startDate) : null;
     if (updateData.endDate !== undefined) updateData.endDate = updateData.endDate ? new Date(updateData.endDate) : null;
     if (updateData.score !== undefined) updateData.score = updateData.score != null ? new Prisma.Decimal(updateData.score) : null;

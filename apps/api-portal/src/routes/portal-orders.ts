@@ -68,7 +68,7 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const type = req.query.type as string | undefined;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (type) where.type = type;
 
@@ -166,7 +166,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.totalAmount) {
       updateData.totalAmount = new Prisma.Decimal(updateData.totalAmount);
     }

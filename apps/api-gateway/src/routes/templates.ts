@@ -98,7 +98,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       page = '1', limit = '20', sortBy = 'createdAt', sortOrder = 'desc',
     } = req.query as Record<string, string>;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (module) where.module = module;
     if (category) where.category = category;
     if (status) where.status = status;
@@ -182,8 +182,8 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: {
-        byModule: byModule.map((g: any) => ({ module: g.module, count: g._count })),
-        byCategory: byCategory.map((g: any) => ({ category: g.category, count: g._count })),
+        byModule: byModule.map((g: Record<string, unknown>) => ({ module: g.module, count: g._count })),
+        byCategory: byCategory.map((g: Record<string, unknown>) => ({ category: g.category, count: g._count })),
         topUsed,
         total: totals._count,
         totalUsages: totals._sum?.usageCount ?? 0,
@@ -312,7 +312,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
       },
     });
 
-    const updateData: any = { ...parsed.data, version: existing.version + 1 };
+    const updateData: Record<string, unknown> = { ...parsed.data, version: existing.version + 1 };
     delete updateData.changeNote;
 
     const updated = await (prisma as any).template.update({

@@ -194,7 +194,7 @@ router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
 
     const review = await prisma.hSManagementReview.update({
@@ -292,7 +292,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.status === 'COMPLETE') {
       updateData.completedAt = new Date();

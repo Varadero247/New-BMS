@@ -79,7 +79,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (assetId) where.assetId = String(assetId);
     if (status) where.status = String(status);
     if (result) where.result = String(result);
@@ -179,7 +179,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);
     if (data.completedDate !== undefined) updateData.completedDate = data.completedDate ? new Date(data.completedDate) : null;
     if (data.nextInspectionDate !== undefined) updateData.nextInspectionDate = data.nextInspectionDate ? new Date(data.nextInspectionDate) : null;

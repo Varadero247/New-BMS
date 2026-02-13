@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (wasteType) where.wasteType = wasteType as string;
     if (disposalMethod) where.disposalMethod = disposalMethod as string;
 
@@ -120,7 +120,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Waste record not found' } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);

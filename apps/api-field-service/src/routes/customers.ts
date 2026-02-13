@@ -59,7 +59,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
       where.OR = [
@@ -171,7 +171,7 @@ router.get('/:id/jobs', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { customerId: req.params.id, deletedAt: null };
+    const where: Record<string, unknown> = { customerId: req.params.id, deletedAt: null };
     const [data, total] = await Promise.all([
       prisma.fsSvcJob.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
       prisma.fsSvcJob.count({ where }),

@@ -61,6 +61,8 @@ router.get('/executive-dashboard', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { deletedAt: null },
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
+      take: Math.min(Number(req.query.limit) || 50, 200),
+      skip: Number(req.query.offset) || 0,
     });
 
     const grouped: Record<string, any[]> = {};
@@ -87,6 +89,8 @@ router.get('/modules/:module', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { module, deletedAt: null },
       orderBy: { name: 'asc' },
+      take: Math.min(Number(req.query.limit) || 50, 200),
+      skip: Number(req.query.offset) || 0,
     });
 
     res.json({ success: true, data: kpis });
@@ -107,7 +111,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (typeof module === 'string' && module.length > 0) where.module = module;
     if (typeof frequency === 'string' && frequency.length > 0) where.frequency = frequency;

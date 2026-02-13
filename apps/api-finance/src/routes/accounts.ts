@@ -86,9 +86,9 @@ function parseIntParam(val: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
-function buildAccountTree(accounts: any[]): any[] {
-  const map = new Map<string, any>();
-  const roots: any[] = [];
+function buildAccountTree(accounts: Record<string, unknown>[]): Record<string, unknown>[] {
+  const map = new Map<string, Record<string, unknown>>();
+  const roots: Record<string, unknown>[] = [];
 
   for (const acc of accounts) {
     map.set(acc.id, { ...acc, children: [] });
@@ -209,7 +209,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       },
     });
 
-    const balances = new Map<string, { account: any; totalDebit: number; totalCredit: number }>();
+    const balances = new Map<string, { account: Record<string, unknown>; totalDebit: number; totalCredit: number }>();
 
     for (const line of lines) {
       const key = line.accountId;
@@ -280,8 +280,8 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
       },
     });
 
-    const revenue: Record<string, { account: any; amount: number }> = {};
-    const expenses: Record<string, { account: any; amount: number }> = {};
+    const revenue: Record<string, { account: Record<string, unknown>; amount: number }> = {};
+    const expenses: Record<string, { account: Record<string, unknown>; amount: number }> = {};
 
     for (const line of lines) {
       const target = line.account.type === 'REVENUE' ? revenue : expenses;
@@ -342,7 +342,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
       },
     });
 
-    const groups: Record<string, Record<string, { account: any; balance: number }>> = {
+    const groups: Record<string, Record<string, { account: Record<string, unknown>; balance: number }>> = {
       ASSET: {},
       LIABILITY: {},
       EQUITY: {},
@@ -376,7 +376,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
       group[acc.id].balance += Number(acc.openingBalance || 0);
     }
 
-    const toList = (g: Record<string, { account: any; balance: number }>) =>
+    const toList = (g: Record<string, { account: Record<string, unknown>; balance: number }>) =>
       Object.values(g).filter((v) => Math.abs(v.balance) >= 0.01).sort((a, b) => a.account.code.localeCompare(b.account.code));
 
     const assets = toList(groups.ASSET);

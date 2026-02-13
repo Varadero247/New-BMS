@@ -466,7 +466,7 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
     }
 
     const { lines, ...poData } = parsed.data;
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (poData.supplierId) updateData.supplierId = poData.supplierId;
     if (poData.orderDate) updateData.orderDate = new Date(poData.orderDate as string);
@@ -783,7 +783,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     }
 
     const { lines, ...billData } = parsed.data;
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (billData.supplierId) updateData.supplierId = billData.supplierId;
     if (billData.purchaseOrderId !== undefined) updateData.purchaseOrderId = billData.purchaseOrderId || null;
@@ -1052,7 +1052,7 @@ router.post('/payment-run', async (req: Request, res: Response) => {
     });
 
     // Group by supplier
-    const bySupplier: Record<string, { supplier: any; bills: typeof dueBills; totalDue: number }> = {};
+    const bySupplier: Record<string, { supplier: Record<string, unknown>; bills: typeof dueBills; totalDue: number }> = {};
     for (const bill of dueBills) {
       const sid = bill.supplierId;
       if (!bySupplier[sid]) {

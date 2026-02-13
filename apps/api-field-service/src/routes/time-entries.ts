@@ -50,7 +50,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (jobId) where.jobId = String(jobId);
     if (technicianId) where.technicianId = String(technicianId);
     if (type) where.type = String(type);
@@ -77,7 +77,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/summary', async (req: Request, res: Response) => {
   try {
     const { technicianId, startDate, endDate } = req.query;
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (technicianId) where.technicianId = String(technicianId);
     if (startDate || endDate) {
       where.startTime = {};
@@ -180,7 +180,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
     }
 
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.startTime) updateData.startTime = new Date(parsed.data.startTime);
     if (parsed.data.endTime) updateData.endTime = new Date(parsed.data.endTime);
     if (parsed.data.duration !== undefined) updateData.duration = parsed.data.duration ? new Prisma.Decimal(parsed.data.duration) : null;
