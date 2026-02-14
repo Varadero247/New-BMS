@@ -1,5 +1,3 @@
-import ObjectivesClient from './client';
+'use client';
 
-export default function ObjectivesPage() {
-  return <ObjectivesClient />;
-}
+export { default } from './client';

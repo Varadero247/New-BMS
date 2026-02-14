@@ -990,3 +990,158 @@ enum ChangeNotificationStatus {
   APPROVED
   REJECTED
 }
+
+// ============================================
+// CAPA (Corrective and Preventive Actions)
+// ============================================
+
+model MedCapa {
+  id              String          @id @default(cuid())
+  refNumber       String          @unique  // CAPA-YYMM-XXXX
+  title           String
+  capaType        MedCapaType     @default(CORRECTIVE)
+  source          MedCapaSource
+  sourceRef       String?         // e.g. complaint ref, audit finding
+  description     String
+  deviceName      String?
+  deviceId        String?
+  severity        MedCapaSeverity @default(MODERATE)
+  status          MedCapaStatus   @default(OPEN)
+  rootCause       String?
+  rootCauseMethod String?
+  containmentAction String?
+  containmentDate  DateTime?
+  plannedAction   String?
+  plannedDate     DateTime?
+  implementedAction String?
+  implementedDate DateTime?
+  verificationMethod String?
+  verificationDate DateTime?
+  verifiedBy      String?
+  effectivenessCheck String?
+  effectivenessDate DateTime?
+  effectivenessResult MedCapaEffectiveness?
+  closedDate      DateTime?
+  closedBy        String?
+  createdBy       String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  @@index([status])
+  @@index([capaType])
+  @@index([createdAt])
+  @@map("med_capas")
+}
+
+enum MedCapaType {
+  CORRECTIVE
+  PREVENTIVE
+}
+
+enum MedCapaSource {
+  COMPLAINT
+  AUDIT
+  NCR
+  RISK_ASSESSMENT
+  PMS_REPORT
+  REGULATORY_FINDING
+  INTERNAL_OBSERVATION
+  SUPPLIER_ISSUE
+  OTHER
+}
+
+enum MedCapaSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum MedCapaStatus {
+  OPEN
+  INVESTIGATION
+  PLANNED
+  IMPLEMENTATION
+  VERIFICATION
+  EFFECTIVENESS_CHECK
+  CLOSED
+  CANCELLED
+}
+
+enum MedCapaEffectiveness {
+  EFFECTIVE
+  PARTIALLY_EFFECTIVE
+  NOT_EFFECTIVE
+  PENDING
+}
+
+// ============================================
+// TRACEABILITY MATRIX
+// ============================================
+
+model TraceabilityMatrix {
+  id              String              @id @default(cuid())
+  refNumber       String              @unique  // TRC-YYMM-XXXX
+  title           String
+  deviceId        String?
+  deviceName      String
+  version         String              @default("1.0")
+  status          TraceabilityStatus  @default(DRAFT)
+  scope           String?
+  preparedBy      String
+  reviewedBy      String?
+  approvedBy      String?
+  approvedDate    DateTime?
+  notes           String?
+  links           TraceabilityLink[]
+  createdBy       String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  @@index([status])
+  @@index([deviceName])
+  @@map("traceability_matrices")
+}
+
+model TraceabilityLink {
+  id              String              @id @default(cuid())
+  matrixId        String
+  userNeedRef     String
+  userNeedDesc    String
+  designInputRef  String?
+  designInputDesc String?
+  designOutputRef String?
+  designOutputDesc String?
+  verificationRef String?
+  verificationResult String?
+  validationRef   String?
+  validationResult String?
+  riskRef         String?
+  status          TraceabilityLinkStatus @default(OPEN)
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  matrix          TraceabilityMatrix  @relation(fields: [matrixId], references: [id], onDelete: Cascade)
+
+  @@index([matrixId])
+  @@map("traceability_links")
+}
+
+enum TraceabilityStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RELEASED
+  OBSOLETE
+}
+
+enum TraceabilityLinkStatus {
+  OPEN
+  VERIFIED
+  VALIDATED
+  COMPLETE
+  GAP
+}

@@ -1,5 +1,3 @@
-import CapaClient from './client';
+'use client';
 
-export default function ActionsPage() {
-  return <CapaClient />;
-}
+export { default } from './client';

@@ -35,6 +35,9 @@ import msaRouter from './routes/msa';
 import spcRouter from './routes/spc';
 import csrRouter from './routes/csr';
 import lpaRouter from './routes/lpa';
+import eightDRouter from './routes/eight-d';
+import fmeaRouter from './routes/fmea';
+import customerReqsRouter from './routes/customer-reqs';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4010;
@@ -70,6 +73,9 @@ app.use('/api/msa', msaRouter);
 app.use('/api/spc', spcRouter);
 app.use('/api/csr', csrRouter);
 app.use('/api/lpa', lpaRouter);
+app.use('/api/8d', eightDRouter);
+app.use('/api/fmea', fmeaRouter);
+app.use('/api/customer-reqs', customerReqsRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

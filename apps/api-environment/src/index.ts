@@ -40,6 +40,7 @@ import emergencyRouter from './routes/emergency';
 import lifecycleRouter from './routes/lifecycle';
 import esgRouter from './routes/esg';
 import communicationsRouter from './routes/communications';
+import trainingRouter from './routes/training';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4002;
@@ -80,6 +81,7 @@ app.use('/api/emergency', emergencyRouter);
 app.use('/api/lifecycle', lifecycleRouter);
 app.use('/api/esg', esgRouter);
 app.use('/api/communications', communicationsRouter);
+app.use('/api/training', trainingRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

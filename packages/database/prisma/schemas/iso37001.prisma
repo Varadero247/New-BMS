@@ -299,3 +299,65 @@ model AbInvestigation {
   @@index([referenceNumber])
   @@map("ab_investigations")
 }
+
+// ============================================
+// COMPLIANCE TRACKING (ISO 37001 §6)
+// ============================================
+
+enum AbComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  PARTIALLY_COMPLIANT
+  NOT_APPLICABLE
+  UNDER_REVIEW
+}
+
+enum AbComplianceCategory {
+  POLICY
+  PROCEDURE
+  CONTROL
+  TRAINING
+  DUE_DILIGENCE
+  REPORTING
+  MONITORING
+  MANAGEMENT_REVIEW
+  OTHER
+}
+
+model AbCompliance {
+  id              String                @id @default(cuid())
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  deletedAt       DateTime?
+  organisationId  String
+  createdBy       String
+
+  referenceNumber String                @unique
+  title           String
+  description     String?
+  isoClause       String?
+  category        AbComplianceCategory  @default(OTHER)
+  status          AbComplianceStatus    @default(UNDER_REVIEW)
+  owner           String?
+  department      String?
+
+  // Assessment
+  assessmentDate  DateTime?
+  nextReviewDate  DateTime?
+  evidence        String?
+  gaps            String?
+  remediation     String?
+  remediationDue  DateTime?
+  remediationBy   String?
+
+  // Outcome
+  closedDate      DateTime?
+  closedBy        String?
+  closureNotes    String?
+  notes           String?
+
+  @@index([organisationId, deletedAt])
+  @@index([organisationId, status])
+  @@index([referenceNumber])
+  @@map("ab_compliance")
+}

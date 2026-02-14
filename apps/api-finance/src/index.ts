@@ -31,6 +31,11 @@ import bankingRouter from './routes/banking';
 import taxRouter from './routes/tax';
 import reportsRouter from './routes/reports';
 import integrationsRouter from './routes/integrations';
+import customersRouter from './routes/customers';
+import suppliersRouter from './routes/suppliers';
+import purchaseOrdersRouter from './routes/purchase-orders';
+import journalRouter from './routes/journal';
+import budgetsRouter from './routes/budgets';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4013;
@@ -58,12 +63,13 @@ app.get('/metrics', metricsHandler);
 
 // API Routes
 app.use('/api/accounts', accountsRouter);
-app.use('/api/journal', accountsRouter);
+app.use('/api/journal', journalRouter);
 app.use('/api/invoices', invoicesRouter);
-app.use('/api/customers', invoicesRouter);
+app.use('/api/customers', customersRouter);
 app.use('/api/payables', payablesRouter);
-app.use('/api/suppliers', payablesRouter);
-app.use('/api/purchase-orders', payablesRouter);
+app.use('/api/suppliers', suppliersRouter);
+app.use('/api/purchase-orders', purchaseOrdersRouter);
+app.use('/api/budgets', budgetsRouter);
 app.use('/api/banking', bankingRouter);
 app.use('/api/tax', taxRouter);
 app.use('/api/reports', reportsRouter);

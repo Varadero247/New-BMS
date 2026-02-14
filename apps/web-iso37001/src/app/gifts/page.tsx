@@ -6,32 +6,37 @@ import { api } from '@/lib/api';
 interface GiftRecord {
   id: string;
   description: string;
-  giftType: string;
+  type: string;
   value: number;
   currency: string;
   givenOrReceived: string;
   counterparty: string;
-  counterpartyOrg?: string;
-  date: string;
-  status: string;
-  justification?: string;
+  approvalStatus: string;
   approvedBy?: string;
-  approvedAt?: string;
-  registeredBy: string;
+  date: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-const giftTypeOptions = ['GIFT', 'HOSPITALITY', 'ENTERTAINMENT', 'TRAVEL', 'DONATION', 'SPONSORSHIP', 'OTHER'];
+const typeOptions = ['GIFT', 'HOSPITALITY', 'ENTERTAINMENT', 'TRAVEL'];
 const directionOptions = ['GIVEN', 'RECEIVED'];
-const statusOptions = ['PENDING', 'APPROVED', 'REJECTED', 'RETURNED'];
+const approvalStatusOptions = ['PENDING', 'APPROVED', 'REJECTED'];
 
-const statusColors: Record<string, string> = {
+const typeColors: Record<string, string> = {
+  GIFT: 'bg-purple-100 text-purple-700',
+  HOSPITALITY: 'bg-blue-100 text-blue-700',
+  ENTERTAINMENT: 'bg-indigo-100 text-indigo-700',
+  TRAVEL: 'bg-cyan-100 text-cyan-700',
+};
+
+const approvalColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
-  RETURNED: 'bg-blue-100 text-blue-700',
 };
+
+const commonCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CNY', 'CHF'];
 
 export default function GiftsPage() {
   const [gifts, setGifts] = useState<GiftRecord[]>([]);
@@ -40,19 +45,21 @@ export default function GiftsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGift, setEditingGift] = useState<GiftRecord | null>(null);
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterDirection, setFilterDirection] = useState('');
+  const [search, setSearch] = useState('');
 
   const [form, setForm] = useState({
     description: '',
-    giftType: 'GIFT',
+    type: 'GIFT',
     value: 0,
     currency: 'USD',
     givenOrReceived: 'RECEIVED',
     counterparty: '',
-    counterpartyOrg: '',
+    approvalStatus: 'PENDING',
+    approvedBy: '',
     date: new Date().toISOString().split('T')[0],
-    status: 'PENDING',
-    justification: '',
-    registeredBy: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -74,7 +81,18 @@ export default function GiftsPage() {
 
   function openAddModal() {
     setEditingGift(null);
-    setForm({ description: '', giftType: 'GIFT', value: 0, currency: 'USD', givenOrReceived: 'RECEIVED', counterparty: '', counterpartyOrg: '', date: new Date().toISOString().split('T')[0], status: 'PENDING', justification: '', registeredBy: '' });
+    setForm({
+      description: '',
+      type: 'GIFT',
+      value: 0,
+      currency: 'USD',
+      givenOrReceived: 'RECEIVED',
+      counterparty: '',
+      approvalStatus: 'PENDING',
+      approvedBy: '',
+      date: new Date().toISOString().split('T')[0],
+      notes: '',
+    });
     setModalOpen(true);
   }
 
@@ -82,16 +100,15 @@ export default function GiftsPage() {
     setEditingGift(gift);
     setForm({
       description: gift.description,
-      giftType: gift.giftType,
+      type: gift.type,
       value: gift.value,
       currency: gift.currency,
       givenOrReceived: gift.givenOrReceived,
       counterparty: gift.counterparty,
-      counterpartyOrg: gift.counterpartyOrg || '',
+      approvalStatus: gift.approvalStatus,
+      approvedBy: gift.approvedBy || '',
       date: gift.date ? gift.date.split('T')[0] : '',
-      status: gift.status,
-      justification: gift.justification || '',
-      registeredBy: gift.registeredBy,
+      notes: gift.notes || '',
     });
     setModalOpen(true);
   }
@@ -114,7 +131,7 @@ export default function GiftsPage() {
 
   async function handleApprove(id: string) {
     try {
-      await api.put(`/gifts/${id}`, { status: 'APPROVED', approvedBy: 'Current User' });
+      await api.put(`/gifts/${id}`, { approvalStatus: 'APPROVED' });
       loadGifts();
     } catch (err) {
       console.error('Error approving gift:', err);
@@ -124,7 +141,7 @@ export default function GiftsPage() {
 
   async function handleReject(id: string) {
     try {
-      await api.put(`/gifts/${id}`, { status: 'REJECTED' });
+      await api.put(`/gifts/${id}`, { approvalStatus: 'REJECTED' });
       loadGifts();
     } catch (err) {
       console.error('Error rejecting gift:', err);
@@ -143,16 +160,27 @@ export default function GiftsPage() {
     }
   }
 
-  const filteredGifts = gifts.filter((g) => {
-    if (filterStatus && g.status !== filterStatus) return false;
+  const filtered = gifts.filter((g) => {
+    if (filterStatus && g.approvalStatus !== filterStatus) return false;
+    if (filterType && g.type !== filterType) return false;
+    if (filterDirection && g.givenOrReceived !== filterDirection) return false;
+    if (search && !g.description.toLowerCase().includes(search.toLowerCase()) && !g.counterparty.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  const pendingCount = gifts.filter((g) => g.approvalStatus === 'PENDING').length;
+  const approvedCount = gifts.filter((g) => g.approvalStatus === 'APPROVED').length;
+  const rejectedCount = gifts.filter((g) => g.approvalStatus === 'REJECTED').length;
+  const totalValueReceived = gifts
+    .filter((g) => g.givenOrReceived === 'RECEIVED' && g.currency === 'USD')
+    .reduce((sum, g) => sum + g.value, 0);
 
   if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-24 bg-gray-200 rounded" />
           <div className="h-64 bg-gray-200 rounded" />
         </div>
       </div>
@@ -165,7 +193,7 @@ export default function GiftsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Gifts & Hospitality Register</h1>
-            <p className="text-gray-500 mt-1">Track and approve gifts, hospitality and entertainment</p>
+            <p className="text-gray-500 mt-1">Track and approve gifts, hospitality, entertainment and travel</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             Register Gift
@@ -174,15 +202,56 @@ export default function GiftsPage() {
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Pending Approval</p>
+            <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+            <p className="text-xs text-gray-400 mt-1">awaiting decision</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Approved</p>
+            <p className="text-2xl font-bold text-green-600">{approvedCount}</p>
+            <p className="text-xs text-gray-400 mt-1">of {gifts.length} total</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Rejected</p>
+            <p className="text-2xl font-bold text-red-600">{rejectedCount}</p>
+            <p className="text-xs text-gray-400 mt-1">not permitted</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Received (USD)</p>
+            <p className="text-2xl font-bold text-rose-600">${totalValueReceived.toLocaleString()}</p>
+            <p className="text-xs text-gray-400 mt-1">total value received</p>
+          </div>
+        </div>
+
+        {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
+            <input
+              type="text"
+              placeholder="Search by description or counterparty..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Types</option>
+              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <select value={filterDirection} onChange={(e) => setFilterDirection(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">Given & Received</option>
+              {directionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
-              {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+              {approvalStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
         </div>
 
+        {/* Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -192,48 +261,61 @@ export default function GiftsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Direction</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Counterparty</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approval</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredGifts.length > 0 ? (
-                filteredGifts.map((gift) => (
+              {filtered.length > 0 ? (
+                filtered.map((gift) => (
                   <tr key={gift.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{gift.description}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{gift.giftType}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{gift.currency} {gift.value.toLocaleString()}</td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">{gift.description}</p>
+                      {gift.notes && <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{gift.notes}</p>}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[gift.type] || 'bg-gray-100 text-gray-700'}`}>
+                        {gift.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      {gift.currency} {gift.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${gift.givenOrReceived === 'GIVEN' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
                         {gift.givenOrReceived}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {gift.counterparty}
-                      {gift.counterpartyOrg && <span className="text-xs text-gray-400 block">{gift.counterpartyOrg}</span>}
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{gift.counterparty}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[gift.status] || 'bg-gray-100 text-gray-700'}`}>
-                        {gift.status}
-                      </span>
+                      <div>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${approvalColors[gift.approvalStatus] || 'bg-gray-100 text-gray-700'}`}>
+                          {gift.approvalStatus}
+                        </span>
+                        {gift.approvedBy && <p className="text-xs text-gray-400 mt-0.5">by {gift.approvedBy}</p>}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{new Date(gift.date).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-right">
-                      <button onClick={() => openEditModal(gift)} className="text-rose-600 hover:text-rose-700 text-sm mr-2">Edit</button>
-                      {gift.status === 'PENDING' && (
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {gift.date ? new Date(gift.date).toLocaleDateString() : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      {gift.approvalStatus === 'PENDING' && (
                         <>
                           <button onClick={() => handleApprove(gift.id)} className="text-green-600 hover:text-green-700 text-sm mr-2">Approve</button>
                           <button onClick={() => handleReject(gift.id)} className="text-orange-600 hover:text-orange-700 text-sm mr-2">Reject</button>
                         </>
                       )}
+                      <button onClick={() => openEditModal(gift)} className="text-rose-600 hover:text-rose-700 text-sm mr-2">Edit</button>
                       <button onClick={() => handleDelete(gift.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">No gift records found</td>
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                    {gifts.length === 0 ? 'No gift records found. Register one to get started.' : 'No records match your filters.'}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -241,72 +323,114 @@ export default function GiftsPage() {
         </div>
       </div>
 
+      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{editingGift ? 'Edit Gift Record' : 'Register Gift'}</h2>
+            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{editingGift ? 'Edit Gift Record' : 'Register Gift / Hospitality'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <input type="text" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select value={form.giftType} onChange={(e) => setForm({ ...form, giftType: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {giftTypeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
-                    <input type="number" step="0.01" value={form.value} onChange={(e) => setForm({ ...form, value: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                    <input type="text" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="e.g. Business dinner at client premises"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Given/Received</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Direction</label>
                     <select value={form.givenOrReceived} onChange={(e) => setForm({ ...form, givenOrReceived: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {directionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Counterparty Name</label>
-                    <input type="text" value={form.counterparty} onChange={(e) => setForm({ ...form, counterparty: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Value <span className="text-red-500">*</span></label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.value}
+                      onChange={(e) => setForm({ ...form, value: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-                    <input type="text" value={form.counterpartyOrg} onChange={(e) => setForm({ ...form, counterpartyOrg: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                    <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {commonCurrencies.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Registered By</label>
-                    <input type="text" value={form.registeredBy} onChange={(e) => setForm({ ...form, registeredBy: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Justification</label>
-                  <textarea value={form.justification} onChange={(e) => setForm({ ...form, justification: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={3} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Counterparty <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={form.counterparty}
+                    onChange={(e) => setForm({ ...form, counterparty: e.target.value })}
+                    placeholder="Name / organisation of counterparty"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    required
+                  />
                 </div>
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Approval Status</label>
+                    <select value={form.approvalStatus} onChange={(e) => setForm({ ...form, approvalStatus: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {approvalStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+                    <input
+                      type="text"
+                      value={form.approvedBy}
+                      onChange={(e) => setForm({ ...form, approvedBy: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date <span className="text-red-500">*</span></label>
+                    <input
+                      type="date"
+                      value={form.date}
+                      onChange={(e) => setForm({ ...form, date: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <input
+                      type="text"
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingGift ? 'Update' : 'Register'}

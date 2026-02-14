@@ -1,5 +1,3 @@
-import TemplatesClient from './client';
+'use client';
 
-export default function TemplatesPage() {
-  return <TemplatesClient />;
-}
+export { default } from './client';

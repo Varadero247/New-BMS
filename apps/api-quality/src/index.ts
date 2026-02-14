@@ -55,6 +55,12 @@ import competencesRouter from './routes/competences';
 import raciRouter from './routes/raci';
 import releasesRouter from './routes/releases';
 import managementReviewsRouter from './routes/management-reviews';
+import auditsRouter from './routes/audits';
+import trainingRouter from './routes/training';
+import metricsRouter from './routes/metrics';
+import investigationsRouter from './routes/investigations';
+import ciRouter from './routes/ci';
+import riskRegisterRouter from './routes/risk-register';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -109,6 +115,12 @@ app.use('/api/competences', competencesRouter);
 app.use('/api/raci', raciRouter);
 app.use('/api/releases', releasesRouter);
 app.use('/api/management-reviews', managementReviewsRouter);
+app.use('/api/audits', auditsRouter);
+app.use('/api/training', trainingRouter);
+app.use('/api/metrics', metricsRouter);
+app.use('/api/investigations', investigationsRouter);
+app.use('/api/ci', ciRouter);
+app.use('/api/risk-register', riskRegisterRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -20,6 +20,7 @@ import {
   Barcode,
   Activity,
   Code,
+  FileCheck,
 } from 'lucide-react';
 
 // Medical Device Section

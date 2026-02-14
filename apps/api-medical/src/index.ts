@@ -36,6 +36,10 @@ import udiRouter from './routes/udi';
 import pmsRouter from './routes/pms';
 import softwareRouter from './routes/software';
 import submissionsRouter from './routes/submissions';
+import capaRouter from './routes/capa';
+import traceabilityRouter from './routes/traceability';
+import validationRouter from './routes/validation';
+import verificationRouter from './routes/verification';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4011;
@@ -86,6 +90,18 @@ app.use('/api/software', softwareRouter);
 
 // Routes - Regulatory Submissions Tracker (S4-05)
 app.use('/api/submissions', submissionsRouter);
+
+// Routes - CAPA (ISO 13485 Clause 8.5)
+app.use('/api/capa', capaRouter);
+
+// Routes - Traceability Matrix (ISO 13485 Clause 7.3 / FDA 21 CFR 820.30)
+app.use('/api/traceability', traceabilityRouter);
+
+// Routes - Design Validation (ISO 13485 Clause 7.3.7)
+app.use('/api/validation', validationRouter);
+
+// Routes - Design Verification (ISO 13485 Clause 7.3.6)
+app.use('/api/verification', verificationRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -1319,3 +1319,65 @@ enum CommStatus {
   RESPONDED
   CLOSED
 }
+
+// ============================================
+// ENVIRONMENTAL AWARENESS TRAINING (ISO 14001 §7.3)
+// ============================================
+
+enum EnvTrainingStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  OVERDUE
+  CANCELLED
+}
+
+enum EnvTrainingType {
+  ENVIRONMENTAL_AWARENESS
+  ASPECT_IMPACT
+  EMERGENCY_RESPONSE
+  REGULATORY_COMPLIANCE
+  WASTE_MANAGEMENT
+  ENERGY_CONSERVATION
+  INDUCTION
+  REFRESHER
+  OTHER
+}
+
+model EnvTraining {
+  id              String           @id @default(cuid())
+  tenantId        String           @default("default")
+  refNumber       String           @unique
+  employeeId      String
+  employeeName    String
+  department      String?
+  position        String?
+  courseName      String
+  trainingType    EnvTrainingType  @default(ENVIRONMENTAL_AWARENESS)
+  status          EnvTrainingStatus @default(ASSIGNED)
+  assignedDate    DateTime
+  dueDate         DateTime
+  completedDate   DateTime?
+  deliveryMethod  String?
+  provider        String?
+  duration        Int?
+  passMark        Int?
+  score           Int?
+  passed          Boolean?
+  certificate     String?
+  feedback        String?
+  isoClause       String?
+  notes           String?
+
+  createdBy       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, deletedAt])
+  @@index([status])
+  @@index([dueDate])
+  @@index([employeeId])
+  @@map("env_training")
+}

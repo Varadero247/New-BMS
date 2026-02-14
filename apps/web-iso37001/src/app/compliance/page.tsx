@@ -1,212 +1,352 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
-interface ClauseStatus {
-  clause: string;
-  title: string;
-  status: 'compliant' | 'partial' | 'non-compliant' | 'not-assessed';
-  evidence: number;
-  required: number;
-  subClauses: { id: string; title: string; status: string; notes?: string }[];
-  link?: string;
+interface ComplianceRequirement {
+  id: string;
+  requirement: string;
+  description?: string;
+  status: string;
+  evidence?: string;
+  owner?: string;
+  reviewDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const clauseData: ClauseStatus[] = [
-  {
-    clause: '4', title: 'Context of the Organisation', status: 'compliant', evidence: 8, required: 8,
-    subClauses: [
-      { id: '4.1', title: 'Understanding the organisation and its context', status: 'compliant' },
-      { id: '4.2', title: 'Understanding the needs of interested parties', status: 'compliant' },
-      { id: '4.3', title: 'Determining the scope of the ABMS', status: 'compliant' },
-      { id: '4.4', title: 'Anti-bribery management system', status: 'compliant' },
-      { id: '4.5', title: 'Bribery risk assessment', status: 'compliant' },
-    ],
-  },
-  {
-    clause: '5', title: 'Leadership', status: 'compliant', evidence: 6, required: 6,
-    subClauses: [
-      { id: '5.1', title: 'Leadership and commitment', status: 'compliant' },
-      { id: '5.2', title: 'Anti-bribery policy', status: 'compliant' },
-      { id: '5.3', title: 'Organisational roles, responsibilities and authorities', status: 'compliant' },
-    ],
-    link: '/policies',
-  },
-  {
-    clause: '6', title: 'Planning', status: 'partial', evidence: 4, required: 5,
-    subClauses: [
-      { id: '6.1', title: 'Actions to address risks and opportunities', status: 'compliant' },
-      { id: '6.2', title: 'Anti-bribery objectives and planning', status: 'partial', notes: '1 objective missing target date' },
-    ],
-    link: '/risk-assessments',
-  },
-  {
-    clause: '7', title: 'Support', status: 'partial', evidence: 7, required: 10,
-    subClauses: [
-      { id: '7.1', title: 'Resources', status: 'compliant' },
-      { id: '7.2', title: 'Competence', status: 'partial', notes: '5 staff training overdue' },
-      { id: '7.3', title: 'Awareness and training', status: 'partial', notes: 'Board training due Q2' },
-      { id: '7.4', title: 'Communication', status: 'compliant' },
-      { id: '7.5', title: 'Documented information', status: 'compliant' },
-    ],
-    link: '/training',
-  },
-  {
-    clause: '8', title: 'Operation', status: 'compliant', evidence: 14, required: 14,
-    subClauses: [
-      { id: '8.1', title: 'Operational planning and control', status: 'compliant' },
-      { id: '8.2', title: 'Due diligence', status: 'compliant' },
-      { id: '8.3', title: 'Financial controls', status: 'compliant' },
-      { id: '8.4', title: 'Non-financial controls', status: 'compliant' },
-      { id: '8.5', title: 'Anti-bribery controls by associated persons', status: 'compliant' },
-      { id: '8.6', title: 'Anti-bribery commitments', status: 'compliant' },
-      { id: '8.7', title: 'Gifts, hospitality, donations and similar benefits', status: 'compliant' },
-      { id: '8.8', title: 'Managing inadequacy of anti-bribery controls', status: 'compliant' },
-      { id: '8.9', title: 'Raising concerns', status: 'compliant' },
-      { id: '8.10', title: 'Investigating and dealing with bribery', status: 'compliant' },
-    ],
-    link: '/due-diligence',
-  },
-  {
-    clause: '9', title: 'Performance Evaluation', status: 'partial', evidence: 5, required: 7,
-    subClauses: [
-      { id: '9.1', title: 'Monitoring, measurement, analysis and evaluation', status: 'compliant' },
-      { id: '9.2', title: 'Internal audit', status: 'partial', notes: 'Annual ABMS audit due next month' },
-      { id: '9.3', title: 'Management review', status: 'partial', notes: 'Q1 review scheduled' },
-      { id: '9.4', title: 'Anti-bribery compliance function review', status: 'compliant' },
-    ],
-  },
-  {
-    clause: '10', title: 'Improvement', status: 'compliant', evidence: 4, required: 4,
-    subClauses: [
-      { id: '10.1', title: 'Nonconformity and corrective action', status: 'compliant' },
-      { id: '10.2', title: 'Continual improvement', status: 'compliant' },
-    ],
-    link: '/investigations',
-  },
-];
+const statusOptions = ['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT'];
 
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  compliant: { label: 'Compliant', color: 'text-green-700', bg: 'bg-green-100' },
-  partial: { label: 'Partial', color: 'text-yellow-700', bg: 'bg-yellow-100' },
-  'non-compliant': { label: 'Non-Compliant', color: 'text-red-700', bg: 'bg-red-100' },
-  'not-assessed': { label: 'Not Assessed', color: 'text-gray-600', bg: 'bg-gray-100' },
+const statusColors: Record<string, string> = {
+  COMPLIANT: 'bg-green-100 text-green-700',
+  NON_COMPLIANT: 'bg-red-100 text-red-700',
+  PARTIALLY_COMPLIANT: 'bg-yellow-100 text-yellow-700',
+};
+
+const statusLabels: Record<string, string> = {
+  COMPLIANT: 'Compliant',
+  NON_COMPLIANT: 'Non-Compliant',
+  PARTIALLY_COMPLIANT: 'Partially Compliant',
 };
 
 export default function CompliancePage() {
-  const [expandedClause, setExpandedClause] = useState<string | null>(null);
+  const [requirements, setRequirements] = useState<ComplianceRequirement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<ComplianceRequirement | null>(null);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [search, setSearch] = useState('');
 
-  const totalClauses = clauseData.length;
-  const compliantCount = clauseData.filter(c => c.status === 'compliant').length;
-  const overallPct = Math.round((compliantCount / totalClauses) * 100);
-  const totalEvidence = clauseData.reduce((s, c) => s + c.evidence, 0);
-  const totalRequired = clauseData.reduce((s, c) => s + c.required, 0);
-  const evidencePct = totalRequired > 0 ? Math.round((totalEvidence / totalRequired) * 100) : 0;
+  const [form, setForm] = useState({
+    requirement: '',
+    description: '',
+    status: 'COMPLIANT',
+    evidence: '',
+    owner: '',
+    reviewDate: '',
+    notes: '',
+  });
+
+  useEffect(() => {
+    loadRequirements();
+  }, []);
+
+  async function loadRequirements() {
+    try {
+      setError(null);
+      const res = await api.get('/compliance');
+      setRequirements(res.data.data || []);
+    } catch (err) {
+      console.error('Error loading compliance requirements:', err);
+      setError('Failed to load compliance requirements.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openAddModal() {
+    setEditingItem(null);
+    setForm({ requirement: '', description: '', status: 'COMPLIANT', evidence: '', owner: '', reviewDate: '', notes: '' });
+    setModalOpen(true);
+  }
+
+  function openEditModal(item: ComplianceRequirement) {
+    setEditingItem(item);
+    setForm({
+      requirement: item.requirement,
+      description: item.description || '',
+      status: item.status,
+      evidence: item.evidence || '',
+      owner: item.owner || '',
+      reviewDate: item.reviewDate ? item.reviewDate.split('T')[0] : '',
+      notes: item.notes || '',
+    });
+    setModalOpen(true);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      if (editingItem) {
+        await api.put(`/compliance/${editingItem.id}`, form);
+      } else {
+        await api.post('/compliance', form);
+      }
+      setModalOpen(false);
+      loadRequirements();
+    } catch (err) {
+      console.error('Error saving compliance requirement:', err);
+      setError('Failed to save compliance requirement.');
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Are you sure you want to delete this requirement?')) return;
+    try {
+      await api.delete(`/compliance/${id}`);
+      loadRequirements();
+    } catch (err) {
+      console.error('Error deleting compliance requirement:', err);
+      setError('Failed to delete compliance requirement.');
+    }
+  }
+
+  const filtered = requirements.filter((r) => {
+    if (filterStatus && r.status !== filterStatus) return false;
+    if (search && !r.requirement.toLowerCase().includes(search.toLowerCase()) && !(r.owner || '').toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const compliantCount = requirements.filter((r) => r.status === 'COMPLIANT').length;
+  const nonCompliantCount = requirements.filter((r) => r.status === 'NON_COMPLIANT').length;
+  const partialCount = requirements.filter((r) => r.status === 'PARTIALLY_COMPLIANT').length;
+  const total = requirements.length;
+  const overallPct = total > 0 ? Math.round((compliantCount / total) * 100) : 0;
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-24 bg-gray-200 rounded" />
+          <div className="h-64 bg-gray-200 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">ISO 37001:2016 Compliance Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Anti-Bribery Management System — Clause-by-clause conformity</p>
-      </div>
+    <div className="p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Anti-Bribery Compliance</h1>
+            <p className="text-gray-500 mt-1">Track compliance requirements and evidence per ISO 37001</p>
+          </div>
+          <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+            Add Requirement
+          </button>
+        </div>
 
-      {/* Overview cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border p-4 flex flex-col items-center">
-          <div className="relative h-20 w-20 mb-2">
-            <svg className="h-20 w-20 -rotate-90" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e5e7eb" strokeWidth="3" />
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e11d48" strokeWidth="3" strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-bold text-gray-900">{overallPct}%</span>
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Overall Score</p>
+                <p className="text-2xl font-bold text-rose-600">{overallPct}%</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+              <div className="bg-rose-600 rounded-full h-1.5" style={{ width: `${overallPct}%` }} />
             </div>
           </div>
-          <div className="text-xs text-gray-500">Clauses Compliant</div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-2xl font-bold text-green-600">{compliantCount}</div>
-          <div className="text-sm text-gray-500">Fully Compliant</div>
-          <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-500 rounded-full h-2" style={{ width: `${overallPct}%` }} />
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Compliant</p>
+            <p className="text-2xl font-bold text-green-600">{compliantCount}</p>
+            <p className="text-xs text-gray-400 mt-1">of {total} requirements</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Partial</p>
+            <p className="text-2xl font-bold text-yellow-600">{partialCount}</p>
+            <p className="text-xs text-gray-400 mt-1">gaps identified</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Non-Compliant</p>
+            <p className="text-2xl font-bold text-red-600">{nonCompliantCount}</p>
+            <p className="text-xs text-gray-400 mt-1">require action</p>
           </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-2xl font-bold text-yellow-600">{clauseData.filter(c => c.status === 'partial').length}</div>
-          <div className="text-sm text-gray-500">Partially Compliant</div>
-          <div className="text-xs text-gray-400 mt-2">Gaps identified</div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+          <div className="flex gap-4">
+            <input
+              type="text"
+              placeholder="Search requirements..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Statuses</option>
+              {statusOptions.map((s) => <option key={s} value={s}>{statusLabels[s]}</option>)}
+            </select>
+          </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-2xl font-bold text-rose-600">{evidencePct}%</div>
-          <div className="text-sm text-gray-500">Evidence Coverage</div>
-          <div className="text-xs text-gray-400 mt-2">{totalEvidence} / {totalRequired} items</div>
-        </div>
-      </div>
 
-      {/* Clauses */}
-      <div className="space-y-2">
-        {clauseData.map(clause => {
-          const sc = statusConfig[clause.status];
-          const isExpanded = expandedClause === clause.clause;
-          const pct = clause.required > 0 ? Math.round((clause.evidence / clause.required) * 100) : 0;
-
-          return (
-            <div key={clause.clause} className="bg-white rounded-lg border overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setExpandedClause(isExpanded ? null : clause.clause)}
-                className="w-full flex items-center gap-4 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-rose-50 text-rose-700 font-bold text-sm shrink-0">
-                  {clause.clause}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-900">{clause.title}</span>
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.bg} ${sc.color}`}>{sc.label}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="w-16 h-2 bg-gray-200 rounded-full">
-                    <div className={`h-full rounded-full ${pct === 100 ? 'bg-green-500' : pct >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
-                  </div>
-                  <span className="text-xs text-gray-500 w-12 text-right">{clause.evidence}/{clause.required}</span>
-                  <svg className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </button>
-
-              {isExpanded && (
-                <div className="border-t">
-                  <table className="w-full text-sm">
-                    <tbody className="divide-y">
-                      {clause.subClauses.map(sub => {
-                        const subSc = statusConfig[sub.status] || statusConfig['not-assessed'];
-                        return (
-                          <tr key={sub.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 font-mono text-xs text-rose-600 w-16">{sub.id}</td>
-                            <td className="px-4 py-2 text-gray-900">{sub.title}</td>
-                            <td className="px-4 py-2 w-28">
-                              <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${subSc.bg} ${subSc.color}`}>{subSc.label}</span>
-                            </td>
-                            <td className="px-4 py-2 text-xs text-gray-500">{sub.notes || '—'}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  {clause.link && (
-                    <div className="px-4 py-2 border-t bg-gray-50">
-                      <a href={clause.link} className="text-xs text-rose-600 hover:underline">Go to related module →</a>
-                    </div>
-                  )}
-                </div>
+        {/* Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requirement</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Evidence</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Review Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filtered.length > 0 ? (
+                filtered.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">{item.requirement}</p>
+                      {item.description && <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{item.description}</p>}
+                      {item.notes && <p className="text-xs text-gray-400 mt-0.5 italic truncate max-w-sm">{item.notes}</p>}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status] || 'bg-gray-100 text-gray-700'}`}>
+                        {statusLabels[item.status] || item.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                      <span className="truncate block">{item.evidence || <span className="text-gray-300 italic">No evidence</span>}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{item.owner || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {item.reviewDate ? new Date(item.reviewDate).toLocaleDateString() : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button onClick={() => openEditModal(item)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
+                      <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    {requirements.length === 0 ? 'No compliance requirements found. Add one to get started.' : 'No requirements match your filters.'}
+                  </td>
+                </tr>
               )}
-            </div>
-          );
-        })}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
+            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{editingItem ? 'Edit Requirement' : 'Add Compliance Requirement'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Requirement <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={form.requirement}
+                    onChange={(e) => setForm({ ...form, requirement: e.target.value })}
+                    placeholder="e.g. Anti-bribery policy must be communicated to all staff"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    rows={2}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {statusOptions.map((s) => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                    <input
+                      type="text"
+                      value={form.owner}
+                      onChange={(e) => setForm({ ...form, owner: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Evidence</label>
+                  <textarea
+                    value={form.evidence}
+                    onChange={(e) => setForm({ ...form, evidence: e.target.value })}
+                    placeholder="Describe evidence of compliance (documents, records, procedures...)"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    rows={3}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
+                    <input
+                      type="date"
+                      value={form.reviewDate}
+                      onChange={(e) => setForm({ ...form, reviewDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <input
+                      type="text"
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
+                    {editingItem ? 'Update' : 'Create'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -97,7 +97,7 @@ export default function HumanReviewPage() {
                 </div>
                 <button
                   onClick={() => { setActiveReview(r); setDecisionForm({ decision: 'APPROVED', justification: '' }); }}
-                  className="px-3 py-1.5 text-xs font-medium bg-fuchsia-600 text-white rounded-md hover:bg-fuchsia-700"
+                  className="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
                 >
                   Review
                 </button>
@@ -124,7 +124,7 @@ export default function HumanReviewPage() {
             placeholder="Search reviews..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
-            className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-fuchsia-500 focus:ring-fuchsia-500"
+            className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
           <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
@@ -184,7 +184,7 @@ export default function HumanReviewPage() {
                     {r.status === 'PENDING' && (
                       <button
                         onClick={() => { setActiveReview(r); setDecisionForm({ decision: 'APPROVED', justification: '' }); }}
-                        className="px-3 py-1 text-xs font-medium bg-fuchsia-600 text-white rounded-md hover:bg-fuchsia-700"
+                        className="px-3 py-1 text-xs font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
                       >
                         Review
                       </button>
@@ -219,7 +219,7 @@ export default function HumanReviewPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">Confidence:</span>
                     <div className="w-24 h-2 bg-gray-200 rounded-full">
-                      <div className="h-full bg-fuchsia-500 rounded-full" style={{ width: `${activeReview.aiConfidence * 100}%` }} />
+                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${activeReview.aiConfidence * 100}%` }} />
                     </div>
                     <span className="text-xs font-medium">{Math.round(activeReview.aiConfidence * 100)}%</span>
                   </div>
@@ -266,7 +266,7 @@ export default function HumanReviewPage() {
                 <button
                   onClick={handleDecide}
                   disabled={!decisionForm.justification.trim() || submitting}
-                  className="px-4 py-2 text-sm rounded-md bg-fuchsia-600 text-white hover:bg-fuchsia-700 disabled:opacity-50"
+                  className="px-4 py-2 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
                 >
                   {submitting ? 'Submitting...' : 'Submit Decision'}
                 </button>

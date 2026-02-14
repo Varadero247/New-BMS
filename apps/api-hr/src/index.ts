@@ -36,6 +36,9 @@ import performanceRouter from './routes/performance';
 import recruitmentRouter from './routes/recruitment';
 import trainingRouter from './routes/training';
 import documentsRouter from './routes/documents';
+import certificationsRouter from './routes/certifications';
+import goalsRouter from './routes/goals';
+import orgChartRouter from './routes/org-chart';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4006;
@@ -73,6 +76,9 @@ app.use('/api/performance', performanceRouter);
 app.use('/api/recruitment', recruitmentRouter);
 app.use('/api/training', trainingRouter);
 app.use('/api/documents', documentsRouter);
+app.use('/api/certifications', certificationsRouter);
+app.use('/api/goals', goalsRouter);
+app.use('/api/org-chart', orgChartRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

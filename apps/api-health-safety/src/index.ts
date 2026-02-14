@@ -37,6 +37,7 @@ import objectivesRouter from './routes/objectives';
 import capaRouter from './routes/capa';
 import managementReviewsRouter from './routes/management-reviews';
 import communicationsRouter from './routes/communications';
+import actionsRouter from './routes/actions';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4001;
@@ -74,6 +75,7 @@ app.use('/api/objectives', objectivesRouter);
 app.use('/api/capa', capaRouter);
 app.use('/api/management-reviews', managementReviewsRouter);
 app.use('/api/communications', communicationsRouter);
+app.use('/api/actions', actionsRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -37,6 +37,7 @@ import locationsRouter from './routes/locations';
 import requestsRouter from './routes/requests';
 import checklistsRouter from './routes/checklists';
 import kpisRouter from './routes/kpis';
+import schedulerRouter from './routes/scheduler';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4017;
@@ -78,6 +79,7 @@ app.use('/api/requests', requestsRouter);
 app.use('/api/checklists', checklistsRouter);
 app.use('/api/kpis', kpisRouter);
 app.use('/api/contracts', vendorsRouter);
+app.use('/api/scheduler', schedulerRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

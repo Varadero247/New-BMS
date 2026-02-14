@@ -1,5 +1,3 @@
-import AspectsClient from './client';
+'use client';
 
-export default function AspectsPage() {
-  return <AspectsClient />;
-}
+export { default } from './client';

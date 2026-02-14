@@ -6,27 +6,38 @@ import { api } from '@/lib/api';
 interface Policy {
   id: string;
   title: string;
-  description?: string;
-  policyType: string;
-  status: string;
-  version: string;
-  approvedBy?: string;
-  approvedAt?: string;
   content?: string;
-  reviewDate?: string;
+  category: string;
+  status: string;
+  approvedBy?: string;
+  effectiveDate?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-const policyTypeOptions = ['ANTI_BRIBERY', 'GIFTS_HOSPITALITY', 'WHISTLEBLOWING', 'CONFLICT_OF_INTEREST', 'THIRD_PARTY', 'CODE_OF_CONDUCT', 'FACILITATION_PAYMENTS', 'OTHER'];
-const statusOptions = ['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED'];
+const categoryOptions = ['ANTI_BRIBERY', 'GIFTS', 'WHISTLEBLOWING', 'CONFLICT_OF_INTEREST', 'SANCTIONS'];
+const statusOptions = ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
+
+const categoryColors: Record<string, string> = {
+  ANTI_BRIBERY: 'bg-rose-100 text-rose-700',
+  GIFTS: 'bg-purple-100 text-purple-700',
+  WHISTLEBLOWING: 'bg-orange-100 text-orange-700',
+  CONFLICT_OF_INTEREST: 'bg-yellow-100 text-yellow-700',
+  SANCTIONS: 'bg-red-100 text-red-700',
+};
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-700',
-  UNDER_REVIEW: 'bg-yellow-100 text-yellow-700',
-  APPROVED: 'bg-blue-100 text-blue-700',
   PUBLISHED: 'bg-green-100 text-green-700',
   ARCHIVED: 'bg-orange-100 text-orange-700',
+};
+
+const categoryLabels: Record<string, string> = {
+  ANTI_BRIBERY: 'Anti-Bribery',
+  GIFTS: 'Gifts & Hospitality',
+  WHISTLEBLOWING: 'Whistleblowing',
+  CONFLICT_OF_INTEREST: 'Conflict of Interest',
+  SANCTIONS: 'Sanctions',
 };
 
 export default function PoliciesPage() {
@@ -35,15 +46,18 @@ export default function PoliciesPage() {
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [search, setSearch] = useState('');
+  const [expandedContent, setExpandedContent] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: '',
-    description: '',
-    policyType: 'ANTI_BRIBERY',
-    status: 'DRAFT',
-    version: '1.0',
     content: '',
-    reviewDate: '',
+    category: 'ANTI_BRIBERY',
+    status: 'DRAFT',
+    approvedBy: '',
+    effectiveDate: '',
   });
 
   useEffect(() => {
@@ -65,7 +79,7 @@ export default function PoliciesPage() {
 
   function openAddModal() {
     setEditingPolicy(null);
-    setForm({ title: '', description: '', policyType: 'ANTI_BRIBERY', status: 'DRAFT', version: '1.0', content: '', reviewDate: '' });
+    setForm({ title: '', content: '', category: 'ANTI_BRIBERY', status: 'DRAFT', approvedBy: '', effectiveDate: '' });
     setModalOpen(true);
   }
 
@@ -73,12 +87,11 @@ export default function PoliciesPage() {
     setEditingPolicy(policy);
     setForm({
       title: policy.title,
-      description: policy.description || '',
-      policyType: policy.policyType,
-      status: policy.status,
-      version: policy.version,
       content: policy.content || '',
-      reviewDate: policy.reviewDate ? policy.reviewDate.split('T')[0] : '',
+      category: policy.category,
+      status: policy.status,
+      approvedBy: policy.approvedBy || '',
+      effectiveDate: policy.effectiveDate ? policy.effectiveDate.split('T')[0] : '',
     });
     setModalOpen(true);
   }
@@ -99,13 +112,23 @@ export default function PoliciesPage() {
     }
   }
 
-  async function handleApprove(id: string) {
+  async function handlePublish(id: string) {
     try {
-      await api.put(`/policies/${id}`, { status: 'APPROVED', approvedBy: 'Current User' });
+      await api.put(`/policies/${id}`, { status: 'PUBLISHED' });
       loadPolicies();
     } catch (err) {
-      console.error('Error approving policy:', err);
-      setError('Failed to approve policy.');
+      console.error('Error publishing policy:', err);
+      setError('Failed to publish policy.');
+    }
+  }
+
+  async function handleArchive(id: string) {
+    try {
+      await api.put(`/policies/${id}`, { status: 'ARCHIVED' });
+      loadPolicies();
+    } catch (err) {
+      console.error('Error archiving policy:', err);
+      setError('Failed to archive policy.');
     }
   }
 
@@ -120,11 +143,23 @@ export default function PoliciesPage() {
     }
   }
 
+  const filtered = policies.filter((p) => {
+    if (filterStatus && p.status !== filterStatus) return false;
+    if (filterCategory && p.category !== filterCategory) return false;
+    if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const draftCount = policies.filter((p) => p.status === 'DRAFT').length;
+  const publishedCount = policies.filter((p) => p.status === 'PUBLISHED').length;
+  const archivedCount = policies.filter((p) => p.status === 'ARCHIVED').length;
+
   if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-24 bg-gray-200 rounded" />
           <div className="h-64 bg-gray-200 rounded" />
         </div>
       </div>
@@ -146,95 +181,186 @@ export default function PoliciesPage() {
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Version</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved By</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {policies.length > 0 ? (
-                policies.map((policy) => (
-                  <tr key={policy.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{policy.title}</p>
-                      {policy.description && <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">{policy.description}</p>}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{policy.policyType.replace(/_/g, ' ')}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[policy.status] || 'bg-gray-100 text-gray-700'}`}>
-                        {policy.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">v{policy.version}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{policy.approvedBy || '-'}</td>
-                    <td className="px-6 py-4 text-right">
-                      <button onClick={() => openEditModal(policy)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
-                      {policy.status === 'UNDER_REVIEW' && (
-                        <button onClick={() => handleApprove(policy.id)} className="text-green-600 hover:text-green-700 text-sm mr-3">Approve</button>
-                      )}
-                      <button onClick={() => handleDelete(policy.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">No policies found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Total Policies</p>
+            <p className="text-2xl font-bold text-gray-900">{policies.length}</p>
+            <p className="text-xs text-gray-400 mt-1">across all categories</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Published</p>
+            <p className="text-2xl font-bold text-green-600">{publishedCount}</p>
+            <p className="text-xs text-gray-400 mt-1">live policies</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Draft</p>
+            <p className="text-2xl font-bold text-gray-600">{draftCount}</p>
+            <p className="text-xs text-gray-400 mt-1">pending review</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Archived</p>
+            <p className="text-2xl font-bold text-orange-600">{archivedCount}</p>
+            <p className="text-xs text-gray-400 mt-1">superseded</p>
+          </div>
         </div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+          <div className="flex flex-wrap gap-4">
+            <input
+              type="text"
+              placeholder="Search policies..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Categories</option>
+              {categoryOptions.map((c) => <option key={c} value={c}>{categoryLabels[c]}</option>)}
+            </select>
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Statuses</option>
+              {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Policy cards */}
+        {filtered.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-12 text-center text-gray-500">
+            {policies.length === 0 ? 'No policies found. Add one to get started.' : 'No policies match your filters.'}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((policy) => (
+              <div key={policy.id} className={`bg-white rounded-xl border border-gray-200 overflow-hidden ${policy.status === 'ARCHIVED' ? 'opacity-60' : ''}`}>
+                <div className="px-6 py-4 flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-base font-semibold text-gray-900">{policy.title}</h3>
+                      <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${categoryColors[policy.category] || 'bg-gray-100 text-gray-700'}`}>
+                        {categoryLabels[policy.category] || policy.category}
+                      </span>
+                      <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[policy.status] || 'bg-gray-100 text-gray-700'}`}>
+                        {policy.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      {policy.approvedBy && <span>Approved by: {policy.approvedBy}</span>}
+                      {policy.effectiveDate && <span>Effective: {new Date(policy.effectiveDate).toLocaleDateString()}</span>}
+                      <span>Updated: {new Date(policy.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                    {policy.content && (
+                      <div className="mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedContent(expandedContent === policy.id ? null : policy.id)}
+                          className="text-xs text-rose-600 hover:underline"
+                        >
+                          {expandedContent === policy.id ? 'Hide content' : 'View content'}
+                        </button>
+                        {expandedContent === policy.id && (
+                          <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                            {policy.content}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {policy.status === 'DRAFT' && (
+                      <button onClick={() => handlePublish(policy.id)} className="px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition-colors">
+                        Publish
+                      </button>
+                    )}
+                    {policy.status === 'PUBLISHED' && (
+                      <button onClick={() => handleArchive(policy.id)} className="px-3 py-1.5 bg-orange-100 text-orange-700 text-sm rounded-lg hover:bg-orange-200 transition-colors">
+                        Archive
+                      </button>
+                    )}
+                    <button onClick={() => openEditModal(policy)} className="px-3 py-1.5 text-rose-600 border border-rose-200 text-sm rounded-lg hover:bg-rose-50 transition-colors">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(policy.id)} className="px-3 py-1.5 text-red-600 border border-red-200 text-sm rounded-lg hover:bg-red-50 transition-colors">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{editingPolicy ? 'Edit Policy' : 'Add Policy'}</h2>
+            <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{editingPolicy ? 'Edit Policy' : 'Add Policy'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={3} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    placeholder="e.g. Anti-Bribery and Corruption Policy"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select value={form.policyType} onChange={(e) => setForm({ ...form, policyType: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {policyTypeOptions.map((p) => <option key={p} value={p}>{p.replace(/_/g, ' ')}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {categoryOptions.map((c) => <option key={c} value={c}>{categoryLabels[c]}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                      {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Version</label>
-                    <input type="text" value={form.version} onChange={(e) => setForm({ ...form, version: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Effective Date</label>
+                    <input
+                      type="date"
+                      value={form.effectiveDate}
+                      onChange={(e) => setForm({ ...form, effectiveDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                  <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={5} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+                  <input
+                    type="text"
+                    value={form.approvedBy}
+                    onChange={(e) => setForm({ ...form, approvedBy: e.target.value })}
+                    placeholder="Name of approver"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
-                  <input type="date" value={form.reviewDate} onChange={(e) => setForm({ ...form, reviewDate: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Policy Content</label>
+                  <textarea
+                    value={form.content}
+                    onChange={(e) => setForm({ ...form, content: e.target.value })}
+                    placeholder="Full policy text or summary..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    rows={8}
+                  />
                 </div>
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingPolicy ? 'Update' : 'Create'}

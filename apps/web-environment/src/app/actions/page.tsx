@@ -1,5 +1,3 @@
-import ActionsClient from './client';
+'use client';
 
-export default function ActionsPage() {
-  return <ActionsClient />;
-}
+export { default } from './client';

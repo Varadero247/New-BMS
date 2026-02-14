@@ -1,5 +1,3 @@
-import CAPAClient from './client';
+'use client';
 
-export default function CAPAPage() {
-  return <CAPAClient />;
-}
+export { default } from './client';

@@ -77,7 +77,7 @@ export default function AuditLogPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg border p-4">
-            <div className="text-2xl font-bold text-fuchsia-600">{stats.totalEntries}</div>
+            <div className="text-2xl font-bold text-indigo-600">{stats.totalEntries}</div>
             <div className="text-sm text-gray-500">Total Entries</div>
           </div>
           {Object.entries(stats.byAction).slice(0, 3).map(([action, count]) => (
@@ -96,7 +96,7 @@ export default function AuditLogPage() {
             placeholder="Search audit log..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
-            className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-fuchsia-500 focus:ring-fuchsia-500"
+            className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
           <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>

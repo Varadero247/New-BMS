@@ -1,2 +1,3 @@
-import AspectRegisterClient from './client';
-export default function AspectRegisterPage() { return <AspectRegisterClient />; }
+'use client';
+
+export { default } from './client';

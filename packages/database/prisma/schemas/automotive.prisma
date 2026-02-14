@@ -608,3 +608,213 @@ enum LpaResult {
   FAIL
   NOT_APPLICABLE
 }
+
+// ============================================
+// 8D PROBLEM SOLVING
+// ============================================
+
+model EightDReport {
+  id              String          @id @default(cuid())
+  refNumber       String          @unique  // 8D-YYMM-XXXX
+  title           String
+  problemStatement String
+  customer        String?
+  partNumber      String?
+  partName        String?
+  status          EightDStatus    @default(D1_TEAM_FORMATION)
+  severity        ProblemSeverity @default(MEDIUM)
+  // D1 - Team
+  teamLeader      String
+  teamMembers     String[]        @default([])
+  // D2 - Problem Description
+  problemDescription String?
+  is              String?         // What the problem IS
+  isNot           String?         // What the problem IS NOT
+  whenOccurred    DateTime?
+  whereOccurred   String?
+  // D3 - Interim Containment
+  containmentAction String?
+  containmentDate  DateTime?
+  containmentOwner String?
+  // D4 - Root Cause
+  rootCause       String?
+  rootCauseMethod String?         // e.g. "5 Why", "Ishikawa"
+  rootCauseAnalysis Json?
+  // D5 - Corrective Actions
+  correctiveActions Json?
+  // D6 - Implementation
+  implementationPlan String?
+  implementationDate DateTime?
+  // D7 - Prevention
+  preventiveActions Json?
+  systemsUpdated  String?
+  // D8 - Closure
+  teamRecognition String?
+  lessonsLearned  String?
+  closedDate      DateTime?
+  closedBy        String?
+  createdBy       String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  @@index([status])
+  @@index([customer])
+  @@index([createdAt])
+  @@map("eight_d_reports")
+}
+
+enum EightDStatus {
+  D1_TEAM_FORMATION
+  D2_PROBLEM_DESCRIPTION
+  D3_INTERIM_CONTAINMENT
+  D4_ROOT_CAUSE
+  D5_CORRECTIVE_ACTIONS
+  D6_IMPLEMENTATION
+  D7_PREVENTION
+  D8_CLOSURE
+  CLOSED
+}
+
+enum ProblemSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// FMEA (Failure Mode and Effects Analysis)
+// ============================================
+
+model FmeaStudy {
+  id              String      @id @default(cuid())
+  refNumber       String      @unique  // FMEA-YYMM-XXXX
+  title           String
+  fmeaType        FmeaType    @default(PFMEA)
+  partNumber      String?
+  partName        String?
+  customer        String?
+  revision        String      @default("A")
+  status          FmeaStatus  @default(DRAFT)
+  preparedBy      String
+  reviewedBy      String?
+  approvedBy      String?
+  approvedDate    DateTime?
+  scope           String?
+  assumptions     String?
+  items           FmeaItem[]
+  createdBy       String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  @@index([fmeaType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("fmea_studies")
+}
+
+model FmeaItem {
+  id              String      @id @default(cuid())
+  studyId         String
+  itemNumber      Int
+  processStep     String
+  function        String
+  failureMode     String
+  failureEffect   String
+  severity        Int         // 1-10 RPN scale
+  potentialCauses String
+  occurrence      Int         // 1-10 RPN scale
+  currentControls String?
+  detection       Int         // 1-10 RPN scale
+  rpn             Int         // severity * occurrence * detection
+  recommendedAction String?
+  responsibility  String?
+  targetDate      DateTime?
+  actionTaken     String?
+  severityAfter   Int?
+  occurrenceAfter Int?
+  detectionAfter  Int?
+  rpnAfter        Int?
+  status          FmeaItemStatus @default(OPEN)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  study           FmeaStudy   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@index([studyId])
+  @@index([rpn])
+  @@map("fmea_items")
+}
+
+enum FmeaType {
+  DFMEA
+  PFMEA
+  MFMEA
+}
+
+enum FmeaStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RELEASED
+  OBSOLETE
+}
+
+enum FmeaItemStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  ACCEPTED_RISK
+}
+
+// ============================================
+// CUSTOMER-SPECIFIC REQUIREMENTS
+// ============================================
+
+model CustomerReq {
+  id              String      @id @default(cuid())
+  refNumber       String      @unique  // CSR-YYMM-XXXX
+  customer        String
+  requirementTitle String
+  requirementRef  String?
+  category        CsrCategory @default(QUALITY)
+  description     String
+  applicableProducts String?
+  complianceStatus CsrComplianceStatus @default(UNDER_REVIEW)
+  evidenceRef     String?
+  reviewedBy      String?
+  reviewDate      DateTime?
+  nextReviewDate  DateTime?
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  @@index([customer])
+  @@index([complianceStatus])
+  @@index([createdAt])
+  @@map("customer_reqs")
+}
+
+enum CsrCategory {
+  QUALITY
+  DELIVERY
+  PACKAGING
+  LABELING
+  DOCUMENTATION
+  PROCESS
+  ENVIRONMENTAL
+  SAFETY
+  OTHER
+}
+
+enum CsrComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  PARTIAL
+  UNDER_REVIEW
+  NOT_APPLICABLE
+}

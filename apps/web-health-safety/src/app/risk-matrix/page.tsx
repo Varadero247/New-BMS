@@ -1,2 +1,3 @@
-import RiskMatrixClient from './client';
-export default function RiskMatrixPage() { return <RiskMatrixClient />; }
+'use client';
+
+export { default } from './client';

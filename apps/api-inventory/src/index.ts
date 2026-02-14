@@ -34,6 +34,9 @@ import warehousesRouter from './routes/warehouses';
 import categoriesRouter from './routes/categories';
 import transactionsRouter from './routes/transactions';
 import suppliersRouter from './routes/suppliers';
+import adjustmentsRouter from './routes/adjustments';
+import stockLevelsRouter from './routes/stock-levels';
+import reportsRouter from './routes/reports';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4005;
@@ -68,6 +71,9 @@ app.use('/api/warehouses', warehousesRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/inventory/transactions', transactionsRouter);
 app.use('/api/suppliers', suppliersRouter);
+app.use('/api/adjustments', adjustmentsRouter);
+app.use('/api/stock-levels', stockLevelsRouter);
+app.use('/api/reports', reportsRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

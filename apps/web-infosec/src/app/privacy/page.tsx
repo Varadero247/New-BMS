@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
 import { FileText, Eye, UserCheck, Clock, Shield, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -78,7 +79,9 @@ function getDaysUntilDeadline(deadline: string): number {
 }
 
 export default function PrivacyPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('ropa');
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as Tab) || 'ropa';
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

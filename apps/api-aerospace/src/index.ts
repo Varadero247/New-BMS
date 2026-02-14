@@ -33,6 +33,14 @@ import faiRouter from './routes/fai';
 import workordersRouter from './routes/workorders';
 import humanFactorsRouter from './routes/human-factors';
 import oasisRouter from './routes/oasis';
+import auditsRouter from './routes/audits';
+import baselinesRouter from './routes/baselines';
+import changesRouter from './routes/changes';
+import complianceTrackerRouter from './routes/compliance-tracker';
+import counterfeitRouter from './routes/counterfeit';
+import fodRouter from './routes/fod';
+import productSafetyRouter from './routes/product-safety';
+import specialProcessesRouter from './routes/special-processes';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4012;
@@ -70,6 +78,22 @@ app.use('/api/workorders', workordersRouter);
 app.use('/api/human-factors', humanFactorsRouter);
 // Routes - OASIS Database Integration (S4-04)
 app.use('/api/oasis', oasisRouter);
+// Routes - AS9100D Audit Management
+app.use('/api/audits', auditsRouter);
+// Routes - Configuration Baselines
+app.use('/api/baselines', baselinesRouter);
+// Routes - Change Management
+app.use('/api/changes', changesRouter);
+// Routes - AS9100D Compliance Tracker
+app.use('/api/compliance-tracker', complianceTrackerRouter);
+// Routes - Counterfeit Parts Prevention (SAE AS6174)
+app.use('/api/counterfeit', counterfeitRouter);
+// Routes - Foreign Object Debris/Damage Prevention
+app.use('/api/fod', fodRouter);
+// Routes - Product Safety Management
+app.use('/api/product-safety', productSafetyRouter);
+// Routes - Special Processes (Nadcap)
+app.use('/api/special-processes', specialProcessesRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -1,5 +1,3 @@
-import LegalRegisterClient from './client';
+'use client';
 
-export default function LegalPage() {
-  return <LegalRegisterClient />;
-}
+export { default } from './client';

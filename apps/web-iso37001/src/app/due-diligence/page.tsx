@@ -6,36 +6,32 @@ import { api } from '@/lib/api';
 interface DueDiligence {
   id: string;
   thirdPartyName: string;
-  thirdPartyType: string;
-  country: string;
+  type: string;
   riskLevel: string;
   status: string;
-  assessor?: string;
   findings?: string;
-  recommendation?: string;
-  nextReviewDate?: string;
+  reviewer?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-const thirdPartyTypeOptions = ['SUPPLIER', 'AGENT', 'CONSULTANT', 'JOINT_VENTURE', 'CONTRACTOR', 'DISTRIBUTOR', 'GOVERNMENT', 'OTHER'];
-const riskLevelOptions = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
-const statusOptions = ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'APPROVED', 'REJECTED', 'EXPIRED'];
+const typeOptions = ['SUPPLIER', 'AGENT', 'PARTNER', 'CONSULTANT'];
+const riskLevelOptions = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+const statusOptions = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'REQUIRES_REVIEW'];
 
 const riskColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
   HIGH: 'bg-orange-100 text-orange-700',
-  VERY_HIGH: 'bg-red-100 text-red-700',
+  CRITICAL: 'bg-red-100 text-red-700',
 };
 
 const statusColors: Record<string, string> = {
-  NOT_STARTED: 'bg-gray-100 text-gray-700',
+  PENDING: 'bg-gray-100 text-gray-700',
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  APPROVED: 'bg-indigo-100 text-indigo-700',
-  REJECTED: 'bg-red-100 text-red-700',
-  EXPIRED: 'bg-orange-100 text-orange-700',
+  REQUIRES_REVIEW: 'bg-orange-100 text-orange-700',
 };
 
 export default function DueDiligencePage() {
@@ -46,17 +42,17 @@ export default function DueDiligencePage() {
   const [editingRecord, setEditingRecord] = useState<DueDiligence | null>(null);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterRisk, setFilterRisk] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [search, setSearch] = useState('');
 
   const [form, setForm] = useState({
     thirdPartyName: '',
-    thirdPartyType: 'SUPPLIER',
-    country: '',
+    type: 'SUPPLIER',
     riskLevel: 'MEDIUM',
-    status: 'NOT_STARTED',
-    assessor: '',
+    status: 'PENDING',
     findings: '',
-    recommendation: '',
-    nextReviewDate: '',
+    reviewer: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -78,7 +74,7 @@ export default function DueDiligencePage() {
 
   function openAddModal() {
     setEditingRecord(null);
-    setForm({ thirdPartyName: '', thirdPartyType: 'SUPPLIER', country: '', riskLevel: 'MEDIUM', status: 'NOT_STARTED', assessor: '', findings: '', recommendation: '', nextReviewDate: '' });
+    setForm({ thirdPartyName: '', type: 'SUPPLIER', riskLevel: 'MEDIUM', status: 'PENDING', findings: '', reviewer: '', notes: '' });
     setModalOpen(true);
   }
 
@@ -86,14 +82,12 @@ export default function DueDiligencePage() {
     setEditingRecord(record);
     setForm({
       thirdPartyName: record.thirdPartyName,
-      thirdPartyType: record.thirdPartyType,
-      country: record.country,
+      type: record.type,
       riskLevel: record.riskLevel,
       status: record.status,
-      assessor: record.assessor || '',
       findings: record.findings || '',
-      recommendation: record.recommendation || '',
-      nextReviewDate: record.nextReviewDate ? record.nextReviewDate.split('T')[0] : '',
+      reviewer: record.reviewer || '',
+      notes: record.notes || '',
     });
     setModalOpen(true);
   }
@@ -125,17 +119,26 @@ export default function DueDiligencePage() {
     }
   }
 
-  const filteredRecords = records.filter((r) => {
+  const filtered = records.filter((r) => {
     if (filterStatus && r.status !== filterStatus) return false;
     if (filterRisk && r.riskLevel !== filterRisk) return false;
+    if (filterType && r.type !== filterType) return false;
+    if (search && !r.thirdPartyName.toLowerCase().includes(search.toLowerCase()) && !(r.reviewer || '').toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  const pendingCount = records.filter((r) => r.status === 'PENDING').length;
+  const inProgressCount = records.filter((r) => r.status === 'IN_PROGRESS').length;
+  const completedCount = records.filter((r) => r.status === 'COMPLETED').length;
+  const reviewCount = records.filter((r) => r.status === 'REQUIRES_REVIEW').length;
+  const highRiskCount = records.filter((r) => r.riskLevel === 'HIGH' || r.riskLevel === 'CRITICAL').length;
 
   if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-24 bg-gray-200 rounded" />
           <div className="h-64 bg-gray-200 rounded" />
         </div>
       </div>
@@ -148,7 +151,7 @@ export default function DueDiligencePage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Due Diligence</h1>
-            <p className="text-gray-500 mt-1">Third-party due diligence register</p>
+            <p className="text-gray-500 mt-1">Third-party anti-bribery due diligence register</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             Add Due Diligence
@@ -157,42 +160,89 @@ export default function DueDiligencePage() {
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Total</p>
+            <p className="text-2xl font-bold text-gray-900">{records.length}</p>
+            <p className="text-xs text-gray-400 mt-1">third parties</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Pending</p>
+            <p className="text-2xl font-bold text-gray-600">{pendingCount}</p>
+            <p className="text-xs text-gray-400 mt-1">not started</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">In Progress</p>
+            <p className="text-2xl font-bold text-blue-600">{inProgressCount}</p>
+            <p className="text-xs text-gray-400 mt-1">under review</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">Completed</p>
+            <p className="text-2xl font-bold text-green-600">{completedCount}</p>
+            <p className="text-xs text-gray-400 mt-1">cleared</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <p className="text-sm text-gray-500">High / Critical Risk</p>
+            <p className="text-2xl font-bold text-red-600">{highRiskCount}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {reviewCount > 0 && <span className="text-orange-500">{reviewCount} need review</span>}
+              {reviewCount === 0 && 'elevated risk'}
+            </p>
+          </div>
+        </div>
+
+        {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
+            <input
+              type="text"
+              placeholder="Search by name or reviewer..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Types</option>
+              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <select value={filterRisk} onChange={(e) => setFilterRisk(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">All Risk Levels</option>
+              {riskLevelOptions.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
               {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
             </select>
-            <select value={filterRisk} onChange={(e) => setFilterRisk(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
-              <option value="">All Risk Levels</option>
-              {riskLevelOptions.map((r) => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
-            </select>
           </div>
         </div>
 
+        {/* Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Third Party</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Level</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Next Review</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Findings</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reviewer</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredRecords.length > 0 ? (
-                filteredRecords.map((record) => (
+              {filtered.length > 0 ? (
+                filtered.map((record) => (
                   <tr key={record.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{record.thirdPartyName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{record.thirdPartyType.replace(/_/g, ' ')}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{record.country}</td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">{record.thirdPartyName}</p>
+                      {record.notes && <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{record.notes}</p>}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{record.type}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${riskColors[record.riskLevel] || 'bg-gray-100 text-gray-700'}`}>
-                        {record.riskLevel.replace(/_/g, ' ')}
+                        {record.riskLevel}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -200,9 +250,10 @@ export default function DueDiligencePage() {
                         {record.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {record.nextReviewDate ? new Date(record.nextReviewDate).toLocaleDateString() : '-'}
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                      <span className="truncate block">{record.findings || <span className="text-gray-300 italic">No findings</span>}</span>
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{record.reviewer || '-'}</td>
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => openEditModal(record)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
                       <button onClick={() => handleDelete(record.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
@@ -211,7 +262,9 @@ export default function DueDiligencePage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">No due diligence records found</td>
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    {records.length === 0 ? 'No due diligence records found. Add one to get started.' : 'No records match your filters.'}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -219,34 +272,41 @@ export default function DueDiligencePage() {
         </div>
       </div>
 
+      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
             <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{editingRecord ? 'Edit Due Diligence' : 'Add Due Diligence'}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{editingRecord ? 'Edit Due Diligence' : 'Add Due Diligence'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Third Party Name</label>
-                  <input type="text" value={form.thirdPartyName} onChange={(e) => setForm({ ...form, thirdPartyName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select value={form.thirdPartyType} onChange={(e) => setForm({ ...form, thirdPartyType: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {thirdPartyTypeOptions.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                    <input type="text" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Third Party Name <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={form.thirdPartyName}
+                    onChange={(e) => setForm({ ...form, thirdPartyName: e.target.value })}
+                    placeholder="e.g. Acme Suppliers Ltd."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                      {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Risk Level</label>
                     <select value={form.riskLevel} onChange={(e) => setForm({ ...form, riskLevel: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {riskLevelOptions.map((r) => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
+                      {riskLevelOptions.map((r) => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </div>
                   <div>
@@ -255,24 +315,38 @@ export default function DueDiligencePage() {
                       {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Assessor</label>
-                    <input type="text" value={form.assessor} onChange={(e) => setForm({ ...form, assessor: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Findings</label>
-                  <textarea value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={3} />
+                  <textarea
+                    value={form.findings}
+                    onChange={(e) => setForm({ ...form, findings: e.target.value })}
+                    placeholder="Summary of due diligence findings..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    rows={3}
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Recommendation</label>
-                  <textarea value={form.recommendation} onChange={(e) => setForm({ ...form, recommendation: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={2} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Reviewer</label>
+                    <input
+                      type="text"
+                      value={form.reviewer}
+                      onChange={(e) => setForm({ ...form, reviewer: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <input
+                      type="text"
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Next Review Date</label>
-                  <input type="date" value={form.nextReviewDate} onChange={(e) => setForm({ ...form, nextReviewDate: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-                </div>
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingRecord ? 'Update' : 'Create'}

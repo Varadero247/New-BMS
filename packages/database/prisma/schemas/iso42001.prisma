@@ -432,3 +432,64 @@ model AiHumanReview {
   @@index([reviewerUserId])
   @@index([expiresAt])
 }
+
+// ============================================
+// AI SYSTEM MONITORING (ISO 42001 §9.1)
+// ============================================
+
+enum AiMonitoringStatus {
+  NORMAL
+  WARNING
+  ALERT
+  CRITICAL
+  RESOLVED
+}
+
+enum AiMonitoringMetricType {
+  PERFORMANCE
+  ACCURACY
+  BIAS
+  DRIFT
+  AVAILABILITY
+  LATENCY
+  ERROR_RATE
+  USAGE
+  SAFETY
+  COMPLIANCE
+  OTHER
+}
+
+model AiMonitoring {
+  id              String                 @id @default(cuid())
+  systemId        String
+  metricType      AiMonitoringMetricType @default(PERFORMANCE)
+  metricName      String
+  description     String?
+  value           Float?
+  unit            String?
+  threshold       Float?
+  thresholdType   String?
+  status          AiMonitoringStatus     @default(NORMAL)
+  isoClause       String?
+  measuredBy      String?
+  measurementDate DateTime               @default(now())
+  notes           String?
+  alertSent       Boolean                @default(false)
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolutionNotes String?
+  metadata        Json?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  deletedAt       DateTime?
+
+  @@map("ai_monitoring")
+  @@index([organisationId, deletedAt])
+  @@index([systemId])
+  @@index([status])
+  @@index([metricType])
+  @@index([measurementDate])
+}

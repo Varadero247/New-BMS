@@ -1,5 +1,3 @@
-import EventsClient from './client';
+'use client';
 
-export default function EventsPage() {
-  return <EventsClient />;
-}
+export { default } from './client';

@@ -31,6 +31,7 @@ import giftsRouter from './routes/gifts';
 import trainingRouter from './routes/training';
 import riskAssessmentsRouter from './routes/risk-assessments';
 import investigationsRouter from './routes/investigations';
+import complianceRouter from './routes/compliance';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4024;
@@ -65,6 +66,7 @@ app.use('/api/gifts', giftsRouter);
 app.use('/api/training', trainingRouter);
 app.use('/api/risk-assessments', riskAssessmentsRouter);
 app.use('/api/investigations', investigationsRouter);
+app.use('/api/compliance', complianceRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

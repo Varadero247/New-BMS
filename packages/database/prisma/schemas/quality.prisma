@@ -2191,3 +2191,356 @@ model QualManagementReview {
   @@index([status])
   @@index([meetingDate])
 }
+
+// ============================================
+// AUDITS (ISO 9001 §9.2)
+// ============================================
+
+enum QualAuditType {
+  INTERNAL
+  EXTERNAL
+  SUPPLIER
+  REGULATORY
+  CERTIFICATION
+  SURVEILLANCE
+}
+
+enum QualAuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model QualAudit {
+  id              String          @id @default(cuid())
+  referenceNumber String          @unique
+  title           String
+  auditType       QualAuditType   @default(INTERNAL)
+  scope           String
+  isoClause       String?
+  department      String?
+  leadAuditor     String
+  auditTeam       String?
+  auditee         String?
+  scheduledDate   DateTime?
+  dueDate         DateTime?
+  completedDate   DateTime?
+  nextAuditDate   DateTime?
+  objectives      String?
+  criteria        String?
+  findings        String?
+  conclusions     String?
+  status          QualAuditStatus @default(PLANNED)
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_audits")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([scheduledDate])
+}
+
+// ============================================
+// TRAINING RECORDS (ISO 9001 §7.2)
+// ============================================
+
+enum QualTrainingStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  OVERDUE
+  CANCELLED
+}
+
+enum QualTrainingType {
+  INDUCTION
+  ROLE_SPECIFIC
+  QUALITY_AWARENESS
+  PROCESS_TRAINING
+  AUDIT_TRAINING
+  REFRESHER
+  REGULATORY
+  OTHER
+}
+
+model QualTraining {
+  id              String             @id @default(cuid())
+  referenceNumber String             @unique
+  employeeId      String
+  employeeName    String
+  department      String?
+  position        String?
+  courseName      String
+  trainingType    QualTrainingType   @default(ROLE_SPECIFIC)
+  status          QualTrainingStatus @default(ASSIGNED)
+  assignedDate    DateTime
+  dueDate         DateTime
+  completedDate   DateTime?
+  deliveryMethod  String?
+  provider        String?
+  duration        Int?
+  passMark        Int?
+  score           Int?
+  passed          Boolean?
+  certificate     String?
+  feedback        String?
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_training")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([dueDate])
+  @@index([employeeId])
+}
+
+// ============================================
+// METRICS / KPIs (ISO 9001 §9.1)
+// ============================================
+
+enum QualMetricCategory {
+  CUSTOMER_SATISFACTION
+  PRODUCT_QUALITY
+  PROCESS_PERFORMANCE
+  SUPPLIER_PERFORMANCE
+  AUDIT_RESULTS
+  NONCONFORMANCE
+  DELIVERY
+  SAFETY
+  FINANCIAL
+  OTHER
+}
+
+enum QualMetricStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  NOT_MEASURED
+}
+
+model QualMetric {
+  id              String             @id @default(cuid())
+  referenceNumber String             @unique
+  name            String
+  description     String?
+  category        QualMetricCategory @default(OTHER)
+  unit            String?
+  targetValue     Decimal?           @db.Decimal(14, 4)
+  actualValue     Decimal?           @db.Decimal(14, 4)
+  lowerLimit      Decimal?           @db.Decimal(14, 4)
+  upperLimit      Decimal?           @db.Decimal(14, 4)
+  frequency       String?
+  owner           String?
+  isoClause       String?
+  period          String?
+  measurementDate DateTime?
+  status          QualMetricStatus   @default(NOT_MEASURED)
+  trend           String?
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_metrics")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([category])
+}
+
+// ============================================
+// INVESTIGATIONS (ISO 9001 §10.2)
+// ============================================
+
+enum QualInvestigationStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_REVIEW
+  CLOSED
+  CANCELLED
+}
+
+enum QualInvestigationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model QualInvestigation {
+  id              String                    @id @default(cuid())
+  referenceNumber String                    @unique
+  title           String
+  description     String
+  source          String?
+  relatedId       String?
+  relatedType     String?
+  severity        QualInvestigationSeverity @default(MEDIUM)
+  status          QualInvestigationStatus   @default(OPEN)
+  assignedTo      String?
+  dueDate         DateTime?
+  completedDate   DateTime?
+
+  // Analysis
+  immediateCause  String?
+  rootCause       String?
+  contributingFactors String?
+  methodology     String?
+  findings        String?
+  recommendations String?
+  correctiveActions String?
+
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_investigations")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([severity])
+}
+
+// ============================================
+// CONTINUOUS IMPROVEMENT (ISO 9001 §10.3)
+// ============================================
+
+enum QualCIStatus {
+  IDEA
+  UNDER_REVIEW
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  ON_HOLD
+}
+
+enum QualCIPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model QualContinuousImprovement {
+  id              String         @id @default(cuid())
+  referenceNumber String         @unique
+  title           String
+  description     String
+  source          String?
+  category        String?
+  priority        QualCIPriority @default(MEDIUM)
+  status          QualCIStatus   @default(IDEA)
+  submittedBy     String?
+  department      String?
+  assignedTo      String?
+  targetDate      DateTime?
+  completedDate   DateTime?
+  isoClause       String?
+
+  // Impact
+  expectedBenefit String?
+  estimatedCost   Decimal?       @db.Decimal(14, 2)
+  estimatedSaving Decimal?       @db.Decimal(14, 2)
+  actualSaving    Decimal?       @db.Decimal(14, 2)
+
+  // Review
+  reviewNotes     String?
+  approvedBy      String?
+  approvedDate    DateTime?
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_continuous_improvements")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([priority])
+}
+
+// ============================================
+// RISK REGISTER (ISO 9001 §6.1)
+// ============================================
+
+enum QualRiskRegisterStatus {
+  OPEN
+  UNDER_REVIEW
+  MITIGATED
+  ACCEPTED
+  CLOSED
+  TRANSFERRED
+}
+
+enum QualRiskLikelihood {
+  RARE
+  UNLIKELY
+  POSSIBLE
+  LIKELY
+  ALMOST_CERTAIN
+}
+
+enum QualRiskImpact {
+  NEGLIGIBLE
+  MINOR
+  MODERATE
+  MAJOR
+  CATASTROPHIC
+}
+
+model QualRiskRegister {
+  id              String                 @id @default(cuid())
+  referenceNumber String                 @unique
+  title           String
+  description     String
+  category        String?
+  source          String?
+  isoClause       String?
+  department      String?
+  owner           String?
+  likelihood      QualRiskLikelihood     @default(POSSIBLE)
+  impact          QualRiskImpact         @default(MODERATE)
+  riskScore       Int                    @default(0)
+  residualLikelihood QualRiskLikelihood?
+  residualImpact  QualRiskImpact?
+  residualScore   Int?
+  status          QualRiskRegisterStatus @default(OPEN)
+  treatmentStrategy String?
+  controls        String?
+  mitigationActions String?
+  reviewDate      DateTime?
+  lastReviewDate  DateTime?
+  nextReviewDate  DateTime?
+  notes           String?
+
+  organisationId  String
+  createdBy       String
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  deletedAt       DateTime?
+
+  @@map("qual_risk_register")
+  @@index([organisationId, deletedAt])
+  @@index([status])
+  @@index([riskScore])
+}
