@@ -1,0 +1,462 @@
+// Platform Schema — Cross-cutting platform features
+// Feature flags, activity logs, comments, tasks, webhooks, etc.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/platform"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PLATFORM_DATABASE_URL")
+}
+
+// ============================================
+// FEATURE FLAGS
+// ============================================
+
+model FeatureFlag {
+  id           String             @id @default(cuid())
+  name         String             @unique
+  description  String
+  enabled      Boolean            @default(false)
+  orgOverrides OrgFeatureFlag[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([name])
+  @@map("feature_flags")
+}
+
+model OrgFeatureFlag {
+  id       String      @id @default(cuid())
+  orgId    String
+  flagName String
+  enabled  Boolean
+  flag     FeatureFlag @relation(fields: [flagName], references: [name], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([orgId, flagName])
+  @@index([orgId])
+  @@map("org_feature_flags")
+}
+
+// ============================================
+// ACTIVITY TIMELINE
+// ============================================
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  orgId      String
+  recordType String
+  recordId   String
+  userId     String
+  userName   String
+  userAvatar String?
+  action     String   // created | updated | status_changed | commented | assigned | attachment_added | ai_analysis_run | review_completed | deleted
+  field      String?
+  oldValue   String?
+  newValue   String?
+  comment    String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([recordType, recordId, createdAt])
+  @@index([orgId, createdAt])
+  @@index([userId, createdAt])
+  @@map("activity_logs")
+}
+
+// ============================================
+// THREADED COMMENTS
+// ============================================
+
+model Comment {
+  id           String            @id @default(cuid())
+  orgId        String
+  recordType   String
+  recordId     String
+  parentId     String?
+  parent       Comment?          @relation("CommentReplies", fields: [parentId], references: [id])
+  replies      Comment[]         @relation("CommentReplies")
+  authorId     String
+  authorName   String
+  authorAvatar String?
+  body         Json
+  bodyText     String
+  mentions     String[]
+  attachments  String[]
+  reactions    CommentReaction[]
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([recordType, recordId, createdAt])
+  @@index([orgId])
+  @@map("comments")
+}
+
+model CommentReaction {
+  id        String  @id @default(cuid())
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+
+  @@unique([commentId, userId, emoji])
+  @@map("comment_reactions")
+}
+
+// ============================================
+// TASKS
+// ============================================
+
+model Task {
+  id           String    @id @default(cuid())
+  orgId        String
+  refNumber    String    @unique
+  title        String
+  description  String?
+  recordType   String?
+  recordId     String?
+  assigneeId   String
+  assigneeName String
+  createdById  String
+  priority     String    @default("MEDIUM") // HIGH | MEDIUM | LOW
+  dueDate      DateTime?
+  completedAt  DateTime?
+  status       String    @default("OPEN") // OPEN | IN_PROGRESS | COMPLETE | CANCELLED
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([orgId, assigneeId, status])
+  @@index([orgId, recordType, recordId])
+  @@map("tasks")
+}
+
+// ============================================
+// WEBHOOKS
+// ============================================
+
+model WebhookEndpoint {
+  id              String            @id @default(cuid())
+  orgId           String
+  name            String
+  url             String
+  secret          String
+  events          String[]
+  enabled         Boolean           @default(true)
+  headers         Json?
+  lastTriggeredAt DateTime?
+  failureCount    Int               @default(0)
+  deliveries      WebhookDelivery[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([orgId, enabled])
+  @@map("webhook_endpoints")
+}
+
+model WebhookDelivery {
+  id           String           @id @default(cuid())
+  endpointId   String
+  endpoint     WebhookEndpoint  @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  event        String
+  payload      Json
+  responseCode Int?
+  responseBody String?
+  durationMs   Int?
+  status       String           @default("PENDING") // PENDING | SUCCESS | FAILED | RETRYING
+  attempts     Int              @default(0)
+  nextRetryAt  DateTime?
+  createdAt    DateTime         @default(now())
+
+  @@index([endpointId, createdAt])
+  @@map("webhook_deliveries")
+}
+
+// ============================================
+// SCHEDULED REPORTS
+// ============================================
+
+model ScheduledReport {
+  id          String    @id @default(cuid())
+  orgId       String
+  name        String
+  reportType  String
+  frequency   String    // DAILY | WEEKLY | MONTHLY
+  dayOfWeek   Int?      // 0-6 (for weekly)
+  dayOfMonth  Int?      // 1-28 (for monthly)
+  timeHour    Int       @default(8)
+  recipients  String[]
+  format      String    @default("PDF") // PDF | EXCEL | CSV
+  lastRunAt   DateTime?
+  nextRunAt   DateTime
+  createdById String
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([orgId, enabled])
+  @@index([nextRunAt, enabled])
+  @@map("scheduled_reports")
+}
+
+// ============================================
+// NPS SURVEY
+// ============================================
+
+model NpsSurvey {
+  id          String   @id @default(cuid())
+  orgId       String
+  userId      String
+  score       Int      // 0-10
+  comment     String?
+  category    String?  // detractor | passive | promoter
+  respondedAt DateTime @default(now())
+
+  @@index([orgId, respondedAt])
+  @@map("nps_surveys")
+}
+
+// ============================================
+// CHANGELOG
+// ============================================
+
+model ChangelogEntry {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   // new_feature | improvement | bug_fix | security
+  modules     String[]
+  publishedAt DateTime
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@index([isPublished, publishedAt])
+  @@map("changelog_entries")
+}
+
+model UserChangelogRead {
+  userId     String   @id
+  lastReadAt DateTime @default(now())
+
+  @@map("user_changelog_reads")
+}
+
+// ============================================
+// DSAR (Data Subject Access Requests)
+// ============================================
+
+model DataSubjectRequest {
+  id             String    @id @default(cuid())
+  orgId          String
+  type           String    // EXPORT | ERASURE
+  subjectEmail   String
+  subjectName    String?
+  reason         String
+  requestedById  String
+  status         String    @default("PENDING") // PENDING | IN_PROGRESS | COMPLETE | FAILED
+  completedAt    DateTime?
+  downloadUrl    String?
+  downloadExpiry DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([orgId, status])
+  @@map("data_subject_requests")
+}
+
+// ============================================
+// DPA (Data Processing Agreement)
+// ============================================
+
+model DataProcessingAgreement {
+  id            String          @id @default(cuid())
+  version       String
+  title         String
+  effectiveDate DateTime
+  content       String
+  isActive      Boolean         @default(true)
+  acceptances   DpaAcceptance[]
+  createdAt     DateTime        @default(now())
+
+  @@map("data_processing_agreements")
+}
+
+model DpaAcceptance {
+  id          String                  @id @default(cuid())
+  orgId       String
+  dpaId       String
+  dpa         DataProcessingAgreement @relation(fields: [dpaId], references: [id])
+  signedById  String
+  signerName  String
+  signerTitle String
+  signedAt    DateTime                @default(now())
+  ipAddress   String?
+  signature   String?
+
+  @@unique([orgId, dpaId])
+  @@map("dpa_acceptances")
+}
+
+// ============================================
+// IP ALLOWLIST
+// ============================================
+
+model IpAllowlist {
+  id          String   @id @default(cuid())
+  orgId       String
+  cidr        String
+  label       String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orgId])
+  @@map("ip_allowlist")
+}
+
+// ============================================
+// CERTIFICATION LIFECYCLE
+// ============================================
+
+model IsoCertificate {
+  id                    String    @id @default(cuid())
+  orgId                 String
+  standard              String
+  scope                 String
+  certificationBody     String
+  certificateNumber     String
+  issueDate             DateTime
+  expiryDate            DateTime
+  lastSurveillanceDate  DateTime?
+  nextSurveillanceDate  DateTime?
+  recertificationDate   DateTime
+  certificateDocId      String?
+  status                String    @default("ACTIVE") // ACTIVE | SUSPENDED | WITHDRAWN | EXPIRED | IN_RENEWAL
+  notes                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([orgId, standard])
+  @@map("iso_certificates")
+}
+
+// ============================================
+// TRIAL & PLAN GUARD
+// ============================================
+
+model OrgTrial {
+  id          String    @id @default(cuid())
+  orgId       String    @unique
+  startsAt    DateTime  @default(now())
+  endsAt      DateTime
+  plan        String    @default("PROFESSIONAL")
+  convertedAt DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("org_trials")
+}
+
+// ============================================
+// SSO / SAML
+// ============================================
+
+model SamlConfig {
+  id                 String  @id @default(cuid())
+  orgId              String  @unique
+  entryPoint         String
+  issuer             String
+  cert               String
+  signatureAlgorithm String  @default("sha256")
+  enabled            Boolean @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("saml_configs")
+}
+
+// ============================================
+// DIGITAL SIGNATURES
+// ============================================
+
+model Signature {
+  id           String   @id @default(cuid())
+  recordType   String
+  recordId     String
+  purpose      String   // approval | sign_off | acknowledgement | calibration
+  signedById   String
+  signedByName String
+  signedAt     DateTime @default(now())
+  imageUrl     String
+  ipAddress    String?
+
+  @@index([recordType, recordId])
+  @@map("signatures")
+}
+
+// ============================================
+// AUTOMATION RULES
+// ============================================
+
+model AutomationRule {
+  id          String   @id @default(cuid())
+  orgId       String
+  name        String
+  description String
+  trigger     Json
+  conditions  Json
+  actions     Json
+  enabled     Boolean  @default(false)
+  isBuiltIn   Boolean  @default(false)
+  lastRunAt   DateTime?
+  runCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orgId, enabled])
+  @@map("automation_rules")
+}
+
+// ============================================
+// PLATFORM STATUS
+// ============================================
+
+model StatusCheck {
+  id         String   @id @default(cuid())
+  service    String
+  status     String   // operational | degraded | outage
+  latencyMs  Int
+  checkedAt  DateTime @default(now())
+
+  @@index([service, checkedAt])
+  @@map("status_checks")
+}
+
+// ============================================
+// RECORD PRESENCE / LOCKING
+// ============================================
+
+model PresenceSession {
+  id         String   @id @default(cuid())
+  recordType String
+  recordId   String
+  userId     String
+  userName   String
+  userAvatar String?
+  lockedAt   DateTime @default(now())
+  expiresAt  DateTime
+
+  @@unique([recordType, recordId, userId])
+  @@index([recordType, recordId])
+  @@index([expiresAt])
+  @@map("presence_sessions")
+}

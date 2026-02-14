@@ -34,6 +34,10 @@ import exportsRouter from './routes/exports';
 import queriesRouter from './routes/queries';
 import schedulesRouter from './routes/schedules';
 import benchmarksRouter from './routes/benchmarks';
+import executiveRouter from './routes/executive';
+import unifiedRisksRouter from './routes/unified-risks';
+import predictionsRouter from './routes/predictions';
+import anomaliesRouter from './routes/anomalies';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4021;
@@ -61,7 +65,11 @@ app.get('/ready', async (_req, res) => {
 });
 app.get('/metrics', metricsHandler);
 
-// API Routes
+// API Routes — named routes before parameterised routes
+app.use('/api/executive-summary', executiveRouter);
+app.use('/api/unified-risks', unifiedRisksRouter);
+app.use('/api/predictions', predictionsRouter);
+app.use('/api/anomalies', anomaliesRouter);
 app.use('/api/dashboards', dashboardsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/datasets', datasetsRouter);

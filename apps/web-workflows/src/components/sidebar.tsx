@@ -15,6 +15,7 @@ import {
   LayoutTemplate,
   BarChart3,
   Settings,
+  BookOpen,
 } from 'lucide-react';
 
 const navigation = [
@@ -33,6 +34,7 @@ const navigation = [
   { name: 'Approvals', href: '/approvals', icon: Users },
   { name: 'Automation', href: '/automation', icon: Zap },
   { name: 'Automation Rules', href: '/automations', icon: Zap },
+  { name: 'Rules Library', href: '/rules', icon: BookOpen },
 
   // Analytics
   { name: 'Reports', href: '/reports', icon: BarChart3 },

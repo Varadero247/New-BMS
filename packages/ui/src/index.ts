@@ -148,3 +148,49 @@ export { SeverityChip, StatusChip, ISOStatusChip } from './chips';
 
 // Theme Toggle
 export { ThemeToggle, type ThemeToggleProps } from './theme-toggle';
+
+// Record Presence
+export { RecordPresence, type RecordPresenceProps } from './record-presence';
+
+// Activity Feed
+export { ActivityFeed, ActivityFeedInline, type ActivityFeedProps, type ActivityFeedInlineProps, type ActivityEntry, type ActivityAction as ActivityActionType } from './activity-feed';
+
+// Comment Thread
+export { CommentThread, type CommentThreadProps } from './comment-thread';
+
+// Quick Add Task
+export { QuickAddTask, type QuickAddTaskProps } from './quick-add-task';
+
+// Photo Capture
+export { PhotoCapture, type PhotoCaptureProps } from './photo-capture';
+
+// QR Code
+export { QRCodeDisplay, QRScanner, type QRCodeDisplayProps, type QRScannerProps } from './qr-code';
+
+// Bulk Import Wizard
+export { BulkImportWizard, type BulkImportWizardProps } from './csv-import';
+
+// Digital Signature
+export { SignatureCapture, type SignatureCaptureProps, type SignatureData } from './signature-capture';
+
+// GPS Location
+export { useGeoLocation, type GeoLocation, type UseGeoLocationResult } from './use-geo-location';
+export { LocationDisplay, type LocationDisplayProps } from './location-display';
+
+// Offline Inspection Form
+export { OfflineInspectionForm, type OfflineInspectionFormProps, type InspectionQuestion, type InspectionSection } from './offline-form';
+
+// Tour Manager (Guided Tours)
+export { TourManager, TourStep, useTour, TOURS, type TourManagerProps, type TourStepProps, type TourStepConfig, type TourConfig } from './tour-manager';
+
+// Help Tooltip
+export { HelpTooltip, type HelpTooltipProps } from './help-tooltip';
+
+// Changelog Bell
+export { ChangelogBell, type ChangelogBellProps, type ChangelogEntry as ChangelogEntryUI } from './changelog-bell';
+
+// NPS Survey
+export { NpsSurvey, type NpsSurveyProps } from './nps-survey';
+
+// Cookie Consent
+export { CookieConsent, type CookieConsentProps, type CookieChoices } from './cookie-consent';

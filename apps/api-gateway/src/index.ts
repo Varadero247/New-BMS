@@ -27,9 +27,31 @@ import mspRoutes from './routes/msp';
 import notificationsRoutes from './routes/notifications';
 import complianceRoutes from './routes/compliance';
 import rolesRouter from './routes/roles';
+import activityRoutes from './routes/activity';
+import presenceRouter from './routes/presence';
+import featureFlagsRouter from './routes/feature-flags';
+import commentsRoutes from './routes/comments';
+import tasksRoutes from './routes/tasks';
+import apiKeysRouter from './routes/api-keys';
+import certificationsRouter from './routes/certifications';
+import ipAllowlistRouter from './routes/ip-allowlist';
+import samlRouter from './routes/saml';
+import scimRouter from './routes/scim';
+import changelogRoutes from './routes/changelog';
+import npsRoutes from './routes/nps';
+import automationRulesRouter from './routes/automation-rules';
+import webhooksRouter from './routes/webhooks';
+import statusRouter from './routes/status';
+import importRouter from './routes/import';
+import openapiRouter from './routes/openapi';
+import scheduledReportsRouter from './routes/scheduled-reports';
+import dsarRouter from './routes/dsar';
+import dpaRouter from './routes/dpa';
 import { errorHandler } from './middleware/error-handler';
+import { apiKeyAuth } from './middleware/apiKeyAuth';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter, strictApiLimiter } from './middleware/rate-limiter';
+import { orgRateLimit, stopOrgRateLimitCleanup } from './middleware/org-rate-limit';
 import { csrfProtection, generateCsrfToken } from './middleware/csrf';
 import { createSecurityMiddleware } from './middleware/security-headers';
 import { addVersionHeader, deprecatedRoute } from './middleware/api-version';
@@ -162,6 +184,12 @@ app.use((req, res, next) => {
 // Rate limiting (using Redis-backed limiter)
 app.use('/api', apiLimiter);
 
+// Per-organisation sliding window rate limit (in-memory, plan-tier aware)
+app.use('/api', orgRateLimit());
+
+// API Key authentication — checks for rxk_ tokens before JWT auth handles other tokens
+app.use('/api', apiKeyAuth);
+
 // CSRF protection (enabled by default, can be disabled with CSRF_ENABLED=false)
 if (process.env.CSRF_ENABLED !== 'false') {
   app.use('/api', csrfProtection());
@@ -229,6 +257,45 @@ app.use('/api/compliance', complianceRoutes);
 app.use('/api/v1/compliance', addVersionHeader('v1'), complianceRoutes);
 app.use('/api/roles', rolesRouter);
 app.use('/api/access-log', rolesRouter);
+app.use('/api', featureFlagsRouter);
+app.use('/api/v1', addVersionHeader('v1'), featureFlagsRouter);
+app.use('/api/presence', presenceRouter);
+app.use('/api/v1/presence', addVersionHeader('v1'), presenceRouter);
+app.use('/api/activity', activityRoutes);
+app.use('/api/v1/activity', addVersionHeader('v1'), activityRoutes);
+app.use('/api/comments', commentsRoutes);
+app.use('/api/v1/comments', addVersionHeader('v1'), commentsRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/v1/tasks', addVersionHeader('v1'), tasksRoutes);
+app.use('/api/admin/api-keys', apiKeysRouter);
+app.use('/api/v1/admin/api-keys', addVersionHeader('v1'), apiKeysRouter);
+app.use('/api/admin/certifications', certificationsRouter);
+app.use('/api/v1/admin/certifications', addVersionHeader('v1'), certificationsRouter);
+app.use('/api/admin/ip-allowlist', ipAllowlistRouter);
+app.use('/api/v1/admin/ip-allowlist', addVersionHeader('v1'), ipAllowlistRouter);
+app.use('/api/admin/automation-rules', automationRulesRouter);
+app.use('/api/v1/admin/automation-rules', addVersionHeader('v1'), automationRulesRouter);
+app.use('/api/admin/webhooks', webhooksRouter);
+app.use('/api/v1/admin/webhooks', addVersionHeader('v1'), webhooksRouter);
+app.use('/api/health/status', statusRouter);
+app.use('/api/v1/health/status', addVersionHeader('v1'), statusRouter);
+app.use('/api/changelog', changelogRoutes);
+app.use('/api/v1/changelog', addVersionHeader('v1'), changelogRoutes);
+app.use('/api/nps', npsRoutes);
+app.use('/api/v1/nps', addVersionHeader('v1'), npsRoutes);
+app.use('/api', samlRouter);
+app.use('/api/v1', addVersionHeader('v1'), samlRouter);
+app.use('/scim/v2', scimRouter);
+app.use('/api/admin/import', importRouter);
+app.use('/api/v1/admin/import', addVersionHeader('v1'), importRouter);
+app.use('/api/docs', openapiRouter);
+app.use('/api/v1/docs', addVersionHeader('v1'), openapiRouter);
+app.use('/api/admin/reports', scheduledReportsRouter);
+app.use('/api/v1/admin/reports', addVersionHeader('v1'), scheduledReportsRouter);
+app.use('/api/admin/privacy/dsar', dsarRouter);
+app.use('/api/v1/admin/privacy/dsar', addVersionHeader('v1'), dsarRouter);
+app.use('/api/admin/dpa', dpaRouter);
+app.use('/api/v1/admin/dpa', addVersionHeader('v1'), dpaRouter);
 
 // ============================================
 // API v1 Proxy Routes (current version)
@@ -364,12 +431,14 @@ app.listen(PORT, () => {
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
   sessionCleanupJob.stop();
+  stopOrgRateLimitCleanup();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
   sessionCleanupJob.stop();
+  stopOrgRateLimitCleanup();
   process.exit(0);
 });
 

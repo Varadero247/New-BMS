@@ -39,8 +39,14 @@
     "rate-limit-redis": "^4.2.0",
     "uuid": "^9.0.0",
     "zod": "^3.22.0",
+    "@ims/activity": "workspace:*",
     "@ims/notifications": "workspace:*",
-    "@ims/validation": "workspace:*"
+    "@ims/validation": "workspace:*",
+    "@ims/csv-import": "workspace:*",
+    "@ims/openapi": "workspace:*",
+    "@ims/scheduled-reports": "workspace:*",
+    "@ims/dsar": "workspace:*",
+    "@ims/dpa": "workspace:*"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

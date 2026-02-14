@@ -190,5 +190,43 @@ export function traceMiddleware() {
   };
 }
 
+/**
+ * Wrap a function in a tracing span. If tracing is not configured,
+ * the function is called directly without any overhead.
+ *
+ * ```ts
+ * const result = await withSpan('processOrder', async () => {
+ *   return await orderService.process(orderId);
+ * });
+ * ```
+ */
+export async function withSpan<T>(name: string, fn: () => T | Promise<T>): Promise<T> {
+  const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+  const isEnabled =
+    !!endpoint ||
+    process.env.OTEL_TRACING_ENABLED === 'true';
+
+  if (!isEnabled) {
+    return fn();
+  }
+
+  const tracer = getTracer();
+  return tracer.startActiveSpan(name, async (span) => {
+    try {
+      const result = await fn();
+      span.setStatus({ code: SpanStatusCode.OK });
+      return result;
+    } catch (error) {
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+}
+
 // Re-export OpenTelemetry types for convenience
 export { SpanKind, SpanStatusCode } from '@opentelemetry/api';
