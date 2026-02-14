@@ -97,7 +97,7 @@ export default function EnvironmentalDashboard() {
               <ComplianceGauge
                 value={stats?.compliance || 0}
                 label="ISO 14001"
-                color="#22c55e"
+                color="#10B981"
                 size="md"
               />
             </CardContent>

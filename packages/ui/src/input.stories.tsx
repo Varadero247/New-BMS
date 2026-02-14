@@ -47,7 +47,7 @@ export const WithError: Story = {
         defaultValue="not-an-email"
         className="border-red-500 focus-visible:ring-red-500"
       />
-      <p style={{ fontSize: '0.75rem', color: '#ef4444' }}>Please enter a valid email address.</p>
+      <p style={{ fontSize: '0.75rem', color: '#DC2626' }}>Please enter a valid email address.</p>
     </div>
   ),
 };

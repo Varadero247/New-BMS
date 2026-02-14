@@ -80,7 +80,7 @@ export const MetricCard: Story = {
         <CardTitle style={{ fontSize: '2rem' }}>42</CardTitle>
       </CardHeader>
       <CardContent>
-        <p style={{ fontSize: '0.75rem', color: '#22c55e' }}>+12% from last month</p>
+        <p style={{ fontSize: '0.75rem', color: '#10B981' }}>+12% from last month</p>
       </CardContent>
     </Card>
   ),
@@ -98,7 +98,7 @@ export const FullExample: Story = {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>{status}</p>
+            <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{status}</p>
           </CardContent>
         </Card>
       ))}

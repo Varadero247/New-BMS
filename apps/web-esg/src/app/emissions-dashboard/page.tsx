@@ -26,9 +26,9 @@ const MONTHLY_DATA: EmissionRecord[] = [
 ];
 
 const SCOPE_COLORS = {
-  scope1: { fill: '#ef4444', label: 'Scope 1 (Direct)', description: 'Owned/controlled sources: fleet vehicles, boilers, fugitive emissions' },
-  scope2: { fill: '#f59e0b', label: 'Scope 2 (Indirect)', description: 'Purchased electricity, steam, heating, cooling' },
-  scope3: { fill: '#6366f1', label: 'Scope 3 (Value Chain)', description: 'Business travel, commuting, waste, purchased goods, logistics' },
+  scope1: { fill: '#DC2626', label: 'Scope 1 (Direct)', description: 'Owned/controlled sources: fleet vehicles, boilers, fugitive emissions' },
+  scope2: { fill: '#F59E0B', label: 'Scope 2 (Indirect)', description: 'Purchased electricity, steam, heating, cooling' },
+  scope3: { fill: '#6366F1', label: 'Scope 3 (Value Chain)', description: 'Business travel, commuting, waste, purchased goods, logistics' },
 };
 
 const INTENSITY_METRICS = [
@@ -216,7 +216,7 @@ export default function EmissionsDashboardPage() {
                         className="h-full rounded-full"
                         style={{
                           width: `${item.pct}%`,
-                          backgroundColor: item.scope === 'Scope 1' ? '#ef4444' : item.scope === 'Scope 2' ? '#f59e0b' : '#6366f1'
+                          backgroundColor: item.scope === 'Scope 1' ? '#DC2626' : item.scope === 'Scope 2' ? '#F59E0B' : '#6366F1'
                         }}
                       />
                     </div>

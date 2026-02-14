@@ -21,18 +21,18 @@ function PageHeader({ title, subtitle, breadcrumbs, actions, badge }: PageHeader
   return (
     <div
       style={{
-        borderBottom: '1px solid #e5e7eb',
+        borderBottom: '1px solid #E5E7EB',
         paddingBottom: '16px',
         marginBottom: '24px',
       }}
     >
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav style={{ display: 'flex', gap: '6px', fontSize: '0.8rem', color: '#9ca3af', marginBottom: '8px' }}>
+        <nav style={{ display: 'flex', gap: '6px', fontSize: '0.8rem', color: '#9CA3AF', marginBottom: '8px' }}>
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
               {idx > 0 && <span>/</span>}
               {crumb.href ? (
-                <a href={crumb.href} style={{ color: '#6b7280', textDecoration: 'none' }}>
+                <a href={crumb.href} style={{ color: '#9CA3AF', textDecoration: 'none' }}>
                   {crumb.label}
                 </a>
               ) : (
@@ -49,7 +49,7 @@ function PageHeader({ title, subtitle, breadcrumbs, actions, badge }: PageHeader
               <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827', margin: 0 }}>{title}</h1>
               {badge && <Badge variant={badge.variant ?? 'default'}>{badge.label}</Badge>}
             </div>
-            {subtitle && <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>{subtitle}</p>}
+            {subtitle && <p style={{ fontSize: '0.875rem', color: '#9CA3AF', marginTop: '4px' }}>{subtitle}</p>}
           </div>
         </div>
         {actions && <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>{actions}</div>}

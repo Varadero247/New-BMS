@@ -152,11 +152,11 @@ const monthlyForecastData = [
 ];
 
 const stageColors = {
-  Lead: '#3b82f6',
-  Qualified: '#06b6d4',
-  Proposal: '#8b5cf6',
-  Negotiation: '#f59e0b',
-  Closing: '#10b981',
+  Lead: '#1E3A8A',
+  Qualified: '#0EA5E9',
+  Proposal: '#8B5CF6',
+  Negotiation: '#F59E0B',
+  Closing: '#10B981',
 };
 
 export default function ForecastClient() {

@@ -21,12 +21,12 @@ interface FishboneDiagramProps {
 }
 
 const defaultColors = [
-  '#3b82f6', // blue
-  '#10b981', // green
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#8b5cf6', // violet
-  '#ec4899', // pink
+  '#1E3A8A', // navy
+  '#10B981', // success
+  '#F59E0B', // warning
+  '#DC2626', // critical
+  '#8B5CF6', // violet
+  '#EC4899', // pink
 ];
 
 const defaultCategories = [

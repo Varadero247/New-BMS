@@ -6,95 +6,109 @@
 
 @layer base {
   :root {
-    /* Brand semantic tokens (HSL without function wrapper for Tailwind) */
-    --background: 0 0% 99%;
-    --foreground: 220 26% 14%;
+    /* Resolvex 2026 — Light mode */
+    --background: 210 40% 98%;       /* #F8FAFC */
+    --foreground: 222 47% 11%;       /* #0F172A */
 
     --card: 0 0% 100%;
-    --card-foreground: 220 26% 14%;
+    --card-foreground: 222 47% 11%;
 
-    --primary: 217 59% 26%;
+    --primary: 224 64% 33%;          /* #1E3A8A navy */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 214 60% 91%;
-    --secondary-foreground: 217 59% 26%;
+    --secondary: 160 84% 18%;        /* #065F46 sage */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 40% 96%;            /* #F1F5F9 */
+    --muted-foreground: 215 16% 47%; /* #64748B */
 
-    --accent: 42 51% 55%;
-    --accent-foreground: 220 26% 14%;
+    --accent: 160 84% 30%;           /* #059669 teal */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 51%;        /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 215 64% 48%;
+    --border: 214 32% 91%;           /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 224 64% 33%;             /* navy */
 
     --radius: 0.5rem;
 
     /* Sidebar */
-    --sidebar-bg: 217 59% 26%;
+    --sidebar-bg: 224 64% 33%;      /* navy */
     --sidebar-fg: 210 40% 98%;
-    --sidebar-accent: 217 42% 35%;
+    --sidebar-accent: 222 47% 11%;  /* navy-dark */
 
     /* Surface tokens */
-    --surface: 210 20% 98%;
+    --surface: 210 40% 98%;          /* #F8FAFC */
     --surface-card: 0 0% 100%;
-    --surface-nav: 216 60% 16%;
+    --surface-nav: 222 47% 11%;      /* #0F172A */
 
     /* Brand direct references */
-    --brand-600: #1B3A6B;
-    --brand-500: #2E6CC7;
-    --brand-100: #D6E4F7;
-    --brand-50: #EEF4FD;
-    --gold-500: #C8A951;
-    --gold-50: #FDFAF0;
-    --success: #1A6B35;
-    --success-bg: #E6F4EA;
-    --warning-color: #B06000;
-    --warning-bg: #FFF8E1;
-    --danger-color: #B22222;
-    --danger-bg: #FFF0F0;
+    --brand-600: #1E3A8A;
+    --brand-500: #2563EB;
+    --brand-100: #DBEAFE;
+    --brand-50: #EFF6FF;
+    --gold-500: #059669;
+    --gold-50: #D1FAE5;
+    --success: #10B981;
+    --success-bg: #ECFDF5;
+    --warning-color: #D97706;
+    --warning-bg: #FFFBEB;
+    --danger-color: #DC2626;
+    --danger-bg: #FEF2F2;
+
+    /* Semantic palette */
+    --color-primary: #1E3A8A;
+    --color-secondary: #065F46;
+    --color-secondary-mid: #047857;
+    --color-accent: #059669;
+    --color-accent-bright: #0EA5E9;
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-warning-deep: #D97706;
+    --color-critical: #DC2626;
+    --color-neutral: #9CA3AF;
 
     /* Transition */
     --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
+  .dark,
+  [data-theme="dark"] {
+    /* Resolvex 2026 — Dark mode (default) */
+    --background: 221 39% 11%;       /* #111827 */
+    --foreground: 213 31% 95%;       /* #F1F5F9 */
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 11%;             /* #0F172A */
+    --card-foreground: 213 31% 95%;
 
-    --primary: 213 64% 55%;
-    --primary-foreground: 224 71% 4%;
+    --primary: 222 47% 11%;          /* #0F172A navy-dark */
+    --primary-foreground: 213 31% 95%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 160 84% 18%;        /* #065F46 sage */
+    --secondary-foreground: 213 31% 95%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 217 33% 17%;            /* #1E293B */
+    --muted-foreground: 215 20% 65%; /* #94A3B8 */
 
-    --accent: 42 51% 55%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 160 84% 30%;           /* #059669 teal */
+    --accent-foreground: 213 31% 95%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 213 31% 95%;
 
-    --border: 217 33% 17%;
+    --border: 217 33% 17%;           /* #1E293B */
     --input: 217 33% 17%;
-    --ring: 213 64% 55%;
+    --ring: 160 84% 30%;             /* teal */
 
-    --sidebar-bg: 224 71% 4%;
-    --sidebar-fg: 210 40% 98%;
+    --sidebar-bg: 222 47% 11%;      /* navy-dark */
+    --sidebar-fg: 213 31% 95%;
     --sidebar-accent: 217 33% 17%;
 
-    --surface: 222 47% 5%;
+    --surface: 221 39% 11%;
     --surface-card: 222 47% 11%;
-    --surface-nav: 224 71% 4%;
+    --surface-nav: 222 47% 11%;
   }
 }
 

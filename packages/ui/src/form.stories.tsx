@@ -63,7 +63,7 @@ export const FormFieldWithHint: Story = {
 export const FormFieldWithError: Story = {
   render: () => (
     <FormField label="Email" required={true} error="Invalid email format">
-      <Input type="email" placeholder="john@example.com" style={{ borderColor: '#ef4444' }} />
+      <Input type="email" placeholder="john@example.com" style={{ borderColor: '#DC2626' }} />
     </FormField>
   ),
 };
@@ -159,7 +159,7 @@ export const CompleteForm: Story = {
               placeholder="you@example.com"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
-              style={errors.email ? { borderColor: '#ef4444' } : {}}
+              style={errors.email ? { borderColor: '#DC2626' } : {}}
             />
           </FormField>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -168,7 +168,7 @@ export const CompleteForm: Story = {
                 placeholder="John"
                 value={formData.firstName}
                 onChange={(e) => handleChange('firstName', e.target.value)}
-                style={errors.firstName ? { borderColor: '#ef4444' } : {}}
+                style={errors.firstName ? { borderColor: '#DC2626' } : {}}
               />
             </FormField>
             <FormField label="Last Name" required={true} error={errors.lastName}>
@@ -176,7 +176,7 @@ export const CompleteForm: Story = {
                 placeholder="Doe"
                 value={formData.lastName}
                 onChange={(e) => handleChange('lastName', e.target.value)}
-                style={errors.lastName ? { borderColor: '#ef4444' } : {}}
+                style={errors.lastName ? { borderColor: '#DC2626' } : {}}
               />
             </FormField>
           </div>
@@ -259,7 +259,7 @@ export const FormWithValidation: Story = {
           placeholder="your@email.com"
           value={email}
           onChange={(e) => handleEmailChange(e.target.value)}
-          style={emailError ? { borderColor: '#ef4444' } : {}}
+          style={emailError ? { borderColor: '#DC2626' } : {}}
         />
       </FormField>
     );

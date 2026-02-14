@@ -76,11 +76,11 @@ const statusColors: Record<string, string> = {
 };
 
 const dimensions = [
-  { key: 'accuracyScore', label: 'Accuracy', description: 'Risk of incorrect or unreliable outputs', color: '#6366f1' },
-  { key: 'biasScore', label: 'Bias', description: 'Risk of discriminatory or unfair outcomes', color: '#f59e0b' },
-  { key: 'privacyScore', label: 'Privacy', description: 'Risk to personal data and privacy rights', color: '#8b5cf6' },
-  { key: 'safetyScore', label: 'Safety', description: 'Risk to physical or psychological safety', color: '#ef4444' },
-  { key: 'autonomyScore', label: 'Autonomy', description: 'Risk to human autonomy and decision-making', color: '#06b6d4' },
+  { key: 'accuracyScore', label: 'Accuracy', description: 'Risk of incorrect or unreliable outputs', color: '#6366F1' },
+  { key: 'biasScore', label: 'Bias', description: 'Risk of discriminatory or unfair outcomes', color: '#F59E0B' },
+  { key: 'privacyScore', label: 'Privacy', description: 'Risk to personal data and privacy rights', color: '#8B5CF6' },
+  { key: 'safetyScore', label: 'Safety', description: 'Risk to physical or psychological safety', color: '#DC2626' },
+  { key: 'autonomyScore', label: 'Autonomy', description: 'Risk to human autonomy and decision-making', color: '#0EA5E9' },
 ] as const;
 
 type DimensionKey = typeof dimensions[number]['key'];

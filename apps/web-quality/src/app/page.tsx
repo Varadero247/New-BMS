@@ -99,7 +99,7 @@ export default function QualityDashboard() {
               <ComplianceGauge
                 value={stats?.compliance || 0}
                 label="ISO 9001"
-                color="#3b82f6"
+                color="#1E3A8A"
                 size="md"
               />
             </CardContent>

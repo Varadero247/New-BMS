@@ -58,13 +58,13 @@ interface ComplianceEvent {
 // Constants
 // ---------------------------------------------------------------------------
 const STANDARDS = [
-  { value: 'ISO_9001_CAL', label: 'ISO 9001', color: '#3b82f6' },
-  { value: 'ISO_14001_CAL', label: 'ISO 14001', color: '#22c55e' },
-  { value: 'ISO_45001_CAL', label: 'ISO 45001', color: '#f97316' },
-  { value: 'IATF_16949', label: 'IATF 16949', color: '#ef4444' },
-  { value: 'AS9100D', label: 'AS9100D', color: '#a855f7' },
-  { value: 'ISO_13485', label: 'ISO 13485', color: '#14b8a6' },
-  { value: 'COMBINED', label: 'Combined', color: '#6b7280' },
+  { value: 'ISO_9001_CAL', label: 'ISO 9001', color: '#1E3A8A' },
+  { value: 'ISO_14001_CAL', label: 'ISO 14001', color: '#10B981' },
+  { value: 'ISO_45001_CAL', label: 'ISO 45001', color: '#F97316' },
+  { value: 'IATF_16949', label: 'IATF 16949', color: '#DC2626' },
+  { value: 'AS9100D', label: 'AS9100D', color: '#8B5CF6' },
+  { value: 'ISO_13485', label: 'ISO 13485', color: '#059669' },
+  { value: 'COMBINED', label: 'Combined', color: '#9CA3AF' },
 ];
 
 const EVENT_TYPES = [

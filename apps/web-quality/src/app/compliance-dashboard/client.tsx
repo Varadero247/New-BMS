@@ -163,8 +163,8 @@ export default function ComplianceDashboardClient() {
           <CardContent className="p-6 flex flex-col items-center">
             <div className="relative h-32 w-32">
               <svg className="h-32 w-32 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e5e7eb" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#2563eb" strokeWidth="3"
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E5E7EB" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#1E3A8A" strokeWidth="3"
                   strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">

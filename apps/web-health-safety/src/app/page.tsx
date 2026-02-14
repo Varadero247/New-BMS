@@ -140,7 +140,7 @@ export default function HealthSafetyDashboard() {
               <ComplianceGauge
                 value={stats?.compliance || 0}
                 label="ISO 45001"
-                color="#ef4444"
+                color="#DC2626"
                 size="md"
               />
             </CardContent>

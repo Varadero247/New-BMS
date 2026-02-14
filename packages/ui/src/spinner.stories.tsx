@@ -7,7 +7,7 @@ interface SpinnerProps {
   label?: string;
 }
 
-function Spinner({ size = 'md', color = '#3b82f6', label = 'Loading...' }: SpinnerProps) {
+function Spinner({ size = 'md', color = '#1E3A8A', label = 'Loading...' }: SpinnerProps) {
   const sizeMap = { sm: 16, md: 32, lg: 48 };
   const px = sizeMap[size];
   return (
@@ -33,12 +33,12 @@ function Spinner({ size = 'md', color = '#3b82f6', label = 'Loading...' }: Spinn
         <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
         <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
       </svg>
-      {label && <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{label}</span>}
+      {label && <span style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>{label}</span>}
     </div>
   );
 }
 
-function DotsSpinner({ size = 'md', color = '#3b82f6' }: Omit<SpinnerProps, 'label'>) {
+function DotsSpinner({ size = 'md', color = '#1E3A8A' }: Omit<SpinnerProps, 'label'>) {
   const dotSize = size === 'sm' ? 6 : size === 'lg' ? 14 : 10;
   return (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -76,7 +76,7 @@ type Story = StoryObj<typeof Spinner>;
 export const Default: Story = {
   args: {
     size: 'md',
-    color: '#3b82f6',
+    color: '#1E3A8A',
     label: 'Loading...',
   },
 };
@@ -129,7 +129,7 @@ export const FullPage: Story = {
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
         <Spinner size="lg" label="" />
-        <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Loading content...</span>
+        <span style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>Loading content...</span>
       </div>
     </div>
   ),
@@ -144,7 +144,7 @@ export const InButton: Story = {
         alignItems: 'center',
         gap: '8px',
         padding: '8px 16px',
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#1E3A8A',
         color: '#fff',
         border: 'none',
         borderRadius: '6px',

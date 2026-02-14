@@ -204,13 +204,13 @@ export default function CertificationsPage() {
                           <path
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             fill="none"
-                            stroke="#e5e7eb"
+                            stroke="#E5E7EB"
                             strokeWidth="3"
                           />
                           <path
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             fill="none"
-                            stroke={cert.readinessScore.score >= 80 ? '#22c55e' : cert.readinessScore.score >= 60 ? '#f59e0b' : '#ef4444'}
+                            stroke={cert.readinessScore.score >= 80 ? '#10B981' : cert.readinessScore.score >= 60 ? '#F59E0B' : '#DC2626'}
                             strokeWidth="3"
                             strokeDasharray={`${cert.readinessScore.score}, 100`}
                           />

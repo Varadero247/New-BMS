@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 import { colors, fontFamily, fontSize, borderRadius, boxShadow } from './src/tokens';
 
 const preset: Partial<Config> = {
-  darkMode: 'class',
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
@@ -43,6 +43,14 @@ const preset: Partial<Config> = {
         warning: colors.warning,
         danger: colors.danger,
         info: colors.info,
+        // Named palette tokens
+        navy: colors.navy,
+        sage: colors.sage,
+        teal: colors.teal,
+        surface: colors.surface,
+        // Semantic aliases
+        critical: '#DC2626',
+        neutral: '#9CA3AF',
       },
       fontFamily,
       fontSize,

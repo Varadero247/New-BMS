@@ -374,7 +374,7 @@ function ScoreGauge({ score, max = 5 }: { score: number; max?: number }) {
   const dash = (pct / 100) * circ;
 
   const color =
-    score >= 4 ? '#22c55e' : score >= 3 ? '#f59e0b' : '#ef4444';
+    score >= 4 ? '#10B981' : score >= 3 ? '#F59E0B' : '#DC2626';
 
   return (
     <div className="relative flex flex-col items-center">

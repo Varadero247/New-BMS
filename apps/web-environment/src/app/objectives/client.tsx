@@ -589,7 +589,7 @@ export default function ObjectivesClient() {
                                 cy="32"
                                 r="28"
                                 fill="none"
-                                stroke="#e5e7eb"
+                                stroke="#E5E7EB"
                                 strokeWidth="6"
                               />
                               <circle
@@ -599,12 +599,12 @@ export default function ObjectivesClient() {
                                 fill="none"
                                 stroke={
                                   progress >= 100
-                                    ? '#16a34a'
+                                    ? '#059669'
                                     : progress >= 70
-                                    ? '#2563eb'
+                                    ? '#1E3A8A'
                                     : progress >= 40
-                                    ? '#eab308'
-                                    : '#ef4444'
+                                    ? '#F59E0B'
+                                    : '#DC2626'
                                 }
                                 strokeWidth="6"
                                 strokeLinecap="round"

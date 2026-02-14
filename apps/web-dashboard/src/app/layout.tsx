@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, Sora } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
-import { I18nProvider } from '@ims/i18n/src/provider';
+import { I18nProvider } from '@ims/i18n';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
 const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700'] });
@@ -18,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.removeAttribute('data-theme')}else{document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark')}}catch(e){}`,
           }}
         />
       </head>

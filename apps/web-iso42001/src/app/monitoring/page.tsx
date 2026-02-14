@@ -425,7 +425,7 @@ export default function MonitoringDashboardPage() {
               {filteredMetrics.map((m) => {
                 const sc = statusConfig[m.status];
                 const ts = timeSeries[m.systemName] || [];
-                const trendColor = m.status === 'CRITICAL' ? '#ef4444' : m.status === 'ALERT' ? '#f97316' : m.status === 'WARNING' ? '#f59e0b' : '#22c55e';
+                const trendColor = m.status === 'CRITICAL' ? '#DC2626' : m.status === 'ALERT' ? '#F97316' : m.status === 'WARNING' ? '#F59E0B' : '#10B981';
                 const StatusIcon = sc.icon;
                 return (
                   <tr

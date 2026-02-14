@@ -9,7 +9,7 @@ const themes = [
 ] as const;
 
 const accentColors = [
-  { id: 'blue', label: 'Blue', color: '#2E6CC7' },
+  { id: 'blue', label: 'Blue', color: '#1E3A8A' },
   { id: 'indigo', label: 'Indigo', color: '#4F46E5' },
   { id: 'purple', label: 'Purple', color: '#7C3AED' },
   { id: 'green', label: 'Green', color: '#059669' },

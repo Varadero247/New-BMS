@@ -83,7 +83,7 @@ function ComplianceGaugeWidget({ score, status, label, size = 'lg' }: { score: n
   const progress = Math.min(100, Math.max(0, score));
   const dashOffset = circumference - (progress / 100) * circumference;
 
-  const statusColor = status === 'GREEN' ? '#22c55e' : status === 'AMBER' ? '#f59e0b' : '#ef4444';
+  const statusColor = status === 'GREEN' ? '#10B981' : status === 'AMBER' ? '#F59E0B' : '#DC2626';
   const fontSize = size === 'lg' ? 'text-4xl' : size === 'md' ? 'text-2xl' : 'text-xl';
   const labelSize = size === 'lg' ? 'text-sm' : 'text-xs';
 
@@ -96,7 +96,7 @@ function ComplianceGaugeWidget({ score, status, label, size = 'lg' }: { score: n
             cy={dimension / 2}
             r={radius}
             fill="none"
-            stroke="#e5e7eb"
+            stroke="#E5E7EB"
             strokeWidth={strokeWidth}
           />
           <circle

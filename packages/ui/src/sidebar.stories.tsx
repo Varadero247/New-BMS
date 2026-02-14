@@ -50,7 +50,7 @@ function Sidebar({ items, collapsed = false, activeId, logo, footer }: SidebarPr
               width: 32,
               height: 32,
               borderRadius: '8px',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#1E3A8A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -82,7 +82,7 @@ function Sidebar({ items, collapsed = false, activeId, logo, footer }: SidebarPr
               backgroundColor: activeId === item.id ? '#334155' : 'transparent',
               textDecoration: 'none',
               fontSize: '0.875rem',
-              borderLeft: activeId === item.id ? '3px solid #3b82f6' : '3px solid transparent',
+              borderLeft: activeId === item.id ? '3px solid #1E3A8A' : '3px solid transparent',
               transition: 'background-color 0.15s',
             }}
           >
@@ -93,7 +93,7 @@ function Sidebar({ items, collapsed = false, activeId, logo, footer }: SidebarPr
                 {item.badge !== undefined && (
                   <span
                     style={{
-                      backgroundColor: '#3b82f6',
+                      backgroundColor: '#1E3A8A',
                       color: '#fff',
                       borderRadius: '9999px',
                       padding: '1px 7px',

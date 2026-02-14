@@ -31,7 +31,7 @@ export const Required: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '300px' }}>
       <Label htmlFor="required-input">
-        Full Name <span style={{ color: '#ef4444' }}>*</span>
+        Full Name <span style={{ color: '#DC2626' }}>*</span>
       </Label>
       <Input id="required-input" placeholder="John Smith" required />
     </div>
@@ -51,7 +51,7 @@ export const FormGroup: Story = {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <Label htmlFor="fg-email">
-          Email <span style={{ color: '#ef4444' }}>*</span>
+          Email <span style={{ color: '#DC2626' }}>*</span>
         </Label>
         <Input id="fg-email" type="email" placeholder="john.smith@example.com" required />
       </div>

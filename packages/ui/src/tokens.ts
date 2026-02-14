@@ -1,60 +1,61 @@
 /**
- * IMS Design Tokens
+ * IMS Design Tokens — Resolvex 2026 Enterprise Palette
  *
  * Brand colours, typography, spacing, radius, and shadows.
  * Source of truth consumed by tailwind preset and CSS variables.
  *
- * Confirmed brand colours:
- *   #1B3A6B (navy) · #2E6CC7 (mid-blue) · #D6E4F7 (light-blue) · #C8A951 (gold)
+ * Primary:   #1E3A8A (navy) · #0F172A (navy-dark)
+ * Secondary: #065F46 (sage) · #047857 (sage-mid)
+ * Highlight:  #059669 (teal) · #0EA5E9 (teal-bright)
  */
 
 // ── Brand Palette ──────────────────────────────────────────
 export const colors = {
   brand: {
-    900: '#0A1628',
-    800: '#0F2040',
-    700: '#162B52',
-    600: '#1B3A6B', // ← confirmed primary brand navy
-    500: '#2E6CC7', // ← confirmed mid-blue
-    400: '#4D8EE0',
-    300: '#7AAEEC',
-    200: '#B3CFF5',
-    100: '#D6E4F7', // ← confirmed light-blue
-    50: '#EEF4FD',
+    900: '#0F172A', // ← navy-dark / dark mode primary
+    800: '#1E293B',
+    700: '#1E3A8A', // ← primary navy
+    600: '#1E3A8A', // ← primary navy (kept for backward compat)
+    500: '#2563EB',
+    400: '#3B82F6',
+    300: '#60A5FA',
+    200: '#93C5FD',
+    100: '#DBEAFE',
+    50: '#EFF6FF',
   },
   gold: {
-    700: '#8E7535',
-    600: '#9A7A20',
-    500: '#C8A951', // ← confirmed accent gold
-    400: '#D4BB6E',
-    300: '#E1D4A0',
-    200: '#EDE5C7',
-    100: '#F8F2DC',
-    50: '#FDFAF0',
+    700: '#047857', // sage-mid (gold replaced by teal/sage)
+    600: '#059669', // teal
+    500: '#059669', // ← teal CTA (replaces gold accent)
+    400: '#10B981',
+    300: '#34D399',
+    200: '#6EE7B7',
+    100: '#A7F3D0',
+    50: '#D1FAE5',
   },
   success: {
-    700: '#15803D',
-    600: '#16A34A',
-    500: '#22C55E',
-    400: '#4ADE80',
-    300: '#86EFAC',
-    200: '#BBF7D0',
-    100: '#DCFCE7',
-    50: '#F0FDF4',
+    700: '#047857',
+    600: '#059669',
+    500: '#10B981', // ← compliant / green metrics
+    400: '#34D399',
+    300: '#6EE7B7',
+    200: '#A7F3D0',
+    100: '#D1FAE5',
+    50: '#ECFDF5',
   },
   warning: {
-    700: '#A16207',
-    600: '#CA8A04',
-    500: '#EAB308',
-    400: '#FACC15',
-    300: '#FDE047',
-    200: '#FEF08A',
-    100: '#FEF9C3',
-    50: '#FEFCE8',
+    700: '#B45309',
+    600: '#D97706', // ← warning-deep
+    500: '#F59E0B', // ← at-risk / pending
+    400: '#FBBF24',
+    300: '#FCD34D',
+    200: '#FDE68A',
+    100: '#FEF3C7',
+    50: '#FFFBEB',
   },
   danger: {
     700: '#B91C1C',
-    600: '#DC2626',
+    600: '#DC2626', // ← non-compliant / alert
     500: '#EF4444',
     400: '#F87171',
     300: '#FCA5A5',
@@ -65,7 +66,7 @@ export const colors = {
   info: {
     700: '#0369A1',
     600: '#0284C7',
-    500: '#0EA5E9',
+    500: '#0EA5E9', // ← teal-bright
     400: '#38BDF8',
     300: '#7DD3FC',
     200: '#BAE6FD',
@@ -73,19 +74,55 @@ export const colors = {
     50: '#F0F9FF',
   },
   gray: {
-    950: '#0A0A0B',
-    900: '#18181B',
-    800: '#27272A',
-    700: '#3F3F46',
-    600: '#52525B',
-    500: '#71717A',
-    400: '#A1A1AA',
-    300: '#D4D4D8',
-    200: '#E4E4E7',
-    100: '#F4F4F5',
-    50: '#FAFAFA',
+    950: '#030712',
+    900: '#111827', // ← dark mode bg
+    800: '#1F2937',
+    700: '#374151',
+    600: '#4B5563',
+    500: '#6B7280',
+    400: '#9CA3AF', // ← neutral
+    300: '#D1D5DB',
+    200: '#E5E7EB',
+    100: '#F3F4F6',
+    50: '#F9FAFB',
+  },
+  // ── New named palette tokens ──
+  navy: {
+    DEFAULT: '#1E3A8A',
+    dark: '#0F172A',
+    light: '#DBEAFE',
+  },
+  sage: {
+    DEFAULT: '#065F46',
+    mid: '#047857',
+    light: '#D1FAE5',
+  },
+  teal: {
+    DEFAULT: '#059669',
+    bright: '#0EA5E9',
+    light: '#D1FAE5',
+  },
+  surface: {
+    light: '#F8FAFC',
+    'light-alt': '#F1F5F9',
+    dark: '#111827',
+    'dark-alt': '#0F172A',
   },
 } as const;
+
+// ── Chart palette (for Recharts / data viz) ──────────────
+export const chartColors = [
+  '#1E3A8A', // navy
+  '#059669', // teal
+  '#0EA5E9', // teal-bright
+  '#F59E0B', // warning
+  '#10B981', // success
+  '#DC2626', // critical
+  '#8B5CF6', // violet
+  '#EC4899', // pink
+  '#F97316', // orange
+  '#6366F1', // indigo
+] as const;
 
 // ── Typography ─────────────────────────────────────────────
 export const fontFamily = {

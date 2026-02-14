@@ -189,7 +189,7 @@ export default function DashboardPage() {
                 <ComplianceGauge
                   value={stats?.compliance.iso45001 || 0}
                   label="Health & Safety"
-                  color="#ef4444"
+                  color="#DC2626"
                   size="md"
                 />
               </CardContent>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                 <ComplianceGauge
                   value={stats?.compliance.iso14001 || 0}
                   label="Environmental"
-                  color="#22c55e"
+                  color="#10B981"
                   size="md"
                 />
               </CardContent>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
                 <ComplianceGauge
                   value={stats?.compliance.iso9001 || 0}
                   label="Quality"
-                  color="#3b82f6"
+                  color="#1E3A8A"
                   size="md"
                 />
               </CardContent>
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                 <ComplianceGauge
                   value={stats?.compliance.overall || 0}
                   label="Overall IMS"
-                  color="#8b5cf6"
+                  color="#8B5CF6"
                   size="md"
                 />
               </CardContent>

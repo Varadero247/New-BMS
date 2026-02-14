@@ -54,12 +54,12 @@ interface ForecastData {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  PROSPECTING: '#3b82f6',
-  QUALIFICATION: '#06b6d4',
-  PROPOSAL: '#8b5cf6',
-  NEGOTIATION: '#f59e0b',
-  CLOSED_WON: '#10b981',
-  CLOSED_LOST: '#ef4444',
+  PROSPECTING: '#1E3A8A',
+  QUALIFICATION: '#0EA5E9',
+  PROPOSAL: '#8B5CF6',
+  NEGOTIATION: '#F59E0B',
+  CLOSED_WON: '#10B981',
+  CLOSED_LOST: '#DC2626',
 };
 
 const STAGE_LABELS: Record<string, string> = {

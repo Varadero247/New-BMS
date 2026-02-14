@@ -148,7 +148,7 @@ export const Empty: Story = {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell colSpan={3} style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
+          <TableCell colSpan={3} style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF' }}>
             No records found.
           </TableCell>
         </TableRow>
@@ -176,7 +176,7 @@ export const Loading: Story = {
                   style={{
                     height: '16px',
                     borderRadius: '4px',
-                    backgroundColor: '#e5e7eb',
+                    backgroundColor: '#E5E7EB',
                     width: `${60 + Math.random() * 40}%`,
                     animation: 'pulse 1.5s ease-in-out infinite',
                   }}
@@ -217,11 +217,11 @@ export const WithPagination: Story = {
           ))}
         </TableBody>
       </Table>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', fontSize: '0.875rem', color: '#6b7280' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', fontSize: '0.875rem', color: '#9CA3AF' }}>
         <span>Showing 1–4 of 48 records</span>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>Previous</button>
-          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#3b82f6', color: '#fff' }}>1</button>
+          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#1E3A8A', color: '#fff' }}>1</button>
           <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>2</button>
           <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>Next</button>
         </div>

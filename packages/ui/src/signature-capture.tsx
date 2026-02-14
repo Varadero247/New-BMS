@@ -87,7 +87,7 @@ export function SignatureCapture({
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Signature line
-      ctx.strokeStyle = '#e5e7eb';
+      ctx.strokeStyle = '#E5E7EB';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(20, canvas.height - 30);
@@ -96,14 +96,14 @@ export function SignatureCapture({
 
       // "Sign here" placeholder
       if (allStrokes.length === 0) {
-        ctx.fillStyle = '#9ca3af';
+        ctx.fillStyle = '#9CA3AF';
         ctx.font = '14px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('Sign here', canvas.width / 2, canvas.height / 2);
       }
 
       // Draw strokes
-      ctx.strokeStyle = '#1f2937';
+      ctx.strokeStyle = '#1F2937';
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -167,7 +167,7 @@ export function SignatureCapture({
             const dy = point.y - last.y;
             const dt = Math.max(point.time - last.time, 1);
             const speed = Math.sqrt(dx * dx + dy * dy) / dt;
-            ctx.strokeStyle = '#1f2937';
+            ctx.strokeStyle = '#1F2937';
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.lineWidth = Math.max(1.5, Math.min(4, 3 - speed * 0.5));

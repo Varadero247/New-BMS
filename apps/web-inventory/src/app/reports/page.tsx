@@ -135,9 +135,9 @@ export default function ReportsPage() {
     datasets: [{
       data: reportData?.transactionSummary?.byType?.map(t => t.count) || [],
       backgroundColor: [
-        '#22c55e', '#ef4444', '#3b82f6', '#f59e0b',
-        '#8b5cf6', '#ec4899', '#14b8a6', '#f97316',
-        '#6366f1', '#84cc16', '#06b6d4'
+        '#10B981', '#DC2626', '#1E3A8A', '#F59E0B',
+        '#8B5CF6', '#EC4899', '#059669', '#F97316',
+        '#6366F1', '#10B981', '#0EA5E9'
       ],
     }],
   };
@@ -150,15 +150,15 @@ export default function ReportsPage() {
       {
         label: 'Stock In',
         data: reportData?.transactionSummary?.dailyTrend?.slice().reverse().map(d => Number(d.total_in)) || [],
-        borderColor: '#22c55e',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
         fill: true,
       },
       {
         label: 'Stock Out',
         data: reportData?.transactionSummary?.dailyTrend?.slice().reverse().map(d => Number(d.total_out)) || [],
-        borderColor: '#ef4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        borderColor: '#DC2626',
+        backgroundColor: 'rgba(220, 38, 38, 0.1)',
         fill: true,
       },
     ],
@@ -169,7 +169,7 @@ export default function ReportsPage() {
     datasets: [{
       label: 'Inventory Value ($)',
       data: reportData?.warehouseBreakdown?.map(w => w.stats?.totalValue || 0) || [],
-      backgroundColor: '#0ea5e9',
+      backgroundColor: '#0EA5E9',
     }],
   };
 

@@ -140,7 +140,7 @@ function ComplianceRing({ score, size = 120 }: { score: number; size?: number })
   const radius = (size - 12) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color = score >= 80 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+  const color = score >= 80 ? '#10B981' : score >= 50 ? '#F59E0B' : '#DC2626';
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
