@@ -18,31 +18,34 @@ interface ServiceStatus {
   category: string;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost';
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
-  { name: 'API Gateway', url: 'http://localhost:4000', port: 4000, category: 'Core' },
-  { name: 'Dashboard', url: 'http://localhost:3000', port: 3000, category: 'Web' },
-  { name: 'Health & Safety API', url: 'http://localhost:4001', port: 4001, category: 'ISO Compliance' },
-  { name: 'Environment API', url: 'http://localhost:4002', port: 4002, category: 'ISO Compliance' },
-  { name: 'Quality API', url: 'http://localhost:4003', port: 4003, category: 'ISO Compliance' },
-  { name: 'InfoSec API', url: 'http://localhost:4015', port: 4015, category: 'ISO Compliance' },
-  { name: 'ISO 42001 API', url: 'http://localhost:4023', port: 4023, category: 'ISO Compliance' },
-  { name: 'ISO 37001 API', url: 'http://localhost:4024', port: 4024, category: 'ISO Compliance' },
-  { name: 'Inventory API', url: 'http://localhost:4005', port: 4005, category: 'Operations' },
-  { name: 'HR API', url: 'http://localhost:4006', port: 4006, category: 'Operations' },
-  { name: 'Payroll API', url: 'http://localhost:4007', port: 4007, category: 'Operations' },
-  { name: 'Workflows API', url: 'http://localhost:4008', port: 4008, category: 'Operations' },
-  { name: 'Finance API', url: 'http://localhost:4013', port: 4013, category: 'Operations' },
-  { name: 'CRM API', url: 'http://localhost:4014', port: 4014, category: 'Operations' },
-  { name: 'CMMS API', url: 'http://localhost:4017', port: 4017, category: 'Operations' },
-  { name: 'Analytics API', url: 'http://localhost:4021', port: 4021, category: 'Operations' },
-  { name: 'Field Service API', url: 'http://localhost:4022', port: 4022, category: 'Operations' },
-  { name: 'ESG API', url: 'http://localhost:4016', port: 4016, category: 'Specialist' },
-  { name: 'Food Safety API', url: 'http://localhost:4019', port: 4019, category: 'Specialist' },
-  { name: 'Energy API', url: 'http://localhost:4020', port: 4020, category: 'Specialist' },
-  { name: 'Medical API', url: 'http://localhost:4011', port: 4011, category: 'Specialist' },
-  { name: 'Automotive API', url: 'http://localhost:4010', port: 4010, category: 'Specialist' },
-  { name: 'Aerospace API', url: 'http://localhost:4012', port: 4012, category: 'Specialist' },
-  { name: 'Customer Portal API', url: 'http://localhost:4018', port: 4018, category: 'Portals' },
+  { name: 'API Gateway', url: `${API_BASE}:4000`, port: 4000, category: 'Core' },
+  { name: 'Dashboard', url: `${APP_BASE}:3000`, port: 3000, category: 'Web' },
+  { name: 'Health & Safety API', url: `${API_BASE}:4001`, port: 4001, category: 'ISO Compliance' },
+  { name: 'Environment API', url: `${API_BASE}:4002`, port: 4002, category: 'ISO Compliance' },
+  { name: 'Quality API', url: `${API_BASE}:4003`, port: 4003, category: 'ISO Compliance' },
+  { name: 'InfoSec API', url: `${API_BASE}:4015`, port: 4015, category: 'ISO Compliance' },
+  { name: 'ISO 42001 API', url: `${API_BASE}:4023`, port: 4023, category: 'ISO Compliance' },
+  { name: 'ISO 37001 API', url: `${API_BASE}:4024`, port: 4024, category: 'ISO Compliance' },
+  { name: 'Inventory API', url: `${API_BASE}:4005`, port: 4005, category: 'Operations' },
+  { name: 'HR API', url: `${API_BASE}:4006`, port: 4006, category: 'Operations' },
+  { name: 'Payroll API', url: `${API_BASE}:4007`, port: 4007, category: 'Operations' },
+  { name: 'Workflows API', url: `${API_BASE}:4008`, port: 4008, category: 'Operations' },
+  { name: 'Finance API', url: `${API_BASE}:4013`, port: 4013, category: 'Operations' },
+  { name: 'CRM API', url: `${API_BASE}:4014`, port: 4014, category: 'Operations' },
+  { name: 'CMMS API', url: `${API_BASE}:4017`, port: 4017, category: 'Operations' },
+  { name: 'Analytics API', url: `${API_BASE}:4021`, port: 4021, category: 'Operations' },
+  { name: 'Field Service API', url: `${API_BASE}:4022`, port: 4022, category: 'Operations' },
+  { name: 'ESG API', url: `${API_BASE}:4016`, port: 4016, category: 'Specialist' },
+  { name: 'Food Safety API', url: `${API_BASE}:4019`, port: 4019, category: 'Specialist' },
+  { name: 'Energy API', url: `${API_BASE}:4020`, port: 4020, category: 'Specialist' },
+  { name: 'Medical API', url: `${API_BASE}:4011`, port: 4011, category: 'Specialist' },
+  { name: 'Automotive API', url: `${API_BASE}:4010`, port: 4010, category: 'Specialist' },
+  { name: 'Aerospace API', url: `${API_BASE}:4012`, port: 4012, category: 'Specialist' },
+  { name: 'Customer Portal API', url: `${API_BASE}:4018`, port: 4018, category: 'Portals' },
 ];
 
 function StatusBadge({ status }: { status: ServiceStatus['status'] }) {

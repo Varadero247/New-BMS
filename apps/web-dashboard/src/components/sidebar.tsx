@@ -37,10 +37,13 @@ import {
   ClipboardList,
 } from 'lucide-react';
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+function moduleUrl(port: number): string { return `${APP_BASE}:${port}`; }
+
 interface NavItem {
   name: string;
   href: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   bgColor: string;
   external?: boolean;
@@ -100,40 +103,40 @@ const sections: NavSection[] = [
   {
     title: 'ISO Compliance',
     items: [
-      { name: 'Health & Safety', href: 'http://localhost:3001', icon: Shield, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
-      { name: 'Environmental', href: 'http://localhost:3002', icon: Leaf, color: 'text-green-600', bgColor: 'bg-green-100', external: true },
-      { name: 'Quality', href: 'http://localhost:3003', icon: Award, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
-      { name: 'ESG', href: 'http://localhost:3016', icon: TreePine, color: 'text-teal-600', bgColor: 'bg-teal-100', external: true },
-      { name: 'Food Safety', href: 'http://localhost:3020', icon: UtensilsCrossed, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
-      { name: 'Energy', href: 'http://localhost:3021', icon: Zap, color: 'text-yellow-600', bgColor: 'bg-yellow-100', external: true },
-      { name: 'ISO 42001 (AI)', href: 'http://localhost:3024', icon: Brain, color: 'text-fuchsia-600', bgColor: 'bg-fuchsia-100', external: true },
-      { name: 'ISO 37001 (Anti-Bribery)', href: 'http://localhost:3025', icon: Scale, color: 'text-rose-600', bgColor: 'bg-rose-100', external: true },
-      { name: 'InfoSec', href: 'http://localhost:3015', icon: ShieldCheck, color: 'text-cyan-600', bgColor: 'bg-cyan-100', external: true },
-      { name: 'Aerospace', href: 'http://localhost:3012', icon: Plane, color: 'text-slate-600', bgColor: 'bg-slate-100', external: true },
+      { name: 'Health & Safety', href: moduleUrl(3001), icon: Shield, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
+      { name: 'Environmental', href: moduleUrl(3002), icon: Leaf, color: 'text-green-600', bgColor: 'bg-green-100', external: true },
+      { name: 'Quality', href: moduleUrl(3003), icon: Award, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
+      { name: 'ESG', href: moduleUrl(3016), icon: TreePine, color: 'text-teal-600', bgColor: 'bg-teal-100', external: true },
+      { name: 'Food Safety', href: moduleUrl(3020), icon: UtensilsCrossed, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
+      { name: 'Energy', href: moduleUrl(3021), icon: Zap, color: 'text-yellow-600', bgColor: 'bg-yellow-100', external: true },
+      { name: 'ISO 42001 (AI)', href: moduleUrl(3024), icon: Brain, color: 'text-fuchsia-600', bgColor: 'bg-fuchsia-100', external: true },
+      { name: 'ISO 37001 (Anti-Bribery)', href: moduleUrl(3025), icon: Scale, color: 'text-rose-600', bgColor: 'bg-rose-100', external: true },
+      { name: 'InfoSec', href: moduleUrl(3015), icon: ShieldCheck, color: 'text-cyan-600', bgColor: 'bg-cyan-100', external: true },
+      { name: 'Aerospace', href: moduleUrl(3012), icon: Plane, color: 'text-slate-600', bgColor: 'bg-slate-100', external: true },
     ],
   },
   {
     title: 'Operations',
     items: [
-      { name: 'Inventory', href: 'http://localhost:3005', icon: Package, color: 'text-sky-600', bgColor: 'bg-sky-100', external: true },
-      { name: 'HR', href: 'http://localhost:3006', icon: Users, color: 'text-orange-600', bgColor: 'bg-orange-100', external: true },
-      { name: 'Payroll', href: 'http://localhost:3007', icon: DollarSign, color: 'text-emerald-600', bgColor: 'bg-emerald-100', external: true },
-      { name: 'Workflows', href: 'http://localhost:3008', icon: GitBranch, color: 'text-indigo-600', bgColor: 'bg-indigo-100', external: true },
-      { name: 'Project Management', href: 'http://localhost:3009', icon: FolderKanban, color: 'text-violet-600', bgColor: 'bg-violet-100', external: true },
-      { name: 'Finance', href: 'http://localhost:3013', icon: PiggyBank, color: 'text-lime-600', bgColor: 'bg-lime-100', external: true },
-      { name: 'CRM', href: 'http://localhost:3014', icon: UserCircle, color: 'text-pink-600', bgColor: 'bg-pink-100', external: true },
-      { name: 'CMMS', href: 'http://localhost:3017', icon: Wrench, color: 'text-stone-600', bgColor: 'bg-stone-100', external: true },
-      { name: 'Field Service', href: 'http://localhost:3023', icon: Truck, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
-      { name: 'Analytics', href: 'http://localhost:3022', icon: BarChart3, color: 'text-purple-600', bgColor: 'bg-purple-100', external: true },
+      { name: 'Inventory', href: moduleUrl(3005), icon: Package, color: 'text-sky-600', bgColor: 'bg-sky-100', external: true },
+      { name: 'HR', href: moduleUrl(3006), icon: Users, color: 'text-orange-600', bgColor: 'bg-orange-100', external: true },
+      { name: 'Payroll', href: moduleUrl(3007), icon: DollarSign, color: 'text-emerald-600', bgColor: 'bg-emerald-100', external: true },
+      { name: 'Workflows', href: moduleUrl(3008), icon: GitBranch, color: 'text-indigo-600', bgColor: 'bg-indigo-100', external: true },
+      { name: 'Project Management', href: moduleUrl(3009), icon: FolderKanban, color: 'text-violet-600', bgColor: 'bg-violet-100', external: true },
+      { name: 'Finance', href: moduleUrl(3013), icon: PiggyBank, color: 'text-lime-600', bgColor: 'bg-lime-100', external: true },
+      { name: 'CRM', href: moduleUrl(3014), icon: UserCircle, color: 'text-pink-600', bgColor: 'bg-pink-100', external: true },
+      { name: 'CMMS', href: moduleUrl(3017), icon: Wrench, color: 'text-stone-600', bgColor: 'bg-stone-100', external: true },
+      { name: 'Field Service', href: moduleUrl(3023), icon: Truck, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
+      { name: 'Analytics', href: moduleUrl(3022), icon: BarChart3, color: 'text-purple-600', bgColor: 'bg-purple-100', external: true },
     ],
   },
   {
     title: 'Portals & Specialist',
     items: [
-      { name: 'Customer Portal', href: 'http://localhost:3018', icon: Building2, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
-      { name: 'Supplier Portal', href: 'http://localhost:3019', icon: Briefcase, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
-      { name: 'Medical Devices', href: 'http://localhost:3011', icon: Stethoscope, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
-      { name: 'Automotive', href: 'http://localhost:3010', icon: Car, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true },
+      { name: 'Customer Portal', href: moduleUrl(3018), icon: Building2, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
+      { name: 'Supplier Portal', href: moduleUrl(3019), icon: Briefcase, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
+      { name: 'Medical Devices', href: moduleUrl(3011), icon: Stethoscope, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
+      { name: 'Automotive', href: moduleUrl(3010), icon: Car, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true },
     ],
   },
 ];
@@ -205,7 +208,7 @@ export function Sidebar() {
         {/* Settings */}
         <div className="mt-3 border-t border-border pt-3">
           <ul>
-            <NavLink item={{ name: 'Settings', href: 'http://localhost:3004', icon: Settings, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true }} />
+            <NavLink item={{ name: 'Settings', href: moduleUrl(3004), icon: Settings, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true }} />
           </ul>
         </div>
       </nav>

@@ -115,7 +115,7 @@ function getServiceToken(): string {
 }
 
 // Add service token to proxy requests
-function addServiceToken(proxyReq: Record<string, unknown> & { setHeader: (name: string, value: string) => void }): void {
+function addServiceToken(proxyReq: { setHeader: (name: string, value: string) => void }): void {
   const token = getServiceToken();
   if (token) {
     proxyReq.setHeader('X-Service-Token', token);
