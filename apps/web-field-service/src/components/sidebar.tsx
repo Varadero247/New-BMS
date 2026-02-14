@@ -57,16 +57,16 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-sky-50 border-r border-sky-200 min-h-screen flex flex-col">
-      <div className="p-4 border-b border-sky-200">
-        <h1 className="text-lg font-bold text-sky-900">Field Service</h1>
-        <p className="text-xs text-sky-600">Dispatch & Operations</p>
+    <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
+      <div className="p-4 border-b border-border bg-sky-50 dark:bg-sky-900/10">
+        <h1 className="text-lg font-bold font-display text-sky-900 dark:text-sky-100">Field Service</h1>
+        <p className="text-xs text-sky-600 dark:text-sky-400">Dispatch & Operations</p>
       </div>
 
-      <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-4 overflow-y-auto" aria-label="Module navigation">
         {sections.map((section) => (
           <div key={section.title}>
-            <p className="text-xs font-semibold text-sky-400 uppercase tracking-wider mb-1 px-3">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1 px-3">
               {section.title}
             </p>
             {section.items.map((item) => {
@@ -77,8 +77,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     active
-                      ? 'bg-sky-200 text-sky-900 font-medium'
-                      : 'text-gray-600 hover:bg-sky-100 hover:text-sky-900'
+                      ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200 font-medium'
+                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:text-gray-900'
                   }`}
                 >
                   {item.icon}
@@ -90,12 +90,12 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-sky-200 space-y-1">
+      <div className="p-3 border-t border-border space-y-1">
         <a
           href="http://localhost:3000"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-sky-100 hover:text-sky-900"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:text-gray-900"
         >
           <ExternalLink className="h-5 w-5" />
           IMS Dashboard

@@ -35,6 +35,7 @@ import selfDeclarationRouter from './routes/self-declaration';
 import auditLogRouter from './routes/audit-log';
 import humanReviewRouter from './routes/human-review';
 import monitoringRouter from './routes/monitoring';
+import { createAiAuditMiddleware } from './middleware/ai-audit';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4023;
@@ -61,6 +62,9 @@ app.get('/ready', async (_req, res) => {
   }
 });
 app.get('/metrics', metricsHandler);
+
+// AI Audit Middleware — logs all mutating requests to AiAuditLog
+app.use(createAiAuditMiddleware());
 
 // API Routes
 app.use('/api/ai-systems', aiSystemsRouter);

@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, ClipboardList, Loader2, Search, Sparkles, AlertCircle, Clock, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -454,6 +455,7 @@ export default function CapaClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600">Enter a problem statement (20+ chars), then AI generates root cause analysis, actions, and verification.</p>
+                  <AIDisclosure variant="inline" provider="claude" analysisType="CAPA Recommendation" confidence={0.85} />
                 </div>
                 <div>
                   <Label>Root Cause Analysis {form.rootCauseAnalysis && <Badge variant="outline" className="ml-2 text-xs">AI Suggested</Badge>}</Label>

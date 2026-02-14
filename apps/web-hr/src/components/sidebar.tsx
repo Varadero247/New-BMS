@@ -56,7 +56,7 @@ const externalLinks = [
 
 function NavSection({ title, items, pathname }: { title?: string; items: typeof mainNavigation; pathname: string }) {
   return (
-    <div className={title ? 'mt-4 pt-4 border-t border-gray-200' : ''}>
+    <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
         <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {title}
@@ -73,11 +73,11 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-emerald-100 text-emerald-900'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-emerald-600' : 'text-gray-500'}`} />
+                <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500'}`} />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -92,15 +92,15 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200 bg-emerald-50">
-        <h1 className="text-xl font-bold text-emerald-900">HR Management</h1>
-        <p className="text-xs text-emerald-600 mt-1">People & Talent</p>
+      <div className="p-6 border-b border-border bg-emerald-50 dark:bg-emerald-900/10">
+        <h1 className="text-xl font-bold font-display text-emerald-900 dark:text-emerald-100">HR Management</h1>
+        <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">People & Talent</p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 overflow-y-auto">
+      <nav className="flex-1 p-4 overflow-y-auto" aria-label="Module navigation">
         <NavSection items={mainNavigation} pathname={pathname} />
         <NavSection title="Time & Attendance" items={timeNavigation} pathname={pathname} />
         <NavSection title="Performance" items={performanceNavigation} pathname={pathname} />
@@ -108,7 +108,7 @@ export function Sidebar() {
         <NavSection title="Development" items={developmentNavigation} pathname={pathname} />
 
         {/* External Links */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-border">
           <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
             Quick Links
           </p>
@@ -119,7 +119,7 @@ export function Sidebar() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
                   >
                     <Icon className="h-5 w-5 text-gray-500" />
                     <span className="text-sm font-medium">{item.name}</span>

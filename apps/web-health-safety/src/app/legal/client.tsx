@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, Scale, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -361,6 +362,7 @@ export default function LegalRegisterClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600">Enter the requirement title and details first, then click to generate AI compliance assessment.</p>
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                 </div>
                 <div>
                   <Label>Compliance Status</Label>

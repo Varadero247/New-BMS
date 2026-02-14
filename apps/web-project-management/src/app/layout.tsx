@@ -19,11 +19,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${dmSans.variable} ${sora.variable} font-body`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className={`${dmSans.variable} ${sora.variable} font-body antialiased`}>
         <I18nProvider>
           <Providers>
-            <div className="flex h-screen bg-gray-50">
+            <div className="flex h-screen bg-background text-foreground">
               <Sidebar />
               <main className="flex-1 overflow-auto">
                 {children}

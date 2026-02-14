@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, AlertTriangle, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -989,7 +990,8 @@ export default function EventsClient() {
                   </p>
                   {aiGenerated && (
                     <div className="bg-white border border-emerald-200 rounded-lg p-3 mt-2">
-                      <p className="text-xs font-medium text-emerald-700 mb-2">AI analysis has been applied to the form fields above:</p>
+                      <AIDisclosure variant="inline" provider="claude" analysisType="Event Analysis" confidence={0.85} />
+                      <p className="text-xs font-medium text-emerald-700 mb-2 mt-2">AI analysis has been applied to the form fields above:</p>
                       <ul className="text-xs text-emerald-600 space-y-1 list-disc list-inside">
                         <li>Root Cause (Investigation tab)</li>
                         <li>Immediate Actions (Environmental Impact tab)</li>

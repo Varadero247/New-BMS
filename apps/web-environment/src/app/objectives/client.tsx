@@ -14,6 +14,7 @@ import {
   Label,
   Select,
   Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus,
@@ -1155,6 +1156,7 @@ export default function ObjectivesClient() {
 
               {aiGenerated && (
                 <div className="mt-4 space-y-4">
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Objective Analysis" confidence={0.85} />
                   {/* SMART Scorecard */}
                   <div className="border border-green-200 rounded-lg overflow-hidden">
                     <table className="w-full text-sm">

@@ -16,7 +16,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import api, { aiApi } from '@/lib/api';
-import { Modal } from '@ims/ui';
+import { Modal, AIDisclosure } from '@ims/ui';
 
 interface PayrollRun {
   id: string;
@@ -261,6 +261,7 @@ export default function PayrollPage() {
           </button>
           {aiExpanded && (
             <div className="mt-4 space-y-3">
+              <AIDisclosure variant="inline" provider="claude" analysisType="Payroll Analysis" confidence={0.85} />
               {aiResult.averagePerEmployee !== undefined && (
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">Average Per Employee:</span>{' '}

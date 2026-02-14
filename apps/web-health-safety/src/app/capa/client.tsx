@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, Loader2, Search, Sparkles, ShieldCheck, ChevronDown, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -637,6 +638,10 @@ export default function CAPAClient() {
                       )}
                     </div>
                   </div>
+
+                  {aiGenerated && (
+                    <AIDisclosure variant="inline" provider="claude" analysisType="CAPA Recommendation" confidence={0.85} />
+                  )}
 
                   {aiLoading && (
                     <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200">

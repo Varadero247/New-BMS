@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, AIDisclosure } from '@ims/ui';
 import {
   Plus,
   TrendingUp,
@@ -366,7 +366,8 @@ export default function PerformancePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <AIDisclosure variant="inline" provider="claude" analysisType="Performance Analysis" confidence={0.85} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 {aiInsights.strengths && (
                   <div>
                     <h4 className="font-medium text-green-700 mb-2">Team Strengths</h4>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,6 +38,28 @@
     --sidebar-bg: 217 59% 26%;
     --sidebar-fg: 210 40% 98%;
     --sidebar-accent: 217 42% 35%;
+
+    /* Surface tokens */
+    --surface: 210 20% 98%;
+    --surface-card: 0 0% 100%;
+    --surface-nav: 216 60% 16%;
+
+    /* Brand direct references */
+    --brand-600: #1B3A6B;
+    --brand-500: #2E6CC7;
+    --brand-100: #D6E4F7;
+    --brand-50: #EEF4FD;
+    --gold-500: #C8A951;
+    --gold-50: #FDFAF0;
+    --success: #1A6B35;
+    --success-bg: #E6F4EA;
+    --warning-color: #B06000;
+    --warning-bg: #FFF8E1;
+    --danger-color: #B22222;
+    --danger-bg: #FFF0F0;
+
+    /* Transition */
+    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -67,6 +91,10 @@
     --sidebar-bg: 224 71% 4%;
     --sidebar-fg: 210 40% 98%;
     --sidebar-accent: 217 33% 17%;
+
+    --surface: 222 47% 5%;
+    --surface-card: 222 47% 11%;
+    --surface-nav: 224 71% 4%;
   }
 }
 
@@ -79,5 +107,33 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+  }
+
+  /* Focus visible */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Skip nav link */
+  .skip-nav {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-600 focus:text-white focus:rounded-md focus:text-sm focus:font-medium;
   }
 }

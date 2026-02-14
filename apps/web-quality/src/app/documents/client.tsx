@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, FileText, Search, Loader2, Sparkles,
@@ -1042,6 +1043,7 @@ export default function DocumentsClient() {
                         <p className="text-xs font-medium text-gray-500 mb-1">Review Recommendation</p>
                         <p className="text-sm text-gray-800">{aiReview.reviewRecommendation}</p>
                       </div>
+                      <AIDisclosure variant="inline" provider="claude" analysisType="Document Analysis" confidence={0.85} />
                     </div>
                   )}
                 </div>

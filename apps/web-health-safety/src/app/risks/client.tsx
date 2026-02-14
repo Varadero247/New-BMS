@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { RiskMatrix } from '@ims/charts';
 import { Plus, AlertTriangle, Loader2, Search, Sparkles, Shield } from 'lucide-react';
@@ -664,6 +665,10 @@ export default function RiskRegisterClient() {
                       )}
                     </div>
                   </div>
+
+                  {aiGenerated && (
+                    <AIDisclosure variant="inline" provider="claude" analysisType="Risk Assessment" confidence={0.85} />
+                  )}
                   <div>
                     <Label htmlFor="title">Hazard Title / Summary *</Label>
                     <Input
@@ -919,6 +924,7 @@ export default function RiskRegisterClient() {
                     />
                     {aiLegalSuggestions.length > 0 && (
                       <div className="mt-2 space-y-2">
+                        <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                         {aiLegalSuggestions.map((suggestion, idx) => (
                           <div
                             key={idx}

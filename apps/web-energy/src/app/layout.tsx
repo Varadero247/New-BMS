@@ -8,12 +8,19 @@ const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['40
 export const metadata: Metadata = { title: 'Energy Management - IMS', description: 'ISO 50001 Energy Management System' };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${dmSans.variable} ${sora.variable} font-body`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className={`${dmSans.variable} ${sora.variable} font-body antialiased`}>
         <I18nProvider>
-          <div className="flex h-screen">
+          <div className="flex h-screen bg-background text-foreground">
             <Sidebar />
-            <main className="flex-1 overflow-auto bg-gray-50">{children}</main>
+            <main className="flex-1 overflow-auto">{children}</main>
           </div>
         </I18nProvider>
       </body>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
 import { Plus, Lightbulb, Search, TrendingUp, Clock, CheckCircle, ArrowRight, Brain, Loader2, RefreshCw, AlertTriangle, BarChart3, Target, DollarSign } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -1450,6 +1450,7 @@ export default function ImprovementsClient() {
               {aiAnalysis.result && (
                 <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
                   {aiAnalysis.result}
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Improvement Analysis" confidence={0.85} />
                 </div>
               )}
               {aiAnalysis.error && (

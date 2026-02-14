@@ -14,6 +14,7 @@ import {
   Label,
   Select,
   Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus,
@@ -1064,6 +1065,7 @@ export default function ActionsClient() {
                   </button>
                   {aiExpanded && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                      <AIDisclosure variant="inline" provider="claude" analysisType="Environmental Action Recommendation" confidence={0.85} />
                       {aiGenerated.actionPlan && (
                         <div>
                           <p className="text-xs font-semibold text-green-800 uppercase">

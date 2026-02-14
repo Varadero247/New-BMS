@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, CreditCard, DollarSign, Clock, CheckCircle, Users, Sparkles } from 'lucide-react';
 import api, { aiApi } from '@/lib/api';
-import { Modal } from '@ims/ui';
+import { Modal, AIDisclosure } from '@ims/ui';
 
 interface Loan {
   id: string;
@@ -208,7 +208,8 @@ export default function LoansPage() {
               Dismiss
             </button>
           </div>
-          <div className="space-y-3">
+          <AIDisclosure variant="inline" provider="claude" analysisType="Loan Analysis" confidence={0.85} />
+          <div className="space-y-3 mt-3">
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-lg bg-white p-3 shadow-sm">
                 <p className="text-xs text-gray-500">Monthly Payment</p>

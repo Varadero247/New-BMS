@@ -57,7 +57,7 @@ const externalLinks = [
 
 function NavSection({ title, items, pathname }: { title?: string; items: typeof mainNavigation; pathname: string }) {
   return (
-    <div className={title ? 'mt-4 pt-4 border-t border-gray-200' : ''}>
+    <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
         <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {title}
@@ -75,11 +75,11 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                   isExactActive || isActive
-                    ? 'bg-indigo-100 text-indigo-900'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isExactActive || isActive ? 'text-indigo-600' : 'text-gray-500'}`} />
+                <Icon className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500'}`} />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -94,15 +94,15 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200 bg-indigo-50">
-        <h1 className="text-xl font-bold text-indigo-900">Finance & Accounting</h1>
-        <p className="text-xs text-indigo-600 mt-1">Financial Management</p>
+      <div className="p-6 border-b border-border bg-indigo-50 dark:bg-indigo-900/10">
+        <h1 className="text-xl font-bold font-display text-indigo-900 dark:text-indigo-100">Finance & Accounting</h1>
+        <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">Financial Management</p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 overflow-y-auto">
+      <nav className="flex-1 p-4 overflow-y-auto" aria-label="Module navigation">
         <NavSection items={mainNavigation} pathname={pathname} />
         <NavSection title="Receivables" items={receivablesNavigation} pathname={pathname} />
         <NavSection title="Payables" items={payablesNavigation} pathname={pathname} />
@@ -110,7 +110,7 @@ export function Sidebar() {
         <NavSection title="Reports" items={reportsNavigation} pathname={pathname} />
 
         {/* External Links */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-border">
           <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
             Quick Links
           </p>
@@ -121,7 +121,7 @@ export function Sidebar() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
                   >
                     <Icon className="h-5 w-5 text-gray-500" />
                     <span className="text-sm font-medium">{item.name}</span>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, DollarSign, Percent, Settings, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { AIDisclosure } from '@ims/ui';
 import api, { aiApi } from '@/lib/api';
 
 interface ComponentType {
@@ -237,6 +238,7 @@ export default function SalaryPage() {
           </button>
           {aiExpanded && (
             <div className="mt-4 space-y-3">
+              <AIDisclosure variant="inline" provider="claude" analysisType="Salary Analysis" confidence={0.85} />
               {aiResult.marketRange && (
                 <div>
                   <p className="text-sm font-medium text-gray-700">Market Range:</p>

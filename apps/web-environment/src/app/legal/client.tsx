@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, Scale, Loader2, Search, Sparkles, Shield, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -912,6 +913,7 @@ export default function LegalClient() {
                     <h4 className="font-medium text-green-800 flex items-center gap-2 text-sm">
                       <Sparkles className="h-4 w-4" /> AI Analysis Results
                     </h4>
+                    <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                     {aiGenerated.keyObligations && (
                       <div>
                         <Label className="text-xs text-gray-500">Key Obligations</Label>

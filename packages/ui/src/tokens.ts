@@ -3,31 +3,34 @@
  *
  * Brand colours, typography, spacing, radius, and shadows.
  * Source of truth consumed by tailwind preset and CSS variables.
+ *
+ * Confirmed brand colours:
+ *   #1B3A6B (navy) · #2E6CC7 (mid-blue) · #D6E4F7 (light-blue) · #C8A951 (gold)
  */
 
 // ── Brand Palette ──────────────────────────────────────────
 export const colors = {
   brand: {
-    900: '#0D1F3C',
-    800: '#152D54',
-    700: '#1B3A6B', // primary navy
-    600: '#24508F',
-    500: '#2E6CC7', // mid-blue
-    400: '#5A92DB',
-    300: '#89B4E8',
-    200: '#B8D5F3',
-    100: '#D6E4F7', // light-blue
-    50: '#EBF2FB',
+    900: '#0A1628',
+    800: '#0F2040',
+    700: '#162B52',
+    600: '#1B3A6B', // ← confirmed primary brand navy
+    500: '#2E6CC7', // ← confirmed mid-blue
+    400: '#4D8EE0',
+    300: '#7AAEEC',
+    200: '#B3CFF5',
+    100: '#D6E4F7', // ← confirmed light-blue
+    50: '#EEF4FD',
   },
   gold: {
     700: '#8E7535',
-    600: '#B09243',
-    500: '#C8A951', // accent gold
-    400: '#D4BE78',
+    600: '#9A7A20',
+    500: '#C8A951', // ← confirmed accent gold
+    400: '#D4BB6E',
     300: '#E1D4A0',
     200: '#EDE5C7',
-    100: '#F6F1E3',
-    50: '#FBF8F1',
+    100: '#F8F2DC',
+    50: '#FDFAF0',
   },
   success: {
     700: '#15803D',
@@ -153,8 +156,8 @@ export const borderRadius = {
 
 // ── Shadows ────────────────────────────────────────────────
 export const boxShadow = {
-  card: '0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
-  nav: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
-  modal: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
+  card: '0 0 0 1px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.06)',
+  nav: '0 1px 0 rgba(0, 0, 0, 0.08)',
+  modal: '0 25px 50px rgba(0, 0, 0, 0.25)',
   'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
 } as const;

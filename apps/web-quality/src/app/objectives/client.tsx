@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, Target, Search, Loader2, Sparkles,
@@ -464,6 +465,7 @@ export default function ObjectivesClient() {
                               {r.aiSmartScore && <p><strong>SMART Score:</strong> {r.aiSmartScore}</p>}
                               {r.aiKpiSuggestions && <p><strong>KPI Suggestions:</strong> {r.aiKpiSuggestions}</p>}
                               {r.aiMilestones && <p><strong>Milestone Suggestions:</strong> {r.aiMilestones}</p>}
+                              <AIDisclosure variant="inline" provider="claude" analysisType="Objective Analysis" confidence={0.85} />
                             </div>
                           )}
                         </div>

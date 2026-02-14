@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, FileWarning, Loader2, Search, Sparkles, X } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -467,6 +468,7 @@ export default function IncidentRegisterClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600">Fill in incident details first, then click to generate AI analysis. All fields are editable.</p>
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Incident Analysis" confidence={0.85} />
                 </div>
                 <div>
                   <Label>Immediate Cause {form.aiImmediateCause && <Badge variant="outline" className="ml-2 text-xs">AI Suggested</Badge>}</Label>

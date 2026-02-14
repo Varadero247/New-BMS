@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Label, Input, Textarea, Select } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Label, Input, Textarea, Select, AIDisclosure } from '@ims/ui';
 import { Plus, Calendar, Clock, CheckCircle, XCircle, AlertCircle, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { api, aiApi } from '@/lib/api';
 import Link from 'next/link';
@@ -320,7 +320,8 @@ export default function LeavePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <AIDisclosure variant="inline" provider="claude" analysisType="Leave Analysis" confidence={0.85} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-2xl font-bold">{aiAnalysis.bradfordFactor ?? 'N/A'}</span>

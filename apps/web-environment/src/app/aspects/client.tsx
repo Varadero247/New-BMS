@@ -14,6 +14,7 @@ import {
   Label,
   Select,
   Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus,
@@ -1150,6 +1151,8 @@ export default function AspectsClient() {
               <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
                 F. AI Analysis
               </h3>
+
+              <AIDisclosure variant="banner" provider="claude" analysisType="Significance Assessment" confidence={0.85} />
 
               <Button
                 type="button"

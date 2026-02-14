@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, AlertOctagon, Search, Loader2, Sparkles,
@@ -478,6 +479,7 @@ export default function NonConformancesClient() {
                             {r.aiRootCauseSuggestions && <p><strong>Root Cause Suggestions:</strong> {r.aiRootCauseSuggestions}</p>}
                             {r.aiContainmentAdequacy && <p><strong>Containment Adequacy:</strong> {r.aiContainmentAdequacy}</p>}
                             {r.aiCapaRecommendations && <p><strong>CAPA Recommendations:</strong> {r.aiCapaRecommendations}</p>}
+                            <AIDisclosure variant="inline" provider="claude" analysisType="NCR Root Cause Analysis" confidence={0.85} />
                           </div>
                         )}
                       </div>

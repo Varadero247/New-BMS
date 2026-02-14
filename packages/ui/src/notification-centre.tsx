@@ -9,29 +9,27 @@ export interface Notification {
   message: string;
   type: 'info' | 'success' | 'warning' | 'error';
   read: boolean;
+  createdAt: string | Date;
   href?: string;
-  createdAt: string;
 }
 
 export interface NotificationCentreProps {
   notifications: Notification[];
-  unreadCount: number;
-  onMarkRead: (id: string) => void;
-  onMarkAllRead: () => void;
-  onDismiss: (id: string) => void;
-  onClick?: (notification: Notification) => void;
+  onMarkRead?: (id: string) => void;
+  onMarkAllRead?: () => void;
+  onDismiss?: (id: string) => void;
   className?: string;
 }
 
-const typeStyles: Record<string, { dot: string; bg: string }> = {
-  info: { dot: 'bg-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-  success: { dot: 'bg-green-500', bg: 'bg-green-50 dark:bg-green-900/20' },
-  warning: { dot: 'bg-yellow-500', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-  error: { dot: 'bg-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
+const typeDot: Record<Notification['type'], string> = {
+  info: 'bg-blue-500',
+  success: 'bg-green-500',
+  warning: 'bg-amber-500',
+  error: 'bg-red-500',
 };
 
-function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+function timeAgo(date: string | Date): string {
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
   if (seconds < 60) return 'just now';
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -43,21 +41,21 @@ function timeAgo(dateStr: string): string {
 
 export function NotificationCentre({
   notifications,
-  unreadCount,
   onMarkRead,
   onMarkAllRead,
   onDismiss,
-  onClick,
   className,
 }: NotificationCentreProps) {
   const [open, setOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
@@ -65,34 +63,41 @@ export function NotificationCentre({
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  const handleClick = useCallback(
+  const handleItemClick = useCallback(
     (n: Notification) => {
-      if (!n.read) onMarkRead(n.id);
-      onClick?.(n);
+      if (!n.read) onMarkRead?.(n.id);
+      if (n.href) window.location.href = n.href;
     },
-    [onMarkRead, onClick]
+    [onMarkRead]
   );
 
   return (
-    <div className={cn('relative', className)} ref={panelRef}>
-      {/* Bell button */}
+    <div className={cn('relative inline-block', className)} ref={containerRef}>
+      {/* Bell icon button */}
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className={cn(
-          'relative inline-flex items-center justify-center h-9 w-9 rounded-md border',
-          'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800',
-          'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
+          'relative inline-flex items-center justify-center h-9 w-9 rounded-md',
+          'border border-border bg-card text-foreground',
+          'hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
         )}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        {/* Bell SVG */}
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+          />
         </svg>
+
+        {/* Unread badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white leading-none">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -100,62 +105,77 @@ export function NotificationCentre({
 
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+        <div
+          className="absolute right-0 top-full mt-2 z-50 w-96 max-h-[28rem] bg-card border border-border rounded-xl shadow-xl overflow-hidden flex flex-col"
+          role="dialog"
+          aria-label="Notifications"
+        >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
-            {unreadCount > 0 && (
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+            <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+            {unreadCount > 0 && onMarkAllRead && (
               <button
                 type="button"
                 onClick={onMarkAllRead}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs text-brand-600 dark:text-brand-400 hover:underline"
               >
                 Mark all read
               </button>
             )}
           </div>
 
-          {/* List */}
-          <div className="max-h-96 overflow-y-auto">
+          {/* Notification list */}
+          <div className="overflow-y-auto flex-1">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-500">No notifications</div>
+              <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
+                No notifications
+              </div>
             ) : (
-              notifications.map(n => {
-                const style = typeStyles[n.type] || typeStyles.info;
-                return (
-                  <div
+              <ul>
+                {notifications.map((n) => (
+                  <li
                     key={n.id}
                     className={cn(
-                      'flex gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-colors',
-                      n.read
-                        ? 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
-                        : `${style.bg} hover:opacity-90`
+                      'flex gap-3 px-4 py-3 border-b border-border last:border-b-0',
+                      'hover:bg-muted/50 transition-colors cursor-pointer',
+                      !n.read && 'border-l-4 border-l-brand-500'
                     )}
-                    onClick={() => handleClick(n)}
+                    onClick={() => handleItemClick(n)}
                   >
-                    <span className={cn('mt-1.5 h-2 w-2 rounded-full shrink-0', n.read ? 'bg-transparent' : style.dot)} />
+                    {/* Type dot */}
+                    <span
+                      className={cn(
+                        'mt-1.5 h-2 w-2 rounded-full shrink-0',
+                        typeDot[n.type]
+                      )}
+                    />
+
+                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className={cn('text-sm truncate', n.read ? 'text-gray-700 dark:text-gray-300' : 'font-medium text-gray-900 dark:text-gray-100')}>
-                          {n.title}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); onDismiss(n.id); }}
-                          className="shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          aria-label="Dismiss"
-                        >
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                        {onDismiss && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDismiss(n.id);
+                            }}
+                            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                            aria-label="Dismiss notification"
+                          >
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{n.message}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">{timeAgo(n.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
+                      <p className="text-[10px] text-muted-foreground/70 mt-1">{timeAgo(n.createdAt)}</p>
                     </div>
-                  </div>
-                );
-              })
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>

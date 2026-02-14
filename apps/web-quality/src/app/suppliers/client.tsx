@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
 import { Plus, Truck, Search, ShieldCheck, AlertTriangle, ClipboardCheck, Leaf, Star, RefreshCw, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -1124,6 +1124,7 @@ export default function SuppliersClient() {
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="text-sm font-semibold text-blue-800 mb-2">AI Analysis Result</h4>
                     <div className="text-sm text-blue-900 whitespace-pre-wrap">{aiAnalysis}</div>
+                    <AIDisclosure variant="inline" provider="claude" analysisType="Supplier Assessment" confidence={0.85} />
                   </div>
                 )}
               </>

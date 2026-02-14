@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, RefreshCw, Loader2, Search, Sparkles, AlertTriangle, Trash2,
@@ -1322,9 +1323,12 @@ export default function CAPAClient() {
                         </svg>
                       </button>
                       {!aiCollapsed && (
-                        <pre className="mt-2 bg-white border border-green-200 rounded p-3 text-xs text-gray-700 overflow-auto max-h-48">
-                          {aiGenerated}
-                        </pre>
+                        <div className="mt-2 space-y-2">
+                          <AIDisclosure variant="inline" provider="claude" analysisType="CAPA Recommendation" confidence={0.85} />
+                          <pre className="bg-white border border-green-200 rounded p-3 text-xs text-gray-700 overflow-auto max-h-48">
+                            {aiGenerated}
+                          </pre>
+                        </div>
                       )}
                     </div>
                   )}

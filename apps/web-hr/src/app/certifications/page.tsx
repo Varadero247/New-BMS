@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, AIDisclosure } from '@ims/ui';
 import {
   Plus, Award, Shield, AlertTriangle, CheckCircle, XCircle, Clock, Search, Edit2, Sparkles,
 } from 'lucide-react';
@@ -342,7 +342,8 @@ export default function CertificationsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4 mb-4">
+              <AIDisclosure variant="inline" provider="claude" analysisType="Certification Analysis" confidence={0.85} />
+              <div className="flex items-center gap-4 mb-4 mt-3">
                 <div className="text-center">
                   <span className="text-3xl font-bold">{complianceResult.complianceScore ?? 'N/A'}</span>
                   <p className="text-sm text-gray-500">Score</p>

@@ -1,49 +1,92 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from './utils';
 
-interface Breadcrumb {
+interface BreadcrumbItem {
   label: string;
   href?: string;
 }
 
 export interface PageHeaderProps {
+  /** Page title — rendered as h1 with display font */
   title: string;
-  subtitle?: string;
-  breadcrumbs?: Breadcrumb[];
+  /** Subtitle / description below the title */
+  description?: string;
+  /** Optional breadcrumb trail rendered above the title */
+  breadcrumbs?: BreadcrumbItem[];
+  /** Right-aligned slot for action buttons */
   actions?: React.ReactNode;
+  /** Badge rendered inline with the title (e.g. count, status chip) */
   badge?: React.ReactNode;
   className?: string;
 }
 
-export function PageHeader({ title, subtitle, breadcrumbs, actions, badge, className }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  breadcrumbs,
+  actions,
+  badge,
+  className,
+}: PageHeaderProps) {
   return (
-    <div className={cn('border-b border-border pb-4 mb-6', className)}>
+    <header
+      className={cn('border-b border-border pb-4 mb-6', className)}
+      aria-labelledby="page-header-title"
+    >
+      {/* Breadcrumb trail */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1.5 text-body-xs text-muted-foreground mb-2">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2"
+        >
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
-              {idx > 0 && <span className="text-gray-300">/</span>}
+              {idx > 0 && (
+                <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">
+                  /
+                </span>
+              )}
               {crumb.href ? (
-                <a href={crumb.href} className="hover:text-foreground transition-colors">
+                <a
+                  href={crumb.href}
+                  className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:underline"
+                >
                   {crumb.label}
                 </a>
               ) : (
-                <span className="text-foreground font-medium">{crumb.label}</span>
+                <span className="text-foreground font-medium" aria-current="page">
+                  {crumb.label}
+                </span>
               )}
             </React.Fragment>
           ))}
         </nav>
       )}
+
+      {/* Title row */}
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-display-md text-foreground">{title}</h1>
+        <div className="min-w-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1
+              id="page-header-title"
+              className="font-display text-2xl font-bold text-foreground tracking-tight"
+            >
+              {title}
+            </h1>
             {badge}
           </div>
-          {subtitle && <p className="text-body-sm text-muted-foreground mt-1">{subtitle}</p>}
+          {description && (
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              {description}
+            </p>
+          )}
         </div>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && (
+          <div className="flex items-center gap-2 shrink-0">{actions}</div>
+        )}
       </div>
-    </div>
+    </header>
   );
 }

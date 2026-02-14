@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Receipt, DollarSign, Clock, CheckCircle, XCircle, Sparkles } from 'lucide-react';
-import { Modal } from '@ims/ui';
+import { Modal, AIDisclosure } from '@ims/ui';
 import api, { aiApi } from '@/lib/api';
 
 interface Expense {
@@ -226,7 +226,8 @@ export default function ExpensesPage() {
               Dismiss
             </button>
           </div>
-          <div className="space-y-3">
+          <AIDisclosure variant="inline" provider="claude" analysisType="Expense Analysis" confidence={0.85} />
+          <div className="space-y-3 mt-3">
             <div className="flex items-center space-x-3">
               <span
                 className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${

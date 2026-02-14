@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { AIDisclosure } from '@ims/ui';
 import { api } from '@/lib/api';
 
 interface HumanReview {
@@ -213,7 +214,8 @@ export default function HumanReviewPage() {
               <h2 className="text-lg font-bold">Review: {activeReview.title}</h2>
 
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                <p className="text-xs font-medium text-gray-400 uppercase">AI Decision</p>
+                <AIDisclosure variant="inline" provider="claude" analysisType="Human Review Assessment" confidence={activeReview.aiConfidence ?? 0.85} />
+                <p className="text-xs font-medium text-gray-400 uppercase mt-2">AI Decision</p>
                 <p className="text-sm">{activeReview.aiDecision}</p>
                 {activeReview.aiConfidence != null && (
                   <div className="flex items-center gap-2">

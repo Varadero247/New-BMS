@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, Workflow, Search, Loader2, Sparkles,
@@ -453,6 +454,7 @@ export default function ProcessesClient() {
                             {r.aiRiskPoints && <p><strong>Risk Points:</strong> {r.aiRiskPoints}</p>}
                             {r.aiKpiSuggestions && <p><strong>KPI Suggestions:</strong> {r.aiKpiSuggestions}</p>}
                             {r.aiIsoAlignment && <p><strong>ISO Alignment:</strong> {r.aiIsoAlignment}</p>}
+                            <AIDisclosure variant="inline" provider="claude" analysisType="Process Analysis" confidence={0.85} />
                           </div>
                         )}
                       </div>

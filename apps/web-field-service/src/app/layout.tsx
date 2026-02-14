@@ -13,8 +13,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${dmSans.variable} ${sora.variable} font-body`}><I18nProvider>{children}</I18nProvider></body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className={`${dmSans.variable} ${sora.variable} font-body antialiased`}><I18nProvider>{children}</I18nProvider></body>
     </html>
   );
 }

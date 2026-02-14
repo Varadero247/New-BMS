@@ -80,6 +80,9 @@ export { DarkModeToggle, type DarkModeToggleProps } from './dark-mode-toggle';
 // Global Search (Cmd+K)
 export { GlobalSearch, type GlobalSearchProps, type SearchResult } from './global-search';
 
+// Command Palette (Cmd+K)
+export { CommandPalette, type CommandPaletteProps, type CommandItem } from './command-palette';
+
 // Notification Centre
 export { NotificationCentre, type NotificationCentreProps, type Notification } from './notification-centre';
 
@@ -139,3 +142,9 @@ export { Timeline, type TimelineProps, type TimelineItem } from './timeline';
 
 // Gauge
 export { Gauge, type GaugeProps } from './gauge';
+
+// Chips
+export { SeverityChip, StatusChip, ISOStatusChip } from './chips';
+
+// Theme Toggle
+export { ThemeToggle, type ThemeToggleProps } from './theme-toggle';

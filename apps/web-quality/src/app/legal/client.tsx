@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
 import { Plus, Scale, Search, Shield, AlertTriangle, CheckCircle, Clock, Brain, Loader2, ExternalLink, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -1139,6 +1139,7 @@ export default function LegalClient() {
               {aiAnalysis.result && (
                 <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
                   {aiAnalysis.result}
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                 </div>
               )}
               {aiAnalysis.error && (

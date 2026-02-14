@@ -6,6 +6,7 @@ import {
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  AIDisclosure,
 } from '@ims/ui';
 import { RiskMatrix } from '@ims/charts';
 import { Plus, AlertTriangle, Loader2, Search, Sparkles, Shield } from 'lucide-react';
@@ -565,6 +566,9 @@ export default function RisksPage() {
                     <Label htmlFor="existingControls">Existing Controls (already in place)</Label>
                     <Textarea id="existingControls" placeholder="Describe any controls already in place..." rows={2} value={form.existingControls} onChange={e => updateForm('existingControls', e.target.value)} className="mt-1" />
                   </div>
+                  {(aiLoading || aiGenerated) && (
+                    <AIDisclosure variant="banner" provider="claude" analysisType="Risk Assessment" confidence={0.87} />
+                  )}
                   {aiLoading && (
                     <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
                       <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />

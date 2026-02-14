@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss';
 import { colors, fontFamily, fontSize, borderRadius, boxShadow } from './src/tokens';
 
 const preset: Partial<Config> = {
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -47,6 +48,25 @@ const preset: Partial<Config> = {
       fontSize,
       borderRadius,
       boxShadow,
+      animation: {
+        'fade-in': 'fadeIn 200ms ease-out',
+        'slide-up': 'slideUp 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'slide-in-right': 'slideInRight 250ms ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        slideUp: {
+          from: { opacity: '0', transform: 'translateY(6px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInRight: {
+          from: { opacity: '0', transform: 'translateX(-8px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
     },
   },
 };

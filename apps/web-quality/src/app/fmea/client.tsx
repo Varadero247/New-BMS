@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
 import { Plus, FileSpreadsheet, Search, AlertOctagon, Clock, CheckCircle, Trash2, Brain, Loader2, RefreshCw, ChevronDown, ChevronUp, TrendingDown } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -1257,6 +1257,7 @@ export default function FmeaClient() {
                     {aiAnalysis.result && (
                       <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
                         {aiAnalysis.result}
+                        <AIDisclosure variant="inline" provider="claude" analysisType="FMEA Analysis" confidence={0.85} />
                       </div>
                     )}
                     {aiAnalysis.error && (

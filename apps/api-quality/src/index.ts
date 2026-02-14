@@ -61,6 +61,9 @@ import metricsRouter from './routes/metrics';
 import investigationsRouter from './routes/investigations';
 import ciRouter from './routes/ci';
 import riskRegisterRouter from './routes/risk-register';
+import contextFactorsRouter from './routes/context-factors';
+import scopeRouter from './routes/scope';
+import policyRouter from './routes/policy';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -121,6 +124,9 @@ app.use('/api/metrics', metricsRouter);
 app.use('/api/investigations', investigationsRouter);
 app.use('/api/ci', ciRouter);
 app.use('/api/risk-register', riskRegisterRouter);
+app.use('/api/context-factors', contextFactorsRouter);
+app.use('/api/scope', scopeRouter);
+app.use('/api/policy', policyRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

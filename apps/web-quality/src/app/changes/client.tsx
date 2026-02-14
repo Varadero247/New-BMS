@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import {
   Plus, GitBranch, Search, Loader2, Sparkles,
@@ -424,6 +425,7 @@ export default function ChangesClient() {
                             {r.aiHiddenRisks && <p><strong>Hidden Risks:</strong> {r.aiHiddenRisks}</p>}
                             {r.aiAffectedProcesses && <p><strong>Affected Processes:</strong> {r.aiAffectedProcesses}</p>}
                             {r.aiImplementationSteps && <p><strong>Implementation Steps:</strong> {r.aiImplementationSteps}</p>}
+                            <AIDisclosure variant="inline" provider="claude" analysisType="Change Impact Analysis" confidence={0.85} />
                           </div>
                         )}
                       </div>

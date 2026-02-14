@@ -185,10 +185,17 @@ describe('Audit Log Routes', () => {
   describe('GET /api/audit-log/stats', () => {
     it('should return statistics', async () => {
       (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(42);
-      (prisma.aiAuditLog.groupBy as jest.Mock).mockResolvedValue([
-        { action: 'DECISION', _count: { id: 30 } },
-        { action: 'OVERRIDE', _count: { id: 12 } },
-      ]);
+      (prisma.aiAuditLog.groupBy as jest.Mock)
+        .mockResolvedValueOnce([
+          { action: 'DECISION', _count: { id: 30 } },
+          { action: 'OVERRIDE', _count: { id: 12 } },
+        ])
+        .mockResolvedValueOnce([
+          { userId: 'user-123', userName: 'test@test.com', _count: { id: 42 } },
+        ])
+        .mockResolvedValueOnce([
+          { createdAt: new Date('2026-02-14'), _count: { id: 5 } },
+        ]);
       (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([mockEntry]);
 
       const res = await request(app).get('/api/audit-log/stats');

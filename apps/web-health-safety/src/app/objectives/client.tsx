@@ -5,6 +5,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
   Button, Badge, Modal, ModalFooter,
   Input, Label, Select, Textarea,
+  AIDisclosure,
 } from '@ims/ui';
 import { Plus, Target, Loader2, Search, Sparkles, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -389,6 +390,7 @@ export default function ObjectivesClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600">Enter a title, then AI will generate a SMART statement, KPIs, and milestones.</p>
+                  <AIDisclosure variant="inline" provider="claude" analysisType="Objective Analysis" confidence={0.85} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

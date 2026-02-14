@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, Badge } from '@ims/ui';
+import { Card, CardContent, Badge, AIDisclosure } from '@ims/ui';
 
 interface ClauseStatus {
   clause: string;
@@ -127,11 +127,11 @@ const clauseData: ClauseStatus[] = [
   },
 ];
 
-const statusConfig: Record<string, { label: string; color: string; variant: string }> = {
-  compliant: { label: 'Compliant', color: 'text-green-700 bg-green-100', variant: 'success' },
-  partial: { label: 'Partial', color: 'text-yellow-700 bg-yellow-100', variant: 'warning' },
-  'non-compliant': { label: 'Non-Compliant', color: 'text-red-700 bg-red-100', variant: 'danger' },
-  'not-assessed': { label: 'Not Assessed', color: 'text-gray-600 bg-gray-100', variant: 'default' },
+const statusConfig: Record<string, { label: string; color: string; darkColor: string; variant: string }> = {
+  compliant: { label: 'Compliant', color: 'text-green-700 bg-green-100', darkColor: 'dark:text-green-300 dark:bg-green-900/40', variant: 'success' },
+  partial: { label: 'Partial', color: 'text-yellow-700 bg-yellow-100', darkColor: 'dark:text-yellow-300 dark:bg-yellow-900/40', variant: 'warning' },
+  'non-compliant': { label: 'Non-Compliant', color: 'text-red-700 bg-red-100', darkColor: 'dark:text-red-300 dark:bg-red-900/40', variant: 'danger' },
+  'not-assessed': { label: 'Not Assessed', color: 'text-gray-600 bg-gray-100', darkColor: 'dark:text-gray-400 dark:bg-gray-700/40', variant: 'default' },
 };
 
 export default function ComplianceDashboardPage() {
@@ -153,9 +153,11 @@ export default function ComplianceDashboardPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ISO 9001:2015 Compliance Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Clause-by-clause compliance status and gap analysis</p>
+        <h1 className="text-2xl font-bold font-display text-foreground">ISO 9001:2015 Compliance Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">Clause-by-clause compliance status and gap analysis</p>
       </div>
+
+      <AIDisclosure variant="banner" provider="claude" analysisType="Compliance Analysis" confidence={0.92} />
 
       {/* Overall gauge */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -163,57 +165,57 @@ export default function ComplianceDashboardPage() {
           <CardContent className="p-6 flex flex-col items-center">
             <div className="relative h-32 w-32">
               <svg className="h-32 w-32 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e5e7eb" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#2563eb" strokeWidth="3"
-                  strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200 dark:text-gray-700" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="currentColor" strokeWidth="3"
+                  className="text-brand-600" strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-gray-900">{overallPct}%</span>
-                <span className="text-[10px] text-gray-500 uppercase">Compliant</span>
+                <span className="text-3xl font-bold text-foreground">{overallPct}%</span>
+                <span className="text-[10px] text-muted-foreground uppercase">Compliant</span>
               </div>
             </div>
-            <div className="mt-3 text-sm text-gray-500">{compliantClauses} of {totalClauses} clauses fully compliant</div>
+            <div className="mt-3 text-sm text-muted-foreground">{compliantClauses} of {totalClauses} clauses fully compliant</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Evidence Coverage</h3>
+            <h3 className="text-sm font-semibold text-foreground">Evidence Coverage</h3>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{totalEvidence} / {totalRequired} items</span>
-              <span className="font-bold text-blue-600">{evidencePct}%</span>
+              <span className="text-muted-foreground">{totalEvidence} / {totalRequired} items</span>
+              <span className="font-bold text-brand-600">{evidencePct}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-blue-600 rounded-full h-3 transition-all" style={{ width: `${evidencePct}%` }} />
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+              <div className="bg-brand-600 rounded-full h-3 transition-all" style={{ width: `${evidencePct}%` }} />
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-green-500" /><span className="text-gray-600">Compliant: {compliantClauses}</span></div>
-              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-yellow-500" /><span className="text-gray-600">Partial: {partialClauses}</span></div>
-              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-500" /><span className="text-gray-600">Non-Compliant: {nonCompliantClauses}</span></div>
-              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-gray-400" /><span className="text-gray-600">Not Assessed: {clauseData.filter(c => c.status === 'not-assessed').length}</span></div>
+              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-green-500" /><span className="text-muted-foreground">Compliant: {compliantClauses}</span></div>
+              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-yellow-500" /><span className="text-muted-foreground">Partial: {partialClauses}</span></div>
+              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-500" /><span className="text-muted-foreground">Non-Compliant: {nonCompliantClauses}</span></div>
+              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-gray-400" /><span className="text-muted-foreground">Not Assessed: {clauseData.filter(c => c.status === 'not-assessed').length}</span></div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700">Upcoming Actions</h3>
+            <h3 className="text-sm font-semibold text-foreground">Upcoming Actions</h3>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-50 border border-yellow-200">
+              <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30">
                 <span className="h-2 w-2 rounded-full bg-yellow-500 shrink-0" />
-                <div className="text-xs"><span className="font-medium text-yellow-800">§9.2 Internal Audit</span><span className="text-yellow-600"> — due in 14 days</span></div>
+                <div className="text-xs"><span className="font-medium text-yellow-800 dark:text-yellow-300">&sect;9.2 Internal Audit</span><span className="text-yellow-600 dark:text-yellow-400"> &mdash; due in 14 days</span></div>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-50 border border-yellow-200">
+              <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30">
                 <span className="h-2 w-2 rounded-full bg-yellow-500 shrink-0" />
-                <div className="text-xs"><span className="font-medium text-yellow-800">§9.3 Management Review</span><span className="text-yellow-600"> — Q1 2026 pending</span></div>
+                <div className="text-xs"><span className="font-medium text-yellow-800 dark:text-yellow-300">&sect;9.3 Management Review</span><span className="text-yellow-600 dark:text-yellow-400"> &mdash; Q1 2026 pending</span></div>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-md bg-orange-50 border border-orange-200">
+              <div className="flex items-center gap-2 p-2 rounded-md bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/30">
                 <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
-                <div className="text-xs"><span className="font-medium text-orange-800">§7.1.5 Calibrations</span><span className="text-orange-600"> — 2 overdue</span></div>
+                <div className="text-xs"><span className="font-medium text-orange-800 dark:text-orange-300">&sect;7.1.5 Calibrations</span><span className="text-orange-600 dark:text-orange-400"> &mdash; 2 overdue</span></div>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-md bg-blue-50 border border-blue-200">
-                <span className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />
-                <div className="text-xs"><span className="font-medium text-blue-800">§7.2 Competence</span><span className="text-blue-600"> — 3 records need review</span></div>
+              <div className="flex items-center gap-2 p-2 rounded-md bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800/30">
+                <span className="h-2 w-2 rounded-full bg-brand-500 shrink-0" />
+                <div className="text-xs"><span className="font-medium text-brand-800 dark:text-brand-300">&sect;7.2 Competence</span><span className="text-brand-600 dark:text-brand-400"> &mdash; 3 records need review</span></div>
               </div>
             </div>
           </CardContent>
@@ -222,7 +224,7 @@ export default function ComplianceDashboardPage() {
 
       {/* Filter */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500">Filter:</span>
+        <span className="text-sm text-muted-foreground">Filter:</span>
         {[
           { value: '', label: 'All Clauses' },
           { value: 'compliant', label: 'Compliant' },
@@ -234,8 +236,8 @@ export default function ComplianceDashboardPage() {
             onClick={() => setFilterStatus(f.value)}
             className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
               filterStatus === f.value
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                ? 'bg-brand-600 text-white border-brand-600'
+                : 'bg-card text-foreground border-border hover:bg-muted'
             }`}
           >
             {f.label}
@@ -251,71 +253,71 @@ export default function ComplianceDashboardPage() {
           const clauseEvidencePct = clause.required > 0 ? Math.round((clause.evidence / clause.required) * 100) : 0;
 
           return (
-            <div key={clause.clause} className="bg-white rounded-lg border overflow-hidden">
+            <div key={clause.clause} className="bg-card rounded-lg border border-border overflow-hidden">
               <button
                 type="button"
                 onClick={() => setExpandedClause(isExpanded ? null : clause.clause)}
-                className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 text-blue-700 font-bold text-sm shrink-0">
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-bold text-sm shrink-0">
                   {clause.clause}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">{clause.title}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{clause.title}</h3>
                     <Badge variant={sc.variant as any}>{sc.label}</Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{clause.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{clause.description}</p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">Evidence</div>
-                    <div className="text-sm font-medium text-gray-900">{clause.evidence}/{clause.required}</div>
+                    <div className="text-xs text-muted-foreground">Evidence</div>
+                    <div className="text-sm font-medium text-foreground">{clause.evidence}/{clause.required}</div>
                   </div>
-                  <div className="w-16 h-2 bg-gray-200 rounded-full">
+                  <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                     <div
                       className={`h-full rounded-full ${clauseEvidencePct === 100 ? 'bg-green-500' : clauseEvidencePct >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
                       style={{ width: `${clauseEvidencePct}%` }}
                     />
                   </div>
-                  <svg className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t">
+                <div className="border-t border-border">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-muted/50">
                       <tr>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700 w-20">Clause</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700">Requirement</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700 w-32">Status</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700">Notes</th>
+                        <th className="text-left px-4 py-2 font-medium text-foreground w-20">Clause</th>
+                        <th className="text-left px-4 py-2 font-medium text-foreground">Requirement</th>
+                        <th className="text-left px-4 py-2 font-medium text-foreground w-32">Status</th>
+                        <th className="text-left px-4 py-2 font-medium text-foreground">Notes</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-border">
                       {clause.subClauses.map(sub => {
                         const subSc = statusConfig[sub.status];
                         return (
-                          <tr key={sub.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 font-mono text-xs text-blue-600">{sub.id}</td>
-                            <td className="px-4 py-2 text-gray-900">{sub.title}</td>
+                          <tr key={sub.id} className="hover:bg-muted/30">
+                            <td className="px-4 py-2 font-mono text-xs text-brand-600 dark:text-brand-400">{sub.id}</td>
+                            <td className="px-4 py-2 text-foreground">{sub.title}</td>
                             <td className="px-4 py-2">
-                              <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${subSc.color}`}>
+                              <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${subSc.color} ${subSc.darkColor}`}>
                                 {subSc.label}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-xs text-gray-500">{sub.notes || '—'}</td>
+                            <td className="px-4 py-2 text-xs text-muted-foreground">{sub.notes || '—'}</td>
                           </tr>
                         );
                       })}
                     </tbody>
                   </table>
                   {clause.link && (
-                    <div className="px-4 py-2 border-t bg-gray-50">
-                      <a href={clause.link} className="text-xs text-blue-600 hover:underline">Go to related module →</a>
+                    <div className="px-4 py-2 border-t border-border bg-muted/30">
+                      <a href={clause.link} className="text-xs text-brand-600 dark:text-brand-400 hover:underline">Go to related module &rarr;</a>
                     </div>
                   )}
                 </div>
