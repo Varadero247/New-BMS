@@ -78,7 +78,7 @@ export default function Sidebar() {
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     active
                       ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200 font-medium'
-                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900'
                   }`}
                 >
                   {item.icon}
@@ -95,7 +95,7 @@ export default function Sidebar() {
           href="http://localhost:3000"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:text-gray-900"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:text-gray-100"
         >
           <ExternalLink className="h-5 w-5" />
           IMS Dashboard

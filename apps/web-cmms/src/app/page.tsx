@@ -65,8 +65,8 @@ export default function CMMSDashboard() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">CMMS Dashboard</h1>
-          <p className="text-gray-500 mt-1">Maintenance management overview and key metrics</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CMMS Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Maintenance management overview and key metrics</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {kpiCards.map((card) => {
@@ -77,9 +77,9 @@ export default function CMMSDashboard() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">{card.title}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p>
                         <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
-                        <p className="text-xs text-gray-400 mt-1">{card.subtitle}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{card.subtitle}</p>
                       </div>
                       <div className={`p-3 rounded-full ${card.bgColor}`}>
                         <Icon className={`h-6 w-6 ${card.iconColor}`} />
@@ -102,19 +102,19 @@ export default function CMMSDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link href="/work-orders" className="flex flex-col items-center p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors">
                 <Wrench className="h-8 w-8 text-amber-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">Create Work Order</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Work Order</span>
               </Link>
               <Link href="/assets" className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                 <Server className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">Register Asset</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Register Asset</span>
               </Link>
               <Link href="/preventive-plans" className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
                 <CalendarCheck className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">PM Schedule</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">PM Schedule</span>
               </Link>
               <Link href="/kpis" className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
                 <BarChart3 className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">View KPIs</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View KPIs</span>
               </Link>
             </div>
           </CardContent>

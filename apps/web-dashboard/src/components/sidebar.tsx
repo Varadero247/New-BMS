@@ -146,7 +146,7 @@ const sections: NavSection[] = [
       { name: 'Customer Portal', href: moduleUrl(3018), icon: Building2, color: 'text-blue-600', bgColor: 'bg-blue-100', external: true },
       { name: 'Supplier Portal', href: moduleUrl(3019), icon: Briefcase, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
       { name: 'Medical Devices', href: moduleUrl(3011), icon: Stethoscope, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
-      { name: 'Automotive', href: moduleUrl(3010), icon: Car, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true },
+      { name: 'Automotive', href: moduleUrl(3010), icon: Car, color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800', external: true },
     ],
   },
   {
@@ -187,11 +187,11 @@ function NavLink({ item }: { item: NavItem }) {
         <div className={`p-1.5 rounded-lg ${item.bgColor}`}>
           <Icon className={`h-4 w-4 ${item.color}`} />
         </div>
-        <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
+        <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:text-gray-100 dark:group-hover:text-gray-100">
           {item.name}
         </span>
         {item.external && (
-          <ChevronRight className="h-3 w-3 text-gray-400" />
+          <ChevronRight className="h-3 w-3 text-gray-400 dark:text-gray-500" />
         )}
       </Component>
     </li>
@@ -206,8 +206,8 @@ function CollapsibleSection({ section }: { section: NavSection }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3 py-1 w-full text-left"
       >
-        <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${open ? '' : '-rotate-90'}`} />
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{section.title}</span>
+        <ChevronDown className={`h-3 w-3 text-gray-400 dark:text-gray-500 transition-transform ${open ? '' : '-rotate-90'}`} />
+        <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{section.title}</span>
       </button>
       {open && (
         <ul className="mt-1 space-y-0.5">
@@ -241,7 +241,7 @@ export function Sidebar() {
         {/* Settings */}
         <div className="mt-3 border-t border-border pt-3">
           <ul>
-            <NavLink item={{ name: 'Settings', href: moduleUrl(3004), icon: Settings, color: 'text-gray-600', bgColor: 'bg-gray-100', external: true }} />
+            <NavLink item={{ name: 'Settings', href: moduleUrl(3004), icon: Settings, color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800', external: true }} />
           </ul>
         </div>
       </nav>

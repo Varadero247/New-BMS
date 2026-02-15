@@ -136,7 +136,7 @@ export default function ChatbotWidget() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {messages.length === 0 && (
-            <div className="text-center text-gray-500 text-sm mt-8">
+            <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
               <p className="mb-1">Hi there! I am Aria.</p>
               <p>Ask me about ISO standards, pricing, or how Nexara can help your organisation.</p>
             </div>

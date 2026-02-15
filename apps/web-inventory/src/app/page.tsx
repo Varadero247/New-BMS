@@ -84,8 +84,8 @@ export default function InventoryDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Inventory Dashboard</h1>
-          <p className="text-gray-500 mt-1">Real-time inventory overview and stock management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Inventory Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Real-time inventory overview and stock management</p>
         </div>
 
         {/* Stats Cards */}
@@ -94,7 +94,7 @@ export default function InventoryDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Products</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
                   <p className="text-2xl font-bold">{stats?.totalProducts || 0}</p>
                 </div>
                 <div className="p-3 bg-sky-100 rounded-full">
@@ -108,14 +108,14 @@ export default function InventoryDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Stock</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Stock</p>
                   <p className="text-2xl font-bold">{(stats?.totalQuantityOnHand || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
                   <BarChart className="h-6 w-6 text-green-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Units across all warehouses</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Units across all warehouses</p>
             </CardContent>
           </Card>
 
@@ -123,7 +123,7 @@ export default function InventoryDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Inventory Value</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Inventory Value</p>
                   <p className="text-2xl font-bold">${(stats?.totalInventoryValue || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -137,7 +137,7 @@ export default function InventoryDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Low Stock Alerts</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Low Stock Alerts</p>
                   <p className="text-2xl font-bold text-orange-600">{stats?.lowStockCount || 0}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
@@ -158,7 +158,7 @@ export default function InventoryDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total In (30 days)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total In (30 days)</p>
                     <p className="text-2xl font-bold text-green-600">
                       +{(stats.transactionSummary.totals?.totalIn || 0).toLocaleString()}
                     </p>
@@ -174,7 +174,7 @@ export default function InventoryDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total Out (30 days)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Out (30 days)</p>
                     <p className="text-2xl font-bold text-red-600">
                       -{(stats.transactionSummary.totals?.totalOut || 0).toLocaleString()}
                     </p>
@@ -190,7 +190,7 @@ export default function InventoryDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Transactions (30 days)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Transactions (30 days)</p>
                     <p className="text-2xl font-bold">{stats.transactionSummary.totals?.totalTransactions || 0}</p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-full">
@@ -220,9 +220,9 @@ export default function InventoryDashboard() {
                       <div className="flex-1">
                         <p className="font-medium text-sm">{product.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">SKU: {product.sku}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">SKU: {product.sku}</span>
                           {product.category && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600">
                               {product.category.name}
                             </span>
                           )}
@@ -230,13 +230,13 @@ export default function InventoryDashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-orange-600">{product.totalStock}</p>
-                        <p className="text-xs text-gray-500">/ {product.reorderPoint} min</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">/ {product.reorderPoint} min</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No low stock alerts</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No low stock alerts</p>
               )}
             </CardContent>
           </Card>
@@ -256,21 +256,21 @@ export default function InventoryDashboard() {
                     <Link
                       key={warehouse.id}
                       href={`/warehouses?id=${warehouse.id}`}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{warehouse.name}</p>
-                        <span className="text-xs text-gray-500">{warehouse.code}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{warehouse.code}</span>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-semibold">{warehouse.stats?.totalProducts || 0} products</p>
-                        <p className="text-xs text-gray-500">{(warehouse.stats?.totalQuantity || 0).toLocaleString()} units</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{(warehouse.stats?.totalQuantity || 0).toLocaleString()} units</p>
                       </div>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No warehouses configured</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No warehouses configured</p>
               )}
               <Link
                 href="/warehouses"
@@ -288,45 +288,45 @@ export default function InventoryDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link
               href="/products?action=new"
-              className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 hover:border-sky-500 hover:shadow-sm transition-all"
+              className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:shadow-sm transition-all"
             >
               <Package className="h-8 w-8 text-sky-500" />
               <div>
                 <p className="font-medium">Add Product</p>
-                <p className="text-xs text-gray-500">Create new product</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Create new product</p>
               </div>
             </Link>
 
             <Link
               href="/adjustments"
-              className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 hover:border-sky-500 hover:shadow-sm transition-all"
+              className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:shadow-sm transition-all"
             >
               <ArrowRightLeft className="h-8 w-8 text-purple-500" />
               <div>
                 <p className="font-medium">Stock Adjustment</p>
-                <p className="text-xs text-gray-500">Adjust inventory levels</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Adjust inventory levels</p>
               </div>
             </Link>
 
             <Link
               href="/adjustments?type=transfer"
-              className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 hover:border-sky-500 hover:shadow-sm transition-all"
+              className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:shadow-sm transition-all"
             >
               <Warehouse className="h-8 w-8 text-green-500" />
               <div>
                 <p className="font-medium">Transfer Stock</p>
-                <p className="text-xs text-gray-500">Move between warehouses</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Move between warehouses</p>
               </div>
             </Link>
 
             <Link
               href="/reports"
-              className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 hover:border-sky-500 hover:shadow-sm transition-all"
+              className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:shadow-sm transition-all"
             >
               <BarChart className="h-8 w-8 text-orange-500" />
               <div>
                 <p className="font-medium">View Reports</p>
-                <p className="text-xs text-gray-500">Analytics & insights</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Analytics & insights</p>
               </div>
             </Link>
           </div>

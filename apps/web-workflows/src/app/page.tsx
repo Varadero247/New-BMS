@@ -58,7 +58,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading dashboard...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading dashboard...</div>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Workflow Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Workflow Dashboard</h1>
         <Link
           href="/instances/new"
           className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
@@ -77,11 +77,11 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Active Workflows</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Workflows</p>
+              <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], 'ACTIVE')}
               </p>
             </div>
@@ -91,11 +91,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Pending Tasks</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Tasks</p>
+              <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.tasks.byStatus || [], 'PENDING')}
               </p>
             </div>
@@ -105,11 +105,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Overdue Tasks</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue Tasks</p>
+              <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {stats?.tasks.overdueCount || 0}
               </p>
             </div>
@@ -119,11 +119,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Completed Today</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Today</p>
+              <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], 'COMPLETED')}
               </p>
             </div>
@@ -136,64 +136,64 @@ export default function DashboardPage() {
 
       {/* Quick Actions & Recent */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg bg-white p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-4">
             <Link
               href="/templates"
-              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50"
+              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50 dark:bg-gray-800"
             >
               <GitBranch className="h-8 w-8 text-indigo-500" />
               <div>
-                <p className="font-medium text-gray-900">Browse Templates</p>
-                <p className="text-sm text-gray-500">Industry templates</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">Browse Templates</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Industry templates</p>
               </div>
             </Link>
             <Link
               href="/definitions/new"
-              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50"
+              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50 dark:bg-gray-800"
             >
               <Zap className="h-8 w-8 text-purple-500" />
               <div>
-                <p className="font-medium text-gray-900">Create Workflow</p>
-                <p className="text-sm text-gray-500">Build from scratch</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">Create Workflow</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Build from scratch</p>
               </div>
             </Link>
             <Link
               href="/tasks"
-              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50"
+              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50 dark:bg-gray-800"
             >
               <CheckSquare className="h-8 w-8 text-green-500" />
               <div>
-                <p className="font-medium text-gray-900">My Tasks</p>
-                <p className="text-sm text-gray-500">View assignments</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">My Tasks</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">View assignments</p>
               </div>
             </Link>
             <Link
               href="/approvals"
-              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50"
+              className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-gray-50 dark:bg-gray-800"
             >
               <Clock className="h-8 w-8 text-orange-500" />
               <div>
-                <p className="font-medium text-gray-900">Pending Approvals</p>
-                <p className="text-sm text-gray-500">Review requests</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">Pending Approvals</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Review requests</p>
               </div>
             </Link>
           </div>
         </div>
 
         {/* Recent Active Workflows */}
-        <div className="rounded-lg bg-white p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Active Workflows</h2>
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Active Workflows</h2>
           {!stats?.instances.recentActive?.length ? (
-            <p className="text-gray-500">No active workflows</p>
+            <p className="text-gray-500 dark:text-gray-400">No active workflows</p>
           ) : (
             <div className="space-y-3">
               {stats.instances.recentActive.map((instance: any) => (
                 <Link
                   key={instance.id}
                   href={`/instances/${instance.id}`}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50"
+                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50 dark:bg-gray-800"
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`rounded-full p-2 ${
@@ -208,8 +208,8 @@ export default function DashboardPage() {
                       }`} />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{instance.title}</p>
-                      <p className="text-sm text-gray-500">{instance.instanceNumber}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{instance.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{instance.instanceNumber}</p>
                     </div>
                   </div>
                   <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
@@ -227,8 +227,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Workflow Status Summary */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Workflow Status Summary</h2>
+      <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Workflow Status Summary</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {[
             { status: 'ACTIVE', label: 'Active', color: 'blue', icon: Play },
@@ -241,10 +241,10 @@ export default function DashboardPage() {
               <div className={`mx-auto mb-2 w-fit rounded-full bg-${color}-100 p-2`}>
                 <Icon className={`h-5 w-5 text-${color}-600`} />
               </div>
-              <p className="text-2xl font-semibold text-gray-900">
+              <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], status)}
               </p>
-              <p className="text-sm text-gray-500">{label}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
             </div>
           ))}
         </div>

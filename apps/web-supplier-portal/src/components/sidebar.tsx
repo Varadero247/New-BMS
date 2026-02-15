@@ -35,8 +35,8 @@ export function Sidebar() {
             const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
             return (
               <li key={item.name}>
-                <Link href={item.href} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'}`}>
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500'}`} />
+                <Link href={item.href} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                  <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
                   <span className="text-sm font-medium">{item.name}</span>
                 </Link>
               </li>
@@ -44,9 +44,9 @@ export function Sidebar() {
           })}
         </ul>
         <div className="mt-4 pt-4 border-t border-border">
-          <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Quick Links</p>
+          <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Quick Links</p>
           <ul className="space-y-1">
-            {externalLinks.map((item) => { const Icon = item.icon; return (<li key={item.name}><a href={item.href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"><Icon className="h-5 w-5 text-gray-500" /><span className="text-sm font-medium">{item.name}</span></a></li>); })}
+            {externalLinks.map((item) => { const Icon = item.icon; return (<li key={item.name}><a href={item.href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><Icon className="h-5 w-5 text-gray-500 dark:text-gray-400" /><span className="text-sm font-medium">{item.name}</span></a></li>); })}
           </ul>
         </div>
       </nav>

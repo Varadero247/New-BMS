@@ -129,8 +129,8 @@ export default function HealthSafetyDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Health & Safety Dashboard</h1>
-          <p className="text-gray-500 mt-1">ISO 45001 Occupational Health & Safety Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Health & Safety Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001 Occupational Health & Safety Management</p>
         </div>
 
         {/* Compliance & Metrics Row */}
@@ -150,14 +150,14 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">LTIFR</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">LTIFR</p>
                   <p className="text-2xl font-bold">{stats?.metrics.ltifr.toFixed(2) || '0.00'}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
                   <Activity className="h-6 w-6 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Lost Time Injury Frequency Rate</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Lost Time Injury Frequency Rate</p>
             </CardContent>
           </Card>
 
@@ -165,14 +165,14 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">TRIR</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">TRIR</p>
                   <p className="text-2xl font-bold">{stats?.metrics.trir.toFixed(2) || '0.00'}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <TrendingUp className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Total Recordable Incident Rate</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Total Recordable Incident Rate</p>
             </CardContent>
           </Card>
 
@@ -180,14 +180,14 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Severity Rate</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Severity Rate</p>
                   <p className="text-2xl font-bold">{stats?.metrics.severityRate.toFixed(1) || '0.0'}</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <Users className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Days Lost per Incident</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Days Lost per Incident</p>
             </CardContent>
           </Card>
         </div>
@@ -198,7 +198,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Risks</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Risks</p>
                   <p className="text-2xl font-bold">{stats?.risks.total || 0}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
@@ -207,7 +207,7 @@ export default function HealthSafetyDashboard() {
               </div>
               <div className="mt-2 text-sm">
                 <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
-                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                 <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
               </div>
             </CardContent>
@@ -217,14 +217,14 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open Incidents</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
                   <p className="text-2xl font-bold">{stats?.incidents.open || 0}</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <FileWarning className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.incidents.thisMonth || 0} reported this month
               </div>
             </CardContent>
@@ -234,7 +234,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue CAPAs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Overdue CAPAs</p>
                   <p className={`text-2xl font-bold ${(stats?.actions.overdue || 0) > 0 ? 'text-red-600' : ''}`}>
                     {stats?.actions.overdue || 0}
                   </p>
@@ -243,7 +243,7 @@ export default function HealthSafetyDashboard() {
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.actions.dueThisWeek || 0} due this week
               </div>
             </CardContent>
@@ -253,7 +253,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Incidents (YTD)</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents (YTD)</p>
                   <p className="text-2xl font-bold">{stats?.incidents.total || 0}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -270,8 +270,8 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Legal Compliance</p>
-                  <p className="text-2xl font-bold">{stats?.legal.compliant || 0}<span className="text-sm text-gray-400 font-normal">/{stats?.legal.total || 0}</span></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Legal Compliance</p>
+                  <p className="text-2xl font-bold">{stats?.legal.compliant || 0}<span className="text-sm text-gray-400 dark:text-gray-500 font-normal">/{stats?.legal.total || 0}</span></p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
                   <Scale className="h-6 w-6 text-green-600" />
@@ -279,7 +279,7 @@ export default function HealthSafetyDashboard() {
               </div>
               <div className="mt-2 text-sm">
                 <span className="text-yellow-600 font-medium">{stats?.legal.partial || 0} partial</span>
-                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                 <span className="text-red-600 font-medium">{stats?.legal.nonCompliant || 0} non-compliant</span>
               </div>
             </CardContent>
@@ -289,7 +289,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">OHS Objectives</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">OHS Objectives</p>
                   <p className="text-2xl font-bold">{stats?.objectives.total || 0}</p>
                 </div>
                 <div className="p-3 bg-indigo-100 rounded-full">
@@ -298,11 +298,11 @@ export default function HealthSafetyDashboard() {
               </div>
               <div className="mt-2 text-sm">
                 <span className="text-green-600 font-medium">{stats?.objectives.achieved || 0} achieved</span>
-                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                 <span className="text-blue-600 font-medium">{stats?.objectives.onTrack || 0} on track</span>
                 {(stats?.objectives.atRisk || 0) > 0 && (
                   <>
-                    <span className="text-gray-400 mx-1">|</span>
+                    <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                     <span className="text-red-600 font-medium">{stats?.objectives.atRisk} at risk</span>
                   </>
                 )}
@@ -314,7 +314,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total CAPAs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total CAPAs</p>
                   <p className="text-2xl font-bold">{stats?.actions.total || 0}</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -328,7 +328,7 @@ export default function HealthSafetyDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Legal Requirements</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Legal Requirements</p>
                   <p className="text-2xl font-bold">{stats?.legal.total || 0}</p>
                 </div>
                 <div className="p-3 bg-teal-100 rounded-full">
@@ -353,7 +353,7 @@ export default function HealthSafetyDashboard() {
               {stats?.topRisks && stats.topRisks.length > 0 ? (
                 <div className="space-y-3">
                   {stats.topRisks.map((risk: any) => (
-                    <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{risk.title}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
@@ -364,12 +364,12 @@ export default function HealthSafetyDashboard() {
                           {risk.riskLevel}
                         </span>
                       </div>
-                      <div className="text-2xl font-bold text-gray-400">{risk.riskScore}</div>
+                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No active risks</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active risks</p>
               )}
             </CardContent>
           </Card>
@@ -386,11 +386,11 @@ export default function HealthSafetyDashboard() {
               {stats?.recentIncidents && stats.recentIncidents.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentIncidents.map((incident: any) => (
-                    <div key={incident.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={incident.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{incident.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{incident.referenceNumber}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{incident.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             incident.status === 'OPEN' ? 'bg-red-100 text-red-700' :
                             incident.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
@@ -405,14 +405,14 @@ export default function HealthSafetyDashboard() {
                           )}
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(incident.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No incidents recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No incidents recorded</p>
               )}
             </CardContent>
           </Card>

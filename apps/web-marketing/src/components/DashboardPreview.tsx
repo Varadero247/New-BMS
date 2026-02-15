@@ -9,7 +9,7 @@ export default function DashboardPreview() {
       {/* Section header */}
       <div className="text-center">
         <h2 className="font-display text-4xl font-bold text-white">See Nexara in action</h2>
-        <p className="text-gray-400 mt-4 max-w-xl mx-auto font-body">
+        <p className="text-gray-400 dark:text-gray-500 mt-4 max-w-xl mx-auto font-body">
           A single pane of glass across all your compliance programmes. Built for compliance teams,
           loved by boards.
         </p>
@@ -71,7 +71,7 @@ export default function DashboardPreview() {
           <main className="flex-1 p-6 grid grid-cols-2 gap-4 content-start">
             {/* Card 1: Overall Compliance Score */}
             <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-              <p className="text-gray-400 text-xs font-mono uppercase tracking-wider">
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-mono uppercase tracking-wider">
                 Overall Compliance Score
               </p>
               <p className="font-display text-5xl text-white font-bold mt-2">94.2%</p>
@@ -89,13 +89,13 @@ export default function DashboardPreview() {
 
             {/* Card 2: Open Actions */}
             <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-              <p className="text-gray-400 text-xs font-mono uppercase tracking-wider">
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-mono uppercase tracking-wider">
                 Open Actions
               </p>
               <p className="font-display text-5xl text-white font-bold mt-2">23</p>
               <p className="mt-1 font-body text-sm">
                 <span className="text-critical">5 new</span>
-                <span className="text-gray-500 mx-2">·</span>
+                <span className="text-gray-500 dark:text-gray-400 mx-2">·</span>
                 <span className="text-warning-500">3 overdue</span>
               </p>
               {/* Mini bar chart */}
@@ -111,7 +111,7 @@ export default function DashboardPreview() {
 
             {/* Card 3: Standards Coverage */}
             <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-              <p className="text-gray-400 text-xs font-mono uppercase tracking-wider">
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-mono uppercase tracking-wider">
                 Standards Coverage
               </p>
               <div className="flex items-center gap-6 mt-3">
@@ -176,15 +176,15 @@ export default function DashboardPreview() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-brand-700 flex-shrink-0" />
-                    <span className="text-gray-400 text-xs font-body">Active (75%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">Active (75%)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-teal flex-shrink-0" />
-                    <span className="text-gray-400 text-xs font-body">In Progress (15%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">In Progress (15%)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-white/10 flex-shrink-0" />
-                    <span className="text-gray-400 text-xs font-body">Planned (10%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">Planned (10%)</span>
                   </div>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function DashboardPreview() {
 
             {/* Card 4: Recent Activity */}
             <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-              <p className="text-gray-400 text-xs font-mono uppercase tracking-wider">
+              <p className="text-gray-400 dark:text-gray-500 text-xs font-mono uppercase tracking-wider">
                 Recent Activity
               </p>
               <div className="mt-4 space-y-3">
@@ -203,7 +203,7 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">ISO 9001 audit completed</p>
-                    <p className="text-gray-500 text-xs font-mono mt-0.5">2 hours ago</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">2 hours ago</p>
                   </div>
                 </div>
                 {/* Activity 2 */}
@@ -213,7 +213,7 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">3 risks escalated to HIGH</p>
-                    <p className="text-gray-500 text-xs font-mono mt-0.5">4 hours ago</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">4 hours ago</p>
                   </div>
                 </div>
                 {/* Activity 3 */}
@@ -223,7 +223,7 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">Document approved</p>
-                    <p className="text-gray-500 text-xs font-mono mt-0.5">Yesterday</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">Yesterday</p>
                   </div>
                 </div>
               </div>

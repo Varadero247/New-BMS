@@ -99,7 +99,7 @@ export default function Articles() {
               className={`px-4 py-2 rounded-lg text-sm font-body border transition-all duration-150 ${
                 activeFilter === filter
                   ? 'bg-white/[0.08] text-white border-white/30'
-                  : 'text-gray-500 border-white/10 hover:border-white/20 hover:text-gray-400'
+                  : 'text-gray-500 dark:text-gray-400 border-white/10 hover:border-white/20 hover:text-gray-400'
               }`}
             >
               {filter}
@@ -153,7 +153,7 @@ export default function Articles() {
                     className={`w-8 h-8 rounded-full bg-gradient-to-br ${filteredFeatured.avatarFrom} ${filteredFeatured.avatarTo} flex-shrink-0`}
                   />
                   <div>
-                    <p className="text-sm text-gray-400 font-body">{filteredFeatured.author}</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 font-body">{filteredFeatured.author}</p>
                     <p className="text-xs text-gray-600 font-mono">{filteredFeatured.readTime}</p>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function Articles() {
                   className={`w-8 h-8 rounded-full bg-gradient-to-br ${article.avatarFrom} ${article.avatarTo} flex-shrink-0`}
                 />
                 <div>
-                  <p className="text-sm text-gray-400 font-body">{article.author}</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 font-body">{article.author}</p>
                   <p className="text-xs text-gray-600 font-mono">{article.readTime}</p>
                 </div>
               </div>

@@ -29,15 +29,15 @@ export default function FoodSafetyDashboard() {
 
   return (
     <div className="p-8"><div className="max-w-7xl mx-auto">
-      <div className="mb-8"><h1 className="text-3xl font-bold text-gray-900">Food Safety Dashboard</h1><p className="text-gray-500 mt-1">HACCP-based food safety management overview</p></div>
+      <div className="mb-8"><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Food Safety Dashboard</h1><p className="text-gray-500 dark:text-gray-400 mt-1">HACCP-based food safety management overview</p></div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        {kpiCards.map((card) => { const Icon = card.icon; return (<Link key={card.title} href={card.href}><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">{card.title}</p><p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p></div><div className={`p-3 rounded-full ${card.bgColor}`}><Icon className={`h-6 w-6 ${card.iconColor}`} /></div></div></CardContent></Card></Link>); })}
+        {kpiCards.map((card) => { const Icon = card.icon; return (<Link key={card.title} href={card.href}><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p><p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p></div><div className={`p-3 rounded-full ${card.bgColor}`}><Icon className={`h-6 w-6 ${card.iconColor}`} /></div></div></CardContent></Card></Link>); })}
       </div>
       <Card><CardHeader><CardTitle className="flex items-center gap-2"><BarChart3 className="h-5 w-5 text-orange-600" />Quick Actions</CardTitle></CardHeader><CardContent><div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link href="/hazards" className="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"><AlertTriangle className="h-8 w-8 text-orange-600 mb-2" /><span className="text-sm font-medium text-gray-700">Hazard Analysis</span></Link>
-        <Link href="/ccps" className="flex flex-col items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"><Crosshair className="h-8 w-8 text-red-600 mb-2" /><span className="text-sm font-medium text-gray-700">CCP Management</span></Link>
-        <Link href="/monitoring" className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"><Activity className="h-8 w-8 text-blue-600 mb-2" /><span className="text-sm font-medium text-gray-700">Monitoring</span></Link>
-        <Link href="/audits" className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"><ClipboardCheck className="h-8 w-8 text-green-600 mb-2" /><span className="text-sm font-medium text-gray-700">Audits</span></Link>
+        <Link href="/hazards" className="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"><AlertTriangle className="h-8 w-8 text-orange-600 mb-2" /><span className="text-sm font-medium text-gray-700 dark:text-gray-300">Hazard Analysis</span></Link>
+        <Link href="/ccps" className="flex flex-col items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"><Crosshair className="h-8 w-8 text-red-600 mb-2" /><span className="text-sm font-medium text-gray-700 dark:text-gray-300">CCP Management</span></Link>
+        <Link href="/monitoring" className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"><Activity className="h-8 w-8 text-blue-600 mb-2" /><span className="text-sm font-medium text-gray-700 dark:text-gray-300">Monitoring</span></Link>
+        <Link href="/audits" className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"><ClipboardCheck className="h-8 w-8 text-green-600 mb-2" /><span className="text-sm font-medium text-gray-700 dark:text-gray-300">Audits</span></Link>
       </div></CardContent></Card>
     </div></div>
   );

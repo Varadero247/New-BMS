@@ -34,7 +34,7 @@ export function Sidebar() {
           </div>
           <div>
             <h1 className="text-white font-bold text-lg leading-tight">Nexara</h1>
-            <p className="text-gray-400 text-xs">Admin Console</p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs">Admin Console</p>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@ export function Sidebar() {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? 'bg-[#1B3A6B] text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-[#1B3A6B]/40'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-white hover:bg-[#1B3A6B]/40'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -63,7 +63,7 @@ export function Sidebar() {
       <div className="p-3 border-t border-[#1B3A6B]/30">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 dark:text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />
           Logout

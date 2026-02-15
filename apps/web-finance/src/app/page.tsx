@@ -175,8 +175,8 @@ export default function FinanceDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Finance Dashboard</h1>
-          <p className="text-gray-500 mt-1">Financial overview and key metrics</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Finance Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Financial overview and key metrics</p>
         </div>
 
         {/* KPI Cards */}
@@ -189,9 +189,9 @@ export default function FinanceDashboard() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">{card.title}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p>
                         <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
-                        <p className="text-xs text-gray-400 mt-1">{card.subtitle}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{card.subtitle}</p>
                       </div>
                       <div className={`p-3 rounded-full ${card.bgColor}`}>
                         <Icon className={`h-6 w-6 ${card.iconColor}`} />
@@ -216,28 +216,28 @@ export default function FinanceDashboard() {
                 className="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
               >
                 <Receipt className="h-8 w-8 text-indigo-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">Create Invoice</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Invoice</span>
               </Link>
               <Link
                 href="/payables"
                 className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 <CreditCard className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">Record Bill</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Record Bill</span>
               </Link>
               <Link
                 href="/journal"
                 className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
               >
                 <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">Journal Entry</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Journal Entry</span>
               </Link>
               <Link
                 href="/reports"
                 className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700">View Reports</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View Reports</span>
               </Link>
             </div>
           </CardContent>
@@ -254,19 +254,19 @@ export default function FinanceDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Amount</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.recentTransactions.map((tx) => (
-                      <tr key={tx.id} className="border-b hover:bg-gray-50">
+                      <tr key={tx.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4 text-gray-600">
                           {new Date(tx.date).toLocaleDateString()}
                         </td>
-                        <td className="py-3 px-4 text-gray-900">{tx.description}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{tx.description}</td>
                         <td className="py-3 px-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                             tx.type === 'CREDIT' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -285,7 +285,7 @@ export default function FinanceDashboard() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No recent transactions</p>
               </div>

@@ -90,8 +90,8 @@ export default function DashboardPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">ISO 37001 Dashboard</h1>
-          <p className="text-gray-500 mt-1">Anti-Bribery Management System Overview</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ISO 37001 Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Anti-Bribery Management System Overview</p>
         </div>
 
         {error && (
@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           {kpiCards.map((card) => (
-            <div key={card.label} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div key={card.label} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 rounded-lg ${card.color}`}>
                   <svg className={`w-5 h-5 ${card.textColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,34 +110,34 @@ export default function DashboardPage() {
                   </svg>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{card.label}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{card.label}</p>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h2>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {data.recentActivity.length > 0 ? (
               data.recentActivity.map((activity) => (
                 <div key={activity.id} className="px-6 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${activityTypeColors[activity.type] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${activityTypeColors[activity.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                       {activity.type}
                     </span>
                     <div>
-                      <p className="text-sm text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">{activity.user}</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">{activity.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{activity.user}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(activity.date).toLocaleDateString()}</p>
                 </div>
               ))
             ) : (
-              <div className="px-6 py-12 text-center text-gray-500">
+              <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                 No recent activity
               </div>
             )}

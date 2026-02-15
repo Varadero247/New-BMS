@@ -83,8 +83,8 @@ export default function MedicalDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Medical Device Dashboard</h1>
-          <p className="text-gray-500 mt-1">ISO 13485 Medical Device Quality Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Medical Device Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 Medical Device Quality Management System</p>
         </div>
 
         {/* Stats Cards */}
@@ -93,14 +93,14 @@ export default function MedicalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Design Projects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Design Projects</p>
                   <p className="text-2xl font-bold">{stats?.activeDesignProjects || 0}</p>
                 </div>
                 <div className="p-3 bg-teal-100 rounded-full">
                   <Pencil className="h-6 w-6 text-teal-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Design control projects in progress
               </div>
             </CardContent>
@@ -110,14 +110,14 @@ export default function MedicalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open DHF Records</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open DHF Records</p>
                   <p className="text-2xl font-bold">{stats?.openDhfRecords || 0}</p>
                 </div>
                 <div className="p-3 bg-cyan-100 rounded-full">
                   <FolderOpen className="h-6 w-6 text-cyan-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Design history file records
               </div>
             </CardContent>
@@ -127,14 +127,14 @@ export default function MedicalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Pending Verifications</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Verifications</p>
                   <p className="text-2xl font-bold text-amber-600">{stats?.pendingVerifications || 0}</p>
                 </div>
                 <div className="p-3 bg-amber-100 rounded-full">
                   <CheckSquare className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Awaiting verification review
               </div>
             </CardContent>
@@ -144,14 +144,14 @@ export default function MedicalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Risk Assessments</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Risk Assessments</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.riskAssessments || 0}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
                   <AlertTriangle className="h-6 w-6 text-red-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Risk reviews pending
               </div>
             </CardContent>
@@ -175,7 +175,7 @@ export default function MedicalDashboard() {
                       className={`rounded-lg p-4 text-center transition-colors ${
                         item.count > 0
                           ? 'bg-teal-100 border-2 border-teal-300'
-                          : 'bg-gray-50 border-2 border-gray-200'
+                          : 'bg-gray-50 dark:bg-gray-800 border-2 border-gray-200'
                       }`}
                     >
                       <p className={`text-2xl font-bold ${item.count > 0 ? 'text-teal-700' : 'text-gray-400'}`}>
@@ -187,12 +187,12 @@ export default function MedicalDashboard() {
                     </div>
                   </div>
                   {index < stageCounts.length - 1 && (
-                    <ArrowRight className="h-4 w-4 text-gray-300 mx-1 flex-shrink-0" />
+                    <ArrowRight className="h-4 w-4 text-gray-300 dark:text-gray-600 mx-1 flex-shrink-0" />
                   )}
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mt-4 text-center">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-4 text-center">
               ISO 13485 Design Control Stages: Planning &rarr; Input &rarr; Output &rarr; Review &rarr; Verification &rarr; Validation &rarr; Transfer to Production
             </p>
           </CardContent>
@@ -211,11 +211,11 @@ export default function MedicalDashboard() {
               {stats?.designControls && stats.designControls.length > 0 ? (
                 <div className="space-y-3">
                   {stats.designControls.slice(0, 5).map((dc: any) => (
-                    <div key={dc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={dc.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{dc.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{dc.referenceNumber}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{dc.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             dc.currentStage === 'Verification' || dc.currentStage === 'Validation'
                               ? 'bg-amber-100 text-amber-700'
@@ -234,14 +234,14 @@ export default function MedicalDashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(dc.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No design projects recorded yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No design projects recorded yet</p>
               )}
             </CardContent>
           </Card>

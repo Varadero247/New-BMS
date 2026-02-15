@@ -66,7 +66,7 @@ export default function Sidebar() {
                   className={`flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-brand-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      : 'text-gray-300 dark:text-gray-600 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
@@ -79,7 +79,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-gray-800 p-4">
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           IMS Payroll Module v0.1.0
         </div>
       </div>

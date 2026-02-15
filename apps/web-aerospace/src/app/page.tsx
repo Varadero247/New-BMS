@@ -94,8 +94,8 @@ export default function AerospaceDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Aerospace Dashboard</h1>
-          <p className="text-gray-500 mt-1">AS9100D Aerospace Quality Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Aerospace Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D Aerospace Quality Management System</p>
         </div>
 
         {/* Primary Stats */}
@@ -104,7 +104,7 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Configuration Items</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Configuration Items</p>
                   <p className="text-2xl font-bold">{stats?.configurationItems.total || 0}</p>
                 </div>
                 <div className="p-3 bg-indigo-100 rounded-full">
@@ -113,7 +113,7 @@ export default function AerospaceDashboard() {
               </div>
               <div className="mt-2 text-sm">
                 <span className="text-indigo-600 font-medium">{stats?.configurationItems.active || 0} active</span>
-                <span className="text-gray-400 mx-1">|</span>
+                <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                 <span className="text-amber-600 font-medium">{stats?.configurationItems.underReview || 0} under review</span>
               </div>
             </CardContent>
@@ -123,14 +123,14 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open ECPs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open ECPs</p>
                   <p className="text-2xl font-bold text-amber-600">{stats?.engineeringChanges.open || 0}</p>
                 </div>
                 <div className="p-3 bg-amber-100 rounded-full">
                   <GitPullRequest className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.engineeringChanges.pending || 0} pending approval
               </div>
             </CardContent>
@@ -140,14 +140,14 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Baselines</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Baselines</p>
                   <p className="text-2xl font-bold">{stats?.baselines.active || 0}</p>
                 </div>
                 <div className="p-3 bg-slate-100 rounded-full">
                   <Database className="h-6 w-6 text-slate-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.baselines.total || 0} total baselines
               </div>
             </CardContent>
@@ -157,7 +157,7 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Pending Audits</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Audits</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.audits.pending || 0}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
@@ -177,7 +177,7 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Product Safety</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Product Safety</p>
                   <p className="text-2xl font-bold">{stats?.productSafety.total || 0}</p>
                 </div>
                 <div className="p-3 bg-emerald-100 rounded-full">
@@ -194,14 +194,14 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">First Article</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">First Article</p>
                   <p className="text-2xl font-bold">{stats?.firstArticle.total || 0}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <FileCheck className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.firstArticle.pending || 0} pending review
               </div>
             </CardContent>
@@ -211,14 +211,14 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Special Processes</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Special Processes</p>
                   <p className="text-2xl font-bold">{stats?.specialProcesses.total || 0}</p>
                 </div>
                 <div className="p-3 bg-violet-100 rounded-full">
                   <Zap className="h-6 w-6 text-violet-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.specialProcesses.dueForReview || 0} due for review
               </div>
             </CardContent>
@@ -228,14 +228,14 @@ export default function AerospaceDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Counterfeit Alerts</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Counterfeit Alerts</p>
                   <p className="text-2xl font-bold text-orange-600">{stats?.counterfeitParts.alerts || 0}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <AlertOctagon className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.counterfeitParts.total || 0} tracked parts
               </div>
             </CardContent>
@@ -256,15 +256,15 @@ export default function AerospaceDashboard() {
               {recentItems.length > 0 ? (
                 <div className="space-y-3">
                   {recentItems.map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{item.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 font-mono">{item.ciNumber}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.ciNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             item.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
                             item.status === 'UNDER_REVIEW' ? 'bg-amber-100 text-amber-700' :
-                            item.status === 'DRAFT' ? 'bg-gray-100 text-gray-700' :
+                            item.status === 'DRAFT' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700' :
                             'bg-blue-100 text-blue-700'
                           }`}>
                             {item.status?.replace(/_/g, ' ')}
@@ -279,14 +279,14 @@ export default function AerospaceDashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(item.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No configuration items recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No configuration items recorded</p>
               )}
             </CardContent>
           </Card>
@@ -303,17 +303,17 @@ export default function AerospaceDashboard() {
               {recentChanges.length > 0 ? (
                 <div className="space-y-3">
                   {recentChanges.map((change: any) => (
-                    <div key={change.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={change.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{change.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 font-mono">{change.ecpNumber}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{change.ecpNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             change.status === 'OPEN' ? 'bg-blue-100 text-blue-700' :
                             change.status === 'IN_REVIEW' ? 'bg-amber-100 text-amber-700' :
                             change.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                             change.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 text-gray-700'
+                            'bg-gray-100 dark:bg-gray-800 text-gray-700'
                           }`}>
                             {change.status?.replace(/_/g, ' ')}
                           </span>
@@ -321,20 +321,20 @@ export default function AerospaceDashboard() {
                             change.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
                             change.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
                             change.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' :
-                            'bg-gray-100 text-gray-700'
+                            'bg-gray-100 dark:bg-gray-800 text-gray-700'
                           }`}>
                             {change.priority}
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(change.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No engineering changes recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No engineering changes recorded</p>
               )}
             </CardContent>
           </Card>

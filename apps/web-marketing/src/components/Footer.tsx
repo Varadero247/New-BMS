@@ -74,7 +74,7 @@ export default function Footer() {
               R
             </div>
             <p className="font-display text-white mt-3 font-semibold">Nexara IMS</p>
-            <p className="text-gray-500 text-sm mt-2 font-body leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2 font-body leading-relaxed">
               Unified compliance intelligence for modern enterprises.
             </p>
           </div>

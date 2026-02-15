@@ -107,12 +107,12 @@ export default function ProjectManagementDashboard() {
   ];
 
   const colorMap: Record<string, { bg: string; iconBg: string; iconText: string }> = {
-    blue: { bg: 'bg-white', iconBg: 'bg-blue-100', iconText: 'text-blue-600' },
-    indigo: { bg: 'bg-white', iconBg: 'bg-indigo-100', iconText: 'text-indigo-600' },
-    amber: { bg: 'bg-white', iconBg: 'bg-amber-100', iconText: 'text-amber-600' },
-    red: { bg: 'bg-white', iconBg: 'bg-red-100', iconText: 'text-red-600' },
-    purple: { bg: 'bg-white', iconBg: 'bg-purple-100', iconText: 'text-purple-600' },
-    green: { bg: 'bg-white', iconBg: 'bg-green-100', iconText: 'text-green-600' },
+    blue: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-blue-100', iconText: 'text-blue-600' },
+    indigo: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-indigo-100', iconText: 'text-indigo-600' },
+    amber: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-amber-100', iconText: 'text-amber-600' },
+    red: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-red-100', iconText: 'text-red-600' },
+    purple: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-purple-100', iconText: 'text-purple-600' },
+    green: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-green-100', iconText: 'text-green-600' },
   };
 
   return (
@@ -120,8 +120,8 @@ export default function ProjectManagementDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Project Management Dashboard</h1>
-          <p className="text-gray-500 mt-1">PMBOK / ISO 21500 Project Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Management Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">PMBOK / ISO 21500 Project Management</p>
         </div>
 
         {/* Stats Cards */}
@@ -133,7 +133,7 @@ export default function ProjectManagementDashboard() {
               <div key={card.label} className={`${colors.bg} rounded-lg shadow p-6`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">{card.label}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
                     <p className="text-2xl font-bold mt-1">{card.value}</p>
                   </div>
                   <div className={`p-3 ${colors.iconBg} rounded-full`}>
@@ -146,9 +146,9 @@ export default function ProjectManagementDashboard() {
         </div>
 
         {/* Recent Projects */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <FolderKanban className="h-5 w-5 text-blue-600" />
               Recent Projects
             </h2>
@@ -157,11 +157,11 @@ export default function ProjectManagementDashboard() {
             {recentProjects.length > 0 ? (
               <div className="space-y-3">
                 {recentProjects.map((project: any) => (
-                  <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{project.projectName}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500">{project.projectCode}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{project.projectCode}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
                           project.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
                           project.status === 'PLANNING' ? 'bg-blue-100 text-blue-700' :
@@ -195,7 +195,7 @@ export default function ProjectManagementDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No projects found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No projects found</p>
             )}
           </div>
         </div>

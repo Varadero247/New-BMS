@@ -20,7 +20,7 @@ export default function StandardsStrip() {
   return (
     <section aria-label="Supported standards" className="border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <p className="text-sm font-mono text-gray-500 uppercase tracking-wider mb-6">
+        <p className="text-sm font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-6">
           Standards we support
         </p>
 
@@ -35,7 +35,7 @@ export default function StandardsStrip() {
                 className={`px-4 py-2 rounded-full text-sm font-mono transition-all duration-150 border focus:outline-none focus:ring-2 focus:ring-teal/40 ${
                   isActive
                     ? 'bg-teal text-white border-teal shadow-md shadow-teal/20'
-                    : 'border-white/20 text-gray-400 hover:text-white hover:border-white/40 bg-transparent'
+                    : 'border-white/20 text-gray-400 dark:text-gray-500 hover:text-white hover:border-white/40 bg-transparent'
                 }`}
               >
                 {standard}

@@ -86,8 +86,8 @@ export default function EnvironmentalDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Environmental Dashboard</h1>
-          <p className="text-gray-500 mt-1">ISO 14001 Environmental Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 14001 Environmental Management System</p>
         </div>
 
         {/* Compliance & Indicators */}
@@ -107,9 +107,9 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Water Usage</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Water Usage</p>
                   <p className="text-2xl font-bold">{stats?.indicators.waterUsage.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">kL / month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">kL / month</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <Droplets className="h-6 w-6 text-blue-600" />
@@ -122,9 +122,9 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Energy Usage</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Energy Usage</p>
                   <p className="text-2xl font-bold">{stats?.indicators.energyUsage.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">kWh / month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">kWh / month</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <Zap className="h-6 w-6 text-yellow-600" />
@@ -137,9 +137,9 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Waste Generated</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Waste Generated</p>
                   <p className="text-2xl font-bold">{stats?.indicators.wasteGenerated.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">kg / month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">kg / month</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <Trash2 className="h-6 w-6 text-orange-600" />
@@ -152,11 +152,11 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">CO2 Emissions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">CO2 Emissions</p>
                   <p className="text-2xl font-bold">{stats?.indicators.carbonEmissions}</p>
-                  <p className="text-xs text-gray-400">tonnes / month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">tonnes / month</p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-full">
                   <Leaf className="h-6 w-6 text-gray-600" />
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Environmental Aspects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Environmental Aspects</p>
                   <p className="text-2xl font-bold">{stats?.aspects.total || 0}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -187,14 +187,14 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open Events</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open Events</p>
                   <p className="text-2xl font-bold">{stats?.events.open || 0}</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <AlertCircle className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.events.total || 0} total events
               </div>
             </CardContent>
@@ -204,14 +204,14 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue Actions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats?.actions.dueThisWeek || 0} due this week
               </div>
             </CardContent>
@@ -221,7 +221,7 @@ export default function EnvironmentalDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Objectives</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Objectives</p>
                   <p className="text-2xl font-bold">5</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -246,17 +246,17 @@ export default function EnvironmentalDashboard() {
               {stats?.topAspects && stats.topAspects.length > 0 ? (
                 <div className="space-y-3">
                   {stats.topAspects.map((aspect: any) => (
-                    <div key={aspect.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={aspect.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{aspect.activityProcess}</p>
-                        <p className="text-xs text-gray-500 mt-1">{aspect.aspect} — {aspect.impact}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{aspect.aspect} — {aspect.impact}</p>
                       </div>
-                      <div className="text-2xl font-bold text-gray-400">{aspect.significanceScore}</div>
+                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{aspect.significanceScore}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No significant aspects identified</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No significant aspects identified</p>
               )}
             </CardContent>
           </Card>
@@ -273,11 +273,11 @@ export default function EnvironmentalDashboard() {
               {stats?.recentEvents && stats.recentEvents.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentEvents.map((event: any) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{event.description?.slice(0, 80)}{event.description?.length > 80 ? '...' : ''}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{event.referenceNumber}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{event.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             event.status === 'REPORTED' ? 'bg-red-100 text-red-700' :
                             event.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
@@ -288,14 +288,14 @@ export default function EnvironmentalDashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(event.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No environmental events recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No environmental events recorded</p>
               )}
             </CardContent>
           </Card>

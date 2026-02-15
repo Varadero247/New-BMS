@@ -63,7 +63,7 @@ function TrendBadge({ trend }: { trend: string }) {
     </span>
   );
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-gray-400 font-medium">
+    <span className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 font-medium">
       <Minus className="h-3 w-3" /> Flat
     </span>
   );
@@ -118,8 +118,8 @@ export default function AnalyticsDashboard() {
         {/* Header */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Executive Dashboard</h1>
-            <p className="text-gray-500 mt-1">Analytics and business intelligence overview</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Executive Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Analytics and business intelligence overview</p>
           </div>
           <Link
             href="/nlq"
@@ -142,11 +142,11 @@ export default function AnalyticsDashboard() {
                       <div className={`p-2 rounded-lg ${card.bgColor}`}>
                         <Icon className={`h-4 w-4 ${card.iconColor}`} />
                       </div>
-                      <ArrowRight className="h-3.5 w-3.5 text-gray-300" />
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-                    <p className="text-xs font-medium text-gray-500 mt-0.5">{card.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{card.change}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">{card.title}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{card.change}</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -179,7 +179,7 @@ export default function AnalyticsDashboard() {
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-sm font-medium text-gray-800 truncate">{kpi.name}</span>
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded flex-shrink-0">{kpi.category}</span>
+                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded flex-shrink-0">{kpi.category}</span>
                           </div>
                           <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                             <span className={`text-sm font-bold ${onTarget ? 'text-green-600' : 'text-red-600'}`}>
@@ -188,13 +188,13 @@ export default function AnalyticsDashboard() {
                             <TrendBadge trend={kpi.trend} />
                           </div>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1.5">
                           <div
                             className={`h-1.5 rounded-full ${onTarget ? 'bg-green-500' : 'bg-red-400'}`}
                             style={{ width: `${Math.min(100, pct)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-400 mt-0.5">Target: {kpi.target}{kpi.unit === '%' ? '%' : ` ${kpi.unit}`}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Target: {kpi.target}{kpi.unit === '%' ? '%' : ` ${kpi.unit}`}</p>
                       </div>
                     </div>
                   );
@@ -219,11 +219,11 @@ export default function AnalyticsDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-800 font-medium truncate">{item.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-gray-400">{item.type}</span>
-                        <span className="text-xs text-gray-300">·</span>
-                        <span className="text-xs text-gray-400">{item.module}</span>
-                        <span className="text-xs text-gray-300 ml-auto">·</span>
-                        <span className="text-xs text-gray-400">{item.time}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{item.type}</span>
+                        <span className="text-xs text-gray-300 dark:text-gray-600">·</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{item.module}</span>
+                        <span className="text-xs text-gray-300 dark:text-gray-600 ml-auto">·</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{item.time}</span>
                       </div>
                     </div>
                   </div>

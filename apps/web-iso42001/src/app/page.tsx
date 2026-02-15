@@ -31,7 +31,7 @@ const statusColors: Record<string, string> = {
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   INVESTIGATING: 'bg-yellow-100 text-yellow-700',
   RESOLVED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 export default function DashboardPage() {
@@ -97,8 +97,8 @@ export default function DashboardPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">ISO 42001 Dashboard</h1>
-          <p className="text-gray-500 mt-1">AI Management System Overview</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ISO 42001 Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">AI Management System Overview</p>
         </div>
 
         {error && (
@@ -109,11 +109,11 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {kpiCards.map((card) => (
-            <div key={card.label} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div key={card.label} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">{card.label}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{card.value}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{card.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg bg-${card.color}-100`}>
                   <svg className={`w-6 h-6 text-${card.color}-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,45 +126,45 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Incidents</h2>
+          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Incidents</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">System</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Severity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">System</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Severity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {data.recentIncidents.length > 0 ? (
                     data.recentIncidents.map((incident) => (
-                      <tr key={incident.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">{incident.title}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{incident.system}</td>
+                      <tr key={incident.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{incident.title}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{incident.system}</td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${severityColors[incident.severity] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {incident.severity}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[incident.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[incident.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {incident.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                           {new Date(incident.incidentDate).toLocaleDateString()}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                         No recent incidents
                       </td>
                     </tr>
@@ -174,15 +174,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Risk Distribution</h2>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Risk Distribution</h2>
             {Object.keys(data.riskDistribution).length > 0 ? (
               <div className="space-y-4">
                 {Object.entries(data.riskDistribution).map(([category, count]) => (
                   <div key={category}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">{category}</span>
-                      <span className="font-medium text-gray-900">{count}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{count}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <p>No risk data available</p>
               </div>
             )}

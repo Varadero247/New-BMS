@@ -46,7 +46,7 @@ export default function ComplianceTracker() {
           <h2 className="font-display text-4xl font-bold text-white mt-4 leading-tight">
             Track every standard in real time
           </h2>
-          <p className="text-gray-400 mt-4 max-w-md font-body leading-relaxed">
+          <p className="text-gray-400 dark:text-gray-500 mt-4 max-w-md font-body leading-relaxed">
             Nexara continuously monitors your compliance posture across every active standard.
             No spreadsheets. No guesswork. Just a live, auditable view your whole team can trust.
           </p>
@@ -102,7 +102,7 @@ export default function ComplianceTracker() {
           {/* Risk Heatmap Widget */}
           <div className="bg-surface-dark-alt rounded-2xl p-6 border border-white/10">
             <h3 className="font-display text-white font-semibold">Risk Heatmap</h3>
-            <p className="text-gray-500 text-xs font-mono mt-1">
+            <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-1">
               Consequence (↑) vs Likelihood (→)
             </p>
 
@@ -122,15 +122,15 @@ export default function ComplianceTracker() {
             <div className="flex gap-4 mt-3 flex-wrap">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-success-500/25" />
-                <span className="text-xs text-gray-500 font-body">Low</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-body">Low</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-warning-500/35" />
-                <span className="text-xs text-gray-500 font-body">Medium</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-body">Medium</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-critical/50" />
-                <span className="text-xs text-gray-500 font-body">High</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-body">High</span>
               </div>
             </div>
           </div>

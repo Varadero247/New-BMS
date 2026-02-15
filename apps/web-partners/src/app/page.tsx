@@ -98,7 +98,7 @@ export default function DashboardPage() {
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
-          <div className="text-gray-400">Loading...</div>
+          <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
     );
@@ -114,27 +114,27 @@ export default function DashboardPage() {
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">Total Deals</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Total Deals</p>
               <p className="text-2xl font-bold text-white">{totalDeals}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">In Progress</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">In Progress</p>
               <p className="text-2xl font-bold text-yellow-400">{inProgress}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">Closed Won</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Closed Won</p>
               <p className="text-2xl font-bold text-green-400">{closedWon}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">Total Commission</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Total Commission</p>
               <p className="text-2xl font-bold text-white">{formatCurrency(payoutSummary.totalCommission)}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">Pending Commission</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Pending Commission</p>
               <p className="text-2xl font-bold text-yellow-400">{formatCurrency(payoutSummary.pendingCommission)}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-sm text-gray-400 mb-1">Available Payout</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Available Payout</p>
               <p className="text-2xl font-bold text-green-400">{formatCurrency(payoutSummary.availablePayout)}</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
                 {copied ? 'Copied!' : 'Copy Link'}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Share this link with potential customers. You will earn commission on all deals closed through your referral.
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white">Recent Deals</h2>
             </div>
             {deals.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
+              <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                 No deals yet. Share your referral link to get started.
               </div>
             ) : (
@@ -175,19 +175,19 @@ export default function DashboardPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-800">
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Company</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Value</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Commission</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Company</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Contact</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Value</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Commission</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800">
                     {deals.slice(0, 10).map((deal) => (
                       <tr key={deal.id} className="hover:bg-gray-800/50 transition-colors">
                         <td className="py-3 px-6 text-sm text-white">{deal.companyName}</td>
-                        <td className="py-3 px-6 text-sm text-gray-400">{deal.contactName}</td>
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">{deal.contactName}</td>
                         <td className="py-3 px-6 text-sm text-white">{formatCurrency(deal.value)}</td>
                         <td className="py-3 px-6 text-sm text-green-400">{formatCurrency(deal.commission)}</td>
                         <td className="py-3 px-6">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                             {deal.status.replace(/_/g, ' ')}
                           </span>
                         </td>
-                        <td className="py-3 px-6 text-sm text-gray-400">
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
                           {new Date(deal.createdAt).toLocaleDateString('en-GB')}
                         </td>
                       </tr>

@@ -38,7 +38,7 @@ export default function CTASection() {
           </h2>
 
           {/* Subtitle */}
-          <p className="text-gray-400 mt-4 max-w-lg mx-auto font-body leading-relaxed">
+          <p className="text-gray-400 dark:text-gray-500 mt-4 max-w-lg mx-auto font-body leading-relaxed">
             Join hundreds of compliance teams who replaced fragmented spreadsheets and siloed tools
             with a single, intelligent platform.
           </p>

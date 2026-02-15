@@ -109,7 +109,7 @@ const portalModules: ModuleCard[] = [
   { name: 'Customer Portal', subtitle: 'Client Access', port: 3018, icon: Building2, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
   { name: 'Supplier Portal', subtitle: 'Vendor Access', port: 3019, icon: Briefcase, color: 'amber', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', hoverBg: 'hover:bg-amber-100', textColor: 'text-amber-900', subtitleColor: 'text-amber-600', iconBg: 'bg-amber-100' },
   { name: 'Medical Devices', subtitle: 'ISO 13485', port: 3011, icon: Stethoscope, color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-200', hoverBg: 'hover:bg-red-100', textColor: 'text-red-900', subtitleColor: 'text-red-600', iconBg: 'bg-red-100' },
-  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50', borderColor: 'border-gray-200', hoverBg: 'hover:bg-gray-100', textColor: 'text-gray-900', subtitleColor: 'text-gray-600', iconBg: 'bg-gray-100' },
+  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50 dark:bg-gray-800', borderColor: 'border-gray-200 dark:border-gray-700', hoverBg: 'hover:bg-gray-100', textColor: 'text-gray-900 dark:text-gray-100', subtitleColor: 'text-gray-600', iconBg: 'bg-gray-100 dark:bg-gray-800' },
 ];
 
 function ModuleCardLink({ mod }: { mod: ModuleCard }) {
@@ -171,15 +171,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
 
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">IMS Dashboard</h1>
-            <p className="text-gray-500 mt-1">Integrated Management System Overview</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">IMS Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Integrated Management System Overview</p>
           </div>
 
           {/* Compliance Gauges */}
@@ -232,7 +232,7 @@ export default function DashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Active Risks</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Active Risks</p>
                     <p className="text-2xl font-bold">{stats?.risks.total || 0}</p>
                   </div>
                   <div className="p-3 bg-red-100 rounded-full">
@@ -241,7 +241,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-2 text-sm">
                   <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
-                  <span className="text-gray-400 mx-1">|</span>
+                  <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                   <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
                 </div>
               </CardContent>
@@ -251,14 +251,14 @@ export default function DashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Open Incidents</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
                     <p className="text-2xl font-bold">{stats?.incidents.open || 0}</p>
                   </div>
                   <div className="p-3 bg-yellow-100 rounded-full">
                     <Shield className="h-6 w-6 text-yellow-600" />
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {stats?.incidents.thisMonth || 0} this month
                 </div>
               </CardContent>
@@ -268,14 +268,14 @@ export default function DashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Overdue Actions</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
                     <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
                   </div>
                   <div className="p-3 bg-orange-100 rounded-full">
                     <Clock className="h-6 w-6 text-orange-600" />
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {stats?.actions.dueThisWeek || 0} due this week
                 </div>
               </CardContent>
@@ -285,14 +285,14 @@ export default function DashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">AI Insights</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">AI Insights</p>
                     <p className="text-2xl font-bold">{stats?.recentAIInsights?.length || 0}</p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-full">
                     <Sparkles className="h-6 w-6 text-purple-600" />
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Latest analyses
                 </div>
               </CardContent>
@@ -326,7 +326,7 @@ export default function DashboardPage() {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-400" />
+                  <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   Recent Activity
                 </CardTitle>
               </CardHeader>
@@ -349,11 +349,11 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-semibold text-gray-400 uppercase">{item.module}</span>
-                          <span className="text-xs text-gray-500">{item.action}</span>
-                          <span className="text-[10px] text-gray-400 ml-auto shrink-0">{item.time}</span>
+                          <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">{item.module}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{item.action}</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto shrink-0">{item.time}</span>
                         </div>
-                        <p className="text-sm text-gray-700 truncate">{item.detail}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.detail}</p>
                       </div>
                     </div>
                   ))}
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                 {stats?.topRisks && stats.topRisks.length > 0 ? (
                   <div className="space-y-3">
                     {stats.topRisks.map((risk: any) => (
-                      <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                         <div className="flex-1">
                           <p className="font-medium text-sm">{risk.title}</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -396,12 +396,12 @@ export default function DashboardPage() {
                             </span>
                           </div>
                         </div>
-                        <div className="text-2xl font-bold text-gray-400">{risk.riskScore}</div>
+                        <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No active risks</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active risks</p>
                 )}
               </CardContent>
             </Card>
@@ -418,11 +418,11 @@ export default function DashboardPage() {
                 {stats?.overdueActions && stats.overdueActions.length > 0 ? (
                   <div className="space-y-3">
                     {stats.overdueActions.map((action: any) => (
-                      <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                         <div className="flex-1">
                           <p className="font-medium text-sm">{action.title}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-gray-500">{action.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{action.referenceNumber}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               action.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
                               action.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
@@ -462,7 +462,7 @@ export default function DashboardPage() {
                             <p className="text-xs text-purple-600 font-medium">{insight.sourceType}</p>
                             <p className="text-sm mt-1">{insight.suggestedRootCause || 'Analysis available'}</p>
                           </div>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
                             {new Date(insight.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -470,7 +470,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No AI insights yet</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">No AI insights yet</p>
                 )}
               </CardContent>
             </Card>
@@ -478,7 +478,7 @@ export default function DashboardPage() {
 
           {/* ISO Compliance Modules */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">ISO Compliance</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">ISO Compliance</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {isoModules.map((mod) => (
                 <ModuleCardLink key={mod.port} mod={mod} />
@@ -488,7 +488,7 @@ export default function DashboardPage() {
 
           {/* Operations Modules */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Operations</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Operations</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {operationsModules.map((mod) => (
                 <ModuleCardLink key={mod.port} mod={mod} />
@@ -498,7 +498,7 @@ export default function DashboardPage() {
 
           {/* Portals & Specialist Modules */}
           <div className="mt-8 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Portals & Specialist</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Portals & Specialist</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {portalModules.map((mod) => (
                 <ModuleCardLink key={mod.port} mod={mod} />

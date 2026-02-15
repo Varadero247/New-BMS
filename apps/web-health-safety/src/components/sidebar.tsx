@@ -128,7 +128,7 @@ function CollapsibleSection({
             {group.title}
           </span>
           <ChevronDown
-            className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+            className={`h-3 w-3 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           />
         </button>
       ) : (
@@ -154,7 +154,7 @@ function CollapsibleSection({
                   className={`flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
                   <Icon
@@ -208,9 +208,9 @@ export function Sidebar() {
                   href={item.href}
                   target={item.external ? '_blank' : undefined}
                   rel={item.external ? 'noopener noreferrer' : undefined}
-                  className="flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <Icon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <Icon className="h-4 w-4 text-gray-400 dark:text-gray-400" />
                   <span>{item.name}</span>
                 </a>
               </li>

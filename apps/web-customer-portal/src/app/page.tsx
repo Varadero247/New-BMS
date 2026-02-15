@@ -32,10 +32,10 @@ export default function CustomerPortalDashboard() {
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8"><h1 className="text-3xl font-bold text-gray-900">Customer Portal</h1><p className="text-gray-500 mt-1">Welcome to your self-service portal</p></div>
+        <div className="mb-8"><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Customer Portal</h1><p className="text-gray-500 dark:text-gray-400 mt-1">Welcome to your self-service portal</p></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {kpiCards.map((card) => { const Icon = card.icon; return (
-            <Link key={card.title} href={card.href}><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">{card.title}</p><p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p></div><div className={`p-3 rounded-full ${card.bgColor}`}><Icon className={`h-6 w-6 ${card.iconColor}`} /></div></div></CardContent></Card></Link>
+            <Link key={card.title} href={card.href}><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p><p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p></div><div className={`p-3 rounded-full ${card.bgColor}`}><Icon className={`h-6 w-6 ${card.iconColor}`} /></div></div></CardContent></Card></Link>
           ); })}
         </div>
       </div>

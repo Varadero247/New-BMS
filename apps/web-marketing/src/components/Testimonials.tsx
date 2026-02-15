@@ -61,7 +61,7 @@ export default function Testimonials() {
         <h2 className="font-display text-4xl font-bold text-white">
           Trusted by compliance leaders
         </h2>
-        <p className="text-gray-400 mt-4 max-w-xl mx-auto font-body">
+        <p className="text-gray-400 dark:text-gray-500 mt-4 max-w-xl mx-auto font-body">
           From aerospace to pharma, compliance teams worldwide rely on Nexara to stay audit-ready
           every day.
         </p>
@@ -95,7 +95,7 @@ export default function Testimonials() {
               />
               <div>
                 <p className="text-white text-sm font-medium font-body">{t.name}</p>
-                <p className="text-gray-500 text-sm font-body">{t.role}</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-body">{t.role}</p>
               </div>
             </div>
 

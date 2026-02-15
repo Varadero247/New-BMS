@@ -41,7 +41,7 @@ const features: Feature[] = [
   },
   {
     iconBg: 'bg-gray-400/10',
-    icon: <Zap className="w-6 h-6 text-gray-400" />,
+    icon: <Zap className="w-6 h-6 text-gray-400 dark:text-gray-500" />,
     title: 'Action & CAPA Tracking',
     tag: 'AUTOMATED',
     tagColor: 'text-gray-400',
@@ -75,7 +75,7 @@ export default function Features() {
       <h2 className="font-display text-4xl font-bold text-white text-center">
         Everything you need to stay compliant
       </h2>
-      <p className="text-gray-400 text-center max-w-2xl mx-auto mt-4 font-body">
+      <p className="text-gray-400 dark:text-gray-500 text-center max-w-2xl mx-auto mt-4 font-body">
         One platform for every standard, every audit, every action — from gap analysis to board-level
         reporting.
       </p>
@@ -109,7 +109,7 @@ export default function Features() {
             </p>
 
             {/* Description */}
-            <p className="text-sm text-gray-400 mt-3 font-body leading-relaxed">
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-3 font-body leading-relaxed">
               {feature.description}
             </p>
           </div>

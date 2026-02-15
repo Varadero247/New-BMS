@@ -31,7 +31,7 @@ const settingsCategories = [
     description: 'General system configuration and preferences',
     href: '/system',
     icon: Settings,
-    color: 'bg-gray-100 text-gray-600',
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   },
 ];
 
@@ -41,8 +41,8 @@ export default function SettingsOverview() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-500 mt-1">Manage system configuration and administration</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage system configuration and administration</p>
         </div>
 
         {/* System Status */}
@@ -51,7 +51,7 @@ export default function SettingsOverview() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Users</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
                   <p className="text-2xl font-bold">24</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -65,7 +65,7 @@ export default function SettingsOverview() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Sessions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Sessions</p>
                   <p className="text-2xl font-bold">8</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -79,7 +79,7 @@ export default function SettingsOverview() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">AI Analyses</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">AI Analyses</p>
                   <p className="text-2xl font-bold">156</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -93,7 +93,7 @@ export default function SettingsOverview() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">System Status</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">System Status</p>
                   <p className="text-2xl font-bold text-green-600">Healthy</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -117,8 +117,8 @@ export default function SettingsOverview() {
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{category.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{category.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{category.description}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -132,22 +132,22 @@ export default function SettingsOverview() {
         <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-gray-500" />
+              <Database className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               System Information
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <p className="text-sm text-gray-500">Version</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Version</p>
                 <p className="font-medium">IMS v1.0.0</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Database</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Database</p>
                 <p className="font-medium">PostgreSQL 15</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Last Backup</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Last Backup</p>
                 <p className="font-medium">{new Date().toLocaleDateString()}</p>
               </div>
             </div>

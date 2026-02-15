@@ -58,12 +58,12 @@ export function Sidebar() {
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                     isExactActive || isActive
                       ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
                   <Icon
                     className={`h-5 w-5 ${
-                      isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500'
+                      isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'
                     }`}
                   />
                   <span className="text-sm font-medium">{item.name}</span>
@@ -74,7 +74,7 @@ export function Sidebar() {
         </ul>
 
         <div className="mt-4 pt-4 border-t border-border">
-          <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
             Quick Links
           </p>
           <ul className="space-y-1">
@@ -84,9 +84,9 @@ export function Sidebar() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
-                    <Icon className="h-5 w-5 text-gray-500" />
+                    <Icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     <span className="text-sm font-medium">{item.name}</span>
                   </a>
                 </li>
