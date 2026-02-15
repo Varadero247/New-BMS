@@ -28,7 +28,7 @@ const typeColors: Record<string, string> = {
 };
 
 const balanceColors: Record<string, string> = {
-  DEBIT: 'bg-gray-100 text-gray-700',
+  DEBIT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   CREDIT: 'bg-indigo-100 text-indigo-700',
 };
 
@@ -184,8 +184,8 @@ export default function AccountsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Chart of Accounts</h1>
-            <p className="text-gray-500 mt-1">Manage your general ledger accounts</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Chart of Accounts</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your general ledger accounts</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Account
@@ -204,7 +204,7 @@ export default function AccountsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search accounts..."
@@ -244,32 +244,32 @@ export default function AccountsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Normal Balance</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Balance</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Normal Balance</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Balance</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAccounts.map((account) => (
-                      <tr key={account.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{account.code}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{account.name}</td>
+                      <tr key={account.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{account.code}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{account.name}</td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[account.type] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={typeColors[account.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {account.type}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={balanceColors[account.normalBalance] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={balanceColors[account.normalBalance] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {account.normalBalance}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={account.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}>
+                          <Badge className={account.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>
                             {account.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
@@ -278,10 +278,10 @@ export default function AccountsPage() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(account)} className="text-gray-400 hover:text-indigo-600">
+                            <button onClick={() => openEditModal(account)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600">
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 hover:text-red-600">
+                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -292,7 +292,7 @@ export default function AccountsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No accounts found</p>
               </div>

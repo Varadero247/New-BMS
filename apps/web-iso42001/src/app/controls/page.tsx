@@ -126,7 +126,7 @@ const domainColors: Record<string, { bg: string; text: string; border: string; d
 const statusOptions = ['NOT_STARTED', 'IN_PROGRESS', 'IMPLEMENTED', 'NOT_APPLICABLE'];
 
 const statusConfig: Record<string, { color: string; darkColor: string; icon: typeof CheckCircle2; label: string }> = {
-  NOT_STARTED: { color: 'bg-gray-100 text-gray-700', darkColor: 'dark:bg-gray-800 dark:text-gray-400', icon: MinusCircle, label: 'Not Started' },
+  NOT_STARTED: { color: 'bg-gray-100 dark:bg-gray-800 text-gray-700', darkColor: 'dark:bg-gray-800 dark:text-gray-400', icon: MinusCircle, label: 'Not Started' },
   IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-700', darkColor: 'dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock, label: 'In Progress' },
   IMPLEMENTED: { color: 'bg-green-100 text-green-700', darkColor: 'dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2, label: 'Implemented' },
   NOT_APPLICABLE: { color: 'bg-blue-100 text-blue-700', darkColor: 'dark:bg-blue-900/30 dark:text-blue-400', icon: Ban, label: 'N/A' },
@@ -145,7 +145,7 @@ function ComplianceRing({ score, size = 120 }: { score: number; size?: number })
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-700" />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-300" />
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-1000" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

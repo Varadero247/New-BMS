@@ -167,7 +167,7 @@ export function AuditComplianceTrend({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
         No audit compliance data available
       </div>
     );
@@ -190,17 +190,17 @@ export function AuditComplianceTrend({
 
       {/* Summary statistics */}
       <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
           <p className={`text-2xl font-bold ${latestCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
             {latestCompliance.toFixed(1)}%
           </p>
           <p className="text-xs text-gray-600">Current</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-gray-900">{avgCompliance.toFixed(1)}%</p>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgCompliance.toFixed(1)}%</p>
           <p className="text-xs text-gray-600">Average</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
           <p className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {trend >= 0 ? '+' : ''}{trend.toFixed(1)}%
           </p>
@@ -219,7 +219,7 @@ export function AuditComplianceTrend({
       {/* Performance indicator */}
       <div className="mt-4 p-4 rounded-lg border">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Overall Performance</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Performance</span>
           <span className={`text-sm font-bold ${avgCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
             {avgCompliance >= target ? 'Meeting Target' : 'Below Target'}
           </span>
@@ -230,7 +230,7 @@ export function AuditComplianceTrend({
             style={{ width: `${Math.min(avgCompliance, 100)}%` }}
           />
         </div>
-        <div className="flex justify-between mt-1 text-xs text-gray-500">
+        <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
           <span>0%</span>
           <span>Target: {target}%</span>
           <span>100%</span>

@@ -496,8 +496,8 @@ export default function AspectsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Environmental Aspects</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Aspects</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 14001 Clause 6.1.2 -- Aspects and Impacts Register
             </p>
           </div>
@@ -523,7 +523,7 @@ export default function AspectsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Aspects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Aspects</p>
                   <p className="text-2xl font-bold">{totalAspects}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -536,7 +536,7 @@ export default function AspectsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Significant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Significant</p>
                   <p className="text-2xl font-bold text-red-600">{significantCount}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
@@ -549,7 +549,7 @@ export default function AspectsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Under Control</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Under Control</p>
                   <p className="text-2xl font-bold text-green-600">{controlledCount}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -562,7 +562,7 @@ export default function AspectsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Requiring Action</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Requiring Action</p>
                   <p className="text-2xl font-bold text-amber-600">{actionCount}</p>
                 </div>
                 <div className="p-3 bg-amber-100 rounded-full">
@@ -576,7 +576,7 @@ export default function AspectsClient() {
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search aspects..."
               value={searchQuery}
@@ -616,11 +616,11 @@ export default function AspectsClient() {
           <Card>
             <CardContent className="py-16">
               <div className="text-center">
-                <Leaf className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-1">
+                <Leaf className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
                   No environmental aspects found
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 dark:text-gray-400">
                   Click Add Aspect to create your first aspect assessment
                 </p>
               </div>
@@ -640,7 +640,7 @@ export default function AspectsClient() {
                       <div className="flex-1 min-w-0">
                         {/* Top row: ref, badges */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="text-xs font-mono text-gray-500">
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {a.referenceNumber}
                           </span>
                           {getSignificanceBadge(a.significanceScore)}
@@ -648,7 +648,7 @@ export default function AspectsClient() {
                             className={
                               a.impactDirection === 'BENEFICIAL'
                                 ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                : 'bg-gray-100 text-gray-800 border-gray-200'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-800 border-gray-200'
                             }
                           >
                             {a.impactDirection === 'BENEFICIAL' ? 'Beneficial' : 'Adverse'}
@@ -670,25 +670,25 @@ export default function AspectsClient() {
                         </div>
 
                         {/* Activity / Process name */}
-                        <h3 className="font-semibold text-gray-900 mb-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
                           {a.activityProcess}
                         </h3>
 
                         {/* Aspect & Impact */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-3">
                           <div>
-                            <span className="text-gray-500">Aspect: </span>
-                            <span className="text-gray-700">{a.aspect}</span>
+                            <span className="text-gray-500 dark:text-gray-400">Aspect: </span>
+                            <span className="text-gray-700 dark:text-gray-300">{a.aspect}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Impact: </span>
-                            <span className="text-gray-700">{a.impact}</span>
+                            <span className="text-gray-500 dark:text-gray-400">Impact: </span>
+                            <span className="text-gray-700 dark:text-gray-300">{a.impact}</span>
                           </div>
                         </div>
 
                         {/* Scores */}
                         <div className="flex flex-wrap items-center gap-3 text-xs mb-3">
-                          <span className="text-gray-400">Scores:</span>
+                          <span className="text-gray-400 dark:text-gray-500">Scores:</span>
                           {[
                             { label: 'Sev', val: a.scoreSeverity },
                             { label: 'Prob', val: a.scoreProbability },
@@ -700,12 +700,12 @@ export default function AspectsClient() {
                           ].map((s) => (
                             <span
                               key={s.label}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-600"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600"
                             >
                               {s.label}: {s.val}
                             </span>
                           ))}
-                          <span className="font-semibold text-gray-700">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
                             Total: {a.significanceScore}
                           </span>
                         </div>
@@ -738,7 +738,7 @@ export default function AspectsClient() {
                         >
                           {a.significanceScore}
                         </span>
-                        <span className="text-xs text-gray-400">Score</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">Score</span>
                       </div>
                     </div>
                   </CardContent>
@@ -763,7 +763,7 @@ export default function AspectsClient() {
             {/* Section A -- Identification                                  */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 A. Identification
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -853,7 +853,7 @@ export default function AspectsClient() {
             {/* Section B -- Aspect & Impact                                 */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 B. Aspect & Impact
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -925,7 +925,7 @@ export default function AspectsClient() {
             {/* Section C -- Significance Scoring                            */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 C. Significance Scoring
               </h3>
               <div className="space-y-5">
@@ -940,17 +940,17 @@ export default function AspectsClient() {
                         <Label>
                           {desc.label}{' '}
                           {key === 'scoreSeverity' || key === 'scoreProbability' ? (
-                            <span className="text-xs text-gray-400">(x1.5 weighting)</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500">(x1.5 weighting)</span>
                           ) : null}
                         </Label>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-700">{value}</span>
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{value}</span>
                           <span
                             className={`inline-block h-3 w-3 rounded-full ${getScoreColor(value)}`}
                           />
                         </div>
                       </div>
-                      <p className="text-xs text-gray-400 mb-1.5">{desc.tooltip}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">{desc.tooltip}</p>
                       <input
                         type="range"
                         min={1}
@@ -962,7 +962,7 @@ export default function AspectsClient() {
                         }
                         className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-green-600 bg-gray-200"
                       />
-                      <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+                      <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                         <span>1</span>
                         <span>2</span>
                         <span>3</span>
@@ -974,10 +974,10 @@ export default function AspectsClient() {
                 })}
 
                 {/* Calculated score display */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Calculated Significance Score</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Calculated Significance Score</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       (Severity x 1.5) + (Probability x 1.5) + Duration + Extent + Reversibility
                       + Regulatory + Stakeholder
                     </p>
@@ -1004,7 +1004,7 @@ export default function AspectsClient() {
             {/* Section D -- Controls                                        */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 D. Controls
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1093,7 +1093,7 @@ export default function AspectsClient() {
             {/* Section E -- Ownership                                       */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 E. Ownership
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1148,7 +1148,7 @@ export default function AspectsClient() {
             {/* Section F -- AI Analysis                                     */}
             {/* ----------------------------------------------------------- */}
             <section>
-              <h3 className="text-base font-semibold text-gray-900 mb-4 pl-3 border-l-4 border-green-500">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 pl-3 border-l-4 border-green-500">
                 F. AI Analysis
               </h3>
 
@@ -1170,7 +1170,7 @@ export default function AspectsClient() {
               </Button>
 
               {!form.activityProcess && !form.aspect && !form.impact && (
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                   Fill in the Activity/Process, Aspect, and Impact fields first.
                 </p>
               )}
@@ -1193,7 +1193,7 @@ export default function AspectsClient() {
                     )}
                   </button>
                   {aiExpanded && (
-                    <div className="p-4 space-y-4 bg-white">
+                    <div className="p-4 space-y-4 bg-white dark:bg-gray-900">
                       {aiSuggestedScores && (
                         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
@@ -1216,7 +1216,7 @@ export default function AspectsClient() {
                               { key: 'scoreRegulatory', label: 'Reg' },
                               { key: 'scoreStakeholder', label: 'Sth' },
                             ].map(({ key, label }) => (
-                              <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-green-200 text-green-700">
+                              <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white dark:bg-gray-900 border border-green-200 text-green-700">
                                 {label}: {aiSuggestedScores[key] || '-'}
                               </span>
                             ))}

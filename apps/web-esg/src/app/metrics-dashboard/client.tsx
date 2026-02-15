@@ -67,26 +67,26 @@ export default function MetricsDashboardClient() {
   const TrendIcon = ({ trend }: { trend: Trend }) => {
     if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-600" />;
     if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-600" />;
-    return <Minus className="h-4 w-4 text-gray-400" />;
+    return <Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
   };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ESG Metrics Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Key performance indicators across Environmental, Social & Governance dimensions</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ESG Metrics Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Key performance indicators across Environmental, Social & Governance dimensions</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">ESG Score</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">ESG Score</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{overallScore}%</p>
-          <p className="text-xs text-gray-400">metrics on track</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">metrics on track</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Metrics</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{metrics.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Metrics</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{metrics.length}</p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-xl p-4">
           <p className="text-xs text-green-600 uppercase font-medium">On Track</p>
@@ -112,15 +112,15 @@ export default function MetricsDashboardClient() {
             <button
               key={cat}
               onClick={() => setCategoryFilter(categoryFilter === cat ? 'all' : cat)}
-              className={`border rounded-xl p-4 text-left transition-colors ${categoryFilter === cat ? `${cfg.bgColor} ring-1` : 'bg-white border-gray-200 hover:border-gray-300'}`}
+              className={`border rounded-xl p-4 text-left transition-colors ${categoryFilter === cat ? `${cfg.bgColor} ring-1` : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
             >
               <div className="flex items-center gap-2 mb-2">
                 {cfg.icon}
                 <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-gray-900">{catOnTrack}/{catMetrics.length}</span>
-                <span className="text-xs text-gray-500">on track</span>
+                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{catOnTrack}/{catMetrics.length}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">on track</span>
               </div>
             </button>
           );
@@ -129,27 +129,27 @@ export default function MetricsDashboardClient() {
 
       {/* Status Filter */}
       <div className="flex gap-2 items-center">
-        <Filter className="h-4 w-4 text-gray-400" />
+        <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
         {['all', 'on-track', 'at-risk', 'off-track'].map((s) => (
-          <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
             {s === 'all' ? 'All Statuses' : s.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')}
           </button>
         ))}
       </div>
 
       {/* Metrics Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Metric</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-20">Category</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 w-28">Current</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 w-28">Target</th>
-              <th className="text-center px-4 py-3 font-medium text-gray-500 w-24">Progress</th>
-              <th className="text-center px-4 py-3 font-medium text-gray-500 w-16">Trend</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-20">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Framework</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Metric</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-20">Category</th>
+              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Current</th>
+              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Target</th>
+              <th className="text-center px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Progress</th>
+              <th className="text-center px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-16">Trend</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-20">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Framework</th>
             </tr>
           </thead>
           <tbody>
@@ -164,10 +164,10 @@ export default function MetricsDashboardClient() {
               const adjustedProgress = Math.max(0, Math.min(100, displayProgress));
 
               return (
-                <tr key={m.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <tr key={m.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{m.name}</p>
-                    <p className="text-xs text-gray-400">{m.id}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{m.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{m.id}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${m.category === 'environmental' ? 'bg-green-100 text-green-700' : m.category === 'social' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
@@ -175,10 +175,10 @@ export default function MetricsDashboardClient() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
-                    <span className="font-semibold text-gray-900">{typeof m.value === 'number' && m.value >= 1000 ? m.value.toLocaleString() : m.value}</span>
-                    <span className="text-gray-400 ml-1">{m.unit}</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{typeof m.value === 'number' && m.value >= 1000 ? m.value.toLocaleString() : m.value}</span>
+                    <span className="text-gray-400 dark:text-gray-500 ml-1">{m.unit}</span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-gray-500">
+                  <td className="px-4 py-3 text-right font-mono text-gray-500 dark:text-gray-400">
                     {typeof m.target === 'number' && m.target >= 1000 ? m.target.toLocaleString() : m.target} {m.unit}
                   </td>
                   <td className="px-4 py-3">
@@ -194,7 +194,7 @@ export default function MetricsDashboardClient() {
                       {m.status.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{m.framework} {m.disclosure}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{m.framework} {m.disclosure}</td>
                 </tr>
               );
             })}

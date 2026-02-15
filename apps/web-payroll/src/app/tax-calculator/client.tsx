@@ -154,17 +154,17 @@ export default function TaxCalculatorClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tax Calculator</h1>
-        <p className="text-sm text-gray-500 mt-1">Multi-jurisdiction payroll tax estimation tool</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax Calculator</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Multi-jurisdiction payroll tax estimation tool</p>
       </div>
 
       {/* Input Section */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Annual Gross Salary</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Gross Salary</label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="number"
                 value={salary}
@@ -174,7 +174,7 @@ export default function TaxCalculatorClient() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Jurisdiction</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurisdiction</label>
             <select
               value={selectedJurisdiction}
               onChange={(e) => setSelectedJurisdiction(e.target.value)}
@@ -186,7 +186,7 @@ export default function TaxCalculatorClient() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Compare With</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compare With</label>
             <select
               value={compareJurisdiction || ''}
               onChange={(e) => setCompareJurisdiction(e.target.value || null)}
@@ -199,15 +199,15 @@ export default function TaxCalculatorClient() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Display Period</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Period</label>
             <div className="flex rounded-lg border border-gray-300 overflow-hidden">
               <button
                 onClick={() => setPeriod('annual')}
-                className={`flex-1 py-2 text-sm font-medium ${period === 'annual' ? 'bg-green-600 text-white' : 'bg-white text-gray-600'}`}
+                className={`flex-1 py-2 text-sm font-medium ${period === 'annual' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600'}`}
               >Annual</button>
               <button
                 onClick={() => setPeriod('monthly')}
-                className={`flex-1 py-2 text-sm font-medium ${period === 'monthly' ? 'bg-green-600 text-white' : 'bg-white text-gray-600'}`}
+                className={`flex-1 py-2 text-sm font-medium ${period === 'monthly' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600'}`}
               >Monthly</button>
             </div>
           </div>
@@ -236,17 +236,17 @@ export default function TaxCalculatorClient() {
             {jurisdiction.name}
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Gross Pay</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{formatMoney(salary / divisor, jurisdiction.symbol)}</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Gross Pay</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{formatMoney(salary / divisor, jurisdiction.symbol)}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Income Tax</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Income Tax</p>
               <p className="text-xl font-bold text-red-700 mt-1">{formatMoney(result.totalTax / divisor, jurisdiction.symbol)}</p>
-              <p className="text-xs text-gray-400">{result.effectiveRate.toFixed(1)}% effective</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">{result.effectiveRate.toFixed(1)}% effective</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Deductions</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Deductions</p>
               <p className="text-xl font-bold text-amber-700 mt-1">{formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}</p>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
@@ -257,8 +257,8 @@ export default function TaxCalculatorClient() {
           </div>
 
           {/* Tax Band Visualization */}
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Tax Band Breakdown</h4>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Tax Band Breakdown</h4>
             <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
               {result.bandBreakdown.map((b, i) => {
                 const width = (b.taxable / salary) * 100;
@@ -283,11 +283,11 @@ export default function TaxCalculatorClient() {
                 <div key={i} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded ${b.band.color}`} />
-                    <span className="text-gray-700">{b.band.name} ({b.band.rate}%)</span>
+                    <span className="text-gray-700 dark:text-gray-300">{b.band.name} ({b.band.rate}%)</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-gray-500">{formatMoney(b.taxable / divisor, jurisdiction.symbol)}</span>
-                    <ArrowRight className="h-3 w-3 text-gray-300" />
+                    <span className="text-gray-500 dark:text-gray-400">{formatMoney(b.taxable / divisor, jurisdiction.symbol)}</span>
+                    <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600" />
                     <span className="font-medium text-gray-800">{formatMoney(b.tax / divisor, jurisdiction.symbol)}</span>
                   </div>
                 </div>
@@ -296,8 +296,8 @@ export default function TaxCalculatorClient() {
           </div>
 
           {/* Other Deductions */}
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Other Deductions</h4>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Other Deductions</h4>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">National Insurance / Social Security ({jurisdiction.niRate}%)</span>
@@ -313,7 +313,7 @@ export default function TaxCalculatorClient() {
                   <span className="font-medium">{formatMoney(result.studentLoan / divisor, jurisdiction.symbol)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm font-semibold border-t border-gray-200 pt-2">
+              <div className="flex justify-between text-sm font-semibold border-t border-gray-200 dark:border-gray-700 pt-2">
                 <span className="text-gray-800">Total Deductions</span>
                 <span className="text-red-700">{formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}</span>
               </div>
@@ -329,17 +329,17 @@ export default function TaxCalculatorClient() {
               {compareJ.name}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-medium">Gross Pay</p>
-                <p className="text-xl font-bold text-gray-900 mt-1">{formatMoney(salary / divisor, compareJ.symbol)}</p>
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Gross Pay</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{formatMoney(salary / divisor, compareJ.symbol)}</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-medium">Income Tax</p>
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Income Tax</p>
                 <p className="text-xl font-bold text-red-700 mt-1">{formatMoney(compareResult.totalTax / divisor, compareJ.symbol)}</p>
-                <p className="text-xs text-gray-400">{compareResult.effectiveRate.toFixed(1)}% effective</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{compareResult.effectiveRate.toFixed(1)}% effective</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-medium">Deductions</p>
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Deductions</p>
                 <p className="text-xl font-bold text-amber-700 mt-1">{formatMoney(compareResult.totalDeductions / divisor, compareJ.symbol)}</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -349,8 +349,8 @@ export default function TaxCalculatorClient() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Tax Band Breakdown</h4>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Tax Band Breakdown</h4>
               <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
                 {compareResult.bandBreakdown.map((b, i) => {
                   const width = (b.taxable / salary) * 100;
@@ -368,7 +368,7 @@ export default function TaxCalculatorClient() {
                   <div key={i} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded ${b.band.color}`} />
-                      <span className="text-gray-700">{b.band.name} ({b.band.rate}%)</span>
+                      <span className="text-gray-700 dark:text-gray-300">{b.band.name} ({b.band.rate}%)</span>
                     </div>
                     <span className="font-medium text-gray-800">{formatMoney(b.tax / divisor, compareJ.symbol)}</span>
                   </div>
@@ -402,15 +402,15 @@ export default function TaxCalculatorClient() {
       </div>
 
       {/* Quick Salary Presets */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Quick Salary Presets</h4>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Salary Presets</h4>
         <div className="flex flex-wrap gap-2">
           {[25000, 35000, 50000, 75000, 100000, 150000, 200000].map((s) => (
             <button
               key={s}
               onClick={() => setSalary(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                salary === s ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                salary === s ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {jurisdiction.symbol}{(s / 1000).toFixed(0)}k

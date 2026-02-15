@@ -89,7 +89,7 @@ const statusConfig: Record<ControlStatus, { bg: string; text: string; icon: type
   Implemented: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle },
   'Partially Implemented': { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock },
   Planned: { bg: 'bg-blue-100', text: 'text-blue-700', icon: Clock },
-  'Not Applicable': { bg: 'bg-gray-100', text: 'text-gray-500', icon: XCircle },
+  'Not Applicable': { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-500 dark:text-gray-400', icon: XCircle },
 };
 
 export default function ControlsDashboardPage() {
@@ -106,47 +106,47 @@ export default function ControlsDashboardPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">ISO 27001 Controls Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Annex A control implementation status — ISO/IEC 27001:2022</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ISO 27001 Controls Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Annex A control implementation status — ISO/IEC 27001:2022</p>
         </div>
-        <a href="/controls" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <a href="/controls" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Controls Register
         </a>
       </div>
 
       {/* Top gauges */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={implemented} max={total} size="lg" label="Implemented" sublabel={`${implemented}/${total}`} color="green" />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={implemented + partial} max={total} size="lg" label="Coverage" sublabel="Impl + Partial" color="blue" />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={avgEffectiveness} max={100} size="lg" label="Avg Effectiveness" sublabel="across all controls" color="auto" />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={total - planned} max={total} size="lg" label="Maturity" sublabel="active controls" color="purple" />
         </div>
       </div>
 
       {/* Status summary bar */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <div className="flex items-center gap-6 mb-3">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-gray-700">{implemented} Implemented</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{implemented} Implemented</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium text-gray-700">{partial} Partially Implemented</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{partial} Partially Implemented</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">{planned} Planned</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{planned} Planned</span>
           </div>
         </div>
-        <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+        <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex">
           <div className="bg-green-500 h-full" style={{ width: `${(implemented / total) * 100}%` }} />
           <div className="bg-yellow-400 h-full" style={{ width: `${(partial / total) * 100}%` }} />
           <div className="bg-blue-400 h-full" style={{ width: `${(planned / total) * 100}%` }} />
@@ -162,21 +162,21 @@ export default function ControlsDashboardPage() {
           const domainAvg = Math.round(domain.controls.filter(c => c.effectiveness > 0).reduce((s, c) => s + c.effectiveness, 0) / domain.controls.filter(c => c.effectiveness > 0).length);
 
           return (
-            <div key={domain.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div key={domain.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedDomain(isExpanded ? null : domain.id)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:bg-gray-800"
               >
                 <div className="flex items-center gap-3">
                   <Shield className="h-5 w-5 text-cyan-600" />
                   <div className="text-left">
-                    <h3 className="text-sm font-semibold text-gray-900">{domain.name}</h3>
-                    <p className="text-[10px] text-gray-500">{domain.description}</p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{domain.name}</h3>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400">{domain.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="w-20 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div className="h-full bg-green-500 rounded-full" style={{ width: `${(domainImpl / domainTotal) * 100}%` }} />
                     </div>
                     <span className="text-xs font-medium text-gray-600">{domainImpl}/{domainTotal}</span>
@@ -184,30 +184,30 @@ export default function ControlsDashboardPage() {
                   <span className={`text-xs font-bold ${domainAvg >= 80 ? 'text-green-600' : domainAvg >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {domainAvg}%
                   </span>
-                  <span className="text-gray-400 text-xs">{isExpanded ? '▲' : '▼'}</span>
+                  <span className="text-gray-400 dark:text-gray-500 text-xs">{isExpanded ? '▲' : '▼'}</span>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-gray-100 dark:border-gray-700">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="bg-gray-50">
-                        <th className="text-left py-2 px-4 font-medium text-gray-500">Control</th>
-                        <th className="text-left py-2 px-4 font-medium text-gray-500">Name</th>
-                        <th className="text-center py-2 px-4 font-medium text-gray-500">Status</th>
-                        <th className="text-center py-2 px-4 font-medium text-gray-500">Effectiveness</th>
-                        <th className="text-left py-2 px-4 font-medium text-gray-500">Owner</th>
-                        <th className="text-left py-2 px-4 font-medium text-gray-500">Last Assessed</th>
+                      <tr className="bg-gray-50 dark:bg-gray-800">
+                        <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Control</th>
+                        <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                        <th className="text-center py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                        <th className="text-center py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Effectiveness</th>
+                        <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
+                        <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Last Assessed</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {domain.controls.map(control => {
                         const sc = statusConfig[control.status];
                         return (
-                          <tr key={control.id} className="hover:bg-gray-50">
+                          <tr key={control.id} className="hover:bg-gray-50 dark:bg-gray-800">
                             <td className="py-2 px-4 font-mono font-medium text-cyan-700">{control.id}</td>
-                            <td className="py-2 px-4 text-gray-900">{control.name}</td>
+                            <td className="py-2 px-4 text-gray-900 dark:text-gray-100">{control.name}</td>
                             <td className="py-2 px-4 text-center">
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}>
                                 {control.status}
@@ -215,7 +215,7 @@ export default function ControlsDashboardPage() {
                             </td>
                             <td className="py-2 px-4">
                               <div className="flex items-center justify-center gap-2">
-                                <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="w-16 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                                   <div
                                     className={`h-full rounded-full ${control.effectiveness >= 80 ? 'bg-green-500' : control.effectiveness >= 60 ? 'bg-yellow-500' : control.effectiveness > 0 ? 'bg-red-500' : 'bg-gray-300'}`}
                                     style={{ width: `${control.effectiveness}%` }}
@@ -225,7 +225,7 @@ export default function ControlsDashboardPage() {
                               </div>
                             </td>
                             <td className="py-2 px-4 text-gray-600">{control.owner}</td>
-                            <td className="py-2 px-4 text-gray-400 font-mono">{control.lastAssessed}</td>
+                            <td className="py-2 px-4 text-gray-400 dark:text-gray-500 font-mono">{control.lastAssessed}</td>
                           </tr>
                         );
                       })}

@@ -52,8 +52,8 @@ const STATUS_COLORS: Record<string, string> = {
   UNDER_INVESTIGATION: 'bg-blue-100 text-blue-800',
   CONFIRMED_COUNTERFEIT: 'bg-red-100 text-red-800',
   CONFIRMED_AUTHENTIC: 'bg-green-100 text-green-800',
-  INCONCLUSIVE: 'bg-gray-100 text-gray-800',
-  CLOSED: 'bg-gray-100 text-gray-600',
+  INCONCLUSIVE: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const RISK_COLORS: Record<string, string> = {
@@ -182,8 +182,8 @@ export default function CounterfeitPreventionPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Counterfeit Parts Prevention</h1>
-          <p className="text-sm text-gray-500 mt-1">AS6174 / SAE AS6081 — Suspect & counterfeit part management</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Counterfeit Parts Prevention</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">AS6174 / SAE AS6081 — Suspect & counterfeit part management</p>
         </div>
       </div>
 
@@ -194,7 +194,7 @@ export default function CounterfeitPreventionPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg"><ShieldAlert className="h-5 w-5 text-red-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Total Reports</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Reports</p>
                 <p className="text-2xl font-bold">{totalReports}</p>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function CounterfeitPreventionPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Clock className="h-5 w-5 text-blue-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Under Investigation</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Under Investigation</p>
                 <p className="text-2xl font-bold">{underInvestigation}</p>
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function CounterfeitPreventionPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg"><XCircle className="h-5 w-5 text-red-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Confirmed Counterfeit</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Confirmed Counterfeit</p>
                 <p className="text-2xl font-bold">{confirmed}</p>
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function CounterfeitPreventionPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Approved Sources</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Approved Sources</p>
                 <p className="text-2xl font-bold">{totalSources}</p>
               </div>
             </div>
@@ -239,13 +239,13 @@ export default function CounterfeitPreventionPage() {
       <div className="flex gap-2 border-b pb-2">
         <button
           onClick={() => setActiveTab('reports')}
-          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'reports' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'reports' ? 'bg-red-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
         >
           Suspect Part Reports
         </button>
         <button
           onClick={() => setActiveTab('sources')}
-          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'sources' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'sources' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
         >
           Approved Sources
         </button>
@@ -263,7 +263,7 @@ export default function CounterfeitPreventionPage() {
             </div>
             <div className="flex gap-2 mt-3">
               <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by part number..."
                   value={search}
@@ -283,14 +283,14 @@ export default function CounterfeitPreventionPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : reports.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No suspect part reports found.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No suspect part reports found.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Ref</th>
                       <th className="pb-2 pr-4">Part Number</th>
                       <th className="pb-2 pr-4">Manufacturer</th>
@@ -302,17 +302,17 @@ export default function CounterfeitPreventionPage() {
                   </thead>
                   <tbody>
                     {reports.map((report) => (
-                      <tr key={report.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedReport(report); setShowDetailModal(true); }}>
+                      <tr key={report.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => { setSelectedReport(report); setShowDetailModal(true); }}>
                         <td className="py-3 pr-4 font-mono text-xs">{report.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{report.partNumber}</td>
                         <td className="py-3 pr-4">{report.manufacturer}</td>
                         <td className="py-3 pr-4">
-                          <Badge className={STATUS_COLORS[report.status] || 'bg-gray-100 text-gray-800'}>
+                          <Badge className={STATUS_COLORS[report.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>
                             {report.status.replace(/_/g, ' ')}
                           </Badge>
                         </td>
                         <td className="py-3 pr-4">{report.disposition || '-'}</td>
-                        <td className="py-3 pr-4 text-gray-500">{new Date(report.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{new Date(report.createdAt).toLocaleDateString()}</td>
                         <td className="py-3">
                           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                             {report.status === 'REPORTED' && (
@@ -350,14 +350,14 @@ export default function CounterfeitPreventionPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : sources.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No approved sources found.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No approved sources found.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Company</th>
                       <th className="pb-2 pr-4">CAGE Code</th>
                       <th className="pb-2 pr-4">Part Numbers</th>
@@ -369,12 +369,12 @@ export default function CounterfeitPreventionPage() {
                   </thead>
                   <tbody>
                     {sources.map((source) => (
-                      <tr key={source.id} className="border-b hover:bg-gray-50">
+                      <tr key={source.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-medium">{source.companyName}</td>
                         <td className="py-3 pr-4 font-mono text-xs">{source.cageCode || '-'}</td>
                         <td className="py-3 pr-4 text-xs">{source.partNumbers.slice(0, 3).join(', ')}{source.partNumbers.length > 3 ? '...' : ''}</td>
                         <td className="py-3 pr-4">
-                          <Badge className={RISK_COLORS[source.riskRating] || 'bg-gray-100 text-gray-800'}>
+                          <Badge className={RISK_COLORS[source.riskRating] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>
                             {source.riskRating}
                           </Badge>
                         </td>
@@ -450,30 +450,30 @@ export default function CounterfeitPreventionPage() {
         {selectedReport && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Part Number:</span> <span className="font-medium">{selectedReport.partNumber}</span></div>
-              <div><span className="text-gray-500">Part Name:</span> <span className="font-medium">{selectedReport.partName || '-'}</span></div>
-              <div><span className="text-gray-500">Manufacturer:</span> <span className="font-medium">{selectedReport.manufacturer}</span></div>
-              <div><span className="text-gray-500">Distributor:</span> <span className="font-medium">{selectedReport.distributor || '-'}</span></div>
-              <div><span className="text-gray-500">Lot Number:</span> <span className="font-medium">{selectedReport.lotNumber || '-'}</span></div>
-              <div><span className="text-gray-500">Serial Number:</span> <span className="font-medium">{selectedReport.serialNumber || '-'}</span></div>
-              <div><span className="text-gray-500">Status:</span> <Badge className={STATUS_COLORS[selectedReport.status] || 'bg-gray-100'}>{selectedReport.status.replace(/_/g, ' ')}</Badge></div>
-              <div><span className="text-gray-500">Disposition:</span> <span className="font-medium">{selectedReport.disposition || '-'}</span></div>
-              <div><span className="text-gray-500">GIDEP Reported:</span> <span className="font-medium">{selectedReport.gidepReported ? 'Yes' : 'No'}</span></div>
-              <div><span className="text-gray-500">Quarantined:</span> <span className="font-medium">{selectedReport.quarantineId ? 'Yes' : 'No'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Part Number:</span> <span className="font-medium">{selectedReport.partNumber}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Part Name:</span> <span className="font-medium">{selectedReport.partName || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Manufacturer:</span> <span className="font-medium">{selectedReport.manufacturer}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Distributor:</span> <span className="font-medium">{selectedReport.distributor || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Lot Number:</span> <span className="font-medium">{selectedReport.lotNumber || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Serial Number:</span> <span className="font-medium">{selectedReport.serialNumber || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedReport.status] || 'bg-gray-100 dark:bg-gray-800'}>{selectedReport.status.replace(/_/g, ' ')}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Disposition:</span> <span className="font-medium">{selectedReport.disposition || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">GIDEP Reported:</span> <span className="font-medium">{selectedReport.gidepReported ? 'Yes' : 'No'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Quarantined:</span> <span className="font-medium">{selectedReport.quarantineId ? 'Yes' : 'No'}</span></div>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">Reason for Suspicion:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Reason for Suspicion:</span>
               <p className="mt-1 text-sm bg-red-50 p-3 rounded">{selectedReport.suspicionReason}</p>
             </div>
             {selectedReport.evidence && (
               <div>
-                <span className="text-gray-500 text-sm">Evidence:</span>
-                <p className="mt-1 text-sm bg-gray-50 p-3 rounded">{selectedReport.evidence}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Evidence:</span>
+                <p className="mt-1 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded">{selectedReport.evidence}</p>
               </div>
             )}
             {selectedReport.investigationNotes && (
               <div>
-                <span className="text-gray-500 text-sm">Investigation Notes:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Investigation Notes:</span>
                 <p className="mt-1 text-sm bg-blue-50 p-3 rounded">{selectedReport.investigationNotes}</p>
               </div>
             )}

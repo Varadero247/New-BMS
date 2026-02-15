@@ -59,12 +59,12 @@ const STATUSES = [
 ] as const;
 
 const STATUS_COLOURS: Record<string, string> = {
-  NOT_STARTED: 'bg-gray-100 text-gray-800',
+  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   ON_TRACK: 'bg-blue-100 text-blue-800',
   AT_RISK: 'bg-yellow-100 text-yellow-800',
   BEHIND: 'bg-red-100 text-red-800',
   ACHIEVED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-gray-100 text-gray-600',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   DEFERRED: 'bg-purple-100 text-purple-800',
 };
 
@@ -91,7 +91,7 @@ const CATEGORY_COLOURS: Record<string, string> = {
   NET_ZERO: 'bg-green-100 text-green-800',
   NATURE_POSITIVE: 'bg-emerald-100 text-emerald-800',
   COMMUNITY: 'bg-sky-100 text-sky-800',
-  OTHER: 'bg-gray-100 text-gray-800',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
 };
 
 const ISO_CLAUSES = ['6.2', '8.1', '9.1', '10.1'] as const;
@@ -425,10 +425,10 @@ export default function ObjectivesClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
               Environmental Objectives
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 14001 Clause 6.2 -- Track and manage environmental targets
             </p>
           </div>
@@ -448,7 +448,7 @@ export default function ObjectivesClient() {
               <div className="text-center">
                 <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
                 <p className="text-3xl font-bold">{totalCount}</p>
-                <p className="text-sm text-gray-500">Total Objectives</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Objectives</p>
               </div>
             </CardContent>
           </Card>
@@ -457,7 +457,7 @@ export default function ObjectivesClient() {
               <div className="text-center">
                 <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-600" />
                 <p className="text-3xl font-bold text-green-600">{achievedCount}</p>
-                <p className="text-sm text-gray-500">Achieved</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Achieved</p>
               </div>
             </CardContent>
           </Card>
@@ -466,7 +466,7 @@ export default function ObjectivesClient() {
               <div className="text-center">
                 <Target className="h-8 w-8 mx-auto mb-2 text-blue-600" />
                 <p className="text-3xl font-bold text-blue-600">{onTrackCount}</p>
-                <p className="text-sm text-gray-500">On Track</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">On Track</p>
               </div>
             </CardContent>
           </Card>
@@ -475,7 +475,7 @@ export default function ObjectivesClient() {
               <div className="text-center">
                 <Calendar className="h-8 w-8 mx-auto mb-2 text-red-500" />
                 <p className="text-3xl font-bold text-red-600">{atRiskCount}</p>
-                <p className="text-sm text-gray-500">At Risk / Behind</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">At Risk / Behind</p>
               </div>
             </CardContent>
           </Card>
@@ -486,7 +486,7 @@ export default function ObjectivesClient() {
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by title, reference, owner or department..."
                   value={searchQuery}
@@ -529,7 +529,7 @@ export default function ObjectivesClient() {
               <Target className="h-5 w-5 text-green-500" />
               Environmental Objectives
               {filtered.length !== objectives.length && (
-                <span className="text-sm font-normal text-gray-400 ml-2">
+                <span className="text-sm font-normal text-gray-400 dark:text-gray-500 ml-2">
                   Showing {filtered.length} of {objectives.length}
                 </span>
               )}
@@ -539,7 +539,7 @@ export default function ObjectivesClient() {
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="h-8 w-8 animate-spin text-green-500" />
-                <span className="ml-3 text-gray-500">Loading objectives...</span>
+                <span className="ml-3 text-gray-500 dark:text-gray-400">Loading objectives...</span>
               </div>
             ) : filtered.length > 0 ? (
               <div className="space-y-4">
@@ -551,12 +551,12 @@ export default function ObjectivesClient() {
                   return (
                     <div
                       key={obj.id}
-                      className="p-5 border border-gray-200 rounded-lg hover:border-green-300 transition-colors"
+                      className="p-5 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-green-300 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <span className="text-xs font-mono text-gray-400">
+                            <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
                               {obj.referenceNumber}
                             </span>
                             <Badge variant={STATUS_BADGE_VARIANT[obj.status] || 'secondary'}>
@@ -564,17 +564,17 @@ export default function ObjectivesClient() {
                             </Badge>
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                CATEGORY_COLOURS[obj.category] || 'bg-gray-100 text-gray-800'
+                                CATEGORY_COLOURS[obj.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'
                               }`}
                             >
                               {formatCategory(obj.category)}
                             </span>
                           </div>
-                          <h3 className="font-semibold text-gray-900 truncate">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                             {obj.title}
                           </h3>
                           {obj.objectiveStatement && (
-                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                               {obj.objectiveStatement}
                             </p>
                           )}
@@ -611,7 +611,7 @@ export default function ObjectivesClient() {
                                 strokeDasharray={`${(progress / 100) * 175.9} 175.9`}
                               />
                             </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700">
+                            <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700 dark:text-gray-300">
                               {Math.round(progress)}%
                             </span>
                           </div>
@@ -627,7 +627,7 @@ export default function ObjectivesClient() {
                       </div>
 
                       {/* Footer info */}
-                      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                         {obj.targetValue != null && (
                           <span className="font-medium">
                             KPI: {obj.currentValue ?? 0} / {obj.targetValue}{' '}
@@ -639,7 +639,7 @@ export default function ObjectivesClient() {
                             className={
                               countdown.overdue
                                 ? 'text-red-600 font-semibold'
-                                : 'text-gray-500'
+                                : 'text-gray-500 dark:text-gray-400'
                             }
                           >
                             <Calendar className="inline h-3 w-3 mr-1" />
@@ -663,11 +663,11 @@ export default function ObjectivesClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-500">
+                <Target className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-500 dark:text-gray-400">
                   No environmental objectives found
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                   Click Add Objective to set your first environmental target
                 </p>
                 <Button
@@ -725,7 +725,7 @@ export default function ObjectivesClient() {
                     }
                     placeholder="Describe the objective in SMART terms..."
                   />
-                  <p className="text-xs text-gray-400 mt-1 italic">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
                     Guidance: &quot;By [when], [who] will [action] to achieve
                     [measurable result] as measured by [KPI]&quot;
                   </p>
@@ -1053,7 +1053,7 @@ export default function ObjectivesClient() {
                 E -- Milestones
               </h3>
               {form.milestones.length > 0 ? (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-green-50 text-left">
@@ -1074,10 +1074,10 @@ export default function ObjectivesClient() {
                         <tr
                           key={idx}
                           className={
-                            idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                            idx % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'
                           }
                         >
-                          <td className="px-4 py-2 text-gray-500">
+                          <td className="px-4 py-2 text-gray-500 dark:text-gray-400">
                             {idx + 1}
                           </td>
                           <td className="px-4 py-2">
@@ -1116,7 +1116,7 @@ export default function ObjectivesClient() {
                   </table>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400 mb-2">
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-2">
                   No milestones added yet.
                 </p>
               )}
@@ -1177,7 +1177,7 @@ export default function ObjectivesClient() {
                         {(aiGenerated.smartScores || []).map((row, i) => (
                           <tr
                             key={row.criterion}
-                            className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                            className={i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
                           >
                             <td className="px-4 py-2 font-medium">
                               {row.criterion}

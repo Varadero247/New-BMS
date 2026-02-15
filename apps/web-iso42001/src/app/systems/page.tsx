@@ -137,7 +137,7 @@ const riskLevelColors: Record<string, string> = {
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  RETIRED: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+  RETIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
   PLANNED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
 };
 
@@ -608,10 +608,10 @@ export default function AISystemRegisterPage() {
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-1 ml-2">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskLevelColors[system.riskLevel] || 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskLevelColors[system.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                           {formatLabel(system.riskLevel)} RISK
                         </span>
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[system.status] || 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[system.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                           {formatLabel(system.status)}
                         </span>
                       </div>
@@ -640,7 +640,7 @@ export default function AISystemRegisterPage() {
                       )}
                       {system.humanOversight && (
                         <div className="bg-muted/50 rounded-lg px-2 py-1.5 text-center">
-                          <span className={`inline-flex rounded px-1.5 py-0.5 text-[9px] font-medium ${oversightColors[system.humanOversight] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex rounded px-1.5 py-0.5 text-[9px] font-medium ${oversightColors[system.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {formatLabel(system.humanOversight).replace('Human ', '')}
                           </span>
                           <p className="text-[10px] text-muted-foreground mt-0.5">Oversight</p>
@@ -1052,14 +1052,14 @@ export default function AISystemRegisterPage() {
           <div className="space-y-5">
             {/* Badges row */}
             <div className="flex flex-wrap gap-2">
-              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${riskLevelColors[viewingSystem.riskLevel] || 'bg-gray-100 text-gray-700'}`}>
+              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${riskLevelColors[viewingSystem.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                 Risk: {formatLabel(viewingSystem.riskLevel)}
               </span>
-              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[viewingSystem.status] || 'bg-gray-100 text-gray-700'}`}>
+              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[viewingSystem.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                 {formatLabel(viewingSystem.status)}
               </span>
               {viewingSystem.humanOversight && (
-                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${oversightColors[viewingSystem.humanOversight] || 'bg-gray-100 text-gray-700'}`}>
+                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${oversightColors[viewingSystem.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                   {formatLabel(viewingSystem.humanOversight)}
                 </span>
               )}

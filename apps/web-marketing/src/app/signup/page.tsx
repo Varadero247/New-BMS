@@ -60,7 +60,7 @@ function SignupForm() {
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-white mb-2 font-display">You are in!</h2>
-        <p className="text-gray-400 mb-6">
+        <p className="text-gray-400 dark:text-gray-500 mb-6">
           Check your inbox for a confirmation email. Your 21-day free trial starts now.
         </p>
         <Link
@@ -148,13 +148,13 @@ function SignupForm() {
         {loading ? 'Creating account...' : 'Start free trial'}
       </button>
 
-      <p className="text-xs text-gray-500 text-center">
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
         By signing up you agree to our{' '}
-        <Link href="/terms" className="text-gray-400 hover:text-white transition-colors underline">
+        <Link href="/terms" className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline">
           Terms of Service
         </Link>{' '}
         and{' '}
-        <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors underline">
+        <Link href="/privacy" className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline">
           Privacy Policy
         </Link>
         .
@@ -186,11 +186,11 @@ export default function SignupPage() {
           <h1 className="text-2xl md:text-3xl font-bold font-display text-white text-center mb-2">
             Start your free 21-day trial
           </h1>
-          <p className="text-gray-400 text-center mb-8">
+          <p className="text-gray-400 dark:text-gray-500 text-center mb-8">
             No credit card required
           </p>
 
-          <Suspense fallback={<div className="text-center text-gray-500">Loading...</div>}>
+          <Suspense fallback={<div className="text-center text-gray-500 dark:text-gray-400">Loading...</div>}>
             <SignupForm />
           </Suspense>
         </div>

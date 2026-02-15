@@ -32,7 +32,7 @@ const actionColors: Record<string, string> = {
   APPROVAL: 'bg-green-100 text-green-700',
   REJECTION: 'bg-red-100 text-red-700',
   ESCALATION: 'bg-yellow-100 text-yellow-700',
-  CONFIG_CHANGE: 'bg-gray-100 text-gray-700',
+  CONFIG_CHANGE: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 export default function AuditLogPage() {
@@ -69,21 +69,21 @@ export default function AuditLogPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">AI Audit Log</h1>
-        <p className="text-sm text-gray-500 mt-1">ISO 42001:2023 — Transparent record of all AI decisions and actions</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Audit Log</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 42001:2023 — Transparent record of all AI decisions and actions</p>
       </div>
 
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
             <div className="text-2xl font-bold text-indigo-600">{stats.totalEntries}</div>
-            <div className="text-sm text-gray-500">Total Entries</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Entries</div>
           </div>
           {Object.entries(stats.byAction).slice(0, 3).map(([action, count]) => (
-            <div key={action} className="bg-white rounded-lg border p-4">
-              <div className="text-2xl font-bold text-gray-900">{count}</div>
-              <div className="text-sm text-gray-500">{action.replace(/_/g, ' ')}</div>
+            <div key={action} className="bg-white dark:bg-gray-900 rounded-lg border p-4">
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{count}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{action.replace(/_/g, ' ')}</div>
             </div>
           ))}
         </div>
@@ -98,7 +98,7 @@ export default function AuditLogPage() {
             onChange={e => { setSearch(e.target.value); setPage(1); }}
             className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
-          <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
         <select
           value={filterAction}
@@ -111,28 +111,28 @@ export default function AuditLogPage() {
       </div>
 
       {/* Log table */}
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b">
               <tr>
-                <th className="text-left p-3 font-medium text-gray-700">Timestamp</th>
-                <th className="text-left p-3 font-medium text-gray-700">Action</th>
-                <th className="text-left p-3 font-medium text-gray-700">Description</th>
-                <th className="text-left p-3 font-medium text-gray-700">User</th>
-                <th className="text-left p-3 font-medium text-gray-700">Risk Score</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Timestamp</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Action</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Description</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">User</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Risk Score</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
               ) : entries.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-500">No audit log entries found</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-gray-500 dark:text-gray-400">No audit log entries found</td></tr>
               ) : entries.map(entry => (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="p-3 text-gray-500 text-xs font-mono whitespace-nowrap">{new Date(entry.createdAt).toLocaleString()}</td>
+                <tr key={entry.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="p-3 text-gray-500 dark:text-gray-400 text-xs font-mono whitespace-nowrap">{new Date(entry.createdAt).toLocaleString()}</td>
                   <td className="p-3">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${actionColors[entry.action] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${actionColors[entry.action] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                       {entry.action.replace(/_/g, ' ')}
                     </span>
                   </td>
@@ -156,7 +156,7 @@ export default function AuditLogPage() {
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
           <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1.5 text-sm rounded-md border disabled:opacity-50">Previous</button>
-          <span className="text-sm text-gray-500 py-1.5">Page {page} of {totalPages}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-1.5">Page {page} of {totalPages}</span>
           <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1.5 text-sm rounded-md border disabled:opacity-50">Next</button>
         </div>
       )}

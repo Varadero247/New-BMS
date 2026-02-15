@@ -170,7 +170,7 @@ export default function ScimPage() {
             </code>
             <button
               onClick={handleCopyUrl}
-              className="px-3 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shrink-0"
+              className="px-3 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 shrink-0"
             >
               {urlCopied ? 'Copied!' : 'Copy'}
             </button>
@@ -207,7 +207,7 @@ export default function ScimPage() {
               <div key={token.id} className="flex items-center justify-between py-3">
                 <div>
                   <div className="font-mono text-sm text-gray-700 dark:text-gray-300">{token.tokenPrefix}...</div>
-                  <div className="text-xs text-gray-500">Created {new Date(token.createdAt).toLocaleDateString()}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Created {new Date(token.createdAt).toLocaleDateString()}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -253,12 +253,12 @@ export default function ScimPage() {
           </thead>
           <tbody className="divide-y dark:divide-gray-700">
             {loading ? (
-              <tr><td colSpan={4} className="p-6 text-center text-gray-500">Loading...</td></tr>
+              <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan={4} className="p-6 text-center text-gray-500">No SCIM-provisioned users yet. Connect your IdP to get started.</td></tr>
+              <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">No SCIM-provisioned users yet. Connect your IdP to get started.</td></tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                <tr key={user.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
                   <td className="p-3">
                     <div className="font-medium text-gray-900 dark:text-gray-100">{user.displayName}</div>
                   </td>
@@ -270,7 +270,7 @@ export default function ScimPage() {
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       user.active
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
                     }`}>
                       {user.active ? 'Active' : 'Deactivated'}
                     </span>

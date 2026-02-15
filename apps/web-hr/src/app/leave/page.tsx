@@ -44,7 +44,7 @@ const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-gray-100 text-gray-700',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 export default function LeavePage() {
@@ -249,8 +249,8 @@ export default function LeavePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Leave Management</h1>
-            <p className="text-gray-500 mt-1">Manage leave requests and approvals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Leave Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage leave requests and approvals</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={analyzeLeavePatterns} disabled={aiLoading || requests.length === 0} className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export default function LeavePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Pending</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-yellow-500" />
@@ -279,7 +279,7 @@ export default function LeavePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Approved</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
                   <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -290,7 +290,7 @@ export default function LeavePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Rejected</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Rejected</p>
                   <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
                 </div>
                 <XCircle className="h-8 w-8 text-red-500" />
@@ -301,7 +301,7 @@ export default function LeavePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Requests</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Requests</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-500" />
@@ -332,7 +332,7 @@ export default function LeavePage() {
                   </div>
                   {aiAnalysis.patterns?.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-700 mb-1">Patterns</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">Patterns</h4>
                       <ul className="text-sm space-y-1">
                         {aiAnalysis.patterns.map((p: string, i: number) => <li key={i}>{'\u2022'} {p}</li>)}
                       </ul>
@@ -342,7 +342,7 @@ export default function LeavePage() {
                 <div>
                   {aiAnalysis.recommendations?.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-700 mb-1">Recommendations</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendations</h4>
                       <ul className="text-sm space-y-1">
                         {aiAnalysis.recommendations.map((r: string, i: number) => <li key={i}>{'\u2022'} {r}</li>)}
                       </ul>
@@ -393,7 +393,7 @@ export default function LeavePage() {
             {requests.length > 0 ? (
               <div className="space-y-4">
                 {requests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div key={request.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <Link href={`/leave/${request.id}`} className="flex items-center gap-4 flex-1 cursor-pointer">
                       <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
                         <Calendar className="h-5 w-5 text-purple-600" />
@@ -403,11 +403,11 @@ export default function LeavePage() {
                           <span className="font-medium">
                             {request.employee.firstName} {request.employee.lastName}
                           </span>
-                          <Badge className={statusColors[request.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[request.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {request.status}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                           <span>{request.requestNumber}</span>
                           <span>•</span>
                           <span>{request.leaveType.name}</span>
@@ -422,7 +422,7 @@ export default function LeavePage() {
                           {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
                         </p>
                         {request.reason && (
-                          <p className="text-sm text-gray-500 truncate max-w-[200px]">{request.reason}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{request.reason}</p>
                         )}
                       </div>
                       {request.status === 'PENDING' && (
@@ -448,7 +448,7 @@ export default function LeavePage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No leave requests found</p>
               </div>

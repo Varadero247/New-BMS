@@ -71,7 +71,7 @@ const auditStatusColors: Record<string, string> = {
   OPEN: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-orange-100 text-orange-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-gray-100 text-gray-700',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 // ---------------------------------------------------------------------------
@@ -330,8 +330,8 @@ export default function LpaClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Layered Process Audits</h1>
-            <p className="text-gray-500 mt-1">CQI-8 Layered Process Audit Management</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Layered Process Audits</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">CQI-8 Layered Process Audit Management</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={() => { loadSchedules(); loadAudits(); loadDashboard(); }} className="flex items-center gap-2">
@@ -365,7 +365,7 @@ export default function LpaClient() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-6">
+        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
           {TABS.map(tab => (
             <button
               key={tab}
@@ -374,7 +374,7 @@ export default function LpaClient() {
               className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab
                   ? 'border-orange-600 text-orange-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
               }`}
             >
               {tab}
@@ -387,13 +387,13 @@ export default function LpaClient() {
           <Card className="mb-6">
             <CardContent className="pt-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder={activeTab === 'Schedules' ? 'Search by process area, frequency...' : 'Search by process area, auditor, status...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
             </CardContent>
@@ -420,7 +420,7 @@ export default function LpaClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Process Area</th>
                         <th className="px-4 py-3 text-center font-medium text-gray-600">Layer</th>
                         <th className="px-4 py-3 text-center font-medium text-gray-600">Frequency</th>
@@ -432,9 +432,9 @@ export default function LpaClient() {
                     </thead>
                     <tbody>
                       {filteredSchedules.map((schedule) => (
-                        <tr key={schedule.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <tr key={schedule.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                           <td className="px-4 py-3">
-                            <span className="text-sm font-medium text-gray-900">{schedule.processArea}</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{schedule.processArea}</span>
                           </td>
                           <td className="px-4 py-3 text-center">
                             <Badge className="bg-orange-100 text-orange-700">L{schedule.layer}</Badge>
@@ -446,11 +446,11 @@ export default function LpaClient() {
                             <span className="text-sm text-gray-600">{schedule.questions?.length || 0}</span>
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <Badge className={schedule.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}>
+                            <Badge className={schedule.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>
                               {schedule.active ? 'Active' : 'Inactive'}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500">{formatDate(schedule.createdAt)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(schedule.createdAt)}</td>
                           <td className="px-4 py-3 text-center">
                             <button
                               type="button"
@@ -458,7 +458,7 @@ export default function LpaClient() {
                                 setSelectedScheduleId(schedule.id);
                                 setShowAuditModal(true);
                               }}
-                              className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                              className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                               title="Create audit from this schedule"
                             >
                               <Play className="h-4 w-4" />
@@ -471,9 +471,9 @@ export default function LpaClient() {
                 </div>
               ) : (
                 <div className="text-center py-16">
-                  <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-500 mb-2">No schedules found</h3>
-                  <p className="text-sm text-gray-400 mb-6">
+                  <Calendar className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No schedules found</h3>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                     {searchQuery
                       ? 'Try adjusting your search query.'
                       : 'Create your first LPA schedule to get started.'}
@@ -510,7 +510,7 @@ export default function LpaClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Process Area</th>
                         <th className="px-4 py-3 text-center font-medium text-gray-600">Layer</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Auditor</th>
@@ -523,9 +523,9 @@ export default function LpaClient() {
                     </thead>
                     <tbody>
                       {filteredAudits.map((audit) => (
-                        <tr key={audit.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <tr key={audit.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                           <td className="px-4 py-3">
-                            <span className="text-sm font-medium text-gray-900">{audit.processArea || '-'}</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{audit.processArea || '-'}</span>
                           </td>
                           <td className="px-4 py-3 text-center">
                             {audit.layer ? (
@@ -534,7 +534,7 @@ export default function LpaClient() {
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">{audit.auditor || '-'}</td>
                           <td className="px-4 py-3 text-center">
-                            <Badge className={auditStatusColors[audit.status] || 'bg-gray-100 text-gray-700'}>
+                            <Badge className={auditStatusColors[audit.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                               {audit.status?.replace(/_/g, ' ')}
                             </Badge>
                           </td>
@@ -549,13 +549,13 @@ export default function LpaClient() {
                               </span>
                             ) : '-'}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500">{formatDate(audit.createdAt)}</td>
-                          <td className="px-4 py-3 text-sm text-gray-500">{formatDate(audit.completedAt)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(audit.createdAt)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(audit.completedAt)}</td>
                           <td className="px-4 py-3 text-center">
                             <button
                               type="button"
                               onClick={() => openAuditDetail(audit)}
-                              className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                              className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                               title="View audit details"
                             >
                               <Eye className="h-4 w-4" />
@@ -568,9 +568,9 @@ export default function LpaClient() {
                 </div>
               ) : (
                 <div className="text-center py-16">
-                  <ClipboardCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-500 mb-2">No audits found</h3>
-                  <p className="text-sm text-gray-400 mb-6">
+                  <ClipboardCheck className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No audits found</h3>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                     {searchQuery
                       ? 'Try adjusting your search query.'
                       : 'Create an audit from a schedule to get started.'}
@@ -606,7 +606,7 @@ export default function LpaClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500">Total Audits</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Total Audits</p>
                           <p className="text-3xl font-bold">{dashboard.totalAudits}</p>
                         </div>
                         <ClipboardCheck className="h-8 w-8 text-orange-500" />
@@ -617,7 +617,7 @@ export default function LpaClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500">Average Score</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Average Score</p>
                           <p className={`text-3xl font-bold ${
                             dashboard.averageScore >= 90 ? 'text-green-600' :
                             dashboard.averageScore >= 70 ? 'text-yellow-600' :
@@ -636,7 +636,7 @@ export default function LpaClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500">Fail Rate</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Fail Rate</p>
                           <p className={`text-3xl font-bold ${
                             dashboard.failRate <= 10 ? 'text-green-600' :
                             dashboard.failRate <= 25 ? 'text-yellow-600' :
@@ -655,7 +655,7 @@ export default function LpaClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500">Completed This Month</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Completed This Month</p>
                           <p className="text-3xl font-bold text-green-600">{dashboard.completedThisMonth}</p>
                         </div>
                         <CheckCircle className="h-8 w-8 text-green-500" />
@@ -686,8 +686,8 @@ export default function LpaClient() {
                     <CardContent>
                       <div className="space-y-3">
                         {dashboard.topIssues.map((issue, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="text-sm text-gray-700 flex-1">{issue.question}</span>
+                          <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">{issue.question}</span>
                             <Badge className="bg-red-100 text-red-700 ml-4">
                               {issue.failCount} fail{issue.failCount !== 1 ? 's' : ''}
                             </Badge>
@@ -702,9 +702,9 @@ export default function LpaClient() {
                   <Card>
                     <CardContent className="py-16">
                       <div className="text-center">
-                        <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-500 mb-2">No audit data yet</h3>
-                        <p className="text-sm text-gray-400">Complete some audits to see dashboard analytics.</p>
+                        <BarChart3 className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No audit data yet</h3>
+                        <p className="text-sm text-gray-400 dark:text-gray-500">Complete some audits to see dashboard analytics.</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -714,9 +714,9 @@ export default function LpaClient() {
               <Card>
                 <CardContent className="py-16">
                   <div className="text-center">
-                    <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-500 mb-2">Dashboard unavailable</h3>
-                    <p className="text-sm text-gray-400">Failed to load dashboard data.</p>
+                    <BarChart3 className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">Dashboard unavailable</h3>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Failed to load dashboard data.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -784,7 +784,7 @@ export default function LpaClient() {
                 required
                 placeholder={"Is the work instruction posted and current?\nAre operators following the control plan?\nIs the error-proofing device functional?\nAre all gages within calibration?"}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 Enter each audit question on a separate line.
               </p>
             </div>
@@ -832,27 +832,27 @@ export default function LpaClient() {
               const sel = schedules.find(s => s.id === selectedScheduleId);
               if (!sel) return null;
               return (
-                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="grid grid-cols-3 gap-4 mb-3">
                     <div>
-                      <p className="text-xs text-gray-500">Process Area</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Process Area</p>
                       <p className="text-sm font-medium">{sel.processArea}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Layer</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Layer</p>
                       <p className="text-sm font-medium">Layer {sel.layer}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Questions</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Questions</p>
                       <p className="text-sm font-medium">{sel.questions?.length || 0}</p>
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Audit Questions:</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Audit Questions:</p>
                     <ul className="text-sm text-gray-600 space-y-1">
                       {sel.questions?.map((q, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <span className="text-xs text-gray-400 font-mono mt-0.5">{idx + 1}.</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{idx + 1}.</span>
                           <span>{q}</span>
                         </li>
                       ))}
@@ -896,7 +896,7 @@ export default function LpaClient() {
               {selectedAudit.layer && (
                 <Badge className="bg-orange-100 text-orange-700">Layer {selectedAudit.layer}</Badge>
               )}
-              <Badge className={auditStatusColors[selectedAudit.status] || 'bg-gray-100'}>
+              <Badge className={auditStatusColors[selectedAudit.status] || 'bg-gray-100 dark:bg-gray-800'}>
                 {selectedAudit.status?.replace(/_/g, ' ')}
               </Badge>
               {selectedAudit.score !== null && selectedAudit.score !== undefined && (
@@ -910,22 +910,22 @@ export default function LpaClient() {
               )}
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Process Area</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Process Area</p>
                   <p className="text-sm font-medium">{selectedAudit.processArea || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Layer</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Layer</p>
                   <p className="text-sm font-medium">{selectedAudit.layer ? `Layer ${selectedAudit.layer}` : '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Auditor</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Auditor</p>
                   <p className="text-sm font-medium">{selectedAudit.auditor || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Created</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedAudit.createdAt)}</p>
                 </div>
               </div>
@@ -933,8 +933,8 @@ export default function LpaClient() {
 
             {/* Responses / Questions */}
             {selectedAudit.responses && selectedAudit.responses.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                   <Layers className="h-4 w-4 inline-block mr-1" />
                   Audit Questions &amp; Responses
                 </h3>
@@ -942,10 +942,10 @@ export default function LpaClient() {
                   {selectedAudit.responses.map((resp, idx) => {
                     const isResponding = respondingIdx === idx;
                     return (
-                      <div key={idx} className={`flex items-start gap-3 p-3 rounded ${isResponding ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50'}`}>
-                        <span className="text-xs font-mono text-gray-400 w-6 text-right mt-0.5">{idx + 1}</span>
+                      <div key={idx} className={`flex items-start gap-3 p-3 rounded ${isResponding ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50 dark:bg-gray-800'}`}>
+                        <span className="text-xs font-mono text-gray-400 dark:text-gray-500 w-6 text-right mt-0.5">{idx + 1}</span>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-700">{resp.question}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{resp.question}</p>
                           {resp.conforming !== undefined && resp.conforming !== null && !isResponding ? (
                             <div className="mt-1 flex items-center gap-2">
                               {resp.conforming ? (
@@ -957,7 +957,7 @@ export default function LpaClient() {
                                 {resp.conforming ? 'Conforming' : 'Non-Conforming'}
                               </span>
                               {resp.notes && (
-                                <span className="text-xs text-gray-400 ml-2">- {resp.notes}</span>
+                                <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">- {resp.notes}</span>
                               )}
                             </div>
                           ) : null}
@@ -977,7 +977,7 @@ export default function LpaClient() {
                                 placeholder="Notes..."
                                 value={respondForm.notes}
                                 onChange={e => setRespondForm({ ...respondForm, notes: e.target.value })}
-                                className="text-xs border border-gray-200 rounded px-2 py-1 flex-1"
+                                className="text-xs border border-gray-200 dark:border-gray-700 rounded px-2 py-1 flex-1"
                               />
                               <button
                                 type="button"
@@ -990,7 +990,7 @@ export default function LpaClient() {
                               <button
                                 type="button"
                                 onClick={() => setRespondingIdx(null)}
-                                className="text-xs text-gray-500 hover:text-gray-700 px-1"
+                                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 px-1"
                               >
                                 Cancel
                               </button>
@@ -1007,7 +1007,7 @@ export default function LpaClient() {
                                 notes: resp.notes || '',
                               });
                             }}
-                            className="p-1 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                            className="p-1 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                             title="Respond to this question"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
@@ -1022,9 +1022,9 @@ export default function LpaClient() {
 
             {/* Complete Audit */}
             {selectedAudit.status !== 'COMPLETED' && selectedAudit.status !== 'CANCELLED' && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Complete Audit</h3>
-                <p className="text-sm text-gray-500 mb-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Complete Audit</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Mark this audit as complete. The score will be calculated based on responses.
                 </p>
                 <Button

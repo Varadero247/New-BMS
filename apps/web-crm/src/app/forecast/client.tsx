@@ -204,7 +204,7 @@ export default function ForecastClient() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {/* Total Pipeline */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-slate-600">Total Pipeline</p>
               <DollarSign className="w-5 h-5 text-blue-500" />
@@ -217,7 +217,7 @@ export default function ForecastClient() {
           </div>
 
           {/* Weighted Forecast */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 border-l-4 border-purple-500">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-slate-600">Weighted Forecast</p>
               <TrendingUp className="w-5 h-5 text-purple-500" />
@@ -230,7 +230,7 @@ export default function ForecastClient() {
           </div>
 
           {/* Deals in Pipeline */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-cyan-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 border-l-4 border-cyan-500">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-slate-600">Deals in Pipeline</p>
               <Target className="w-5 h-5 text-cyan-500" />
@@ -242,7 +242,7 @@ export default function ForecastClient() {
           </div>
 
           {/* Average Deal Size */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-amber-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 border-l-4 border-amber-500">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-slate-600">Average Deal Size</p>
               <PieChart className="w-5 h-5 text-amber-500" />
@@ -254,7 +254,7 @@ export default function ForecastClient() {
           </div>
 
           {/* Win Rate */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-emerald-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 border-l-4 border-emerald-500">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-slate-600">Win Rate</p>
               <Percent className="w-5 h-5 text-emerald-500" />
@@ -267,7 +267,7 @@ export default function ForecastClient() {
         </div>
 
         {/* Monthly Forecast Chart */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-slate-900 mb-6">6-Month Forecast</h2>
           <div className="flex items-center gap-4 mb-4 text-xs">
             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-violet-500" /><span className="text-slate-600">Weighted Forecast</span></div>
@@ -299,7 +299,7 @@ export default function ForecastClient() {
         {/* Pipeline by Stage - Funnel */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Funnel Visualization */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Pipeline by Stage</h2>
             <div className="space-y-4">
               {pipelineStages.map((stage, index) => {
@@ -337,7 +337,7 @@ export default function ForecastClient() {
           </div>
 
           {/* Stage Distribution Stats */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Stage Distribution</h2>
             <div className="space-y-4">
               {pipelineStages.map((stage) => {
@@ -366,14 +366,14 @@ export default function ForecastClient() {
         </div>
 
         {/* Deals Table */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-slate-900">All Deals ({filteredDeals.length})</h2>
             <div className="flex items-center gap-3">
               <select
                 value={selectedStage || ''}
                 onChange={(e) => setSelectedStage(e.target.value || null)}
-                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white dark:bg-gray-900 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Stages</option>
                 {pipelineStages.map((s) => (
@@ -386,7 +386,7 @@ export default function ForecastClient() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'value' | 'probability' | 'date')}
-                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white dark:bg-gray-900 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="value">Sort by Value</option>
                 <option value="probability">Sort by Probability</option>

@@ -121,22 +121,22 @@ export default function ManagementReviewsPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Management Reviews</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 §9.3 — Management review</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Management Reviews</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 §9.3 — Management review</p>
         </div>
         <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Schedule Review</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500">Total Reviews</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'PLANNED').length}</div><div className="text-sm text-gray-500">Planned</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'IN_PROGRESS').length}</div><div className="text-sm text-gray-500">In Progress</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'COMPLETED').length}</div><div className="text-sm text-gray-500">Completed</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500 dark:text-gray-400">Total Reviews</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'PLANNED').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Planned</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'IN_PROGRESS').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">In Progress</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'COMPLETED').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Completed</div></CardContent></Card>
       </div>
 
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <Input placeholder="Search reviews..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
         </div>
         <Select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
@@ -150,24 +150,24 @@ export default function ManagementReviewsPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Title</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Meeting Date</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Chairperson</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Next Review</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Title</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Meeting Date</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Chairperson</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Next Review</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                 ) : items.length === 0 ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">No management reviews found</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">No management reviews found</td></tr>
                 ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => viewDetail(item)}>
+                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => viewDetail(item)}>
                     <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
                     <td className="p-3 font-medium">{item.title}</td>
                     <td className="p-3 text-gray-600">{new Date(item.meetingDate).toLocaleDateString()}</td>
@@ -194,7 +194,7 @@ export default function ManagementReviewsPage() {
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
           <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 py-2">Page {pagination.page} of {pagination.totalPages}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
           <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
         </div>
       )}
@@ -210,7 +210,7 @@ export default function ManagementReviewsPage() {
           </div>
           <div><Label>Attendees</Label><Textarea value={form.attendees} onChange={e => setForm(f => ({ ...f, attendees: e.target.value }))} rows={2} /></div>
 
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pt-2">§9.3.2 Review Inputs</p>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider pt-2">§9.3.2 Review Inputs</p>
           <div className="grid grid-cols-2 gap-4">
             <div><Label>Previous Actions Status</Label><Textarea value={form.previousActions} onChange={e => setForm(f => ({ ...f, previousActions: e.target.value }))} rows={2} /></div>
             <div><Label>Changes in Context</Label><Textarea value={form.changesInContext} onChange={e => setForm(f => ({ ...f, changesInContext: e.target.value }))} rows={2} /></div>
@@ -222,7 +222,7 @@ export default function ManagementReviewsPage() {
             <div><Label>Supplier Performance</Label><Textarea value={form.supplierPerformance} onChange={e => setForm(f => ({ ...f, supplierPerformance: e.target.value }))} rows={2} /></div>
           </div>
 
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pt-2">§9.3.3 Review Outputs</p>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider pt-2">§9.3.3 Review Outputs</p>
           <div className="grid grid-cols-2 gap-4">
             <div><Label>Improvements</Label><Textarea value={form.improvements} onChange={e => setForm(f => ({ ...f, improvements: e.target.value }))} rows={2} /></div>
             <div><Label>Resource Needs</Label><Textarea value={form.resourceNeeds} onChange={e => setForm(f => ({ ...f, resourceNeeds: e.target.value }))} rows={2} /></div>

@@ -73,9 +73,9 @@ export default function ChangesPage() {
       APPROVED: 'bg-green-100 text-green-700',
       REJECTED: 'bg-red-100 text-red-700',
       IMPLEMENTED: 'bg-purple-100 text-purple-700',
-      DEFERRED: 'bg-gray-100 text-gray-700',
+      DEFERRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   if (loading) {
@@ -94,11 +94,11 @@ export default function ChangesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <GitPullRequest className="h-6 w-6 text-blue-600" />
               Change Requests
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Manage project change requests</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage project change requests</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -110,10 +110,10 @@ export default function ChangesPage() {
         </div>
 
         {/* Filter */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -128,43 +128,43 @@ export default function ChangesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Urgency</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requested By</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Urgency</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Requested By</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {changes.map((change) => (
-                  <tr key={change.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900">{change.changeCode}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{change.changeTitle}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{change.changeType}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{change.priority}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{change.urgency}</td>
+                  <tr key={change.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{change.changeCode}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{change.changeTitle}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.changeType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.priority}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.urgency}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(change.status)}`}>
                         {change.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{change.requestedBy || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.requestedBy || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {change.createdAt ? new Date(change.createdAt).toLocaleDateString() : '-'}
                     </td>
                   </tr>
                 ))}
                 {changes.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       No change requests found. Create your first change request.
                     </td>
                   </tr>
@@ -178,7 +178,7 @@ export default function ChangesPage() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Change Request" size="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
               <select
                 required
                 value={form.projectId}
@@ -193,7 +193,7 @@ export default function ChangesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Change Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Change Code</label>
                 <input
                   type="text"
                   required
@@ -203,7 +203,7 @@ export default function ChangesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Change Title</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Change Title</label>
                 <input
                   type="text"
                   required
@@ -215,7 +215,7 @@ export default function ChangesPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
                 <select
                   value={form.changeType}
                   onChange={(e) => setForm({ ...form, changeType: e.target.value })}
@@ -231,7 +231,7 @@ export default function ChangesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -244,7 +244,7 @@ export default function ChangesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Urgency</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Urgency</label>
                 <select
                   value={form.urgency}
                   onChange={(e) => setForm({ ...form, urgency: e.target.value })}
@@ -258,7 +258,7 @@ export default function ChangesPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Requested By</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requested By</label>
               <input
                 type="text"
                 value={form.requestedBy}
@@ -267,7 +267,7 @@ export default function ChangesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 rows={3}
                 value={form.changeDescription}
@@ -276,7 +276,7 @@ export default function ChangesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Change</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for Change</label>
               <textarea
                 rows={3}
                 value={form.changeReason}
@@ -288,7 +288,7 @@ export default function ChangesPage() {
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>

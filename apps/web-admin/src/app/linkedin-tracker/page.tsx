@@ -158,7 +158,7 @@ export default function LinkedInTrackerPage() {
       <main className="ml-64 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">LinkedIn Outreach Tracker</h1>
-          <p className="text-gray-400 mt-1">Track and manage LinkedIn outreach campaigns</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-1">Track and manage LinkedIn outreach campaigns</p>
         </div>
 
         {error && (
@@ -192,7 +192,7 @@ export default function LinkedInTrackerPage() {
           <FunnelCard label="Won" count={funnelStats.closedWon} icon={TrendingUp} color="text-green-400" />
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-4 text-center">
             <p className="text-2xl font-bold text-white">{conversionRate}%</p>
-            <p className="text-gray-400 text-xs mt-1">Win Rate</p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Win Rate</p>
           </div>
         </div>
 
@@ -303,19 +303,19 @@ export default function LinkedInTrackerPage() {
         <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
           <h2 className="text-lg font-semibold text-white mb-4">All Outreach Records</h2>
           {loading ? (
-            <div className="text-gray-400 text-center py-8">Loading...</div>
+            <div className="text-gray-400 dark:text-gray-500 text-center py-8">Loading...</div>
           ) : records.length === 0 ? (
-            <div className="text-gray-500 text-center py-8">No outreach records yet.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-center py-8">No outreach records yet.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Prospect</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Company</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Template</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Prospect</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Company</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Template</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Status</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -327,7 +327,7 @@ export default function LinkedInTrackerPage() {
                         </a>
                       </td>
                       <td className="py-3 px-4 text-gray-300">{record.company}</td>
-                      <td className="py-3 px-4 text-gray-400">{record.template}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{record.template}</td>
                       <td className="py-3 px-4">
                         <select
                           value={record.status}
@@ -339,7 +339,7 @@ export default function LinkedInTrackerPage() {
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-gray-400">{new Date(record.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{new Date(record.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -357,7 +357,7 @@ function FunnelCard({ label, count, icon: Icon, color }: { label: string; count:
     <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-4 text-center">
       <Icon className={`w-5 h-5 mx-auto mb-2 ${color}`} />
       <p className="text-2xl font-bold text-white">{count}</p>
-      <p className="text-gray-400 text-xs mt-1">{label}</p>
+      <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">{label}</p>
     </div>
   );
 }

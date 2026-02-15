@@ -20,7 +20,7 @@ interface PlatformRole {
 }
 
 const PERMISSION_LEVELS: Record<number, { label: string; color: string }> = {
-  0: { label: 'None', color: 'bg-gray-100 text-gray-400' },
+  0: { label: 'None', color: 'bg-gray-100 dark:bg-gray-800 text-gray-400' },
   1: { label: 'View', color: 'bg-blue-100 text-blue-700' },
   2: { label: 'Create', color: 'bg-green-100 text-green-700' },
   3: { label: 'Edit', color: 'bg-yellow-100 text-yellow-700' },
@@ -203,7 +203,7 @@ export default function RolesPage() {
   }
 
   function getPermissionIcon(level: number) {
-    if (level === 0) return <Lock className="h-3 w-3 text-gray-300" />;
+    if (level === 0) return <Lock className="h-3 w-3 text-gray-300 dark:text-gray-600" />;
     if (level === 1) return <Eye className="h-3 w-3 text-blue-500" />;
     if (level <= 3) return <Pencil className="h-3 w-3 text-yellow-500" />;
     if (level === 4) return <Trash2 className="h-3 w-3 text-orange-500" />;
@@ -237,8 +237,8 @@ export default function RolesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Roles & Permissions</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Roles & Permissions</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               {roles.length} platform roles across {Object.keys(MODULE_GROUPS).length} module groups
             </p>
           </div>
@@ -250,13 +250,13 @@ export default function RolesPage() {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search roles..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -264,26 +264,26 @@ export default function RolesPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
-              <p className="text-2xl font-bold text-gray-900">{roles.length}</p>
-              <p className="text-xs text-gray-500 mt-1">Total Roles</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{roles.length}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Roles</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
               <p className="text-2xl font-bold text-blue-600">{roles.filter(r => r.isSystem).length}</p>
-              <p className="text-xs text-gray-500 mt-1">System Roles</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">System Roles</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
               <p className="text-2xl font-bold text-green-600">{roles.filter(r => !r.isSystem).length}</p>
-              <p className="text-xs text-gray-500 mt-1">Custom Roles</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Custom Roles</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
               <p className="text-2xl font-bold text-purple-600">7</p>
-              <p className="text-xs text-gray-500 mt-1">Permission Levels</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Permission Levels</p>
             </CardContent>
           </Card>
         </div>
@@ -292,7 +292,7 @@ export default function RolesPage() {
         <Card className="mb-6">
           <CardContent className="py-3">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs font-medium text-gray-500">Levels:</span>
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Levels:</span>
               {Object.entries(PERMISSION_LEVELS).map(([level, config]) => (
                 <span key={level} className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.color}`}>
                   {level} = {config.label}
@@ -310,7 +310,7 @@ export default function RolesPage() {
               <Card key={category}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="h-5 w-5 text-gray-400" />
+                    <Users className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     {category}
                     <Badge variant="outline" className="ml-2">{categoryRoles.length}</Badge>
                   </CardTitle>
@@ -318,22 +318,22 @@ export default function RolesPage() {
                 <CardContent>
                   <div className="space-y-2">
                     {categoryRoles.map((role) => (
-                      <div key={role.id} className="border border-gray-100 rounded-lg">
+                      <div key={role.id} className="border border-gray-100 dark:border-gray-700 rounded-lg">
                         {/* Role Header */}
-                        <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                        <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors">
                           <button
                             onClick={() => setExpandedRole(expandedRole === role.id ? null : role.id)}
                             className="flex items-center gap-3 flex-1 text-left"
                           >
                             {expandedRole === role.id ? (
-                              <ChevronDown className="h-4 w-4 text-gray-400" />
+                              <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-gray-400" />
+                              <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             )}
                             <Shield className="h-4 w-4 text-blue-500" />
                             <div>
-                              <p className="font-medium text-gray-900 text-sm">{role.name}</p>
-                              <p className="text-xs text-gray-500">{role.description}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{role.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{role.description}</p>
                             </div>
                           </button>
                           <div className="flex items-center gap-2">
@@ -367,13 +367,13 @@ export default function RolesPage() {
 
                         {/* Expanded Permission Matrix */}
                         {expandedRole === role.id && (
-                          <div className="border-t border-gray-100 p-4">
+                          <div className="border-t border-gray-100 dark:border-gray-700 p-4">
                             <div className="space-y-3">
                               {Object.entries(MODULE_GROUPS).map(([groupName, modules]) => (
                                 <div key={groupName}>
                                   <button
                                     onClick={() => toggleGroup(`${role.id}-${groupName}`)}
-                                    className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 hover:text-gray-700"
+                                    className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 hover:text-gray-700 dark:text-gray-300"
                                   >
                                     {expandedGroups[`${role.id}-${groupName}`] !== false ? (
                                       <ChevronDown className="h-3 w-3" />
@@ -390,12 +390,12 @@ export default function RolesPage() {
                                           <div
                                             key={mod}
                                             className={`flex items-center justify-between px-3 py-1.5 rounded text-sm ${
-                                              level > 0 ? 'bg-white border border-gray-100' : 'bg-gray-50'
+                                              level > 0 ? 'bg-white dark:bg-gray-900 border border-gray-100' : 'bg-gray-50 dark:bg-gray-800'
                                             }`}
                                           >
                                             <div className="flex items-center gap-2">
                                               {getPermissionIcon(level)}
-                                              <span className={level > 0 ? 'text-gray-700' : 'text-gray-400'}>
+                                              <span className={level > 0 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'}>
                                                 {formatModuleName(mod)}
                                               </span>
                                             </div>
@@ -430,7 +430,7 @@ export default function RolesPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role Name</label>
             <input
               type="text"
               value={roleName}
@@ -441,7 +441,7 @@ export default function RolesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <input
               type="text"
               value={roleDescription}
@@ -453,17 +453,17 @@ export default function RolesPage() {
 
           {/* Permission Matrix */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Module Permissions</label>
-            <div className="border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Module Permissions</label>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg max-h-96 overflow-y-auto">
               {Object.entries(MODULE_GROUPS).map(([groupName, modules]) => (
-                <div key={groupName} className="border-b border-gray-100 last:border-b-0">
-                  <div className="bg-gray-50 px-4 py-2">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{groupName}</span>
+                <div key={groupName} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                  <div className="bg-gray-50 dark:bg-gray-800 px-4 py-2">
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{groupName}</span>
                   </div>
                   <div className="divide-y divide-gray-50">
                     {modules.map((mod) => (
                       <div key={mod} className="flex items-center justify-between px-4 py-2">
-                        <span className="text-sm text-gray-700">{formatModuleName(mod)}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{formatModuleName(mod)}</span>
                         <div className="flex gap-1">
                           {Object.entries(PERMISSION_LEVELS).map(([levelStr, config]) => {
                             const level = parseInt(levelStr);
@@ -475,7 +475,7 @@ export default function RolesPage() {
                                 className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${
                                   isActive
                                     ? config.color + ' ring-2 ring-offset-1 ring-blue-400'
-                                    : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                    : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-100'
                                 }`}
                                 title={config.label}
                               >
@@ -494,7 +494,7 @@ export default function RolesPage() {
 
           {/* Quick set buttons */}
           <div className="flex gap-2 flex-wrap">
-            <span className="text-xs text-gray-500 self-center">Quick set all:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 self-center">Quick set all:</span>
             {[
               { label: 'None', level: 0 },
               { label: 'View', level: 1 },
@@ -508,7 +508,7 @@ export default function RolesPage() {
                   ALL_MODULES.forEach(m => { perms[m] = level; });
                   setRolePermissions(perms);
                 }}
-                className="px-2 py-1 text-xs border border-gray-200 rounded hover:bg-gray-50"
+                className="px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:bg-gray-800"
               >
                 {label}
               </button>

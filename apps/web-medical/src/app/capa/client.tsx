@@ -69,32 +69,32 @@ export default function CAPAClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">CAPA Management</h1>
-        <p className="text-sm text-gray-500 mt-1">Corrective and Preventive Actions — FDA 21 CFR 820.90 / ISO 13485:2016</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Corrective and Preventive Actions — FDA 21 CFR 820.90 / ISO 13485:2016</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total CAPAs</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{capas.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total CAPAs</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{capas.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Open</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Open</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{open}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Critical Open</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Critical Open</p>
           <p className="text-3xl font-bold text-red-600 mt-1">{critical}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Overdue</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Overdue</p>
           <p className="text-3xl font-bold text-orange-600 mt-1">{overdue}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search CAPAs..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -114,23 +114,23 @@ export default function CAPAClient() {
           const sev = severityConfig[capa.severity];
           const isExpanded = expandedId === capa.id;
           return (
-            <div key={capa.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : capa.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50">
+            <div key={capa.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : capa.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-mono text-blue-600">{capa.capaNumber}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sev.color}`}>{capa.severity}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${capa.type === 'corrective' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>{capa.type === 'corrective' ? 'CA' : 'PA'}</span>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 mt-0.5">{capa.title}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-0.5">{capa.title}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>{sc.label}</span>
-                    {capa.status !== 'closed' && <span className="text-xs text-gray-400">{capa.daysOpen}d open</span>}
+                    {capa.status !== 'closed' && <span className="text-xs text-gray-400 dark:text-gray-500">{capa.daysOpen}d open</span>}
                   </div>
                 </div>
                 {/* Progress bar */}
@@ -143,14 +143,14 @@ export default function CAPAClient() {
                 </div>
               </button>
               {isExpanded && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 ml-7 space-y-2">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 ml-7 space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <div><span className="text-gray-500">Product:</span> <span className="font-medium text-gray-900">{capa.product}</span></div>
-                    <div><span className="text-gray-500">Source:</span> <span className="font-medium text-gray-900">{capa.source}</span></div>
-                    <div><span className="text-gray-500">Owner:</span> <span className="font-medium text-gray-900">{capa.owner}</span></div>
-                    <div><span className="text-gray-500">Target:</span> <span className="font-medium text-gray-900">{capa.targetDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Product:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{capa.product}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Source:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{capa.source}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Owner:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{capa.owner}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Target:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{capa.targetDate}</span></div>
                   </div>
-                  <div className="text-xs"><span className="text-gray-500">Root Cause:</span> <span className="text-gray-700">{capa.rootCause}</span></div>
+                  <div className="text-xs"><span className="text-gray-500 dark:text-gray-400">Root Cause:</span> <span className="text-gray-700 dark:text-gray-300">{capa.rootCause}</span></div>
                   {capa.effectivenessCheck && (
                     <div className="flex items-center gap-1 text-xs text-emerald-600">
                       <CheckCircle className="h-3 w-3" /> Effectiveness check completed

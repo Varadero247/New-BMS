@@ -60,12 +60,12 @@ export default function ProductSafetyClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Product Safety</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D Clause 8.1.1 — Safety of Products and Services</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Product Safety</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D Clause 8.1.1 — Safety of Products and Services</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -87,10 +87,10 @@ export default function ProductSafetyClient() {
             <p className="text-3xl font-bold text-orange-600 mt-1">{counts.high}</p>
             <p className="text-xs text-orange-500 mt-1">Close monitoring needed</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Open Items</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Items</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{counts.open}</p>
-            <p className="text-xs text-gray-500 mt-1">Mitigations pending</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Mitigations pending</p>
           </div>
           <div className="bg-green-50 rounded-lg border border-green-200 p-4">
             <p className="text-xs text-green-600 uppercase tracking-wide font-medium">Mitigated</p>
@@ -100,9 +100,9 @@ export default function ProductSafetyClient() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search product, part number, hazard..."
@@ -133,7 +133,7 @@ export default function ProductSafetyClient() {
             const sc = STATUS_CONFIG[assessment.status];
             const StatusIcon = sc.icon;
             return (
-              <div key={assessment.id} className={`bg-white rounded-lg border ${rc.border} overflow-hidden hover:shadow-md transition-shadow`}>
+              <div key={assessment.id} className={`bg-white dark:bg-gray-900 rounded-lg border ${rc.border} overflow-hidden hover:shadow-md transition-shadow`}>
                 <div className={`px-5 py-3 ${rc.bg} flex items-center justify-between`}>
                   <div className="flex items-center gap-2">
                     <div className={`w-2.5 h-2.5 rounded-full ${rc.dot}`} />
@@ -149,12 +149,12 @@ export default function ProductSafetyClient() {
                 </div>
                 <div className="px-5 py-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{assessment.partNumber}</span>
-                    <span className="text-xs text-gray-500">Assessed by {assessment.assessedBy}</span>
+                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{assessment.partNumber}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Assessed by {assessment.assessedBy}</span>
                   </div>
                   <div className="mb-3">
                     <span className="inline-flex items-center gap-1 text-xs text-gray-600">
-                      <ShieldAlert className="w-3.5 h-3.5 text-gray-400" />
+                      <ShieldAlert className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
                       <span className="font-medium">Hazard:</span> {assessment.hazardCategory}
                     </span>
                   </div>
@@ -162,14 +162,14 @@ export default function ProductSafetyClient() {
                     <p className="text-xs font-medium text-gray-600 mb-1.5">Mitigations ({assessment.mitigations.length})</p>
                     <ul className="space-y-1">
                       {assessment.mitigations.map((m, i) => (
-                        <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
+                        <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700 dark:text-gray-300">
                           <CheckCircle2 className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />
                           {m}
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3">
                     <span>Last assessed: {assessment.lastAssessed}</span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -183,7 +183,7 @@ export default function ProductSafetyClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 py-16 text-center text-gray-400">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 py-16 text-center text-gray-400 dark:text-gray-500">
             <Shield className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p>No product safety assessments match your search</p>
           </div>

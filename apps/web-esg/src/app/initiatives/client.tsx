@@ -102,7 +102,7 @@ const initiatives: Initiative[] = [
 ];
 
 const statusConfig: Record<Status, { label: string; color: string; icon: React.ReactNode }> = {
-  planned: { label: 'Planned', color: 'bg-gray-100 text-gray-700', icon: <Clock className="h-3.5 w-3.5" /> },
+  planned: { label: 'Planned', color: 'bg-gray-100 dark:bg-gray-800 text-gray-700', icon: <Clock className="h-3.5 w-3.5" /> },
   'in-progress': { label: 'In Progress', color: 'bg-blue-100 text-blue-700', icon: <TrendingUp className="h-3.5 w-3.5" /> },
   completed: { label: 'Completed', color: 'bg-green-100 text-green-700', icon: <CheckCircle className="h-3.5 w-3.5" /> },
   'on-hold': { label: 'On Hold', color: 'bg-amber-100 text-amber-700', icon: <AlertTriangle className="h-3.5 w-3.5" /> },
@@ -118,7 +118,7 @@ const priorityConfig: Record<Priority, { label: string; color: string }> = {
   critical: { label: 'Critical', color: 'bg-red-100 text-red-700' },
   high: { label: 'High', color: 'bg-orange-100 text-orange-700' },
   medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low', color: 'bg-gray-100 text-gray-600' },
+  low: { label: 'Low', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
 };
 
 export default function InitiativesClient() {
@@ -142,32 +142,32 @@ export default function InitiativesClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ESG Initiatives</h1>
-        <p className="text-sm text-gray-500 mt-1">Track sustainability improvement projects across Environmental, Social & Governance pillars</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ESG Initiatives</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track sustainability improvement projects across Environmental, Social & Governance pillars</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Initiatives</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{initiatives.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Initiatives</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{initiatives.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Completed</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Completed</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{completedCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg Progress</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg Progress</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{avgProgress}%</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Budget</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">£{(totalBudget / 1000000).toFixed(1)}M</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Budget</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">£{(totalBudget / 1000000).toFixed(1)}M</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Budget Spent</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Budget Spent</p>
           <p className="text-3xl font-bold text-amber-700 mt-1">£{(totalSpent / 1000000).toFixed(1)}M</p>
-          <p className="text-xs text-gray-400">{Math.round((totalSpent / totalBudget) * 100)}% utilised</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">{Math.round((totalSpent / totalBudget) * 100)}% utilised</p>
         </div>
       </div>
 
@@ -180,14 +180,14 @@ export default function InitiativesClient() {
             <button
               key={p}
               onClick={() => setPillarFilter(pillarFilter === p ? 'all' : p)}
-              className={`bg-white border rounded-xl p-4 text-left transition-colors ${pillarFilter === p ? 'border-green-400 ring-1 ring-green-200' : 'border-gray-200 hover:border-gray-300'}`}
+              className={`bg-white dark:bg-gray-900 border rounded-xl p-4 text-left transition-colors ${pillarFilter === p ? 'border-green-400 ring-1 ring-green-200' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
             >
               <div className="flex items-center justify-between">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${pillarConfig[p].color}`}>{pillarConfig[p].label}</span>
                 <span className="text-sm font-medium text-gray-600">{pillarInits.length} initiatives</span>
               </div>
               <div className="mt-3">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                   <span>Progress</span>
                   <span>{pillarProgress}%</span>
                 </div>
@@ -203,12 +203,12 @@ export default function InitiativesClient() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search initiatives, tags..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
         </div>
         <div className="flex gap-2">
           {['all', 'in-progress', 'planned', 'completed', 'on-hold'].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
               {s === 'all' ? 'All' : statusConfig[s as Status]?.label || s}
             </button>
           ))}
@@ -221,23 +221,23 @@ export default function InitiativesClient() {
           const isExpanded = expanded.has(ini.id);
           const budgetPct = Math.round((ini.spent / ini.budget) * 100);
           return (
-            <div key={ini.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpanded((prev) => { const n = new Set(prev); n.has(ini.id) ? n.delete(ini.id) : n.add(ini.id); return n; })} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+            <div key={ini.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpanded((prev) => { const n = new Set(prev); n.has(ini.id) ? n.delete(ini.id) : n.add(ini.id); return n; })} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400" /> : <ChevronRight className="h-5 w-5 text-gray-400" />}
+                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
                   <div className="text-left">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-gray-900">{ini.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{ini.name}</p>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${pillarConfig[ini.pillar].color}`}>{pillarConfig[ini.pillar].label}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityConfig[ini.priority].color}`}>{priorityConfig[ini.priority].label}</span>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[ini.status].color}`}>{statusConfig[ini.status].icon}{statusConfig[ini.status].label}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{ini.id} · {ini.owner} · Due {ini.targetDate}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ini.id} · {ini.owner} · Due {ini.targetDate}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 min-w-[160px]">
                   <div className="w-24">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                       <span>{ini.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -248,25 +248,25 @@ export default function InitiativesClient() {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100 p-4 space-y-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-4">
                   <p className="text-sm text-gray-600">{ini.description}</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">Budget</p>
-                      <p className="text-lg font-bold text-gray-900">£{(ini.budget / 1000).toFixed(0)}k</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">Budget</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">£{(ini.budget / 1000).toFixed(0)}k</p>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                         <div className={`h-1.5 rounded-full ${budgetPct > 90 ? 'bg-red-500' : budgetPct > 70 ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${budgetPct}%` }} />
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">£{(ini.spent / 1000).toFixed(0)}k spent ({budgetPct}%)</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">£{(ini.spent / 1000).toFixed(0)}k spent ({budgetPct}%)</p>
                     </div>
                     {ini.impactMetrics.map((m, i) => (
                       <div key={i}>
-                        <p className="text-xs text-gray-500 uppercase mb-1">{m.label}</p>
-                        <p className="text-lg font-bold text-green-700">{m.value}{m.unit && <span className="text-sm text-gray-500 ml-1">{m.unit}</span>}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">{m.label}</p>
+                        <p className="text-lg font-bold text-green-700">{m.value}{m.unit && <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">{m.unit}</span>}</p>
                       </div>
                     ))}
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">SDG Alignment</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">SDG Alignment</p>
                       <div className="flex gap-1 flex-wrap">
                         {ini.sdgs.map((s) => (
                           <span key={s} className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">{s}</span>
@@ -276,7 +276,7 @@ export default function InitiativesClient() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {ini.tags.map((t) => (
-                      <span key={t} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{t}</span>
+                      <span key={t} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 rounded text-xs">{t}</span>
                     ))}
                   </div>
                 </div>

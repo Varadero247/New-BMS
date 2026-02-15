@@ -307,8 +307,8 @@ export default function ForecastPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Sales Forecast</h1>
-            <p className="text-gray-500 mt-1">Pipeline analysis and revenue projection</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Sales Forecast</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Pipeline analysis and revenue projection</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={loadAll} className="flex items-center gap-2">
@@ -326,53 +326,53 @@ export default function ForecastPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-blue-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500">Total Pipeline</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Pipeline</p>
               <DollarSign className="h-4 w-4 text-blue-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalPipeline)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalPipeline)}</p>
             <div className="mt-1 flex items-center text-xs text-blue-600">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               {openDeals.length} open deals
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-5 border-l-4 border-violet-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-violet-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500">Weighted Forecast</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Weighted Forecast</p>
               <TrendingUp className="h-4 w-4 text-violet-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(weightedForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(weightedForecast)}</p>
             <div className="mt-1 text-xs text-violet-600">
               {totalPipeline > 0 ? ((weightedForecast / totalPipeline) * 100).toFixed(0) : 0}% of pipeline
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-green-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500">Commit Forecast</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Commit Forecast</p>
               <Target className="h-4 w-4 text-green-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(commitForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(commitForecast)}</p>
             <div className="mt-1 text-xs text-green-600">Committed deals</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-5 border-l-4 border-amber-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-amber-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500">Best Case</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Best Case</p>
               <ArrowUpRight className="h-4 w-4 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(bestCaseForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(bestCaseForecast)}</p>
             <div className="mt-1 text-xs text-amber-600">Optimistic scenario</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-5 border-l-4 border-cyan-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-cyan-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500">Avg Deal Size</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Avg Deal Size</p>
               <Percent className="h-4 w-4 text-cyan-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(avgDealSize)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(avgDealSize)}</p>
             <div className="mt-1 text-xs text-cyan-600">Per open deal</div>
           </div>
         </div>
@@ -387,7 +387,7 @@ export default function ForecastPage() {
             <CardContent>
               {monthlyData.length > 0 ? (
                 <>
-                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> Weighted</span>
                     <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-gray-200" /> Unweighted</span>
                   </div>
@@ -406,14 +406,14 @@ export default function ForecastPage() {
                             title={`Unweighted: ${formatCurrencyFull(d.unweighted)}`}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{d.month}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{d.month}</span>
                         <span className="text-xs text-violet-600 font-medium">{formatCurrency(d.weighted)}</span>
                       </div>
                     ))}
                   </div>
                 </>
               ) : (
-                <div className="text-center py-12 text-gray-400 text-sm">
+                <div className="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">
                   No deals with expected close dates found
                 </div>
               )}
@@ -435,13 +435,13 @@ export default function ForecastPage() {
                     return (
                       <div key={stage}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-700">{STAGE_LABELS[stage] || stage}</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{STAGE_LABELS[stage] || stage}</span>
                           <div className="text-right">
-                            <span className="text-sm font-medium text-gray-900">{data.count} deals</span>
-                            <span className="text-xs text-gray-500 ml-2">{formatCurrency(data.value)}</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{data.count} deals</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{formatCurrency(data.value)}</span>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-6">
+                        <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-6">
                           <div
                             className="h-6 rounded-full flex items-center justify-end pr-2"
                             style={{ width: `${Math.max(pct, 8)}%`, backgroundColor: color }}
@@ -454,7 +454,7 @@ export default function ForecastPage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-400 text-sm">No open deals in pipeline</div>
+                <div className="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No open deals in pipeline</div>
               )}
             </CardContent>
           </Card>
@@ -474,34 +474,34 @@ export default function ForecastPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Period</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Deal</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Weighted</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Best Case</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Worst Case</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Committed</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Period</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deal</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Weighted</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Best Case</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Worst Case</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Committed</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {forecastItems.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{item.period}</td>
+                      <tr key={item.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.period}</td>
                         <td className="py-3 px-4 text-gray-600">{item.dealTitle || item.dealId || '-'}</td>
-                        <td className="py-3 px-4 text-right text-gray-900">{formatCurrencyFull(item.weightedValue || 0)}</td>
+                        <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">{formatCurrencyFull(item.weightedValue || 0)}</td>
                         <td className="py-3 px-4 text-right text-green-700">{formatCurrencyFull(item.bestCase || 0)}</td>
                         <td className="py-3 px-4 text-right text-red-700">{formatCurrencyFull(item.worstCase || 0)}</td>
                         <td className="py-3 px-4 text-center">
-                          <Badge className={item.committed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
+                          <Badge className={item.committed ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}>
                             {item.committed ? 'Yes' : 'No'}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(item)} className="text-gray-400 hover:text-violet-600">
+                            <button onClick={() => openEditModal(item)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600">
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(item.id)} className="text-gray-400 hover:text-red-600">
+                            <button onClick={() => handleDelete(item.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -552,14 +552,14 @@ export default function ForecastPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Deal</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Account</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Value</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Probability</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Weighted</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Stage</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Expected Close</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Owner</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deal</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Probability</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Weighted</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Stage</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Expected Close</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -567,10 +567,10 @@ export default function ForecastPage() {
                       const weightedVal = (deal.value || 0) * ((deal.probability || 0) / 100);
                       const stageColor = STAGE_COLORS[deal.stage] || '#64748b';
                       return (
-                        <tr key={deal.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium text-gray-900">{deal.title}</td>
+                        <tr key={deal.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{deal.title}</td>
                           <td className="py-3 px-4 text-gray-600">{deal.account?.name || deal.accountName || '-'}</td>
-                          <td className="py-3 px-4 text-right font-semibold text-gray-900">
+                          <td className="py-3 px-4 text-right font-semibold text-gray-900 dark:text-gray-100">
                             {formatCurrencyFull(deal.value || 0)}
                           </td>
                           <td className="py-3 px-4">
@@ -581,7 +581,7 @@ export default function ForecastPage() {
                                   style={{ width: `${deal.probability || 0}%` }}
                                 />
                               </div>
-                              <span className="text-xs font-medium text-gray-700 min-w-max">{deal.probability || 0}%</span>
+                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 min-w-max">{deal.probability || 0}%</span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-right font-medium text-violet-700">
@@ -598,7 +598,7 @@ export default function ForecastPage() {
                           <td className="py-3 px-4 text-gray-600">
                             {deal.expectedCloseDate ? (
                               <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3 text-gray-400" />
+                                <Calendar className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                                 {new Date(deal.expectedCloseDate).toLocaleDateString()}
                               </div>
                             ) : '-'}
@@ -606,7 +606,7 @@ export default function ForecastPage() {
                           <td className="py-3 px-4 text-gray-600">
                             {deal.assignedTo ? (
                               <div className="flex items-center gap-1">
-                                <User className="h-3 w-3 text-gray-400" />
+                                <User className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                                 {deal.assignedTo}
                               </div>
                             ) : '-'}
@@ -616,10 +616,10 @@ export default function ForecastPage() {
                     })}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-gray-50 font-medium border-t-2 border-gray-200">
-                      <td className="py-3 px-4 text-gray-700">Totals</td>
+                    <tr className="bg-gray-50 dark:bg-gray-800 font-medium border-t-2 border-gray-200 dark:border-gray-700">
+                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300">Totals</td>
                       <td />
-                      <td className="py-3 px-4 text-right text-gray-900">{formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0), 0))}</td>
+                      <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">{formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0), 0))}</td>
                       <td />
                       <td className="py-3 px-4 text-right text-violet-700">{formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0) * ((d.probability || 0) / 100), 0))}</td>
                       <td colSpan={3} />
@@ -628,7 +628,7 @@ export default function ForecastPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No open deals in pipeline</p>
               </div>

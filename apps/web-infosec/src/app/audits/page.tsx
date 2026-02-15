@@ -28,7 +28,7 @@ const statusColors: Record<string, string> = {
   PLANNED: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-gray-100 text-gray-700',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const auditStatuses = ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
@@ -122,8 +122,8 @@ export default function AuditsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">ISMS Audits</h1>
-            <p className="text-gray-500 mt-1">Internal and external audit management</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ISMS Audits</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Internal and external audit management</p>
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
             <Plus className="h-4 w-4" /> Create Audit
@@ -137,7 +137,7 @@ export default function AuditsPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search audits..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -156,50 +156,50 @@ export default function AuditsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Audit Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Lead Auditor</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Findings</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500"></th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Audit Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Lead Auditor</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Findings</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((audit) => (
                       <>
-                        <tr key={audit.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => toggleAuditDetail(audit.id)}>
+                        <tr key={audit.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => toggleAuditDetail(audit.id)}>
                           <td className="py-3 px-4 font-mono text-xs text-gray-600">{audit.referenceNumber}</td>
-                          <td className="py-3 px-4 text-gray-900 font-medium">{audit.title}</td>
+                          <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{audit.title}</td>
                           <td className="py-3 px-4 text-gray-600">{new Date(audit.auditDate).toLocaleDateString()}</td>
                           <td className="py-3 px-4 text-gray-600">{audit.leadAuditor}</td>
                           <td className="py-3 px-4">
-                            <Badge className={statusColors[audit.status] || 'bg-gray-100 text-gray-700'}>{audit.status.replace(/_/g, ' ')}</Badge>
+                            <Badge className={statusColors[audit.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{audit.status.replace(/_/g, ' ')}</Badge>
                           </td>
                           <td className="py-3 px-4 text-gray-600">{audit.findingsCount}</td>
                           <td className="py-3 px-4">
-                            {expandedAudit === audit.id ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                            {expandedAudit === audit.id ? <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                           </td>
                         </tr>
                         {expandedAudit === audit.id && (
                           <tr key={`${audit.id}-detail`}>
-                            <td colSpan={7} className="px-4 py-4 bg-gray-50">
+                            <td colSpan={7} className="px-4 py-4 bg-gray-50 dark:bg-gray-800">
                               {auditDetails[audit.id]?.findings && auditDetails[audit.id].findings!.length > 0 ? (
                                 <div>
-                                  <p className="text-sm font-medium text-gray-700 mb-2">Findings</p>
+                                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Findings</p>
                                   <table className="w-full text-sm">
                                     <thead>
                                       <tr className="border-b">
-                                        <th className="text-left py-2 px-3 font-medium text-gray-500">Title</th>
-                                        <th className="text-left py-2 px-3 font-medium text-gray-500">Severity</th>
-                                        <th className="text-left py-2 px-3 font-medium text-gray-500">Status</th>
-                                        <th className="text-left py-2 px-3 font-medium text-gray-500">Description</th>
+                                        <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                                        <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Severity</th>
+                                        <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                        <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       {auditDetails[audit.id].findings!.map(f => (
                                         <tr key={f.id} className="border-b">
-                                          <td className="py-2 px-3 text-gray-900">{f.title}</td>
+                                          <td className="py-2 px-3 text-gray-900 dark:text-gray-100">{f.title}</td>
                                           <td className="py-2 px-3">
                                             <Badge className={f.severity === 'MAJOR' ? 'bg-red-100 text-red-700' : f.severity === 'MINOR' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}>{f.severity}</Badge>
                                           </td>
@@ -211,7 +211,7 @@ export default function AuditsPage() {
                                   </table>
                                 </div>
                               ) : (
-                                <p className="text-sm text-gray-500">No findings recorded for this audit.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">No findings recorded for this audit.</p>
                               )}
                             </td>
                           </tr>
@@ -222,7 +222,7 @@ export default function AuditsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <ClipboardCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No audits found</p>
               </div>
@@ -234,16 +234,16 @@ export default function AuditsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create Audit" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
             <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Annual ISMS Internal Audit 2026" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Audit Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Audit Date</label>
               <input type="date" value={form.auditDate} onChange={(e) => setForm({ ...form, auditDate: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Lead Auditor</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lead Auditor</label>
               <input type="text" value={form.leadAuditor} onChange={(e) => setForm({ ...form, leadAuditor: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
           </div>

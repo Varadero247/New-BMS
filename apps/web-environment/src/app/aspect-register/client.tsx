@@ -88,7 +88,7 @@ const aspects: EnvironmentalAspect[] = [
 ];
 
 const categoryConfig: Record<Category, { label: string; icon: React.ReactNode; color: string }> = {
-  emissions: { label: 'Emissions', icon: <Cloud className="h-4 w-4" />, color: 'bg-gray-100 text-gray-700' },
+  emissions: { label: 'Emissions', icon: <Cloud className="h-4 w-4" />, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700' },
   water: { label: 'Water', icon: <Droplets className="h-4 w-4" />, color: 'bg-blue-100 text-blue-700' },
   waste: { label: 'Waste', icon: <Trash2 className="h-4 w-4" />, color: 'bg-amber-100 text-amber-700' },
   energy: { label: 'Energy', icon: <Zap className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-700' },
@@ -116,14 +116,14 @@ export default function AspectRegisterClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Environmental Aspect Register</h1>
-        <p className="text-sm text-gray-500 mt-1">ISO 14001:2015 Clause 6.1.2 — Environmental aspects and significance evaluation</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Environmental Aspect Register</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 14001:2015 Clause 6.1.2 — Environmental aspects and significance evaluation</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Aspects</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{aspects.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Aspects</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{aspects.length}</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <p className="text-xs text-red-600 uppercase font-medium">Significant</p>
@@ -133,14 +133,14 @@ export default function AspectRegisterClient() {
           <p className="text-xs text-green-600 uppercase font-medium">Not Significant</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{aspects.length - significantCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg Score</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{avgScore}</p>
-          <p className="text-xs text-gray-400">threshold: 15</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg Score</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{avgScore}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">threshold: 15</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Categories</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{new Set(aspects.map((a) => a.category)).size}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Categories</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{new Set(aspects.map((a) => a.category)).size}</p>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export default function AspectRegisterClient() {
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search aspects..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
         </div>
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -162,7 +162,7 @@ export default function AspectRegisterClient() {
         </select>
         <div className="flex gap-2">
           {['all', 'significant', 'not-significant'].map((s) => (
-            <button key={s} onClick={() => setSignificanceFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${significanceFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={s} onClick={() => setSignificanceFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${significanceFilter === s ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
               {s === 'all' ? 'All' : s === 'significant' ? 'Significant' : 'Not Significant'}
             </button>
           ))}
@@ -170,16 +170,16 @@ export default function AspectRegisterClient() {
       </div>
 
       <div className="flex gap-6">
-        <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Ref</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Activity / Aspect</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Category</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-500 w-16">Score</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Significance</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Department</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Ref</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Activity / Aspect</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Category</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-16">Score</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Significance</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Department</th>
               </tr>
             </thead>
             <tbody>
@@ -187,12 +187,12 @@ export default function AspectRegisterClient() {
                 <tr
                   key={a.id}
                   onClick={() => setSelectedAspect(a)}
-                  className={`border-t border-gray-100 cursor-pointer hover:bg-green-50 transition-colors ${selectedAspect?.id === a.id ? 'bg-green-50' : ''}`}
+                  className={`border-t border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-green-50 transition-colors ${selectedAspect?.id === a.id ? 'bg-green-50' : ''}`}
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{a.refNumber.split('-').slice(-2).join('-')}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{a.refNumber.split('-').slice(-2).join('-')}</td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{a.activity}</p>
-                    <p className="text-xs text-gray-500">{a.aspect}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{a.activity}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{a.aspect}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${categoryConfig[a.category].color}`}>
@@ -216,19 +216,19 @@ export default function AspectRegisterClient() {
         </div>
 
         {selectedAspect && (
-          <div className="w-80 bg-white border border-gray-200 rounded-xl p-5 space-y-4 self-start sticky top-6">
+          <div className="w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 space-y-4 self-start sticky top-6">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-xs font-mono text-green-600">{selectedAspect.refNumber}</p>
-                <h3 className="text-sm font-bold text-gray-900 mt-1">{selectedAspect.activity}</h3>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">{selectedAspect.activity}</h3>
               </div>
-              <button onClick={() => setSelectedAspect(null)} className="text-gray-400 hover:text-gray-600">x</button>
+              <button onClick={() => setSelectedAspect(null)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">x</button>
             </div>
-            <div><p className="text-xs text-gray-500 uppercase">Aspect</p><p className="text-sm text-gray-700">{selectedAspect.aspect}</p></div>
-            <div><p className="text-xs text-gray-500 uppercase">Impact</p><p className="text-sm text-gray-700">{selectedAspect.impact}</p></div>
+            <div><p className="text-xs text-gray-500 dark:text-gray-400 uppercase">Aspect</p><p className="text-sm text-gray-700 dark:text-gray-300">{selectedAspect.aspect}</p></div>
+            <div><p className="text-xs text-gray-500 dark:text-gray-400 uppercase">Impact</p><p className="text-sm text-gray-700 dark:text-gray-300">{selectedAspect.impact}</p></div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Scoring Breakdown</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Scoring Breakdown</p>
               <div className="space-y-1.5 text-xs">
                 {[
                   { label: 'Severity (×1.5)', value: selectedAspect.severity, weighted: selectedAspect.severity * 1.5 },
@@ -247,28 +247,28 @@ export default function AspectRegisterClient() {
                     </div>
                   </div>
                 ))}
-                <div className="flex items-center justify-between font-bold border-t border-gray-200 pt-1">
+                <div className="flex items-center justify-between font-bold border-t border-gray-200 dark:border-gray-700 pt-1">
                   <span>Total Score</span>
                   <span className={selectedAspect.totalScore >= 15 ? 'text-red-700' : 'text-green-700'}>{selectedAspect.totalScore}</span>
                 </div>
               </div>
             </div>
 
-            <div><p className="text-xs font-semibold text-gray-500 uppercase mb-1">Controls</p>
+            <div><p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Controls</p>
               <div className="space-y-1">{selectedAspect.controls.map((c, i) => <p key={i} className="text-xs text-gray-600 flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" />{c}</p>)}</div>
             </div>
 
             {selectedAspect.legalReqs.length > 0 && (
-              <div><p className="text-xs font-semibold text-gray-500 uppercase mb-1">Legal Requirements</p>
+              <div><p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Legal Requirements</p>
                 <div className="space-y-1">{selectedAspect.legalReqs.map((l, i) => <p key={i} className="text-xs text-gray-600">{l}</p>)}</div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 text-xs border-t border-gray-100 pt-3">
-              <div><p className="text-gray-500">Owner</p><p className="font-medium">{selectedAspect.owner}</p></div>
-              <div><p className="text-gray-500">Department</p><p className="font-medium">{selectedAspect.department}</p></div>
-              <div><p className="text-gray-500">Condition</p><p className="font-medium capitalize">{selectedAspect.condition}</p></div>
-              <div><p className="text-gray-500">Last Review</p><p className="font-medium">{selectedAspect.lastReview}</p></div>
+            <div className="grid grid-cols-2 gap-3 text-xs border-t border-gray-100 dark:border-gray-700 pt-3">
+              <div><p className="text-gray-500 dark:text-gray-400">Owner</p><p className="font-medium">{selectedAspect.owner}</p></div>
+              <div><p className="text-gray-500 dark:text-gray-400">Department</p><p className="font-medium">{selectedAspect.department}</p></div>
+              <div><p className="text-gray-500 dark:text-gray-400">Condition</p><p className="font-medium capitalize">{selectedAspect.condition}</p></div>
+              <div><p className="text-gray-500 dark:text-gray-400">Last Review</p><p className="font-medium">{selectedAspect.lastReview}</p></div>
             </div>
           </div>
         )}

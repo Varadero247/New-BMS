@@ -67,19 +67,19 @@ export default function AllergensPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Allergen Management</h1>
-            <p className="text-gray-500 mt-1">Track and manage the 14 EU allergens across products and processes</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Allergen Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage the 14 EU allergens across products and processes</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Allergen</Button>
         </div>
 
         {/* Allergen overview */}
         <Card className="mb-6">
-          <CardHeader><CardTitle className="text-sm text-gray-500 font-medium uppercase tracking-wide">14 Major Allergens (EU Regulation 1169/2011)</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">14 Major Allergens (EU Regulation 1169/2011)</CardTitle></CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {EU_ALLERGENS.map(a => (
-                <span key={a} className={`px-2 py-1 rounded text-xs font-medium ${items.some(i => (i.category || '').toUpperCase() === a) ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-gray-100 text-gray-500'}`}>
+                <span key={a} className={`px-2 py-1 rounded text-xs font-medium ${items.some(i => (i.category || '').toUpperCase() === a) ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>
                   {a.replace(/_/g,' ')}
                 </span>
               ))}
@@ -89,15 +89,15 @@ export default function AllergensPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Records</p><p className="text-2xl font-bold">{items.length}</p></div><Sparkles className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE' || i.status === 'MANAGED').length}</p></div><Sparkles className="h-8 w-8 text-green-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Allergen Types</p><p className="text-2xl font-bold text-blue-600">{new Set(items.map(i => i.category)).size}</p></div><AlertTriangle className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Records</p><p className="text-2xl font-bold">{items.length}</p></div><Sparkles className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE' || i.status === 'MANAGED').length}</p></div><Sparkles className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Allergen Types</p><p className="text-2xl font-bold text-blue-600">{new Set(items.map(i => i.category)).size}</p></div><AlertTriangle className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
         </div>
 
         {/* Search */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search allergens..." value={search} onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
           </div>
@@ -111,20 +111,20 @@ export default function AllergensPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Allergen</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Controls</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Allergen</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Controls</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(a => (
-                      <tr key={a.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{a.name}</td>
+                      <tr key={a.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{a.name}</td>
                         <td className="py-3 px-4"><Badge variant="outline">{(a.category || '').replace(/_/g,' ')}</Badge></td>
-                        <td className="py-3 px-4 text-gray-500 truncate max-w-xs">{a.description || '—'}</td>
-                        <td className="py-3 px-4 text-gray-500 truncate max-w-xs">{a.controls || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 truncate max-w-xs">{a.description || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 truncate max-w-xs">{a.controls || '—'}</td>
                         <td className="py-3 px-4"><Badge className={a.status === 'ACTIVE' || a.status === 'MANAGED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}>{a.status}</Badge></td>
                         <td className="py-3 px-4"><div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(a)}><Edit className="h-4 w-4" /></Button>
@@ -136,7 +136,7 @@ export default function AllergensPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No allergen records found</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Allergen</Button>

@@ -142,36 +142,36 @@ export default function SuppliersClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Inventory Suppliers</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage supplier relationships, performance, and compliance</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Inventory Suppliers</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage supplier relationships, performance, and compliance</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Suppliers</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{suppliers.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Suppliers</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{suppliers.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Approved</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Approved</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{suppliers.filter((s) => s.status === 'approved').length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Spend</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">£{(totalSpend / 1000000).toFixed(1)}M</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Spend</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">£{(totalSpend / 1000000).toFixed(1)}M</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg OTD</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg OTD</p>
           <p className="text-3xl font-bold text-sky-700 mt-1">{avgOTD}%</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg Quality</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg Quality</p>
           <p className="text-3xl font-bold text-sky-700 mt-1">{avgQuality}%</p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search suppliers, categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
         </div>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -182,7 +182,7 @@ export default function SuppliersClient() {
         </select>
         <div className="flex gap-2">
           {['all', 'approved', 'conditional', 'under-review', 'blocked'].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-sky-100 text-sky-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-sky-100 text-sky-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
               {s === 'all' ? 'All' : statusConfig[s as SupplierStatus]?.label || s}
             </button>
           ))}
@@ -193,70 +193,70 @@ export default function SuppliersClient() {
         {filtered.map((sup) => {
           const isExpanded = expanded.has(sup.id);
           return (
-            <div key={sup.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={sup.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded((prev) => { const n = new Set(prev); n.has(sup.id) ? n.delete(sup.id) : n.add(sup.id); return n; })}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400" /> : <ChevronRight className="h-5 w-5 text-gray-400" />}
+                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
                   <div className={`w-8 h-8 rounded-full ${ratingConfig[sup.rating].bgColor} flex items-center justify-center`}>
                     <span className={`text-sm font-bold ${ratingConfig[sup.rating].color}`}>{sup.rating}</span>
                   </div>
                   <div className="text-left">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">{sup.name}</p>
-                      <span className="text-xs font-mono text-gray-400">{sup.code}</span>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{sup.name}</p>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{sup.code}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[sup.status].color}`}>{statusConfig[sup.status].label}</span>
                     </div>
-                    <p className="text-xs text-gray-500">{sup.location}, {sup.country} · {sup.categories.join(', ')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{sup.location}, {sup.country} · {sup.categories.join(', ')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
-                  <div className="text-right"><p className="font-medium">{sup.onTimeDelivery}%</p><p className="text-xs text-gray-400">OTD</p></div>
-                  <div className="text-right"><p className="font-medium">{sup.qualityScore}%</p><p className="text-xs text-gray-400">Quality</p></div>
-                  <div className="text-right"><p className="font-medium">£{(sup.totalSpend / 1000).toFixed(0)}k</p><p className="text-xs text-gray-400">Spend</p></div>
+                  <div className="text-right"><p className="font-medium">{sup.onTimeDelivery}%</p><p className="text-xs text-gray-400 dark:text-gray-500">OTD</p></div>
+                  <div className="text-right"><p className="font-medium">{sup.qualityScore}%</p><p className="text-xs text-gray-400 dark:text-gray-500">Quality</p></div>
+                  <div className="text-right"><p className="font-medium">£{(sup.totalSpend / 1000).toFixed(0)}k</p><p className="text-xs text-gray-400 dark:text-gray-500">Spend</p></div>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100 p-4 space-y-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">Lead Time</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">Lead Time</p>
                       <p className="font-medium">{sup.leadTimeDays} days</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">Defect Rate</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">Defect Rate</p>
                       <p className="font-medium">{sup.defectRate}%</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">Total Orders</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">Total Orders</p>
                       <p className="font-medium">{sup.totalOrders.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase mb-1">Payment Terms</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">Payment Terms</p>
                       <p className="font-medium">{sup.paymentTerms}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Contact</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Contact</h4>
                       <div className="space-y-1 text-sm">
-                        <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-400" /> {sup.contactEmail}</p>
-                        <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400" /> {sup.contactPhone}</p>
-                        <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-gray-400" /> {sup.location}, {sup.country}</p>
+                        <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" /> {sup.contactEmail}</p>
+                        <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" /> {sup.contactPhone}</p>
+                        <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" /> {sup.location}, {sup.country}</p>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Certifications</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Certifications</h4>
                       <div className="flex flex-wrap gap-1">
                         {sup.certifications.map((c) => <span key={c} className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded text-xs font-medium">{c}</span>)}
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">Last audit: {sup.lastAudit}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Last audit: {sup.lastAudit}</p>
                     </div>
                   </div>
-                  {sup.notes && <div className="bg-gray-50 rounded-lg p-3"><p className="text-sm text-gray-600">{sup.notes}</p></div>}
+                  {sup.notes && <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3"><p className="text-sm text-gray-600">{sup.notes}</p></div>}
 
                   {/* Performance bars */}
                   <div className="grid grid-cols-3 gap-4">
@@ -266,7 +266,7 @@ export default function SuppliersClient() {
                       { label: 'Defect Rate', value: Math.max(0, 100 - sup.defectRate * 20), color: sup.defectRate <= 0.5 ? 'bg-green-500' : sup.defectRate <= 1.5 ? 'bg-amber-500' : 'bg-red-500' },
                     ].map((bar) => (
                       <div key={bar.label}>
-                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                           <span>{bar.label}</span>
                           <span>{bar.label === 'Defect Rate' ? `${sup.defectRate}%` : `${bar.value}%`}</span>
                         </div>

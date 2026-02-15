@@ -64,7 +64,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SENT: 'bg-blue-100 text-blue-700',
   RECEIVED: 'bg-purple-100 text-purple-700',
   ACKNOWLEDGED: 'bg-yellow-100 text-yellow-700',
@@ -72,7 +72,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'bg-gray-100 text-gray-600',
+  LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   MEDIUM: 'bg-blue-100 text-blue-600',
   HIGH: 'bg-orange-100 text-orange-600',
   URGENT: 'bg-red-100 text-red-600',
@@ -222,8 +222,8 @@ export default function CommunicationsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Communications</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Communications</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 14001:2015 Cl. 7.4 — Internal &amp; external environmental communications
             </p>
           </div>
@@ -242,7 +242,7 @@ export default function CommunicationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">External</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">External</p>
                   <p className="text-2xl font-bold text-green-700">{external.length}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -255,7 +255,7 @@ export default function CommunicationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Internal</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Internal</p>
                   <p className="text-2xl font-bold text-blue-700">{internal.length}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -268,7 +268,7 @@ export default function CommunicationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Pending Response</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Response</p>
                   <p className="text-2xl font-bold text-orange-600">{pending.length}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
@@ -281,7 +281,7 @@ export default function CommunicationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Urgent</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Urgent</p>
                   <p className="text-2xl font-bold text-red-600">{urgent.length}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
@@ -293,7 +293,7 @@ export default function CommunicationsPage() {
         </div>
 
         {/* Direction Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-gray-200">
+        <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
           {(['EXTERNAL', 'INTERNAL'] as const).map((dir) => (
             <button
               key={dir}
@@ -301,7 +301,7 @@ export default function CommunicationsPage() {
               className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === dir
                   ? 'border-green-600 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               {dir === 'EXTERNAL' ? (
@@ -320,21 +320,21 @@ export default function CommunicationsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search by subject, stakeholder or ref..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-400" />
+            <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               <option value="ALL">All Status</option>
               <option value="DRAFT">Draft</option>
@@ -346,7 +346,7 @@ export default function CommunicationsPage() {
             <select
               value={filterPriority}
               onChange={(e) => setFilterPriority(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               <option value="ALL">All Priority</option>
               <option value="LOW">Low</option>
@@ -363,20 +363,20 @@ export default function CommunicationsPage() {
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageSquare className="h-5 w-5 text-green-600" />
               {activeTab === 'EXTERNAL' ? 'External Communications' : 'Internal Communications'}
-              <span className="ml-auto text-sm text-gray-400 font-normal">{tabRecords.length} records</span>
+              <span className="ml-auto text-sm text-gray-400 dark:text-gray-500 font-normal">{tabRecords.length} records</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
               <div className="p-6 space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-14 bg-gray-100 rounded animate-pulse" />
+                  <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
                 ))}
               </div>
             ) : tabRecords.length === 0 ? (
               <div className="py-16 text-center">
-                <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-sm">No communications found</p>
+                <MessageSquare className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No communications found</p>
                 <Button
                   onClick={openCreate}
                   variant="outline"
@@ -390,15 +390,15 @@ export default function CommunicationsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50">
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ref</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Subject</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Type</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Stakeholder</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Due Date</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Response?</th>
+                    <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ref</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subject</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Type</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Stakeholder</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Priority</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Due Date</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Response?</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -406,26 +406,26 @@ export default function CommunicationsPage() {
                     {tabRecords.map((rec) => (
                       <tr
                         key={rec.id}
-                        className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                        className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
                       >
-                        <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                        <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                           {rec.referenceNumber || '—'}
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900 line-clamp-1">{rec.subject}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">{rec.subject}</p>
                           {rec.description && (
-                            <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{rec.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">{rec.description}</p>
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                          <span className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             {TYPE_LABELS[rec.type] || rec.type}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-gray-700">{rec.stakeholder}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.stakeholder}</p>
                           {rec.stakeholderType && (
-                            <p className="text-xs text-gray-400">{rec.stakeholderType}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">{rec.stakeholderType}</p>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -449,21 +449,21 @@ export default function CommunicationsPage() {
                               <Inbox className="h-3 w-3" /> Required
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400">No</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500">No</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 justify-end">
                             <button
                               onClick={() => openEdit(rec)}
-                              className="p-1.5 hover:bg-green-100 rounded text-gray-400 hover:text-green-600 transition-colors"
+                              className="p-1.5 hover:bg-green-100 rounded text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => openDelete(rec)}
-                              className="p-1.5 hover:bg-red-100 rounded text-gray-400 hover:text-red-600 transition-colors"
+                              className="p-1.5 hover:bg-red-100 rounded text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"
                               title="Delete"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -488,7 +488,7 @@ export default function CommunicationsPage() {
         size="lg"
       >
         {/* Form Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200">
+        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
           {['Details', 'Stakeholder', 'Dates & Assignment', 'Notes'].map((tab, idx) => (
             <button
               key={tab}
@@ -496,7 +496,7 @@ export default function CommunicationsPage() {
               className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 formTab === idx
                   ? 'border-green-600 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               {tab}
@@ -508,7 +508,7 @@ export default function CommunicationsPage() {
         {formTab === 0 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Subject <span className="text-red-500">*</span>
               </label>
               <input
@@ -516,37 +516,37 @@ export default function CommunicationsPage() {
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 placeholder="e.g. Annual Environmental Report to Regulator"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 rows={3}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Describe the purpose and content of this communication..."
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Direction</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
                 <select
                   value={form.direction}
                   onChange={(e) => setForm({ ...form, direction: e.target.value as 'INTERNAL' | 'EXTERNAL' })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="EXTERNAL">External</option>
                   <option value="INTERNAL">Internal</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   {Object.entries(TYPE_LABELS).map(([val, label]) => (
                     <option key={val} value={val}>{label}</option>
@@ -556,11 +556,11 @@ export default function CommunicationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value as typeof form.status })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="DRAFT">Draft</option>
                   <option value="SENT">Sent</option>
@@ -570,11 +570,11 @@ export default function CommunicationsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value as typeof form.priority })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -591,7 +591,7 @@ export default function CommunicationsPage() {
                 onChange={(e) => setForm({ ...form, responseRequired: e.target.checked })}
                 className="h-4 w-4 text-green-600 rounded border-gray-300"
               />
-              <label htmlFor="responseRequired" className="text-sm text-gray-700">
+              <label htmlFor="responseRequired" className="text-sm text-gray-700 dark:text-gray-300">
                 Response required
               </label>
             </div>
@@ -603,7 +603,7 @@ export default function CommunicationsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Stakeholder / Organisation <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -611,15 +611,15 @@ export default function CommunicationsPage() {
                   value={form.stakeholder}
                   onChange={(e) => setForm({ ...form, stakeholder: e.target.value })}
                   placeholder="e.g. Environment Agency"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stakeholder Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stakeholder Type</label>
                 <select
                   value={form.stakeholderType}
                   onChange={(e) => setForm({ ...form, stakeholderType: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="">Select type...</option>
                   <option value="Regulatory Body">Regulatory Body</option>
@@ -638,23 +638,23 @@ export default function CommunicationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Person</label>
                 <input
                   type="text"
                   value={form.contactPerson}
                   onChange={(e) => setForm({ ...form, contactPerson: e.target.value })}
                   placeholder="Full name"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Email</label>
                 <input
                   type="email"
                   value={form.contactEmail}
                   onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
                   placeholder="email@example.com"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
             </div>
@@ -676,48 +676,48 @@ export default function CommunicationsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date Sent</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Sent</label>
                 <input
                   type="date"
                   value={form.dateSent}
                   onChange={(e) => setForm({ ...form, dateSent: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date Received</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Received</label>
                 <input
                   type="date"
                   value={form.dateReceived}
                   onChange={(e) => setForm({ ...form, dateReceived: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Due / Response Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due / Response Date</label>
                 <input
                   type="date"
                   value={form.dueDate}
                   onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigned To</label>
                 <input
                   type="text"
                   value={form.assignedTo}
                   onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}
                   placeholder="Name or role"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Aspect Reference
                 </label>
                 <input
@@ -725,11 +725,11 @@ export default function CommunicationsPage() {
                   value={form.aspectRef}
                   onChange={(e) => setForm({ ...form, aspectRef: e.target.value })}
                   placeholder="e.g. ENV-ASP-2026-001"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Legal Reference
                 </label>
                 <input
@@ -737,7 +737,7 @@ export default function CommunicationsPage() {
                   value={form.legalRef}
                   onChange={(e) => setForm({ ...form, legalRef: e.target.value })}
                   placeholder="e.g. ENV-LEG-2026-003"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
             </div>
@@ -748,20 +748,20 @@ export default function CommunicationsPage() {
         {formTab === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes / Additional Details</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes / Additional Details</label>
               <textarea
                 rows={8}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder="Record any additional context, outcomes, or follow-up actions related to this communication..."
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
               />
             </div>
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center gap-2">
                 <FileText className="h-4 w-4" /> Documented Information
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 ISO 14001 requires retaining documented information as evidence of communications.
                 Ensure all relevant attachments and response records are stored and linked here.
               </p>
@@ -815,9 +815,9 @@ export default function CommunicationsPage() {
           Are you sure you want to delete this communication record?
         </p>
         {selectedRecord && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
-            <p className="text-sm font-medium text-gray-900">{selectedRecord.subject}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{selectedRecord.stakeholder}</p>
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{selectedRecord.subject}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{selectedRecord.stakeholder}</p>
           </div>
         )}
         <p className="text-xs text-red-500">This action cannot be undone.</p>

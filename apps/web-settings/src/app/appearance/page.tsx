@@ -61,13 +61,13 @@ export default function AppearancePage() {
   return (
     <div className="p-6 space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Appearance</h1>
-        <p className="text-sm text-gray-500 mt-1">Customize the look and feel of your workspace</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Appearance</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Customize the look and feel of your workspace</p>
       </div>
 
       {/* Theme */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Theme</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Theme</h2>
         <div className="grid grid-cols-3 gap-3">
           {themes.map(t => (
             <button
@@ -76,20 +76,20 @@ export default function AppearancePage() {
               className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors ${
                 theme === t.id
                   ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
               <span className="text-2xl">{t.icon}</span>
-              <span className="text-sm font-medium text-gray-900">{t.label}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{t.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Accent Colour */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Accent Colour</h2>
-        <p className="text-xs text-gray-500">Used for buttons, links, and active states</p>
+      <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Accent Colour</h2>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Used for buttons, links, and active states</p>
         <div className="flex gap-3">
           {accentColors.map(c => (
             <button
@@ -104,18 +104,18 @@ export default function AppearancePage() {
                 }`}
                 style={{ backgroundColor: c.color }}
               />
-              <span className="text-[10px] text-gray-500 font-medium">{c.label}</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{c.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Density */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Density</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Density</h2>
         <div className="space-y-2">
           {densityOptions.map(opt => (
-            <label key={opt.id} className="flex items-start gap-3 p-3 rounded-md hover:bg-gray-50 cursor-pointer">
+            <label key={opt.id} className="flex items-start gap-3 p-3 rounded-md hover:bg-gray-50 dark:bg-gray-800 cursor-pointer">
               <input
                 type="radio"
                 name="density"
@@ -125,8 +125,8 @@ export default function AppearancePage() {
                 className="mt-0.5 h-4 w-4 text-blue-600"
               />
               <div>
-                <div className="text-sm font-medium text-gray-900">{opt.label}</div>
-                <div className="text-xs text-gray-500">{opt.description}</div>
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{opt.label}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{opt.description}</div>
               </div>
             </label>
           ))}
@@ -134,13 +134,13 @@ export default function AppearancePage() {
       </div>
 
       {/* Other preferences */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Other Preferences</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Other Preferences</h2>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-medium text-gray-900">Collapse sidebar by default</div>
-              <div className="text-xs text-gray-500">Start with sidebar minimized on each page load</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Collapse sidebar by default</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Start with sidebar minimized on each page load</div>
             </div>
             <button
               type="button"
@@ -149,15 +149,15 @@ export default function AppearancePage() {
                 sidebarCollapsed ? 'bg-blue-600' : 'bg-gray-200'
               }`}
             >
-              <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${
+              <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
                 sidebarCollapsed ? 'translate-x-4' : 'translate-x-0'
               }`} />
             </button>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-medium text-gray-900">Animations</div>
-              <div className="text-xs text-gray-500">Enable transitions and motion effects</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Animations</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Enable transitions and motion effects</div>
             </div>
             <button
               type="button"
@@ -166,7 +166,7 @@ export default function AppearancePage() {
                 animationsEnabled ? 'bg-blue-600' : 'bg-gray-200'
               }`}
             >
-              <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${
+              <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
                 animationsEnabled ? 'translate-x-4' : 'translate-x-0'
               }`} />
             </button>

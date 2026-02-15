@@ -66,7 +66,7 @@ function findingLabel(f: string): string {
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === 'INCREASING' || trend === 'HIGH_RISK') return <TrendingUp className="h-4 w-4 text-red-500" />;
   if (trend === 'DECREASING' || trend === 'LOW_RISK') return <TrendingDown className="h-4 w-4 text-green-500" />;
-  return <Minus className="h-4 w-4 text-gray-400" />;
+  return <Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
 }
 
 // ---------------------------------------------------------------------------
@@ -143,7 +143,7 @@ export default function PredictionsPage() {
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                 activeTab === tab.id
                   ? 'bg-purple-100 text-purple-700 border-b-2 border-purple-600 dark:bg-purple-900/30 dark:text-purple-300'
-                  : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300'
               }`}
             >
               {tab.label}
@@ -186,33 +186,33 @@ export default function PredictionsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">CAPA ID</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Days Open</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Target</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Overrun Risk</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Owner</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Recommendation</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">CAPA ID</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Days Open</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Target</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Overrun Risk</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recommendation</th>
                       </tr>
                     </thead>
                     <tbody>
                       {capaData.predictions.map(capa => (
-                        <tr key={capa.capaId} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                          <td className="py-3 px-4 font-mono text-xs text-gray-500">{capa.capaId}</td>
+                        <tr key={capa.capaId} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/30">
+                          <td className="py-3 px-4 font-mono text-xs text-gray-500 dark:text-gray-400">{capa.capaId}</td>
                           <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium max-w-xs truncate">{capa.title}</td>
                           <td className="py-3 px-4 text-center">
                             <span className={capa.daysOpen > capa.targetDays ? 'text-red-600 font-bold' : 'text-gray-700 dark:text-gray-300'}>
                               {capa.daysOpen}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-500">{capa.targetDays}</td>
+                          <td className="py-3 px-4 text-center text-gray-500 dark:text-gray-400">{capa.targetDays}</td>
                           <td className="py-3 px-4 text-center">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${probabilityColor(capa.overrunProbability)}`}>
                               {Math.round(capa.overrunProbability * 100)}%
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-gray-500 text-xs">{capa.owner}</td>
-                          <td className="py-3 px-4 text-xs text-gray-500 max-w-sm">
+                          <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">{capa.owner}</td>
+                          <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400 max-w-sm">
                             <p className="line-clamp-2">{capa.recommendation}</p>
                           </td>
                         </tr>
@@ -263,16 +263,16 @@ export default function PredictionsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Clause</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Likely Finding</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Confidence</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Rationale</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Clause</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Likely Finding</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Confidence</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Rationale</th>
                       </tr>
                     </thead>
                     <tbody>
                       {auditData.clauses.map(clause => (
-                        <tr key={clause.clause} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                        <tr key={clause.clause} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/30">
                           <td className="py-3 px-4 font-mono text-sm font-bold text-gray-700 dark:text-gray-300">{clause.clause}</td>
                           <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{clause.title}</td>
                           <td className="py-3 px-4 text-center">
@@ -280,8 +280,8 @@ export default function PredictionsPage() {
                               {findingLabel(clause.likelyFinding)}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-500">{Math.round(clause.confidence * 100)}%</td>
-                          <td className="py-3 px-4 text-xs text-gray-500 max-w-md">
+                          <td className="py-3 px-4 text-center text-gray-500 dark:text-gray-400">{Math.round(clause.confidence * 100)}%</td>
+                          <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400 max-w-md">
                             <p className="line-clamp-2">{clause.rationale}</p>
                           </td>
                         </tr>
@@ -333,7 +333,7 @@ export default function PredictionsPage() {
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{cat.category}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-500">{cat.forecastCount} NCRs ({cat.percentOfTotal}%)</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">{cat.forecastCount} NCRs ({cat.percentOfTotal}%)</span>
                           <div className="w-24 bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                             <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${cat.percentOfTotal}%` }} />
                           </div>
@@ -355,7 +355,7 @@ export default function PredictionsPage() {
                       <div key={sup.supplier} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{sup.supplier}</p>
-                          <p className="text-xs text-gray-400">{sup.recentNcrs} recent NCR(s)</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{sup.recentNcrs} recent NCR(s)</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
@@ -387,12 +387,12 @@ export default function PredictionsPage() {
                       <div key={point.month} className="flex-1 flex flex-col items-center gap-1">
                         <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{point.count}</span>
                         <div className="w-full bg-purple-200 dark:bg-purple-800 rounded-t" style={{ height: `${heightPct}%`, minHeight: '4px' }} />
-                        <span className="text-xs text-gray-400 whitespace-nowrap">{point.month.slice(0, 3)}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{point.month.slice(0, 3)}</span>
                       </div>
                     );
                   })}
                 </div>
-                <p className="text-xs text-gray-400 mt-4 italic">{ncrData.nextMonthForecast.trendReason}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-4 italic">{ncrData.nextMonthForecast.trendReason}</p>
               </CardContent>
             </Card>
           </>

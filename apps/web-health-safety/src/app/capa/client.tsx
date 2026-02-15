@@ -289,8 +289,8 @@ export default function CAPAClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">CAPA Management</h1>
-            <p className="text-gray-500 mt-1">ISO 45001:2018 — Corrective & Preventive Actions</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001:2018 — Corrective & Preventive Actions</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -302,31 +302,31 @@ export default function CAPAClient() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Total CAPAs</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total CAPAs</p>
               <p className="text-2xl font-bold">{counts.total}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-blue-500">
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Open</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
               <p className="text-2xl font-bold text-blue-600">{counts.open}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-yellow-500">
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">In Progress</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
               <p className="text-2xl font-bold text-yellow-600">{counts.inProgress}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-red-500">
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Overdue</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
               <p className="text-2xl font-bold text-red-600">{counts.overdue}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-green-500">
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Closed</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Closed</p>
               <p className="text-2xl font-bold text-green-600">{counts.closed}</p>
             </CardContent>
           </Card>
@@ -337,9 +337,9 @@ export default function CAPAClient() {
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label htmlFor="search" className="text-xs text-gray-500">Search</Label>
+                <Label htmlFor="search" className="text-xs text-gray-500 dark:text-gray-400">Search</Label>
                 <div className="relative mt-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="search"
                     placeholder="Search by reference, title, responsible..."
@@ -350,7 +350,7 @@ export default function CAPAClient() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="statusFilter" className="text-xs text-gray-500">Status</Label>
+                <Label htmlFor="statusFilter" className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
                 <Select id="statusFilter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="mt-1">
                   <option value="all">All Statuses</option>
                   {CAPA_STATUSES.map(s => (
@@ -359,7 +359,7 @@ export default function CAPAClient() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="typeFilter" className="text-xs text-gray-500">Type</Label>
+                <Label htmlFor="typeFilter" className="text-xs text-gray-500 dark:text-gray-400">Type</Label>
                 <Select id="typeFilter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="mt-1">
                   <option value="all">All Types</option>
                   {CAPA_TYPES.map(t => (
@@ -368,7 +368,7 @@ export default function CAPAClient() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="priorityFilter" className="text-xs text-gray-500">Priority</Label>
+                <Label htmlFor="priorityFilter" className="text-xs text-gray-500 dark:text-gray-400">Priority</Label>
                 <Select id="priorityFilter" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className="mt-1">
                   <option value="all">All Priorities</option>
                   {CAPA_PRIORITIES.map(p => (
@@ -418,21 +418,21 @@ export default function CAPAClient() {
                         <>
                           <TableRow
                             key={capa.id}
-                            className={`cursor-pointer hover:bg-gray-50 ${isOverdue ? 'border-l-4 border-l-red-500' : ''}`}
+                            className={`cursor-pointer hover:bg-gray-50 dark:bg-gray-800 ${isOverdue ? 'border-l-4 border-l-red-500' : ''}`}
                             onClick={() => toggleRow(capa.id)}
                           >
                             <TableCell>
                               {capa.actions?.length > 0 && (
                                 isExpanded
-                                  ? <ChevronDown className="h-4 w-4 text-gray-400" />
-                                  : <ChevronRight className="h-4 w-4 text-gray-400" />
+                                  ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                  : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                               )}
                             </TableCell>
-                            <TableCell className="text-xs font-mono text-gray-500">{capa.referenceNumber}</TableCell>
+                            <TableCell className="text-xs font-mono text-gray-500 dark:text-gray-400">{capa.referenceNumber}</TableCell>
                             <TableCell>
                               <p className="font-medium text-sm truncate max-w-[250px]">{capa.title}</p>
                               {capa.problemStatement && (
-                                <p className="text-xs text-gray-400 truncate max-w-[250px]">{capa.problemStatement}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[250px]">{capa.problemStatement}</p>
                               )}
                             </TableCell>
                             <TableCell>
@@ -443,14 +443,14 @@ export default function CAPAClient() {
                               <Badge variant={getPriorityBadgeVariant(capa.priority)}>{capa.priority}</Badge>
                             </TableCell>
                             <TableCell className="text-sm">{capa.responsiblePerson || '-'}</TableCell>
-                            <TableCell className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                            <TableCell className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                               {formatDate(capa.targetCompletionDate)}
                             </TableCell>
                             <TableCell>
                               <span className="text-sm text-gray-600">
                                 {capa.actions?.length || 0}
                                 {capa.actions?.length > 0 && (
-                                  <span className="text-xs text-gray-400 ml-1">
+                                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">
                                     ({capa.actions.filter(a => a.status === 'COMPLETED' || a.status === 'VERIFIED').length} done)
                                   </span>
                                 )}
@@ -465,19 +465,19 @@ export default function CAPAClient() {
                           {/* Expanded actions */}
                           {isExpanded && capa.actions?.length > 0 && (
                             <TableRow key={`${capa.id}-actions`}>
-                              <TableCell colSpan={10} className="bg-gray-50 p-4">
+                              <TableCell colSpan={10} className="bg-gray-50 dark:bg-gray-800 p-4">
                                 <div className="ml-8">
-                                  <p className="text-xs font-semibold text-gray-500 uppercase mb-2">CAPA Actions</p>
+                                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">CAPA Actions</p>
                                   <div className="space-y-2">
                                     {capa.actions.map(action => (
-                                      <div key={action.id} className="flex items-center gap-4 p-2 bg-white rounded border">
+                                      <div key={action.id} className="flex items-center gap-4 p-2 bg-white dark:bg-gray-900 rounded border">
                                         <Badge variant={getStatusBadgeVariant(action.status)} className="text-[10px]">
                                           {action.status}
                                         </Badge>
                                         <span className="text-sm font-medium flex-1">{action.title}</span>
                                         <Badge variant="outline" className="text-[10px]">{action.type}</Badge>
-                                        <span className="text-xs text-gray-500">{action.owner || '-'}</span>
-                                        <span className="text-xs text-gray-400">{formatDate(action.dueDate)}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">{action.owner || '-'}</span>
+                                        <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(action.dueDate)}</span>
                                       </div>
                                     ))}
                                   </div>
@@ -493,9 +493,9 @@ export default function CAPAClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <ShieldCheck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 mb-2">No CAPAs found</p>
-                <p className="text-sm text-gray-400">Click &quot;New CAPA&quot; to create your first corrective/preventive action</p>
+                <ShieldCheck className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 mb-2">No CAPAs found</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Click &quot;New CAPA&quot; to create your first corrective/preventive action</p>
               </div>
             )}
           </CardContent>
@@ -515,7 +515,7 @@ export default function CAPAClient() {
 
               {/* ── Section A: CAPA Classification ── */}
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">A</span>
                   CAPA Classification
                 </h3>
@@ -609,7 +609,7 @@ export default function CAPAClient() {
 
               {/* ── Section B: Problem Statement & AI Analysis ── */}
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">B</span>
                   Problem Statement & Root Cause
                 </h3>
@@ -626,7 +626,7 @@ export default function CAPAClient() {
                       className="mt-1"
                     />
                     <div className="flex justify-between mt-1">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {form.problemStatement.length < 20
                           ? `${20 - form.problemStatement.length} more characters for AI analysis`
                           : 'AI analysis will generate on blur'}
@@ -693,7 +693,7 @@ export default function CAPAClient() {
 
               {/* ── Section C: Verification ── */}
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">C</span>
                   Verification & Effectiveness
                 </h3>
@@ -742,7 +742,7 @@ export default function CAPAClient() {
                     onChange={e => updateForm('targetCompletionDate', e.target.value)}
                     className="mt-1 w-auto"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Auto-calculated from priority if left blank</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Auto-calculated from priority if left blank</p>
                 </div>
               </section>
             </div>

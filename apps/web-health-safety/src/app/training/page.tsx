@@ -27,7 +27,7 @@ const STATUSES = [
   { value: 'SCHEDULED', label: 'Scheduled', color: 'bg-blue-100 text-blue-800' },
   { value: 'IN_PROGRESS', label: 'In Progress', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-800' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800' },
 ] as const;
 
 interface Training {
@@ -170,7 +170,7 @@ export default function TrainingPage() {
 
   const getStatusColor = (status: string) => {
     const s = STATUSES.find(st => st.value === status);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const counts = {
@@ -185,8 +185,8 @@ export default function TrainingPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Training Management</h1>
-            <p className="text-gray-500 mt-1">OHS training and competency tracking</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Training Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">OHS training and competency tracking</p>
           </div>
           <Button onClick={openCreate} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -198,7 +198,7 @@ export default function TrainingPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div><p className="text-sm text-gray-500">Total Sessions</p><p className="text-2xl font-bold">{counts.total}</p></div>
+                <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Sessions</p><p className="text-2xl font-bold">{counts.total}</p></div>
                 <div className="p-3 bg-purple-100 rounded-full"><GraduationCap className="h-6 w-6 text-purple-600" /></div>
               </div>
             </CardContent>
@@ -206,7 +206,7 @@ export default function TrainingPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div><p className="text-sm text-gray-500">Upcoming</p><p className="text-2xl font-bold text-blue-600">{counts.scheduled}</p></div>
+                <div><p className="text-sm text-gray-500 dark:text-gray-400">Upcoming</p><p className="text-2xl font-bold text-blue-600">{counts.scheduled}</p></div>
                 <div className="p-3 bg-blue-100 rounded-full"><Calendar className="h-6 w-6 text-blue-600" /></div>
               </div>
             </CardContent>
@@ -214,7 +214,7 @@ export default function TrainingPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div><p className="text-sm text-gray-500">Completed</p><p className="text-2xl font-bold text-green-600">{counts.completed}</p></div>
+                <div><p className="text-sm text-gray-500 dark:text-gray-400">Completed</p><p className="text-2xl font-bold text-green-600">{counts.completed}</p></div>
                 <div className="p-3 bg-green-100 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div>
               </div>
             </CardContent>
@@ -222,7 +222,7 @@ export default function TrainingPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div><p className="text-sm text-gray-500">Total Trained</p><p className="text-2xl font-bold">{counts.totalParticipants}</p></div>
+                <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Trained</p><p className="text-2xl font-bold">{counts.totalParticipants}</p></div>
                 <div className="p-3 bg-orange-100 rounded-full"><Users className="h-6 w-6 text-orange-600" /></div>
               </div>
             </CardContent>
@@ -231,15 +231,15 @@ export default function TrainingPage() {
 
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search training..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Statuses</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Types</option>
             {TRAINING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
@@ -266,21 +266,21 @@ export default function TrainingPage() {
                 </TableHeader>
                 <TableBody>
                   {filtered.map(t => (
-                    <TableRow key={t.id} className="cursor-pointer hover:bg-gray-50">
-                      <TableCell className="font-mono text-xs text-gray-500">{t.referenceNumber || '-'}</TableCell>
+                    <TableRow key={t.id} className="cursor-pointer hover:bg-gray-50 dark:bg-gray-800">
+                      <TableCell className="font-mono text-xs text-gray-500 dark:text-gray-400">{t.referenceNumber || '-'}</TableCell>
                       <TableCell>
                         <p className="font-medium">{t.title}</p>
-                        {t.location && <p className="text-xs text-gray-400">{t.location}</p>}
+                        {t.location && <p className="text-xs text-gray-400 dark:text-gray-500">{t.location}</p>}
                       </TableCell>
                       <TableCell><Badge variant="outline">{t.trainingType.replace(/_/g, ' ')}</Badge></TableCell>
-                      <TableCell className="text-sm text-gray-500">{t.trainer || '-'}</TableCell>
+                      <TableCell className="text-sm text-gray-500 dark:text-gray-400">{t.trainer || '-'}</TableCell>
                       <TableCell className="text-sm text-gray-600">{t.scheduledDate ? new Date(t.scheduledDate).toLocaleDateString() : '-'}</TableCell>
                       <TableCell className="text-sm text-center">{t.participants || 0}</TableCell>
                       <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(t.status)}`}>{t.status}</span></TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <button onClick={() => openEdit(t)} className="text-gray-400 hover:text-blue-600 p-1 text-xs border rounded hover:border-blue-300">Edit</button>
-                          <button onClick={() => setDeleteConfirm(t.id)} className="text-gray-400 hover:text-red-600 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => openEdit(t)} className="text-gray-400 dark:text-gray-500 hover:text-blue-600 p-1 text-xs border rounded hover:border-blue-300">Edit</button>
+                          <button onClick={() => setDeleteConfirm(t.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -289,8 +289,8 @@ export default function TrainingPage() {
               </Table>
             ) : (
               <div className="text-center py-12">
-                <GraduationCap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No training sessions found</p>
+                <GraduationCap className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No training sessions found</p>
                 <Button variant="outline" className="mt-4" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Schedule First Training</Button>
               </div>
             )}

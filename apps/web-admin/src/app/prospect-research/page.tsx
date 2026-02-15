@@ -107,7 +107,7 @@ export default function ProspectResearchPage() {
       <main className="ml-64 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">Prospect Research</h1>
-          <p className="text-gray-400 mt-1">Research companies and generate personalized outreach emails</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-1">Research companies and generate personalized outreach emails</p>
         </div>
 
         {error && (
@@ -276,18 +276,18 @@ export default function ProspectResearchPage() {
         <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Research History</h2>
           {historyLoading ? (
-            <div className="text-gray-400 text-center py-8">Loading...</div>
+            <div className="text-gray-400 dark:text-gray-500 text-center py-8">Loading...</div>
           ) : history.length === 0 ? (
-            <div className="text-gray-500 text-center py-8">No research history yet. Start by researching a company above.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-center py-8">No research history yet. Start by researching a company above.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Company</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Industry</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Website</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Company</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Industry</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Website</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -302,7 +302,7 @@ export default function ProspectResearchPage() {
                           </a>
                         ) : '-'}
                       </td>
-                      <td className="py-3 px-4 text-gray-400">{new Date(item.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -318,7 +318,7 @@ export default function ProspectResearchPage() {
 function InfoRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex justify-between items-start">
-      <span className="text-gray-400 text-sm">{label}</span>
+      <span className="text-gray-400 dark:text-gray-500 text-sm">{label}</span>
       <span className="text-white text-sm text-right ml-4">{value || '-'}</span>
     </div>
   );

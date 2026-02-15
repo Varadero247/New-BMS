@@ -49,7 +49,7 @@ export default async function ISOStandardPage({ params }: Props) {
             Nexara
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/roi-calculator" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/roi-calculator" className="text-sm text-gray-400 dark:text-gray-500 hover:text-white transition-colors">
               ROI Calculator
             </Link>
             <Link
@@ -70,7 +70,7 @@ export default async function ISOStandardPage({ params }: Props) {
         <h1 className="text-4xl md:text-5xl font-bold font-display text-white mb-4 leading-tight">
           {iso.name}
         </h1>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+        <p className="text-lg text-gray-400 dark:text-gray-500 max-w-2xl mx-auto mb-8">
           {iso.subtitle}
         </p>
         <div className="flex items-center justify-center gap-4">
@@ -121,7 +121,7 @@ export default async function ISOStandardPage({ params }: Props) {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -151,7 +151,7 @@ export default async function ISOStandardPage({ params }: Props) {
           <h2 className="text-2xl font-bold font-display text-white mb-4">
             Trusted by {iso.industries[0]} &amp; {iso.industries[1]} organisations
           </h2>
-          <p className="text-gray-400 mb-10">
+          <p className="text-gray-400 dark:text-gray-500 mb-10">
             Nexara is used by companies in {iso.industries[0].toLowerCase()}, {iso.industries[1].toLowerCase()}, and
             dozens more industries to manage {iso.number} compliance.
           </p>
@@ -183,12 +183,12 @@ export default async function ISOStandardPage({ params }: Props) {
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-400 text-sm italic mb-4 leading-relaxed">
+              <p className="text-gray-400 dark:text-gray-500 text-sm italic mb-4 leading-relaxed">
                 &ldquo;Nexara transformed how we manage {iso.number}. What used to take weeks now takes hours.&rdquo;
               </p>
               <div>
                 <p className="text-white text-sm font-semibold">Customer Name</p>
-                <p className="text-gray-500 text-xs">{iso.industries[n - 1]} &mdash; Quality Manager</p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs">{iso.industries[n - 1]} &mdash; Quality Manager</p>
               </div>
             </div>
           ))}
@@ -200,7 +200,7 @@ export default async function ISOStandardPage({ params }: Props) {
         <h2 className="text-3xl font-bold font-display text-white mb-4">
           Ready to simplify {iso.number}?
         </h2>
-        <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+        <p className="text-gray-400 dark:text-gray-500 mb-8 max-w-xl mx-auto">
           Join thousands of organisations managing {iso.number} compliance with Nexara.
           Start your free 21-day trial today.
         </p>
@@ -214,7 +214,7 @@ export default async function ISOStandardPage({ params }: Props) {
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
           <p>&copy; {new Date().getFullYear()} Nexara. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>

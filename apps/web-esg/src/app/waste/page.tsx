@@ -109,8 +109,8 @@ export default function WastePage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Waste Management</h1>
-            <p className="text-gray-500 mt-1">Track waste generation, disposal, and recycling rates</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Waste Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track waste generation, disposal, and recycling rates</p>
           </div>
           <button onClick={openCreate} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors">
             <Plus className="h-5 w-5" /> Log Waste
@@ -119,13 +119,13 @@ export default function WastePage() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Waste', value: `${totalWaste.toLocaleString()} kg`, color: 'text-gray-800', bg: 'bg-gray-50' },
+            { label: 'Total Waste', value: `${totalWaste.toLocaleString()} kg`, color: 'text-gray-800', bg: 'bg-gray-50 dark:bg-gray-800' },
             { label: 'Recyclable Records', value: recycled, color: 'text-green-700', bg: 'bg-green-50' },
             { label: 'Hazardous Records', value: hazardous, color: 'text-red-700', bg: 'bg-red-50' },
             { label: 'Avg Recycled %', value: `${avgRecycled}%`, color: 'text-blue-700', bg: 'bg-blue-50' },
           ].map(c => (
             <Card key={c.label}><CardContent className={`pt-5 pb-4 ${c.bg} rounded-lg`}>
-              <p className="text-xs text-gray-500 font-medium uppercase">{c.label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase">{c.label}</p>
               <p className={`text-2xl font-bold mt-1 ${c.color}`}>{c.value}</p>
             </CardContent></Card>
           ))}
@@ -134,7 +134,7 @@ export default function WastePage() {
         <Card className="mb-6"><CardContent className="pt-4 pb-4">
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-[200px] relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search waste records..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
             <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -155,20 +155,20 @@ export default function WastePage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Quantity</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Disposal</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Recycled %</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Facility</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Quantity</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Disposal</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recycled %</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Facility</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(r => (
-                      <tr key={r.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{r.type}</td>
-                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${categoryColors[r.category] || 'bg-gray-100 text-gray-700'}`}>{r.category?.replace(/_/g, ' ')}</span></td>
+                      <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{r.type}</td>
+                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${categoryColors[r.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{r.category?.replace(/_/g, ' ')}</span></td>
                         <td className="py-3 px-4 text-right">{r.quantity} {r.unit}</td>
                         <td className="py-3 px-4 text-gray-600">{r.disposalMethod?.replace(/_/g, ' ')}</td>
                         <td className="py-3 px-4 text-right">
@@ -180,8 +180,8 @@ export default function WastePage() {
                         <td className="py-3 px-4 text-gray-600">{r.facility}</td>
                         <td className="py-3 px-4 text-gray-600">{r.date ? new Date(r.date).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-right"><div className="flex justify-end gap-2">
-                          <button onClick={() => openEdit(r)} className="text-gray-400 hover:text-green-600"><Pencil className="h-4 w-4" /></button>
-                          <button onClick={() => setDeleteId(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                          <button onClick={() => openEdit(r)} className="text-gray-400 dark:text-gray-500 hover:text-green-600"><Pencil className="h-4 w-4" /></button>
+                          <button onClick={() => setDeleteId(r.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                         </div></td>
                       </tr>
                     ))}
@@ -189,7 +189,7 @@ export default function WastePage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Trash2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="font-medium">No waste records found</p>
                 <p className="text-sm mt-1">Click "Log Waste" to add your first record</p>
@@ -202,9 +202,9 @@ export default function WastePage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Waste Record' : 'Log Waste Record'} size="lg">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Waste Type *</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Waste Type *</label>
               <input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g. Cardboard, Electronic waste" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="NON_HAZARDOUS">Non-Hazardous</option>
                 <option value="HAZARDOUS">Hazardous</option>
@@ -214,15 +214,15 @@ export default function WastePage() {
               </select></div>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
               <input type="number" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
               <input value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="kg, tonnes, litres" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Recycled %</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recycled %</label>
               <input type="number" min="0" max="100" value={form.recycledPercentage} onChange={e => setForm(f => ({ ...f, recycledPercentage: parseFloat(e.target.value) || 0 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Disposal Method</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Disposal Method</label>
               <select value={form.disposalMethod} onChange={e => setForm(f => ({ ...f, disposalMethod: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="RECYCLING">Recycling</option>
                 <option value="LANDFILL">Landfill</option>
@@ -231,13 +231,13 @@ export default function WastePage() {
                 <option value="REUSE">Reuse</option>
                 <option value="HAZARDOUS_TREATMENT">Hazardous Treatment</option>
               </select></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Facility</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facility</label>
               <input value={form.facility} onChange={e => setForm(f => ({ ...f, facility: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Site or facility name" /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="RECORDED">Recorded</option>
                 <option value="VERIFIED">Verified</option>
@@ -246,7 +246,7 @@ export default function WastePage() {
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-700 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving || !form.type} className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
             {saving ? 'Saving...' : editing ? 'Save Changes' : 'Log Waste'}
           </button>
@@ -256,7 +256,7 @@ export default function WastePage() {
       <Modal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Waste Record" size="sm">
         <p className="text-sm text-gray-600">Are you sure you want to delete this waste record?</p>
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-700 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={() => deleteId && handleDelete(deleteId)} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </div>
       </Modal>

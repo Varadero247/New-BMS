@@ -29,7 +29,7 @@ const statusColors: Record<string, string> = {
   HALF_DAY: 'bg-yellow-100 text-yellow-700',
   ON_LEAVE: 'bg-purple-100 text-purple-700',
   WORK_FROM_HOME: 'bg-blue-100 text-blue-700',
-  HOLIDAY: 'bg-gray-100 text-gray-700',
+  HOLIDAY: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const initialFormState = {
@@ -177,12 +177,12 @@ export default function AttendancePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Attendance</h1>
-            <p className="text-gray-500 mt-1">Daily attendance tracking</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Attendance</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Daily attendance tracking</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-gray-500" />
+              <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               <input
                 type="date"
                 value={selectedDate}
@@ -202,7 +202,7 @@ export default function AttendancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Present</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Present</p>
                   <p className="text-2xl font-bold text-green-600">{stats.present}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500" />
@@ -213,7 +213,7 @@ export default function AttendancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Late</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Late</p>
                   <p className="text-2xl font-bold text-orange-600">{stats.late}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-orange-500" />
@@ -224,7 +224,7 @@ export default function AttendancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Absent</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Absent</p>
                   <p className="text-2xl font-bold text-red-600">{stats.absent}</p>
                 </div>
                 <UserX className="h-8 w-8 text-red-500" />
@@ -235,7 +235,7 @@ export default function AttendancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">On Leave</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">On Leave</p>
                   <p className="text-2xl font-bold text-purple-600">{stats.onLeave}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-500" />
@@ -266,15 +266,15 @@ export default function AttendancePage() {
                   </thead>
                   <tbody>
                     {attendances.map((attendance) => (
-                      <tr key={attendance.id} className="border-b hover:bg-gray-50">
+                      <tr key={attendance.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <div>
                             <p className="font-medium">{attendance.employee.firstName} {attendance.employee.lastName}</p>
-                            <p className="text-sm text-gray-500">{attendance.employee.employeeNumber}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{attendance.employee.employeeNumber}</p>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[attendance.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[attendance.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {attendance.status.replace('_', ' ')}
                           </Badge>
                         </td>
@@ -299,7 +299,7 @@ export default function AttendancePage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No attendance records for this date</p>
               </div>

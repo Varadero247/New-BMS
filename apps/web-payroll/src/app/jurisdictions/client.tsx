@@ -184,26 +184,26 @@ export default function JurisdictionsClient() {
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tax Jurisdictions</h1>
-        <p className="text-sm text-gray-500 mt-1">Supported payroll tax jurisdictions, rates, and thresholds</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax Jurisdictions</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Supported payroll tax jurisdictions, rates, and thresholds</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Jurisdictions</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{jurisdictions.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Jurisdictions</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{jurisdictions.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Active</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{activeCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Coming Soon</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Coming Soon</p>
           <p className="text-3xl font-bold text-amber-700 mt-1">{jurisdictions.length - activeCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Regions</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Regions</p>
           <p className="text-3xl font-bold text-indigo-700 mt-1">{regions.length}</p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function JurisdictionsClient() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search jurisdictions..."
@@ -223,13 +223,13 @@ export default function JurisdictionsClient() {
         <div className="flex gap-2">
           <button
             onClick={() => setRegionFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === 'all' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === 'all' ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}
           >All</button>
           {regions.map((r) => (
             <button
               key={r}
               onClick={() => setRegionFilter(r)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === r ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === r ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}
             >{r}</button>
           ))}
         </div>
@@ -240,45 +240,45 @@ export default function JurisdictionsClient() {
         {filtered.map((j) => {
           const isExpanded = expanded.has(j.id);
           return (
-            <div key={j.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={j.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
               <button
                 onClick={() => toggleExpand(j.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400" /> : <ChevronRight className="h-5 w-5 text-gray-400" />}
+                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
                   <Globe className="h-5 w-5 text-green-600" />
                   <div className="text-left">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">{j.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{j.name}</p>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${j.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                         {j.status === 'active' ? 'Active' : 'Coming Soon'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">{j.region} · {j.currency} ({j.symbol}) · Tax Year {j.taxYear}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{j.region} · {j.currency} ({j.symbol}) · Tax Year {j.taxYear}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                   <span>Top rate: {j.taxBands[j.taxBands.length - 1].rate}%</span>
                   <span>Allowance: {j.symbol}{j.personalAllowance.toLocaleString()}</span>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100 p-4 space-y-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Tax Bands */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Income Tax Bands</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Income Tax Bands</h4>
                       <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span>Personal Allowance</span>
                           <span>{j.symbol}{j.personalAllowance.toLocaleString()} @ 0%</span>
                         </div>
                         {j.taxBands.map((b, i) => (
                           <div key={i} className="flex justify-between text-xs">
-                            <span className="text-gray-700">{b.name}</span>
-                            <span className="text-gray-500">
+                            <span className="text-gray-700 dark:text-gray-300">{b.name}</span>
+                            <span className="text-gray-500 dark:text-gray-400">
                               {j.symbol}{b.from.toLocaleString()} – {b.to ? `${j.symbol}${b.to.toLocaleString()}` : '∞'} @ {b.rate}%
                             </span>
                           </div>
@@ -288,7 +288,7 @@ export default function JurisdictionsClient() {
 
                     {/* Social Security */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Social Security</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Social Security</h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Employee Rate</span>
@@ -304,7 +304,7 @@ export default function JurisdictionsClient() {
                         </div>
                       </div>
 
-                      <h4 className="text-sm font-semibold text-gray-700 mt-4 mb-2">Pension</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4 mb-2">Pension</h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Mandatory Employee</span>
@@ -319,7 +319,7 @@ export default function JurisdictionsClient() {
 
                     {/* General Info */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">General</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">General</h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Minimum Wage</span>

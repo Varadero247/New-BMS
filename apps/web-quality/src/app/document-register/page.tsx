@@ -130,7 +130,7 @@ const MOCK_DOCUMENTS: ControlledDocument[] = [
 ];
 
 const statusConfig: Record<DocStatus, { bg: string; text: string; icon: typeof CheckCircle }> = {
-  Draft: { bg: 'bg-gray-100', text: 'text-gray-700', icon: FileText },
+  Draft: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', icon: FileText },
   'Under Review': { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock },
   Approved: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle },
   Obsolete: { bg: 'bg-red-100', text: 'text-red-700', icon: Archive },
@@ -171,10 +171,10 @@ export default function DocumentRegisterPage() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Document Control Register</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 Clause 7.5 — Controlled documents, revision history, and review schedules</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Document Control Register</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 Clause 7.5 — Controlled documents, revision history, and review schedules</p>
         </div>
-        <a href="/documents" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <a href="/documents" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Document Manager
         </a>
       </div>
@@ -191,10 +191,10 @@ export default function DocumentRegisterPage() {
           <p className="text-xl font-bold text-yellow-700">{underReview}</p>
           <p className="text-[10px] text-yellow-500">Under Review</p>
         </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-          <FileText className="h-5 w-5 text-gray-500 mx-auto mb-1" />
-          <p className="text-xl font-bold text-gray-700">{drafts}</p>
-          <p className="text-[10px] text-gray-500">Drafts</p>
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+          <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400 mx-auto mb-1" />
+          <p className="text-xl font-bold text-gray-700 dark:text-gray-300">{drafts}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Drafts</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
           <AlertTriangle className="h-5 w-5 text-red-600 mx-auto mb-1" />
@@ -204,9 +204,9 @@ export default function DocumentRegisterPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-2.5">
+      <div className="flex items-center gap-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+          <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search documents..."
@@ -230,14 +230,14 @@ export default function DocumentRegisterPage() {
           <option value="">All Departments</option>
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <span className="ml-auto text-xs text-gray-400">{filtered.length} documents</span>
+        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">{filtered.length} documents</span>
       </div>
 
       {/* Document table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <table className="w-full text-xs">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
+            <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Doc Number</th>
               <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Title</th>
               <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Category</th>
@@ -249,7 +249,7 @@ export default function DocumentRegisterPage() {
               <th className="text-center py-2.5 px-3 font-semibold text-gray-600">View</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {filtered.map(doc => {
               const sc = statusConfig[doc.status];
               const overdue = doc.status === 'Approved' && isOverdue(doc.nextReviewDate);
@@ -258,11 +258,11 @@ export default function DocumentRegisterPage() {
               return (
                 <tr
                   key={doc.id}
-                  className={`hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
+                  className={`hover:bg-gray-50 dark:bg-gray-800 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
                   onClick={() => setSelectedDoc(isSelected ? null : doc)}
                 >
                   <td className="py-2.5 px-3 font-mono font-medium text-blue-700">{doc.docNumber}</td>
-                  <td className="py-2.5 px-3 text-gray-900 font-medium max-w-[250px] truncate">{doc.title}</td>
+                  <td className="py-2.5 px-3 text-gray-900 dark:text-gray-100 font-medium max-w-[250px] truncate">{doc.title}</td>
                   <td className="py-2.5 px-3">
                     <Badge variant="secondary" className="text-[9px]">{doc.category}</Badge>
                   </td>
@@ -271,16 +271,16 @@ export default function DocumentRegisterPage() {
                       {doc.status}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-center font-mono text-gray-500">{doc.currentRevision}</td>
+                  <td className="py-2.5 px-3 text-center font-mono text-gray-500 dark:text-gray-400">{doc.currentRevision}</td>
                   <td className="py-2.5 px-3 text-gray-600">{doc.owner}</td>
-                  <td className="py-2.5 px-3 font-mono text-gray-500">{doc.isoClause}</td>
+                  <td className="py-2.5 px-3 font-mono text-gray-500 dark:text-gray-400">{doc.isoClause}</td>
                   <td className="py-2.5 px-3">
-                    <span className={`font-mono ${overdue ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+                    <span className={`font-mono ${overdue ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
                       {overdue ? 'OVERDUE' : doc.nextReviewDate}
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-center">
-                    <Eye className="h-3.5 w-3.5 text-gray-400 inline-block" />
+                    <Eye className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500 inline-block" />
                   </td>
                 </tr>
               );
@@ -291,7 +291,7 @@ export default function DocumentRegisterPage() {
 
       {/* Detail panel */}
       {selectedDoc && (
-        <div className="bg-white border border-gray-200 rounded-lg p-5">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
               <div className="flex items-center gap-3 mb-1">
@@ -299,40 +299,40 @@ export default function DocumentRegisterPage() {
                 <span className={`text-[10px] font-medium rounded-full px-2 py-0.5 ${statusConfig[selectedDoc.status].bg} ${statusConfig[selectedDoc.status].text}`}>{selectedDoc.status}</span>
                 <Badge variant="secondary" className="text-[9px]">{selectedDoc.category}</Badge>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">{selectedDoc.title}</h3>
-              <p className="text-xs text-gray-500 mt-1">{selectedDoc.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedDoc.title}</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{selectedDoc.description}</p>
             </div>
-            <button onClick={() => setSelectedDoc(null)} className="text-xs text-gray-400 hover:text-gray-600">Close</button>
+            <button onClick={() => setSelectedDoc(null)} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600">Close</button>
           </div>
 
           <div className="grid grid-cols-4 gap-4 text-xs mb-4">
-            <div><span className="text-gray-500">Revision:</span> <span className="font-medium text-gray-900">{selectedDoc.currentRevision}</span></div>
-            <div><span className="text-gray-500">Revision Date:</span> <span className="font-medium text-gray-900">{selectedDoc.revisionDate}</span></div>
-            <div><span className="text-gray-500">Owner:</span> <span className="font-medium text-gray-900">{selectedDoc.owner}</span></div>
-            <div><span className="text-gray-500">Approver:</span> <span className="font-medium text-gray-900">{selectedDoc.approver}</span></div>
-            <div><span className="text-gray-500">Department:</span> <span className="font-medium text-gray-900">{selectedDoc.department}</span></div>
-            <div><span className="text-gray-500">ISO Clause:</span> <span className="font-mono font-medium text-gray-900">{selectedDoc.isoClause}</span></div>
-            <div><span className="text-gray-500">Next Review:</span> <span className={`font-medium ${isOverdue(selectedDoc.nextReviewDate) ? 'text-red-600' : 'text-gray-900'}`}>{selectedDoc.nextReviewDate}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Revision:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.currentRevision}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Revision Date:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.revisionDate}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Owner:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.owner}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Approver:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.approver}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Department:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.department}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">ISO Clause:</span> <span className="font-mono font-medium text-gray-900 dark:text-gray-100">{selectedDoc.isoClause}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Next Review:</span> <span className={`font-medium ${isOverdue(selectedDoc.nextReviewDate) ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>{selectedDoc.nextReviewDate}</span></div>
           </div>
 
           {/* Revision History */}
-          <h4 className="text-xs font-semibold text-gray-700 mb-2">Revision History</h4>
-          <div className="border border-gray-100 rounded-lg overflow-hidden">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Revision History</h4>
+          <div className="border border-gray-100 dark:border-gray-700 rounded-lg overflow-hidden">
             <table className="w-full text-[11px]">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Rev</th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Date</th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Author</th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Change Description</th>
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Rev</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Author</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Change Description</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {selectedDoc.revisionHistory.map((rev, i) => (
                   <tr key={i}>
-                    <td className="py-2 px-3 font-mono font-medium text-gray-700">{rev.rev}</td>
-                    <td className="py-2 px-3 text-gray-500">{rev.date}</td>
-                    <td className="py-2 px-3 text-gray-700">{rev.author}</td>
+                    <td className="py-2 px-3 font-mono font-medium text-gray-700 dark:text-gray-300">{rev.rev}</td>
+                    <td className="py-2 px-3 text-gray-500 dark:text-gray-400">{rev.date}</td>
+                    <td className="py-2 px-3 text-gray-700 dark:text-gray-300">{rev.author}</td>
                     <td className="py-2 px-3 text-gray-600">{rev.changes}</td>
                   </tr>
                 ))}

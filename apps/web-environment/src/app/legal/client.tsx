@@ -44,8 +44,8 @@ const COMPLIANCE_STATUSES = [
   { value: 'COMPLIANT', label: 'Compliant', color: 'bg-green-100 text-green-800', variant: 'success' as const },
   { value: 'PARTIALLY_COMPLIANT', label: 'Partially Compliant', color: 'bg-yellow-100 text-yellow-800', variant: 'warning' as const },
   { value: 'NON_COMPLIANT', label: 'Non-Compliant', color: 'bg-red-100 text-red-800', variant: 'danger' as const },
-  { value: 'NOT_ASSESSED', label: 'Not Assessed', color: 'bg-gray-100 text-gray-800', variant: 'secondary' as const },
-  { value: 'NOT_APPLICABLE', label: 'Not Applicable', color: 'bg-gray-100 text-gray-500', variant: 'outline' as const },
+  { value: 'NOT_ASSESSED', label: 'Not Assessed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800', variant: 'secondary' as const },
+  { value: 'NOT_APPLICABLE', label: 'Not Applicable', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500', variant: 'outline' as const },
 ] as const;
 
 const ASSESSMENT_METHODS = [
@@ -332,8 +332,8 @@ export default function LegalClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Legal Register</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Legal Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 14001 Clause 6.1.3 -- Compliance Obligations Register
             </p>
           </div>
@@ -350,7 +350,7 @@ export default function LegalClient() {
               <div className="text-center">
                 <Shield className="h-8 w-8 text-green-500 mx-auto mb-2" />
                 <p className="text-3xl font-bold">{counts.total}</p>
-                <p className="text-sm text-gray-500">Total Requirements</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Requirements</p>
               </div>
             </CardContent>
           </Card>
@@ -358,7 +358,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-green-600">{counts.compliant}</p>
-                <p className="text-sm text-gray-500">Compliant</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Compliant</p>
               </div>
             </CardContent>
           </Card>
@@ -366,7 +366,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-yellow-600">{counts.partiallyCompliant}</p>
-                <p className="text-sm text-gray-500">Partially Compliant</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Partially Compliant</p>
               </div>
             </CardContent>
           </Card>
@@ -374,7 +374,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-600">{counts.nonCompliant}</p>
-                <p className="text-sm text-gray-500">Non-Compliant</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Non-Compliant</p>
               </div>
             </CardContent>
           </Card>
@@ -384,11 +384,11 @@ export default function LegalClient() {
         {counts.total > 0 && (
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-700">Compliance Health</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Compliance Health</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4 mb-3">
-                <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden flex">
+                <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex">
                   {counts.compliant > 0 && (
                     <div
                       className="bg-green-500 h-full transition-all"
@@ -414,9 +414,9 @@ export default function LegalClient() {
                     />
                   )}
                 </div>
-                <span className="text-sm font-semibold text-gray-700">{compliancePercentage}%</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{compliancePercentage}%</span>
               </div>
-              <div className="flex gap-6 text-xs text-gray-500">
+              <div className="flex gap-6 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> Compliant ({counts.compliant})
                 </span>
@@ -437,19 +437,19 @@ export default function LegalClient() {
         {/* Filter Bar */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search legal requirements..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <select
             value={complianceFilter}
             onChange={e => setComplianceFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="ALL">All Compliance</option>
             {COMPLIANCE_STATUSES.map(s => (
@@ -459,7 +459,7 @@ export default function LegalClient() {
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="ALL">All Types</option>
             {OBLIGATION_TYPES.map(t => (
@@ -484,7 +484,7 @@ export default function LegalClient() {
                     <div className="flex-1">
                       {/* Top row: ref + compliance badge */}
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-gray-400">{record.referenceNumber}</span>
+                        <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{record.referenceNumber}</span>
                         <Badge variant={getComplianceBadgeVariant(record.complianceStatus)}>
                           {getComplianceLabel(record.complianceStatus)}
                         </Badge>
@@ -497,7 +497,7 @@ export default function LegalClient() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-semibold text-gray-900 mb-1">{record.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{record.title}</h3>
 
                       {/* Type + Jurisdiction badges */}
                       <div className="flex items-center gap-2 mb-2">
@@ -509,10 +509,10 @@ export default function LegalClient() {
                       </div>
 
                       {/* Description preview */}
-                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">{record.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{record.description}</p>
 
                       {/* Meta row */}
-                      <div className="flex items-center gap-4 text-xs text-gray-400 flex-wrap">
+                      <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
                         {record.regulatoryBody && (
                           <span>Regulatory Body: {record.regulatoryBody}</span>
                         )}
@@ -535,9 +535,9 @@ export default function LegalClient() {
             <Card>
               <CardContent className="py-16">
                 <div className="text-center">
-                  <Scale className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 font-medium">No legal requirements found</p>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <Scale className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">No legal requirements found</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                     Click Add Requirement to start building your compliance register
                   </p>
                   <Button variant="outline" className="mt-4" onClick={openModal}>
@@ -810,7 +810,7 @@ export default function LegalClient() {
                         onChange={e => updateForm('capaRequired', e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                       />
-                      <span className="text-sm text-gray-700">CAPA Required</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">CAPA Required</span>
                     </label>
                   </div>
                 </div>
@@ -909,57 +909,57 @@ export default function LegalClient() {
                 </div>
 
                 {aiGenerated && (
-                  <div className="border border-green-200 rounded-lg p-4 bg-white space-y-3">
+                  <div className="border border-green-200 rounded-lg p-4 bg-white dark:bg-gray-900 space-y-3">
                     <h4 className="font-medium text-green-800 flex items-center gap-2 text-sm">
                       <Sparkles className="h-4 w-4" /> AI Analysis Results
                     </h4>
                     <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                     {aiGenerated.keyObligations && (
                       <div>
-                        <Label className="text-xs text-gray-500">Key Obligations</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.keyObligations}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Key Obligations</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.keyObligations}</p>
                       </div>
                     )}
                     {aiGenerated.complianceChecklist && (
                       <div>
-                        <Label className="text-xs text-gray-500">Compliance Checklist</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.complianceChecklist}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Compliance Checklist</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.complianceChecklist}</p>
                       </div>
                     )}
                     {aiGenerated.gapAnalysis && (
                       <div>
-                        <Label className="text-xs text-gray-500">Gap Analysis</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.gapAnalysis}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Gap Analysis</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.gapAnalysis}</p>
                       </div>
                     )}
                     {aiGenerated.requiredActions && (
                       <div>
-                        <Label className="text-xs text-gray-500">Required Actions</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.requiredActions}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Required Actions</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.requiredActions}</p>
                       </div>
                     )}
                     {aiGenerated.evidenceRequired && (
                       <div>
-                        <Label className="text-xs text-gray-500">Evidence Required</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.evidenceRequired}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Evidence Required</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.evidenceRequired}</p>
                       </div>
                     )}
                     {aiGenerated.monitoring && (
                       <div>
-                        <Label className="text-xs text-gray-500">Monitoring Recommendations</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.monitoring}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Monitoring Recommendations</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.monitoring}</p>
                       </div>
                     )}
                     {aiGenerated.penalty && (
                       <div>
-                        <Label className="text-xs text-gray-500">Penalty Information</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.penalty}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Penalty Information</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.penalty}</p>
                       </div>
                     )}
                     {aiGenerated.recentChanges && (
                       <div>
-                        <Label className="text-xs text-gray-500">Recent Legislative Changes</Label>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiGenerated.recentChanges}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">Recent Legislative Changes</Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.recentChanges}</p>
                       </div>
                     )}
                   </div>

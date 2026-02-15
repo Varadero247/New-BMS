@@ -29,7 +29,7 @@ const COMPLIANCE_STATUSES = [
   { value: 'PARTIAL', label: 'Partial', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'NON_COMPLIANT', label: 'Non-Compliant', color: 'bg-red-100 text-red-800' },
   { value: 'UNDER_REVIEW', label: 'Under Review', color: 'bg-blue-100 text-blue-800' },
-  { value: 'NOT_ASSESSED', label: 'Not Assessed', color: 'bg-gray-100 text-gray-800' },
+  { value: 'NOT_ASSESSED', label: 'Not Assessed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800' },
 ] as const;
 
 const JURISDICTIONS = ['United Kingdom', 'England & Wales', 'Scotland', 'Northern Ireland', 'EU'] as const;
@@ -183,7 +183,7 @@ export default function LegalRegisterClient() {
 
   const getComplianceColor = (status: string) => {
     const s = COMPLIANCE_STATUSES.find(cs => cs.value === status);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const counts = {
@@ -201,8 +201,8 @@ export default function LegalRegisterClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Legal Register</h1>
-            <p className="text-gray-500 mt-1">OHS legislation and compliance obligations</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Legal Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">OHS legislation and compliance obligations</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -212,27 +212,27 @@ export default function LegalRegisterClient() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500">Total Requirements</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.COMPLIANT}</p><p className="text-sm text-gray-500">Compliant</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-yellow-600">{counts.PARTIAL}</p><p className="text-sm text-gray-500">Partial</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.NON_COMPLIANT}</p><p className="text-sm text-gray-500">Non-Compliant</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Requirements</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.COMPLIANT}</p><p className="text-sm text-gray-500 dark:text-gray-400">Compliant</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-yellow-600">{counts.PARTIAL}</p><p className="text-sm text-gray-500 dark:text-gray-400">Partial</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.NON_COMPLIANT}</p><p className="text-sm text-gray-500 dark:text-gray-400">Non-Compliant</p></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search requirements..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <select value={complianceFilter} onChange={e => setComplianceFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Compliance</option>
             {COMPLIANCE_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Categories</option>
             {LEGAL_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -262,18 +262,18 @@ export default function LegalRegisterClient() {
                       <TableCell className="font-mono text-xs">{req.referenceNumber}</TableCell>
                       <TableCell className="font-medium">{req.title}</TableCell>
                       <TableCell><Badge variant="outline">{req.category.replace(/_/g, ' ')}</Badge></TableCell>
-                      <TableCell className="text-sm text-gray-500">{req.jurisdiction || '-'}</TableCell>
+                      <TableCell className="text-sm text-gray-500 dark:text-gray-400">{req.jurisdiction || '-'}</TableCell>
                       <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${getComplianceColor(req.complianceStatus)}`}>{req.complianceStatus.replace(/_/g, ' ')}</span></TableCell>
                       <TableCell className="text-sm">{req.reviewDate ? new Date(req.reviewDate).toLocaleDateString() : '-'}</TableCell>
-                      <TableCell className="text-sm text-gray-500">{req.responsiblePerson || '-'}</TableCell>
+                      <TableCell className="text-sm text-gray-500 dark:text-gray-400">{req.responsiblePerson || '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             ) : (
               <div className="text-center py-12">
-                <Scale className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No legal requirements added yet</p>
+                <Scale className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No legal requirements added yet</p>
                 <Button variant="outline" className="mt-4" onClick={openModal}><Plus className="h-4 w-4 mr-2" />Add First Requirement</Button>
               </div>
             )}
@@ -286,7 +286,7 @@ export default function LegalRegisterClient() {
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
                   {s}
                 </button>
               ))}

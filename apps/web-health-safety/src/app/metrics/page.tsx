@@ -104,8 +104,8 @@ export default function MetricsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Safety Metrics</h1>
-          <p className="text-gray-500 mt-1">Key performance indicators for occupational health and safety</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Safety Metrics</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicators for occupational health and safety</p>
         </div>
 
         {/* Key Metrics */}
@@ -114,7 +114,7 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">LTIFR</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">LTIFR</p>
                   <p className="text-3xl font-bold">{metrics?.ltifr.toFixed(2)}</p>
                   <div className="flex items-center mt-1">
                     {(metrics?.ltifrTrend || 0) < 0 ? (
@@ -134,7 +134,7 @@ export default function MetricsPage() {
                   <Activity className="h-8 w-8 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-4">Lost Time Injury Frequency Rate (per million hours)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Lost Time Injury Frequency Rate (per million hours)</p>
             </CardContent>
           </Card>
 
@@ -142,7 +142,7 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">TRIR</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">TRIR</p>
                   <p className="text-3xl font-bold">{metrics?.trir.toFixed(2)}</p>
                   <div className="flex items-center mt-1">
                     {(metrics?.trirTrend || 0) < 0 ? (
@@ -162,7 +162,7 @@ export default function MetricsPage() {
                   <TrendingUp className="h-8 w-8 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-4">Total Recordable Incident Rate (per 200,000 hours)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Total Recordable Incident Rate (per 200,000 hours)</p>
             </CardContent>
           </Card>
 
@@ -170,14 +170,14 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Severity Rate</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Severity Rate</p>
                   <p className="text-3xl font-bold">{metrics?.severityRate.toFixed(1)}</p>
                 </div>
                 <div className="p-4 bg-yellow-100 rounded-full">
                   <Clock className="h-8 w-8 text-yellow-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-4">Average days lost per recordable incident</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Average days lost per recordable incident</p>
             </CardContent>
           </Card>
         </div>
@@ -187,31 +187,31 @@ export default function MetricsPage() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-2xl font-bold">{metrics?.totalIncidents}</p>
-              <p className="text-sm text-gray-500">Total Incidents</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-2xl font-bold text-red-600">{metrics?.lostTimeIncidents}</p>
-              <p className="text-sm text-gray-500">Lost Time Incidents</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Lost Time Incidents</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-2xl font-bold text-yellow-600">{metrics?.nearMisses}</p>
-              <p className="text-sm text-gray-500">Near Misses</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Near Misses</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-2xl font-bold">{(metrics?.hoursWorked || 0).toLocaleString()}</p>
-              <p className="text-sm text-gray-500">Hours Worked</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Hours Worked</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-2xl font-bold text-orange-600">{metrics?.daysLost}</p>
-              <p className="text-sm text-gray-500">Days Lost</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Days Lost</p>
             </CardContent>
           </Card>
         </div>
@@ -242,20 +242,20 @@ export default function MetricsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900">LTIFR</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">LTIFR</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Lost Time Injury Frequency Rate = (Lost Time Injuries × 1,000,000) ÷ Total Hours Worked
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">TRIR</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">TRIR</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Total Recordable Incident Rate = (Total Recordable Injuries × 200,000) ÷ Total Hours Worked
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">Severity Rate</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">Severity Rate</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Severity Rate = Total Days Lost ÷ Number of Recordable Incidents
                 </p>
               </div>

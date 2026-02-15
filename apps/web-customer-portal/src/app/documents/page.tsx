@@ -22,16 +22,16 @@ export default function DocumentsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <div><h1 className="text-3xl font-bold text-gray-900">Documents</h1><p className="text-gray-500 mt-1">Shared documents and files</p></div>
+          <div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Documents</h1><p className="text-gray-500 dark:text-gray-400 mt-1">Shared documents and files</p></div>
         </div>
-        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" /><input type="text" placeholder="Search documents..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
+        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search documents..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-teal-600" />Documents ({filtered.length})</CardTitle></CardHeader>
           <CardContent>
             {filtered.length > 0 ? (
-              <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b"><th className="text-left py-3 px-4 font-medium text-gray-500">Name</th><th className="text-left py-3 px-4 font-medium text-gray-500">Type</th><th className="text-left py-3 px-4 font-medium text-gray-500">Category</th><th className="text-left py-3 px-4 font-medium text-gray-500">Size</th><th className="text-left py-3 px-4 font-medium text-gray-500">Uploaded</th><th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th></tr></thead>
-              <tbody>{filtered.map(doc => (<tr key={doc.id} className="border-b hover:bg-gray-50"><td className="py-3 px-4 text-gray-900 font-medium">{doc.name}</td><td className="py-3 px-4 text-gray-600">{doc.type}</td><td className="py-3 px-4 text-gray-600">{doc.category}</td><td className="py-3 px-4 text-gray-600">{doc.size}</td><td className="py-3 px-4 text-gray-600">{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : '-'}</td><td className="py-3 px-4 text-right"><button className="text-gray-400 hover:text-teal-600"><Download className="h-4 w-4" /></button></td></tr>))}</tbody></table></div>
-            ) : (<div className="text-center py-12 text-gray-500"><FileText className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No documents found</p></div>)}
+              <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b"><th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th><th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th><th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th><th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Size</th><th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Uploaded</th><th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th></tr></thead>
+              <tbody>{filtered.map(doc => (<tr key={doc.id} className="border-b hover:bg-gray-50 dark:bg-gray-800"><td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{doc.name}</td><td className="py-3 px-4 text-gray-600">{doc.type}</td><td className="py-3 px-4 text-gray-600">{doc.category}</td><td className="py-3 px-4 text-gray-600">{doc.size}</td><td className="py-3 px-4 text-gray-600">{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : '-'}</td><td className="py-3 px-4 text-right"><button className="text-gray-400 dark:text-gray-500 hover:text-teal-600"><Download className="h-4 w-4" /></button></td></tr>))}</tbody></table></div>
+            ) : (<div className="text-center py-12 text-gray-500 dark:text-gray-400"><FileText className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No documents found</p></div>)}
           </CardContent>
         </Card>
       </div>

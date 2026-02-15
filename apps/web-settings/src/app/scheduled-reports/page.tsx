@@ -275,7 +275,7 @@ export default function ScheduledReportsPage() {
               </tr>
             ) : (
               schedules.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <tr key={s.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{s.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{getTypeLabel(s.reportType)}</td>
                   <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">{s.schedule}</td>

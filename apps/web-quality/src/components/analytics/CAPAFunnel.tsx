@@ -67,7 +67,7 @@ export function CAPAFunnel({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
         No CAPA data available
       </div>
     );
@@ -76,7 +76,7 @@ export function CAPAFunnel({
   return (
     <div className="w-full">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">{title}</h3>
       )}
 
       <div className="space-y-2">
@@ -118,7 +118,7 @@ export function CAPAFunnel({
                 {/* Conversion rate arrow */}
                 {showConversionRates && index < data.length - 1 && (
                   <div className="flex justify-center -my-1 relative z-10">
-                    <div className="bg-white px-2 py-0.5 rounded text-xs font-medium text-gray-600 border shadow-sm">
+                    <div className="bg-white dark:bg-gray-900 px-2 py-0.5 rounded text-xs font-medium text-gray-600 border shadow-sm">
                       ↓ {conversionRates[index].toFixed(0)}%
                     </div>
                   </div>
@@ -154,12 +154,12 @@ export function CAPAFunnel({
       {/* Average time by phase */}
       {data.some(d => d.averageDays !== undefined) && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Average Time per Phase</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Average Time per Phase</h4>
           <div className="flex gap-2 flex-wrap">
             {data.filter(d => d.averageDays !== undefined).map(item => (
               <div
                 key={item.phase}
-                className="bg-gray-100 rounded px-3 py-1 text-sm"
+                className="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 text-sm"
               >
                 <span className="text-gray-600">{phaseLabels[item.phase]?.split(':')[0] || item.phase}:</span>
                 <span className="font-medium ml-1">{item.averageDays}d</span>

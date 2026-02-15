@@ -237,7 +237,7 @@ export default function IncidentRegisterClient() {
 
   const getSeverityColor = (severity: string) => {
     const s = SEVERITIES.find(sv => sv.value === severity);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const statusCounts = {
@@ -255,8 +255,8 @@ export default function IncidentRegisterClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Incident Register</h1>
-            <p className="text-gray-500 mt-1">Track and manage workplace incidents</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Incident Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage workplace incidents</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -266,27 +266,27 @@ export default function IncidentRegisterClient() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{statusCounts.total}</p><p className="text-sm text-gray-500">Total Incidents</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{statusCounts.OPEN}</p><p className="text-sm text-gray-500">Open</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-yellow-600">{statusCounts.UNDER_INVESTIGATION}</p><p className="text-sm text-gray-500">Under Investigation</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{statusCounts.CLOSED}</p><p className="text-sm text-gray-500">Closed</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{statusCounts.total}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{statusCounts.OPEN}</p><p className="text-sm text-gray-500 dark:text-gray-400">Open</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-yellow-600">{statusCounts.UNDER_INVESTIGATION}</p><p className="text-sm text-gray-500 dark:text-gray-400">Under Investigation</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{statusCounts.CLOSED}</p><p className="text-sm text-gray-500 dark:text-gray-400">Closed</p></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search incidents..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Statuses</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Severities</option>
             {SEVERITIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
@@ -318,7 +318,7 @@ export default function IncidentRegisterClient() {
                       <TableCell className="font-medium">{inc.title}</TableCell>
                       <TableCell><Badge variant="outline">{inc.type.replace(/_/g, ' ')}</Badge></TableCell>
                       <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(inc.severity)}`}>{inc.severity}</span></TableCell>
-                      <TableCell className="text-sm text-gray-500">{inc.location || '-'}</TableCell>
+                      <TableCell className="text-sm text-gray-500 dark:text-gray-400">{inc.location || '-'}</TableCell>
                       <TableCell>
                         <Badge variant={inc.status === 'OPEN' ? 'destructive' : inc.status === 'CLOSED' ? 'secondary' : 'default'}>
                           {inc.status.replace(/_/g, ' ')}
@@ -330,8 +330,8 @@ export default function IncidentRegisterClient() {
               </Table>
             ) : (
               <div className="text-center py-12">
-                <FileWarning className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No incidents found</p>
+                <FileWarning className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No incidents found</p>
                 <Button variant="outline" className="mt-4" onClick={openModal}><Plus className="h-4 w-4 mr-2" />Report First Incident</Button>
               </div>
             )}
@@ -345,7 +345,7 @@ export default function IncidentRegisterClient() {
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
                   {s}
                 </button>
               ))}
@@ -543,7 +543,7 @@ export default function IncidentRegisterClient() {
                       <div>
                         <Label>Investigation Due Date</Label>
                         <Input type="date" value={form.investigationDueDate} onChange={e => updateForm('investigationDueDate', e.target.value)} />
-                        <p className="text-xs text-gray-500 mt-1">Auto-calculated based on severity if left blank</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Auto-calculated based on severity if left blank</p>
                       </div>
                     )}
                   </div>

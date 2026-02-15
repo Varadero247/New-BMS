@@ -53,7 +53,7 @@ const PPAP_STATUSES = [
 ] as const;
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_PROGRESS: 'bg-orange-100 text-orange-700',
   SUBMITTED: 'bg-blue-100 text-blue-700',
   APPROVED: 'bg-green-100 text-green-700',
@@ -305,7 +305,7 @@ export default function PpapClient() {
       case 'IN_PROGRESS':
         return <Clock className={`h-5 w-5 ${elementStatusColors[status]}`} />;
       case 'NOT_APPLICABLE':
-        return <span className="h-5 w-5 text-center text-gray-300 text-xs font-bold">N/A</span>;
+        return <span className="h-5 w-5 text-center text-gray-300 dark:text-gray-600 text-xs font-bold">N/A</span>;
       default:
         return <XCircle className={`h-5 w-5 ${elementStatusColors['NOT_STARTED']}`} />;
     }
@@ -321,8 +321,8 @@ export default function PpapClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">PPAP Submissions</h1>
-            <p className="text-gray-500 mt-1">Production Part Approval Process</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">PPAP Submissions</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Production Part Approval Process</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadPpaps} className="flex items-center gap-2">
@@ -342,7 +342,7 @@ export default function PpapClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total PPAPs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total PPAPs</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <FileCheck className="h-8 w-8 text-orange-500" />
@@ -353,7 +353,7 @@ export default function PpapClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-3xl font-bold text-orange-600">{stats.inProgress}</p>
                 </div>
                 <Clock className="h-8 w-8 text-orange-500" />
@@ -364,7 +364,7 @@ export default function PpapClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Submitted</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Submitted</p>
                   <p className="text-3xl font-bold text-blue-600">{stats.submitted}</p>
                 </div>
                 <Send className="h-8 w-8 text-blue-500" />
@@ -375,7 +375,7 @@ export default function PpapClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Approved</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
                   <p className="text-3xl font-bold text-green-600">{stats.approved}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -400,20 +400,20 @@ export default function PpapClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by part number, name, reference, customer..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {PPAP_STATUSES.map(s => (
@@ -422,7 +422,7 @@ export default function PpapClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Customer</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Customer</Label>
                 <Select value={customerFilter} onChange={(e) => setCustomerFilter(e.target.value)}>
                   <option value="all">All Customers</option>
                   {customers.map(c => (
@@ -455,7 +455,7 @@ export default function PpapClient() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Ref #</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Part Number</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Part Name</th>
@@ -470,20 +470,20 @@ export default function PpapClient() {
                     {filtered.map((ppap) => {
                       const completion = getCompletionPercent(ppap);
                       return (
-                        <tr key={ppap.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <tr key={ppap.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                           <td className="px-4 py-3">
-                            <span className="text-xs font-mono text-gray-500">
+                            <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                               {ppap.referenceNumber || '-'}
                             </span>
                           </td>
                           <td className="px-4 py-3 font-mono text-sm">{ppap.partNumber}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{ppap.partName}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{ppap.customer}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{ppap.partName}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{ppap.customer}</td>
                           <td className="px-4 py-3 text-center">
                             <Badge className="bg-orange-100 text-orange-700">L{ppap.submissionLevel}</Badge>
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <Badge className={statusColors[ppap.status] || 'bg-gray-100 text-gray-700'}>
+                            <Badge className={statusColors[ppap.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                               {ppap.status?.replace(/_/g, ' ')}
                             </Badge>
                           </td>
@@ -497,14 +497,14 @@ export default function PpapClient() {
                                   style={{ width: `${completion}%` }}
                                 />
                               </div>
-                              <span className="text-xs text-gray-500 w-10 text-right">{completion}%</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 w-10 text-right">{completion}%</span>
                             </div>
                           </td>
                           <td className="px-4 py-3 text-center">
                             <button
                               type="button"
                               onClick={() => openDetail(ppap)}
-                              className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                              className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                               title="View details"
                             >
                               <Eye className="h-4 w-4" />
@@ -518,9 +518,9 @@ export default function PpapClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FileCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No PPAPs found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <FileCheck className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No PPAPs found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || customerFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first PPAP submission.'}
@@ -641,37 +641,37 @@ export default function PpapClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedPpap.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500">{selectedPpap.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedPpap.referenceNumber}</span>
               )}
               <Badge className="bg-orange-100 text-orange-700">Level {selectedPpap.submissionLevel}</Badge>
-              <Badge className={statusColors[selectedPpap.status] || 'bg-gray-100'}>
+              <Badge className={statusColors[selectedPpap.status] || 'bg-gray-100 dark:bg-gray-800'}>
                 {selectedPpap.status?.replace(/_/g, ' ')}
               </Badge>
             </div>
 
             {/* Info Grid */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Part Number</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Number</p>
                   <p className="text-sm font-medium font-mono">{selectedPpap.partNumber}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Part Name</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Name</p>
                   <p className="text-sm font-medium">{selectedPpap.partName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Customer</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Customer</p>
                   <p className="text-sm font-medium">{selectedPpap.customer}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Created</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedPpap.createdAt)}</p>
                 </div>
               </div>
               {selectedPpap.pswSubmittedAt && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-500">PSW Submitted</p>
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">PSW Submitted</p>
                   <p className="text-sm font-medium text-green-600">{formatDate(selectedPpap.pswSubmittedAt)}</p>
                 </div>
               )}
@@ -679,9 +679,9 @@ export default function PpapClient() {
 
             {/* Readiness Progress */}
             {readiness && (
-              <div className="border border-gray-200 rounded-lg p-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Readiness</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Readiness</h3>
                   <span className={`text-sm font-bold ${readiness.ready ? 'text-green-600' : 'text-orange-600'}`}>
                     {readiness.percentComplete}% Complete ({readiness.completedElements}/{readiness.totalElements})
                   </span>
@@ -701,8 +701,8 @@ export default function PpapClient() {
             )}
 
             {/* 18 Elements Checklist */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">PPAP Elements (18)</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">PPAP Elements (18)</h3>
               <div className="space-y-1">
                 {PPAP_ELEMENTS.map((name, idx) => {
                   const elementNum = idx + 1;
@@ -711,10 +711,10 @@ export default function PpapClient() {
                   const isEditing = elementEditing === elementNum;
 
                   return (
-                    <div key={elementNum} className={`flex items-center gap-3 p-2 rounded ${isEditing ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50 hover:bg-gray-100'}`}>
-                      <span className="text-xs font-mono text-gray-400 w-6 text-right">{elementNum}</span>
+                    <div key={elementNum} className={`flex items-center gap-3 p-2 rounded ${isEditing ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100'}`}>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500 w-6 text-right">{elementNum}</span>
                       <div className="flex-shrink-0">{getStatusIcon(currentStatus)}</div>
-                      <span className="flex-1 text-sm text-gray-700">{name}</span>
+                      <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{name}</span>
 
                       {isEditing ? (
                         <div className="flex items-center gap-2">
@@ -733,7 +733,7 @@ export default function PpapClient() {
                             placeholder="Notes..."
                             value={elementForm.notes}
                             onChange={e => setElementForm({ ...elementForm, notes: e.target.value })}
-                            className="text-xs border border-gray-200 rounded px-2 py-1 w-32"
+                            className="text-xs border border-gray-200 dark:border-gray-700 rounded px-2 py-1 w-32"
                           />
                           <button
                             type="button"
@@ -746,7 +746,7 @@ export default function PpapClient() {
                           <button
                             type="button"
                             onClick={() => setElementEditing(null)}
-                            className="text-xs text-gray-500 hover:text-gray-700 px-1"
+                            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 px-1"
                           >
                             Cancel
                           </button>
@@ -754,13 +754,13 @@ export default function PpapClient() {
                       ) : (
                         <div className="flex items-center gap-2">
                           {element?.notes && (
-                            <span className="text-xs text-gray-400 max-w-[120px] truncate">{element.notes}</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 max-w-[120px] truncate">{element.notes}</span>
                           )}
                           <Badge className={`text-xs ${
                             currentStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
                             currentStatus === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-700' :
-                            currentStatus === 'NOT_APPLICABLE' ? 'bg-gray-100 text-gray-500' :
-                            'bg-gray-100 text-gray-500'
+                            currentStatus === 'NOT_APPLICABLE' ? 'bg-gray-100 dark:bg-gray-800 text-gray-500' :
+                            'bg-gray-100 dark:bg-gray-800 text-gray-500'
                           }`}>
                             {currentStatus.replace(/_/g, ' ')}
                           </Badge>
@@ -770,7 +770,7 @@ export default function PpapClient() {
                               setElementEditing(elementNum);
                               setElementForm({ status: currentStatus, notes: element?.notes || '' });
                             }}
-                            className="p-1 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                            className="p-1 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                             title="Edit element"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
@@ -785,9 +785,9 @@ export default function PpapClient() {
 
             {/* PSW Submission */}
             {selectedPpap.status !== 'APPROVED' && selectedPpap.status !== 'SUBMITTED' && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Part Submission Warrant</h3>
-                <p className="text-sm text-gray-500 mb-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Part Submission Warrant</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Submit the PSW to the customer for approval. Ensure all required elements are complete.
                 </p>
                 <Button

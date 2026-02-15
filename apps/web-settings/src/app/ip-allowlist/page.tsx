@@ -180,19 +180,19 @@ export default function IpAllowlistPage() {
           </thead>
           <tbody className="divide-y dark:divide-gray-700">
             {loading ? (
-              <tr><td colSpan={4} className="p-6 text-center text-gray-500">Loading...</td></tr>
+              <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
             ) : entries.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-6 text-center text-gray-500">
+                <td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">
                   No IP restrictions. All IPs are currently allowed (opt-in feature).
                 </td>
               </tr>
             ) : (
               entries.map(entry => (
-                <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                <tr key={entry.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
                   <td className="p-3 font-mono text-sm text-gray-900 dark:text-gray-100">{entry.cidr}</td>
                   <td className="p-3 text-gray-700 dark:text-gray-300">{entry.label}</td>
-                  <td className="p-3 text-gray-500 text-xs">{new Date(entry.createdAt).toLocaleString()}</td>
+                  <td className="p-3 text-gray-500 dark:text-gray-400 text-xs">{new Date(entry.createdAt).toLocaleString()}</td>
                   <td className="p-3">
                     <button
                       onClick={() => handleDelete(entry.id)}
@@ -214,7 +214,7 @@ export default function IpAllowlistPage() {
         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
           <p>IP allowlisting is an opt-in feature. When no entries exist, all IPs are allowed.</p>
           <p>Once you add the first entry, only matching IPs can access the API.</p>
-          <p>Supports both single IPs (e.g. <code className="bg-white dark:bg-gray-700 px-1 rounded">192.168.1.1/32</code>) and CIDR ranges (e.g. <code className="bg-white dark:bg-gray-700 px-1 rounded">10.0.0.0/8</code>).</p>
+          <p>Supports both single IPs (e.g. <code className="bg-white dark:bg-gray-900 px-1 rounded">192.168.1.1/32</code>) and CIDR ranges (e.g. <code className="bg-white dark:bg-gray-900 px-1 rounded">10.0.0.0/8</code>).</p>
         </div>
       </div>
 
@@ -230,7 +230,7 @@ export default function IpAllowlistPage() {
                   value={cidr}
                   onChange={e => setCidr(e.target.value)}
                   placeholder="e.g. 192.168.1.0/24 or 10.0.0.1"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
@@ -239,7 +239,7 @@ export default function IpAllowlistPage() {
                   value={label}
                   onChange={e => setLabel(e.target.value)}
                   placeholder="e.g. Office Network"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">

@@ -29,7 +29,7 @@ interface TaxReturn {
 }
 
 const returnStatusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   PREPARED: 'bg-blue-100 text-blue-700',
   FILED: 'bg-green-100 text-green-700',
   PAID: 'bg-emerald-100 text-emerald-700',
@@ -151,8 +151,8 @@ export default function TaxPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Tax Management</h1>
-          <p className="text-gray-500 mt-1">Manage tax rates and returns</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Tax Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage tax rates and returns</p>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
@@ -173,30 +173,30 @@ export default function TaxPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Rate (%)</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Rate (%)</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
                     </tr>
                   </thead>
                   <tbody>
                     {taxRates.map((rate) => (
-                      <tr key={rate.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{rate.code}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{rate.name}</td>
+                      <tr key={rate.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{rate.code}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{rate.name}</td>
                         <td className="py-3 px-4"><Badge className="bg-indigo-100 text-indigo-700">{rate.type.replace('_', ' ')}</Badge></td>
                         <td className="py-3 px-4 text-right font-medium">{rate.rate}%</td>
-                        <td className="py-3 px-4"><Badge className={rate.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}>{rate.isActive ? 'Active' : 'Inactive'}</Badge></td>
-                        <td className="py-3 px-4 text-gray-500">{rate.description || '-'}</td>
+                        <td className="py-3 px-4"><Badge className={rate.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>{rate.isActive ? 'Active' : 'Inactive'}</Badge></td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{rate.description || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500"><Calculator className="h-10 w-10 mx-auto mb-3 opacity-50" /><p>No tax rates configured</p></div>
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400"><Calculator className="h-10 w-10 mx-auto mb-3 opacity-50" /><p>No tax rates configured</p></div>
             )}
           </CardContent>
         </Card>
@@ -217,26 +217,26 @@ export default function TaxPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Period</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Date Range</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Tax Collected</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Tax Paid</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Net Tax</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Due Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Period</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date Range</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Tax Collected</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Tax Paid</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Net Tax</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {taxReturns.map((ret) => (
-                      <tr key={ret.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{ret.period}</td>
+                      <tr key={ret.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{ret.period}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(ret.startDate).toLocaleDateString()} - {new Date(ret.endDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-right font-medium text-green-600">{formatCurrency(ret.taxCollected)}</td>
                         <td className="py-3 px-4 text-right font-medium text-red-600">{formatCurrency(ret.taxPaid)}</td>
                         <td className={`py-3 px-4 text-right font-bold ${ret.netTax >= 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(ret.netTax)}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(ret.dueDate).toLocaleDateString()}</td>
-                        <td className="py-3 px-4"><Badge className={returnStatusColors[ret.status] || 'bg-gray-100 text-gray-700'}>{ret.status}</Badge></td>
+                        <td className="py-3 px-4"><Badge className={returnStatusColors[ret.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{ret.status}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           {(ret.status === 'DRAFT' || ret.status === 'PREPARED') && (
                             <button onClick={() => handleFileReturn(ret.id)} className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200">File</button>
@@ -248,7 +248,7 @@ export default function TaxPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500"><FileText className="h-10 w-10 mx-auto mb-3 opacity-50" /><p>No tax returns</p></div>
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400"><FileText className="h-10 w-10 mx-auto mb-3 opacity-50" /><p>No tax returns</p></div>
             )}
           </CardContent>
         </Card>

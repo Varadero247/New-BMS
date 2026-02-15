@@ -105,12 +105,12 @@ export default function SchedulesPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8 bg-gray-50">
+      <main className="flex-1 p-8 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Schedules</h1>
-              <p className="text-gray-500 mt-1">Service scheduling and calendar management</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Schedules</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Service scheduling and calendar management</p>
             </div>
             <button onClick={openCreate} className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 flex items-center gap-2 font-medium">
               <Plus className="h-5 w-5" /> New Schedule
@@ -129,7 +129,7 @@ export default function SchedulesPage() {
                 <Card key={s.label} className={`border ${s.border}`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div><p className="text-xs text-gray-500">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
+                      <div><p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
                       <div className={`p-2 rounded-lg ${s.bg}`}><Icon className={`h-5 w-5 ${s.color}`} /></div>
                     </div>
                   </CardContent>
@@ -140,7 +140,7 @@ export default function SchedulesPage() {
 
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search schedules..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
@@ -162,7 +162,7 @@ export default function SchedulesPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
+                      <tr className="border-b bg-gray-50 dark:bg-gray-800">
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Job / Title</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Technician</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Date</th>
@@ -176,14 +176,14 @@ export default function SchedulesPage() {
                     <tbody>
                       {filtered.map(item => (
                         <tr key={item.id} className="border-b hover:bg-sky-50 transition-colors">
-                          <td className="py-3 px-4 font-medium text-gray-900">{item.title || item.jobName || '-'}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.title || item.jobName || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.technicianName || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.scheduledDate ? new Date(item.scheduledDate).toLocaleDateString() : '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.scheduledTime || item.timeSlot || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.type || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.recurrence || '-'}</td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 text-gray-600'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
                               {item.status?.replace('_', ' ') || '-'}
                             </span>
                           </td>
@@ -199,7 +199,7 @@ export default function SchedulesPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-400">
+                <div className="text-center py-16 text-gray-400 dark:text-gray-500">
                   <Calendar className="h-12 w-12 mx-auto mb-4 opacity-40" />
                   <p className="font-medium">No schedules found</p>
                   <p className="text-sm mt-1">Create your first schedule to get started</p>
@@ -215,60 +215,60 @@ export default function SchedulesPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title / Job Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title / Job Name *</label>
               <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. Quarterly HVAC Inspection" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Technician</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Technician</label>
               <input value={form.technicianName} onChange={e => setForm(f => ({ ...f, technicianName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Assigned technician" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
               <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['PREVENTIVE', 'REACTIVE', 'INSPECTION', 'INSTALLATION', 'EMERGENCY'].map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
               <input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
               <input type="time" value={form.scheduledTime} onChange={e => setForm(f => ({ ...f, scheduledTime: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (hrs)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (hrs)</label>
               <input type="number" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="0" min="0" step="0.5" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Recurrence</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recurrence</label>
               <select value={form.recurrence} onChange={e => setForm(f => ({ ...f, recurrence: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY'].map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'].map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
               <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Additional notes..." />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50">
             {saving ? 'Saving...' : editItem ? 'Update Schedule' : 'Create Schedule'}
           </button>
@@ -278,7 +278,7 @@ export default function SchedulesPage() {
       <Modal isOpen={!!deleteItem} onClose={() => setDeleteItem(null)} title="Delete Schedule" size="sm">
         <p className="text-sm text-gray-600">Delete <span className="font-semibold">{deleteItem?.title || deleteItem?.jobName}</span>? This action cannot be undone.</p>
         <ModalFooter>
-          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </ModalFooter>
       </Modal>

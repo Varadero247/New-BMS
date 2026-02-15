@@ -55,7 +55,7 @@ const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
   ON_HOLD: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-blue-100 text-blue-800',
-  CANCELLED: 'bg-gray-100 text-gray-600',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const SAFETY_CLASS_COLORS: Record<string, string> = {
@@ -65,7 +65,7 @@ const SAFETY_CLASS_COLORS: Record<string, string> = {
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
-  COSMETIC: 'bg-gray-100 text-gray-800',
+  COSMETIC: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   MINOR: 'bg-yellow-100 text-yellow-800',
   MAJOR: 'bg-orange-100 text-orange-800',
   CRITICAL: 'bg-red-100 text-red-800',
@@ -75,12 +75,12 @@ const ANOMALY_STATUS_COLORS: Record<string, string> = {
   OPEN: 'bg-red-100 text-red-800',
   INVESTIGATING: 'bg-yellow-100 text-yellow-800',
   RESOLVED: 'bg-green-100 text-green-800',
-  CLOSED: 'bg-gray-100 text-gray-600',
-  WONT_FIX: 'bg-gray-100 text-gray-600',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
+  WONT_FIX: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const PHASE_DOC_STATUS_COLORS: Record<string, string> = {
-  NOT_STARTED: 'bg-gray-100 text-gray-600',
+  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   IN_PROGRESS: 'bg-blue-100 text-blue-800',
   REVIEW: 'bg-yellow-100 text-yellow-800',
   APPROVED: 'bg-green-100 text-green-800',
@@ -175,17 +175,17 @@ export default function SoftwareValidationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Software Validation</h1>
-          <p className="text-sm text-gray-500 mt-1">IEC 62304 Software Life Cycle Management</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Software Validation</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">IEC 62304 Software Life Cycle Management</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}><Plus className="h-4 w-4 mr-2" /> New Project</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-teal-100 rounded-lg"><Code className="h-5 w-5 text-teal-600" /></div><div><p className="text-sm text-gray-500">Total Projects</p><p className="text-2xl font-bold">{projects.length}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Code className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold">{activeProjects}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-red-100 rounded-lg"><Bug className="h-5 w-5 text-red-600" /></div><div><p className="text-sm text-gray-500">Class C (High Risk)</p><p className="text-2xl font-bold">{classCProjects}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Package className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500">SOUP Items</p><p className="text-2xl font-bold">{selectedProject?.soupItems?.length ?? '-'}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-teal-100 rounded-lg"><Code className="h-5 w-5 text-teal-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p><p className="text-2xl font-bold">{projects.length}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Code className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold">{activeProjects}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-red-100 rounded-lg"><Bug className="h-5 w-5 text-red-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Class C (High Risk)</p><p className="text-2xl font-bold">{classCProjects}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Package className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">SOUP Items</p><p className="text-2xl font-bold">{selectedProject?.soupItems?.length ?? '-'}</p></div></div></CardContent></Card>
       </div>
 
       {selectedProject ? (
@@ -195,9 +195,9 @@ export default function SoftwareValidationPage() {
               <div>
                 <CardTitle>{selectedProject.title}</CardTitle>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-gray-500 font-mono">{selectedProject.refNumber}</span>
-                  <Badge className={SAFETY_CLASS_COLORS[selectedProject.safetyClass] || 'bg-gray-100'}>{selectedProject.safetyClass.replace('_', ' ')}</Badge>
-                  <Badge className={STATUS_COLORS[selectedProject.status] || 'bg-gray-100'}>{selectedProject.status}</Badge>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 font-mono">{selectedProject.refNumber}</span>
+                  <Badge className={SAFETY_CLASS_COLORS[selectedProject.safetyClass] || 'bg-gray-100 dark:bg-gray-800'}>{selectedProject.safetyClass.replace('_', ' ')}</Badge>
+                  <Badge className={STATUS_COLORS[selectedProject.status] || 'bg-gray-100 dark:bg-gray-800'}>{selectedProject.status}</Badge>
                 </div>
               </div>
               <Button variant="outline" onClick={() => setSelectedProject(null)}>Back to List</Button>
@@ -205,40 +205,40 @@ export default function SoftwareValidationPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 border-b pb-2 mb-4">
-              <button onClick={() => setActiveTab('lifecycle')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'lifecycle' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Lifecycle Phases</button>
-              <button onClick={() => setActiveTab('soup')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'soup' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>SOUP Items</button>
-              <button onClick={() => setActiveTab('anomalies')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'anomalies' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Anomalies</button>
+              <button onClick={() => setActiveTab('lifecycle')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'lifecycle' ? 'bg-teal-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Lifecycle Phases</button>
+              <button onClick={() => setActiveTab('soup')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'soup' ? 'bg-teal-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>SOUP Items</button>
+              <button onClick={() => setActiveTab('anomalies')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'anomalies' ? 'bg-teal-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Anomalies</button>
             </div>
 
             {activeTab === 'lifecycle' && (
               <div>
-                <div className="flex items-center justify-center gap-1 py-4 bg-gray-50 rounded-lg overflow-x-auto mb-4">
+                <div className="flex items-center justify-center gap-1 py-4 bg-gray-50 dark:bg-gray-800 rounded-lg overflow-x-auto mb-4">
                   {PHASE_ORDER.map((phase, i) => {
                     const doc = (selectedProject.phases || []).find(p => p.phase === phase);
                     const isCurrent = selectedProject.currentPhase === phase;
                     return (
                       <div key={phase} className="flex items-center gap-1">
-                        <div className={`px-3 py-2 rounded text-xs font-medium text-center min-w-[90px] ${isCurrent ? 'ring-2 ring-teal-400 bg-teal-100 text-teal-800' : doc?.status === 'APPROVED' ? 'bg-green-100 text-green-800' : doc?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' : 'bg-white text-gray-500 border'}`}>
+                        <div className={`px-3 py-2 rounded text-xs font-medium text-center min-w-[90px] ${isCurrent ? 'ring-2 ring-teal-400 bg-teal-100 text-teal-800' : doc?.status === 'APPROVED' ? 'bg-green-100 text-green-800' : doc?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' : 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 border'}`}>
                           <div>{PHASE_LABELS[phase] || phase}</div>
                           {doc && <div className="mt-1 text-[10px] opacity-70">{doc.status.replace(/_/g, ' ')}</div>}
                         </div>
-                        {i < PHASE_ORDER.length - 1 && <ArrowRight className="h-3 w-3 text-gray-300 flex-shrink-0" />}
+                        {i < PHASE_ORDER.length - 1 && <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600 flex-shrink-0" />}
                       </div>
                     );
                   })}
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Phase</th><th className="pb-2 pr-4">Document Ref</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Reviewed By</th></tr></thead>
+                    <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Phase</th><th className="pb-2 pr-4">Document Ref</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Reviewed By</th></tr></thead>
                     <tbody>
                       {PHASE_ORDER.map(phase => {
                         const doc = (selectedProject.phases || []).find(p => p.phase === phase);
                         return (
-                          <tr key={phase} className="border-b hover:bg-gray-50">
+                          <tr key={phase} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                             <td className="py-3 pr-4 font-medium">{PHASE_LABELS[phase]}</td>
                             <td className="py-3 pr-4 font-mono text-xs">{doc?.documentRef || '-'}</td>
-                            <td className="py-3 pr-4"><Badge className={PHASE_DOC_STATUS_COLORS[doc?.status || 'NOT_STARTED'] || 'bg-gray-100'}>{(doc?.status || 'NOT_STARTED').replace(/_/g, ' ')}</Badge></td>
-                            <td className="py-3 text-gray-500">{doc?.reviewedBy || '-'}</td>
+                            <td className="py-3 pr-4"><Badge className={PHASE_DOC_STATUS_COLORS[doc?.status || 'NOT_STARTED'] || 'bg-gray-100 dark:bg-gray-800'}>{(doc?.status || 'NOT_STARTED').replace(/_/g, ' ')}</Badge></td>
+                            <td className="py-3 text-gray-500 dark:text-gray-400">{doc?.reviewedBy || '-'}</td>
                           </tr>
                         );
                       })}
@@ -253,18 +253,18 @@ export default function SoftwareValidationPage() {
                 <div className="flex justify-end mb-4">
                   <Button onClick={() => setShowSoupModal(true)}><Plus className="h-4 w-4 mr-2" /> Add SOUP Item</Button>
                 </div>
-                {(selectedProject.soupItems || []).length === 0 ? <p className="text-gray-500 text-center py-8">No SOUP items registered.</p> : (
+                {(selectedProject.soupItems || []).length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No SOUP items registered.</p> : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Vendor</th><th className="pb-2 pr-4">Version</th><th className="pb-2 pr-4">Risk Acceptable</th><th className="pb-2">Verified</th></tr></thead>
+                      <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Vendor</th><th className="pb-2 pr-4">Version</th><th className="pb-2 pr-4">Risk Acceptable</th><th className="pb-2">Verified</th></tr></thead>
                       <tbody>
                         {(selectedProject.soupItems || []).map(item => (
-                          <tr key={item.id} className="border-b hover:bg-gray-50">
+                          <tr key={item.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                             <td className="py-3 pr-4 font-medium">{item.title}</td>
                             <td className="py-3 pr-4">{item.vendor || '-'}</td>
                             <td className="py-3 pr-4 font-mono text-xs">{item.version}</td>
                             <td className="py-3 pr-4"><Badge className={item.riskAcceptable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>{item.riskAcceptable ? 'Yes' : 'No'}</Badge></td>
-                            <td className="py-3 text-gray-500">{item.verifiedDate ? new Date(item.verifiedDate).toLocaleDateString() : '-'}</td>
+                            <td className="py-3 text-gray-500 dark:text-gray-400">{item.verifiedDate ? new Date(item.verifiedDate).toLocaleDateString() : '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -279,18 +279,18 @@ export default function SoftwareValidationPage() {
                 <div className="flex justify-end mb-4">
                   <Button onClick={() => setShowAnomalyModal(true)}><Bug className="h-4 w-4 mr-2" /> Report Anomaly</Button>
                 </div>
-                {(selectedProject.anomalies || []).length === 0 ? <p className="text-gray-500 text-center py-8">No anomalies reported.</p> : (
+                {(selectedProject.anomalies || []).length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No anomalies reported.</p> : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Severity</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
+                      <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Severity</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
                       <tbody>
                         {(selectedProject.anomalies || []).map(a => (
-                          <tr key={a.id} className="border-b hover:bg-gray-50">
+                          <tr key={a.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                             <td className="py-3 pr-4 font-mono text-xs">{a.refNumber}</td>
                             <td className="py-3 pr-4 font-medium">{a.title}</td>
-                            <td className="py-3 pr-4"><Badge className={SEVERITY_COLORS[a.severity] || 'bg-gray-100'}>{a.severity}</Badge></td>
-                            <td className="py-3 pr-4"><Badge className={ANOMALY_STATUS_COLORS[a.status] || 'bg-gray-100'}>{a.status.replace(/_/g, ' ')}</Badge></td>
-                            <td className="py-3 text-gray-500">{new Date(a.createdAt).toLocaleDateString()}</td>
+                            <td className="py-3 pr-4"><Badge className={SEVERITY_COLORS[a.severity] || 'bg-gray-100 dark:bg-gray-800'}>{a.severity}</Badge></td>
+                            <td className="py-3 pr-4"><Badge className={ANOMALY_STATUS_COLORS[a.status] || 'bg-gray-100 dark:bg-gray-800'}>{a.status.replace(/_/g, ' ')}</Badge></td>
+                            <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(a.createdAt).toLocaleDateString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -305,19 +305,19 @@ export default function SoftwareValidationPage() {
         <Card>
           <CardHeader><CardTitle>Software Projects</CardTitle></CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : projects.length === 0 ? <p className="text-gray-500 text-center py-8">No software projects found.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : projects.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No software projects found.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Safety Class</th><th className="pb-2 pr-4">Phase</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
+                  <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Safety Class</th><th className="pb-2 pr-4">Phase</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
                   <tbody>
                     {projects.map(p => (
-                      <tr key={p.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => handleSelectProject(p.id)}>
+                      <tr key={p.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => handleSelectProject(p.id)}>
                         <td className="py-3 pr-4 font-mono text-xs">{p.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{p.title}</td>
-                        <td className="py-3 pr-4"><Badge className={SAFETY_CLASS_COLORS[p.safetyClass] || 'bg-gray-100'}>{p.safetyClass.replace('_', ' ')}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={SAFETY_CLASS_COLORS[p.safetyClass] || 'bg-gray-100 dark:bg-gray-800'}>{p.safetyClass.replace('_', ' ')}</Badge></td>
                         <td className="py-3 pr-4 text-xs">{PHASE_LABELS[p.currentPhase] || p.currentPhase}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[p.status] || 'bg-gray-100'}>{p.status}</Badge></td>
-                        <td className="py-3 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[p.status] || 'bg-gray-100 dark:bg-gray-800'}>{p.status}</Badge></td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>

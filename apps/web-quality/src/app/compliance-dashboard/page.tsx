@@ -165,7 +165,7 @@ export default function ComplianceDashboardPage() {
           <CardContent className="p-6 flex flex-col items-center">
             <div className="relative h-32 w-32">
               <svg className="h-32 w-32 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.915" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200 dark:text-gray-700" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200 dark:text-gray-300" />
                 <circle cx="18" cy="18" r="15.915" fill="none" stroke="currentColor" strokeWidth="3"
                   className="text-brand-600" strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
               </svg>

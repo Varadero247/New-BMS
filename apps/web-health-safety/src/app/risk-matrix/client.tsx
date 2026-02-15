@@ -325,7 +325,7 @@ export default function RiskMatrixClient() {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {/* Total Risks */}
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-slate-400">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 border-l-4 border-slate-400">
             <p className="text-sm font-medium text-slate-600 mb-1">Total Risks</p>
             <p className="text-3xl font-bold text-slate-900">{mockRisks.length}</p>
           </div>
@@ -357,7 +357,7 @@ export default function RiskMatrixClient() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Risk Matrix */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-900">Risk Assessment Matrix</h2>
               <div className="flex items-center gap-4">
@@ -395,7 +395,7 @@ export default function RiskMatrixClient() {
                   setSelectedCategory(e.target.value || null);
                   setSelectedCell(null);
                 }}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -514,7 +514,7 @@ export default function RiskMatrixClient() {
           {/* Side Panel - Selected Cell or Risk Details */}
           <div className="lg:col-span-1">
             {selectedRisk ? (
-              <div className="bg-white rounded-lg shadow p-6 sticky top-8">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 sticky top-8">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-bold text-slate-900 pr-2">{selectedRisk.title}</h3>
                   <button
@@ -571,7 +571,7 @@ export default function RiskMatrixClient() {
                 </div>
               </div>
             ) : selectedCell ? (
-              <div className="bg-white rounded-lg shadow p-6 sticky top-8">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 sticky top-8">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-bold text-slate-900">
                     {likelihoodLevels[selectedCell.likelihood - 1]} × {severityLevels[selectedCell.severity - 1]}

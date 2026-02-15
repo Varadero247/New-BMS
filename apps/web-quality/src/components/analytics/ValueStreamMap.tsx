@@ -57,7 +57,7 @@ export function ValueStreamMap({
 
   if (steps.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
         No process steps defined
       </div>
     );
@@ -66,7 +66,7 @@ export function ValueStreamMap({
   return (
     <div className="w-full space-y-6">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">{title}</h3>
       )}
 
       {/* Key Metrics */}
@@ -106,7 +106,7 @@ export function ValueStreamMap({
 
           {/* Arrow */}
           <div className="flex items-center self-center">
-            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M5 12h14m-4-4l4 4-4 4" stroke="currentColor" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
@@ -158,7 +158,7 @@ export function ValueStreamMap({
                   <div className="p-2 text-xs space-y-1">
                     <div className="flex justify-between">
                       <span className="text-gray-600">C/T:</span>
-                      <span className={`font-medium ${exceedsTakt ? 'text-red-600' : 'text-gray-900'}`}>
+                      <span className={`font-medium ${exceedsTakt ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
                         {step.cycleTime}m
                       </span>
                     </div>
@@ -195,7 +195,7 @@ export function ValueStreamMap({
                 {/* Arrow to next */}
                 {index < steps.length - 1 && (
                   <div className="flex items-center self-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M5 12h14m-4-4l4 4-4 4" stroke="currentColor" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
@@ -206,7 +206,7 @@ export function ValueStreamMap({
 
           {/* Arrow to customer */}
           <div className="flex items-center self-center">
-            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M5 12h14m-4-4l4 4-4 4" stroke="currentColor" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
@@ -229,8 +229,8 @@ export function ValueStreamMap({
       </div>
 
       {/* Timeline */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Timeline Analysis</h4>
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Timeline Analysis</h4>
         <div className="space-y-2">
           {/* Value-added time bar */}
           <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export function ValueStreamMap({
           <span>VA (Value Added)</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 rounded bg-gray-100 border border-gray-400" />
+          <div className="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800 border border-gray-400" />
           <span>NVA (Non-Value Added)</span>
         </div>
       </div>

@@ -91,8 +91,8 @@ export default function MetricsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Quality Metrics</h1>
-          <p className="text-gray-500 mt-1">Key performance indicators for quality management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Metrics</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicators for quality management</p>
         </div>
 
         {/* Key Metrics */}
@@ -101,14 +101,14 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">COPQ</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">COPQ</p>
                   <p className="text-3xl font-bold">${data.copq.toLocaleString()}</p>
                 </div>
                 <div className="p-4 bg-red-100 rounded-full">
                   <DollarSign className="h-8 w-8 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Cost of Poor Quality (Monthly)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Cost of Poor Quality (Monthly)</p>
             </CardContent>
           </Card>
 
@@ -116,14 +116,14 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">DPMO</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">DPMO</p>
                   <p className="text-3xl font-bold">{data.dpmo.toLocaleString()}</p>
                 </div>
                 <div className="p-4 bg-orange-100 rounded-full">
                   <AlertOctagon className="h-8 w-8 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Defects Per Million Opportunities</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Defects Per Million Opportunities</p>
             </CardContent>
           </Card>
 
@@ -131,14 +131,14 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Sigma Level</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Sigma Level</p>
                   <p className="text-3xl font-bold">{data.sigma.toFixed(1)}σ</p>
                 </div>
                 <div className="p-4 bg-purple-100 rounded-full">
                   <TrendingUp className="h-8 w-8 text-purple-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Process Capability</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Process Capability</p>
             </CardContent>
           </Card>
 
@@ -146,14 +146,14 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">First Pass Yield</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">First Pass Yield</p>
                   <p className="text-3xl font-bold">{data.fpy.toFixed(1)}%</p>
                 </div>
                 <div className="p-4 bg-green-100 rounded-full">
                   <Award className="h-8 w-8 text-green-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Right First Time</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Right First Time</p>
             </CardContent>
           </Card>
         </div>
@@ -164,9 +164,9 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Customer Complaints</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Customer Complaints</p>
                   <p className="text-2xl font-bold text-purple-600">{data.customerComplaints}</p>
-                  <p className="text-xs text-gray-400">This month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">This month</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
                   <Target className="h-6 w-6 text-purple-600" />
@@ -179,9 +179,9 @@ export default function MetricsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Nonconformances</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Nonconformances</p>
                   <p className="text-2xl font-bold text-yellow-600">{data.ncsThisMonth}</p>
-                  <p className="text-xs text-gray-400">This month</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">This month</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <AlertOctagon className="h-6 w-6 text-yellow-600" />
@@ -251,26 +251,26 @@ export default function MetricsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900">COPQ (Cost of Poor Quality)</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">COPQ (Cost of Poor Quality)</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Total cost associated with producing defective products, including prevention, appraisal, and failure costs.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">DPMO (Defects Per Million Opportunities)</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">DPMO (Defects Per Million Opportunities)</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Number of defects per million opportunities for defects. Lower is better.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">Sigma Level</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">Sigma Level</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Statistical measure of process capability. 6σ = 3.4 DPMO (world-class).
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">First Pass Yield (FPY)</h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">First Pass Yield (FPY)</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Percentage of units that pass inspection without rework or defects.
                 </p>
               </div>

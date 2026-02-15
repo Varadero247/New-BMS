@@ -29,7 +29,7 @@ const applicants: Applicant[] = [
 ];
 
 const stageConfig: Record<string, { label: string; color: string; step: number }> = {
-  applied: { label: 'Applied', color: 'bg-gray-100 text-gray-600', step: 1 },
+  applied: { label: 'Applied', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', step: 1 },
   screening: { label: 'Screening', color: 'bg-blue-100 text-blue-700', step: 2 },
   'interview-1': { label: 'Interview 1', color: 'bg-indigo-100 text-indigo-700', step: 3 },
   'interview-2': { label: 'Interview 2', color: 'bg-purple-100 text-purple-700', step: 4 },
@@ -61,32 +61,32 @@ export default function ApplicantsClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Applicant Tracking</h1>
-        <p className="text-sm text-gray-500 mt-1">Recruitment pipeline and candidate management</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Applicant Tracking</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Recruitment pipeline and candidate management</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Applicants</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{applicants.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Applicants</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{applicants.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Active Pipeline</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active Pipeline</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{activeApplicants}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Hired</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Hired</p>
           <p className="text-3xl font-bold text-emerald-700 mt-1">{applicants.filter((a) => a.stage === 'hired').length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Positions</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{positions.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Positions</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{positions.length}</p>
         </div>
       </div>
 
       {/* Pipeline funnel */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <p className="text-xs font-semibold text-gray-700 mb-3">Pipeline Stages</p>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">Pipeline Stages</p>
         <div className="flex items-center gap-1">
           {stages.map((stage, i) => {
             const stageKey = Object.keys(stageConfig).find((k) => stageConfig[k].label === stage) || '';
@@ -96,7 +96,7 @@ export default function ApplicantsClient() {
                 <div className={`h-8 rounded flex items-center justify-center text-xs font-bold text-white ${count > 0 ? 'bg-blue-500' : 'bg-gray-300'}`}>
                   {count}
                 </div>
-                <p className="text-[10px] text-gray-500 mt-1">{stage}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">{stage}</p>
               </div>
             );
           })}
@@ -105,7 +105,7 @@ export default function ApplicantsClient() {
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search applicants..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterPosition} onChange={(e) => setFilterPosition(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -123,17 +123,17 @@ export default function ApplicantsClient() {
           const sc = stageConfig[applicant.stage];
           const isExpanded = expandedId === applicant.id;
           return (
-            <div key={applicant.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : applicant.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50">
+            <div key={applicant.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : applicant.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                       <User className="h-4 w-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{applicant.name}</p>
-                      <p className="text-xs text-gray-500">{applicant.position}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{applicant.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{applicant.position}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -147,15 +147,15 @@ export default function ApplicantsClient() {
                 </div>
               </button>
               {isExpanded && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 ml-12 space-y-2">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 ml-12 space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <div className="flex items-center gap-1"><Mail className="h-3 w-3 text-gray-400" />{applicant.email}</div>
-                    <div className="flex items-center gap-1"><Phone className="h-3 w-3 text-gray-400" />{applicant.phone}</div>
-                    <div className="flex items-center gap-1"><Calendar className="h-3 w-3 text-gray-400" />Applied: {applicant.appliedDate}</div>
-                    <div><span className="text-gray-500">Source:</span> <span className="font-medium">{applicant.source}</span></div>
+                    <div className="flex items-center gap-1"><Mail className="h-3 w-3 text-gray-400 dark:text-gray-500" />{applicant.email}</div>
+                    <div className="flex items-center gap-1"><Phone className="h-3 w-3 text-gray-400 dark:text-gray-500" />{applicant.phone}</div>
+                    <div className="flex items-center gap-1"><Calendar className="h-3 w-3 text-gray-400 dark:text-gray-500" />Applied: {applicant.appliedDate}</div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Source:</span> <span className="font-medium">{applicant.source}</span></div>
                   </div>
-                  <div className="text-xs"><span className="text-gray-500">Experience:</span> <span className="text-gray-700">{applicant.experience}</span></div>
-                  <div className="text-xs"><span className="text-gray-500">Notes:</span> <span className="text-gray-700">{applicant.notes}</span></div>
+                  <div className="text-xs"><span className="text-gray-500 dark:text-gray-400">Experience:</span> <span className="text-gray-700 dark:text-gray-300">{applicant.experience}</span></div>
+                  <div className="text-xs"><span className="text-gray-500 dark:text-gray-400">Notes:</span> <span className="text-gray-700 dark:text-gray-300">{applicant.notes}</span></div>
                   {/* Pipeline progress */}
                   {applicant.stage !== 'rejected' && (
                     <div className="flex items-center gap-0.5 mt-1">

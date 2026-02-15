@@ -98,7 +98,7 @@ const emptyForm: RiskForm = {
 };
 
 function getRiskScoreInfo(likelihood: number, severity: number) {
-  if (!likelihood || !severity) return { score: 0, level: '-', color: 'bg-gray-100 text-gray-500' };
+  if (!likelihood || !severity) return { score: 0, level: '-', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500' };
   const score = likelihood * severity;
   if (score <= 4)  return { score, level: 'LOW', color: 'bg-green-100 text-green-800 border-green-300' };
   if (score <= 9)  return { score, level: 'MEDIUM', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
@@ -331,8 +331,8 @@ export default function RisksPage() {
       <div className="max-w-[1400px] mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Risk Register</h1>
-            <p className="text-gray-500 mt-1">ISO 45001:2018 — Occupational Health & Safety Risk Management</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001:2018 — Occupational Health & Safety Risk Management</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -348,32 +348,32 @@ export default function RisksPage() {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <Card><CardContent className="p-4"><p className="text-sm text-gray-500">Total Risks</p><p className="text-2xl font-bold">{riskCounts.total}</p></CardContent></Card>
-          <Card className="border-l-4 border-l-red-500"><CardContent className="p-4"><p className="text-sm text-gray-500">Critical</p><p className="text-2xl font-bold text-red-600">{riskCounts.CRITICAL}</p></CardContent></Card>
-          <Card className="border-l-4 border-l-orange-500"><CardContent className="p-4"><p className="text-sm text-gray-500">High</p><p className="text-2xl font-bold text-orange-600">{riskCounts.HIGH}</p></CardContent></Card>
-          <Card className="border-l-4 border-l-yellow-500"><CardContent className="p-4"><p className="text-sm text-gray-500">Medium</p><p className="text-2xl font-bold text-yellow-600">{riskCounts.MEDIUM}</p></CardContent></Card>
-          <Card className="border-l-4 border-l-green-500"><CardContent className="p-4"><p className="text-sm text-gray-500">Low</p><p className="text-2xl font-bold text-green-600">{riskCounts.LOW}</p></CardContent></Card>
+          <Card><CardContent className="p-4"><p className="text-sm text-gray-500 dark:text-gray-400">Total Risks</p><p className="text-2xl font-bold">{riskCounts.total}</p></CardContent></Card>
+          <Card className="border-l-4 border-l-red-500"><CardContent className="p-4"><p className="text-sm text-gray-500 dark:text-gray-400">Critical</p><p className="text-2xl font-bold text-red-600">{riskCounts.CRITICAL}</p></CardContent></Card>
+          <Card className="border-l-4 border-l-orange-500"><CardContent className="p-4"><p className="text-sm text-gray-500 dark:text-gray-400">High</p><p className="text-2xl font-bold text-orange-600">{riskCounts.HIGH}</p></CardContent></Card>
+          <Card className="border-l-4 border-l-yellow-500"><CardContent className="p-4"><p className="text-sm text-gray-500 dark:text-gray-400">Medium</p><p className="text-2xl font-bold text-yellow-600">{riskCounts.MEDIUM}</p></CardContent></Card>
+          <Card className="border-l-4 border-l-green-500"><CardContent className="p-4"><p className="text-sm text-gray-500 dark:text-gray-400">Low</p><p className="text-2xl font-bold text-green-600">{riskCounts.LOW}</p></CardContent></Card>
         </div>
 
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label htmlFor="search" className="text-xs text-gray-500">Search</Label>
+                <Label htmlFor="search" className="text-xs text-gray-500 dark:text-gray-400">Search</Label>
                 <div className="relative mt-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input id="search" placeholder="Search by reference, hazard, owner..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
               </div>
               <div>
-                <Label htmlFor="statusFilter" className="text-xs text-gray-500">Status</Label>
+                <Label htmlFor="statusFilter" className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
                 <Select id="statusFilter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="mt-1">
                   <option value="all">All Statuses</option>
                   {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                 </Select>
               </div>
               <div>
-                <Label htmlFor="ratingFilter" className="text-xs text-gray-500">Risk Rating</Label>
+                <Label htmlFor="ratingFilter" className="text-xs text-gray-500 dark:text-gray-400">Risk Rating</Label>
                 <Select id="ratingFilter" value={ratingFilter} onChange={e => setRatingFilter(e.target.value)} className="mt-1">
                   <option value="all">All Ratings</option>
                   <option value="CRITICAL">Critical</option>
@@ -383,7 +383,7 @@ export default function RisksPage() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="categoryFilter" className="text-xs text-gray-500">Category</Label>
+                <Label htmlFor="categoryFilter" className="text-xs text-gray-500 dark:text-gray-400">Category</Label>
                 <Select id="categoryFilter" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="mt-1">
                   <option value="all">All Categories</option>
                   {HAZARD_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -424,11 +424,11 @@ export default function RisksPage() {
                           const resInfo = getRiskScoreInfo(risk.residualLikelihood, risk.residualSeverity);
                           return (
                             <TableRow key={risk.id} className={initInfo.level === 'CRITICAL' ? 'border-l-4 border-l-red-500' : ''}>
-                              <TableCell className="text-xs font-mono text-gray-500">{risk.referenceNumber || '-'}</TableCell>
-                              <TableCell className="text-xs text-gray-500">{formatDate(risk.createdAt)}</TableCell>
+                              <TableCell className="text-xs font-mono text-gray-500 dark:text-gray-400">{risk.referenceNumber || '-'}</TableCell>
+                              <TableCell className="text-xs text-gray-500 dark:text-gray-400">{formatDate(risk.createdAt)}</TableCell>
                               <TableCell>
                                 <p className="font-medium text-sm truncate max-w-[220px]">{risk.title}</p>
-                                <p className="text-xs text-gray-400 truncate max-w-[220px]">{risk.description}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[220px]">{risk.description}</p>
                               </TableCell>
                               <TableCell className="text-sm">{risk.source || '-'}</TableCell>
                               <TableCell className="text-sm">{risk.whoAtRisk || '-'}</TableCell>
@@ -443,9 +443,9 @@ export default function RisksPage() {
                                     <Sparkles className="h-3 w-3" /><span>5 AI controls</span>
                                   </div>
                                 ) : risk.existingControls ? (
-                                  <p className="text-xs text-gray-500 truncate max-w-[120px]">{risk.existingControls}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{risk.existingControls}</p>
                                 ) : (
-                                  <span className="text-xs text-gray-400">-</span>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
                                 )}
                               </TableCell>
                               <TableCell className="text-center">
@@ -454,7 +454,7 @@ export default function RisksPage() {
                                 </span>
                               </TableCell>
                               <TableCell className="text-sm">{risk.riskOwner || '-'}</TableCell>
-                              <TableCell className="text-xs text-gray-500">{formatDate(risk.reviewDate)}</TableCell>
+                              <TableCell className="text-xs text-gray-500 dark:text-gray-400">{formatDate(risk.reviewDate)}</TableCell>
                               <TableCell>
                                 <Badge variant={getStatusBadgeVariant(risk.status)}>{risk.status?.replace(/_/g, ' ')}</Badge>
                               </TableCell>
@@ -466,9 +466,9 @@ export default function RisksPage() {
                   </div>
                 ) : (
                   <div className="text-center py-16">
-                    <Shield className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 mb-2">No risks found</p>
-                    <p className="text-sm text-gray-400">Click &quot;Add Risk&quot; to create your first risk assessment</p>
+                    <Shield className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400 mb-2">No risks found</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Click &quot;Add Risk&quot; to create your first risk assessment</p>
                   </div>
                 )}
               </CardContent>
@@ -489,7 +489,7 @@ export default function RisksPage() {
           <form onSubmit={handleSubmit}>
             <div className="max-h-[70vh] overflow-y-auto px-1 space-y-8">
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">A</span>
                   Hazard Identification
                 </h3>
@@ -499,7 +499,7 @@ export default function RisksPage() {
                     <Textarea id="description" placeholder="Describe the hazard in detail (minimum 20 characters)..." rows={3}
                       value={form.description} onChange={e => updateForm('description', e.target.value)} onBlur={handleHazardBlur} className="mt-1" />
                     <div className="flex justify-between mt-1">
-                      <p className="text-xs text-gray-400">{form.description.length < 20 ? `${20 - form.description.length} more characters needed` : 'AI controls will generate on blur'}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{form.description.length < 20 ? `${20 - form.description.length} more characters needed` : 'AI controls will generate on blur'}</p>
                       {aiGenerated && <span className="text-xs text-purple-600 flex items-center gap-1"><Sparkles className="h-3 w-3" /> AI controls generated</span>}
                     </div>
                   </div>
@@ -528,7 +528,7 @@ export default function RisksPage() {
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">B</span>
                   Initial Risk Assessment (Before Controls)
                 </h3>
@@ -548,7 +548,7 @@ export default function RisksPage() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs text-gray-400">Initial Risk Score</Label>
+                    <Label className="text-xs text-gray-400 dark:text-gray-500">Initial Risk Score</Label>
                     <div className={`mt-1 px-4 py-2 rounded-lg border text-center font-bold text-lg ${initialInfo.color}`}>
                       {initialInfo.score > 0 ? `${initialInfo.score} — ${initialInfo.level}` : 'Select L & S'}
                     </div>
@@ -557,7 +557,7 @@ export default function RisksPage() {
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">C</span>
                   Control Measures (Hierarchy of Controls)
                 </h3>
@@ -595,7 +595,7 @@ export default function RisksPage() {
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">D</span>
                   Residual Risk Assessment (After Controls)
                 </h3>
@@ -615,7 +615,7 @@ export default function RisksPage() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs text-gray-400">Residual Risk Score</Label>
+                    <Label className="text-xs text-gray-400 dark:text-gray-500">Residual Risk Score</Label>
                     <div className={`mt-1 px-4 py-2 rounded-lg border text-center font-bold text-lg ${residualInfo.color}`}>
                       {residualInfo.score > 0 ? `${residualInfo.score} — ${residualInfo.level}` : 'Select L & S'}
                     </div>
@@ -630,8 +630,8 @@ export default function RisksPage() {
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs">E</span>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
+                  <span className="bg-gray-200 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded text-xs">E</span>
                   Risk Management
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -659,17 +659,17 @@ export default function RisksPage() {
                             }}>
                             <p className="text-sm font-medium text-purple-800">{suggestion.regulation}</p>
                             {suggestion.section && <p className="text-xs text-purple-600">{suggestion.section}</p>}
-                            <p className="text-xs text-gray-500 mt-0.5">{suggestion.relevance}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{suggestion.relevance}</p>
                           </div>
                         ))}
-                        <p className="text-xs text-gray-400">Click a suggestion to add it</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Click a suggestion to add it</p>
                       </div>
                     )}
                   </div>
                   <div>
                     <Label htmlFor="reviewDate">Review Date</Label>
                     <Input id="reviewDate" type="date" value={form.reviewDate} onChange={e => updateForm('reviewDate', e.target.value)} className="mt-1" />
-                    {initialInfo.score > 0 && <p className="text-xs text-gray-400 mt-1">Auto-set based on {initialInfo.level} rating</p>}
+                    {initialInfo.score > 0 && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Auto-set based on {initialInfo.level} rating</p>}
                   </div>
                   <div>
                     <Label htmlFor="status">Status</Label>

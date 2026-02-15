@@ -66,7 +66,7 @@ const ROOT_CAUSE_CATEGORIES = [
 ] as const;
 
 const STATUSES = [
-  { value: 'INITIATED', label: 'Initiated', color: 'bg-gray-100 text-gray-800' },
+  { value: 'INITIATED', label: 'Initiated', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800' },
   { value: 'ROOT_CAUSE_ANALYSIS', label: 'Root Cause Analysis', color: 'bg-blue-100 text-blue-800' },
   { value: 'ACTIONS_DEFINED', label: 'Actions Defined', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-yellow-100 text-yellow-800' },
@@ -254,15 +254,15 @@ const emptyForm: CapaForm = {
 // ─── Helpers ────────────────────────────────────────────────────
 
 function getTypeColor(type: string) {
-  return CAPA_TYPES.find(t => t.value === type)?.color || 'bg-gray-100 text-gray-800';
+  return CAPA_TYPES.find(t => t.value === type)?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
 }
 
 function getSeverityColor(severity: string) {
-  return SEVERITIES.find(s => s.value === severity)?.color || 'bg-gray-100 text-gray-800';
+  return SEVERITIES.find(s => s.value === severity)?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
 }
 
 function getStatusColor(status: string) {
-  return STATUSES.find(s => s.value === status)?.color || 'bg-gray-100 text-gray-800';
+  return STATUSES.find(s => s.value === status)?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
 }
 
 function getRcaLabel(method: string) {
@@ -551,8 +551,8 @@ export default function CAPAClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">CAPA Management</h1>
-            <p className="text-gray-500 mt-1">ISO 14001 Clause 10.2 -- Corrective Action & Preventive Action</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 14001 Clause 10.2 -- Corrective Action & Preventive Action</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
             <Plus className="h-4 w-4" />
@@ -594,19 +594,19 @@ export default function CAPAClient() {
         {/* Filter Bar */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search CAPAs..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="all">All Statuses</option>
             {STATUSES.map(s => (
@@ -616,7 +616,7 @@ export default function CAPAClient() {
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="all">All Types</option>
             {CAPA_TYPES.map(t => (
@@ -626,7 +626,7 @@ export default function CAPAClient() {
           <select
             value={severityFilter}
             onChange={e => setSeverityFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="all">All Severities</option>
             {SEVERITIES.map(s => (
@@ -639,15 +639,15 @@ export default function CAPAClient() {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-            <span className="ml-3 text-gray-500">Loading CAPAs...</span>
+            <span className="ml-3 text-gray-500 dark:text-gray-400">Loading CAPAs...</span>
           </div>
         ) : filtered.length === 0 ? (
           <Card>
             <CardContent className="py-16">
               <div className="text-center">
-                <RefreshCw className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg mb-2">No CAPA records found</p>
-                <p className="text-gray-400 text-sm mb-6">
+                <RefreshCw className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">No CAPA records found</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">
                   Click Create CAPA to initiate your first corrective or preventive action
                 </p>
                 <Button onClick={openModal} variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
@@ -668,7 +668,7 @@ export default function CAPAClient() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="font-mono text-xs text-gray-400">{capa.referenceNumber}</span>
+                          <span className="font-mono text-xs text-gray-400 dark:text-gray-500">{capa.referenceNumber}</span>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTypeColor(capa.capaType)}`}>
                             {capa.capaType}
                           </span>
@@ -684,9 +684,9 @@ export default function CAPAClient() {
                             {capa.status.replace(/_/g, ' ')}
                           </span>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{capa.title}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-2">{capa.description}</p>
-                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">{capa.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{capa.description}</p>
+                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-400 dark:text-gray-500">
                           <span>Responsible: <strong className="text-gray-600">{capa.responsiblePerson}</strong></span>
                           <span>{days} day{days !== 1 ? 's' : ''} open</span>
                           {capa.targetClosureDate && (
@@ -705,7 +705,7 @@ export default function CAPAClient() {
                         )}
                         {capa.percentComplete > 0 && (
                           <div className="w-24">
-                            <div className="flex justify-between text-xs text-gray-400 mb-1">
+                            <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-1">
                               <span>Progress</span>
                               <span>{capa.percentComplete}%</span>
                             </div>
@@ -730,7 +730,7 @@ export default function CAPAClient() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create CAPA" size="full">
           <div className="max-h-[70vh] overflow-y-auto">
             {/* Tab Navigation */}
-            <div className="flex gap-1 mb-6 border-b sticky top-0 bg-white z-10 pt-1">
+            <div className="flex gap-1 mb-6 border-b sticky top-0 bg-white dark:bg-gray-900 z-10 pt-1">
               {tabs.map((tab, i) => (
                 <button
                   key={i}
@@ -738,10 +738,10 @@ export default function CAPAClient() {
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === i
                       ? 'border-green-500 text-green-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                   }`}
                 >
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-xs mr-2">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs mr-2">
                     {i + 1}
                   </span>
                   {tab}
@@ -892,7 +892,7 @@ export default function CAPAClient() {
 
                 {/* ── 5-Why Analysis ── */}
                 {form.rcaMethod === 'FIVE_WHY' && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-gray-800 mb-3">5-Why Analysis</h3>
                     <div className="mb-4">
                       <Label>Problem Statement</Label>
@@ -935,7 +935,7 @@ export default function CAPAClient() {
 
                 {/* ── Fishbone (Ishikawa) ── */}
                 {form.rcaMethod === 'FISHBONE' && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-gray-800 mb-3">Fishbone (Ishikawa) Diagram Categories</h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
@@ -998,7 +998,7 @@ export default function CAPAClient() {
 
                 {/* ── Bowtie ── */}
                 {form.rcaMethod === 'BOWTIE' && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-gray-800 mb-3">Bowtie Analysis</h3>
                     <div className="mb-4">
                       <Label>Hazard / Top Event</Label>
@@ -1085,7 +1085,7 @@ export default function CAPAClient() {
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <h3 className="text-sm font-semibold text-gray-800">Corrective / Preventive Actions</h3>
-                    <p className="text-xs text-gray-500">Define actions to address the root cause and prevent recurrence</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Define actions to address the root cause and prevent recurrence</p>
                   </div>
                   <Button size="sm" variant="outline" onClick={addAction} className="border-green-300 text-green-700 hover:bg-green-50">
                     <Plus className="h-3 w-3 mr-1" />
@@ -1096,9 +1096,9 @@ export default function CAPAClient() {
                 {form.capaActions.length > 0 ? (
                   <div className="space-y-3">
                     {form.capaActions.map((action, i) => (
-                      <div key={i} className="border border-gray-200 rounded-lg p-4 bg-white">
+                      <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900">
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-semibold text-gray-500">Action {i + 1}</span>
+                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Action {i + 1}</span>
                           <button
                             onClick={() => removeAction(i)}
                             className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
@@ -1149,8 +1149,8 @@ export default function CAPAClient() {
                   </div>
                 ) : (
                   <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
-                    <p className="text-sm text-gray-400">No actions defined yet.</p>
-                    <p className="text-xs text-gray-400 mt-1">Add actions manually or use AI Analysis to generate suggestions.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No actions defined yet.</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Add actions manually or use AI Analysis to generate suggestions.</p>
                   </div>
                 )}
               </div>
@@ -1218,7 +1218,7 @@ export default function CAPAClient() {
                         onChange={e => updateForm('percentComplete', parseInt(e.target.value))}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
                       />
-                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                         <span>0%</span>
                         <span>50%</span>
                         <span>100%</span>
@@ -1325,7 +1325,7 @@ export default function CAPAClient() {
                       {!aiCollapsed && (
                         <div className="mt-2 space-y-2">
                           <AIDisclosure variant="inline" provider="claude" analysisType="CAPA Recommendation" confidence={0.85} />
-                          <pre className="bg-white border border-green-200 rounded p-3 text-xs text-gray-700 overflow-auto max-h-48">
+                          <pre className="bg-white dark:bg-gray-900 border border-green-200 rounded p-3 text-xs text-gray-700 dark:text-gray-300 overflow-auto max-h-48">
                             {aiGenerated}
                           </pre>
                         </div>

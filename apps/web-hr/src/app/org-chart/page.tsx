@@ -72,18 +72,18 @@ export default function OrgChartPage() {
   function EmployeeCard({ emp, depth = 0 }: { emp: Employee; depth?: number }) {
     const reports = getReports(emp.id);
     return (
-      <div className={depth > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}>
-        <div className={`flex items-center gap-3 p-3 rounded-lg border bg-white hover:bg-violet-50 transition-colors mb-2 ${depth === 0 ? 'border-violet-200' : 'border-gray-200'}`}>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${depth === 0 ? 'bg-violet-100' : 'bg-gray-100'}`}>
+      <div className={depth > 0 ? 'ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-4' : ''}>
+        <div className={`flex items-center gap-3 p-3 rounded-lg border bg-white dark:bg-gray-900 hover:bg-violet-50 transition-colors mb-2 ${depth === 0 ? 'border-violet-200' : 'border-gray-200 dark:border-gray-700'}`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${depth === 0 ? 'bg-violet-100' : 'bg-gray-100 dark:bg-gray-800'}`}>
             <UserCircle className={`h-6 w-6 ${depth === 0 ? 'text-violet-600' : 'text-gray-400'}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-gray-900 truncate">{getName(emp)}</p>
-            <p className="text-xs text-gray-500 truncate">{getTitle(emp)}</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{getName(emp)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{getTitle(emp)}</p>
             {depth === 0 && <p className="text-xs text-violet-600">{getDept(emp)}</p>}
           </div>
           {reports.length > 0 && (
-            <span className="text-xs text-gray-400 flex-shrink-0">{reports.length} report{reports.length > 1 ? 's' : ''}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{reports.length} report{reports.length > 1 ? 's' : ''}</span>
           )}
         </div>
         {reports.map(r => <EmployeeCard key={r.id} emp={r} depth={depth + 1} />)}
@@ -96,8 +96,8 @@ export default function OrgChartPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Org Chart</h1>
-            <p className="text-gray-500 mt-1">Organisational structure and reporting lines</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Org Chart</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Organisational structure and reporting lines</p>
           </div>
           <div className="flex gap-2">
             <Button variant={viewMode === 'tree' ? 'default' : 'outline'} onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'bg-violet-600 hover:bg-violet-700' : ''}>Tree View</Button>
@@ -107,16 +107,16 @@ export default function OrgChartPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Employees</p><p className="text-2xl font-bold">{activeEmployees.length}</p></div><Users className="h-8 w-8 text-violet-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Departments</p><p className="text-2xl font-bold text-blue-600">{departments.length}</p></div><Building2 className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Top-Level</p><p className="text-2xl font-bold text-violet-600">{activeEmployees.filter(e => !e.managerId).length}</p></div><UserCircle className="h-8 w-8 text-violet-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Employees</p><p className="text-2xl font-bold">{activeEmployees.length}</p></div><Users className="h-8 w-8 text-violet-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Departments</p><p className="text-2xl font-bold text-blue-600">{departments.length}</p></div><Building2 className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Top-Level</p><p className="text-2xl font-bold text-violet-600">{activeEmployees.filter(e => !e.managerId).length}</p></div><UserCircle className="h-8 w-8 text-violet-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search by name or job title..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-violet-500 focus:outline-none" />
             </div>
@@ -131,7 +131,7 @@ export default function OrgChartPage() {
         {loading ? (
           <div className="animate-pulse space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-200 rounded" />)}</div>
         ) : filtered.length === 0 ? (
-          <Card><CardContent className="text-center py-16 text-gray-500">
+          <Card><CardContent className="text-center py-16 text-gray-500 dark:text-gray-400">
             <Users className="h-12 w-12 mx-auto mb-4 opacity-40" />
             <p>No employees found</p>
           </CardContent></Card>
@@ -157,13 +157,13 @@ export default function OrgChartPage() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {emps.map(emp => (
-                      <div key={emp.id} className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-violet-50">
+                      <div key={emp.id} className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-violet-50">
                         <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
                           <UserCircle className="h-5 w-5 text-violet-600" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-gray-900 text-sm truncate">{getName(emp)}</p>
-                          <p className="text-xs text-gray-500 truncate">{getTitle(emp)}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{getName(emp)}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{getTitle(emp)}</p>
                         </div>
                       </div>
                     ))}

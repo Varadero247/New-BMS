@@ -77,7 +77,7 @@ export default function PayoutsPage() {
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
-          <div className="text-gray-400">Loading...</div>
+          <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
     );
@@ -94,15 +94,15 @@ export default function PayoutsPage() {
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400 mb-1">Available Balance</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Available Balance</p>
                 <p className="text-3xl font-bold text-white">{formatCurrency(availableBalance)}</p>
                 {!canRequestPayout && availableBalance > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Minimum payout threshold is {formatCurrency(100)}. You need {formatCurrency(100 - availableBalance)} more.
                   </p>
                 )}
                 {availableBalance === 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Commission from closed deals will appear here once confirmed.
                   </p>
                 )}
@@ -113,7 +113,7 @@ export default function PayoutsPage() {
                 className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
                   canRequestPayout
                     ? 'bg-[#1B3A6B] hover:bg-[#244d8a] text-white'
-                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                 } disabled:opacity-50`}
               >
                 {requesting ? 'Requesting...' : 'Request Payout'}
@@ -134,7 +134,7 @@ export default function PayoutsPage() {
             </div>
 
             {payouts.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
+              <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                 No payout history yet. Payouts will appear here once you request them.
               </div>
             ) : (
@@ -142,12 +142,12 @@ export default function PayoutsPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-800">
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Reference</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Method</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Requested</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Paid</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Reference</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Method</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Requested</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Paid</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800">
@@ -155,16 +155,16 @@ export default function PayoutsPage() {
                       <tr key={payout.id} className="hover:bg-gray-800/50 transition-colors">
                         <td className="py-3 px-6 text-sm text-white font-mono">{payout.reference}</td>
                         <td className="py-3 px-6 text-sm text-white font-medium">{formatCurrency(payout.amount)}</td>
-                        <td className="py-3 px-6 text-sm text-gray-400">{payout.method || 'Bank Transfer'}</td>
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">{payout.method || 'Bank Transfer'}</td>
                         <td className="py-3 px-6">
                           <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[payout.status] || 'bg-gray-500/20 text-gray-400'}`}>
                             {payout.status}
                           </span>
                         </td>
-                        <td className="py-3 px-6 text-sm text-gray-400">
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
                           {new Date(payout.requestedAt).toLocaleDateString('en-GB')}
                         </td>
-                        <td className="py-3 px-6 text-sm text-gray-400">
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
                           {payout.paidAt ? new Date(payout.paidAt).toLocaleDateString('en-GB') : '-'}
                         </td>
                       </tr>

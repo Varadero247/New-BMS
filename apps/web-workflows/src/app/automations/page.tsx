@@ -28,7 +28,7 @@ const TRIGGER_COLORS: Record<string, string> = {
   ON_STATUS_CHANGE: 'bg-purple-100 text-purple-800',
   ON_FIELD_CHANGE: 'bg-orange-100 text-orange-800',
   SCHEDULED: 'bg-yellow-100 text-yellow-800',
-  MANUAL: 'bg-gray-100 text-gray-800',
+  MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   WEBHOOK: 'bg-cyan-100 text-cyan-800',
 };
 
@@ -42,7 +42,7 @@ const MOCK_RULES: AutomationRule[] = [
 ];
 
 function SuccessRate({ success, total }: { success: number; total: number }) {
-  if (total === 0) return <span className="text-gray-400 text-xs">No runs</span>;
+  if (total === 0) return <span className="text-gray-400 dark:text-gray-500 text-xs">No runs</span>;
   const pct = Math.round((success / total) * 100);
   return (
     <span className={`text-xs font-medium ${pct >= 95 ? 'text-green-600' : pct >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -112,8 +112,8 @@ export default function AutomationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Automation Rules</h1>
-          <p className="text-gray-500 text-sm mt-1">Event-driven rules that trigger workflow actions automatically</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Automation Rules</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Event-driven rules that trigger workflow actions automatically</p>
         </div>
         <button
           onClick={() => setShowNewModal(true)}
@@ -134,11 +134,11 @@ export default function AutomationsPage() {
         ].map(stat => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="rounded-lg bg-white p-4 shadow">
+            <div key={stat.label} className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
                 </div>
                 <div className={`p-2 rounded-full bg-${stat.color}-100`}>
                   <Icon className={`h-5 w-5 text-${stat.color}-600`} />
@@ -152,7 +152,7 @@ export default function AutomationsPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search rules..."
@@ -183,55 +183,55 @@ export default function AutomationsPage() {
       </div>
 
       {/* Rules Table */}
-      <div className="rounded-lg bg-white shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Rule</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Trigger</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Workflow</th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Success Rate</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Run</th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Rule</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Trigger</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Workflow</th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Success Rate</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Last Run</th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                  <Zap className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <Zap className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600 mb-2" />
                   No automation rules found.
                 </td>
               </tr>
             ) : filtered.map(rule => (
-              <tr key={rule.id} className={`hover:bg-gray-50 ${!rule.isActive ? 'opacity-60' : ''}`}>
+              <tr key={rule.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${!rule.isActive ? 'opacity-60' : ''}`}>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Zap className={`h-4 w-4 flex-shrink-0 ${rule.isActive ? 'text-indigo-500' : 'text-gray-300'}`} />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{rule.name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{rule.name}</p>
                       {rule.description && (
-                        <p className="text-xs text-gray-400 max-w-xs truncate">{rule.description}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs truncate">{rule.description}</p>
                       )}
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TRIGGER_COLORS[rule.triggerType] || 'bg-gray-100 text-gray-800'}`}>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TRIGGER_COLORS[rule.triggerType] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}`}>
                     {rule.triggerType.replace(/_/g, ' ')}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
-                  {rule.definition?.name || <span className="text-gray-300">Global</span>}
+                <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                  {rule.definition?.name || <span className="text-gray-300 dark:text-gray-600">Global</span>}
                 </td>
                 <td className="px-4 py-3 text-center">
                   <SuccessRate success={rule.successCount} total={rule.executionCount} />
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-500">
+                <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
                   {rule.lastExecutedAt
                     ? new Date(rule.lastExecutedAt).toLocaleString()
-                    : <span className="text-gray-300">Never</span>}
+                    : <span className="text-gray-300 dark:text-gray-600">Never</span>}
                 </td>
                 <td className="px-4 py-3 text-center">
                   <button
@@ -241,7 +241,7 @@ export default function AutomationsPage() {
                     {rule.isActive ? (
                       <ToggleRight className="h-6 w-6 text-green-500" />
                     ) : (
-                      <ToggleLeft className="h-6 w-6 text-gray-400" />
+                      <ToggleLeft className="h-6 w-6 text-gray-400 dark:text-gray-500" />
                     )}
                     <span className={rule.isActive ? 'text-green-600' : 'text-gray-400'}>
                       {rule.isActive ? 'Active' : 'Off'}
@@ -255,7 +255,7 @@ export default function AutomationsPage() {
                         Run Now
                       </button>
                     )}
-                    <button className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+                    <button className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200">
                       Edit
                     </button>
                   </div>
@@ -269,20 +269,20 @@ export default function AutomationsPage() {
       {/* New Rule Modal */}
       {showNewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">New Automation Rule</h2>
-              <button onClick={() => setShowNewModal(false)} className="text-gray-400 hover:text-gray-600">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">New Automation Rule</h2>
+              <button onClick={() => setShowNewModal(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
                 <XCircle className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rule Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rule Name</label>
                 <input type="text" placeholder="e.g. Auto-escalate overdue items" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Trigger Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Trigger Type</label>
                 <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <option value="">Select trigger...</option>
                   {['ON_CREATE','ON_UPDATE','ON_STATUS_CHANGE','SCHEDULED','MANUAL','WEBHOOK'].map(t => (
@@ -291,12 +291,12 @@ export default function AutomationsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                 <textarea rows={2} placeholder="Describe what this rule does..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowNewModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">
+              <button onClick={() => setShowNewModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                 Cancel
               </button>
               <button className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">

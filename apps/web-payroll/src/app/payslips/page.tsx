@@ -59,20 +59,20 @@ export default function PayslipsPage() {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
+      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       GENERATED: 'bg-yellow-100 text-yellow-800',
       CALCULATED: 'bg-blue-100 text-blue-800',
       APPROVED: 'bg-indigo-100 text-indigo-800',
       PUBLISHED: 'bg-purple-100 text-purple-800',
       PAID: 'bg-green-100 text-green-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading payslips...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading payslips...</div>
       </div>
     );
   }
@@ -86,43 +86,43 @@ export default function PayslipsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Payslips</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payslips</h1>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <FileText className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Payslips</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Payslips</p>
               <p className="text-xl font-semibold">{payslips.length}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckCircle className="h-8 w-8 text-purple-500" />
             <div>
-              <p className="text-sm text-gray-500">Published</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Published</p>
               <p className="text-xl font-semibold">{publishedCount}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <DollarSign className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Paid</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Paid</p>
               <p className="text-xl font-semibold">{paidCount}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Clock className="h-8 w-8 text-orange-500" />
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
               <p className="text-xl font-semibold">{pendingCount}</p>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function PayslipsPage() {
           <option value="PAID">Paid</option>
         </select>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Filter by Employee ID..."
@@ -157,66 +157,66 @@ export default function PayslipsPage() {
       </div>
 
       {/* Payslips Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Payslip Number
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Employee Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Employee Number
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Pay Period
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Pay Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Gross Earnings
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Net Pay
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {payslips.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No payslips found. Payslips will appear here after payroll runs are processed.
                 </td>
               </tr>
             ) : (
               payslips.map((payslip) => (
-                <tr key={payslip.id} className="hover:bg-gray-50">
+                <tr key={payslip.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className="font-medium text-gray-900">{payslip.payslipNumber}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{payslip.payslipNumber}</span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                     {payslip.employeeName}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {payslip.employeeNumber}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(payslip.periodStart).toLocaleDateString()} -{' '}
                     {new Date(payslip.periodEnd).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(payslip.payDate).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(payslip.grossEarnings, payslip.currency)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-green-600">

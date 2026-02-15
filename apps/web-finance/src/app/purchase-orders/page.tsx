@@ -34,14 +34,14 @@ interface Supplier {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   PENDING_APPROVAL: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-blue-100 text-blue-700',
   SENT: 'bg-indigo-100 text-indigo-700',
   PARTIALLY_RECEIVED: 'bg-amber-100 text-amber-700',
   RECEIVED: 'bg-green-100 text-green-700',
   CANCELLED: 'bg-red-100 text-red-700',
-  CLOSED: 'bg-gray-100 text-gray-600',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 function formatCurrency(amount: number): string {
@@ -197,8 +197,8 @@ export default function PurchaseOrdersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Purchase Orders</h1>
-            <p className="text-gray-500 mt-1">Manage purchase orders and procurement</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Purchase Orders</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage purchase orders and procurement</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New PO
@@ -212,7 +212,7 @@ export default function PurchaseOrdersPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search purchase orders..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
@@ -234,27 +234,27 @@ export default function PurchaseOrdersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Supplier</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Order Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Expected</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Total</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Supplier</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Order Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Expected</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredOrders.map((order) => (
-                      <tr key={order.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{order.reference}</td>
-                        <td className="py-3 px-4 text-gray-900">{order.supplier?.name || order.supplierName || '-'}</td>
+                      <tr key={order.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{order.reference}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{order.supplier?.name || order.supplierName || '-'}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(order.orderDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(order.expectedDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(order.total)}</td>
-                        <td className="py-3 px-4"><Badge className={statusColors[order.status] || 'bg-gray-100 text-gray-700'}>{order.status.replace('_', ' ')}</Badge></td>
+                        <td className="py-3 px-4"><Badge className={statusColors[order.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{order.status.replace('_', ' ')}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewOrder(order); setViewModalOpen(true); }} className="text-gray-400 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
+                            <button onClick={() => { setViewOrder(order); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
                             {(order.status === 'DRAFT' || order.status === 'PENDING_APPROVAL') && (
                               <button onClick={() => handleApprove(order.id)} className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1">
                                 <Check className="h-3 w-3" />Approve
@@ -266,7 +266,7 @@ export default function PurchaseOrdersPage() {
                               </button>
                             )}
                             {order.status === 'DRAFT' && (
-                              <button onClick={() => handleCancel(order.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                              <button onClick={() => handleCancel(order.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                             )}
                           </div>
                         </td>
@@ -276,7 +276,7 @@ export default function PurchaseOrdersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500"><ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No purchase orders found</p></div>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400"><ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No purchase orders found</p></div>
             )}
           </CardContent>
         </Card>
@@ -301,7 +301,7 @@ export default function PurchaseOrdersPage() {
           <div>
             <div className="flex justify-between items-center mb-2"><Label>Line Items</Label><button onClick={addLine} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">+ Add Line</button></div>
             <table className="w-full text-sm border">
-              <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3 font-medium text-gray-500">Description</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-24">Qty</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Unit Price</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Amount</th><th className="w-10"></th></tr></thead>
+              <thead><tr className="bg-gray-50 dark:bg-gray-800"><th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-24">Qty</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Unit Price</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Amount</th><th className="w-10"></th></tr></thead>
               <tbody>
                 {lines.map((line, idx) => (
                   <tr key={idx} className="border-t">
@@ -312,7 +312,7 @@ export default function PurchaseOrdersPage() {
                     <td className="py-2 px-3">{lines.length > 1 && <button onClick={() => removeLine(idx)} className="text-red-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}</td>
                   </tr>
                 ))}
-                <tr className="border-t bg-gray-50 font-medium"><td colSpan={3} className="py-2 px-3 text-right">Total:</td><td className="py-2 px-3 text-right">{formatCurrency(poTotal)}</td><td></td></tr>
+                <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium"><td colSpan={3} className="py-2 px-3 text-right">Total:</td><td className="py-2 px-3 text-right">{formatCurrency(poTotal)}</td><td></td></tr>
               </tbody>
             </table>
           </div>
@@ -328,17 +328,17 @@ export default function PurchaseOrdersPage() {
         {viewOrder && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Supplier</p><p className="font-medium">{viewOrder.supplier?.name || viewOrder.supplierName}</p></div>
-              <div><p className="text-sm text-gray-500">Order Date</p><p className="font-medium">{new Date(viewOrder.orderDate).toLocaleDateString()}</p></div>
-              <div><p className="text-sm text-gray-500">Expected Date</p><p className="font-medium">{new Date(viewOrder.expectedDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Supplier</p><p className="font-medium">{viewOrder.supplier?.name || viewOrder.supplierName}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Order Date</p><p className="font-medium">{new Date(viewOrder.orderDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Expected Date</p><p className="font-medium">{new Date(viewOrder.expectedDate).toLocaleDateString()}</p></div>
             </div>
             <div className="flex items-center gap-4">
-              <div><p className="text-sm text-gray-500">Total</p><p className="text-xl font-bold">{formatCurrency(viewOrder.total)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total</p><p className="text-xl font-bold">{formatCurrency(viewOrder.total)}</p></div>
               <Badge className={statusColors[viewOrder.status]}>{viewOrder.status.replace('_', ' ')}</Badge>
             </div>
             {viewOrder.lines && viewOrder.lines.length > 0 && (
               <table className="w-full text-sm border">
-                <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
+                <thead><tr className="bg-gray-50 dark:bg-gray-800"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
                 <tbody>
                   {viewOrder.lines.map((line, idx) => (
                     <tr key={idx} className="border-t"><td className="py-2 px-3">{line.description}</td><td className="py-2 px-3 text-right">{line.quantity}</td><td className="py-2 px-3 text-right">{formatCurrency(line.unitPrice)}</td><td className="py-2 px-3 text-right">{formatCurrency(line.amount)}</td></tr>
@@ -346,7 +346,7 @@ export default function PurchaseOrdersPage() {
                 </tbody>
               </table>
             )}
-            {viewOrder.notes && <div><p className="text-sm text-gray-500">Notes</p><p className="text-gray-700">{viewOrder.notes}</p></div>}
+            {viewOrder.notes && <div><p className="text-sm text-gray-500 dark:text-gray-400">Notes</p><p className="text-gray-700 dark:text-gray-300">{viewOrder.notes}</p></div>}
           </div>
         )}
         <ModalFooter><Button variant="outline" onClick={() => setViewModalOpen(false)}>Close</Button></ModalFooter>

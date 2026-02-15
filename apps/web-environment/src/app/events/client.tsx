@@ -320,7 +320,7 @@ export default function EventsClient() {
 
   const getSeverityColor = (severity: string) => {
     const s = SEVERITIES.find(sv => sv.value === severity);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusColor = (status: string) => {
@@ -329,8 +329,8 @@ export default function EventsClient() {
       case 'UNDER_INVESTIGATION': return 'bg-yellow-100 text-yellow-800';
       case 'CONTAINED': return 'bg-blue-100 text-blue-800';
       case 'REMEDIATED': return 'bg-green-100 text-green-800';
-      case 'CLOSED': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'CLOSED': return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
     }
   };
 
@@ -365,8 +365,8 @@ export default function EventsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Environmental Events</h1>
-            <p className="text-gray-500 mt-1">Track and manage environmental incidents, spills, and non-conformances</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Events</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage environmental incidents, spills, and non-conformances</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
             <Plus className="h-4 w-4" />
@@ -380,7 +380,7 @@ export default function EventsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold">{metrics.total}</p>
-                <p className="text-sm text-gray-500">Total Events</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Events</p>
               </div>
             </CardContent>
           </Card>
@@ -388,7 +388,7 @@ export default function EventsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-600">{metrics.open}</p>
-                <p className="text-sm text-gray-500">Open Events</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Open Events</p>
               </div>
             </CardContent>
           </Card>
@@ -396,7 +396,7 @@ export default function EventsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-yellow-600">{metrics.underInvestigation}</p>
-                <p className="text-sm text-gray-500">Under Investigation</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Under Investigation</p>
               </div>
             </CardContent>
           </Card>
@@ -404,7 +404,7 @@ export default function EventsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-purple-600">{metrics.criticalMajor}</p>
-                <p className="text-sm text-gray-500">Critical / Major</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Critical / Major</p>
               </div>
             </CardContent>
           </Card>
@@ -419,7 +419,7 @@ export default function EventsClient() {
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 typeFilter === tab.value
                   ? 'border-green-500 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               {tab.label}
@@ -434,19 +434,19 @@ export default function EventsClient() {
         {/* Status Pipeline & Search */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search events..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="all">All Statuses</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -461,7 +461,7 @@ export default function EventsClient() {
                 {s.label} ({events.filter(e => e.status === s.value).length})
               </div>
               {i < STATUSES.length - 1 && (
-                <span className="mx-1 text-gray-300">&rarr;</span>
+                <span className="mx-1 text-gray-300 dark:text-gray-600">&rarr;</span>
               )}
             </div>
           ))}
@@ -487,13 +487,13 @@ export default function EventsClient() {
                     className={`p-4 border rounded-lg hover:border-green-300 transition-colors cursor-pointer ${
                       event.severity === 'CRITICAL' || event.severity === 'CATASTROPHIC'
                         ? 'border-l-4 border-l-red-500 border-gray-200'
-                        : 'border-gray-200'
+                        : 'border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span className="text-xs font-mono text-gray-400">{event.referenceNumber}</span>
+                          <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{event.referenceNumber}</span>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}>
                             {event.severity}
                           </span>
@@ -507,13 +507,13 @@ export default function EventsClient() {
                             <Badge variant="destructive" className="text-xs">Regulatory</Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-900 font-medium mb-1">{event.location} &mdash; {event.department}</p>
-                        <p className="text-sm text-gray-500 line-clamp-2">{event.description}</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 font-medium mb-1">{event.location} &mdash; {event.department}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{event.description}</p>
                       </div>
-                      <div className="text-sm text-gray-400 text-right ml-4 shrink-0">
+                      <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
                         <div>{new Date(event.dateOfEvent).toLocaleDateString()}</div>
                         <div className="text-xs">Date of Event</div>
-                        <div className="text-xs mt-1 text-gray-300">Reported by {event.reportedBy}</div>
+                        <div className="text-xs mt-1 text-gray-300 dark:text-gray-600">Reported by {event.reportedBy}</div>
                       </div>
                     </div>
                   </div>
@@ -521,8 +521,8 @@ export default function EventsClient() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No environmental events found</p>
+                <AlertTriangle className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No environmental events found</p>
                 <Button variant="outline" className="mt-4" onClick={openModal}>
                   <Plus className="h-4 w-4 mr-2" />
                   Report First Event
@@ -543,7 +543,7 @@ export default function EventsClient() {
                 className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   section === i
                     ? 'border-green-500 text-green-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
                 {s}
@@ -989,7 +989,7 @@ export default function EventsClient() {
                     Fill in event details on previous tabs first, then generate an AI-assisted investigation report. Results will populate relevant fields above.
                   </p>
                   {aiGenerated && (
-                    <div className="bg-white border border-emerald-200 rounded-lg p-3 mt-2">
+                    <div className="bg-white dark:bg-gray-900 border border-emerald-200 rounded-lg p-3 mt-2">
                       <AIDisclosure variant="inline" provider="claude" analysisType="Event Analysis" confidence={0.85} />
                       <p className="text-xs font-medium text-emerald-700 mb-2 mt-2">AI analysis has been applied to the form fields above:</p>
                       <ul className="text-xs text-emerald-600 space-y-1 list-disc list-inside">
@@ -998,7 +998,7 @@ export default function EventsClient() {
                         <li>Preventive Measures (this tab)</li>
                         <li>Lessons Learned (this tab)</li>
                       </ul>
-                      <p className="text-xs text-gray-500 mt-2">All AI-generated content is editable. Review and adjust as needed.</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">All AI-generated content is editable. Review and adjust as needed.</p>
                     </div>
                   )}
                 </div>

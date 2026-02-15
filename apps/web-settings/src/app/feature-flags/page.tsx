@@ -205,12 +205,12 @@ export default function FeatureFlagsPage() {
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-12 text-gray-500">Loading feature flags...</div>
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading feature flags...</div>
       )}
 
       {/* Flags table */}
       {!loading && flags.length === 0 && (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
           No feature flags configured. Create one to get started.
         </div>
       )}
@@ -233,7 +233,7 @@ export default function FeatureFlagsPage() {
                   <td colSpan={5} className="p-0">
                     {/* Main row */}
                     <div
-                      className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      className="flex items-center cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50"
                       onClick={() => setExpandedFlag(expandedFlag === flag.name ? null : flag.name)}
                     >
                       <div className="flex-1 p-3">
@@ -253,7 +253,7 @@ export default function FeatureFlagsPage() {
                           title={flag.enabled ? 'Enabled globally' : 'Disabled globally'}
                         >
                           <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                               flag.enabled ? 'translate-x-6' : 'translate-x-1'
                             }`}
                           />
@@ -265,7 +265,7 @@ export default function FeatureFlagsPage() {
                             {flag.orgOverrideCount}
                           </span>
                         ) : (
-                          <span className="text-xs text-gray-400">None</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">None</span>
                         )}
                       </div>
                       <div className="w-24 p-3 text-right" onClick={(e) => e.stopPropagation()}>
@@ -302,7 +302,7 @@ export default function FeatureFlagsPage() {
                           <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Organisation Overrides
                           </h4>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-[10px] text-gray-400 dark:text-gray-500">
                             Created: {new Date(flag.createdAt).toLocaleDateString()} | Updated: {new Date(flag.updatedAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -326,7 +326,7 @@ export default function FeatureFlagsPage() {
                                     }`}
                                   >
                                     <span
-                                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                                      className={`inline-block h-3 w-3 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                                         override.enabled ? 'translate-x-5' : 'translate-x-1'
                                       }`}
                                     />
@@ -342,13 +342,13 @@ export default function FeatureFlagsPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-gray-400 italic">No organisation overrides configured.</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 italic">No organisation overrides configured.</p>
                         )}
 
                         {/* Add new override */}
                         <div className="flex items-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                           <div className="flex-1">
-                            <label className="block text-[10px] font-medium text-gray-500 mb-1">Organisation ID</label>
+                            <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">Organisation ID</label>
                             <input
                               value={newOrgId}
                               onChange={(e) => setNewOrgId(e.target.value)}
@@ -450,7 +450,7 @@ export default function FeatureFlagsPage() {
                   placeholder="e.g. new_dashboard_v2"
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
-                <p className="text-[10px] text-gray-400 mt-1">Lowercase letters, numbers, and underscores only.</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Lowercase letters, numbers, and underscores only.</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

@@ -27,7 +27,7 @@ const statusColors: Record<string, string> = {
   OPEN: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  ON_HOLD: 'bg-gray-100 text-gray-700',
+  ON_HOLD: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   CANCELLED: 'bg-red-100 text-red-700',
 };
 
@@ -151,16 +151,16 @@ export default function WorkOrdersPage() {
     <div className="space-y-4">
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded">{error}</div>}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
         <input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Work order title" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
         <textarea rows={3} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed description of work required..." />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
             <option value="CORRECTIVE">Corrective</option>
             <option value="PREVENTIVE">Preventive</option>
@@ -170,7 +170,7 @@ export default function WorkOrdersPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}>
             <option value="CRITICAL">Critical</option>
             <option value="HIGH">High</option>
@@ -179,7 +179,7 @@ export default function WorkOrdersPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
             <option value="OPEN">Open</option>
             <option value="IN_PROGRESS">In Progress</option>
@@ -189,27 +189,27 @@ export default function WorkOrdersPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigned To</label>
           <input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.assignedTo} onChange={e => setForm(f => ({ ...f, assignedTo: e.target.value }))} placeholder="Technician name" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Asset</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asset</label>
           <input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.asset} onChange={e => setForm(f => ({ ...f, asset: e.target.value }))} placeholder="Asset tag or name" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
           <input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Location" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Hours</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estimated Hours</label>
           <input type="number" step="0.5" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.estimatedHours} onChange={e => setForm(f => ({ ...f, estimatedHours: e.target.value }))} placeholder="0" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Actual Hours</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Actual Hours</label>
           <input type="number" step="0.5" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.actualHours} onChange={e => setForm(f => ({ ...f, actualHours: e.target.value }))} placeholder="0" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
           <input type="date" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
         </div>
       </div>
@@ -234,8 +234,8 @@ export default function WorkOrdersPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Work Orders</h1>
-            <p className="text-gray-500 mt-1">Manage maintenance work orders</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Work Orders</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage maintenance work orders</p>
           </div>
           <button onClick={openCreate} className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 flex items-center gap-2">
             <Plus className="h-5 w-5" /> Create Work Order
@@ -256,7 +256,7 @@ export default function WorkOrdersPage() {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-500">{card.label}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
                       <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
                     </div>
                     <div className={`p-3 rounded-full ${card.bg}`}><Icon className={`h-6 w-6 ${card.color}`} /></div>
@@ -272,7 +272,7 @@ export default function WorkOrdersPage() {
           <CardContent className="pt-5">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px] relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search work orders..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
               </div>
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
@@ -308,27 +308,27 @@ export default function WorkOrdersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">WO #</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Priority</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Asset</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Assigned To</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Due Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">WO #</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Priority</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Asset</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(wo => {
                       const isOverdue = wo.dueDate && new Date(wo.dueDate) < new Date() && wo.status !== 'COMPLETED' && wo.status !== 'CANCELLED';
                       return (
-                        <tr key={wo.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-mono text-gray-500 text-xs">{wo.woNumber}</td>
-                          <td className="py-3 px-4 text-gray-900 font-medium max-w-[200px] truncate">{wo.title}</td>
+                        <tr key={wo.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                          <td className="py-3 px-4 font-mono text-gray-500 dark:text-gray-400 text-xs">{wo.woNumber}</td>
+                          <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium max-w-[200px] truncate">{wo.title}</td>
                           <td className="py-3 px-4 text-gray-600">{wo.type}</td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${priorityColors[wo.priority] || 'bg-gray-100 text-gray-700'}`}>{wo.priority}</span>
+                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${priorityColors[wo.priority] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{wo.priority}</span>
                           </td>
                           <td className="py-3 px-4 text-gray-600">{wo.asset || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{wo.assignedTo || '-'}</td>
@@ -337,12 +337,12 @@ export default function WorkOrdersPage() {
                             {isOverdue && <span className="ml-1 text-xs">(Overdue)</span>}
                           </td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[wo.status] || 'bg-gray-100 text-gray-700'}`}>{wo.status?.replace(/_/g, ' ')}</span>
+                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[wo.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{wo.status?.replace(/_/g, ' ')}</span>
                           </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
-                              <button onClick={() => openEdit(wo)} className="text-gray-400 hover:text-amber-600 transition-colors"><Edit2 className="h-4 w-4" /></button>
-                              <button onClick={() => openDelete(wo)} className="text-gray-400 hover:text-red-600 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                              <button onClick={() => openEdit(wo)} className="text-gray-400 dark:text-gray-500 hover:text-amber-600 transition-colors"><Edit2 className="h-4 w-4" /></button>
+                              <button onClick={() => openDelete(wo)} className="text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"><Trash2 className="h-4 w-4" /></button>
                             </div>
                           </td>
                         </tr>
@@ -352,7 +352,7 @@ export default function WorkOrdersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Wrench className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p className="font-medium">No work orders found</p>
                 <p className="text-sm mt-1">Create your first work order to get started</p>
@@ -365,7 +365,7 @@ export default function WorkOrdersPage() {
       <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create Work Order" size="lg">
         <FormFields />
         <ModalFooter>
-          <button onClick={() => setCreateOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setCreateOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleCreate} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">
             {saving ? 'Creating...' : 'Create Work Order'}
           </button>
@@ -375,7 +375,7 @@ export default function WorkOrdersPage() {
       <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Work Order" size="lg">
         <FormFields />
         <ModalFooter>
-          <button onClick={() => setEditOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setEditOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleEdit} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
@@ -385,10 +385,10 @@ export default function WorkOrdersPage() {
       <Modal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete Work Order" size="sm">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 p-2 bg-red-100 rounded-full"><Ban className="h-5 w-5 text-red-600" /></div>
-          <p className="text-sm text-gray-700">Are you sure you want to delete work order <span className="font-semibold">{selected?.title}</span>? This action cannot be undone.</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">Are you sure you want to delete work order <span className="font-semibold">{selected?.title}</span>? This action cannot be undone.</p>
         </div>
         <ModalFooter>
-          <button onClick={() => setDeleteOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} disabled={saving} className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50">
             {saving ? 'Deleting...' : 'Delete'}
           </button>

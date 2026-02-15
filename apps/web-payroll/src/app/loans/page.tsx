@@ -125,9 +125,9 @@ export default function LoansPage() {
       HOUSING_LOAN: 'bg-green-100 text-green-800',
       VEHICLE_LOAN: 'bg-orange-100 text-orange-800',
       EDUCATION_LOAN: 'bg-teal-100 text-teal-800',
-      OTHER: 'bg-gray-100 text-gray-800',
+      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
     };
-    return styles[type] || 'bg-gray-100 text-gray-800';
+    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusBadge = (status: string) => {
@@ -135,17 +135,17 @@ export default function LoansPage() {
       PENDING: 'bg-yellow-100 text-yellow-800',
       APPROVED: 'bg-blue-100 text-blue-800',
       ACTIVE: 'bg-green-100 text-green-800',
-      COMPLETED: 'bg-gray-100 text-gray-800',
+      COMPLETED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       REJECTED: 'bg-red-100 text-red-800',
-      CANCELLED: 'bg-gray-100 text-gray-800',
+      CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading loans...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading loans...</div>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function LoansPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Loan Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Loan Management</h1>
         <div className="flex items-center space-x-3">
           <button
             onClick={async () => {
@@ -203,7 +203,7 @@ export default function LoansPage() {
             </h3>
             <button
               onClick={() => setAiResult(null)}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300"
             >
               Dismiss
             </button>
@@ -211,25 +211,25 @@ export default function LoansPage() {
           <AIDisclosure variant="inline" provider="claude" analysisType="Loan Analysis" confidence={0.85} />
           <div className="space-y-3 mt-3">
             <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-xs text-gray-500">Monthly Payment</p>
-                <p className="text-lg font-bold text-gray-900">
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Monthly Payment</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {aiResult.monthlyPayment != null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.monthlyPayment)
                     : 'N/A'}
                 </p>
               </div>
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-xs text-gray-500">Total Interest</p>
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Interest</p>
                 <p className="text-lg font-bold text-red-600">
                   {aiResult.totalInterest != null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.totalInterest)
                     : 'N/A'}
                 </p>
               </div>
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-xs text-gray-500">Total Repayment</p>
-                <p className="text-lg font-bold text-gray-900">
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Repayment</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {aiResult.totalRepayment != null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(aiResult.totalRepayment)
                     : 'N/A'}
@@ -237,8 +237,8 @@ export default function LoansPage() {
               </div>
             </div>
             {aiResult.affordability && (
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-sm font-medium text-gray-700">Affordability</p>
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Affordability</p>
                 <p className="text-sm text-gray-600">
                   {typeof aiResult.affordability === 'string'
                     ? aiResult.affordability
@@ -248,7 +248,7 @@ export default function LoansPage() {
             )}
             {aiResult.recommendations && aiResult.recommendations.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Recommendations:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Recommendations:</p>
                 <ul className="mt-1 list-inside list-disc text-sm text-gray-600">
                   {aiResult.recommendations.map((r: string, i: number) => (
                     <li key={i}>{r}</li>
@@ -258,10 +258,10 @@ export default function LoansPage() {
             )}
             {aiResult.schedule && aiResult.schedule.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Amortization Schedule (First 3 Months):</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Amortization Schedule (First 3 Months):</p>
                 <table className="mt-1 w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs text-gray-500">
+                    <tr className="text-left text-xs text-gray-500 dark:text-gray-400">
                       <th className="pb-1 pr-4">Month</th>
                       <th className="pb-1 pr-4">Payment</th>
                       <th className="pb-1 pr-4">Principal</th>
@@ -334,42 +334,42 @@ export default function LoansPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CreditCard className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Loans</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Loans</p>
               <p className="text-xl font-semibold">{loans.length}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Clock className="h-8 w-8 text-yellow-500" />
             <div>
-              <p className="text-sm text-gray-500">Pending Approval</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending Approval</p>
               <p className="text-xl font-semibold">
                 {loans.filter((l) => l.status === 'PENDING').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckCircle className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Active Loans</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Active Loans</p>
               <p className="text-xl font-semibold">
                 {loans.filter((l) => l.status === 'ACTIVE').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <DollarSign className="h-8 w-8 text-purple-500" />
             <div>
-              <p className="text-sm text-gray-500">Outstanding Balance</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Outstanding Balance</p>
               <p className="text-xl font-semibold">
                 {formatCurrency(loans.reduce((sum, l) => sum + l.remainingBalance, 0))}
               </p>
@@ -379,61 +379,61 @@ export default function LoansPage() {
       </div>
 
       {/* Loans Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Loan #
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Employee
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Principal
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Interest
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Term
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Balance
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {loans.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No loans found.
                 </td>
               </tr>
             ) : (
               loans.map((loan) => (
-                <tr key={loan.id} className="hover:bg-gray-50">
+                <tr key={loan.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <CreditCard className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900">{loan.loanNumber}</span>
+                      <CreditCard className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{loan.loanNumber}</span>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
                         {loan.employee.firstName} {loan.employee.lastName}
                       </p>
-                      <p className="text-sm text-gray-500">{loan.employee.employeeNumber}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{loan.employee.employeeNumber}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -441,19 +441,19 @@ export default function LoansPage() {
                       {loan.loanType.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(loan.principalAmount)}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {loan.interestRate}%
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {loan.termMonths} months
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900">{formatCurrency(loan.remainingBalance)}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(loan.remainingBalance)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Paid: {formatCurrency(loan.repaidAmount)}
                       </p>
                     </div>
@@ -483,7 +483,7 @@ export default function LoansPage() {
                       )}
                       <Link
                         href={`/loans/${loan.id}`}
-                        className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200"
                       >
                         View
                       </Link>
@@ -501,7 +501,7 @@ export default function LoansPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee ID</label>
               <input
                 type="text"
                 value={formData.employeeId}
@@ -512,7 +512,7 @@ export default function LoansPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Loan Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Loan Type</label>
               <select
                 value={formData.loanType}
                 onChange={(e) => setFormData({ ...formData, loanType: e.target.value })}
@@ -530,7 +530,7 @@ export default function LoansPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Principal Amount</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Principal Amount</label>
               <input
                 type="number"
                 step="0.01"
@@ -541,7 +541,7 @@ export default function LoansPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Interest Rate (%)</label>
               <input
                 type="number"
                 step="0.01"
@@ -554,7 +554,7 @@ export default function LoansPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Term (Months)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Term (Months)</label>
               <input
                 type="number"
                 value={formData.termMonths}
@@ -564,7 +564,7 @@ export default function LoansPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
               <input
                 type="date"
                 value={formData.startDate}
@@ -575,7 +575,7 @@ export default function LoansPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Payment Frequency</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Payment Frequency</label>
             <select
               value={formData.paymentFrequency}
               onChange={(e) => setFormData({ ...formData, paymentFrequency: e.target.value })}
@@ -588,7 +588,7 @@ export default function LoansPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Purpose (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Purpose (Optional)</label>
             <textarea
               value={formData.purpose}
               onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
@@ -600,7 +600,7 @@ export default function LoansPage() {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
             >
               Cancel
             </button>

@@ -86,12 +86,12 @@ export default function FMEAClient() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">FMEA</h1>
-            <p className="text-sm text-gray-500 mt-0.5">IATF 16949 — Failure Mode and Effects Analysis (Process FMEA)</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">FMEA</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">IATF 16949 — Failure Mode and Effects Analysis (Process FMEA)</p>
           </div>
           <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -113,22 +113,22 @@ export default function FMEAClient() {
             <p className="text-3xl font-bold text-orange-600 mt-1">{high}</p>
             <p className="text-xs text-orange-500 mt-1">Action plan required</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Open / In Progress</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open / In Progress</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{openCount}</p>
-            <p className="text-xs text-gray-500 mt-1">Actions outstanding</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Actions outstanding</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Avg. RPN</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Avg. RPN</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{avgRPN}</p>
-            <p className="text-xs text-gray-500 mt-1">Across all failure modes</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Across all failure modes</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search process step, failure mode, effect..."
@@ -147,10 +147,10 @@ export default function FMEAClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Process Step</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Failure Mode</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Effect</th>
@@ -171,36 +171,36 @@ export default function FMEAClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(fm => {
                 const rpnConf = getRPNConfig(fm.rpn);
                 const sc = STATUS_CONFIG[fm.status];
                 return (
-                  <tr key={fm.id} className="hover:bg-gray-50">
+                  <tr key={fm.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-4 py-3 text-gray-800 font-medium text-xs max-w-[120px]">
                       <p className="leading-tight">{fm.processStep}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-700 text-xs max-w-[130px]">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-xs max-w-[130px]">
                       <p className="leading-tight">{fm.failureMode}</p>
                     </td>
                     <td className="px-4 py-3 text-gray-600 text-xs max-w-[130px]">
                       <p className="leading-tight">{fm.effect}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs max-w-[120px]">
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs max-w-[120px]">
                       <p className="leading-tight">{fm.cause}</p>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${fm.severity >= 8 ? 'bg-red-100 text-red-800' : fm.severity >= 5 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${fm.severity >= 8 ? 'bg-red-100 text-red-800' : fm.severity >= 5 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {fm.severity}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100 text-gray-700">
+                      <span className="inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                         {fm.occurrence}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100 text-gray-700">
+                      <span className="inline-block w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                         {fm.detection}
                       </span>
                     </td>
@@ -210,7 +210,7 @@ export default function FMEAClient() {
                         {fm.rpn}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700 text-xs whitespace-nowrap">{fm.owner}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-xs whitespace-nowrap">{fm.owner}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>{sc.label}</span>
                     </td>
@@ -220,7 +220,7 @@ export default function FMEAClient() {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-gray-400">SEV = Severity (1-10), OCC = Occurrence (1-10), DET = Detection (1-10), RPN = SEV &times; OCC &times; DET</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">SEV = Severity (1-10), OCC = Occurrence (1-10), DET = Detection (1-10), RPN = SEV &times; OCC &times; DET</p>
       </div>
     </div>
   );

@@ -147,7 +147,7 @@ const severityConfig: Record<string, { bg: string; text: string; icon: any }> = 
   high: { bg: 'bg-orange-100', text: 'text-orange-700', icon: AlertTriangle },
   medium: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: AlertTriangle },
   low: { bg: 'bg-blue-100', text: 'text-blue-700', icon: Info },
-  info: { bg: 'bg-gray-100', text: 'text-gray-700', icon: Info },
+  info: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', icon: Info },
 };
 
 export default function VulnerabilityScansClient() {
@@ -177,62 +177,62 @@ export default function VulnerabilityScansClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vulnerability Scans</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage and monitor security vulnerability assessments across infrastructure</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Vulnerability Scans</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage and monitor security vulnerability assessments across infrastructure</p>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Scans</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">{totalScans}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Scans</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{totalScans}</p>
             </div>
             <Activity className="h-5 w-5 text-indigo-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">{MOCK_SCANS.filter(s => s.status === 'completed').length} completed</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{MOCK_SCANS.filter(s => s.status === 'completed').length} completed</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Critical</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Critical</p>
               <p className="text-2xl font-bold text-red-600 mt-2">{totalCritical}</p>
             </div>
             <AlertCircle className="h-5 w-5 text-red-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Require immediate action</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Require immediate action</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">High</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">High</p>
               <p className="text-2xl font-bold text-orange-600 mt-2">{totalHigh}</p>
             </div>
             <AlertTriangle className="h-5 w-5 text-orange-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">High priority items</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">High priority items</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Open Findings</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Open Findings</p>
               <p className="text-2xl font-bold text-amber-600 mt-2">{openFindings}</p>
             </div>
             <ZapOff className="h-5 w-5 text-amber-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Critical + High + Medium</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Critical + High + Medium</p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search by name or target..."
@@ -255,10 +255,10 @@ export default function VulnerabilityScansClient() {
       </div>
 
       {/* Scans Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <table className="w-full text-xs">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
+            <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <th className="text-left py-3 px-4 font-medium text-gray-600">Scan Name</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600">Target</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600">Scanner</th>
@@ -268,7 +268,7 @@ export default function VulnerabilityScansClient() {
               <th className="w-10" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {filteredScans.map((scan) => {
               const isExpanded = expandedScanId === scan.id;
               const sc = statusConfig[scan.status];
@@ -276,11 +276,11 @@ export default function VulnerabilityScansClient() {
 
               return (
                 <div key={scan.id}>
-                  <tr className={`hover:bg-gray-50 ${isExpanded ? 'bg-indigo-50' : ''}`}>
+                  <tr className={`hover:bg-gray-50 dark:bg-gray-800 ${isExpanded ? 'bg-indigo-50' : ''}`}>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => setExpandedScanId(isExpanded ? null : scan.id)}
-                        className="text-left font-medium text-gray-900 hover:text-indigo-700"
+                        className="text-left font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-700"
                       >
                         {scan.name}
                       </button>
@@ -316,7 +316,7 @@ export default function VulnerabilityScansClient() {
                     <td className="py-3 px-4 text-center">
                       <button
                         onClick={() => setExpandedScanId(isExpanded ? null : scan.id)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600"
                       >
                         <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
@@ -328,11 +328,11 @@ export default function VulnerabilityScansClient() {
                     <tr className="bg-indigo-50">
                       <td colSpan={7} className="py-4 px-4">
                         <div className="space-y-3">
-                          <div className="font-medium text-gray-900 text-xs uppercase tracking-wider">Top 3 Vulnerabilities</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100 text-xs uppercase tracking-wider">Top 3 Vulnerabilities</div>
                           {scan.vulnerabilities.slice(0, 3).map((vuln, idx) => {
                             const sc = severityConfig[vuln.severity];
                             return (
-                              <div key={idx} className="bg-white border border-gray-200 rounded p-3">
+                              <div key={idx} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-3">
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2">
@@ -343,8 +343,8 @@ export default function VulnerabilityScansClient() {
                                       <span className="font-mono text-[10px] font-medium text-gray-600">{vuln.cveId}</span>
                                       <span className="text-[10px] font-bold text-indigo-700">CVSS: {vuln.cvssScore}</span>
                                     </div>
-                                    <p className="text-xs font-medium text-gray-900 mt-1">{vuln.title}</p>
-                                    <p className="text-[10px] text-gray-500 mt-1">{vuln.affectedHosts} host(s) affected</p>
+                                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mt-1">{vuln.title}</p>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">{vuln.affectedHosts} host(s) affected</p>
                                   </div>
                                 </div>
                               </div>
@@ -363,8 +363,8 @@ export default function VulnerabilityScansClient() {
 
       {filteredScans.length === 0 && (
         <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">No scans found matching your criteria</p>
+          <AlertCircle className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No scans found matching your criteria</p>
         </div>
       )}
     </div>

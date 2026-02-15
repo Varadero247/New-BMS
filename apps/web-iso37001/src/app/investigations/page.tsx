@@ -30,7 +30,7 @@ const statusColors: Record<string, string> = {
   OPEN: 'bg-red-100 text-red-700',
   INVESTIGATING: 'bg-yellow-100 text-yellow-700',
   CONCLUDED: 'bg-blue-100 text-blue-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 export default function InvestigationsPage() {
@@ -151,8 +151,8 @@ export default function InvestigationsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Investigations</h1>
-            <p className="text-gray-500 mt-1">Anti-bribery investigation case log per ISO 37001</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Investigations</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Anti-bribery investigation case log per ISO 37001</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             New Investigation
@@ -163,35 +163,35 @@ export default function InvestigationsPage() {
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Open</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
             <p className="text-2xl font-bold text-red-600">{openCount}</p>
-            <p className="text-xs text-gray-400 mt-1">active cases</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">active cases</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Investigating</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Investigating</p>
             <p className="text-2xl font-bold text-yellow-600">{investigatingCount}</p>
-            <p className="text-xs text-gray-400 mt-1">in progress</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">in progress</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Concluded</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Concluded</p>
             <p className="text-2xl font-bold text-blue-600">{concludedCount}</p>
-            <p className="text-xs text-gray-400 mt-1">findings issued</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">findings issued</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Closed</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Closed</p>
             <p className="text-2xl font-bold text-gray-600">{closedCount}</p>
-            <p className="text-xs text-gray-400 mt-1">resolved</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">resolved</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Whistleblower</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Whistleblower</p>
             <p className="text-2xl font-bold text-orange-600">{whistleblowerCount}</p>
-            <p className="text-xs text-gray-400 mt-1">reports</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">reports</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 p-4">
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
@@ -212,46 +212,46 @@ export default function InvestigationsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Findings</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outcome</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Investigator</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Reference</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Findings</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Outcome</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Investigator</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filtered.length > 0 ? (
                 filtered.map((item) => (
-                  <tr key={item.id} className={`hover:bg-gray-50 ${item.status === 'OPEN' ? 'border-l-2 border-l-red-400' : ''}`}>
+                  <tr key={item.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${item.status === 'OPEN' ? 'border-l-2 border-l-red-400' : ''}`}>
                     <td className="px-6 py-4 text-sm font-mono text-rose-600 whitespace-nowrap">{item.referenceNumber}</td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{item.title}</p>
-                      {item.description && <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">{item.description}</p>}
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
+                      {item.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">{item.description}</p>}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[item.type] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[item.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {item.type}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                      <span className="truncate block">{item.findings || <span className="text-gray-300 italic">Pending</span>}</span>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                      <span className="truncate block">{item.findings || <span className="text-gray-300 dark:text-gray-600 italic">Pending</span>}</span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                      <span className="truncate block">{item.outcome || <span className="text-gray-300 italic">TBD</span>}</span>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                      <span className="truncate block">{item.outcome || <span className="text-gray-300 dark:text-gray-600 italic">TBD</span>}</span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{item.investigator || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{item.investigator || '-'}</td>
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => openEditModal(item)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
                       <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
@@ -260,7 +260,7 @@ export default function InvestigationsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     {investigations.length === 0 ? 'No investigations found. Open a case to get started.' : 'No investigations match your filters.'}
                   </td>
                 </tr>
@@ -275,17 +275,17 @@ export default function InvestigationsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">{editingItem ? 'Edit Investigation' : 'New Investigation'}</h2>
-                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{editingItem ? 'Edit Investigation' : 'New Investigation'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Reference Number <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reference Number <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.referenceNumber}
@@ -296,14 +296,14 @@ export default function InvestigationsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
                     <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={form.title}
@@ -314,7 +314,7 @@ export default function InvestigationsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -325,13 +325,13 @@ export default function InvestigationsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                     <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Investigator</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Investigator</label>
                     <input
                       type="text"
                       value={form.investigator}
@@ -341,7 +341,7 @@ export default function InvestigationsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Findings</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Findings</label>
                   <textarea
                     value={form.findings}
                     onChange={(e) => setForm({ ...form, findings: e.target.value })}
@@ -351,7 +351,7 @@ export default function InvestigationsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Outcome</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Outcome</label>
                   <textarea
                     value={form.outcome}
                     onChange={(e) => setForm({ ...form, outcome: e.target.value })}
@@ -360,8 +360,8 @@ export default function InvestigationsPage() {
                     rows={2}
                   />
                 </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingItem ? 'Update' : 'Create'}
                   </button>

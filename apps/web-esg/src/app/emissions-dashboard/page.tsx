@@ -55,13 +55,13 @@ export default function EmissionsDashboardPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Emissions Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">GHG Protocol Scope 1/2/3 emissions overview</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Emissions Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">GHG Protocol Scope 1/2/3 emissions overview</p>
         </div>
         <select
           value={year}
           onChange={(e) => setYear(e.target.value)}
-          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white"
+          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white dark:bg-gray-900"
         >
           <option value="2026">2026</option>
           <option value="2025">2025</option>
@@ -73,9 +73,9 @@ export default function EmissionsDashboardPage() {
       <div className="grid grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">Total Emissions</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totals.total.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">tCO2e</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Emissions</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totals.total.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">tCO2e</p>
             <p className={`text-xs font-medium mt-1 ${yoyChange < 0 ? 'text-green-600' : 'text-red-600'}`}>
               {yoyChange > 0 ? '+' : ''}{yoyChange}% YoY
             </p>
@@ -90,19 +90,19 @@ export default function EmissionsDashboardPage() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: config.fill }} />
-                  <p className="text-sm text-gray-500">{config.label.split(' (')[0]}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{config.label.split(' (')[0]}</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{value.toLocaleString()}</p>
-                <p className="text-xs text-gray-500">{pct}% of total</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{value.toLocaleString()}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{pct}% of total</p>
               </CardContent>
             </Card>
           );
         })}
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">Net Zero Target</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Net Zero Target</p>
             <p className="text-2xl font-bold text-green-600 mt-1">2040</p>
-            <p className="text-xs text-gray-500">SBTi aligned</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">SBTi aligned</p>
             <p className="text-xs font-medium text-blue-600 mt-1">On track</p>
           </CardContent>
         </Card>
@@ -115,7 +115,7 @@ export default function EmissionsDashboardPage() {
             key={f}
             onClick={() => setScopeFilter(f)}
             className={`px-3 py-1.5 text-xs font-medium rounded-md border ${
-              scopeFilter === f ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              scopeFilter === f ? 'bg-green-600 text-white border-green-600' : 'bg-white dark:bg-gray-900 text-gray-600 border-gray-300 hover:bg-gray-50'
             }`}
           >
             {f === 'all' ? 'All Scopes' : SCOPE_COLORS[f].label}
@@ -126,7 +126,7 @@ export default function EmissionsDashboardPage() {
       {/* Monthly Bar Chart (CSS-based) */}
       <Card>
         <CardContent className="p-4">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Monthly Emissions (tCO2e)</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Monthly Emissions (tCO2e)</h3>
           <div className="flex items-end gap-2 h-48">
             {MONTHLY_DATA.map((d) => {
               const showScope1 = scopeFilter === 'all' || scopeFilter === 'scope1';
@@ -137,13 +137,13 @@ export default function EmissionsDashboardPage() {
 
               return (
                 <div key={d.month} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] font-mono text-gray-500">{total}</span>
+                  <span className="text-[10px] font-mono text-gray-500 dark:text-gray-400">{total}</span>
                   <div className="w-full flex flex-col-reverse rounded-t overflow-hidden" style={{ height: `${height}%` }}>
                     {showScope1 && <div style={{ height: `${(d.scope1 / total) * 100}%`, backgroundColor: SCOPE_COLORS.scope1.fill }} />}
                     {showScope2 && <div style={{ height: `${(d.scope2 / total) * 100}%`, backgroundColor: SCOPE_COLORS.scope2.fill }} />}
                     {showScope3 && <div style={{ height: `${(d.scope3 / total) * 100}%`, backgroundColor: SCOPE_COLORS.scope3.fill }} />}
                   </div>
-                  <span className="text-[10px] text-gray-500">{d.month}</span>
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400">{d.month}</span>
                 </div>
               );
             })}
@@ -165,7 +165,7 @@ export default function EmissionsDashboardPage() {
         {/* Carbon Intensity */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Carbon Intensity Metrics</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Carbon Intensity Metrics</h3>
             <div className="space-y-4">
               {INTENSITY_METRICS.map(m => {
                 const pct = Math.min(100, (m.value / (m.target * 1.5)) * 100);
@@ -194,7 +194,7 @@ export default function EmissionsDashboardPage() {
         {/* Scope Breakdown */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Emission Sources Breakdown</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Emission Sources Breakdown</h3>
             <div className="space-y-3">
               {[
                 { source: 'Natural Gas (Boilers)', scope: 'Scope 1', value: 890, pct: 15.2 },
@@ -208,10 +208,10 @@ export default function EmissionsDashboardPage() {
                 <div key={item.source} className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-700 truncate">{item.source}</span>
-                      <span className="text-xs font-mono text-gray-500 ml-2">{item.value} tCO2e</span>
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate">{item.source}</span>
+                      <span className="text-xs font-mono text-gray-500 dark:text-gray-400 ml-2">{item.value} tCO2e</span>
                     </div>
-                    <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="mt-1 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{

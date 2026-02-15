@@ -124,7 +124,7 @@ const rules: AutomationRule[] = [
 const statusConfig: Record<RuleStatus, { label: string; color: string; icon: React.ReactNode }> = {
   active: { label: 'Active', color: 'bg-green-100 text-green-700', icon: <Play className="h-3.5 w-3.5" /> },
   paused: { label: 'Paused', color: 'bg-amber-100 text-amber-700', icon: <Pause className="h-3.5 w-3.5" /> },
-  draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600', icon: <Clock className="h-3.5 w-3.5" /> },
+  draft: { label: 'Draft', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', icon: <Clock className="h-3.5 w-3.5" /> },
   error: { label: 'Error', color: 'bg-red-100 text-red-700', icon: <AlertTriangle className="h-3.5 w-3.5" /> },
 };
 
@@ -149,40 +149,40 @@ export default function AutomationsClient() {
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Zap className="h-6 w-6 text-amber-500" />
           Automation Rules
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Configure automated workflows triggered by events, schedules, or conditions</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure automated workflows triggered by events, schedules, or conditions</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Rules</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{rules.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Rules</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{rules.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Active</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{activeCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Executions</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Executions</p>
           <p className="text-3xl font-bold text-indigo-700 mt-1">{totalExecutions}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg Error Rate</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{(rules.reduce((s, r) => s + r.errorRate, 0) / rules.length).toFixed(1)}%</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg Error Rate</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{(rules.reduce((s, r) => s + r.errorRate, 0) / rules.length).toFixed(1)}%</p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search automation rules..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
         </div>
         <div className="flex gap-2">
           {['all', 'active', 'paused', 'draft'].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
               {s === 'all' ? 'All' : statusConfig[s as RuleStatus]?.label || s}
             </button>
           ))}
@@ -194,40 +194,40 @@ export default function AutomationsClient() {
           const isExpanded = expanded.has(rule.id);
           const cfg = statusConfig[rule.status];
           return (
-            <div key={rule.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={rule.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded((prev) => { const n = new Set(prev); n.has(rule.id) ? n.delete(rule.id) : n.add(rule.id); return n; })}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400" /> : <ChevronRight className="h-5 w-5 text-gray-400" />}
+                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
                   <Zap className={`h-5 w-5 ${rule.status === 'active' ? 'text-amber-500' : 'text-gray-300'}`} />
                   <div className="text-left">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">{rule.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{rule.name}</p>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>{cfg.icon}{cfg.label}</span>
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">{rule.module}</span>
+                      <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 rounded-full text-xs">{rule.module}</span>
                       <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs">{triggerLabels[rule.triggerType]}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{rule.description}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{rule.description}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                   <span>{rule.executionCount} runs</span>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100 p-4 space-y-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Trigger</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Trigger</h4>
                       <div className="bg-indigo-50 rounded-lg p-3">
                         <p className="text-xs font-mono text-indigo-700">{rule.trigger}</p>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Conditions</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Conditions</h4>
                       <div className="space-y-1">
                         {rule.conditions.map((c, i) => (
                           <p key={i} className="text-xs text-gray-600 flex items-center gap-1.5">
@@ -237,21 +237,21 @@ export default function AutomationsClient() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Actions</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Actions</h4>
                       <div className="space-y-1.5">
                         {rule.actions.map((a, i) => (
                           <div key={i} className="flex items-center gap-2">
-                            {i > 0 && <ArrowRight className="h-3 w-3 text-gray-300 ml-1" />}
-                            <div className="flex items-center gap-1.5 bg-gray-50 rounded px-2 py-1">
+                            {i > 0 && <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600 ml-1" />}
+                            <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 rounded px-2 py-1">
                               {a.icon}
-                              <span className="text-xs text-gray-700">{a.detail}</span>
+                              <span className="text-xs text-gray-700 dark:text-gray-300">{a.detail}</span>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 text-xs text-gray-500 border-t border-gray-100 pt-3">
+                  <div className="flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3">
                     <span>Created by: {rule.createdBy}</span>
                     <span>Last executed: {rule.lastExecuted}</span>
                     <span>Executions: {rule.executionCount}</span>

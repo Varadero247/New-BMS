@@ -70,12 +70,12 @@ export default function CapaBoardPage() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">CAPA Board</h1>
-          <p className="text-sm text-gray-500 mt-1">Kanban view of corrective and preventive actions</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">CAPA Board</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kanban view of corrective and preventive actions</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-500">{capas.length} CAPAs total</span>
-          <a href="/capa" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+          <span className="text-xs text-gray-500 dark:text-gray-400">{capas.length} CAPAs total</span>
+          <a href="/capa" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
             List View
           </a>
         </div>
@@ -105,19 +105,19 @@ export default function CapaBoardPage() {
                     <div
                       key={capa.id}
                       onClick={() => setSelectedCapa(selectedCapa?.id === capa.id ? null : capa)}
-                      className={`bg-white rounded-lg border p-3 cursor-pointer transition-shadow hover:shadow-md ${
-                        selectedCapa?.id === capa.id ? 'ring-2 ring-blue-500' : 'border-gray-200'
+                      className={`bg-white dark:bg-gray-900 rounded-lg border p-3 cursor-pointer transition-shadow hover:shadow-md ${
+                        selectedCapa?.id === capa.id ? 'ring-2 ring-blue-500' : 'border-gray-200 dark:border-gray-700'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-[10px] font-mono text-gray-400">{capa.id}</span>
+                        <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{capa.id}</span>
                         <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 ${priorityConfig[capa.priority]}`}>
                           {capa.priority}
                         </span>
                       </div>
-                      <p className="text-xs font-medium text-gray-900 mt-1 line-clamp-2">{capa.title}</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mt-1 line-clamp-2">{capa.title}</p>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-[10px] text-gray-500">{capa.assignee}</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400">{capa.assignee}</span>
                         <span className={`text-[10px] font-mono ${overdue ? 'text-red-600 font-bold' : 'text-gray-400'}`}>
                           {overdue ? 'OVERDUE' : capa.dueDate.slice(5)}
                         </span>
@@ -130,11 +130,11 @@ export default function CapaBoardPage() {
 
                       {/* Expanded detail */}
                       {selectedCapa?.id === capa.id && (
-                        <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5 text-[10px]">
-                          <div><span className="text-gray-500">Source:</span> <span className="text-gray-700 font-medium">{capa.source}</span></div>
-                          <div><span className="text-gray-500">Due:</span> <span className="text-gray-700 font-medium">{capa.dueDate}</span></div>
+                        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-1.5 text-[10px]">
+                          <div><span className="text-gray-500 dark:text-gray-400">Source:</span> <span className="text-gray-700 dark:text-gray-300 font-medium">{capa.source}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Due:</span> <span className="text-gray-700 dark:text-gray-300 font-medium">{capa.dueDate}</span></div>
                           {capa.rootCause && (
-                            <div><span className="text-gray-500">Root Cause:</span> <span className="text-gray-700 font-medium">{capa.rootCause}</span></div>
+                            <div><span className="text-gray-500 dark:text-gray-400">Root Cause:</span> <span className="text-gray-700 dark:text-gray-300 font-medium">{capa.rootCause}</span></div>
                           )}
                         </div>
                       )}
@@ -143,7 +143,7 @@ export default function CapaBoardPage() {
                 })}
 
                 {items.length === 0 && (
-                  <div className="flex items-center justify-center h-24 text-xs text-gray-400">
+                  <div className="flex items-center justify-center h-24 text-xs text-gray-400 dark:text-gray-500">
                     No CAPAs
                   </div>
                 )}

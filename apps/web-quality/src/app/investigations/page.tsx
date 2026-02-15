@@ -29,7 +29,7 @@ const statusColors: Record<string, string> = {
   ACTIONS_ASSIGNED: 'bg-indigo-100 text-indigo-700',
   VERIFICATION_IN_PROGRESS: 'bg-cyan-100 text-cyan-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const severityColors: Record<string, string> = {
@@ -105,8 +105,8 @@ export default function InvestigationsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Investigation Management</h1>
-            <p className="text-gray-500 mt-1">Root cause analysis and incident investigation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Investigation Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Root cause analysis and incident investigation</p>
           </div>
           <Link href="/investigations/new">
             <Button className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export default function InvestigationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <FileSearch className="h-8 w-8 text-blue-500" />
@@ -132,7 +132,7 @@ export default function InvestigationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.open}</p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-500" />
@@ -143,7 +143,7 @@ export default function InvestigationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -154,7 +154,7 @@ export default function InvestigationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -165,7 +165,7 @@ export default function InvestigationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Critical</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Critical</p>
                   <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -219,18 +219,18 @@ export default function InvestigationsPage() {
               <div className="space-y-4">
                 {investigations.map((inv) => (
                   <Link key={inv.id} href={`/investigations/${inv.id}`}>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{inv.title}</span>
-                          <Badge className={statusColors[inv.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[inv.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {inv.status.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={severityColors[inv.severity] || 'bg-gray-100'}>
+                          <Badge className={severityColors[inv.severity] || 'bg-gray-100 dark:bg-gray-800'}>
                             {inv.severity}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                           <span>{inv.referenceNumber}</span>
                           <span>•</span>
                           <span>{typeLabels[inv.investigationType] || inv.investigationType}</span>
@@ -246,7 +246,7 @@ export default function InvestigationsPage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {inv.targetCompletionDate && (
                           <span>Due: {new Date(inv.targetCompletionDate).toLocaleDateString()}</span>
                         )}
@@ -256,7 +256,7 @@ export default function InvestigationsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileSearch className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No investigations found</p>
               </div>

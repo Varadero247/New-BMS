@@ -40,13 +40,13 @@ const SEVERITY_STYLES: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   FIRING: 'bg-red-100 text-red-700',
   OK: 'bg-green-100 text-green-700',
-  SILENCED: 'bg-gray-100 text-gray-500',
+  SILENCED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 function StatusIcon({ status }: { status: string }) {
   if (status === 'FIRING') return <AlertTriangle className="h-4 w-4 text-red-500" />;
   if (status === 'OK') return <CheckCircle className="h-4 w-4 text-green-500" />;
-  return <BellOff className="h-4 w-4 text-gray-400" />;
+  return <BellOff className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
 }
 
 export default function AlertsPage() {
@@ -116,8 +116,8 @@ export default function AlertsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Alerts</h1>
-            <p className="text-gray-500 mt-1">Data-driven threshold alerts and notifications</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Alerts</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Data-driven threshold alerts and notifications</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -156,7 +156,7 @@ export default function AlertsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search alerts..."
@@ -193,7 +193,7 @@ export default function AlertsPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Bell className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No alerts match your filters.</p>
               </div>
@@ -201,53 +201,53 @@ export default function AlertsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Alert</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Condition</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Module</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Severity</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Triggers</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Last Fired</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Enabled</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Alert</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Condition</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Module</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Severity</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Triggers</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Last Fired</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Enabled</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(alert => (
-                      <tr key={alert.id} className={`border-b hover:bg-gray-50 ${!alert.enabled ? 'opacity-60' : ''}`}>
+                      <tr key={alert.id} className={`border-b hover:bg-gray-50 dark:bg-gray-800 ${!alert.enabled ? 'opacity-60' : ''}`}>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             <StatusIcon status={alert.status} />
                             <div>
-                              <p className="font-medium text-gray-900">{alert.name}</p>
-                              <p className="text-xs text-gray-400">{alert.owner}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-100">{alert.name}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">{alert.owner}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-500 text-xs max-w-xs">{alert.condition}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs max-w-xs">{alert.condition}</td>
                         <td className="py-3 px-4">
-                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{alert.module}</span>
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 rounded">{alert.module}</span>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${SEVERITY_STYLES[alert.severity] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${SEVERITY_STYLES[alert.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {alert.severity}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[alert.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[alert.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {alert.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">{alert.triggerCount}</td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
-                          {alert.lastTriggered ? new Date(alert.lastTriggered).toLocaleString() : <span className="text-gray-300">Never</span>}
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{alert.triggerCount}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+                          {alert.lastTriggered ? new Date(alert.lastTriggered).toLocaleString() : <span className="text-gray-300 dark:text-gray-600">Never</span>}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <button
                             onClick={() => toggleAlert(alert.id, alert.enabled)}
                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${alert.enabled ? 'bg-purple-600' : 'bg-gray-200'}`}
                           >
-                            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${alert.enabled ? 'translate-x-4' : 'translate-x-1'}`} />
+                            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white dark:bg-gray-900 shadow transition-transform ${alert.enabled ? 'translate-x-4' : 'translate-x-1'}`} />
                           </button>
                         </td>
                       </tr>
@@ -262,21 +262,21 @@ export default function AlertsPage() {
         {/* Create Alert Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Create Alert</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create Alert</h2>
                 <button onClick={() => setShowCreateModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Alert Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alert Name</label>
                   <input type="text" placeholder="e.g. NCR Rate Exceeded" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>CRITICAL</option>
                       <option>WARNING</option>
@@ -284,29 +284,29 @@ export default function AlertsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Module</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Module</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       {modules.map(m => <option key={m}>{m}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Condition</label>
                   <input type="text" placeholder="e.g. NCR rate > 5 per week" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Threshold</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Threshold</label>
                     <input type="number" placeholder="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
                     <input type="text" placeholder="Assignee name" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Create Alert</button>
               </div>
             </div>

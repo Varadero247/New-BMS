@@ -196,7 +196,7 @@ export default function SsoPage() {
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                 enabled ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -228,7 +228,7 @@ export default function SsoPage() {
           <div className="flex gap-2">
             <button
               onClick={handleCopyMetadata}
-              className="px-4 py-2 text-sm font-medium rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-4 py-2 text-sm font-medium rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               {copied ? 'Copied!' : 'Copy SP Metadata XML'}
             </button>
@@ -236,7 +236,7 @@ export default function SsoPage() {
               href={`${API_URL}/api/auth/saml/metadata`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 text-sm font-medium rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-4 py-2 text-sm font-medium rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               Download Metadata
             </a>
@@ -256,7 +256,7 @@ export default function SsoPage() {
             value={issuer}
             onChange={(e) => setIssuer(e.target.value)}
             placeholder="e.g. Okta, Azure AD, OneLogin"
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -268,9 +268,9 @@ export default function SsoPage() {
             value={entryPoint}
             onChange={(e) => setEntryPoint(e.target.value)}
             placeholder="https://idp.example.com/sso/saml"
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
           />
-          <p className="text-xs text-gray-400 mt-1">The URL where authentication requests will be sent</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">The URL where authentication requests will be sent</p>
         </div>
 
         <div>
@@ -282,9 +282,9 @@ export default function SsoPage() {
             onChange={(e) => setCert(e.target.value)}
             rows={6}
             placeholder="-----BEGIN CERTIFICATE-----&#10;MIICpDCCAYwCCQD...&#10;-----END CERTIFICATE-----"
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 font-mono"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 font-mono"
           />
-          <p className="text-xs text-gray-400 mt-1">Paste your IdP&apos;s X.509 certificate in PEM format</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Paste your IdP&apos;s X.509 certificate in PEM format</p>
         </div>
 
         <div>
@@ -294,7 +294,7 @@ export default function SsoPage() {
           <select
             value={signatureAlgorithm}
             onChange={(e) => setSignatureAlgorithm(e.target.value)}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
           >
             <option value="sha256">SHA-256 (Recommended)</option>
             <option value="sha512">SHA-512</option>

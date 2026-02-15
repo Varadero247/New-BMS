@@ -221,19 +221,19 @@ export default function ScopePage() {
             {scope.status === 'APPROVED' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
             {scope.status} &mdash; v{scope.version}
           </span>
-          <button onClick={() => setShowVersions(!showVersions)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button onClick={() => setShowVersions(!showVersions)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
             <History className="h-4 w-4" />
             History
           </button>
-          <button onClick={handlePrint} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button onClick={handlePrint} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
             <Printer className="h-4 w-4" />
           </button>
-          <button onClick={handleExport} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button onClick={handleExport} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
             <Download className="h-4 w-4" />
             Export
           </button>
           <button onClick={handleSave} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-            saved ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700' : 'bg-card border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800'
+            saved ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700' : 'bg-card border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
           }`}>
             <Save className="h-4 w-4" />
             {saved ? 'Saved!' : 'Save Draft'}
@@ -280,8 +280,8 @@ export default function ScopePage() {
       {/* ── Print header ───────────────────────────────────────────────── */}
       <div className="hidden print:block mb-8">
         <h1 className="text-xl font-bold">QMS Scope Document</h1>
-        <p className="text-sm text-gray-500">ISO 9001:2015 Clause 4.3 | Version {scope.version} | Status: {scope.status} | {formatDate(scope.updatedAt)}</p>
-        {scope.approvedBy && <p className="text-sm text-gray-500">Approved by: {scope.approvedBy}</p>}
+        <p className="text-sm text-gray-500 dark:text-gray-400">ISO 9001:2015 Clause 4.3 | Version {scope.version} | Status: {scope.status} | {formatDate(scope.updatedAt)}</p>
+        {scope.approvedBy && <p className="text-sm text-gray-500 dark:text-gray-400">Approved by: {scope.approvedBy}</p>}
       </div>
 
       {/* ── Section Tabs ───────────────────────────────────────────────── */}

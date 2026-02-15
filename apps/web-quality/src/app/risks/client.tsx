@@ -637,7 +637,7 @@ export default function RisksClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      <span className="ml-3 text-gray-500">Loading...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading...</span>
     </div>
   );
 
@@ -650,8 +650,8 @@ export default function RisksClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Risk & Opportunity Management</h1>
-          <p className="text-gray-500 mt-1">ISO 9001 Clause 6.1 -- Actions to address risks and opportunities</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk & Opportunity Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 9001 Clause 6.1 -- Actions to address risks and opportunities</p>
         </div>
 
         {/* Summary Metrics */}
@@ -660,9 +660,9 @@ export default function RisksClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Interested Parties</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Interested Parties</p>
                   <p className="text-3xl font-bold">{summaryStats.totalParties}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.internalParties} internal / {summaryStats.externalParties} external
                   </p>
                 </div>
@@ -674,9 +674,9 @@ export default function RisksClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Issues</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Issues</p>
                   <p className="text-3xl font-bold text-amber-600">{summaryStats.totalIssues}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.highPriorityIssues} high/critical priority
                   </p>
                 </div>
@@ -688,9 +688,9 @@ export default function RisksClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Risks Identified</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Risks Identified</p>
                   <p className="text-3xl font-bold text-red-600">{summaryStats.totalRisks}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.highRisks} high/extreme risk
                   </p>
                 </div>
@@ -702,9 +702,9 @@ export default function RisksClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Opportunities</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Opportunities</p>
                   <p className="text-3xl font-bold text-green-600">{summaryStats.totalOpportunities}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.realizedOpportunities} realized
                   </p>
                 </div>
@@ -715,7 +715,7 @@ export default function RisksClient() {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
           <nav className="flex space-x-1" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
@@ -724,13 +724,13 @@ export default function RisksClient() {
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                 }`}
               >
                 {tab.icon}
                 {tab.label}
                 <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'
+                  activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                 }`}>
                   {tab.count}
                 </span>
@@ -756,7 +756,7 @@ export default function RisksClient() {
                 <option value="EXTERNAL">External</option>
               </Select>
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search parties..."
                   value={partySearch}
@@ -788,7 +788,7 @@ export default function RisksClient() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-gray-600 mb-3 line-clamp-2">{party.needsExpectations}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
                         <span>Review: {party.reviewFrequency?.replace('_', ' ')}</span>
                         <span>{party.communicationMethod}</span>
                       </div>
@@ -798,9 +798,9 @@ export default function RisksClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No interested parties found</h3>
-                <p className="text-gray-500 mb-6">Start by identifying the interested parties relevant to your QMS.</p>
+                <Users className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No interested parties found</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Start by identifying the interested parties relevant to your QMS.</p>
                 <Button onClick={() => { setPartyForm(emptyPartyForm); setError(''); setShowPartyModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Party
@@ -838,7 +838,7 @@ export default function RisksClient() {
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search issues..."
                   value={issueSearch}
@@ -867,19 +867,19 @@ export default function RisksClient() {
                             <Badge variant={getBiasVariant(issue.bias)}>{issue.bias}</Badge>
                             <Badge variant={getPriorityVariant(issue.priority)}>{issue.priority}</Badge>
                             {issue.partyName && (
-                              <span className="text-xs text-gray-500">Party: {issue.partyName}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">Party: {issue.partyName}</span>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-1">{issue.issueOfConcern}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{issue.issueOfConcern}</h3>
                           {issue.processesAffected && (
-                            <p className="text-sm text-gray-500">Processes: {issue.processesAffected}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Processes: {issue.processesAffected}</p>
                           )}
                           {issue.treatmentMethod && (
-                            <p className="text-sm text-gray-400 mt-1">Treatment: {issue.treatmentMethod}</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Treatment: {issue.treatmentMethod}</p>
                           )}
                         </div>
                         {issue.recordReference && (
-                          <span className="text-xs text-gray-400 font-mono">{issue.recordReference}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{issue.recordReference}</span>
                         )}
                       </div>
                     </CardContent>
@@ -888,9 +888,9 @@ export default function RisksClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FileWarning className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No issues registered</h3>
-                <p className="text-gray-500 mb-6">Capture internal and external issues that affect your QMS.</p>
+                <FileWarning className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No issues registered</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Capture internal and external issues that affect your QMS.</p>
                 <Button onClick={() => { setIssueForm(emptyIssueForm); setError(''); setShowIssueModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Register First Issue
@@ -918,7 +918,7 @@ export default function RisksClient() {
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search risks..."
                   value={riskSearch}
@@ -955,10 +955,10 @@ export default function RisksClient() {
                             }>
                               {risk.status?.replace(/_/g, ' ')}
                             </Badge>
-                            <span className="text-xs text-gray-500">{risk.process}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{risk.process}</span>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-1 line-clamp-2">{risk.riskDescription}</h3>
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">{risk.riskDescription}</h3>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                             <span>Likelihood: {risk.likelihood}</span>
                             {risk.responsiblePerson && <span>Owner: {risk.responsiblePerson}</span>}
                             {risk.dueDate && <span>Due: {new Date(risk.dueDate).toLocaleDateString()}</span>}
@@ -975,9 +975,9 @@ export default function RisksClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No risks in the register</h3>
-                <p className="text-gray-500 mb-6">Identify and assess risks to your quality management system processes.</p>
+                <Shield className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No risks in the register</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Identify and assess risks to your quality management system processes.</p>
                 <Button onClick={() => { setRiskForm(emptyRiskForm); setRiskAiAnalysis(''); setRiskAiExpanded(false); setError(''); setShowRiskModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Register First Risk
@@ -1005,7 +1005,7 @@ export default function RisksClient() {
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search opportunities..."
                   value={opportunitySearch}
@@ -1042,13 +1042,13 @@ export default function RisksClient() {
                             {opp.status}
                           </Badge>
                         </div>
-                        <span className="text-xs text-gray-500">{opp.process}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{opp.process}</span>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{opp.opportunityDescription}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">{opp.opportunityDescription}</h3>
                       {opp.actionToExploit && (
-                        <p className="text-sm text-gray-500 line-clamp-1">Action: {opp.actionToExploit}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">Action: {opp.actionToExploit}</p>
                       )}
-                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-400 dark:text-gray-500">
                         {opp.responsiblePerson && <span>Owner: {opp.responsiblePerson}</span>}
                         {opp.targetDate && <span>Target: {new Date(opp.targetDate).toLocaleDateString()}</span>}
                       </div>
@@ -1058,9 +1058,9 @@ export default function RisksClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Lightbulb className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No opportunities identified</h3>
-                <p className="text-gray-500 mb-6">Capture opportunities for improvement aligned with your QMS objectives.</p>
+                <Lightbulb className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No opportunities identified</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Capture opportunities for improvement aligned with your QMS objectives.</p>
                 <Button onClick={() => { setOpportunityForm(emptyOpportunityForm); setOpportunityAiAnalysis(''); setOpportunityAiExpanded(false); setError(''); setShowOpportunityModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Identify First Opportunity
@@ -1292,8 +1292,8 @@ export default function RisksClient() {
             )}
 
             {/* SECTION A: IDENTIFICATION */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 A -- Identification
               </h3>
               <div className="space-y-4">
@@ -1326,8 +1326,8 @@ export default function RisksClient() {
             </div>
 
             {/* SECTION B: PROBABILITY */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 B -- Probability
               </h3>
               <div className="grid grid-cols-2 gap-4">
@@ -1356,8 +1356,8 @@ export default function RisksClient() {
             </div>
 
             {/* SECTION C: CONSEQUENCE */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 C -- Consequence Assessment (0-5 each)
               </h3>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1437,24 +1437,24 @@ export default function RisksClient() {
             </div>
 
             {/* SECTION D: RISK SCORING */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 D -- Risk Scoring (auto-calculated)
               </h3>
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500 mb-1">Risk Factor</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Risk Factor</p>
                   <div className={`px-4 py-2 rounded-lg font-bold text-lg ${getRiskFactorColor(computedRiskFactor)}`}>
                     {computedRiskFactor}
                   </div>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-500 mb-1">Risk Level</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Risk Level</p>
                   <Badge variant={getRiskFactorBadgeVariant(computedRiskFactor)} className="text-base px-4 py-1">
                     {computedRiskLevel}
                   </Badge>
                 </div>
-                <div className="text-sm text-gray-500 ml-4">
+                <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
                   <p>Likelihood ({riskForm.likelihood}) x Max Consequence ({Math.max(
                     riskForm.lossOfContracts, riskForm.harmToUser, riskForm.unableToMeetTerms,
                     riskForm.violationOfRegulations, riskForm.reputationImpact, riskForm.costOfCorrection, 0
@@ -1465,8 +1465,8 @@ export default function RisksClient() {
             </div>
 
             {/* SECTION E: TREATMENT */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 E -- Treatment
               </h3>
               <div className="space-y-4">
@@ -1541,25 +1541,25 @@ export default function RisksClient() {
             </div>
 
             {/* SECTION F: AI ANALYSIS */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <button
                 type="button"
                 onClick={() => setRiskAiExpanded(!riskAiExpanded)}
                 className="flex items-center justify-between w-full text-left"
               >
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-purple-500" />
                   F -- AI Risk Analysis
                 </h3>
                 {riskAiExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                  <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 )}
               </button>
               {riskAiExpanded && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     AI will analyze the risk description and scoring to provide recommendations.
                   </p>
                   <Button
@@ -1576,7 +1576,7 @@ export default function RisksClient() {
                     )}
                   </Button>
                   {riskAiAnalysis && (
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                       {riskAiAnalysis}
                     </div>
                   )}
@@ -1609,8 +1609,8 @@ export default function RisksClient() {
             )}
 
             {/* IDENTIFICATION */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 A -- Identification
               </h3>
               <div className="space-y-4">
@@ -1654,8 +1654,8 @@ export default function RisksClient() {
             </div>
 
             {/* LIKELIHOOD & BENEFIT ASSESSMENT */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 B -- Likelihood & Benefit Assessment
               </h3>
               <div className="space-y-4">
@@ -1748,7 +1748,7 @@ export default function RisksClient() {
 
                 {/* Calculated score */}
                 <div className="flex items-center gap-4 pt-2">
-                  <p className="text-sm text-gray-500">Opportunity Score:</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Opportunity Score:</p>
                   <Badge variant={getOpportunityScoreVariant(computedOpportunityScore)} className="text-base px-4 py-1">
                     {computedOpportunityScore}
                   </Badge>
@@ -1757,8 +1757,8 @@ export default function RisksClient() {
             </div>
 
             {/* ACTION & OWNERSHIP */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 C -- Action & Ownership
               </h3>
               <div className="space-y-4">
@@ -1808,25 +1808,25 @@ export default function RisksClient() {
             </div>
 
             {/* AI ANALYSIS */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <button
                 type="button"
                 onClick={() => setOpportunityAiExpanded(!opportunityAiExpanded)}
                 className="flex items-center justify-between w-full text-left"
               >
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-purple-500" />
                   D -- AI Opportunity Analysis
                 </h3>
                 {opportunityAiExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                  <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 )}
               </button>
               {opportunityAiExpanded && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     AI will analyze the opportunity and provide strategic recommendations.
                   </p>
                   <Button
@@ -1843,7 +1843,7 @@ export default function RisksClient() {
                     )}
                   </Button>
                   {opportunityAiAnalysis && (
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                       {opportunityAiAnalysis}
                     </div>
                   )}

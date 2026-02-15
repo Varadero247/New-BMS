@@ -103,22 +103,22 @@ export default function CompetencesPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Competence Records</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 §7.2 — Competence</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Competence Records</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 §7.2 — Competence</p>
         </div>
         <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Record</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500">Total Records</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'COMPETENT').length}</div><div className="text-sm text-gray-500">Competent</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'IN_TRAINING').length}</div><div className="text-sm text-gray-500">In Training</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{items.filter(i => i.status === 'NOT_COMPETENT' || i.status === 'EXPIRED').length}</div><div className="text-sm text-gray-500">Gaps</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500 dark:text-gray-400">Total Records</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'COMPETENT').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Competent</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'IN_TRAINING').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">In Training</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{items.filter(i => i.status === 'NOT_COMPETENT' || i.status === 'EXPIRED').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Gaps</div></CardContent></Card>
       </div>
 
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <Input placeholder="Search employees or competency areas..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
         </div>
         <Select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
@@ -132,24 +132,24 @@ export default function CompetencesPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Employee</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Department</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Competency Area</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Next Review</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Employee</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Department</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Competency Area</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Next Review</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                 ) : items.length === 0 ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">No competence records found</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">No competence records found</td></tr>
                 ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
                     <td className="p-3 font-medium">{item.employeeName}</td>
                     <td className="p-3 text-gray-600">{item.department || '—'}</td>
@@ -173,7 +173,7 @@ export default function CompetencesPage() {
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
           <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 py-2">Page {pagination.page} of {pagination.totalPages}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
           <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
         </div>
       )}

@@ -305,7 +305,7 @@ export default function ComplianceCalendarClient() {
 
     // Empty cells before first day
     for (let i = 0; i < firstDayOfWeek; i++) {
-      cells.push(<div key={`empty-${i}`} className="h-28 border border-gray-100 bg-gray-50" />);
+      cells.push(<div key={`empty-${i}`} className="h-28 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />);
     }
 
     // Day cells
@@ -320,11 +320,11 @@ export default function ComplianceCalendarClient() {
       cells.push(
         <div
           key={`day-${day}`}
-          className={`h-28 border border-gray-100 p-1 overflow-hidden hover:bg-gray-50 transition-colors ${
+          className={`h-28 border border-gray-100 dark:border-gray-700 p-1 overflow-hidden hover:bg-gray-50 dark:bg-gray-800 transition-colors ${
             isToday ? 'bg-indigo-50 border-indigo-300' : ''
           }`}
         >
-          <div className={`text-xs font-medium mb-1 ${isToday ? 'text-indigo-600' : 'text-gray-500'}`}>
+          <div className={`text-xs font-medium mb-1 ${isToday ? 'text-indigo-600' : 'text-gray-500 dark:text-gray-400'}`}>
             {day}
           </div>
           <div className="space-y-0.5">
@@ -340,7 +340,7 @@ export default function ComplianceCalendarClient() {
               </button>
             ))}
             {dayEvents.length > 3 && (
-              <div className="text-xs text-gray-400 pl-1">+{dayEvents.length - 3} more</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 pl-1">+{dayEvents.length - 3} more</div>
             )}
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function ComplianceCalendarClient() {
         {/* Day headers */}
         <div className="grid grid-cols-7 mb-1">
           {DAY_NAMES.map((d) => (
-            <div key={d} className="text-center text-xs font-medium text-gray-500 py-2">
+            <div key={d} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">
               {d}
             </div>
           ))}
@@ -392,7 +392,7 @@ export default function ComplianceCalendarClient() {
 
     if (sorted.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           No compliance events found. Create one to get started.
         </div>
       );
@@ -403,7 +403,7 @@ export default function ComplianceCalendarClient() {
         {sorted.map((event) => (
           <div
             key={event.id}
-            className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+            className="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-sm transition-shadow"
           >
             {/* Color bar */}
             <div
@@ -414,10 +414,10 @@ export default function ComplianceCalendarClient() {
             {/* Event details */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-sm font-semibold text-gray-900 truncate">{event.title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{event.title}</h3>
                 {getStatusBadge(event.computedStatus)}
               </div>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
+              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                 <span
                   className="inline-flex items-center px-1.5 py-0.5 rounded text-white text-xs"
                   style={{ backgroundColor: event.color }}
@@ -460,7 +460,7 @@ export default function ComplianceCalendarClient() {
               )}
               <button
                 onClick={() => openEditModal(event)}
-                className="p-1.5 text-gray-400 hover:bg-gray-100 rounded"
+                className="p-1.5 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                 title="Edit"
               >
                 <Edit2 className="h-4 w-4" />
@@ -510,7 +510,7 @@ export default function ComplianceCalendarClient() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
 
       <main className="flex-1 overflow-auto p-8">
@@ -518,8 +518,8 @@ export default function ComplianceCalendarClient() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Compliance Calendar</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Compliance Calendar</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Track audits, reviews, certifications, and regulatory deadlines across all standards
               </p>
             </div>
@@ -539,7 +539,7 @@ export default function ComplianceCalendarClient() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-red-600">{overdue}</p>
-                    <p className="text-xs text-gray-500">Overdue</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
                   </div>
                 </div>
               </CardContent>
@@ -552,7 +552,7 @@ export default function ComplianceCalendarClient() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-yellow-600">{dueSoon}</p>
-                    <p className="text-xs text-gray-500">Due Soon</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Due Soon</p>
                   </div>
                 </div>
               </CardContent>
@@ -565,7 +565,7 @@ export default function ComplianceCalendarClient() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-blue-600">{upcoming}</p>
-                    <p className="text-xs text-gray-500">Upcoming</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Upcoming</p>
                   </div>
                 </div>
               </CardContent>
@@ -578,7 +578,7 @@ export default function ComplianceCalendarClient() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-green-600">{completed}</p>
-                    <p className="text-xs text-gray-500">Completed</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
                   </div>
                 </div>
               </CardContent>
@@ -590,7 +590,7 @@ export default function ComplianceCalendarClient() {
             <CardContent className="pt-4 pb-4">
               <div className="flex flex-wrap items-end gap-4">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-gray-400" />
+                  <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <span className="text-sm font-medium text-gray-600">Filters:</span>
                 </div>
                 <div className="min-w-[160px]">
@@ -645,14 +645,14 @@ export default function ComplianceCalendarClient() {
                 <div className="ml-auto flex items-center gap-1 border rounded-lg p-0.5">
                   <button
                     onClick={() => setView('calendar')}
-                    className={`p-1.5 rounded ${view === 'calendar' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`p-1.5 rounded ${view === 'calendar' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
                     title="Calendar view"
                   >
                     <Calendar className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setView('list')}
-                    className={`p-1.5 rounded ${view === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`p-1.5 rounded ${view === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
                     title="List view"
                   >
                     <List className="h-4 w-4" />
@@ -667,7 +667,7 @@ export default function ComplianceCalendarClient() {
             {STANDARDS.map((s) => (
               <div key={s.value} className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
-                <span className="text-xs text-gray-500">{s.label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{s.label}</span>
               </div>
             ))}
           </div>

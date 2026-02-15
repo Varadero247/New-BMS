@@ -47,7 +47,7 @@ const providerInfo: Record<string, { color: string; bgColor: string; description
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
   CONNECTED: { label: 'Connected', color: 'bg-green-100 text-green-700', icon: CheckCircle },
-  DISCONNECTED: { label: 'Disconnected', color: 'bg-gray-100 text-gray-700', icon: XCircle },
+  DISCONNECTED: { label: 'Disconnected', color: 'bg-gray-100 dark:bg-gray-800 text-gray-700', icon: XCircle },
   SYNCING: { label: 'Syncing', color: 'bg-blue-100 text-blue-700', icon: RefreshCw },
   ERROR: { label: 'Error', color: 'bg-red-100 text-red-700', icon: XCircle },
   PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
@@ -142,8 +142,8 @@ export default function IntegrationsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Integrations</h1>
-          <p className="text-gray-500 mt-1">Connect your finance tools and payment providers</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Integrations</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Connect your finance tools and payment providers</p>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
@@ -154,8 +154,8 @@ export default function IntegrationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Integrations</p>
-                  <p className="text-2xl font-bold text-gray-900">{integrations.length}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Integrations</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{integrations.length}</p>
                 </div>
                 <Link className="h-8 w-8 text-indigo-500" />
               </div>
@@ -165,7 +165,7 @@ export default function IntegrationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Connected</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Connected</p>
                   <p className="text-2xl font-bold text-green-600">{integrations.filter(i => i.status === 'CONNECTED').length}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -176,10 +176,10 @@ export default function IntegrationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Disconnected</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Disconnected</p>
                   <p className="text-2xl font-bold text-gray-600">{integrations.filter(i => i.status === 'DISCONNECTED').length}</p>
                 </div>
-                <XCircle className="h-8 w-8 text-gray-400" />
+                <XCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
               </div>
             </CardContent>
           </Card>
@@ -188,22 +188,22 @@ export default function IntegrationsPage() {
         {/* Integration Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {integrations.map((integration) => {
-            const info = providerInfo[integration.provider] || { color: 'text-gray-700', bgColor: 'bg-gray-50 border-gray-200', description: '' };
+            const info = providerInfo[integration.provider] || { color: 'text-gray-700 dark:text-gray-300', bgColor: 'bg-gray-50 dark:bg-gray-800 border-gray-200', description: '' };
             const status = statusConfig[integration.status] || statusConfig.DISCONNECTED;
             const StatusIcon = status.icon;
             const isConnected = integration.status === 'CONNECTED';
 
             return (
-              <Card key={integration.id} className={`border ${isConnected ? info.bgColor : 'border-gray-200'}`}>
+              <Card key={integration.id} className={`border ${isConnected ? info.bgColor : 'border-gray-200 dark:border-gray-700'}`}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`p-3 rounded-lg ${isConnected ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
+                      <div className={`p-3 rounded-lg ${isConnected ? 'bg-white dark:bg-gray-900 shadow-sm' : 'bg-gray-100 dark:bg-gray-800'}`}>
                         <Link className={`h-6 w-6 ${isConnected ? info.color : 'text-gray-400'}`} />
                       </div>
                       <div>
                         <h3 className={`text-lg font-bold ${info.color}`}>{integration.name}</h3>
-                        <p className="text-sm text-gray-500">{integration.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{integration.description}</p>
                       </div>
                     </div>
                     <Badge className={status.color}>
@@ -217,12 +217,12 @@ export default function IntegrationsPage() {
                   </p>
 
                   {integration.connectedAt && (
-                    <p className="text-xs text-gray-400 mb-2">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
                       Connected: {new Date(integration.connectedAt).toLocaleDateString()}
                     </p>
                   )}
                   {integration.lastSync && (
-                    <p className="text-xs text-gray-400 mb-4">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
                       Last sync: {new Date(integration.lastSync).toLocaleString()}
                     </p>
                   )}

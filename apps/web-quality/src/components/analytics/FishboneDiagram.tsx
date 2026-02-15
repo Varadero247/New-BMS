@@ -57,7 +57,7 @@ export function FishboneDiagram({
   return (
     <div className="w-full p-4">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">{title}</h3>
       )}
 
       <div className="relative min-h-[400px]">
@@ -175,7 +175,7 @@ function CategoryBranch({ category, position, offset }: CategoryBranchProps) {
 
             {/* Cause text */}
             <div
-              className="text-xs px-2 py-1 rounded bg-gray-100 border whitespace-nowrap max-w-[120px] truncate"
+              className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 border whitespace-nowrap max-w-[120px] truncate"
               style={{ borderColor: category.color }}
               title={cause.text}
             >
@@ -188,7 +188,7 @@ function CategoryBranch({ category, position, offset }: CategoryBranchProps) {
                 {cause.subCauses.map((sub, j) => (
                   <div
                     key={j}
-                    className="text-xs text-gray-500 pl-2 border-l border-gray-300"
+                    className="text-xs text-gray-500 dark:text-gray-400 pl-2 border-l border-gray-300"
                   >
                     {sub}
                   </div>

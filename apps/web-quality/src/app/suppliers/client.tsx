@@ -177,7 +177,7 @@ const categoryColors: Record<string, string> = {
   SUBCONTRACT: 'bg-indigo-100 text-indigo-700',
   UTILITIES: 'bg-teal-100 text-teal-700',
   PROFESSIONAL_SERVICES: 'bg-pink-100 text-pink-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const riskLevelColors: Record<string, string> = {
@@ -496,8 +496,8 @@ export default function SuppliersClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Supplier Management</h1>
-            <p className="text-gray-500 mt-1">IMS supplier qualification, scoring and audit tracking</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Supplier Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">IMS supplier qualification, scoring and audit tracking</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={loadSuppliers} className="flex items-center gap-2">
@@ -522,7 +522,7 @@ export default function SuppliersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Suppliers</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Suppliers</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <Truck className="h-8 w-8 text-blue-500" />
@@ -533,7 +533,7 @@ export default function SuppliersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Approved</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
                   <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
                 </div>
                 <ShieldCheck className="h-8 w-8 text-green-500" />
@@ -544,7 +544,7 @@ export default function SuppliersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Probationary</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Probationary</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.probationary}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-yellow-500" />
@@ -555,7 +555,7 @@ export default function SuppliersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Due for Audit</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Due for Audit</p>
                   <p className="text-2xl font-bold text-orange-600">{stats.dueForAudit}</p>
                 </div>
                 <ClipboardCheck className="h-8 w-8 text-orange-500" />
@@ -569,7 +569,7 @@ export default function SuppliersClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search suppliers..."
                   value={searchQuery}
@@ -621,20 +621,20 @@ export default function SuppliersClient() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base truncate">{supplier.supplierName}</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">{supplier.supplierCode}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{supplier.supplierCode}</p>
                     </div>
-                    <Badge className={approvedStatusColors[supplier.approvedStatus] || 'bg-gray-100 text-gray-700'}>
+                    <Badge className={approvedStatusColors[supplier.approvedStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                       {supplier.approvedStatus?.replace(/_/g, ' ')}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge className={categoryColors[supplier.category] || 'bg-gray-100 text-gray-700'}>
+                    <Badge className={categoryColors[supplier.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                       {supplier.category?.replace(/_/g, ' ')}
                     </Badge>
                     {supplier.riskLevel && (
-                      <Badge className={riskLevelColors[supplier.riskLevel] || 'bg-gray-100 text-gray-700'}>
+                      <Badge className={riskLevelColors[supplier.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                         {supplier.riskLevel} Risk
                       </Badge>
                     )}
@@ -654,10 +654,10 @@ export default function SuppliersClient() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex-1 text-xs text-gray-500">
+                    <div className="flex-1 text-xs text-gray-500 dark:text-gray-400">
                       <p>IMS Score / 100</p>
                       {supplier.overallRating && (
-                        <Badge className={`mt-1 ${ratingColors[supplier.overallRating] || 'bg-gray-100 text-gray-700'}`}>
+                        <Badge className={`mt-1 ${ratingColors[supplier.overallRating] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                           {supplier.overallRating}
                         </Badge>
                       )}
@@ -666,26 +666,26 @@ export default function SuppliersClient() {
 
                   {/* Mini score indicators */}
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <Star className="h-3.5 w-3.5 mx-auto text-blue-500 mb-1" />
                       <p className={`text-sm font-semibold ${getScoreColor(supplier.qualityScore ?? 0)}`}>
                         {supplier.qualityScore ?? 0}
                       </p>
-                      <p className="text-[10px] text-gray-400">Quality</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500">Quality</p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <ShieldCheck className="h-3.5 w-3.5 mx-auto text-orange-500 mb-1" />
                       <p className={`text-sm font-semibold ${getScoreColor(supplier.hsAuditScore ?? 0)}`}>
                         {supplier.hsAuditScore ?? 0}
                       </p>
-                      <p className="text-[10px] text-gray-400">H&S</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500">H&S</p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <Leaf className="h-3.5 w-3.5 mx-auto text-green-500 mb-1" />
                       <p className={`text-sm font-semibold ${getScoreColor(supplier.envAuditScore ?? 0)}`}>
                         {supplier.envAuditScore ?? 0}
                       </p>
-                      <p className="text-[10px] text-gray-400">Env</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500">Env</p>
                     </div>
                   </div>
                 </CardContent>
@@ -695,7 +695,7 @@ export default function SuppliersClient() {
         ) : (
           <Card>
             <CardContent className="py-16">
-              <div className="text-center text-gray-500">
+              <div className="text-center text-gray-500 dark:text-gray-400">
                 <Truck className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p className="font-medium">No suppliers found</p>
                 <p className="text-sm mt-1">
@@ -734,7 +734,7 @@ export default function SuppliersClient() {
                 className={`px-3 py-1.5 rounded text-xs font-medium whitespace-nowrap transition-colors ${
                   activeSection === sec.key
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {sec.key}. {sec.label}
@@ -748,7 +748,7 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'A' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">Supplier Identification</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">Supplier Identification</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="supplierName">Supplier Name *</Label>
@@ -805,7 +805,7 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'B' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">Quality Assessment (ISO 9001)</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">Quality Assessment (ISO 9001)</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="iso9001Certified">ISO 9001 Certified</Label>
@@ -869,7 +869,7 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'C' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">H&S Assessment (ISO 45001)</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">H&S Assessment (ISO 45001)</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="iso45001Certified">ISO 45001 Certified</Label>
@@ -931,7 +931,7 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'D' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">Environmental Assessment (ISO 14001)</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">Environmental Assessment (ISO 14001)</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="iso14001Certified">ISO 14001 Certified</Label>
@@ -997,8 +997,8 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'E' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">Overall IMS Rating</h3>
-                <p className="text-xs text-gray-500 mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">Overall IMS Rating</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   The overall IMS score is auto-calculated: Quality 50% + H&S 30% + Environment 20%.
                   Adjust the component scores in their respective sections to update this automatically.
                 </p>
@@ -1014,20 +1014,20 @@ export default function SuppliersClient() {
                       {form.overallImsScore}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">Overall IMS Score / 100</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Overall IMS Score / 100</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Quality (50%)</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Quality (50%)</p>
                     <p className={`text-2xl font-bold ${getScoreColor(form.qualityScore)}`}>{form.qualityScore}</p>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">H&S (30%)</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">H&S (30%)</p>
                     <p className={`text-2xl font-bold ${getScoreColor(form.hsAuditScore)}`}>{form.hsAuditScore}</p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Environment (20%)</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Environment (20%)</p>
                     <p className={`text-2xl font-bold ${getScoreColor(form.envAuditScore)}`}>{form.envAuditScore}</p>
                   </div>
                 </div>
@@ -1036,7 +1036,7 @@ export default function SuppliersClient() {
                   <div>
                     <Label>Overall Rating (auto)</Label>
                     <div className="mt-1">
-                      <Badge className={`text-sm px-3 py-1 ${ratingColors[form.overallRating] || 'bg-gray-100 text-gray-700'}`}>
+                      <Badge className={`text-sm px-3 py-1 ${ratingColors[form.overallRating] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {form.overallRating}
                       </Badge>
                     </div>
@@ -1044,7 +1044,7 @@ export default function SuppliersClient() {
                   <div>
                     <Label>Risk Level (auto)</Label>
                     <div className="mt-1">
-                      <Badge className={`text-sm px-3 py-1 ${riskLevelColors[form.riskLevel] || 'bg-gray-100 text-gray-700'}`}>
+                      <Badge className={`text-sm px-3 py-1 ${riskLevelColors[form.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {form.riskLevel}
                       </Badge>
                     </div>
@@ -1058,7 +1058,7 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'F' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">Audit & Review</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">Audit & Review</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="lastAuditDate">Last Audit Date</Label>
@@ -1105,8 +1105,8 @@ export default function SuppliersClient() {
             {/* --------------------------------------------------------------- */}
             {activeSection === 'G' && (
               <>
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-1">AI Supplier Analysis</h3>
-                <p className="text-sm text-gray-500 mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide border-b pb-1">AI Supplier Analysis</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Run an AI-powered analysis of this supplier based on current assessment data.
                   The analysis will evaluate quality performance, risk factors, and provide recommendations.
                 </p>

@@ -89,7 +89,7 @@ const statusColors: Record<string, string> = {
   IN_CONTROL: 'bg-green-100 text-green-700',
   OUT_OF_CONTROL: 'bg-red-100 text-red-700',
   MONITORING: 'bg-blue-100 text-blue-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const emptyForm = {
@@ -323,8 +323,8 @@ export default function SpcClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">SPC Charts</h1>
-            <p className="text-gray-500 mt-1">Statistical Process Control</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">SPC Charts</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Statistical Process Control</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadCharts} className="flex items-center gap-2">
@@ -344,7 +344,7 @@ export default function SpcClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Charts</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Charts</p>
                   <p className="text-3xl font-bold">{stats.activeCharts}</p>
                 </div>
                 <LineChart className="h-8 w-8 text-orange-500" />
@@ -355,7 +355,7 @@ export default function SpcClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Out of Control</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Out of Control</p>
                   <p className="text-3xl font-bold text-red-600">{stats.outOfControl}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -366,7 +366,7 @@ export default function SpcClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Studies This Month</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Studies This Month</p>
                   <p className="text-3xl font-bold text-blue-600">{stats.studiesThisMonth}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-500" />
@@ -377,8 +377,8 @@ export default function SpcClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Charts</p>
-                  <p className="text-3xl font-bold text-gray-700">{charts.length}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Charts</p>
+                  <p className="text-3xl font-bold text-gray-700 dark:text-gray-300">{charts.length}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
               </div>
@@ -402,20 +402,20 @@ export default function SpcClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by title, reference, part number, characteristic..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {SPC_STATUSES.map(s => (
@@ -424,7 +424,7 @@ export default function SpcClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Chart Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Chart Type</Label>
                 <Select value={chartTypeFilter} onChange={(e) => setChartTypeFilter(e.target.value)}>
                   <option value="all">All Types</option>
                   {CHART_TYPES.map(t => (
@@ -457,7 +457,7 @@ export default function SpcClient() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Ref #</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Characteristic</th>
@@ -471,24 +471,24 @@ export default function SpcClient() {
                   </thead>
                   <tbody>
                     {filtered.map((chart) => (
-                      <tr key={chart.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <tr key={chart.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                         <td className="px-4 py-3">
-                          <span className="text-xs font-mono text-gray-500">
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {chart.referenceNumber || '-'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">{chart.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{chart.title}</p>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{chart.characteristicName}</td>
-                        <td className="px-4 py-3 font-mono text-sm text-gray-700">{chart.partNumber}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{chart.characteristicName}</td>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-700 dark:text-gray-300">{chart.partNumber}</td>
                         <td className="px-4 py-3 text-center">
                           <Badge className="bg-orange-100 text-orange-700">
                             {chartTypeLabels[chart.chartType] || chart.chartType}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={statusColors[chart.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[chart.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {chart.status?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
@@ -504,7 +504,7 @@ export default function SpcClient() {
                           <button
                             type="button"
                             onClick={() => openDetail(chart)}
-                            className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                             title="View details"
                           >
                             <Eye className="h-4 w-4" />
@@ -517,9 +517,9 @@ export default function SpcClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <LineChart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No SPC charts found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <LineChart className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No SPC charts found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || chartTypeFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first SPC chart.'}
@@ -690,70 +690,70 @@ export default function SpcClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedChart.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500">{selectedChart.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedChart.referenceNumber}</span>
               )}
               <Badge className="bg-orange-100 text-orange-700">
                 {chartTypeLabels[selectedChart.chartType] || selectedChart.chartType}
               </Badge>
-              <Badge className={statusColors[selectedChart.status] || 'bg-gray-100'}>
+              <Badge className={statusColors[selectedChart.status] || 'bg-gray-100 dark:bg-gray-800'}>
                 {selectedChart.status?.replace(/_/g, ' ')}
               </Badge>
             </div>
 
             {/* Chart Info */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Characteristic</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Characteristic</p>
                   <p className="text-sm font-medium">{selectedChart.characteristicName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Part Number</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Number</p>
                   <p className="text-sm font-medium font-mono">{selectedChart.partNumber}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Subgroup Size</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Subgroup Size</p>
                   <p className="text-sm font-medium">{selectedChart.subgroupSize}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Created</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedChart.createdAt)}</p>
                 </div>
               </div>
             </div>
 
             {/* Control Limits & Spec Limits */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Limits</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Limits</h3>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                 <div className="text-center p-2 bg-red-50 rounded">
-                  <p className="text-xs text-gray-500">USL</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">USL</p>
                   <p className="text-sm font-bold text-red-600">{selectedChart.usl?.toFixed(3)}</p>
                 </div>
                 {selectedChart.ucl != null && (
                   <div className="text-center p-2 bg-orange-50 rounded">
-                    <p className="text-xs text-gray-500">UCL</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">UCL</p>
                     <p className="text-sm font-bold text-orange-600">{selectedChart.ucl.toFixed(3)}</p>
                   </div>
                 )}
                 {selectedChart.cl != null && (
                   <div className="text-center p-2 bg-blue-50 rounded">
-                    <p className="text-xs text-gray-500">CL</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">CL</p>
                     <p className="text-sm font-bold text-blue-600">{selectedChart.cl.toFixed(3)}</p>
                   </div>
                 )}
                 <div className="text-center p-2 bg-green-50 rounded">
-                  <p className="text-xs text-gray-500">Target</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Target</p>
                   <p className="text-sm font-bold text-green-600">{selectedChart.target?.toFixed(3)}</p>
                 </div>
                 {selectedChart.lcl != null && (
                   <div className="text-center p-2 bg-orange-50 rounded">
-                    <p className="text-xs text-gray-500">LCL</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">LCL</p>
                     <p className="text-sm font-bold text-orange-600">{selectedChart.lcl.toFixed(3)}</p>
                   </div>
                 )}
                 <div className="text-center p-2 bg-red-50 rounded">
-                  <p className="text-xs text-gray-500">LSL</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">LSL</p>
                   <p className="text-sm font-bold text-red-600">{selectedChart.lsl?.toFixed(3)}</p>
                 </div>
               </div>
@@ -761,8 +761,8 @@ export default function SpcClient() {
 
             {/* Capability Display */}
             {capability && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Process Capability</h3>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Process Capability</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className={`text-center p-3 rounded-lg ${getCpkColor(capability.cpk)}`}>
                     <p className="text-xs font-medium opacity-70">Cpk</p>
@@ -774,22 +774,22 @@ export default function SpcClient() {
                     <p className="text-2xl font-bold">{capability.ppk.toFixed(2)}</p>
                     <p className="text-xs mt-1">{getCpkLabel(capability.ppk)}</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-gray-50">
-                    <p className="text-xs text-gray-500">Cp</p>
-                    <p className="text-2xl font-bold text-gray-700">{capability.cp.toFixed(2)}</p>
+                  <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Cp</p>
+                    <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{capability.cp.toFixed(2)}</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-gray-50">
-                    <p className="text-xs text-gray-500">Pp</p>
-                    <p className="text-2xl font-bold text-gray-700">{capability.pp.toFixed(2)}</p>
+                  <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Pp</p>
+                    <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{capability.pp.toFixed(2)}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                   <div>
-                    <p className="text-xs text-gray-500">Mean</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Mean</p>
                     <p className="text-sm font-mono font-medium">{capability.mean.toFixed(4)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Std Dev</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Std Dev</p>
                     <p className="text-sm font-mono font-medium">{capability.stdDev.toFixed(4)}</p>
                   </div>
                 </div>
@@ -797,11 +797,11 @@ export default function SpcClient() {
             )}
 
             {/* Add Data Point */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Add Data Point</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Add Data Point</h3>
               <form onSubmit={handleAddDataPoint} className="flex flex-wrap items-end gap-3">
                 <div className="min-w-[120px]">
-                  <Label className="text-xs text-gray-500 mb-1 block">Value *</Label>
+                  <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Value *</Label>
                   <Input
                     type="number"
                     step="any"
@@ -812,7 +812,7 @@ export default function SpcClient() {
                   />
                 </div>
                 <div className="min-w-[120px]">
-                  <Label className="text-xs text-gray-500 mb-1 block">Operator</Label>
+                  <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Operator</Label>
                   <Input
                     value={dataForm.operator}
                     onChange={e => setDataForm({ ...dataForm, operator: e.target.value })}
@@ -820,7 +820,7 @@ export default function SpcClient() {
                   />
                 </div>
                 <div className="flex-1 min-w-[150px]">
-                  <Label className="text-xs text-gray-500 mb-1 block">Notes</Label>
+                  <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Notes</Label>
                   <Input
                     value={dataForm.notes}
                     onChange={e => setDataForm({ ...dataForm, notes: e.target.value })}
@@ -835,14 +835,14 @@ export default function SpcClient() {
 
             {/* Data Points Table (last 20) */}
             {selectedChart.dataPoints && selectedChart.dataPoints.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
                   Recent Data Points ({Math.min(selectedChart.dataPoints.length, 20)} of {selectedChart.dataPoints.length})
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="px-3 py-2 text-left font-medium text-gray-600">#</th>
                         <th className="px-3 py-2 text-left font-medium text-gray-600">Value</th>
                         <th className="px-3 py-2 text-left font-medium text-gray-600">Operator</th>
@@ -855,10 +855,10 @@ export default function SpcClient() {
                       {selectedChart.dataPoints.slice(-20).reverse().map((dp, idx) => (
                         <tr
                           key={dp.id || idx}
-                          className={`border-b border-gray-50 ${dp.outOfControl ? 'bg-red-50' : ''}`}
+                          className={`border-b border-gray-50 dark:border-gray-800 ${dp.outOfControl ? 'bg-red-50' : ''}`}
                         >
-                          <td className="px-3 py-2 text-xs text-gray-400">{selectedChart.dataPoints!.length - idx}</td>
-                          <td className={`px-3 py-2 font-mono font-medium ${dp.outOfControl ? 'text-red-600' : 'text-gray-900'}`}>
+                          <td className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500">{selectedChart.dataPoints!.length - idx}</td>
+                          <td className={`px-3 py-2 font-mono font-medium ${dp.outOfControl ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
                             {dp.value.toFixed(3)}
                           </td>
                           <td className="px-3 py-2 text-gray-600">{dp.operator || '-'}</td>
@@ -869,8 +869,8 @@ export default function SpcClient() {
                               <CheckCircle className="h-4 w-4 text-green-500 inline" />
                             )}
                           </td>
-                          <td className="px-3 py-2 text-xs text-gray-500">{formatDateTime(dp.timestamp)}</td>
-                          <td className="px-3 py-2 text-xs text-gray-400 max-w-[150px] truncate">{dp.notes || '-'}</td>
+                          <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{formatDateTime(dp.timestamp)}</td>
+                          <td className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 max-w-[150px] truncate">{dp.notes || '-'}</td>
                         </tr>
                       ))}
                     </tbody>

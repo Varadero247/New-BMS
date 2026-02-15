@@ -37,7 +37,7 @@ interface Supplier {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   RECEIVED: 'bg-blue-100 text-blue-700',
   PARTIALLY_PAID: 'bg-amber-100 text-amber-700',
   PAID: 'bg-green-100 text-green-700',
@@ -180,8 +180,8 @@ export default function PayablesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Bills</h1>
-            <p className="text-gray-500 mt-1">Manage supplier bills and payables</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Bills</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage supplier bills and payables</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Bill
@@ -195,7 +195,7 @@ export default function PayablesPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search bills..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
@@ -217,30 +217,30 @@ export default function PayablesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Supplier</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Bill Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Due Date</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Total</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Amount Due</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Supplier</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Bill Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due Date</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount Due</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredBills.map((bill) => (
-                      <tr key={bill.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{bill.reference}</td>
-                        <td className="py-3 px-4 text-gray-900">{bill.supplier?.name || bill.supplierName || '-'}</td>
+                      <tr key={bill.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{bill.reference}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{bill.supplier?.name || bill.supplierName || '-'}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(bill.billDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(bill.dueDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(bill.total)}</td>
                         <td className="py-3 px-4 text-right font-medium text-red-600">{formatCurrency(bill.amountDue)}</td>
-                        <td className="py-3 px-4"><Badge className={statusColors[bill.status] || 'bg-gray-100 text-gray-700'}>{bill.status}</Badge></td>
+                        <td className="py-3 px-4"><Badge className={statusColors[bill.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{bill.status}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewBill(bill); setViewModalOpen(true); }} className="text-gray-400 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
-                            {bill.status === 'DRAFT' && <button onClick={() => handleVoid(bill.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}
+                            <button onClick={() => { setViewBill(bill); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
+                            {bill.status === 'DRAFT' && <button onClick={() => handleVoid(bill.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}
                           </div>
                         </td>
                       </tr>
@@ -249,7 +249,7 @@ export default function PayablesPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500"><CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No bills found</p></div>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400"><CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No bills found</p></div>
             )}
           </CardContent>
         </Card>
@@ -277,7 +277,7 @@ export default function PayablesPage() {
               <button onClick={addLine} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">+ Add Line</button>
             </div>
             <table className="w-full text-sm border">
-              <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3 font-medium text-gray-500">Description</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-24">Qty</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Unit Price</th><th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Amount</th><th className="w-10"></th></tr></thead>
+              <thead><tr className="bg-gray-50 dark:bg-gray-800"><th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-24">Qty</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Unit Price</th><th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Amount</th><th className="w-10"></th></tr></thead>
               <tbody>
                 {lines.map((line, idx) => (
                   <tr key={idx} className="border-t">
@@ -288,7 +288,7 @@ export default function PayablesPage() {
                     <td className="py-2 px-3">{lines.length > 1 && <button onClick={() => removeLine(idx)} className="text-red-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}</td>
                   </tr>
                 ))}
-                <tr className="border-t bg-gray-50 font-medium"><td colSpan={3} className="py-2 px-3 text-right">Total:</td><td className="py-2 px-3 text-right">{formatCurrency(billTotal)}</td><td></td></tr>
+                <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium"><td colSpan={3} className="py-2 px-3 text-right">Total:</td><td className="py-2 px-3 text-right">{formatCurrency(billTotal)}</td><td></td></tr>
               </tbody>
             </table>
           </div>
@@ -304,14 +304,14 @@ export default function PayablesPage() {
         {viewBill && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Supplier</p><p className="font-medium">{viewBill.supplier?.name || viewBill.supplierName}</p></div>
-              <div><p className="text-sm text-gray-500">Bill Date</p><p className="font-medium">{new Date(viewBill.billDate).toLocaleDateString()}</p></div>
-              <div><p className="text-sm text-gray-500">Due Date</p><p className="font-medium">{new Date(viewBill.dueDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Supplier</p><p className="font-medium">{viewBill.supplier?.name || viewBill.supplierName}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Bill Date</p><p className="font-medium">{new Date(viewBill.billDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Due Date</p><p className="font-medium">{new Date(viewBill.dueDate).toLocaleDateString()}</p></div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Total</p><p className="font-medium">{formatCurrency(viewBill.total)}</p></div>
-              <div><p className="text-sm text-gray-500">Paid</p><p className="font-medium text-green-600">{formatCurrency(viewBill.amountPaid || 0)}</p></div>
-              <div><p className="text-sm text-gray-500">Due</p><p className="font-medium text-red-600">{formatCurrency(viewBill.amountDue)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total</p><p className="font-medium">{formatCurrency(viewBill.total)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Paid</p><p className="font-medium text-green-600">{formatCurrency(viewBill.amountPaid || 0)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Due</p><p className="font-medium text-red-600">{formatCurrency(viewBill.amountDue)}</p></div>
             </div>
             <Badge className={statusColors[viewBill.status]}>{viewBill.status}</Badge>
           </div>

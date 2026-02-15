@@ -54,11 +54,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   SENT: 'bg-blue-100 text-blue-800',
   ACKNOWLEDGED: 'bg-yellow-100 text-yellow-800',
   RESPONDED: 'bg-green-100 text-green-800',
-  CLOSED: 'bg-gray-100 text-gray-600',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const DIRECTION_COLORS: Record<string, string> = {
@@ -197,8 +197,8 @@ export default function CommunicationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Communication Register</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 45001 Clause 7.4 -- Communication, participation & consultation</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Communication Register</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 45001 Clause 7.4 -- Communication, participation & consultation</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4 mr-2" /> New Communication
@@ -212,7 +212,7 @@ export default function CommunicationsPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg"><MessageSquare className="h-5 w-5 text-red-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Total Communications</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Communications</p>
                 <p className="text-2xl font-bold">{participation?.total || 0}</p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function CommunicationsPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Users className="h-5 w-5 text-blue-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Worker Consultations</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Worker Consultations</p>
                 <p className="text-2xl font-bold">{participation?.workerConsultations || 0}</p>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function CommunicationsPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Toolbox Talks</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Toolbox Talks</p>
                 <p className="text-2xl font-bold">{participation?.toolboxTalks || 0}</p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function CommunicationsPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg"><Clock className="h-5 w-5 text-purple-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Participation Score</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Participation Score</p>
                 <p className="text-2xl font-bold">{participation?.participationScore || 0}%</p>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function CommunicationsPage() {
           </div>
           <div className="flex gap-2 mt-3 flex-wrap">
             <div className="relative flex-1 min-w-[200px] max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Search..."
                 value={search}
@@ -290,14 +290,14 @@ export default function CommunicationsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-gray-500 text-center py-8">Loading...</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
           ) : communications.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No communications found.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No communications found.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-gray-500">
+                  <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                     <th className="pb-2 pr-4">Ref</th>
                     <th className="pb-2 pr-4">Subject</th>
                     <th className="pb-2 pr-4">Type</th>
@@ -311,24 +311,24 @@ export default function CommunicationsPage() {
                   {communications.map((comm) => (
                     <tr
                       key={comm.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer"
+                      className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer"
                       onClick={() => handleViewDetail(comm)}
                     >
                       <td className="py-3 pr-4 font-mono text-xs">{comm.refNumber}</td>
                       <td className="py-3 pr-4 font-medium">{comm.subject}</td>
                       <td className="py-3 pr-4">
-                        <Badge className="bg-gray-100 text-gray-800 text-xs">{TYPE_LABELS[comm.type] || comm.type}</Badge>
+                        <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-800 text-xs">{TYPE_LABELS[comm.type] || comm.type}</Badge>
                       </td>
                       <td className="py-3 pr-4">
-                        <Badge className={DIRECTION_COLORS[comm.direction] || 'bg-gray-100'}>{comm.direction}</Badge>
+                        <Badge className={DIRECTION_COLORS[comm.direction] || 'bg-gray-100 dark:bg-gray-800'}>{comm.direction}</Badge>
                       </td>
                       <td className="py-3 pr-4">
-                        <Badge className={STATUS_COLORS[comm.status] || 'bg-gray-100'}>{comm.status}</Badge>
+                        <Badge className={STATUS_COLORS[comm.status] || 'bg-gray-100 dark:bg-gray-800'}>{comm.status}</Badge>
                       </td>
                       <td className="py-3 pr-4">
-                        <Badge className={PRIORITY_COLORS[comm.priority] || 'bg-gray-100'}>{comm.priority}</Badge>
+                        <Badge className={PRIORITY_COLORS[comm.priority] || 'bg-gray-100 dark:bg-gray-800'}>{comm.priority}</Badge>
                       </td>
-                      <td className="py-3 text-gray-500">{new Date(comm.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(comm.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -383,35 +383,35 @@ export default function CommunicationsPage() {
         {selectedComm && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Type:</span> <span className="font-medium">{TYPE_LABELS[selectedComm.type] || selectedComm.type}</span></div>
-              <div><span className="text-gray-500">Direction:</span> <Badge className={DIRECTION_COLORS[selectedComm.direction] || ''}>{selectedComm.direction}</Badge></div>
-              <div><span className="text-gray-500">Status:</span> <Badge className={STATUS_COLORS[selectedComm.status] || ''}>{selectedComm.status}</Badge></div>
-              <div><span className="text-gray-500">Priority:</span> <Badge className={PRIORITY_COLORS[selectedComm.priority] || ''}>{selectedComm.priority}</Badge></div>
-              <div><span className="text-gray-500">Recipients:</span> <span className="font-medium">{selectedComm.recipients || '-'}</span></div>
-              <div><span className="text-gray-500">Sender:</span> <span className="font-medium">{selectedComm.sender || '-'}</span></div>
-              {selectedComm.scheduledDate && <div><span className="text-gray-500">Scheduled:</span> <span className="font-medium">{new Date(selectedComm.scheduledDate).toLocaleDateString()}</span></div>}
-              {selectedComm.location && <div><span className="text-gray-500">Location:</span> <span className="font-medium">{selectedComm.location}</span></div>}
-              {selectedComm.attendees && <div className="col-span-2"><span className="text-gray-500">Attendees:</span> <span className="font-medium">{selectedComm.attendees}</span></div>}
+              <div><span className="text-gray-500 dark:text-gray-400">Type:</span> <span className="font-medium">{TYPE_LABELS[selectedComm.type] || selectedComm.type}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Direction:</span> <Badge className={DIRECTION_COLORS[selectedComm.direction] || ''}>{selectedComm.direction}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedComm.status] || ''}>{selectedComm.status}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Priority:</span> <Badge className={PRIORITY_COLORS[selectedComm.priority] || ''}>{selectedComm.priority}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Recipients:</span> <span className="font-medium">{selectedComm.recipients || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Sender:</span> <span className="font-medium">{selectedComm.sender || '-'}</span></div>
+              {selectedComm.scheduledDate && <div><span className="text-gray-500 dark:text-gray-400">Scheduled:</span> <span className="font-medium">{new Date(selectedComm.scheduledDate).toLocaleDateString()}</span></div>}
+              {selectedComm.location && <div><span className="text-gray-500 dark:text-gray-400">Location:</span> <span className="font-medium">{selectedComm.location}</span></div>}
+              {selectedComm.attendees && <div className="col-span-2"><span className="text-gray-500 dark:text-gray-400">Attendees:</span> <span className="font-medium">{selectedComm.attendees}</span></div>}
             </div>
 
             <div>
-              <span className="text-gray-500 text-sm">Content:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Content:</span>
               <p className="mt-1 text-sm bg-red-50 p-3 rounded">{selectedComm.content}</p>
             </div>
 
             {selectedComm.response && (
               <div>
-                <span className="text-gray-500 text-sm">Response:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Response:</span>
                 <p className="mt-1 text-sm bg-green-50 p-3 rounded">{selectedComm.response}</p>
                 {selectedComm.respondedAt && (
-                  <p className="text-xs text-gray-400 mt-1">Responded: {new Date(selectedComm.respondedAt).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Responded: {new Date(selectedComm.respondedAt).toLocaleDateString()}</p>
                 )}
               </div>
             )}
 
             {selectedComm.outcome && (
               <div>
-                <span className="text-gray-500 text-sm">Outcome:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Outcome:</span>
                 <p className="mt-1 text-sm bg-blue-50 p-3 rounded">{selectedComm.outcome}</p>
               </div>
             )}

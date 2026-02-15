@@ -179,14 +179,14 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Inventory Reports</h1>
-            <p className="text-gray-500 mt-1">Analytics, turnover, aging, and valuation reports</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Inventory Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Analytics, turnover, aging, and valuation reports</p>
           </div>
           <div className="flex gap-3">
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="px-4 py-2 border rounded-lg bg-white"
+              className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900"
             >
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
@@ -206,7 +206,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Products</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
                   <p className="text-2xl font-bold">{reportData?.summary?.totalProducts || 0}</p>
                 </div>
                 <div className="p-3 bg-sky-100 rounded-full">
@@ -220,7 +220,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Stock</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Stock</p>
                   <p className="text-2xl font-bold">{(reportData?.summary?.totalQuantity || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -234,7 +234,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Inventory Value</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Inventory Value</p>
                   <p className="text-2xl font-bold">${(reportData?.summary?.totalValue || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -248,7 +248,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Transactions ({dateRange}d)</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Transactions ({dateRange}d)</p>
                   <p className="text-2xl font-bold">{reportData?.transactionSummary?.totals?.totalTransactions || 0}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -265,14 +265,14 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Stock In</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Stock In</p>
                   <p className="text-2xl font-bold text-green-600">
                     +{(reportData?.transactionSummary?.totals?.totalIn || 0).toLocaleString()}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Last {dateRange} days</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Last {dateRange} days</p>
             </CardContent>
           </Card>
 
@@ -280,14 +280,14 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Stock Out</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Stock Out</p>
                   <p className="text-2xl font-bold text-red-600">
                     -{(reportData?.transactionSummary?.totals?.totalOut || 0).toLocaleString()}
                   </p>
                 </div>
                 <TrendingDown className="h-8 w-8 text-red-500" />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Last {dateRange} days</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Last {dateRange} days</p>
             </CardContent>
           </Card>
 
@@ -295,7 +295,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Net Change</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Net Change</p>
                   <p className={`text-2xl font-bold ${
                     (reportData?.transactionSummary?.totals?.totalIn || 0) - (reportData?.transactionSummary?.totals?.totalOut || 0) >= 0
                       ? 'text-green-600' : 'text-red-600'
@@ -306,7 +306,7 @@ export default function ReportsPage() {
                 </div>
                 <BarChart3 className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Last {dateRange} days</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Last {dateRange} days</p>
             </CardContent>
           </Card>
         </div>
@@ -333,7 +333,7 @@ export default function ReportsPage() {
                   }}
                 />
               ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   No transaction data available
                 </div>
               )}
@@ -360,7 +360,7 @@ export default function ReportsPage() {
                   />
                 </div>
               ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   No transaction data available
                 </div>
               )}
@@ -395,7 +395,7 @@ export default function ReportsPage() {
                   }}
                 />
               ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   No warehouse data available
                 </div>
               )}
@@ -414,17 +414,17 @@ export default function ReportsPage() {
                     <div key={product.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                       <div>
                         <p className="font-medium text-sm">{product.name}</p>
-                        <p className="text-xs text-gray-500">{product.sku}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{product.sku}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-orange-600">{product.totalStock}</p>
-                        <p className="text-xs text-gray-500">/ {product.reorderPoint} min</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">/ {product.reorderPoint} min</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
                   No low stock items
                 </div>
               )}

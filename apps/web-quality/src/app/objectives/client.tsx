@@ -33,21 +33,21 @@ const OBJECTIVE_CATEGORIES = [
 ] as const;
 
 const OBJECTIVE_STATUSES = [
-  { value: 'NOT_STARTED', label: 'Not Started', color: 'bg-gray-100 text-gray-600' },
+  { value: 'NOT_STARTED', label: 'Not Started', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'ON_TRACK', label: 'On Track', color: 'bg-green-100 text-green-800' },
   { value: 'AT_RISK', label: 'At Risk', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'BEHIND', label: 'Behind', color: 'bg-red-100 text-red-800' },
   { value: 'ACHIEVED', label: 'Achieved', color: 'bg-green-200 text-green-900' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-500' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500' },
   { value: 'DEFERRED', label: 'Deferred', color: 'bg-blue-100 text-blue-800' },
 ] as const;
 
 const MILESTONE_STATUSES = [
-  { value: 'PENDING', label: 'Pending', color: 'bg-gray-100 text-gray-600' },
+  { value: 'PENDING', label: 'Pending', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'IN_PROGRESS', label: 'In Progress', color: 'bg-blue-100 text-blue-800' },
   { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
   { value: 'OVERDUE', label: 'Overdue', color: 'bg-red-100 text-red-800' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-500' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500' },
 ] as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -285,8 +285,8 @@ export default function ObjectivesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quality Objectives</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 quality objectives with KPI tracking</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quality Objectives</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 quality objectives with KPI tracking</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> New Objective
@@ -295,10 +295,10 @@ export default function ObjectivesClient() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Target className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500">Total Objectives</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><TrendingUp className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{stats.onTrack}</p><p className="text-xs text-gray-500">On Track</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-orange-100 rounded-lg"><AlertCircle className="h-5 w-5 text-orange-600" /></div><div><p className="text-2xl font-bold">{stats.atRisk}</p><p className="text-xs text-gray-500">At Risk / Behind</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-200 rounded-lg"><CheckCircle className="h-5 w-5 text-green-700" /></div><div><p className="text-2xl font-bold">{stats.achieved}</p><p className="text-xs text-gray-500">Achieved</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Target className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total Objectives</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><TrendingUp className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{stats.onTrack}</p><p className="text-xs text-gray-500 dark:text-gray-400">On Track</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-orange-100 rounded-lg"><AlertCircle className="h-5 w-5 text-orange-600" /></div><div><p className="text-2xl font-bold">{stats.atRisk}</p><p className="text-xs text-gray-500 dark:text-gray-400">At Risk / Behind</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-200 rounded-lg"><CheckCircle className="h-5 w-5 text-green-700" /></div><div><p className="text-2xl font-bold">{stats.achieved}</p><p className="text-xs text-gray-500 dark:text-gray-400">Achieved</p></div></div></CardContent></Card>
       </div>
 
       {/* Filters */}
@@ -323,9 +323,9 @@ export default function ObjectivesClient() {
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Objectives Found</h3>
-            <p className="text-gray-500 mb-4">Define quality objectives to track performance against targets.</p>
+            <Target className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Objectives Found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Define quality objectives to track performance against targets.</p>
             <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> New Objective</Button>
           </CardContent>
         </Card>
@@ -339,13 +339,13 @@ export default function ObjectivesClient() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-gray-400">{r.referenceNumber}</span>
+                        <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
                         <Badge className="bg-blue-100 text-blue-800">{OBJECTIVE_CATEGORIES.find(c => c.value === r.category)?.label}</Badge>
                         {getBadge(r.status, OBJECTIVE_STATUSES)}
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900">{r.title}</h3>
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.objectiveStatement}</p>
-                      <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.objectiveStatement}</p>
+                      <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <span>Owner: {r.owner}</span>
                         <span>Dept: {r.department}</span>
                         <span>Target: {new Date(r.targetDate).toLocaleDateString()}</span>
@@ -355,7 +355,7 @@ export default function ObjectivesClient() {
                       {/* KPI Progress Bar */}
                       <div className="mt-3">
                         <div className="flex justify-between text-xs mb-1">
-                          <span className="text-gray-500">KPI: {r.kpiDescription}</span>
+                          <span className="text-gray-500 dark:text-gray-400">KPI: {r.kpiDescription}</span>
                           <span className="font-medium">{r.currentValue ?? r.baselineValue} / {r.targetValue} {r.unit}</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -377,11 +377,11 @@ export default function ObjectivesClient() {
 
                   {/* Expanded */}
                   {expandedId === r.id && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                       {/* KPI Details */}
                       <div className="grid grid-cols-3 gap-4">
-                        <div className="bg-gray-50 p-3 rounded-lg text-center">
-                          <p className="text-xs text-gray-500">Baseline</p>
+                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Baseline</p>
                           <p className="text-lg font-bold">{r.baselineValue} {r.unit}</p>
                         </div>
                         <div className="bg-blue-50 p-3 rounded-lg text-center">
@@ -397,7 +397,7 @@ export default function ObjectivesClient() {
                       {/* Milestones */}
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-700">Milestones ({r.milestones?.length || 0})</h4>
+                          <h4 className="font-semibold text-gray-700 dark:text-gray-300">Milestones ({r.milestones?.length || 0})</h4>
                           <Button variant="outline" size="sm" onClick={() => openAddMilestone(r.id)}>
                             <Plus className="h-3 w-3 mr-1" /> Add Milestone
                           </Button>
@@ -416,7 +416,7 @@ export default function ObjectivesClient() {
                               </thead>
                               <tbody>
                                 {r.milestones.map(ms => (
-                                  <tr key={ms.id} className="border-b hover:bg-gray-50">
+                                  <tr key={ms.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                                     <td className="py-2 px-3">{ms.title}</td>
                                     <td className="py-2 px-3">{new Date(ms.targetDate).toLocaleDateString()}</td>
                                     <td className="py-2 px-3">{getBadge(ms.status, MILESTONE_STATUSES)}</td>
@@ -440,12 +440,12 @@ export default function ObjectivesClient() {
                             </table>
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-400">No milestones defined yet.</p>
+                          <p className="text-sm text-gray-400 dark:text-gray-500">No milestones defined yet.</p>
                         )}
                       </div>
 
                       {/* Linkage */}
-                      <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                      <div className="flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
                         {r.linkedProcesses && <span>Processes: {r.linkedProcesses}</span>}
                         {r.linkedRisks && <span>Risks: {r.linkedRisks}</span>}
                         {r.linkedOpportunities && <span>Opportunities: {r.linkedOpportunities}</span>}
@@ -484,7 +484,7 @@ export default function ObjectivesClient() {
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Objective Details</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Objective Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
               <div className="md:col-span-2"><Label>Objective Statement *</Label><Textarea value={form.objectiveStatement} onChange={e => setForm({...form, objectiveStatement: e.target.value})} rows={2} /></div>
@@ -511,7 +511,7 @@ export default function ObjectivesClient() {
 
           {/* KPI */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">KPI Measurement</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">KPI Measurement</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>KPI Description *</Label><Input value={form.kpiDescription} onChange={e => setForm({...form, kpiDescription: e.target.value})} /></div>
               <div><Label>Baseline Value *</Label><Input type="number" value={form.baselineValue} onChange={e => setForm({...form, baselineValue: e.target.value})} /></div>
@@ -523,7 +523,7 @@ export default function ObjectivesClient() {
 
           {/* Progress */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Progress</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Progress</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Progress %</Label><Input type="number" min="0" max="100" value={form.progressPercent} onChange={e => setForm({...form, progressPercent: e.target.value})} /></div>
               <div className="md:col-span-2"><Label>Progress Notes</Label><Textarea value={form.progressNotes} onChange={e => setForm({...form, progressNotes: e.target.value})} rows={2} /></div>
@@ -532,7 +532,7 @@ export default function ObjectivesClient() {
 
           {/* Linkage */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Linkage</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Linkage</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Linked Processes</Label><Input value={form.linkedProcesses} onChange={e => setForm({...form, linkedProcesses: e.target.value})} /></div>
               <div><Label>Linked Risks</Label><Input value={form.linkedRisks} onChange={e => setForm({...form, linkedRisks: e.target.value})} /></div>

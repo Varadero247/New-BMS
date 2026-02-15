@@ -84,8 +84,8 @@ export default function AIConfigPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">AI Configuration</h1>
-          <p className="text-gray-500 mt-1">Configure AI providers and analysis settings</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI Configuration</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Configure AI providers and analysis settings</p>
         </div>
 
         {/* AI Providers */}
@@ -102,7 +102,7 @@ export default function AIConfigPage() {
                 <div
                   key={provider.id}
                   className={`p-4 border rounded-lg ${
-                    provider.isActive ? 'border-purple-300 bg-purple-50' : 'border-gray-200'
+                    provider.isActive ? 'border-purple-300 bg-purple-50' : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -117,8 +117,8 @@ export default function AIConfigPage() {
                         }`} />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">{provider.name}</h3>
-                        <p className="text-sm text-gray-500">Model: {provider.model}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{provider.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Model: {provider.model}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export default function AIConfigPage() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
                       <div className="relative">
-                        <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <input
                           type="password"
                           placeholder={provider.hasApiKey ? '••••••••••••••••' : 'Enter API key'}
@@ -151,7 +151,7 @@ export default function AIConfigPage() {
                             ...prev,
                             [provider.provider]: e.target.value,
                           }))}
-                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
                     </div>
@@ -179,7 +179,7 @@ export default function AIConfigPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-gray-500" />
+              <Settings className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               Analysis Settings
             </CardTitle>
           </CardHeader>
@@ -187,8 +187,8 @@ export default function AIConfigPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">Auto-Analysis</p>
-                  <p className="text-sm text-gray-500">Automatically analyze new incidents and risks</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Auto-Analysis</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Automatically analyze new incidents and risks</p>
                 </div>
                 <button
                   onClick={() => setSettings(prev => ({
@@ -200,7 +200,7 @@ export default function AIConfigPage() {
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                       settings.enableAutoAnalysis ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
@@ -208,7 +208,7 @@ export default function AIConfigPage() {
               </div>
 
               <div>
-                <p className="font-medium text-gray-900 mb-3">Enabled Analysis Types</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-3">Enabled Analysis Types</p>
                 <div className="flex flex-wrap gap-2">
                   {['FIVE_WHYS', 'FISHBONE', 'BOW_TIE', 'PARETO', 'ROOT_CAUSE', 'TREND'].map((type) => (
                     <button
@@ -224,7 +224,7 @@ export default function AIConfigPage() {
                       className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                         settings.analysisTypes.includes(type)
                           ? 'bg-purple-100 text-purple-700'
-                          : 'bg-gray-100 text-gray-600'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
                       }`}
                     >
                       {type.replace('_', ' ')}

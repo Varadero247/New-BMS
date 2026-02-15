@@ -71,7 +71,7 @@ const cycleTypeColors: Record<string, string> = {
 };
 
 const reviewStatusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SELF_ASSESSMENT: 'bg-blue-100 text-blue-700',
   MANAGER_REVIEW: 'bg-yellow-100 text-yellow-700',
   CALIBRATION: 'bg-purple-100 text-purple-700',
@@ -273,8 +273,8 @@ export default function PerformancePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Performance Reviews</h1>
-            <p className="text-gray-500 mt-1">Manage review cycles and employee performance</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Performance Reviews</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage review cycles and employee performance</p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -314,7 +314,7 @@ export default function PerformancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Cycles</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Cycles</p>
                   <p className="text-2xl font-bold">{cycles.length}</p>
                 </div>
                 <RefreshCw className="h-8 w-8 text-blue-500" />
@@ -325,7 +325,7 @@ export default function PerformancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Cycles</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Cycles</p>
                   <p className="text-2xl font-bold text-green-600">{activeCycles.length}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-green-500" />
@@ -336,7 +336,7 @@ export default function PerformancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Reviews</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Reviews</p>
                   <p className="text-2xl font-bold text-purple-600">{reviews.length}</p>
                 </div>
                 <ClipboardList className="h-8 w-8 text-purple-500" />
@@ -347,7 +347,7 @@ export default function PerformancePage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Avg Rating</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Avg Rating</p>
                   <p className="text-2xl font-bold text-amber-600">{avgRating}</p>
                 </div>
                 <Star className="h-8 w-8 text-amber-500" />
@@ -373,7 +373,7 @@ export default function PerformancePage() {
                     <h4 className="font-medium text-green-700 mb-2">Team Strengths</h4>
                     <ul className="text-sm space-y-1">
                       {aiInsights.strengths.map((s: string, i: number) => (
-                        <li key={i} className="text-gray-700">• {s}</li>
+                        <li key={i} className="text-gray-700 dark:text-gray-300">• {s}</li>
                       ))}
                     </ul>
                   </div>
@@ -383,7 +383,7 @@ export default function PerformancePage() {
                     <h4 className="font-medium text-amber-700 mb-2">Areas for Improvement</h4>
                     <ul className="text-sm space-y-1">
                       {aiInsights.areasForImprovement.map((a: string, i: number) => (
-                        <li key={i} className="text-gray-700">• {a}</li>
+                        <li key={i} className="text-gray-700 dark:text-gray-300">• {a}</li>
                       ))}
                     </ul>
                   </div>
@@ -393,7 +393,7 @@ export default function PerformancePage() {
                     <h4 className="font-medium text-blue-700 mb-2">Training Recommendations</h4>
                     <ul className="text-sm space-y-1">
                       {aiInsights.trainingRecommendations.map((t: string, i: number) => (
-                        <li key={i} className="text-gray-700">• {t}</li>
+                        <li key={i} className="text-gray-700 dark:text-gray-300">• {t}</li>
                       ))}
                     </ul>
                   </div>
@@ -463,22 +463,22 @@ export default function PerformancePage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <RefreshCw className="h-5 w-5 text-emerald-600" />
-                            <span className="text-sm text-gray-500">{cycle.year}</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{cycle.year}</span>
                           </div>
                           <div className="flex gap-1">
-                            <Badge className={cycleTypeColors[cycle.cycleType] || 'bg-gray-100 text-gray-700'}>
+                            <Badge className={cycleTypeColors[cycle.cycleType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                               {cycleTypeLabels[cycle.cycleType] || cycle.cycleType}
                             </Badge>
                             {isActive && (
                               <Badge className="bg-green-100 text-green-700">Active</Badge>
                             )}
                             {isPast && (
-                              <Badge className="bg-gray-100 text-gray-700">Closed</Badge>
+                              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Closed</Badge>
                             )}
                           </div>
                         </div>
                         <h3 className="font-medium text-lg mb-2">{cycle.name}</h3>
-                        <div className="text-sm text-gray-500 space-y-1 mb-3">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1 mb-3">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
                             <span>
@@ -486,7 +486,7 @@ export default function PerformancePage() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between text-sm text-gray-500 pt-3 border-t">
+                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-3 border-t">
                           <div className="flex items-center gap-1">
                             <ClipboardList className="h-4 w-4" />
                             {cycle._count?.reviews || 0} reviews
@@ -505,7 +505,7 @@ export default function PerformancePage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <RefreshCw className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No performance cycles found</p>
                   <p className="text-sm mt-1">Create a cycle to get started</p>
@@ -525,7 +525,7 @@ export default function PerformancePage() {
               {reviews.length > 0 ? (
                 <div className="space-y-4">
                   {reviews.map((review) => (
-                    <div key={review.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div key={review.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
                           {review.employee ? (
@@ -543,14 +543,14 @@ export default function PerformancePage() {
                                 ? `${review.employee.firstName} ${review.employee.lastName}`
                                 : 'Unknown Employee'}
                             </span>
-                            <Badge className={reviewStatusColors[review.status] || 'bg-gray-100 text-gray-700'}>
+                            <Badge className={reviewStatusColors[review.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                               {review.status.replace('_', ' ')}
                             </Badge>
                             <Badge className="bg-indigo-50 text-indigo-700">
                               {reviewTypeLabels[review.reviewType] || review.reviewType}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             {review.cycle && (
                               <>
                                 <span>{review.cycle.name} ({review.cycle.year})</span>
@@ -574,17 +574,17 @@ export default function PerformancePage() {
                             <span className="text-lg font-bold text-amber-600">{review.overallRating}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">No rating</span>
+                          <span className="text-sm text-gray-400 dark:text-gray-500">No rating</span>
                         )}
                         {review.employee?.jobTitle && (
-                          <p className="text-sm text-gray-500 mt-1">{review.employee.jobTitle}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{review.employee.jobTitle}</p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <ClipboardList className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No reviews found</p>
                   <p className="text-sm mt-1">Create a review to get started</p>
@@ -598,7 +598,7 @@ export default function PerformancePage() {
         <Modal isOpen={cycleModalOpen} onClose={() => setCycleModalOpen(false)} title="Create Performance Cycle" size="lg">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cycle Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cycle Name</label>
               <input
                 type="text"
                 value={cycleName}
@@ -609,7 +609,7 @@ export default function PerformancePage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
                 <input
                   type="number"
                   value={cycleYear}
@@ -618,7 +618,7 @@ export default function PerformancePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cycle Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cycle Type</label>
                 <select
                   value={cycleType}
                   onChange={(e) => setCycleType(e.target.value)}
@@ -633,7 +633,7 @@ export default function PerformancePage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                 <input
                   type="date"
                   value={cycleStartDate}
@@ -642,7 +642,7 @@ export default function PerformancePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
                 <input
                   type="date"
                   value={cycleEndDate}
@@ -652,7 +652,7 @@ export default function PerformancePage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rating Scale (max)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating Scale (max)</label>
               <input
                 type="number"
                 value={cycleRatingScale}
@@ -681,7 +681,7 @@ export default function PerformancePage() {
         <Modal isOpen={reviewModalOpen} onClose={() => setReviewModalOpen(false)} title="Create Performance Review" size="lg">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employee</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee</label>
               <select
                 value={reviewEmployeeId}
                 onChange={(e) => setReviewEmployeeId(e.target.value)}
@@ -696,7 +696,7 @@ export default function PerformancePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Performance Cycle</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Performance Cycle</label>
               <select
                 value={reviewCycleId}
                 onChange={(e) => setReviewCycleId(e.target.value)}
@@ -711,7 +711,7 @@ export default function PerformancePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reviewer</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reviewer</label>
               <select
                 value={reviewReviewerId}
                 onChange={(e) => setReviewReviewerId(e.target.value)}
@@ -726,7 +726,7 @@ export default function PerformancePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Review Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Review Type</label>
               <select
                 value={reviewType}
                 onChange={(e) => setReviewType(e.target.value)}
@@ -742,7 +742,7 @@ export default function PerformancePage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Period Start</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period Start</label>
                 <input
                   type="date"
                   value={reviewPeriodStart}
@@ -751,7 +751,7 @@ export default function PerformancePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Period End</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period End</label>
                 <input
                   type="date"
                   value={reviewPeriodEnd}

@@ -78,7 +78,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white">Nexara</h1>
-          <p className="text-gray-400 mt-2">Partner Programme Application</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-2">Partner Programme Application</p>
         </div>
 
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-8">
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${
                       form.specialisms.includes(specialism)
                         ? 'border-[#1B3A6B] bg-[#1B3A6B]/20 text-white'
-                        : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
+                        : 'border-gray-700 bg-gray-800 text-gray-400 dark:text-gray-500 hover:border-gray-600'
                     }`}
                   >
                     <input
@@ -197,7 +197,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-400">
+          <p className="mt-6 text-center text-sm text-gray-400 dark:text-gray-500">
             Already have an account?{' '}
             <Link href="/login" className="text-[#4a8ade] hover:text-[#6ba3f0] font-medium">
               Sign in

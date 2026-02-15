@@ -24,7 +24,7 @@ interface EffectivePermissions {
 }
 
 const PERMISSION_LABELS: Record<number, { label: string; color: string }> = {
-  0: { label: 'None', color: 'bg-gray-100 text-gray-400' },
+  0: { label: 'None', color: 'bg-gray-100 dark:bg-gray-800 text-gray-400' },
   1: { label: 'View', color: 'bg-blue-100 text-blue-700' },
   2: { label: 'Create', color: 'bg-green-100 text-green-700' },
   3: { label: 'Edit', color: 'bg-yellow-100 text-yellow-700' },
@@ -67,7 +67,7 @@ export default function MyProfilePage() {
   }
 
   function getPermissionIcon(level: number) {
-    if (level === 0) return <Lock className="h-3.5 w-3.5 text-gray-300" />;
+    if (level === 0) return <Lock className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />;
     if (level === 1) return <Eye className="h-3.5 w-3.5 text-blue-500" />;
     if (level <= 3) return <Pencil className="h-3.5 w-3.5 text-yellow-500" />;
     if (level === 4) return <Trash2 className="h-3.5 w-3.5 text-orange-500" />;
@@ -94,8 +94,8 @@ export default function MyProfilePage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-gray-500 mt-1">Your account details and effective permissions</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Your account details and effective permissions</p>
         </div>
 
         {/* Profile Card */}
@@ -109,45 +109,45 @@ export default function MyProfilePage() {
           <CardContent>
             {profile ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <Mail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Email</p>
-                    <p className="font-medium text-gray-900">{profile.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <User className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Name</p>
-                    <p className="font-medium text-gray-900">{profile.firstName} {profile.lastName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.firstName} {profile.lastName}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Shield className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <Shield className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Legacy Role</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Legacy Role</p>
                     <Badge variant="default">{profile.role}</Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Building className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <Building className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Department</p>
-                    <p className="font-medium text-gray-900">{profile.department || 'Not set'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Department</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.department || 'Not set'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Key className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <Key className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Job Title</p>
-                    <p className="font-medium text-gray-900">{profile.jobTitle || 'Not set'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Job Title</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.jobTitle || 'Not set'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Status</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
                     <Badge variant={profile.isActive ? 'secondary' : 'destructive'}>
                       {profile.isActive ? 'Active' : 'Inactive'}
                     </Badge>
@@ -155,7 +155,7 @@ export default function MyProfilePage() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400 text-center py-8">Unable to load profile</p>
+              <p className="text-gray-400 dark:text-gray-500 text-center py-8">Unable to load profile</p>
             )}
           </CardContent>
         </Card>
@@ -189,7 +189,7 @@ export default function MyProfilePage() {
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-500" />
                 What Can I Access?
-                <span className="text-sm font-normal text-gray-500 ml-2">Effective permissions across all roles</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">Effective permissions across all roles</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -202,7 +202,7 @@ export default function MyProfilePage() {
                       <div
                         key={module}
                         className={`flex items-center justify-between px-3 py-2 rounded ${
-                          level > 0 ? 'bg-white border border-gray-100' : 'bg-gray-50'
+                          level > 0 ? 'bg-white dark:bg-gray-900 border border-gray-100' : 'bg-gray-50 dark:bg-gray-800'
                         }`}
                       >
                         <div className="flex items-center gap-2">

@@ -283,7 +283,7 @@ export default function UDIClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-      <span className="ml-3 text-gray-500">Loading devices...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading devices...</span>
     </div>
   );
 
@@ -298,7 +298,7 @@ export default function UDIClient() {
           {/* Back navigation */}
           <button
             onClick={() => { setView('list'); setSelectedDevice(null); }}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-teal-600 mb-6 transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to UDI Management
@@ -314,7 +314,7 @@ export default function UDIClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900">{selectedDevice.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedDevice.referenceNumber}</h1>
                     <Badge variant={getClassBadgeVariant(selectedDevice.deviceClass)}>
                       {selectedDevice.deviceClass?.replace(/_/g, ' ')}
                     </Badge>
@@ -322,47 +322,47 @@ export default function UDIClient() {
                       {selectedDevice.status}
                     </Badge>
                   </div>
-                  <p className="text-lg text-gray-700 mb-1">{selectedDevice.deviceName}</p>
-                  <p className="text-sm text-gray-500">Model: {selectedDevice.modelNumber} | Manufacturer: {selectedDevice.manufacturer}</p>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">{selectedDevice.deviceName}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Model: {selectedDevice.modelNumber} | Manufacturer: {selectedDevice.manufacturer}</p>
                 </div>
               </div>
 
               {selectedDevice.description && (
-                <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Description</p>
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedDevice.description}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDevice.description}</p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">DI Records</p>
-                  <p className="text-sm text-gray-900 font-semibold">{selectedDevice.diRecords?.length || 0}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">DI Records</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.diRecords?.length || 0}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">PI Records</p>
-                  <p className="text-sm text-gray-900 font-semibold">{selectedDevice.piRecords?.length || 0}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">PI Records</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.piRecords?.length || 0}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Submissions</p>
-                  <p className="text-sm text-gray-900 font-semibold">{selectedDevice.submissions?.length || 0}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Submissions</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.submissions?.length || 0}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Created</p>
-                  <p className="text-sm text-gray-900">{formatDate(selectedDevice.createdAt)}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Created</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedDevice.createdAt)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 mb-6 border-b border-gray-200">
+          <div className="flex items-center gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setActiveTab('di')}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'di'
                   ? 'border-teal-600 text-teal-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               DI Records ({selectedDevice.diRecords?.length || 0})
@@ -372,7 +372,7 @@ export default function UDIClient() {
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'pi'
                   ? 'border-teal-600 text-teal-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               PI Records ({selectedDevice.piRecords?.length || 0})
@@ -382,7 +382,7 @@ export default function UDIClient() {
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'submissions'
                   ? 'border-teal-600 text-teal-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
               Submissions ({selectedDevice.submissions?.length || 0})
@@ -410,24 +410,24 @@ export default function UDIClient() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">DI Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Issuing Agency</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Created</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">DI Number</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Issuing Agency</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Created</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.diRecords.map((di) => (
-                          <tr key={di.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm font-mono text-gray-900">{di.diNumber}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{di.issuingAgency}</td>
+                          <tr key={di.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">{di.diNumber}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{di.issuingAgency}</td>
                             <td className="px-6 py-4">
                               <Badge variant={di.status === 'ACTIVE' ? 'success' : 'secondary'}>
                                 {di.status}
                               </Badge>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{formatDate(di.createdAt)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(di.createdAt)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -435,8 +435,8 @@ export default function UDIClient() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Barcode className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">No DI records yet. Add the first Device Identifier.</p>
+                    <Barcode className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No DI records yet. Add the first Device Identifier.</p>
                   </div>
                 )}
               </CardContent>
@@ -464,22 +464,22 @@ export default function UDIClient() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Lot Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Serial Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Mfg Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Exp Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Created</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Lot Number</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Serial Number</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Mfg Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Exp Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Created</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.piRecords.map((pi) => (
-                          <tr key={pi.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm font-mono text-gray-900">{pi.lotNumber || '--'}</td>
-                            <td className="px-6 py-4 text-sm font-mono text-gray-700">{pi.serialNumber || '--'}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{formatDate(pi.manufacturingDate)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{formatDate(pi.expirationDate)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{formatDate(pi.createdAt)}</td>
+                          <tr key={pi.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">{pi.lotNumber || '--'}</td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{pi.serialNumber || '--'}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.manufacturingDate)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.expirationDate)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.createdAt)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -487,8 +487,8 @@ export default function UDIClient() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Tag className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">No PI records yet. Add lot/serial/date information.</p>
+                    <Tag className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No PI records yet. Add lot/serial/date information.</p>
                   </div>
                 )}
               </CardContent>
@@ -506,24 +506,24 @@ export default function UDIClient() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Database</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Submission Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Reference ID</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Database</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Submission Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Reference ID</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.submissions.map((sub) => (
-                          <tr key={sub.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{sub.database}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{formatDate(sub.submissionDate)}</td>
+                          <tr key={sub.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{sub.database}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(sub.submissionDate)}</td>
                             <td className="px-6 py-4">
                               <Badge variant={sub.status === 'ACCEPTED' ? 'success' : sub.status === 'PENDING' ? 'warning' : 'secondary'}>
                                 {sub.status}
                               </Badge>
                             </td>
-                            <td className="px-6 py-4 text-sm font-mono text-gray-700">{sub.referenceId || '--'}</td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{sub.referenceId || '--'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -531,8 +531,8 @@ export default function UDIClient() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Send className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">No database submissions yet.</p>
+                    <Send className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No database submissions yet.</p>
                   </div>
                 )}
               </CardContent>
@@ -667,8 +667,8 @@ export default function UDIClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">UDI Management</h1>
-          <p className="text-gray-500 mt-1">Unique Device Identification System Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">UDI Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Unique Device Identification System Management</p>
         </div>
 
         {/* Summary Stats */}
@@ -677,7 +677,7 @@ export default function UDIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Devices</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Devices</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <Box className="h-8 w-8 text-teal-500" />
@@ -688,7 +688,7 @@ export default function UDIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-green-600">{stats.active}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -699,7 +699,7 @@ export default function UDIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Class II</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Class II</p>
                   <p className="text-3xl font-bold text-amber-600">{stats.classII}</p>
                 </div>
                 <Barcode className="h-8 w-8 text-amber-500" />
@@ -710,7 +710,7 @@ export default function UDIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Class III</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Class III</p>
                   <p className="text-3xl font-bold text-red-600">{stats.classIII}</p>
                 </div>
                 <Barcode className="h-8 w-8 text-red-500" />
@@ -722,7 +722,7 @@ export default function UDIClient() {
         {/* Filter bar */}
         <div className="flex items-center gap-4 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by device name, reference, model, or manufacturer..."
               value={searchQuery}
@@ -753,9 +753,9 @@ export default function UDIClient() {
         </div>
 
         {showFilters && (
-          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 flex-wrap">
+          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap">
             <div>
-              <Label className="text-xs text-gray-500">Status</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -768,7 +768,7 @@ export default function UDIClient() {
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Device Class</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Device Class</Label>
               <Select
                 value={classFilter}
                 onChange={(e) => setClassFilter(e.target.value)}
@@ -796,7 +796,7 @@ export default function UDIClient() {
 
         {/* Results count */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredDevices.length} of {devices.length} devices
           </p>
         </div>
@@ -808,33 +808,33 @@ export default function UDIClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Device Name</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Model</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Manufacturer</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Class</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Name</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Model</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Manufacturer</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Class</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredDevices.map((d) => (
                       <tr
                         key={d.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => openDetail(d)}
                       >
                         <td className="px-6 py-4">
                           <span className="text-sm font-mono text-gray-600">{d.referenceNumber || '--'}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900">{d.deviceName}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{d.deviceName}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700">{d.modelNumber || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{d.modelNumber || '--'}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700">{d.manufacturer || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{d.manufacturer || '--'}</span>
                         </td>
                         <td className="px-6 py-4">
                           <Badge variant={getClassBadgeVariant(d.deviceClass)}>
@@ -855,9 +855,9 @@ export default function UDIClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <Barcode className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No devices found</h3>
-            <p className="text-gray-500 mb-6">Register medical devices and manage their UDI records.</p>
+            <Barcode className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No devices found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Register medical devices and manage their UDI records.</p>
             <Button
               onClick={() => { setForm(emptyDeviceForm); setError(''); setShowCreateModal(true); }}
               className="bg-teal-600 hover:bg-teal-700"

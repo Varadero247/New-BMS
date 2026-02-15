@@ -88,7 +88,7 @@ function StatusBadge({ status }: { status: ServiceStatus['status'] }) {
     </span>
   );
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
       <RefreshCw className="h-3 w-3 animate-spin" /> Checking
     </span>
   );
@@ -144,15 +144,15 @@ export default function SystemStatusPage() {
   const categories = [...new Set(SERVICES.map(s => s.category))];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
-              <p className="text-gray-500 mt-1">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">System Status</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Last refreshed: {lastRefresh.toLocaleTimeString()} — auto-refreshes every 60s
               </p>
             </div>
@@ -169,23 +169,23 @@ export default function SystemStatusPage() {
           {/* Overall status banner */}
           <div className={`rounded-xl border p-5 mb-8 flex items-center gap-4 ${
             overallHealth === 'healthy' ? 'bg-green-50 border-green-200' :
-            overallHealth === 'checking' ? 'bg-gray-50 border-gray-200' :
+            overallHealth === 'checking' ? 'bg-gray-50 dark:bg-gray-800 border-gray-200' :
             'bg-yellow-50 border-yellow-200'
           }`}>
             {overallHealth === 'healthy' ? (
               <CheckCircle className="h-8 w-8 text-green-500" />
             ) : overallHealth === 'checking' ? (
-              <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
+              <RefreshCw className="h-8 w-8 text-gray-400 dark:text-gray-500 animate-spin" />
             ) : (
               <AlertTriangle className="h-8 w-8 text-yellow-500" />
             )}
             <div>
-              <p className="font-semibold text-gray-900 text-lg">
+              <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                 {overallHealth === 'healthy' ? 'All Systems Operational' :
                  overallHealth === 'checking' ? 'Checking service health...' :
                  `${down} service${down !== 1 ? 's' : ''} down${degraded > 0 ? `, ${degraded} degraded` : ''}`}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {healthy} healthy · {degraded} degraded · {down} down · {checking} checking
               </p>
             </div>
@@ -206,8 +206,8 @@ export default function SystemStatusPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.count}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.count}</p>
                       </div>
                       <div className={`p-2 rounded-full ${colors.bg}`}>
                         <Icon className={`h-5 w-5 ${colors.icon}`} />
@@ -226,9 +226,9 @@ export default function SystemStatusPage() {
               <Card key={category} className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
-                    <Server className="h-4 w-4 text-gray-400" />
+                    <Server className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     {category}
-                    <span className="ml-auto text-xs font-normal text-gray-400">
+                    <span className="ml-auto text-xs font-normal text-gray-400 dark:text-gray-500">
                       {categoryServices.filter(s => s.status === 'healthy').length}/{categoryServices.length} healthy
                     </span>
                   </CardTitle>
@@ -237,26 +237,26 @@ export default function SystemStatusPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-gray-100">
-                          <th className="text-left py-2 px-3 text-gray-400 font-medium text-xs uppercase">Service</th>
-                          <th className="text-left py-2 px-3 text-gray-400 font-medium text-xs uppercase">Port</th>
-                          <th className="text-left py-2 px-3 text-gray-400 font-medium text-xs uppercase">Status</th>
-                          <th className="text-right py-2 px-3 text-gray-400 font-medium text-xs uppercase">Latency</th>
-                          <th className="text-right py-2 px-3 text-gray-400 font-medium text-xs uppercase">Last Checked</th>
+                        <tr className="border-b border-gray-100 dark:border-gray-700">
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Service</th>
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Port</th>
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Status</th>
+                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Latency</th>
+                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Last Checked</th>
                         </tr>
                       </thead>
                       <tbody>
                         {categoryServices.map(svc => (
-                          <tr key={svc.port} className="border-b border-gray-50 hover:bg-gray-50">
-                            <td className="py-2.5 px-3 font-medium text-gray-900">{svc.name}</td>
-                            <td className="py-2.5 px-3 text-gray-500 font-mono text-xs">{svc.port}</td>
+                          <tr key={svc.port} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
+                            <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100">{svc.name}</td>
+                            <td className="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-mono text-xs">{svc.port}</td>
                             <td className="py-2.5 px-3">
                               <StatusBadge status={svc.status} />
                             </td>
-                            <td className="py-2.5 px-3 text-right text-gray-500 font-mono text-xs">
+                            <td className="py-2.5 px-3 text-right text-gray-500 dark:text-gray-400 font-mono text-xs">
                               {svc.latency !== null ? `${svc.latency}ms` : '—'}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-gray-400 text-xs">
+                            <td className="py-2.5 px-3 text-right text-gray-400 dark:text-gray-500 text-xs">
                               {svc.lastChecked ? svc.lastChecked.toLocaleTimeString() : '—'}
                             </td>
                           </tr>

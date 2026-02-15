@@ -49,7 +49,7 @@ const statusColors: Record<string, string> = {
   PENDING_VERIFICATION: 'bg-yellow-100 text-yellow-700',
   VERIFIED: 'bg-blue-100 text-blue-700',
   REJECTED: 'bg-red-100 text-red-800',
-  ARCHIVED: 'bg-gray-100 text-gray-700',
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const statusLabels: Record<string, string> = {
@@ -77,7 +77,7 @@ const typeColors: Record<string, string> = {
   PERFORMANCE_LETTER: 'bg-green-100 text-green-700',
   WARNING_LETTER: 'bg-red-100 text-red-700',
   TERMINATION_LETTER: 'bg-red-100 text-red-800',
-  OTHER: 'bg-gray-100 text-gray-700',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const DOCUMENT_TYPES = [
@@ -267,8 +267,8 @@ export default function DocumentsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Documents</h1>
-            <p className="text-gray-500 mt-1">Manage employee documents and records</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Documents</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage employee documents and records</p>
           </div>
           <Button
             className="flex items-center gap-2"
@@ -284,7 +284,7 @@ export default function DocumentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Documents</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Documents</p>
                   <p className="text-2xl font-bold">{totalDocs}</p>
                 </div>
                 <FileText className="h-8 w-8 text-emerald-500" />
@@ -295,7 +295,7 @@ export default function DocumentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">{activeDocs}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -306,7 +306,7 @@ export default function DocumentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Expired</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Expired</p>
                   <p className="text-2xl font-bold text-red-600">{expiredDocs}</p>
                 </div>
                 <XCircle className="h-8 w-8 text-red-500" />
@@ -317,7 +317,7 @@ export default function DocumentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Pending Verification</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Verification</p>
                   <p className="text-2xl font-bold text-yellow-600">{pendingDocs}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-yellow-500" />
@@ -332,7 +332,7 @@ export default function DocumentsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search documents..."
@@ -380,7 +380,7 @@ export default function DocumentsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
+                    <tr className="border-b bg-gray-50 dark:bg-gray-800">
                       <th className="text-left py-3 px-4 font-medium text-gray-600">Title</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-600">Employee</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-600">Type</th>
@@ -395,35 +395,35 @@ export default function DocumentsPage() {
                     {filteredDocs.map((doc) => (
                       <tr
                         key={doc.id}
-                        className="border-b hover:bg-gray-50 transition-colors"
+                        className="border-b hover:bg-gray-50 dark:bg-gray-800 transition-colors"
                       >
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <File className="h-4 w-4 text-gray-400" />
+                            <File className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">{doc.title}</span>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">{doc.title}</span>
                                 {doc.isConfidential && (
                                   <Lock className="h-3 w-3 text-red-500" title="Confidential" />
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500">{doc.fileName}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{doc.fileName}</p>
                             </div>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="text-gray-900">
+                          <span className="text-gray-900 dark:text-gray-100">
                             {doc.employee.firstName} {doc.employee.lastName}
                           </span>
-                          <p className="text-xs text-gray-500">{doc.employee.employeeNumber}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{doc.employee.employeeNumber}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[doc.documentType] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={typeColors[doc.documentType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {formatDocType(doc.documentType)}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[doc.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[doc.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {statusLabels[doc.status] || doc.status}
                           </Badge>
                         </td>
@@ -437,7 +437,7 @@ export default function DocumentsPage() {
                             ? new Date(doc.expiryDate).toLocaleDateString()
                             : '-'}
                         </td>
-                        <td className="py-3 px-4 text-gray-500">
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">
                           {formatFileSize(doc.fileSize)}
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -447,7 +447,7 @@ export default function DocumentsPage() {
                                 href={doc.fileUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-gray-400 hover:text-emerald-600 p-1"
+                                className="text-gray-400 dark:text-gray-500 hover:text-emerald-600 p-1"
                                 title="Open file"
                               >
                                 <ExternalLink className="h-4 w-4" />
@@ -455,7 +455,7 @@ export default function DocumentsPage() {
                             )}
                             <button
                               onClick={() => openEditModal(doc)}
-                              className="text-gray-400 hover:text-emerald-600 p-1"
+                              className="text-gray-400 dark:text-gray-500 hover:text-emerald-600 p-1"
                               title="Edit document"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -468,7 +468,7 @@ export default function DocumentsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No documents found</p>
               </div>
@@ -488,7 +488,7 @@ export default function DocumentsPage() {
         >
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employee *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee *</label>
               <select
                 value={formEmployeeId}
                 onChange={(e) => setFormEmployeeId(e.target.value)}
@@ -503,7 +503,7 @@ export default function DocumentsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Document Type *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Document Type *</label>
               <select
                 value={formDocumentType}
                 onChange={(e) => setFormDocumentType(e.target.value)}
@@ -518,7 +518,7 @@ export default function DocumentsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
               <input
                 type="text"
                 value={formTitle}
@@ -528,7 +528,7 @@ export default function DocumentsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
@@ -539,7 +539,7 @@ export default function DocumentsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">File Name *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File Name *</label>
                 <input
                   type="text"
                   value={formFileName}
@@ -549,7 +549,7 @@ export default function DocumentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">File Size (bytes)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File Size (bytes)</label>
                 <input
                   type="number"
                   value={formFileSize}
@@ -560,7 +560,7 @@ export default function DocumentsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">File URL *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File URL *</label>
               <input
                 type="url"
                 value={formFileUrl}
@@ -571,7 +571,7 @@ export default function DocumentsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issue Date</label>
                 <input
                   type="date"
                   value={formIssueDate}
@@ -580,7 +580,7 @@ export default function DocumentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date</label>
                 <input
                   type="date"
                   value={formExpiryDate}
@@ -633,17 +633,17 @@ export default function DocumentsPage() {
           {editDoc && (
             <>
               <div className="space-y-4">
-                <div className="p-3 bg-gray-50 rounded-md">
+                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                   <div className="flex items-center gap-2 mb-1">
-                    <File className="h-4 w-4 text-gray-400" />
+                    <File className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <span className="font-medium">{editDoc.fileName}</span>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {editDoc.employee.firstName} {editDoc.employee.lastName} - {formatDocType(editDoc.documentType)}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                   <input
                     type="text"
                     value={editTitle}
@@ -652,7 +652,7 @@ export default function DocumentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
@@ -661,7 +661,7 @@ export default function DocumentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
@@ -675,7 +675,7 @@ export default function DocumentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date</label>
                   <input
                     type="date"
                     value={editExpiryDate}

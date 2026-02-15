@@ -81,16 +81,16 @@ export default function AutomationPage() {
       ON_STATUS_CHANGE: 'bg-purple-100 text-purple-800',
       ON_FIELD_CHANGE: 'bg-orange-100 text-orange-800',
       SCHEDULED: 'bg-yellow-100 text-yellow-800',
-      MANUAL: 'bg-gray-100 text-gray-800',
+      MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       WEBHOOK: 'bg-cyan-100 text-cyan-800',
     };
-    return styles[trigger] || 'bg-gray-100 text-gray-800';
+    return styles[trigger] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading automation rules...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading automation rules...</div>
       </div>
     );
   }
@@ -98,7 +98,7 @@ export default function AutomationPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Process Automation</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Process Automation</h1>
         <Link
           href="/automation/rules/new"
           className="flex items-center space-x-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
@@ -128,40 +128,40 @@ export default function AutomationPage() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Zap className="h-8 w-8 text-indigo-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Rules</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Rules</p>
               <p className="text-xl font-semibold">{stats?.totalRules || 0}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Play className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Active Rules</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Active Rules</p>
               <p className="text-xl font-semibold">{stats?.activeRules || 0}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckCircle className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Successful Executions</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Successful Executions</p>
               <p className="text-xl font-semibold">
                 {stats?.executionsByStatus?.find((e) => e.status === 'COMPLETED')?._count || 0}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-8 w-8 text-red-500" />
             <div>
-              <p className="text-sm text-gray-500">Failed Executions</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Failed Executions</p>
               <p className="text-xl font-semibold">
                 {stats?.executionsByStatus?.find((e) => e.status === 'FAILED')?._count || 0}
               </p>
@@ -171,50 +171,50 @@ export default function AutomationPage() {
       </div>
 
       {/* Rules Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Rule
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Trigger
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Workflow
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Executions
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Last Run
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {rules.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No automation rules found.
                 </td>
               </tr>
             ) : (
               rules.map((rule) => (
-                <tr key={rule.id} className="hover:bg-gray-50">
+                <tr key={rule.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <Zap className={`h-5 w-5 ${rule.isActive ? 'text-indigo-500' : 'text-gray-400'}`} />
                       <div>
-                        <p className="font-medium text-gray-900">{rule.name}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{rule.name}</p>
                         {rule.description && (
-                          <p className="max-w-xs truncate text-sm text-gray-500">{rule.description}</p>
+                          <p className="max-w-xs truncate text-sm text-gray-500 dark:text-gray-400">{rule.description}</p>
                         )}
                       </div>
                     </div>
@@ -224,20 +224,20 @@ export default function AutomationPage() {
                       {rule.triggerType.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {rule.definition?.name || 'Global'}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {rule._count.executions}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {rule.lastExecutedAt
                       ? new Date(rule.lastExecutedAt).toLocaleString()
                       : 'Never'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      rule.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      rule.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
                     }`}>
                       {rule.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -248,7 +248,7 @@ export default function AutomationPage() {
                         onClick={() => handleToggleRule(rule.id, rule.isActive)}
                         className={`rounded px-2 py-1 text-xs font-medium ${
                           rule.isActive
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                             : 'bg-green-100 text-green-700 hover:bg-green-200'
                         }`}
                       >
@@ -264,7 +264,7 @@ export default function AutomationPage() {
                       )}
                       <Link
                         href={`/automation/rules/${rule.id}`}
-                        className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200"
                       >
                         Edit
                       </Link>
@@ -279,8 +279,8 @@ export default function AutomationPage() {
 
       {/* Recent Executions */}
       {stats?.recentExecutions && stats.recentExecutions.length > 0 && (
-        <div className="rounded-lg bg-white p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Executions</h2>
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Executions</h2>
           <div className="space-y-3">
             {stats.recentExecutions.map((execution: any) => (
               <div
@@ -302,8 +302,8 @@ export default function AutomationPage() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{execution.rule?.name}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{execution.rule?.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(execution.executedAt).toLocaleString()}
                     </p>
                   </div>

@@ -286,8 +286,8 @@ export default function NonConformancesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Non-Conformance Register</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 non-conformance tracking with RCA</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Non-Conformance Register</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 non-conformance tracking with RCA</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Report NC
@@ -300,7 +300,7 @@ export default function NonConformancesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><AlertOctagon className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500">Total NCs</p></div>
+              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total NCs</p></div>
             </div>
           </CardContent>
         </Card>
@@ -308,7 +308,7 @@ export default function NonConformancesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg"><Clock className="h-5 w-5 text-orange-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.open}</p><p className="text-xs text-gray-500">Open</p></div>
+              <div><p className="text-2xl font-bold">{stats.open}</p><p className="text-xs text-gray-500 dark:text-gray-400">Open</p></div>
             </div>
           </CardContent>
         </Card>
@@ -316,7 +316,7 @@ export default function NonConformancesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg"><AlertCircle className="h-5 w-5 text-red-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.critical}</p><p className="text-xs text-gray-500">Major/Critical</p></div>
+              <div><p className="text-2xl font-bold">{stats.critical}</p><p className="text-xs text-gray-500 dark:text-gray-400">Major/Critical</p></div>
             </div>
           </CardContent>
         </Card>
@@ -324,7 +324,7 @@ export default function NonConformancesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.closed}</p><p className="text-xs text-gray-500">Closed</p></div>
+              <div><p className="text-2xl font-bold">{stats.closed}</p><p className="text-xs text-gray-500 dark:text-gray-400">Closed</p></div>
             </div>
           </CardContent>
         </Card>
@@ -336,7 +336,7 @@ export default function NonConformancesClient() {
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input placeholder="Search NCs..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
               </div>
             </div>
@@ -362,9 +362,9 @@ export default function NonConformancesClient() {
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <AlertOctagon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Non-Conformances Found</h3>
-            <p className="text-gray-500 mb-4">Report a non-conformance to start tracking quality issues.</p>
+            <AlertOctagon className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Non-Conformances Found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Report a non-conformance to start tracking quality issues.</p>
             <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Report NC</Button>
           </CardContent>
         </Card>
@@ -376,14 +376,14 @@ export default function NonConformancesClient() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-gray-400">{r.referenceNumber}</span>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
                       {getBadge(r.severity, SEVERITIES)}
                       {getBadge(r.status, NC_STATUSES)}
                       {r.customerImpact && <Badge className="bg-red-100 text-red-800">Customer Impact</Badge>}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{r.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.description}</p>
-                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <span>Type: {NC_TYPES.find(t => t.value === r.ncType)?.label || r.ncType}</span>
                       <span>Reported by: {r.reportedBy}</span>
                       <span>Dept: {r.department}</span>
@@ -401,11 +401,11 @@ export default function NonConformancesClient() {
 
                 {/* Expanded Details */}
                 {expandedId === r.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                     {/* Containment */}
                     {r.containmentRequired && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Containment</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Containment</h4>
                         <div className="bg-yellow-50 p-3 rounded-lg space-y-1 text-sm">
                           {r.containmentActions && <p>{r.containmentActions}</p>}
                           <div className="flex gap-4 text-xs">
@@ -419,7 +419,7 @@ export default function NonConformancesClient() {
                     {/* Root Cause Analysis */}
                     {r.rcaMethod && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Root Cause Analysis — {RCA_METHODS.find(m => m.value === r.rcaMethod)?.label}</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Root Cause Analysis — {RCA_METHODS.find(m => m.value === r.rcaMethod)?.label}</h4>
                         {r.rcaMethod === 'FIVE_WHY' && (
                           <div className="space-y-2">
                             {[r.why1, r.why2, r.why3, r.why4, r.why5].map((w, i) => w && (
@@ -434,7 +434,7 @@ export default function NonConformancesClient() {
                             <p className="font-semibold text-red-700">Root Cause:</p>
                             <p>{r.rootCause}</p>
                             {r.rootCauseCategory && (
-                              <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Category: {ROOT_CAUSE_CATEGORIES.find(c => c.value === r.rootCauseCategory)?.label}
                               </p>
                             )}
@@ -446,11 +446,11 @@ export default function NonConformancesClient() {
                     {/* CAPA & Corrective Actions */}
                     {(r.correctiveActions || r.preventiveActions || r.capaReference) && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Corrective & Preventive Actions</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Corrective & Preventive Actions</h4>
                         <div className="space-y-2 text-sm">
                           {r.correctiveActions && <div className="bg-blue-50 p-3 rounded-lg"><p className="font-semibold text-blue-700">Corrective:</p><p>{r.correctiveActions}</p></div>}
                           {r.preventiveActions && <div className="bg-green-50 p-3 rounded-lg"><p className="font-semibold text-green-700">Preventive:</p><p>{r.preventiveActions}</p></div>}
-                          {r.capaReference && <p className="text-xs text-gray-500">CAPA Ref: {r.capaReference}</p>}
+                          {r.capaReference && <p className="text-xs text-gray-500 dark:text-gray-400">CAPA Ref: {r.capaReference}</p>}
                         </div>
                       </div>
                     )}
@@ -497,7 +497,7 @@ export default function NonConformancesClient() {
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">NC Details</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">NC Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
               <div><Label>NC Type *</Label>
@@ -536,7 +536,7 @@ export default function NonConformancesClient() {
 
           {/* Customer Impact */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Customer Impact</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Customer Impact</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <input type="checkbox" checked={form.customerImpact} onChange={e => setForm({...form, customerImpact: e.target.checked})} className="rounded" />
@@ -550,7 +550,7 @@ export default function NonConformancesClient() {
 
           {/* Containment */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Containment</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Containment</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <input type="checkbox" checked={form.containmentRequired} onChange={e => setForm({...form, containmentRequired: e.target.checked})} className="rounded" />
@@ -572,7 +572,7 @@ export default function NonConformancesClient() {
 
           {/* Root Cause Analysis */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Root Cause Analysis</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Root Cause Analysis</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>RCA Method</Label>
                 <Select value={form.rcaMethod} onChange={e => setForm({...form, rcaMethod: e.target.value})}>
@@ -601,7 +601,7 @@ export default function NonConformancesClient() {
 
           {/* Corrective & Preventive Actions */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Actions</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Actions</h3>
             <div className="grid grid-cols-1 gap-4">
               <div><Label>Corrective Actions</Label><Textarea value={form.correctiveActions} onChange={e => setForm({...form, correctiveActions: e.target.value})} rows={2} /></div>
               <div><Label>Preventive Actions</Label><Textarea value={form.preventiveActions} onChange={e => setForm({...form, preventiveActions: e.target.value})} rows={2} /></div>

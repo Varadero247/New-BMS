@@ -118,7 +118,7 @@ export default function StatusPage() {
         <button
           onClick={loadStatus}
           disabled={refreshing}
-          className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+          className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
@@ -167,9 +167,9 @@ export default function StatusPage() {
         <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Services</h3>
         </div>
-        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {data.services.map(service => (
-            <div key={`${service.name}:${service.port}`} className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <div key={`${service.name}:${service.port}`} className="flex items-center px-4 py-3 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
               {/* Status Dot */}
               <div className="flex-shrink-0 mr-3">
                 <div className={`h-3 w-3 rounded-full ${SERVICE_DOT[service.status] || 'bg-gray-400'}`} />
@@ -178,9 +178,9 @@ export default function StatusPage() {
               {/* Service Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <Server className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <Server className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{service.name}</span>
-                  <span className="text-xs text-gray-400 font-mono">:{service.port}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">:{service.port}</span>
                 </div>
               </div>
 
@@ -204,7 +204,7 @@ export default function StatusPage() {
                 </span>
 
                 {/* Last Checked */}
-                <span className="text-xs text-gray-400 flex items-center gap-1 w-32 justify-end">
+                <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 w-32 justify-end">
                   <Clock className="h-3 w-3" />
                   {new Date(service.lastChecked).toLocaleTimeString()}
                 </span>
@@ -215,7 +215,7 @@ export default function StatusPage() {
       </div>
 
       {/* Auto-refresh indicator */}
-      <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+      <div className="flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
         <Activity className="h-3.5 w-3.5" />
         Auto-refreshes every 30 seconds
       </div>

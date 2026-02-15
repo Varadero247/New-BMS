@@ -48,17 +48,17 @@ export default function TraceabilityClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Device Traceability</h1>
-        <p className="text-sm text-gray-500 mt-1">UDI tracking and chain of custody — FDA 21 CFR 830 / EU MDR 2017/745</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Device Traceability</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">UDI tracking and chain of custody — FDA 21 CFR 830 / EU MDR 2017/745</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {Object.entries(statusConfig).map(([key, cfg]) => {
           const count = records.filter((r) => r.status === key).length;
           return (
-            <div key={key} className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">{cfg.label}</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{count}</p>
+            <div key={key} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">{cfg.label}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{count}</p>
             </div>
           );
         })}
@@ -66,7 +66,7 @@ export default function TraceabilityClient() {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search by UDI, lot, serial, or product..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -80,38 +80,38 @@ export default function TraceabilityClient() {
           const sc = statusConfig[record.status];
           const isExpanded = expandedId === record.id;
           return (
-            <div key={record.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : record.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50">
+            <div key={record.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : record.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <Package className="h-5 w-5 text-blue-500" />
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{record.product}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{record.product}</p>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-gray-500">SN: {record.serialNumber}</span>
-                        <span className="text-xs text-gray-500">Lot: {record.lotNumber}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">SN: {record.serialNumber}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Lot: {record.lotNumber}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>{sc.label}</span>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">{record.currentLocation}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{record.currentLocation}</p>
                     </div>
                   </div>
                 </div>
               </button>
               {isExpanded && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 space-y-3">
-                  <div className="text-xs text-gray-500 font-mono break-all">UDI: {record.udiNumber}</div>
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 space-y-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 font-mono break-all">UDI: {record.udiNumber}</div>
                   <div className="grid grid-cols-3 gap-3 text-xs">
-                    <div><span className="text-gray-500">Manufactured:</span> <span className="font-medium">{record.manufacturingDate}</span></div>
-                    <div><span className="text-gray-500">Expires:</span> <span className="font-medium">{record.expiryDate}</span></div>
-                    <div><span className="text-gray-500">Events:</span> <span className="font-medium">{record.chain.length}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Manufactured:</span> <span className="font-medium">{record.manufacturingDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Expires:</span> <span className="font-medium">{record.expiryDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Events:</span> <span className="font-medium">{record.chain.length}</span></div>
                   </div>
                   <div className="space-y-0">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Chain of Custody</p>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Chain of Custody</p>
                     {record.chain.map((event, i) => (
                       <div key={i} className="flex items-start gap-3 relative">
                         <div className="flex flex-col items-center">
@@ -119,8 +119,8 @@ export default function TraceabilityClient() {
                           {i < record.chain.length - 1 && <div className="w-px h-8 bg-gray-200" />}
                         </div>
                         <div className="pb-3">
-                          <p className="text-xs font-medium text-gray-900">{event.event}</p>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">{event.event}</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                             <Calendar className="h-3 w-3" />{event.date}
                             <MapPin className="h-3 w-3 ml-1" />{event.location}
                             <span className="ml-1">by {event.by}</span>

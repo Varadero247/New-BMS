@@ -35,7 +35,7 @@ const statusColors: Record<string, string> = {
   PROBATION: 'bg-blue-100 text-blue-700',
   NOTICE_PERIOD: 'bg-orange-100 text-orange-700',
   SUSPENDED: 'bg-red-100 text-red-700',
-  TERMINATED: 'bg-gray-100 text-gray-700',
+  TERMINATED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const typeColors: Record<string, string> = {
@@ -250,8 +250,8 @@ export default function EmployeesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
-            <p className="text-gray-500 mt-1">Manage your workforce</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Employees</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your workforce</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Employee
@@ -272,7 +272,7 @@ export default function EmployeesPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search employees..."
@@ -313,7 +313,7 @@ export default function EmployeesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{employees.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-emerald-500" />
@@ -324,7 +324,7 @@ export default function EmployeesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">
                     {employees.filter(e => e.employmentStatus === 'ACTIVE').length}
                   </p>
@@ -337,7 +337,7 @@ export default function EmployeesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">On Leave</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">On Leave</p>
                   <p className="text-2xl font-bold text-yellow-600">
                     {employees.filter(e => e.employmentStatus === 'ON_LEAVE').length}
                   </p>
@@ -350,7 +350,7 @@ export default function EmployeesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Probation</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Probation</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {employees.filter(e => e.employmentStatus === 'PROBATION').length}
                   </p>
@@ -381,15 +381,15 @@ export default function EmployeesPage() {
                           </div>
                           <div>
                             <h3 className="font-medium">{employee.firstName} {employee.lastName}</h3>
-                            <p className="text-sm text-gray-500">{employee.employeeNumber}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{employee.employeeNumber}</p>
                           </div>
                         </div>
-                        <Badge className={statusColors[employee.employmentStatus] || 'bg-gray-100'}>
+                        <Badge className={statusColors[employee.employmentStatus] || 'bg-gray-100 dark:bg-gray-800'}>
                           {employee.employmentStatus}
                         </Badge>
                       </div>
                       <div className="space-y-2 text-sm">
-                        <p className="font-medium text-gray-900">{employee.jobTitle}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{employee.jobTitle}</p>
                         {employee.department && (
                           <div className="flex items-center gap-2 text-gray-600">
                             <Building2 className="h-4 w-4" />
@@ -408,11 +408,11 @@ export default function EmployeesPage() {
                         )}
                       </div>
                       <div className="mt-3 pt-3 border-t flex items-center justify-between">
-                        <Badge className={typeColors[employee.employmentType] || 'bg-gray-100'}>
+                        <Badge className={typeColors[employee.employmentType] || 'bg-gray-100 dark:bg-gray-800'}>
                           {employee.employmentType.replace('_', ' ')}
                         </Badge>
                         {employee._count && employee._count.subordinates > 0 && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {employee._count.subordinates} direct reports
                           </span>
                         )}
@@ -422,7 +422,7 @@ export default function EmployeesPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No employees found</p>
               </div>
@@ -443,7 +443,7 @@ export default function EmployeesPage() {
           <div className="space-y-6">
             {/* Basic Information */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Basic Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="employeeNumber">Employee Number *</Label>
@@ -480,7 +480,7 @@ export default function EmployeesPage() {
 
             {/* Contact Information */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Contact Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="workEmail">Work Email *</Label>
@@ -519,7 +519,7 @@ export default function EmployeesPage() {
 
             {/* Personal Details */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Personal Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Personal Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -572,7 +572,7 @@ export default function EmployeesPage() {
 
             {/* Employment Details */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Employment Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Employment Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="jobTitle">Job Title *</Label>

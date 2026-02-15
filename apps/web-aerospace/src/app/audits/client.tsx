@@ -29,13 +29,13 @@ const STATUS_CONFIG = {
   planned:     { label: 'Planned',     bg: 'bg-blue-50',   text: 'text-blue-700',   icon: Clock },
   'in-progress': { label: 'In Progress', bg: 'bg-yellow-50', text: 'text-yellow-700', icon: Clock },
   completed:   { label: 'Completed',   bg: 'bg-green-50',  text: 'text-green-700',  icon: CheckCircle2 },
-  closed:      { label: 'Closed',      bg: 'bg-gray-100',  text: 'text-gray-500',   icon: XCircle },
+  closed:      { label: 'Closed',      bg: 'bg-gray-100 dark:bg-gray-800',  text: 'text-gray-500 dark:text-gray-400',   icon: XCircle },
 };
 
 const TYPE_CONFIG = {
   FCA:      { label: 'FCA',      bg: 'bg-purple-100', text: 'text-purple-700' },
   PCA:      { label: 'PCA',      bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  internal: { label: 'Internal', bg: 'bg-gray-100',   text: 'text-gray-600' },
+  internal: { label: 'Internal', bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-600' },
 };
 
 export default function ConfigAuditsClient() {
@@ -58,12 +58,12 @@ export default function ConfigAuditsClient() {
   const openCount = MOCK_AUDITS.filter(a => a.status === 'planned' || a.status === 'in-progress').length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Configuration Audits</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D — FCA, PCA & Internal Configuration Audits</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Configuration Audits</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D — FCA, PCA & Internal Configuration Audits</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -75,32 +75,32 @@ export default function ConfigAuditsClient() {
       <div className="px-6 py-6 space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Open / In Progress</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open / In Progress</p>
             <p className="text-3xl font-bold text-blue-600 mt-1">{openCount}</p>
-            <p className="text-xs text-gray-500 mt-1">Active audits</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Active audits</p>
           </div>
-          <div className="bg-white rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-red-200 bg-red-50 p-4">
             <p className="text-xs text-red-600 uppercase tracking-wide font-medium">Major Findings</p>
             <p className="text-3xl font-bold text-red-700 mt-1">{totalMajor}</p>
             <p className="text-xs text-red-500 mt-1">Require immediate action</p>
           </div>
-          <div className="bg-white rounded-lg border border-orange-200 bg-orange-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-orange-200 bg-orange-50 p-4">
             <p className="text-xs text-orange-600 uppercase tracking-wide font-medium">Minor Findings</p>
             <p className="text-3xl font-bold text-orange-600 mt-1">{totalMinor}</p>
             <p className="text-xs text-orange-500 mt-1">Corrective actions needed</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Observations</p>
-            <p className="text-3xl font-bold text-gray-700 mt-1">{totalObs}</p>
-            <p className="text-xs text-gray-500 mt-1">Improvement opportunities</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Observations</p>
+            <p className="text-3xl font-bold text-gray-700 dark:text-gray-300 mt-1">{totalObs}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Improvement opportunities</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search audit number, scope, auditor..."
@@ -125,10 +125,10 @@ export default function ConfigAuditsClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Audit #</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Scope</th>
@@ -139,21 +139,21 @@ export default function ConfigAuditsClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(audit => {
                 const sc = STATUS_CONFIG[audit.status];
                 const tc = TYPE_CONFIG[audit.type];
                 const StatusIcon = sc.icon;
                 return (
-                  <tr key={audit.id} className="hover:bg-gray-50">
+                  <tr key={audit.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-4 py-3 font-mono font-medium text-blue-700">{audit.auditNumber}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${tc.bg} ${tc.text}`}>{tc.label}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700 max-w-xs">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-xs">
                       <p className="truncate">{audit.scope}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{audit.area}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{audit.area}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {audit.findings.major > 0 && (
@@ -172,12 +172,12 @@ export default function ConfigAuditsClient() {
                           </span>
                         )}
                         {audit.findings.major === 0 && audit.findings.minor === 0 && audit.findings.observations === 0 && (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{audit.auditor}</td>
-                    <td className="px-4 py-3 text-gray-500">{audit.auditDate}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{audit.auditor}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{audit.auditDate}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
                         <StatusIcon className="w-3 h-3" />
@@ -190,7 +190,7 @@ export default function ConfigAuditsClient() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <ClipboardCheck className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No audits match your filters</p>
             </div>

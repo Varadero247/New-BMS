@@ -69,12 +69,12 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  NOT_STARTED: 'bg-gray-100 text-gray-700',
+  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   AT_RISK: 'bg-red-100 text-red-700',
   COMPLETED: 'bg-green-100 text-green-700',
   EXCEEDED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-gray-100 text-gray-500',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const categoryLabels: Record<string, string> = {
@@ -272,8 +272,8 @@ export default function GoalsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Performance Goals</h1>
-            <p className="text-gray-500 mt-1">Track and manage employee goals and objectives</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Performance Goals</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage employee goals and objectives</p>
           </div>
           <Button
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700"
@@ -292,7 +292,7 @@ export default function GoalsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Goals</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Goals</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <Target className="h-8 w-8 text-blue-500" />
@@ -303,7 +303,7 @@ export default function GoalsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">On Track</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">On Track</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.onTrack}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-500" />
@@ -314,7 +314,7 @@ export default function GoalsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">At Risk</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">At Risk</p>
                   <p className="text-2xl font-bold text-red-600">{stats.atRisk}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -325,7 +325,7 @@ export default function GoalsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -380,18 +380,18 @@ export default function GoalsPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={categoryColors[goal.category] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={categoryColors[goal.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {categoryLabels[goal.category] || goal.category}
                           </Badge>
-                          <Badge className={statusColors[goal.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[goal.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {statusLabels[goal.status] || goal.status}
                           </Badge>
                         </div>
-                        <h3 className="font-medium text-gray-900 truncate">{goal.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{goal.title}</h3>
                       </div>
                       <button
                         onClick={() => openEditModal(goal)}
-                        className="ml-2 p-1 text-gray-400 hover:text-emerald-600 rounded transition-colors"
+                        className="ml-2 p-1 text-gray-400 dark:text-gray-500 hover:text-emerald-600 rounded transition-colors"
                         title="Edit goal"
                       >
                         <Edit className="h-4 w-4" />
@@ -413,7 +413,7 @@ export default function GoalsPage() {
                     {/* Progress Bar */}
                     <div className="mb-3">
                       <div className="flex items-center justify-between text-sm mb-1">
-                        <span className="text-gray-500">Progress</span>
+                        <span className="text-gray-500 dark:text-gray-400">Progress</span>
                         <span className="font-medium">{goal.progress || 0}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -427,7 +427,7 @@ export default function GoalsPage() {
                     {/* Target Value */}
                     {goal.targetValue && (
                       <div className="text-sm text-gray-600 mb-2">
-                        <span className="text-gray-500">Target: </span>
+                        <span className="text-gray-500 dark:text-gray-400">Target: </span>
                         <span className="font-medium">
                           {goal.actualValue || '0'} / {goal.targetValue}
                           {goal.unit ? ` ${goal.unit}` : ''}
@@ -436,7 +436,7 @@ export default function GoalsPage() {
                     )}
 
                     {/* Weight and Due Date */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 pt-3 border-t">
+                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-3 border-t">
                       {goal.weight > 0 && (
                         <span>Weight: {goal.weight}%</span>
                       )}
@@ -448,7 +448,7 @@ export default function GoalsPage() {
 
                     {/* Cycle info */}
                     {goal.cycle && (
-                      <div className="mt-2 text-xs text-gray-400">
+                      <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                         {goal.cycle.name} ({goal.cycle.year})
                       </div>
                     )}
@@ -456,7 +456,7 @@ export default function GoalsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No goals found</p>
                 <p className="text-sm mt-1">Create a goal to get started</p>
@@ -469,7 +469,7 @@ export default function GoalsPage() {
         <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Create Performance Goal" size="lg">
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
               <input
                 type="text"
                 value={formTitle}
@@ -479,7 +479,7 @@ export default function GoalsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
@@ -490,7 +490,7 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee</label>
                 <select
                   value={formEmployeeId}
                   onChange={(e) => setFormEmployeeId(e.target.value)}
@@ -505,7 +505,7 @@ export default function GoalsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Performance Cycle</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Performance Cycle</label>
                 <select
                   value={formCycleId}
                   onChange={(e) => setFormCycleId(e.target.value)}
@@ -522,7 +522,7 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value)}
@@ -536,7 +536,7 @@ export default function GoalsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Weight (%)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (%)</label>
                 <input
                   type="number"
                   value={formWeight}
@@ -548,7 +548,7 @@ export default function GoalsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Measurement Criteria</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement Criteria</label>
               <textarea
                 value={formMeasurementCriteria}
                 onChange={(e) => setFormMeasurementCriteria(e.target.value)}
@@ -559,7 +559,7 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Target Value (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value (optional)</label>
                 <input
                   type="text"
                   value={formTargetValue}
@@ -569,7 +569,7 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unit (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit (optional)</label>
                 <input
                   type="text"
                   value={formUnit}
@@ -581,7 +581,7 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date (optional)</label>
                 <input
                   type="date"
                   value={formStartDate}
@@ -590,7 +590,7 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
                 <input
                   type="date"
                   value={formDueDate}
@@ -620,7 +620,7 @@ export default function GoalsPage() {
             <>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                   <input
                     type="text"
                     value={editTitle}
@@ -629,7 +629,7 @@ export default function GoalsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
@@ -638,7 +638,7 @@ export default function GoalsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
@@ -653,7 +653,7 @@ export default function GoalsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Progress: {editProgress}%
                   </label>
                   <input
@@ -665,7 +665,7 @@ export default function GoalsPage() {
                     step={5}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                   />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                     <span>0%</span>
                     <span>25%</span>
                     <span>50%</span>
@@ -675,7 +675,7 @@ export default function GoalsPage() {
                 </div>
                 {editGoal.targetValue && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Actual Value (Target: {editGoal.targetValue}{editGoal.unit ? ` ${editGoal.unit}` : ''})
                     </label>
                     <input

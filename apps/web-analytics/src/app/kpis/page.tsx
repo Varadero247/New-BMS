@@ -41,7 +41,7 @@ const STATUS_STYLES: Record<string, string> = {
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === 'UP' || trend === 'IMPROVING') return <TrendingUp className="h-4 w-4 text-green-500" />;
   if (trend === 'DOWN' || trend === 'DECLINING') return <TrendingDown className="h-4 w-4 text-red-500" />;
-  return <Minus className="h-4 w-4 text-gray-400" />;
+  return <Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
 }
 
 export default function KPIsPage() {
@@ -96,8 +96,8 @@ export default function KPIsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">KPI Tracking</h1>
-            <p className="text-gray-500 mt-1">Key performance indicator monitoring across all modules</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">KPI Tracking</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicator monitoring across all modules</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
@@ -125,7 +125,7 @@ export default function KPIsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search KPIs..."
@@ -167,32 +167,32 @@ export default function KPIsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Value</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Target</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Trend</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Owner</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Updated</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Target</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Trend</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Updated</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(item => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50">
+                      <tr key={item.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
-                          <p className="text-gray-900 font-medium">{item.name}</p>
-                          <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{item.description}</p>
+                          <p className="text-gray-900 dark:text-gray-100 font-medium">{item.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-xs">{item.description}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{item.category}</span>
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 rounded">{item.category}</span>
                         </td>
-                        <td className="py-3 px-4 text-right font-semibold text-gray-900">
+                        <td className="py-3 px-4 text-right font-semibold text-gray-900 dark:text-gray-100">
                           {item.value}{typeof item.value === 'number' && item.unit === '%' ? '%' : ''}
-                          {item.unit !== '%' && <span className="text-xs text-gray-400 ml-1">{item.unit}</span>}
+                          {item.unit !== '%' && <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">{item.unit}</span>}
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-500">
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400">
                           {item.target}{typeof item.target === 'number' && item.unit === '%' ? '%' : ''}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -201,19 +201,19 @@ export default function KPIsPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[item.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[item.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {item.status === 'ON_TARGET' ? 'On Target' : item.status === 'NEAR_TARGET' ? 'Near Target' : 'Off Target'}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-500 text-xs">{item.owner}</td>
-                        <td className="py-3 px-4 text-gray-400 text-xs">{item.lastUpdated}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">{item.owner}</td>
+                        <td className="py-3 px-4 text-gray-400 dark:text-gray-500 text-xs">{item.lastUpdated}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No KPIs found matching your filters.</p>
               </div>
@@ -224,21 +224,21 @@ export default function KPIsPage() {
         {/* Add KPI Modal */}
         {showAddModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Add KPI</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Add KPI</h2>
                 <button onClick={() => setShowAddModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">KPI Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">KPI Name</label>
                   <input type="text" placeholder="e.g. Customer Complaint Rate" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>Quality</option>
                       <option>H&S</option>
@@ -248,23 +248,23 @@ export default function KPIsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
                     <input type="text" placeholder="e.g. %" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Target Value</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value</label>
                     <input type="number" placeholder="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
                     <input type="text" placeholder="Assignee name" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Add KPI</button>
               </div>
             </div>

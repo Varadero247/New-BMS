@@ -23,7 +23,7 @@ const statusColors: Record<string, string> = {
   AVAILABLE: 'bg-green-100 text-green-700',
   ON_JOB: 'bg-blue-100 text-blue-700',
   EN_ROUTE: 'bg-yellow-100 text-yellow-700',
-  OFF_DUTY: 'bg-gray-100 text-gray-600',
+  OFF_DUTY: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   ON_LEAVE: 'bg-orange-100 text-orange-700',
 };
 
@@ -102,12 +102,12 @@ export default function TechniciansPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8 bg-gray-50">
+      <main className="flex-1 p-8 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Technicians</h1>
-              <p className="text-gray-500 mt-1">Manage field technicians and assignments</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Technicians</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Manage field technicians and assignments</p>
             </div>
             <button onClick={openCreate} className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 flex items-center gap-2 font-medium">
               <Plus className="h-5 w-5" /> Add Technician
@@ -119,14 +119,14 @@ export default function TechniciansPage() {
               { label: 'Total Technicians', value: stats.total, icon: Users, bg: 'bg-sky-50', color: 'text-sky-600', border: 'border-sky-200' },
               { label: 'Available', value: stats.available, icon: UserCheck, bg: 'bg-green-50', color: 'text-green-600', border: 'border-green-200' },
               { label: 'On Job', value: stats.onJob, icon: Briefcase, bg: 'bg-blue-50', color: 'text-blue-600', border: 'border-blue-200' },
-              { label: 'Off Duty / Leave', value: stats.offDuty, icon: UserX, bg: 'bg-gray-50', color: 'text-gray-600', border: 'border-gray-200' },
+              { label: 'Off Duty / Leave', value: stats.offDuty, icon: UserX, bg: 'bg-gray-50 dark:bg-gray-800', color: 'text-gray-600', border: 'border-gray-200 dark:border-gray-700' },
             ].map(s => {
               const Icon = s.icon;
               return (
                 <Card key={s.label} className={`border ${s.border}`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div><p className="text-xs text-gray-500">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
+                      <div><p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
                       <div className={`p-2 rounded-lg ${s.bg}`}><Icon className={`h-5 w-5 ${s.color}`} /></div>
                     </div>
                   </CardContent>
@@ -137,7 +137,7 @@ export default function TechniciansPage() {
 
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search technicians..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
@@ -159,7 +159,7 @@ export default function TechniciansPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
+                      <tr className="border-b bg-gray-50 dark:bg-gray-800">
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Name</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Specialization</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Region</th>
@@ -172,7 +172,7 @@ export default function TechniciansPage() {
                     <tbody>
                       {filtered.map(item => (
                         <tr key={item.id} className="border-b hover:bg-sky-50 transition-colors">
-                          <td className="py-3 px-4 font-medium text-gray-900">{item.name || '-'}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.name || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.specialization || item.skills || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.region || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">
@@ -180,7 +180,7 @@ export default function TechniciansPage() {
                           </td>
                           <td className="py-3 px-4 text-gray-600">{item.activeJobs ?? '-'}</td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 text-gray-600'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
                               {item.status?.replace('_', ' ') || '-'}
                             </span>
                           </td>
@@ -196,7 +196,7 @@ export default function TechniciansPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-400">
+                <div className="text-center py-16 text-gray-400 dark:text-gray-500">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-40" />
                   <p className="font-medium">No technicians found</p>
                   <p className="text-sm mt-1">Add your first technician to get started</p>
@@ -212,46 +212,46 @@ export default function TechniciansPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name *</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. John Smith" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
               <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="john@example.com" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="+44 7700 000000" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Specialization</label>
               <input value={form.specialization} onChange={e => setForm(f => ({ ...f, specialization: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. HVAC, Electrical" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Region</label>
               <input value={form.region} onChange={e => setForm(f => ({ ...f, region: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. North, Central" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['AVAILABLE', 'ON_JOB', 'EN_ROUTE', 'OFF_DUTY', 'ON_LEAVE'].map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Certifications</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Certifications</label>
               <input value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. Gas Safe, NICEIC, City & Guilds" />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50">
             {saving ? 'Saving...' : editItem ? 'Update Technician' : 'Add Technician'}
           </button>
@@ -261,7 +261,7 @@ export default function TechniciansPage() {
       <Modal isOpen={!!deleteItem} onClose={() => setDeleteItem(null)} title="Remove Technician" size="sm">
         <p className="text-sm text-gray-600">Are you sure you want to remove <span className="font-semibold">{deleteItem?.name}</span>? This action cannot be undone.</p>
         <ModalFooter>
-          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Remove</button>
         </ModalFooter>
       </Modal>

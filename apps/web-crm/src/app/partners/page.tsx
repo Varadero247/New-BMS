@@ -32,7 +32,7 @@ const tierLabels: Record<string, string> = {
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
   PENDING: 'bg-yellow-100 text-yellow-700',
-  INACTIVE: 'bg-gray-100 text-gray-500',
+  INACTIVE: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
   SUSPENDED: 'bg-red-100 text-red-700',
 };
 
@@ -123,8 +123,8 @@ export default function PartnersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Partners</h1>
-            <p className="text-gray-500 mt-1">Manage partner relationships and commissions</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Partners</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage partner relationships and commissions</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Register Partner
@@ -168,24 +168,24 @@ export default function PartnersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Account</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Tier</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Commission Rate</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Total Referrals</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Tier</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Commission Rate</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total Referrals</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredPartners.map((partner) => (
-                      <tr key={partner.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-900 font-medium">{partner.account?.name || partner.accountName || '-'}</td>
+                      <tr key={partner.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{partner.account?.name || partner.accountName || '-'}</td>
                         <td className="py-3 px-4">
-                          <Badge className={tierColors[partner.tier] || 'bg-gray-100 text-gray-700'}>{tierLabels[partner.tier] || partner.tier}</Badge>
+                          <Badge className={tierColors[partner.tier] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{tierLabels[partner.tier] || partner.tier}</Badge>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-600">{partner.commissionRate}%</td>
                         <td className="py-3 px-4 text-center text-gray-600">{partner.totalReferrals || 0}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[partner.status] || 'bg-gray-100 text-gray-700'}>{partner.status}</Badge>
+                          <Badge className={statusColors[partner.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{partner.status}</Badge>
                         </td>
                       </tr>
                     ))}
@@ -193,7 +193,7 @@ export default function PartnersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No partners found</p>
               </div>

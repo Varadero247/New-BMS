@@ -67,27 +67,27 @@ export default function InstancesPage() {
     const styles: Record<string, string> = {
       ACTIVE: 'bg-blue-100 text-blue-800',
       COMPLETED: 'bg-green-100 text-green-800',
-      CANCELLED: 'bg-gray-100 text-gray-800',
+      CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       SUSPENDED: 'bg-yellow-100 text-yellow-800',
       FAILED: 'bg-red-100 text-red-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getPriorityBadge = (priority: string) => {
     const styles: Record<string, string> = {
-      LOW: 'bg-gray-100 text-gray-800',
+      LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       MEDIUM: 'bg-blue-100 text-blue-800',
       HIGH: 'bg-orange-100 text-orange-800',
       URGENT: 'bg-red-100 text-red-800',
     };
-    return styles[priority] || 'bg-gray-100 text-gray-800';
+    return styles[priority] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading workflow instances...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading workflow instances...</div>
       </div>
     );
   }
@@ -95,7 +95,7 @@ export default function InstancesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Workflow Instances</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Workflow Instances</h1>
         <Link
           href="/instances/new"
           className="flex items-center space-x-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
@@ -123,44 +123,44 @@ export default function InstancesPage() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Play className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Active</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
               <p className="text-xl font-semibold">
                 {instances.filter((i) => i.status === 'ACTIVE').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckCircle className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Completed</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
               <p className="text-xl font-semibold">
                 {instances.filter((i) => i.status === 'COMPLETED').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-8 w-8 text-orange-500" />
             <div>
-              <p className="text-sm text-gray-500">High Priority</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">High Priority</p>
               <p className="text-xl font-semibold">
                 {instances.filter((i) => i.priority === 'HIGH' || i.priority === 'URGENT').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Clock className="h-8 w-8 text-purple-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Instances</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Instances</p>
               <p className="text-xl font-semibold">{meta.total}</p>
             </div>
           </div>
@@ -168,53 +168,53 @@ export default function InstancesPage() {
       </div>
 
       {/* Instances Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Instance
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Workflow
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Priority
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Started
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Tasks
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {instances.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No workflow instances found.
                 </td>
               </tr>
             ) : (
               instances.map((instance) => (
-                <tr key={instance.id} className="hover:bg-gray-50">
+                <tr key={instance.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(instance.status)}
                       <div>
-                        <p className="font-medium text-gray-900">{instance.title}</p>
-                        <p className="text-sm text-gray-500">{instance.instanceNumber}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{instance.title}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{instance.instanceNumber}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {instance.definition?.name || 'N/A'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -222,10 +222,10 @@ export default function InstancesPage() {
                       {instance.priority}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(instance.startedAt).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {instance._count.tasks}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">

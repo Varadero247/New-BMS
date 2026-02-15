@@ -88,7 +88,7 @@ function getDeviceClassColor(deviceClass: string): string {
     case 'I': return 'bg-blue-100 text-blue-800';
     case 'II': return 'bg-orange-100 text-orange-800';
     case 'III': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 text-gray-800';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   }
 }
 
@@ -103,14 +103,14 @@ function getDeviceClassBadgeVariant(deviceClass: string): 'info' | 'warning' | '
 
 function getStageColor(stage: string): string {
   switch (stage) {
-    case 'Planning': return 'bg-gray-100 text-gray-800';
+    case 'Planning': return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
     case 'Input': return 'bg-blue-100 text-blue-800';
     case 'Output': return 'bg-indigo-100 text-indigo-800';
     case 'Review': return 'bg-purple-100 text-purple-800';
     case 'Verification': return 'bg-amber-100 text-amber-800';
     case 'Validation': return 'bg-teal-100 text-teal-800';
     case 'Transfer': return 'bg-green-100 text-green-800';
-    default: return 'bg-gray-100 text-gray-800';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   }
 }
 
@@ -129,13 +129,13 @@ function getStageBadgeVariant(stage: string): 'secondary' | 'info' | 'warning' |
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case 'DRAFT': return 'bg-gray-100 text-gray-700';
+    case 'DRAFT': return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
     case 'ACTIVE': return 'bg-teal-100 text-teal-700';
     case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700';
     case 'ON_HOLD': return 'bg-amber-100 text-amber-700';
     case 'COMPLETED': return 'bg-green-100 text-green-700';
     case 'CANCELLED': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 text-gray-700';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   }
 }
 
@@ -339,7 +339,7 @@ export default function DesignControlsClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-      <span className="ml-3 text-gray-500">Loading design controls...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading design controls...</span>
     </div>
   );
 
@@ -357,8 +357,8 @@ export default function DesignControlsClient() {
         )}
 
         {/* SECTION A: PROJECT IDENTIFICATION */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
             A -- Project Identification
           </h3>
           <div className="space-y-4">
@@ -399,8 +399,8 @@ export default function DesignControlsClient() {
         </div>
 
         {/* SECTION B: CLASSIFICATION & REGULATORY */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
             B -- Classification & Regulatory
           </h3>
           <div className="grid grid-cols-2 gap-4">
@@ -417,7 +417,7 @@ export default function DesignControlsClient() {
                   </option>
                 ))}
               </Select>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 {form.deviceClass === 'I' && 'General controls only (e.g., bandages, examination gloves)'}
                 {form.deviceClass === 'II' && 'General + special controls (e.g., powered wheelchairs, infusion pumps)'}
                 {form.deviceClass === 'III' && 'General + special controls + premarket approval (e.g., pacemakers, heart valves)'}
@@ -440,8 +440,8 @@ export default function DesignControlsClient() {
         </div>
 
         {/* SECTION C: DESIGN STAGE & STATUS */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
             C -- Design Stage & Status
           </h3>
           <div className="space-y-4">
@@ -475,7 +475,7 @@ export default function DesignControlsClient() {
 
             {/* Stage progress visualization */}
             <div>
-              <p className="text-xs text-gray-500 mb-2">Design Stage Progress:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Design Stage Progress:</p>
               <div className="flex items-center gap-1">
                 {DESIGN_STAGES.map((stage, index) => {
                   const currentIndex = getStageIndex(form.currentStage);
@@ -491,7 +491,7 @@ export default function DesignControlsClient() {
                             ? 'bg-teal-500 text-white'
                             : isCurrent
                             ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
-                            : 'bg-gray-100 text-gray-400'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                         }`}
                       >
                         {stage}
@@ -517,8 +517,8 @@ export default function DesignControlsClient() {
         </div>
 
         {/* SECTION D: ASSIGNMENT */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
             D -- Assignment
           </h3>
           <div>
@@ -563,8 +563,8 @@ export default function DesignControlsClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Design Controls</h1>
-          <p className="text-gray-500 mt-1">ISO 13485 Clause 7.3 -- Design and Development Controls</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Design Controls</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 Clause 7.3 -- Design and Development Controls</p>
         </div>
 
         {/* Summary Metrics */}
@@ -573,9 +573,9 @@ export default function DesignControlsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Projects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
                   <p className="text-3xl font-bold">{summaryStats.total}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.active} active / {summaryStats.completed} completed
                   </p>
                 </div>
@@ -588,9 +588,9 @@ export default function DesignControlsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Class I Devices</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Class I Devices</p>
                   <p className="text-3xl font-bold text-blue-600">{summaryStats.classI}</p>
-                  <p className="text-xs text-gray-400 mt-1">Low risk</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Low risk</p>
                 </div>
                 <Shield className="h-8 w-8 text-blue-500" />
               </div>
@@ -601,9 +601,9 @@ export default function DesignControlsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Class II Devices</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Class II Devices</p>
                   <p className="text-3xl font-bold text-orange-600">{summaryStats.classII}</p>
-                  <p className="text-xs text-gray-400 mt-1">Moderate risk</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Moderate risk</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-orange-500" />
               </div>
@@ -614,9 +614,9 @@ export default function DesignControlsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Class III Devices</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Class III Devices</p>
                   <p className="text-3xl font-bold text-red-600">{summaryStats.classIII}</p>
-                  <p className="text-xs text-gray-400 mt-1">High risk</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">High risk</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
               </div>
@@ -636,7 +636,7 @@ export default function DesignControlsClient() {
                         ? 'bg-teal-500 text-white shadow-md'
                         : summaryStats.byStage[stage] > 0
                         ? 'bg-teal-50 border border-teal-200 hover:bg-teal-100'
-                        : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                        : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setStageFilter(stageFilter === stage ? 'all' : stage)}
                   >
@@ -654,7 +654,7 @@ export default function DesignControlsClient() {
                     </p>
                   </div>
                   {index < DESIGN_STAGES.length - 1 && (
-                    <ArrowRight className="h-4 w-4 text-gray-300 mx-1 flex-shrink-0" />
+                    <ArrowRight className="h-4 w-4 text-gray-300 dark:text-gray-600 mx-1 flex-shrink-0" />
                   )}
                 </div>
               ))}
@@ -665,7 +665,7 @@ export default function DesignControlsClient() {
         {/* Filter bar */}
         <div className="flex items-center gap-4 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by name, reference, device, or assignee..."
               value={searchQuery}
@@ -699,9 +699,9 @@ export default function DesignControlsClient() {
 
         {/* Expanded filter row */}
         {showFilters && (
-          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
-              <Label className="text-xs text-gray-500">Stage</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Stage</Label>
               <Select
                 value={stageFilter}
                 onChange={(e) => setStageFilter(e.target.value)}
@@ -715,7 +715,7 @@ export default function DesignControlsClient() {
             </div>
 
             <div>
-              <Label className="text-xs text-gray-500">Status</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -729,7 +729,7 @@ export default function DesignControlsClient() {
             </div>
 
             <div>
-              <Label className="text-xs text-gray-500">Device Class</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Device Class</Label>
               <Select
                 value={deviceClassFilter}
                 onChange={(e) => setDeviceClassFilter(e.target.value)}
@@ -755,7 +755,7 @@ export default function DesignControlsClient() {
 
         {/* Results count */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredDesignControls.length} of {designControls.length} design control records
           </p>
         </div>
@@ -767,35 +767,35 @@ export default function DesignControlsClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Project #
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Name
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Device Class
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Stage
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Status
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Assigned To
                       </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredDesignControls.map((dc) => (
                       <tr
                         key={dc.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => openDetailModal(dc)}
                       >
                         <td className="px-6 py-4">
@@ -805,8 +805,8 @@ export default function DesignControlsClient() {
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{dc.name}</p>
-                            <p className="text-xs text-gray-500 mt-0.5">{dc.deviceName}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dc.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{dc.deviceName}</p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -819,7 +819,7 @@ export default function DesignControlsClient() {
                             <Badge variant={getStageBadgeVariant(dc.currentStage)}>
                               {dc.currentStage}
                             </Badge>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">
                               ({getStageIndex(dc.currentStage) + 1}/{DESIGN_STAGES.length})
                             </span>
                           </div>
@@ -831,8 +831,8 @@ export default function DesignControlsClient() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm text-gray-700">{dc.assignedTo || '--'}</span>
+                            <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{dc.assignedTo || '--'}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -857,9 +857,9 @@ export default function DesignControlsClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <Pencil className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No design control records found</h3>
-            <p className="text-gray-500 mb-6">
+            <Pencil className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No design control records found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Start by creating a new design control project to track your medical device development per ISO 13485 Clause 7.3.
             </p>
             <Button
@@ -920,13 +920,13 @@ export default function DesignControlsClient() {
                 {selectedRecord.status?.replace(/_/g, ' ')}
               </Badge>
               {selectedRecord.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500">{selectedRecord.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedRecord.referenceNumber}</span>
               )}
             </div>
 
             {/* Stage progress */}
             <div>
-              <p className="text-xs text-gray-500 mb-2">Design Stage Progress:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Design Stage Progress:</p>
               <div className="flex items-center gap-1">
                 {DESIGN_STAGES.map((stage, index) => {
                   const currentIndex = getStageIndex(selectedRecord.currentStage);
@@ -941,7 +941,7 @@ export default function DesignControlsClient() {
                             ? 'bg-teal-500 text-white'
                             : isCurrent
                             ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
-                            : 'bg-gray-100 text-gray-400'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                         }`}
                       >
                         {stage}
@@ -959,34 +959,34 @@ export default function DesignControlsClient() {
 
             {/* Detail fields */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Device Name</p>
-                <p className="text-sm text-gray-900">{selectedRecord.deviceName || '--'}</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device Name</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">{selectedRecord.deviceName || '--'}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Regulatory Pathway</p>
-                <p className="text-sm text-gray-900">{selectedRecord.regulatoryPathway || '--'}</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Regulatory Pathway</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">{selectedRecord.regulatoryPathway || '--'}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Assigned To</p>
-                <p className="text-sm text-gray-900 flex items-center gap-1">
-                  <User className="h-4 w-4 text-gray-400" />
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Assigned To</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-1">
+                  <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   {selectedRecord.assignedTo || '--'}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Created</p>
-                <p className="text-sm text-gray-900 flex items-center gap-1">
-                  <Clock className="h-4 w-4 text-gray-400" />
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Created</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   {new Date(selectedRecord.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
 
             {/* Description */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-gray-500 uppercase mb-1">Description</p>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedRecord.description || 'No description provided.'}</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
+              <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedRecord.description || 'No description provided.'}</p>
             </div>
 
             {/* Current stage requirements */}

@@ -111,14 +111,14 @@ export default function TemplatesClient() {
       case 'section':
         return (
           <div key={field.name} className="col-span-2 mt-4 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{field.label}</h3>
-            {field.description && <p className="text-sm text-gray-500 mt-1">{field.description}</p>}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">{field.label}</h3>
+            {field.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>}
           </div>
         );
       case 'textarea':
         return (
           <div key={field.name} className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
             <textarea
@@ -133,7 +133,7 @@ export default function TemplatesClient() {
       case 'select':
         return (
           <div key={field.name}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
             <select
@@ -151,7 +151,7 @@ export default function TemplatesClient() {
       case 'number':
         return (
           <div key={field.name}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
             <input
@@ -166,7 +166,7 @@ export default function TemplatesClient() {
       case 'date':
         return (
           <div key={field.name}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
             <input
@@ -187,7 +187,7 @@ export default function TemplatesClient() {
               checked={formData[field.name] || false}
               onChange={(e) => setFormData({ ...formData, [field.name]: e.target.checked })}
             />
-            <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
+            <label htmlFor={field.name} className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
           </div>
@@ -195,7 +195,7 @@ export default function TemplatesClient() {
       default:
         return (
           <div key={field.name}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
             <input
@@ -219,7 +219,7 @@ export default function TemplatesClient() {
       PROCEDURE: 'bg-cyan-100 text-cyan-700',
       POLICY: 'bg-red-100 text-red-700',
     };
-    return colors[category] || 'bg-gray-100 text-gray-700';
+    return colors[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   if (loading) {
@@ -237,7 +237,7 @@ export default function TemplatesClient() {
         <div className="flex items-center gap-3">
           <FileText className="h-8 w-8 text-amber-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payroll Templates</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payroll Templates</h1>
             <p className="text-amber-600 mt-1">Payroll processing and reporting templates</p>
           </div>
         </div>
@@ -248,7 +248,7 @@ export default function TemplatesClient() {
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Search templates..."
@@ -278,9 +278,9 @@ export default function TemplatesClient() {
       {templates.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <FileText className="mx-auto h-12 w-12 text-gray-300" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No templates found</h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <FileText className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No templates found</h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               No templates available for this module yet.
             </p>
           </CardContent>
@@ -299,20 +299,20 @@ export default function TemplatesClient() {
                   </Badge>
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{template.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
                   {template.description || 'No description available'}
                 </p>
 
-                <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mb-4">
                   <span>v{template.version}</span>
                   <span>{template.usageCount || 0} uses</span>
                 </div>
 
-                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                   <button
                     onClick={() => handlePreview(template)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   >
                     <Eye className="h-3.5 w-3.5" />
                     Preview
@@ -326,14 +326,14 @@ export default function TemplatesClient() {
                   </button>
                   <button
                     onClick={() => handleClone(template)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     Clone
                   </button>
                   <button
                     onClick={() => handleExport(template)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   >
                     <Download className="h-3.5 w-3.5" />
                     Export
@@ -357,7 +357,7 @@ export default function TemplatesClient() {
             <div className="flex items-center gap-3">
               <Badge className="bg-amber-50 text-amber-600 font-mono">{selectedTemplate.code}</Badge>
               <Badge className={getCategoryColor(selectedTemplate.category)}>{selectedTemplate.category}</Badge>
-              <span className="text-sm text-gray-500">v{selectedTemplate.version}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">v{selectedTemplate.version}</span>
             </div>
 
             {selectedTemplate.description && (
@@ -365,29 +365,29 @@ export default function TemplatesClient() {
             )}
 
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">Field Definitions</h4>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Field Definitions</h4>
               {selectedTemplate.fieldDefinitions?.length > 0 ? (
                 <ul className="space-y-2">
                   {selectedTemplate.fieldDefinitions.map((field, idx) => (
-                    <li key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <li key={idx} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{field.label}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{field.label}</span>
                           <Badge className="text-xs bg-gray-200 text-gray-600">{field.type}</Badge>
                           {field.required && <Badge className="text-xs bg-red-100 text-red-600">Required</Badge>}
                         </div>
                         {field.description && (
-                          <p className="text-xs text-gray-500 mt-1">{field.description}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>
                         )}
                         {field.options && field.options.length > 0 && (
-                          <p className="text-xs text-gray-400 mt-1">Options: {field.options.join(', ')}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Options: {field.options.join(', ')}</p>
                         )}
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-gray-500">No field definitions available.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No field definitions available.</p>
               )}
             </div>
           </div>
@@ -414,7 +414,7 @@ export default function TemplatesClient() {
       >
         {selectedTemplate && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500">Fill in the fields below to create a document from this template.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Fill in the fields below to create a document from this template.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedTemplate.fieldDefinitions?.map((field) => renderFieldInput(field))}
             </div>

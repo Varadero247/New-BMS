@@ -24,11 +24,11 @@ const categoryOptions = ['BRIBERY_OF_PUBLIC_OFFICIALS', 'COMMERCIAL_BRIBERY', 'F
 const statusOptions = ['DRAFT', 'ASSESSED', 'MITIGATED', 'ACCEPTED', 'CLOSED'];
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   ASSESSED: 'bg-blue-100 text-blue-700',
   MITIGATED: 'bg-green-100 text-green-700',
   ACCEPTED: 'bg-yellow-100 text-yellow-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 function getRiskColor(score: number): string {
@@ -149,8 +149,8 @@ export default function RiskAssessmentsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Bribery Risk Assessments</h1>
-            <p className="text-gray-500 mt-1">Bribery risk assessment register per ISO 37001</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Bribery Risk Assessments</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Bribery risk assessment register per ISO 37001</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             Add Risk Assessment
@@ -159,7 +159,7 @@ export default function RiskAssessmentsPage() {
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 p-4">
           <div className="flex gap-4">
             <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Categories</option>
@@ -172,42 +172,42 @@ export default function RiskAssessmentsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">L</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">I</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Score</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">L</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">I</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Score</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Owner</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredRisks.length > 0 ? (
                 filteredRisks.map((risk) => (
-                  <tr key={risk.id} className="hover:bg-gray-50">
+                  <tr key={risk.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{risk.title}</p>
-                      {risk.description && <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">{risk.description}</p>}
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{risk.title}</p>
+                      {risk.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">{risk.description}</p>}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{risk.category.replace(/_/g, ' ')}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{risk.likelihood}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{risk.impact}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{risk.category.replace(/_/g, ' ')}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{risk.likelihood}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{risk.impact}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRiskColor(risk.riskScore)}`}>
                         {risk.riskScore}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[risk.status] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[risk.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {risk.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{risk.owner || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{risk.owner || '-'}</td>
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => openEditModal(risk)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
                       <button onClick={() => handleDelete(risk.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
@@ -216,7 +216,7 @@ export default function RiskAssessmentsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">No risk assessments found</td>
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">No risk assessments found</td>
                 </tr>
               )}
             </tbody>
@@ -228,26 +228,26 @@ export default function RiskAssessmentsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{editingRisk ? 'Edit Risk Assessment' : 'Add Risk Assessment'}</h2>
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{editingRisk ? 'Edit Risk Assessment' : 'Add Risk Assessment'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                   <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={3} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {categoryOptions.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                     <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -255,30 +255,30 @@ export default function RiskAssessmentsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Likelihood (1-5)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Likelihood (1-5)</label>
                     <input type="number" min={1} max={5} value={form.likelihood} onChange={(e) => setForm({ ...form, likelihood: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Impact (1-5)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Impact (1-5)</label>
                     <input type="number" min={1} max={5} value={form.impact} onChange={(e) => setForm({ ...form, impact: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mitigation Measures</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mitigation Measures</label>
                   <textarea value={form.mitigationMeasures} onChange={(e) => setForm({ ...form, mitigationMeasures: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" rows={3} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
                     <input type="text" value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Review Date</label>
                     <input type="date" value={form.reviewDate} onChange={(e) => setForm({ ...form, reviewDate: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-4">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingRisk ? 'Update' : 'Create'}
                   </button>

@@ -100,11 +100,11 @@ function getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'sec
 
 function getPartStatusColor(status: string): string {
   switch (status) {
-    case 'NOT_STARTED': return 'bg-gray-100 text-gray-700 border-gray-300';
+    case 'NOT_STARTED': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
     case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700 border-blue-300';
     case 'COMPLETED': return 'bg-green-100 text-green-700 border-green-300';
     case 'NEEDS_REVIEW': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-    default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -113,7 +113,7 @@ function getFaiTypeBadge(faiType: string): string {
     case 'FULL': return 'bg-indigo-100 text-indigo-700 border-indigo-300';
     case 'PARTIAL': return 'bg-amber-100 text-amber-700 border-amber-300';
     case 'DELTA': return 'bg-cyan-100 text-cyan-700 border-cyan-300';
-    default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -400,7 +400,7 @@ export default function FAIClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-      <span className="ml-3 text-gray-500">Loading First Article Inspections...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading First Article Inspections...</span>
     </div>
   );
 
@@ -421,14 +421,14 @@ export default function FAIClient() {
           <div className="mb-6">
             <button
               onClick={() => { setSelectedItem(null); fetchItems(); }}
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors mb-4"
+              className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to FAI List
             </button>
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{selectedItem.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{selectedItem.title}</h1>
                 <p className="text-sm font-mono text-indigo-600 mt-1">{selectedItem.refNumber}</p>
                 <div className="flex items-center gap-3 mt-2">
                   <Badge variant={getStatusVariant(selectedItem.status)}>
@@ -465,36 +465,36 @@ export default function FAIClient() {
 
           {/* FAI metadata */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Part Number</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Part Number</p>
               <p className="text-sm font-mono font-medium mt-1">{selectedItem.partNumber}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Part Name</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Part Name</p>
               <p className="text-sm font-medium mt-1">{selectedItem.partName || '--'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Revision</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Revision</p>
               <p className="text-sm font-mono font-medium mt-1">{selectedItem.revision}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Drawing Number</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Drawing Number</p>
               <p className="text-sm font-mono font-medium mt-1">{selectedItem.drawingNumber || '--'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Customer</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Customer</p>
               <p className="text-sm font-medium mt-1">{selectedItem.customer || '--'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">PO Number</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">PO Number</p>
               <p className="text-sm font-mono font-medium mt-1">{selectedItem.poNumber || '--'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Created</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
               <p className="text-sm font-medium mt-1">{new Date(selectedItem.createdAt).toLocaleDateString()}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Updated</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Updated</p>
               <p className="text-sm font-medium mt-1">{new Date(selectedItem.updatedAt).toLocaleDateString()}</p>
             </div>
           </div>
@@ -508,9 +508,9 @@ export default function FAIClient() {
           )}
 
           {/* Three-tab layout */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             {/* Tab headers */}
-            <div className="flex border-b border-gray-200 bg-gray-50">
+            <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               {[
                 { num: 1 as const, label: 'Part 1 -- Design Characteristics', status: selectedItem.part1Status },
                 { num: 2 as const, label: 'Part 2 -- Manufacturing Process', status: selectedItem.part2Status },
@@ -521,8 +521,8 @@ export default function FAIClient() {
                   onClick={() => setActiveTab(tab.num)}
                   className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                     activeTab === tab.num
-                      ? 'bg-white text-indigo-700 border-b-2 border-indigo-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                      ? 'bg-white dark:bg-gray-900 text-indigo-700 border-b-2 border-indigo-600'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:bg-gray-100'
                   }`}
                 >
                   {tab.label}
@@ -538,7 +538,7 @@ export default function FAIClient() {
               {detailLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
-                  <span className="ml-2 text-gray-500">Loading...</span>
+                  <span className="ml-2 text-gray-500 dark:text-gray-400">Loading...</span>
                 </div>
               ) : (
                 <>
@@ -546,7 +546,7 @@ export default function FAIClient() {
                   {activeTab === 1 && (
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                           AS9102 Part 1 -- Design Characteristics
                         </h3>
                         <div className="flex items-center gap-2">
@@ -572,19 +572,19 @@ export default function FAIClient() {
                         <div className="overflow-x-auto">
                           <table className="w-full border-collapse">
                             <thead>
-                              <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-16">Char #</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Characteristic Name</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-28">Nominal</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-28">Tolerance</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-28">Actual</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-16">Pass</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-12"></th>
+                              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-16">Char #</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Characteristic Name</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-28">Nominal</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-28">Tolerance</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-28">Actual</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-16">Pass</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-12"></th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                               {part1Data.map((row, idx) => (
-                                <tr key={idx} className="hover:bg-gray-50">
+                                <tr key={idx} className="hover:bg-gray-50 dark:bg-gray-800">
                                   <td className="px-3 py-2">
                                     <Input
                                       value={row.charNumber}
@@ -635,7 +635,7 @@ export default function FAIClient() {
                                   <td className="px-3 py-2 text-center">
                                     <button
                                       onClick={() => removePart1Row(idx)}
-                                      className="text-gray-400 hover:text-red-500 transition-colors"
+                                      className="text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                                       title="Remove row"
                                     >
                                       &times;
@@ -647,8 +647,8 @@ export default function FAIClient() {
                           </table>
                         </div>
                       ) : (
-                        <div className="text-center py-12 text-gray-400">
-                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm">No design characteristics recorded yet.</p>
                           <p className="text-xs mt-1">Click "Add Row" to start entering AS9102 Part 1 data.</p>
                         </div>
@@ -660,7 +660,7 @@ export default function FAIClient() {
                   {activeTab === 2 && (
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                           AS9102 Part 2 -- Manufacturing Process Documentation
                         </h3>
                         <div className="flex items-center gap-2">
@@ -686,17 +686,17 @@ export default function FAIClient() {
                         <div className="overflow-x-auto">
                           <table className="w-full border-collapse">
                             <thead>
-                              <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Document Type</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Doc Number</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-28">Revision</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-24">Available</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-12"></th>
+                              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Document Type</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Doc Number</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-28">Revision</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-24">Available</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-12"></th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                               {part2Data.map((row, idx) => (
-                                <tr key={idx} className="hover:bg-gray-50">
+                                <tr key={idx} className="hover:bg-gray-50 dark:bg-gray-800">
                                   <td className="px-3 py-2">
                                     <Input
                                       value={row.documentType}
@@ -732,7 +732,7 @@ export default function FAIClient() {
                                   <td className="px-3 py-2 text-center">
                                     <button
                                       onClick={() => removePart2Row(idx)}
-                                      className="text-gray-400 hover:text-red-500 transition-colors"
+                                      className="text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                                       title="Remove row"
                                     >
                                       &times;
@@ -744,8 +744,8 @@ export default function FAIClient() {
                           </table>
                         </div>
                       ) : (
-                        <div className="text-center py-12 text-gray-400">
-                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm">No manufacturing documents recorded yet.</p>
                           <p className="text-xs mt-1">Click "Add Row" to start entering AS9102 Part 2 data.</p>
                         </div>
@@ -757,7 +757,7 @@ export default function FAIClient() {
                   {activeTab === 3 && (
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                           AS9102 Part 3 -- Test Results
                         </h3>
                         <div className="flex items-center gap-2">
@@ -783,18 +783,18 @@ export default function FAIClient() {
                         <div className="overflow-x-auto">
                           <table className="w-full border-collapse">
                             <thead>
-                              <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Test Name</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Test Method</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2">Requirement</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-28">Result</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-16">Pass</th>
-                                <th className="text-center text-xs font-semibold text-gray-500 uppercase px-3 py-2 w-12"></th>
+                              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Test Name</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Test Method</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Requirement</th>
+                                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-28">Result</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-16">Pass</th>
+                                <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2 w-12"></th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                               {part3Data.map((row, idx) => (
-                                <tr key={idx} className="hover:bg-gray-50">
+                                <tr key={idx} className="hover:bg-gray-50 dark:bg-gray-800">
                                   <td className="px-3 py-2">
                                     <Input
                                       value={row.testName}
@@ -838,7 +838,7 @@ export default function FAIClient() {
                                   <td className="px-3 py-2 text-center">
                                     <button
                                       onClick={() => removePart3Row(idx)}
-                                      className="text-gray-400 hover:text-red-500 transition-colors"
+                                      className="text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                                       title="Remove row"
                                     >
                                       &times;
@@ -850,8 +850,8 @@ export default function FAIClient() {
                           </table>
                         </div>
                       ) : (
-                        <div className="text-center py-12 text-gray-400">
-                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+                          <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm">No test results recorded yet.</p>
                           <p className="text-xs mt-1">Click "Add Row" to start entering AS9102 Part 3 data.</p>
                         </div>
@@ -904,8 +904,8 @@ export default function FAIClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">First Article Inspection</h1>
-          <p className="text-gray-500 mt-1">AS9102 -- First Article Inspection Requirements</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">First Article Inspection</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">AS9102 -- First Article Inspection Requirements</p>
         </div>
 
         {/* Summary Metrics */}
@@ -914,7 +914,7 @@ export default function FAIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total FAIs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total FAIs</p>
                   <p className="text-3xl font-bold">{summaryStats.total}</p>
                 </div>
                 <FileCheck className="h-8 w-8 text-indigo-500" />
@@ -925,10 +925,10 @@ export default function FAIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Planning</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Planning</p>
                   <p className="text-3xl font-bold text-gray-600">{summaryStats.planning}</p>
                 </div>
-                <Clock className="h-8 w-8 text-gray-400" />
+                <Clock className="h-8 w-8 text-gray-400 dark:text-gray-500" />
               </div>
             </CardContent>
           </Card>
@@ -936,7 +936,7 @@ export default function FAIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-3xl font-bold text-blue-600">{summaryStats.inProgress}</p>
                 </div>
                 <Loader2 className="h-8 w-8 text-blue-500" />
@@ -947,7 +947,7 @@ export default function FAIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Approved</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
                   <p className="text-3xl font-bold text-green-600">{summaryStats.approved}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -958,7 +958,7 @@ export default function FAIClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Partial Approvals</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Partial Approvals</p>
                   <p className="text-3xl font-bold text-amber-600">{summaryStats.partial}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-amber-500" />
@@ -990,7 +990,7 @@ export default function FAIClient() {
             ))}
           </Select>
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by title, ref number, part number..."
               value={searchQuery}
@@ -1014,41 +1014,41 @@ export default function FAIClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Ref Number</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Title</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Part Number</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Rev</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Customer</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Type</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Status</th>
-                      <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">Part 1</th>
-                      <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">Part 2</th>
-                      <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">Part 3</th>
-                      <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3"></th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref Number</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Title</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Part Number</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Rev</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Customer</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Type</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
+                      <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-3">Part 1</th>
+                      <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-3">Part 2</th>
+                      <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-3">Part 3</th>
+                      <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredItems.map((item) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => fetchDetail(item.id)}
                       >
                         <td className="px-4 py-3">
                           <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm font-mono text-gray-700">{item.partNumber}</span>
+                          <span className="text-sm font-mono text-gray-700 dark:text-gray-300">{item.partNumber}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-sm font-mono text-gray-600">{item.revision}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-700">{item.customer || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item.customer || '--'}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getFaiTypeBadge(item.faiType)}`}>
@@ -1085,7 +1085,7 @@ export default function FAIClient() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <ChevronRight className="h-4 w-4 text-gray-400 inline" />
+                          <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500 inline" />
                         </td>
                       </tr>
                     ))}
@@ -1096,9 +1096,9 @@ export default function FAIClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <FileCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No First Article Inspections found</h3>
-            <p className="text-gray-500 mb-6">
+            <FileCheck className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No First Article Inspections found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Create an FAI to begin documenting first article inspections per AS9102 requirements.
             </p>
             <Button
@@ -1113,7 +1113,7 @@ export default function FAIClient() {
 
         {/* Results count */}
         {!loading && items.length > 0 && (
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredItems.length} of {items.length} first article inspections
           </div>
         )}
@@ -1132,8 +1132,8 @@ export default function FAIClient() {
             )}
 
             {/* Section A: FAI Identification */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 FAI Identification
               </h3>
               <div className="space-y-4">
@@ -1195,8 +1195,8 @@ export default function FAIClient() {
             </div>
 
             {/* Section B: Customer & Order */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 Customer & Order
               </h3>
               <div className="space-y-4">
@@ -1232,7 +1232,7 @@ export default function FAIClient() {
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </Select>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     Full = complete new FAI, Partial = subset of characteristics, Delta = changes only
                   </p>
                 </div>

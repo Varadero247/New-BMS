@@ -124,9 +124,9 @@ export default function TaxPage() {
       SOCIAL_SECURITY: 'bg-teal-100 text-teal-800',
       MEDICARE: 'bg-cyan-100 text-cyan-800',
       STATE: 'bg-indigo-100 text-indigo-800',
-      LOCAL: 'bg-gray-100 text-gray-800',
+      LOCAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
     };
-    return styles[type] || 'bg-gray-100 text-gray-800';
+    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusBadge = (status: string) => {
@@ -137,7 +137,7 @@ export default function TaxPage() {
       PAID: 'bg-green-100 text-green-800',
       OVERDUE: 'bg-red-100 text-red-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const isDeadlineNear = (deadline: string) => {
@@ -156,7 +156,7 @@ export default function TaxPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading tax data...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading tax data...</div>
       </div>
     );
   }
@@ -164,7 +164,7 @@ export default function TaxPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Tax Compliance</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax Compliance</h1>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
@@ -215,38 +215,38 @@ export default function TaxPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Calculator className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Filings</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Filings</p>
               <p className="text-xl font-semibold">{filings.length}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <DollarSign className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Tax ({yearFilter})</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Tax ({yearFilter})</p>
               <p className="text-xl font-semibold">{formatCurrency(summary?.totalTax || 0)}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-8 w-8 text-yellow-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Due</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Due</p>
               <p className="text-xl font-semibold">{formatCurrency(summary?.totalDue || 0)}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Calendar className="h-8 w-8 text-red-500" />
             <div>
-              <p className="text-sm text-gray-500">Upcoming Deadlines</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming Deadlines</p>
               <p className="text-xl font-semibold">{summary?.upcomingDeadlines?.length || 0}</p>
             </div>
           </div>
@@ -273,46 +273,46 @@ export default function TaxPage() {
       )}
 
       {/* Tax Filings Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Filing Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Period
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Taxable Wages
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Tax Withheld
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Total Tax
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Deadline
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {filings.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No tax filings found for {yearFilter}.
                 </td>
               </tr>
             ) : (
               filings.map((filing) => (
-                <tr key={filing.id} className={`hover:bg-gray-50 ${
+                <tr key={filing.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${
                   isOverdue(filing.filingDeadline, filing.status) ? 'bg-red-50' : ''
                 }`}>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -322,17 +322,17 @@ export default function TaxPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900">{filing.taxPeriod}</p>
-                      <p className="text-sm text-gray-500">{filing.taxYear}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{filing.taxPeriod}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{filing.taxYear}</p>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {formatCurrency(filing.taxableWages)}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {formatCurrency(filing.taxWithheld)}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(filing.totalTax)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -348,7 +348,7 @@ export default function TaxPage() {
                           ? 'text-red-600 font-medium'
                           : isDeadlineNear(filing.filingDeadline)
                           ? 'text-yellow-600'
-                          : 'text-gray-500'
+                          : 'text-gray-500 dark:text-gray-400'
                       }`}>
                         {new Date(filing.filingDeadline).toLocaleDateString()}
                       </span>
@@ -380,7 +380,7 @@ export default function TaxPage() {
                           Record Payment
                         </button>
                       )}
-                      <button className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200">
+                      <button className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200">
                         View
                       </button>
                     </div>
@@ -397,7 +397,7 @@ export default function TaxPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Filing Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Filing Type</label>
               <select
                 value={formData.filingType}
                 onChange={(e) => setFormData({ ...formData, filingType: e.target.value })}
@@ -414,7 +414,7 @@ export default function TaxPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tax Period</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Period</label>
               <input
                 type="text"
                 value={formData.taxPeriod}
@@ -427,7 +427,7 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tax Year</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Year</label>
               <input
                 type="number"
                 value={formData.taxYear}
@@ -437,7 +437,7 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Filing Deadline</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Filing Deadline</label>
               <input
                 type="date"
                 value={formData.filingDeadline}
@@ -449,7 +449,7 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Gross Wages</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Wages</label>
               <input
                 type="number"
                 step="0.01"
@@ -460,7 +460,7 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Taxable Wages</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Taxable Wages</label>
               <input
                 type="number"
                 step="0.01"
@@ -473,7 +473,7 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tax Withheld</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Withheld</label>
               <input
                 type="number"
                 step="0.01"
@@ -484,7 +484,7 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employer Tax</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employer Tax</label>
               <input
                 type="number"
                 step="0.01"
@@ -495,7 +495,7 @@ export default function TaxPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Payroll Run ID</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Payroll Run ID</label>
             <input
               type="text"
               value={formData.payrollRunId}
@@ -508,7 +508,7 @@ export default function TaxPage() {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
             >
               Cancel
             </button>

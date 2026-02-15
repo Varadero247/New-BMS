@@ -254,12 +254,12 @@ export default function CapaClient() {
 
   const getPriorityColor = (priority: string) => {
     const p = CAPA_PRIORITIES.find(cp => cp.value === priority);
-    return p?.color || 'bg-gray-100 text-gray-800';
+    return p?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusColor = (status: string) => {
     const s = CAPA_STATUSES.find(cs => cs.value === status);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const isOverdue = (dateStr: string, status: string) => {
@@ -283,8 +283,8 @@ export default function CapaClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">CAPA Management</h1>
-            <p className="text-gray-500 mt-1">Corrective and Preventive Actions</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Corrective and Preventive Actions</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -294,33 +294,33 @@ export default function CapaClient() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500">Total</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-blue-600">{counts.OPEN}</p><p className="text-sm text-gray-500">Open</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-indigo-600">{counts.IN_PROGRESS}</p><p className="text-sm text-gray-500">In Progress</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.OVERDUE}</p><p className="text-sm text-gray-500">Overdue</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.CLOSED}</p><p className="text-sm text-gray-500">Closed</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-blue-600">{counts.OPEN}</p><p className="text-sm text-gray-500 dark:text-gray-400">Open</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-indigo-600">{counts.IN_PROGRESS}</p><p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.OVERDUE}</p><p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.CLOSED}</p><p className="text-sm text-gray-500 dark:text-gray-400">Closed</p></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search CAPAs..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Statuses</option>
             {CAPA_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Types</option>
             {CAPA_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
           <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Priorities</option>
             {CAPA_PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
@@ -353,10 +353,10 @@ export default function CapaClient() {
                         <TableCell className="font-mono text-xs">{capa.referenceNumber}</TableCell>
                         <TableCell className="font-medium">{capa.title}</TableCell>
                         <TableCell><Badge variant="outline">{capa.capaType}</Badge></TableCell>
-                        <TableCell className="text-sm text-gray-500">{capa.source.replace(/_/g, ' ')}</TableCell>
+                        <TableCell className="text-sm text-gray-500 dark:text-gray-400">{capa.source.replace(/_/g, ' ')}</TableCell>
                         <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(capa.priority)}`}>{capa.priority}</span></TableCell>
-                        <TableCell className="text-sm text-gray-500">{capa.responsiblePerson || '-'}</TableCell>
-                        <TableCell className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                        <TableCell className="text-sm text-gray-500 dark:text-gray-400">{capa.responsiblePerson || '-'}</TableCell>
+                        <TableCell className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                           {capa.targetCompletionDate ? new Date(capa.targetCompletionDate).toLocaleDateString() : '-'}
                           {overdue && <AlertCircle className="h-3 w-3 inline ml-1" />}
                         </TableCell>
@@ -368,8 +368,8 @@ export default function CapaClient() {
               </Table>
             ) : (
               <div className="text-center py-12">
-                <ClipboardList className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No CAPAs found</p>
+                <ClipboardList className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No CAPAs found</p>
                 <Button variant="outline" className="mt-4" onClick={openModal}><Plus className="h-4 w-4 mr-2" />Create First CAPA</Button>
               </div>
             )}
@@ -382,7 +382,7 @@ export default function CapaClient() {
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
                   {s}
                 </button>
               ))}
@@ -432,7 +432,7 @@ export default function CapaClient() {
                 <div>
                   <Label>Target Completion Date</Label>
                   <Input type="date" value={form.targetCompletionDate} onChange={e => updateForm('targetCompletionDate', e.target.value)} />
-                  <p className="text-xs text-gray-500 mt-1">Auto-calculated from priority if left blank</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Auto-calculated from priority if left blank</p>
                 </div>
               </div>
             )}
@@ -485,7 +485,7 @@ export default function CapaClient() {
                   {form.actions.length > 0 ? (
                     <div className="space-y-3">
                       {form.actions.map((a, i) => (
-                        <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2">
+                        <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2">
                           <div className="flex gap-2 items-center">
                             <Input value={a.title} onChange={e => updateAction(i, 'title', e.target.value)} placeholder="Action title" className="flex-1" />
                             <select value={a.type} onChange={e => updateAction(i, 'type', e.target.value)} className="px-2 py-1.5 border rounded text-sm">
@@ -501,7 +501,7 @@ export default function CapaClient() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400">No actions. Use AI to generate them or add manually.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No actions. Use AI to generate them or add manually.</p>
                   )}
                 </div>
               </div>

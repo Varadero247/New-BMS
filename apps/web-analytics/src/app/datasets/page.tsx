@@ -34,7 +34,7 @@ const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
   STALE: 'bg-yellow-100 text-yellow-700',
   ERROR: 'bg-red-100 text-red-700',
-  DISABLED: 'bg-gray-100 text-gray-500',
+  DISABLED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const TYPE_STYLES: Record<string, string> = {
@@ -47,7 +47,7 @@ function StatusIcon({ status }: { status: string }) {
   if (status === 'ACTIVE') return <CheckCircle className="h-4 w-4 text-green-500" />;
   if (status === 'ERROR') return <AlertTriangle className="h-4 w-4 text-red-500" />;
   if (status === 'STALE') return <Clock className="h-4 w-4 text-yellow-500" />;
-  return <Database className="h-4 w-4 text-gray-400" />;
+  return <Database className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
 }
 
 function formatSize(kb: number): string {
@@ -124,8 +124,8 @@ export default function DatasetsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Datasets</h1>
-            <p className="text-gray-500 mt-1">Manage data sources connected to the analytics engine</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Datasets</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage data sources connected to the analytics engine</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
@@ -153,7 +153,7 @@ export default function DatasetsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search datasets..."
@@ -187,7 +187,7 @@ export default function DatasetsPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Database className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No datasets found.</p>
               </div>
@@ -195,44 +195,44 @@ export default function DatasetsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Dataset</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Records</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Size</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Refresh</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Last Refreshed</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Dataset</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Records</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Size</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Refresh</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Last Refreshed</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(ds => (
-                      <tr key={ds.id} className="border-b hover:bg-gray-50">
+                      <tr key={ds.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             <StatusIcon status={ds.status} />
                             <div>
-                              <p className="font-medium text-gray-900">{ds.name}</p>
-                              <p className="text-xs text-gray-400 mt-0.5 max-w-xs truncate">{ds.description}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-100">{ds.name}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 max-w-xs truncate">{ds.description}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500 max-w-[160px] truncate">{ds.source}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400 max-w-[160px] truncate">{ds.source}</td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${TYPE_STYLES[ds.type] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${TYPE_STYLES[ds.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {ds.type}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">{ds.recordCount.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-right text-gray-500 text-xs">{formatSize(ds.sizeKb)}</td>
-                        <td className="py-3 px-4 text-xs text-gray-500">{ds.refreshFrequency}</td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
-                          {ds.lastRefreshed ? new Date(ds.lastRefreshed).toLocaleString() : <span className="text-gray-300">Never</span>}
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{ds.recordCount.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400 text-xs">{formatSize(ds.sizeKb)}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">{ds.refreshFrequency}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+                          {ds.lastRefreshed ? new Date(ds.lastRefreshed).toLocaleString() : <span className="text-gray-300 dark:text-gray-600">Never</span>}
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[ds.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[ds.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {ds.status}
                           </span>
                         </td>
@@ -258,25 +258,25 @@ export default function DatasetsPage() {
         {/* Add Dataset Modal */}
         {showAddModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Add Dataset</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Dataset</h2>
                 <button onClick={() => setShowAddModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Dataset Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dataset Name</label>
                   <input type="text" placeholder="e.g. Asset Maintenance Records" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
                   <input type="text" placeholder="e.g. api-cmms or External API URL" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option value="INTERNAL">Internal</option>
                       <option value="EXTERNAL">External</option>
@@ -284,7 +284,7 @@ export default function DatasetsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Refresh Frequency</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Refresh Frequency</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>Hourly</option>
                       <option>Daily</option>
@@ -295,12 +295,12 @@ export default function DatasetsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Add Dataset</button>
               </div>
             </div>

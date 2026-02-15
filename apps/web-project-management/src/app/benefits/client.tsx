@@ -60,13 +60,13 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  IDENTIFIED: 'bg-gray-100 text-gray-800',
+  IDENTIFIED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   BASELINED: 'bg-blue-100 text-blue-800',
   TRACKING: 'bg-yellow-100 text-yellow-800',
   REALISED: 'bg-green-100 text-green-800',
   PARTIALLY_REALISED: 'bg-orange-100 text-orange-800',
   NOT_REALISED: 'bg-red-100 text-red-800',
-  CLOSED: 'bg-gray-100 text-gray-600',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -215,11 +215,11 @@ export default function BenefitsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-blue-600" />
               Benefits Realisation
             </h1>
-            <p className="text-gray-500 text-sm mt-1">ISO 21502 -- Track and measure project benefits</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">ISO 21502 -- Track and measure project benefits</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -231,38 +231,38 @@ export default function BenefitsPage() {
 
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Target className="h-5 w-5 text-blue-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Total Benefits</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Benefits</p>
                 <p className="text-2xl font-bold">{dashboard?.total || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><TrendingUp className="h-5 w-5 text-green-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Realisation Rate</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Realisation Rate</p>
                 <p className="text-2xl font-bold">{dashboard?.realisationRate || 0}%</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><DollarSign className="h-5 w-5 text-green-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Expected Value</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Expected Value</p>
                 <p className="text-2xl font-bold">{formatCurrency(dashboard?.financialSummary.totalExpected)}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg"><BarChart3 className="h-5 w-5 text-purple-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Realised Value</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Realised Value</p>
                 <p className="text-2xl font-bold">{formatCurrency(dashboard?.financialSummary.totalRealised)}</p>
               </div>
             </div>
@@ -270,10 +270,10 @@ export default function BenefitsPage() {
         </div>
 
         {/* Filters & Table */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow">
           <div className="p-4 border-b flex gap-2 items-center">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 placeholder="Search benefits..."
                 value={search}
@@ -309,31 +309,31 @@ export default function BenefitsPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ref</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Progress</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Target</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ref</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Progress</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Target</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Current</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Priority</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {benefits.map((benefit) => (
-                  <tr key={benefit.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleViewDetail(benefit)}>
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900">{benefit.refNumber}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{benefit.title}</td>
+                  <tr key={benefit.id} className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => handleViewDetail(benefit)}>
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{benefit.refNumber}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">{benefit.title}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${TYPE_COLORS[benefit.type] || 'bg-gray-100'}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${TYPE_COLORS[benefit.type] || 'bg-gray-100 dark:bg-gray-800'}`}>
                         {benefit.type.replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[benefit.status] || 'bg-gray-100'}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[benefit.status] || 'bg-gray-100 dark:bg-gray-800'}`}>
                         {benefit.status.replace(/_/g, ' ')}
                       </span>
                     </td>
@@ -345,17 +345,17 @@ export default function BenefitsPage() {
                             style={{ width: `${getProgress(benefit)}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{getProgress(benefit)}%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{getProgress(benefit)}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {benefit.targetValue != null ? `${benefit.targetValue} ${benefit.unit || ''}` : '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {benefit.currentValue != null ? `${benefit.currentValue} ${benefit.unit || ''}` : '-'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_COLORS[benefit.priority] || 'bg-gray-100'}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_COLORS[benefit.priority] || 'bg-gray-100 dark:bg-gray-800'}`}>
                         {benefit.priority}
                       </span>
                     </td>
@@ -363,7 +363,7 @@ export default function BenefitsPage() {
                 ))}
                 {benefits.length === 0 && !loading && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       No benefits found. Create your first benefit.
                     </td>
                   </tr>
@@ -377,7 +377,7 @@ export default function BenefitsPage() {
         <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Benefit" size="lg">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
               <input
                 type="text"
                 value={createForm.title}
@@ -387,7 +387,7 @@ export default function BenefitsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type *</label>
                 <select
                   value={createForm.type}
                   onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
@@ -400,7 +400,7 @@ export default function BenefitsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                 <select
                   value={createForm.priority}
                   onChange={(e) => setCreateForm({ ...createForm, priority: e.target.value })}
@@ -413,37 +413,37 @@ export default function BenefitsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
                 <input type="text" value={createForm.owner} onChange={(e) => setCreateForm({ ...createForm, owner: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
                 <input type="text" value={createForm.unit} onChange={(e) => setCreateForm({ ...createForm, unit: e.target.value })} placeholder="e.g., USD, NPS, %" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Baseline Value</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Value</label>
                 <input type="number" step="any" value={createForm.baselineValue} onChange={(e) => setCreateForm({ ...createForm, baselineValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Target Value</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value</label>
                 <input type="number" step="any" value={createForm.targetValue} onChange={(e) => setCreateForm({ ...createForm, targetValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Financial Value</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Financial Value</label>
                 <input type="number" step="any" value={createForm.financialValue} onChange={(e) => setCreateForm({ ...createForm, financialValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Expected Realisation Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Realisation Date</label>
                 <input type="date" value={createForm.expectedRealisationDate} onChange={(e) => setCreateForm({ ...createForm, expectedRealisationDate: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea rows={2} value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+            <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200">Cancel</button>
             <button onClick={handleCreate} disabled={!createForm.title || !createForm.type} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">Create Benefit</button>
           </div>
         </Modal>
@@ -453,26 +453,26 @@ export default function BenefitsPage() {
           {selectedBenefit && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><span className="text-gray-500">Type:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${TYPE_COLORS[selectedBenefit.type] || ''}`}>{selectedBenefit.type.replace(/_/g, ' ')}</span></div>
-                <div><span className="text-gray-500">Status:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${STATUS_COLORS[selectedBenefit.status] || ''}`}>{selectedBenefit.status.replace(/_/g, ' ')}</span></div>
-                <div><span className="text-gray-500">Owner:</span> <span className="font-medium">{selectedBenefit.owner || '-'}</span></div>
-                <div><span className="text-gray-500">Priority:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${PRIORITY_COLORS[selectedBenefit.priority] || ''}`}>{selectedBenefit.priority}</span></div>
-                <div><span className="text-gray-500">Baseline:</span> <span className="font-medium">{selectedBenefit.baselineValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
-                <div><span className="text-gray-500">Target:</span> <span className="font-medium">{selectedBenefit.targetValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
-                <div><span className="text-gray-500">Current:</span> <span className="font-bold text-blue-600">{selectedBenefit.currentValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
-                <div><span className="text-gray-500">Financial Value:</span> <span className="font-medium">{formatCurrency(selectedBenefit.financialValue)}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Type:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${TYPE_COLORS[selectedBenefit.type] || ''}`}>{selectedBenefit.type.replace(/_/g, ' ')}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${STATUS_COLORS[selectedBenefit.status] || ''}`}>{selectedBenefit.status.replace(/_/g, ' ')}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Owner:</span> <span className="font-medium">{selectedBenefit.owner || '-'}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Priority:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${PRIORITY_COLORS[selectedBenefit.priority] || ''}`}>{selectedBenefit.priority}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Baseline:</span> <span className="font-medium">{selectedBenefit.baselineValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Target:</span> <span className="font-medium">{selectedBenefit.targetValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Current:</span> <span className="font-bold text-blue-600">{selectedBenefit.currentValue ?? '-'} {selectedBenefit.unit || ''}</span></div>
+                <div><span className="text-gray-500 dark:text-gray-400">Financial Value:</span> <span className="font-medium">{formatCurrency(selectedBenefit.financialValue)}</span></div>
               </div>
 
               {selectedBenefit.description && (
                 <div>
-                  <span className="text-gray-500 text-sm">Description:</span>
-                  <p className="mt-1 text-sm bg-gray-50 p-3 rounded">{selectedBenefit.description}</p>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">Description:</span>
+                  <p className="mt-1 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded">{selectedBenefit.description}</p>
                 </div>
               )}
 
               {/* Progress bar */}
               <div>
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                   <span>Progress toward target</span>
                   <span>{getProgress(selectedBenefit)}%</span>
                 </div>
@@ -484,7 +484,7 @@ export default function BenefitsPage() {
               {/* Measurements */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-700">Measurement History</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Measurement History</h3>
                   <button
                     onClick={() => setShowMeasurementModal(true)}
                     className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -498,14 +498,14 @@ export default function BenefitsPage() {
                       <div key={m.id} className="flex items-center justify-between border rounded p-2 text-sm">
                         <div>
                           <span className="font-medium">{m.value} {selectedBenefit.unit || ''}</span>
-                          {m.notes && <span className="text-gray-500 ml-2">-- {m.notes}</span>}
+                          {m.notes && <span className="text-gray-500 dark:text-gray-400 ml-2">-- {m.notes}</span>}
                         </div>
-                        <span className="text-xs text-gray-400">{new Date(m.measuredAt).toLocaleDateString()}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(m.measuredAt).toLocaleDateString()}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">No measurements recorded yet.</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No measurements recorded yet.</p>
                 )}
               </div>
 
@@ -520,24 +520,24 @@ export default function BenefitsPage() {
         <Modal isOpen={showMeasurementModal} onClose={() => setShowMeasurementModal(false)} title="Log Measurement" size="md">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Value *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value *</label>
               <input type="number" step="any" value={measurementForm.value} onChange={(e) => setMeasurementForm({ ...measurementForm, value: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
               <input type="date" value={measurementForm.measuredAt} onChange={(e) => setMeasurementForm({ ...measurementForm, measuredAt: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
               <input type="text" value={measurementForm.source} onChange={(e) => setMeasurementForm({ ...measurementForm, source: e.target.value })} placeholder="e.g., Finance Report Q1" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
               <textarea rows={2} value={measurementForm.notes} onChange={(e) => setMeasurementForm({ ...measurementForm, notes: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button onClick={() => setShowMeasurementModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+            <button onClick={() => setShowMeasurementModal(false)} className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200">Cancel</button>
             <button onClick={handleLogMeasurement} disabled={!measurementForm.value} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">Log Measurement</button>
           </div>
         </Modal>

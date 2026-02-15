@@ -86,7 +86,7 @@ export default function ProjectsPage() {
       COMPLETED: 'bg-purple-100 text-purple-700',
       CANCELLED: 'bg-red-100 text-red-700',
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   const healthBadge = (health: string) => {
@@ -95,7 +95,7 @@ export default function ProjectsPage() {
       AMBER: 'bg-amber-100 text-amber-700',
       RED: 'bg-red-100 text-red-700',
     };
-    return colors[health] || 'bg-gray-100 text-gray-700';
+    return colors[health] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   if (loading) {
@@ -114,11 +114,11 @@ export default function ProjectsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <FolderKanban className="h-6 w-6 text-blue-600" />
               Projects
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Manage all projects</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage all projects</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -129,29 +129,29 @@ export default function ProjectsPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Methodology</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Health</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Progress</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Methodology</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Health</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Progress</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900">{project.projectCode}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{project.projectName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{project.projectType}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{project.methodology}</td>
+                  <tr key={project.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{project.projectCode}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{project.projectName}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.projectType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.methodology}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(project.status)}`}>
                         {project.status}
@@ -172,10 +172,10 @@ export default function ProjectsPage() {
                             style={{ width: `${project.completionPercentage || 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{project.completionPercentage || 0}%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{project.completionPercentage || 0}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{project.priority}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.priority}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleAiCharter(project)}
@@ -190,7 +190,7 @@ export default function ProjectsPage() {
                 ))}
                 {projects.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       No projects found. Create your first project.
                     </td>
                   </tr>
@@ -204,7 +204,7 @@ export default function ProjectsPage() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Project" size="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name</label>
               <input
                 type="text"
                 required
@@ -215,7 +215,7 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Type</label>
                 <select
                   value={form.projectType}
                   onChange={(e) => setForm({ ...form, projectType: e.target.value })}
@@ -231,7 +231,7 @@ export default function ProjectsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Methodology</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Methodology</label>
                 <select
                   value={form.methodology}
                   onChange={(e) => setForm({ ...form, methodology: e.target.value })}
@@ -247,7 +247,7 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -260,7 +260,7 @@ export default function ProjectsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Planned Budget</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Budget</label>
                 <input
                   type="number"
                   step="0.01"
@@ -272,7 +272,7 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                 <input
                   type="date"
                   value={form.startDate}
@@ -281,7 +281,7 @@ export default function ProjectsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Planned End Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned End Date</label>
                 <input
                   type="date"
                   value={form.plannedEndDate}
@@ -291,7 +291,7 @@ export default function ProjectsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 rows={3}
                 value={form.projectDescription}
@@ -303,7 +303,7 @@ export default function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -320,7 +320,7 @@ export default function ProjectsPage() {
         {/* AI Result Modal */}
         <Modal isOpen={showAiModal} onClose={() => setShowAiModal(false)} title="AI Project Charter" size="lg">
           <div className="prose max-w-none">
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg">{aiResult}</pre>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{aiResult}</pre>
           </div>
           <div className="flex justify-end pt-4">
             <button

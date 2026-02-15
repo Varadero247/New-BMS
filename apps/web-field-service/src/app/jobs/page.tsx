@@ -35,7 +35,7 @@ const statusColors: Record<string, string> = {
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   SCHEDULED: 'bg-purple-100 text-purple-700',
   PENDING: 'bg-yellow-100 text-yellow-700',
-  CANCELLED: 'bg-gray-100 text-gray-600',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const emptyForm = {
@@ -135,13 +135,13 @@ export default function JobsPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8 bg-gray-50">
+      <main className="flex-1 p-8 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Jobs</h1>
-              <p className="text-gray-500 mt-1">Dispatch board and job management</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Jobs</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Dispatch board and job management</p>
             </div>
             <button onClick={openCreate} className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 flex items-center gap-2 font-medium">
               <Plus className="h-5 w-5" /> New Job
@@ -163,7 +163,7 @@ export default function JobsPage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-gray-500">{s.label}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
                         <p className="text-2xl font-bold mt-1">{s.value}</p>
                       </div>
                       <div className={`p-2 rounded-lg ${s.bg}`}><Icon className={`h-5 w-5 ${s.color}`} /></div>
@@ -177,7 +177,7 @@ export default function JobsPage() {
           {/* Filters */}
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search jobs..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
@@ -205,7 +205,7 @@ export default function JobsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
+                      <tr className="border-b bg-gray-50 dark:bg-gray-800">
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Job #</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Title</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Customer</th>
@@ -219,18 +219,18 @@ export default function JobsPage() {
                     <tbody>
                       {filtered.map(item => (
                         <tr key={item.id} className="border-b hover:bg-sky-50 transition-colors">
-                          <td className="py-3 px-4 font-mono text-xs text-gray-500">{item.jobNumber || item.referenceNumber || item.id?.slice(0, 8)}</td>
-                          <td className="py-3 px-4 font-medium text-gray-900">{item.title || '-'}</td>
+                          <td className="py-3 px-4 font-mono text-xs text-gray-500 dark:text-gray-400">{item.jobNumber || item.referenceNumber || item.id?.slice(0, 8)}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.title || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.customerName || item.customer || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.technicianName || item.technician || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.scheduledDate ? new Date(item.scheduledDate).toLocaleDateString() : '-'}</td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${priorityColors[item.priority || ''] || 'bg-gray-100 text-gray-600'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${priorityColors[item.priority || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
                               {item.priority || '-'}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 text-gray-600'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[item.status || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
                               {item.status?.replace('_', ' ') || '-'}
                             </span>
                           </td>
@@ -246,7 +246,7 @@ export default function JobsPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-400">
+                <div className="text-center py-16 text-gray-400 dark:text-gray-500">
                   <Truck className="h-12 w-12 mx-auto mb-4 opacity-40" />
                   <p className="font-medium">No jobs found</p>
                   <p className="text-sm mt-1">Create your first job to get started</p>
@@ -263,58 +263,58 @@ export default function JobsPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Title *</label>
               <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. HVAC Maintenance Service" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer *</label>
               <input value={form.customerName} onChange={e => setForm(f => ({ ...f, customerName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Customer name" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Technician</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Technician</label>
               <input value={form.technicianName} onChange={e => setForm(f => ({ ...f, technicianName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Assigned technician" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Scheduled Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scheduled Date</label>
               <input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Est. Hours</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Hours</label>
               <input type="number" value={form.estimatedHours} onChange={e => setForm(f => ({ ...f, estimatedHours: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="0" min="0" step="0.5" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
               <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['URGENT', 'HIGH', 'MEDIUM', 'LOW'].map(p => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'PENDING', 'CANCELLED'].map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Site Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Address</label>
               <input value={form.siteAddress} onChange={e => setForm(f => ({ ...f, siteAddress: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Service site address" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                 rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Job details..." />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50">
             {saving ? 'Saving...' : editItem ? 'Update Job' : 'Create Job'}
           </button>
@@ -325,7 +325,7 @@ export default function JobsPage() {
       <Modal isOpen={!!deleteItem} onClose={() => setDeleteItem(null)} title="Delete Job" size="sm">
         <p className="text-sm text-gray-600">Are you sure you want to delete job <span className="font-semibold">{deleteItem?.title || deleteItem?.jobNumber}</span>? This action cannot be undone.</p>
         <ModalFooter>
-          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </ModalFooter>
       </Modal>

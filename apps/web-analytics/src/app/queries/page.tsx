@@ -101,8 +101,8 @@ export default function QueriesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Saved Queries</h1>
-            <p className="text-gray-500 mt-1">Reusable data queries for reports and dashboards</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Saved Queries</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Reusable data queries for reports and dashboards</p>
           </div>
           <div className="flex gap-2">
             <Link
@@ -137,7 +137,7 @@ export default function QueriesPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search queries..."
@@ -162,7 +162,7 @@ export default function QueriesPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Code className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No queries found.</p>
               </div>
@@ -170,51 +170,51 @@ export default function QueriesPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 w-6"></th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Query</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Dataset</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Category</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Runs</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Avg Time</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Last Rows</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Last Run</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 w-6"></th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Query</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Dataset</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Runs</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Avg Time</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Last Rows</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Last Run</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(q => (
-                      <tr key={q.id} className="border-b hover:bg-gray-50">
+                      <tr key={q.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <button onClick={() => toggleFavourite(q.id)}>
-                            <Star className={`h-4 w-4 ${q.isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 hover:text-yellow-400'}`} />
+                            <Star className={`h-4 w-4 ${q.isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 dark:text-gray-600 hover:text-yellow-400'}`} />
                           </button>
                         </td>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{q.name}</p>
-                          <p className="text-xs text-gray-400 mt-0.5 max-w-xs truncate">{q.description}</p>
-                          <p className="text-xs text-gray-400">{q.owner}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{q.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 max-w-xs truncate">{q.description}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{q.owner}</p>
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">{q.dataset}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">{q.dataset}</td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_STYLES[q.category] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_STYLES[q.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {q.category}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">{q.runCount}</td>
-                        <td className="py-3 px-4 text-right text-gray-500 text-xs">{formatDuration(q.avgDurationMs)}</td>
-                        <td className="py-3 px-4 text-right text-gray-500 text-xs">
-                          {q.rowsLastRun !== null ? q.rowsLastRun.toLocaleString() : <span className="text-gray-300">—</span>}
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{q.runCount}</td>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400 text-xs">{formatDuration(q.avgDurationMs)}</td>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400 text-xs">
+                          {q.rowsLastRun !== null ? q.rowsLastRun.toLocaleString() : <span className="text-gray-300 dark:text-gray-600">—</span>}
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
-                          {q.lastRun ? new Date(q.lastRun).toLocaleString() : <span className="text-gray-300">Never</span>}
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+                          {q.lastRun ? new Date(q.lastRun).toLocaleString() : <span className="text-gray-300 dark:text-gray-600">Never</span>}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex justify-end gap-1.5">
                             <Link href={`/nlq?query=${encodeURIComponent(q.name)}`} className="p-1.5 rounded hover:bg-purple-100 text-purple-600" title="Run">
                               <Play className="h-3.5 w-3.5" />
                             </Link>
-                            <button className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="Duplicate">
+                            <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500" title="Duplicate">
                               <Copy className="h-3.5 w-3.5" />
                             </button>
                           </div>
@@ -231,25 +231,25 @@ export default function QueriesPage() {
         {/* Save Query Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Save Query</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Save Query</h2>
                 <button onClick={() => setShowCreateModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Query Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Query Name</label>
                   <input type="text" placeholder="e.g. Overdue Risk Assessments" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Dataset</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dataset</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>H&S Incidents</option>
                       <option>CAPA Register</option>
@@ -258,7 +258,7 @@ export default function QueriesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       {categories.map(c => <option key={c}>{c}</option>)}
                     </select>
@@ -266,7 +266,7 @@ export default function QueriesPage() {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Save Query</button>
               </div>
             </div>

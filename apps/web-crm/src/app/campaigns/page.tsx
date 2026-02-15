@@ -20,7 +20,7 @@ interface Campaign {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SCHEDULED: 'bg-blue-100 text-blue-700',
   ACTIVE: 'bg-green-100 text-green-700',
   PAUSED: 'bg-yellow-100 text-yellow-700',
@@ -35,7 +35,7 @@ const typeColors: Record<string, string> = {
   WEBINAR: 'bg-indigo-100 text-indigo-700',
   CONTENT: 'bg-teal-100 text-teal-700',
   PAID_ADS: 'bg-orange-100 text-orange-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 function formatCurrency(amount: number): string {
@@ -136,8 +136,8 @@ export default function CampaignsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Campaigns</h1>
-            <p className="text-gray-500 mt-1">Plan and track marketing campaigns</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Campaigns</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Plan and track marketing campaigns</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Campaign
@@ -153,7 +153,7 @@ export default function CampaignsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search campaigns..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -193,24 +193,24 @@ export default function CampaignsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Start Date</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Budget</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Spent</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Members</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Start Date</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Budget</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Spent</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Members</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredCampaigns.map((campaign) => (
-                      <tr key={campaign.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-900 font-medium">{campaign.name}</td>
+                      <tr key={campaign.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{campaign.name}</td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[campaign.type] || 'bg-gray-100 text-gray-700'}>{campaign.type?.replace('_', ' ')}</Badge>
+                          <Badge className={typeColors[campaign.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{campaign.type?.replace('_', ' ')}</Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[campaign.status] || 'bg-gray-100 text-gray-700'}>{campaign.status}</Badge>
+                          <Badge className={statusColors[campaign.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{campaign.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{campaign.startDate ? new Date(campaign.startDate).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(campaign.budget || 0)}</td>
@@ -222,7 +222,7 @@ export default function CampaignsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Megaphone className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No campaigns found</p>
               </div>

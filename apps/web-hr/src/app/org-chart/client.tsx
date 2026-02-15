@@ -72,10 +72,10 @@ function OrgNode({ employee, depth = 0 }: { employee: Employee; depth?: number }
   const reportCount = countAll(employee) - 1;
 
   return (
-    <div className={`${depth > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+    <div className={`${depth > 0 ? 'ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-4' : ''}`}>
       <div className="flex items-start gap-2 mb-2">
         {hasReports && (
-          <button onClick={() => setExpanded(!expanded)} className="mt-2.5 text-gray-400 hover:text-gray-600 flex-shrink-0">
+          <button onClick={() => setExpanded(!expanded)} className="mt-2.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 flex-shrink-0">
             {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         )}
@@ -83,34 +83,34 @@ function OrgNode({ employee, depth = 0 }: { employee: Employee; depth?: number }
 
         <div
           onClick={() => setShowDetail(!showDetail)}
-          className={`bg-white border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md flex-1 max-w-md ${showDetail ? 'ring-2 ring-blue-500 border-blue-300' : 'border-gray-200'}`}
+          className={`bg-white dark:bg-gray-900 border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md flex-1 max-w-md ${showDetail ? 'ring-2 ring-blue-500 border-blue-300' : 'border-gray-200 dark:border-gray-700'}`}
         >
           <div className="flex items-center gap-3">
             <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white text-xs font-bold ${employee.avatarColor}`}>
               {employee.avatarInitials}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900">{employee.name}</h3>
-              <p className="text-[10px] text-gray-500">{employee.role}</p>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{employee.name}</h3>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">{employee.role}</p>
             </div>
             <div className="text-right flex-shrink-0">
               <Badge variant="secondary" className="text-[9px]">{employee.department}</Badge>
               {hasReports && (
-                <p className="text-[9px] text-gray-400 mt-0.5">{reportCount} report{reportCount !== 1 ? 's' : ''}</p>
+                <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-0.5">{reportCount} report{reportCount !== 1 ? 's' : ''}</p>
               )}
             </div>
           </div>
 
           {showDetail && (
-            <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5 text-[10px]">
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-1.5 text-[10px]">
               <div className="flex items-center gap-2 text-gray-600">
-                <Mail className="h-3 w-3 text-gray-400" /> {employee.email}
+                <Mail className="h-3 w-3 text-gray-400 dark:text-gray-500" /> {employee.email}
               </div>
               <div className="flex items-center gap-2 text-gray-600">
-                <Phone className="h-3 w-3 text-gray-400" /> {employee.phone}
+                <Phone className="h-3 w-3 text-gray-400 dark:text-gray-500" /> {employee.phone}
               </div>
               <div className="flex items-center gap-2 text-gray-600">
-                <MapPin className="h-3 w-3 text-gray-400" /> {employee.location}
+                <MapPin className="h-3 w-3 text-gray-400 dark:text-gray-500" /> {employee.location}
               </div>
             </div>
           )}
@@ -141,31 +141,31 @@ export default function OrgChartClient() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Organisation Chart</h1>
-          <p className="text-sm text-gray-500 mt-1">Interactive hierarchy — click to expand/collapse, click cards for detail</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Organisation Chart</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Interactive hierarchy — click to expand/collapse, click cards for detail</p>
         </div>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
           <Users className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-          <p className="text-xl font-bold text-gray-900">{totalHeadcount}</p>
-          <p className="text-[10px] text-gray-500">Total Headcount</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{totalHeadcount}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Total Headcount</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-          <p className="text-xl font-bold text-gray-900">{departments.size}</p>
-          <p className="text-[10px] text-gray-500">Departments</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{departments.size}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Departments</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
           <MapPin className="h-5 w-5 text-green-600 mx-auto mb-1" />
-          <p className="text-xl font-bold text-gray-900">{locations.size}</p>
-          <p className="text-[10px] text-gray-500">Locations</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{locations.size}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Locations</p>
         </div>
       </div>
 
       {/* Org tree */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 overflow-x-auto">
         <OrgNode employee={ORG_DATA} />
       </div>
     </div>

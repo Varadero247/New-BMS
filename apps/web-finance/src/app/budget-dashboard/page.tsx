@@ -102,8 +102,8 @@ export default function BudgetDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Budget Dashboard</h1>
-            <p className="text-gray-500 mt-1">{period} — Year-to-date performance and forecast variance analysis</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Budget Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{period} — Year-to-date performance and forecast variance analysis</p>
           </div>
           <div className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-indigo-600" />
@@ -131,9 +131,9 @@ export default function BudgetDashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Annual Budget</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Annual Budget</p>
                   <p className="text-2xl font-bold text-indigo-700">{formatCurrency(totalBudget)}</p>
-                  <p className="text-xs text-gray-400 mt-1">Forecast: {formatCurrency(totalForecast)}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Forecast: {formatCurrency(totalForecast)}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-indigo-400" />
               </div>
@@ -144,11 +144,11 @@ export default function BudgetDashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">YTD Variance</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">YTD Variance</p>
                   <p className={`text-2xl font-bold ${totalVariance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                     {totalVariance >= 0 ? '+' : '-'}{formatCurrency(totalVariance)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     Budget: {formatCurrency(totalYtdBudget)} | Actual: {formatCurrency(totalYtdActual)}
                   </p>
                 </div>
@@ -165,9 +165,9 @@ export default function BudgetDashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Lines Over Budget</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Lines Over Budget</p>
                   <p className="text-2xl font-bold text-orange-700">{overBudgetLines}</p>
-                  <p className="text-xs text-gray-400 mt-1">of {BUDGET_LINES.length} total lines</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">of {BUDGET_LINES.length} total lines</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-orange-400" />
               </div>
@@ -201,7 +201,7 @@ export default function BudgetDashboardPage() {
                       />
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">{m.month}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{m.month}</span>
                   {m.actual > 0 && (
                     <span className={`text-xs font-medium ${m.actual > m.budget ? 'text-red-600' : 'text-green-600'}`}>
                       {m.actual > m.budget ? '+' : ''}{formatCurrency(m.actual - m.budget)}
@@ -213,15 +213,15 @@ export default function BudgetDashboardPage() {
             <div className="flex items-center gap-4 mt-3 justify-center">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-2 rounded bg-blue-200" />
-                <span className="text-xs text-gray-500">Budget</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Budget</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-2 rounded bg-green-400" />
-                <span className="text-xs text-gray-500">Under Budget</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Under Budget</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-2 rounded bg-red-400" />
-                <span className="text-xs text-gray-500">Over Budget</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Over Budget</span>
               </div>
             </div>
           </CardContent>
@@ -255,11 +255,11 @@ export default function BudgetDashboardPage() {
                   className={`border rounded-lg p-3 text-center transition-all ${
                     selectedDept === d.dept
                       ? 'ring-2 ring-indigo-500 border-indigo-300 bg-indigo-50'
-                      : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:bg-gray-50'
                   }`}
                 >
-                  <p className="text-xs font-semibold text-gray-700 mb-2">{d.dept}</p>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1">
+                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">{d.dept}</p>
+                  <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-1">
                     <div
                       className={`h-full rounded-full ${d.variance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
                       style={{ width: `${Math.min(100, (d.actual / d.budget) * 100)}%` }}
@@ -268,7 +268,7 @@ export default function BudgetDashboardPage() {
                   <p className={`text-xs font-medium ${d.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {d.variance >= 0 ? '+' : '-'}{formatCurrency(d.variance)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                     {Math.round((d.actual / d.budget) * 100)}% utilized
                   </p>
                 </button>
@@ -283,33 +283,33 @@ export default function BudgetDashboardPage() {
             <CardTitle className="flex items-center gap-2">
               <PiggyBank className="h-5 w-5 text-indigo-600" />
               Budget Lines ({filtered.length})
-              {selectedDept && <span className="text-sm font-normal text-gray-500">— {selectedDept}</span>}
+              {selectedDept && <span className="text-sm font-normal text-gray-500 dark:text-gray-400">— {selectedDept}</span>}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Department</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Annual Budget</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">YTD Budget</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">YTD Actual</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Variance</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Var %</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Forecast</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
+                  <tr className="border-b bg-gray-50 dark:bg-gray-800">
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Department</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Annual Budget</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">YTD Budget</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">YTD Actual</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Variance</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Var %</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Forecast</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(line => (
-                    <tr key={line.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-700 font-medium">{line.department}</td>
-                      <td className="py-3 px-4 text-gray-900">{line.category}</td>
+                    <tr key={line.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">{line.department}</td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{line.category}</td>
                       <td className="py-3 px-4 text-right font-mono text-gray-600">{formatCurrency(line.annualBudget)}</td>
                       <td className="py-3 px-4 text-right font-mono text-gray-600">{formatCurrency(line.ytdBudget)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-gray-900 font-medium">{formatCurrency(line.ytdActual)}</td>
+                      <td className="py-3 px-4 text-right font-mono text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(line.ytdActual)}</td>
                       <td className={`py-3 px-4 text-right font-mono font-medium ${line.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {line.variance >= 0 ? '+' : '-'}{formatCurrency(line.variance)}
                       </td>
@@ -337,8 +337,8 @@ export default function BudgetDashboardPage() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 border-t-2 border-gray-300 font-semibold">
-                    <td colSpan={2} className="py-3 px-4 text-gray-700">Total</td>
+                  <tr className="bg-gray-50 dark:bg-gray-800 border-t-2 border-gray-300 font-semibold">
+                    <td colSpan={2} className="py-3 px-4 text-gray-700 dark:text-gray-300">Total</td>
                     <td className="py-3 px-4 text-right font-mono">
                       {formatCurrency(filtered.reduce((s, b) => s + b.annualBudget, 0))}
                     </td>

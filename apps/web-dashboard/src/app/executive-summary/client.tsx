@@ -117,8 +117,8 @@ export default function ExecutiveSummaryClient() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Executive Summary</h1>
-          <p className="text-sm text-gray-500 mt-1">Cross-module performance overview — {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Executive Summary</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cross-module performance overview — {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
@@ -134,8 +134,8 @@ export default function ExecutiveSummaryClient() {
       </div>
 
       {/* RAG Status Overview */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Module Health Status</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Module Health Status</h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {modules.map((m) => (
             <button
@@ -165,7 +165,7 @@ export default function ExecutiveSummaryClient() {
         {modules
           .filter((m) => !selectedModule || m.module === selectedModule)
           .map((m) => (
-            <div key={m.module} className="bg-white border border-gray-200 rounded-xl p-4">
+            <div key={m.module} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className={`p-1.5 rounded-lg ${m.color.split(' ').slice(1).join(' ')}`}>{m.icon}</div>
                 <h3 className="text-sm font-semibold text-gray-800">{m.module}</h3>
@@ -173,10 +173,10 @@ export default function ExecutiveSummaryClient() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {m.kpis.map((kpi) => (
-                  <div key={kpi.label} className="bg-gray-50 rounded-lg p-2.5">
-                    <p className="text-xs text-gray-500 mb-0.5">{kpi.label}</p>
+                  <div key={kpi.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{kpi.label}</p>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-lg font-bold text-gray-900">{kpi.value}</span>
+                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{kpi.value}</span>
                       {kpi.trend === 'up' && <TrendingUp className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`} />}
                       {kpi.trend === 'down' && <TrendingDown className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`} />}
                     </div>
@@ -188,8 +188,8 @@ export default function ExecutiveSummaryClient() {
       </div>
 
       {/* Recent Alerts */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-amber-500" />
           Recent Alerts ({totalAlerts} active)
         </h3>
@@ -200,9 +200,9 @@ export default function ExecutiveSummaryClient() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${alert.severity === 'critical' ? 'bg-red-100 text-red-700' : alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>{alert.module}</span>
-                  <span className="text-xs text-gray-400">{alert.time}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{alert.time}</span>
                 </div>
-                <p className="text-sm text-gray-700 mt-0.5">{alert.message}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">{alert.message}</p>
               </div>
             </div>
           ))}

@@ -52,8 +52,8 @@ export default function SystemSettingsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">System Settings</h1>
-            <p className="text-gray-500 mt-1">Configure general system settings</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">System Settings</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Configure general system settings</p>
           </div>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -70,31 +70,31 @@ export default function SystemSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-gray-500" />
+                <Settings className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 General Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Site Name
                 </label>
                 <input
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => setSettings(prev => ({ ...prev, siteName: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Site URL
                 </label>
                 <input
                   type="text"
                   value={settings.siteUrl}
                   onChange={(e) => setSettings(prev => ({ ...prev, siteUrl: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
             </CardContent>
@@ -110,13 +110,13 @@ export default function SystemSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Timezone
                 </label>
                 <select
                   value={settings.timezone}
                   onChange={(e) => setSettings(prev => ({ ...prev, timezone: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   <option value="UTC">UTC</option>
                   <option value="America/New_York">Eastern Time</option>
@@ -126,13 +126,13 @@ export default function SystemSettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Date Format
                 </label>
                 <select
                   value={settings.dateFormat}
                   onChange={(e) => setSettings(prev => ({ ...prev, dateFormat: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                   <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -153,8 +153,8 @@ export default function SystemSettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">Email Notifications</p>
-                  <p className="text-sm text-gray-500">Send email notifications for important events</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Send email notifications for important events</p>
                 </div>
                 <button
                   onClick={() => setSettings(prev => ({
@@ -166,7 +166,7 @@ export default function SystemSettingsPage() {
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                       settings.emailNotifications ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
@@ -174,8 +174,8 @@ export default function SystemSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">Maintenance Mode</p>
-                  <p className="text-sm text-gray-500">Disable access for non-admin users</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Maintenance Mode</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Disable access for non-admin users</p>
                 </div>
                 <button
                   onClick={() => setSettings(prev => ({
@@ -187,7 +187,7 @@ export default function SystemSettingsPage() {
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                       settings.maintenanceMode ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
@@ -206,18 +206,18 @@ export default function SystemSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Session Timeout (minutes)
                 </label>
                 <input
                   type="number"
                   value={settings.sessionTimeout}
                   onChange={(e) => setSettings(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
-                <p className="font-medium text-gray-900 mb-3">Password Policy</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-3">Password Policy</p>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -270,17 +270,17 @@ export default function SystemSettingsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Database Type</p>
-                  <p className="font-medium text-gray-900">PostgreSQL</p>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Database Type</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">PostgreSQL</p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Connection Status</p>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Connection Status</p>
                   <p className="font-medium text-green-600">Connected</p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Last Backup</p>
-                  <p className="font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Backup</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
               <div className="mt-4 flex gap-4">

@@ -95,11 +95,11 @@ export default function FeatureRequestsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white">Feature Requests</h1>
-            <p className="text-gray-400 mt-1">Track and manage customer feature requests</p>
+            <p className="text-gray-400 dark:text-gray-500 mt-1">Track and manage customer feature requests</p>
           </div>
           <button
             onClick={fetchRequests}
-            className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 hover:text-white transition-colors"
+            className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 dark:text-gray-500 hover:text-white transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -112,7 +112,7 @@ export default function FeatureRequestsPage() {
               key={tab}
               onClick={() => { setActiveFilter(tab); setPage(1); }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                activeFilter === tab ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 hover:text-white'
+                activeFilter === tab ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 dark:text-gray-500 hover:text-white'
               }`}
             >
               {tab === 'All' ? 'All' : tab.replace('_', ' ')}
@@ -131,22 +131,22 @@ export default function FeatureRequestsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1B3A6B]/30">
-                <th className="text-left py-3 px-4 text-gray-400 font-medium">Title</th>
-                <th className="text-center py-3 px-4 text-gray-400 font-medium w-20">Votes</th>
-                <th className="text-center py-3 px-4 text-gray-400 font-medium w-32">Status</th>
-                <th className="text-center py-3 px-4 text-gray-400 font-medium w-24">Priority</th>
-                <th className="text-left py-3 px-4 text-gray-400 font-medium w-36">Requested By</th>
-                <th className="text-center py-3 px-4 text-gray-400 font-medium w-32">Actions</th>
+                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Title</th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-20">Votes</th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">Status</th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-24">Priority</th>
+                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-36">Requested By</th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && requests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-500">Loading...</td>
+                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">Loading...</td>
                 </tr>
               ) : requests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-500">No feature requests found</td>
+                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">No feature requests found</td>
                 </tr>
               ) : (
                 requests.map((req) => (
@@ -159,9 +159,9 @@ export default function FeatureRequestsPage() {
                       <td className="py-3 px-4 text-white font-medium">
                         <div className="flex items-center gap-2">
                           {expandedId === req.id ? (
-                            <ChevronUp className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                            <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                           )}
                           {req.title}
                         </div>
@@ -201,7 +201,7 @@ export default function FeatureRequestsPage() {
                     {expandedId === req.id && (
                       <tr key={`${req.id}-desc`} className="border-b border-[#1B3A6B]/10">
                         <td colSpan={6} className="py-4 px-8 bg-[#080B12]/50">
-                          <p className="text-gray-400 text-sm whitespace-pre-wrap">
+                          <p className="text-gray-400 dark:text-gray-500 text-sm whitespace-pre-wrap">
                             {req.description || 'No description provided.'}
                           </p>
                           {req.createdAt && (
@@ -225,17 +225,17 @@ export default function FeatureRequestsPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1.5 bg-[#112240] border border-[#1B3A6B]/30 rounded text-sm text-gray-400 hover:text-white disabled:opacity-40"
+              className="px-3 py-1.5 bg-[#112240] border border-[#1B3A6B]/30 rounded text-sm text-gray-400 dark:text-gray-500 hover:text-white disabled:opacity-40"
             >
               Previous
             </button>
-            <span className="text-gray-400 text-sm">
+            <span className="text-gray-400 dark:text-gray-500 text-sm">
               Page {page} of {totalPages}
             </span>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1.5 bg-[#112240] border border-[#1B3A6B]/30 rounded text-sm text-gray-400 hover:text-white disabled:opacity-40"
+              className="px-3 py-1.5 bg-[#112240] border border-[#1B3A6B]/30 rounded text-sm text-gray-400 dark:text-gray-500 hover:text-white disabled:opacity-40"
             >
               Next
             </button>

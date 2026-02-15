@@ -76,8 +76,8 @@ export default function ProductsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-            <p className="text-gray-500 mt-1">Manage product catalog and inventory items</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Products</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage product catalog and inventory items</p>
           </div>
           <Button onClick={() => { setEditingProduct(null); setShowModal(true); }}>
             <Plus className="h-4 w-4 mr-2" />
@@ -90,7 +90,7 @@ export default function ProductsPage() {
           <CardContent className="pt-6">
             <div className="flex gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by SKU, barcode, or name..."
                   value={search}
@@ -148,7 +148,7 @@ export default function ProductsPage() {
                           <div>
                             <p className="font-medium font-mono">{product.sku}</p>
                             {product.barcode && (
-                              <p className="text-xs text-gray-500">{product.barcode}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{product.barcode}</p>
                             )}
                           </div>
                         </TableCell>
@@ -156,7 +156,7 @@ export default function ProductsPage() {
                           <div>
                             <p className="font-medium">{product.name}</p>
                             {product.description && (
-                              <p className="text-xs text-gray-500 truncate max-w-xs">{product.description}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{product.description}</p>
                             )}
                           </div>
                         </TableCell>
@@ -164,14 +164,14 @@ export default function ProductsPage() {
                           {product.category ? (
                             <Badge variant="outline">{product.category.name}</Badge>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {product.supplier ? (
                             <span className="text-sm">{product.supplier.name}</span>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right font-mono">
@@ -216,7 +216,7 @@ export default function ProductsPage() {
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Showing {(meta.page - 1) * meta.limit + 1} to{' '}
                     {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} products
                   </p>
@@ -242,8 +242,8 @@ export default function ProductsPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No products found</p>
+                <Package className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No products found</p>
                 <Button className="mt-4" onClick={() => { setEditingProduct(null); setShowModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Product
@@ -310,7 +310,7 @@ function ProductModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg mx-4">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold">
             {product ? 'Edit Product' : 'Add New Product'}

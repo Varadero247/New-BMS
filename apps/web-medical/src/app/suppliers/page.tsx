@@ -87,8 +87,8 @@ export default function SuppliersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Supplier Controls</h1>
-            <p className="text-gray-500 mt-1">ISO 13485 supplier qualification and monitoring</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Supplier Controls</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 supplier qualification and monitoring</p>
           </div>
           <Button className="flex items-center gap-2" onClick={() => { setForm({ name: '', classification: 'CRITICAL', products: '', iso13485Certified: false }); setCreateModalOpen(true); }}>
             <Plus className="h-4 w-4" /> Add Supplier
@@ -99,7 +99,7 @@ export default function SuppliersPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-64">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search suppliers..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm" />
               </div>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
@@ -126,29 +126,29 @@ export default function SuppliersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Classification</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">ISO 13485</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Risk</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Next Audit</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Classification</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">ISO 13485</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Risk</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Next Audit</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(s => (
-                      <tr key={s.id} className="border-b hover:bg-gray-50">
+                      <tr key={s.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4 font-mono text-xs text-gray-600">{s.referenceNumber}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{s.name}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{s.name}</td>
                         <td className="py-3 px-4 text-gray-600">{s.classification}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[s.qualificationStatus] || 'bg-gray-100 text-gray-700'}>{s.qualificationStatus}</Badge>
+                          <Badge className={statusColors[s.qualificationStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{s.qualificationStatus}</Badge>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          {s.iso13485Certified ? <FileCheck className="h-4 w-4 text-green-600 mx-auto" /> : <span className="text-gray-400">-</span>}
+                          {s.iso13485Certified ? <FileCheck className="h-4 w-4 text-green-600 mx-auto" /> : <span className="text-gray-400 dark:text-gray-500">-</span>}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={riskColors[s.riskLevel] || 'bg-gray-100 text-gray-700'}>{s.riskLevel}</Badge>
+                          <Badge className={riskColors[s.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{s.riskLevel}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{s.nextAuditDate ? new Date(s.nextAuditDate).toLocaleDateString() : '-'}</td>
                       </tr>
@@ -157,7 +157,7 @@ export default function SuppliersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Truck className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No suppliers found</p>
               </div>
@@ -169,12 +169,12 @@ export default function SuppliersPage() {
       <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Supplier" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier Name *</label>
             <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Classification</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Classification</label>
               <select value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm">
                 <option value="CRITICAL">Critical</option>
                 <option value="MAJOR">Major</option>
@@ -182,13 +182,13 @@ export default function SuppliersPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Products/Services</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Products/Services</label>
               <input type="text" value={form.products} onChange={(e) => setForm({ ...form, products: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm" />
             </div>
           </div>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={form.iso13485Certified} onChange={(e) => setForm({ ...form, iso13485Certified: e.target.checked })} className="rounded" />
-            <span className="text-sm text-gray-700">ISO 13485 certified</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">ISO 13485 certified</span>
           </label>
         </div>
         <ModalFooter>

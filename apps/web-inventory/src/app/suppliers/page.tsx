@@ -99,8 +99,8 @@ export default function SuppliersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Suppliers</h1>
-            <p className="text-gray-500 mt-1">Manage supplier directory and contacts</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Suppliers</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage supplier directory and contacts</p>
           </div>
           <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
         </div>
@@ -109,20 +109,20 @@ export default function SuppliersPage() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Total Suppliers</p><p className="text-2xl font-bold">{suppliers.length}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Suppliers</p><p className="text-2xl font-bold">{suppliers.length}</p></div>
               <Truck className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent></Card>
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-green-600">{suppliers.filter(s => s.isActive).length}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-green-600">{suppliers.filter(s => s.isActive).length}</p></div>
               <Truck className="h-8 w-8 text-green-500" />
             </div>
           </CardContent></Card>
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Inactive</p><p className="text-2xl font-bold text-gray-400">{suppliers.filter(s => !s.isActive).length}</p></div>
-              <Truck className="h-8 w-8 text-gray-400" />
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Inactive</p><p className="text-2xl font-bold text-gray-400 dark:text-gray-500">{suppliers.filter(s => !s.isActive).length}</p></div>
+              <Truck className="h-8 w-8 text-gray-400 dark:text-gray-500" />
             </div>
           </CardContent></Card>
         </div>
@@ -130,7 +130,7 @@ export default function SuppliersPage() {
         {/* Search */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search by name, code, or email..." value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none" />
@@ -154,21 +154,21 @@ export default function SuppliersPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Contact</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Location</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Products</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Contact</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Location</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Products</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(s => (
-                      <tr key={s.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono font-medium text-gray-900">{s.code}</td>
+                      <tr key={s.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono font-medium text-gray-900 dark:text-gray-100">{s.code}</td>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{s.name}</p>
-                          {s.contactName && <p className="text-xs text-gray-500">{s.contactName}</p>}
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{s.name}</p>
+                          {s.contactName && <p className="text-xs text-gray-500 dark:text-gray-400">{s.contactName}</p>}
                         </td>
                         <td className="py-3 px-4">
                           <div className="space-y-1">
@@ -177,10 +177,10 @@ export default function SuppliersPage() {
                             {s.website && <div className="flex items-center gap-1 text-gray-600 text-xs"><Globe className="h-3 w-3" />{s.website}</div>}
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-500 text-xs">{[s.city, s.country].filter(Boolean).join(', ') || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">{[s.city, s.country].filter(Boolean).join(', ') || '—'}</td>
                         <td className="py-3 px-4 text-gray-600">{s._count?.products ?? 0}</td>
                         <td className="py-3 px-4">
-                          <Badge className={s.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
+                          <Badge className={s.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}>
                             {s.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
@@ -196,7 +196,7 @@ export default function SuppliersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Truck className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No suppliers found</p>
                 <Button className="mt-4" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>

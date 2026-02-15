@@ -80,11 +80,11 @@ const SPECIAL_CHARS = [
 ] as const;
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   ACTIVE: 'bg-orange-100 text-orange-700',
   APPROVED: 'bg-green-100 text-green-700',
   SUPERSEDED: 'bg-yellow-100 text-yellow-700',
-  ARCHIVED: 'bg-gray-100 text-gray-500',
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const planTypeColors: Record<string, string> = {
@@ -347,8 +347,8 @@ export default function ControlPlansClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Control Plans</h1>
-            <p className="text-gray-500 mt-1">Process Control Documentation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Control Plans</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Process Control Documentation</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadPlans} className="flex items-center gap-2">
@@ -368,7 +368,7 @@ export default function ControlPlansClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Plans</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Plans</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <ClipboardList className="h-8 w-8 text-orange-500" />
@@ -379,7 +379,7 @@ export default function ControlPlansClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-orange-600">{stats.active}</p>
                 </div>
                 <Clock className="h-8 w-8 text-orange-500" />
@@ -390,10 +390,10 @@ export default function ControlPlansClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Draft</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Draft</p>
                   <p className="text-3xl font-bold text-gray-600">{stats.draft}</p>
                 </div>
-                <Edit2 className="h-8 w-8 text-gray-400" />
+                <Edit2 className="h-8 w-8 text-gray-400 dark:text-gray-500" />
               </div>
             </CardContent>
           </Card>
@@ -401,7 +401,7 @@ export default function ControlPlansClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Approved</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
                   <p className="text-3xl font-bold text-green-600">{stats.approved}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -426,20 +426,20 @@ export default function ControlPlansClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by title, reference, part number..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {CP_STATUSES.map(s => (
@@ -448,7 +448,7 @@ export default function ControlPlansClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Plan Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Plan Type</Label>
                 <Select value={planTypeFilter} onChange={(e) => setPlanTypeFilter(e.target.value)}>
                   <option value="all">All Types</option>
                   {PLAN_TYPES.map(t => (
@@ -481,7 +481,7 @@ export default function ControlPlansClient() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Ref #</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Part Number</th>
@@ -494,26 +494,26 @@ export default function ControlPlansClient() {
                   </thead>
                   <tbody>
                     {filtered.map((plan) => (
-                      <tr key={plan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <tr key={plan.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                         <td className="px-4 py-3">
-                          <span className="text-xs font-mono text-gray-500">
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {plan.referenceNumber || '-'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">{plan.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{plan.title}</p>
                           {plan.partName && (
-                            <p className="text-xs text-gray-400 mt-0.5">{plan.partName}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{plan.partName}</p>
                           )}
                         </td>
-                        <td className="px-4 py-3 font-mono text-sm text-gray-700">{plan.partNumber}</td>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-700 dark:text-gray-300">{plan.partNumber}</td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={planTypeColors[plan.planType] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={planTypeColors[plan.planType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {planTypeLabels[plan.planType] || plan.planType}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={statusColors[plan.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[plan.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {plan.status?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
@@ -523,7 +523,7 @@ export default function ControlPlansClient() {
                           <button
                             type="button"
                             onClick={() => openDetail(plan)}
-                            className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                             title="View details"
                           >
                             <Eye className="h-4 w-4" />
@@ -536,9 +536,9 @@ export default function ControlPlansClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <ClipboardList className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No control plans found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <ClipboardList className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No control plans found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || planTypeFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first control plan.'}
@@ -666,34 +666,34 @@ export default function ControlPlansClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedPlan.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500">{selectedPlan.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedPlan.referenceNumber}</span>
               )}
-              <Badge className={planTypeColors[selectedPlan.planType] || 'bg-gray-100'}>
+              <Badge className={planTypeColors[selectedPlan.planType] || 'bg-gray-100 dark:bg-gray-800'}>
                 {planTypeLabels[selectedPlan.planType] || selectedPlan.planType}
               </Badge>
-              <Badge className={statusColors[selectedPlan.status] || 'bg-gray-100'}>
+              <Badge className={statusColors[selectedPlan.status] || 'bg-gray-100 dark:bg-gray-800'}>
                 {selectedPlan.status?.replace(/_/g, ' ')}
               </Badge>
-              <Badge className="bg-gray-100 text-gray-600">Rev {selectedPlan.revision || '-'}</Badge>
+              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">Rev {selectedPlan.revision || '-'}</Badge>
             </div>
 
             {/* Info Grid */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Part Number</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Number</p>
                   <p className="text-sm font-medium font-mono">{selectedPlan.partNumber}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Part Name</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Name</p>
                   <p className="text-sm font-medium">{selectedPlan.partName || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Characteristics</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Characteristics</p>
                   <p className="text-sm font-medium">{selectedPlan.characteristics?.length || 0}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Created</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedPlan.createdAt)}</p>
                 </div>
               </div>
@@ -710,14 +710,14 @@ export default function ControlPlansClient() {
                   <ShieldCheck className="h-4 w-4" />
                   {approving ? 'Approving...' : 'Approve Control Plan'}
                 </Button>
-                <span className="text-xs text-gray-400">Changes status to APPROVED</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">Changes status to APPROVED</span>
               </div>
             )}
 
             {/* Characteristics Table */}
-            <div className="border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
                   Characteristics ({selectedPlan.characteristics?.length || 0})
                 </h3>
                 <Button onClick={openAddCharModal} size="sm" className="bg-orange-600 hover:bg-orange-700 flex items-center gap-1">
@@ -730,7 +730,7 @@ export default function ControlPlansClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Process #</th>
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Process Name</th>
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Machine</th>
@@ -748,7 +748,7 @@ export default function ControlPlansClient() {
                     </thead>
                     <tbody>
                       {selectedPlan.characteristics.map((char) => (
-                        <tr key={char.id} className="border-b border-gray-50 hover:bg-gray-50">
+                        <tr key={char.id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
                           <td className="px-2 py-2 font-mono">{char.processNumber || '-'}</td>
                           <td className="px-2 py-2">{char.processName || '-'}</td>
                           <td className="px-2 py-2">{char.machine || '-'}</td>
@@ -773,7 +773,7 @@ export default function ControlPlansClient() {
                             <button
                               type="button"
                               onClick={() => openEditCharModal(char)}
-                              className="p-1 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                              className="p-1 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                               title="Edit characteristic"
                             >
                               <Edit2 className="h-3.5 w-3.5" />
@@ -786,7 +786,7 @@ export default function ControlPlansClient() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-400">No characteristics defined yet. Click Add to start.</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No characteristics defined yet. Click Add to start.</p>
                 </div>
               )}
             </div>

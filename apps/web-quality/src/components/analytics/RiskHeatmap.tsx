@@ -63,13 +63,13 @@ export function RiskHeatmap({
   return (
     <div className="w-full">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">{title}</h3>
       )}
 
       <div className="flex">
         {/* Y-axis label */}
         <div className="flex items-center justify-center w-8">
-          <span className="text-sm font-medium text-gray-700 transform -rotate-90 whitespace-nowrap">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 transform -rotate-90 whitespace-nowrap">
             Likelihood →
           </span>
         </div>
@@ -125,12 +125,12 @@ export function RiskHeatmap({
                           <button
                             key={risk.id}
                             onClick={() => onRiskClick?.(risk)}
-                            className="w-4 h-4 bg-white/80 rounded-full border-2 border-gray-700 hover:bg-white hover:scale-125 transition-transform cursor-pointer"
+                            className="w-4 h-4 bg-white/80 rounded-full border-2 border-gray-700 hover:bg-white dark:bg-gray-900 hover:scale-125 transition-transform cursor-pointer"
                             title={risk.title}
                           />
                         ))}
                         {cellRisks.length > 6 && (
-                          <span className="text-xs text-gray-700 font-medium">
+                          <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">
                             +{cellRisks.length - 6}
                           </span>
                         )}
@@ -138,8 +138,8 @@ export function RiskHeatmap({
 
                       {/* Hover tooltip */}
                       {cellRisks.length > 0 && (
-                        <div className="hidden group-hover:block absolute z-10 bg-white shadow-lg rounded-lg p-2 min-w-[200px] left-full ml-2 top-0">
-                          <p className="text-xs font-semibold text-gray-700 mb-1">{riskLevel} Risk</p>
+                        <div className="hidden group-hover:block absolute z-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg p-2 min-w-[200px] left-full ml-2 top-0">
+                          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">{riskLevel} Risk</p>
                           <ul className="text-xs text-gray-600 space-y-1">
                             {cellRisks.map(r => (
                               <li key={r.id} className="truncate">• {r.title}</li>
@@ -156,7 +156,7 @@ export function RiskHeatmap({
 
           {/* X-axis label */}
           <div className="text-center mt-2">
-            <span className="text-sm font-medium text-gray-700">Severity →</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Severity →</span>
           </div>
         </div>
       </div>

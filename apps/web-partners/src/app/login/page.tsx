@@ -38,7 +38,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white">Nexara</h1>
-          <p className="text-gray-400 mt-2">Partner Portal</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-2">Partner Portal</p>
         </div>
 
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-8">
@@ -84,7 +84,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-400">
+          <p className="mt-6 text-center text-sm text-gray-400 dark:text-gray-500">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-[#4a8ade] hover:text-[#6ba3f0] font-medium">
               Apply to become a partner

@@ -25,7 +25,7 @@ const ACTION_COLORS: Record<string, string> = {
   UPDATE: 'bg-yellow-100 text-yellow-700',
   DELETE: 'bg-red-100 text-red-700',
   LOGIN: 'bg-purple-100 text-purple-700',
-  LOGOUT: 'bg-gray-100 text-gray-700',
+  LOGOUT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   EXPORT: 'bg-indigo-100 text-indigo-700',
   APPROVE: 'bg-emerald-100 text-emerald-700',
 };
@@ -113,12 +113,12 @@ export default function AccessLogPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Access Log</h1>
-            <p className="text-gray-500 mt-1">Full audit trail of system activity</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Access Log</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Full audit trail of system activity</p>
           </div>
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:bg-gray-800 transition-colors"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -130,24 +130,24 @@ export default function AccessLogPage() {
           <CardContent className="py-4">
             <div className="flex flex-wrap gap-3 items-end">
               <div className="flex-1 min-w-[200px]">
-                <label className="text-xs font-medium text-gray-500 mb-1 block">Search</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Search</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by user, resource..."
                     value={filters.search}
                     onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1 block">Action</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Action</label>
                 <select
                   value={filters.action}
                   onChange={(e) => setFilters(f => ({ ...f, action: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All actions</option>
                   {Object.keys(ACTION_COLORS).map(a => (
@@ -156,11 +156,11 @@ export default function AccessLogPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1 block">Module</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Module</label>
                 <select
                   value={filters.module}
                   onChange={(e) => setFilters(f => ({ ...f, module: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All modules</option>
                   {['health-safety', 'environment', 'quality', 'finance', 'crm', 'hr', 'payroll',
@@ -170,21 +170,21 @@ export default function AccessLogPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1 block">From</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">From</label>
                 <input
                   type="date"
                   value={filters.dateFrom}
                   onChange={(e) => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1 block">To</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">To</label>
                 <input
                   type="date"
                   value={filters.dateTo}
                   onChange={(e) => setFilters(f => ({ ...f, dateTo: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function AccessLogPage() {
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
               <p className="text-xl font-bold">{total}</p>
-              <p className="text-xs text-gray-500">Total Entries</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Entries</p>
             </CardContent>
           </Card>
           <Card>
@@ -204,7 +204,7 @@ export default function AccessLogPage() {
               <p className="text-xl font-bold text-green-600">
                 {entries.filter(e => e.action === 'CREATE').length}
               </p>
-              <p className="text-xs text-gray-500">Creates (page)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Creates (page)</p>
             </CardContent>
           </Card>
           <Card>
@@ -212,7 +212,7 @@ export default function AccessLogPage() {
               <p className="text-xl font-bold text-yellow-600">
                 {entries.filter(e => e.action === 'UPDATE').length}
               </p>
-              <p className="text-xs text-gray-500">Updates (page)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Updates (page)</p>
             </CardContent>
           </Card>
           <Card>
@@ -220,7 +220,7 @@ export default function AccessLogPage() {
               <p className="text-xl font-bold text-red-600">
                 {entries.filter(e => e.action === 'DELETE').length}
               </p>
-              <p className="text-xs text-gray-500">Deletes (page)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Deletes (page)</p>
             </CardContent>
           </Card>
         </div>
@@ -229,7 +229,7 @@ export default function AccessLogPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Activity className="h-5 w-5 text-gray-400" />
+              <Activity className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               Audit Trail
             </CardTitle>
           </CardHeader>
@@ -237,11 +237,11 @@ export default function AccessLogPage() {
             {loading ? (
               <div className="animate-pulse space-y-3">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-12 bg-gray-100 rounded" />
+                  <div key={i} className="h-12 bg-gray-100 dark:bg-gray-800 rounded" />
                 ))}
               </div>
             ) : entries.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-gray-400 dark:text-gray-500">
                 <Activity className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No audit entries found</p>
               </div>
@@ -249,40 +249,40 @@ export default function AccessLogPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Time</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">User</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Action</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Module</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Resource</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Details</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">User</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Action</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Module</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Resource</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Details</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {entries.map((entry) => (
-                      <tr key={entry.id} className="hover:bg-gray-50">
+                      <tr key={entry.id} className="hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-2.5 px-3 whitespace-nowrap">
                           <div className="flex items-center gap-1.5 text-gray-600">
-                            <Clock className="h-3 w-3 text-gray-400" />
+                            <Clock className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                             {formatTimestamp(entry.timestamp)}
                           </div>
                         </td>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-1.5">
-                            <User className="h-3 w-3 text-gray-400" />
-                            <span className="text-gray-700">{entry.userEmail}</span>
+                            <User className="h-3 w-3 text-gray-400 dark:text-gray-500" />
+                            <span className="text-gray-700 dark:text-gray-300">{entry.userEmail}</span>
                           </div>
                         </td>
                         <td className="py-2.5 px-3">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            ACTION_COLORS[entry.action] || 'bg-gray-100 text-gray-700'
+                            ACTION_COLORS[entry.action] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'
                           }`}>
                             {entry.action}
                           </span>
                         </td>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-1.5">
-                            <Shield className="h-3 w-3 text-gray-400" />
+                            <Shield className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                             <span className="text-gray-600">
                               {entry.module.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                             </span>
@@ -291,10 +291,10 @@ export default function AccessLogPage() {
                         <td className="py-2.5 px-3 text-gray-600">
                           {entry.resource}
                           {entry.resourceId && (
-                            <span className="text-gray-400 ml-1 text-xs">#{entry.resourceId.slice(0, 8)}</span>
+                            <span className="text-gray-400 dark:text-gray-500 ml-1 text-xs">#{entry.resourceId.slice(0, 8)}</span>
                           )}
                         </td>
-                        <td className="py-2.5 px-3 text-gray-500 text-xs max-w-[200px] truncate">
+                        <td className="py-2.5 px-3 text-gray-500 dark:text-gray-400 text-xs max-w-[200px] truncate">
                           {entry.details || '-'}
                         </td>
                       </tr>
@@ -306,22 +306,22 @@ export default function AccessLogPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                <p className="text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Page {page} of {totalPages} ({total} entries)
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                    className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 hover:bg-gray-50 dark:bg-gray-800"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                    className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 hover:bg-gray-50 dark:bg-gray-800"
                   >
                     Next
                   </button>

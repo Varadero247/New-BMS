@@ -36,7 +36,7 @@ interface Account {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   POSTED: 'bg-green-100 text-green-700',
   REVERSED: 'bg-red-100 text-red-700',
   VOID: 'bg-orange-100 text-orange-700',
@@ -207,8 +207,8 @@ export default function JournalPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Journal Entries</h1>
-            <p className="text-gray-500 mt-1">Record and manage journal entries</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Journal Entries</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Record and manage journal entries</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Entry
@@ -224,7 +224,7 @@ export default function JournalPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search entries..."
@@ -258,29 +258,29 @@ export default function JournalPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Debit</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Credit</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Debit</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Credit</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredEntries.map((entry) => (
-                      <tr key={entry.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{entry.reference}</td>
+                      <tr key={entry.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{entry.reference}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(entry.date).toLocaleDateString()}</td>
-                        <td className="py-3 px-4 text-gray-900">{entry.description}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{entry.description}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[entry.status] || 'bg-gray-100 text-gray-700'}>{entry.status}</Badge>
+                          <Badge className={statusColors[entry.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{entry.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(entry.totalDebit || 0)}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(entry.totalCredit || 0)}</td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openViewModal(entry)} className="text-gray-400 hover:text-indigo-600">
+                            <button onClick={() => openViewModal(entry)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600">
                               <Eye className="h-4 w-4" />
                             </button>
                             {entry.status === 'DRAFT' && (
@@ -289,7 +289,7 @@ export default function JournalPage() {
                               </button>
                             )}
                             {entry.status === 'DRAFT' && (
-                              <button onClick={() => handleVoid(entry.id)} className="text-gray-400 hover:text-red-600">
+                              <button onClick={() => handleVoid(entry.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             )}
@@ -301,7 +301,7 @@ export default function JournalPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No journal entries found</p>
               </div>
@@ -338,11 +338,11 @@ export default function JournalPage() {
             </div>
             <table className="w-full text-sm border">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Account</th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Description</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500">Debit</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500">Credit</th>
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Debit</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Credit</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -400,7 +400,7 @@ export default function JournalPage() {
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t bg-gray-50 font-medium">
+                <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
                   <td colSpan={2} className="py-2 px-3 text-right">Totals:</td>
                   <td className="py-2 px-3 text-right">{formatCurrency(totalDebit)}</td>
                   <td className="py-2 px-3 text-right">{formatCurrency(totalCredit)}</td>
@@ -425,22 +425,22 @@ export default function JournalPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-gray-500">Date</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
                 <p className="font-medium">{new Date(viewEntry.date).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
                 <Badge className={statusColors[viewEntry.status]}>{viewEntry.status}</Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Description</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Description</p>
                 <p className="font-medium">{viewEntry.description}</p>
               </div>
             </div>
             {viewEntry.lines && viewEntry.lines.length > 0 && (
               <table className="w-full text-sm border">
                 <thead>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-gray-50 dark:bg-gray-800">
                     <th className="text-left py-2 px-3">Account</th>
                     <th className="text-left py-2 px-3">Description</th>
                     <th className="text-right py-2 px-3">Debit</th>
@@ -456,7 +456,7 @@ export default function JournalPage() {
                       <td className="py-2 px-3 text-right">{formatCurrency(line.credit || 0)}</td>
                     </tr>
                   ))}
-                  <tr className="border-t bg-gray-50 font-medium">
+                  <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
                     <td colSpan={2} className="py-2 px-3 text-right">Totals:</td>
                     <td className="py-2 px-3 text-right">{formatCurrency(viewEntry.totalDebit || 0)}</td>
                     <td className="py-2 px-3 text-right">{formatCurrency(viewEntry.totalCredit || 0)}</td>

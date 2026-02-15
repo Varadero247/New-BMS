@@ -45,7 +45,7 @@ const CATEGORY_STYLES: Record<string, string> = {
   'AI Governance': 'bg-violet-100 text-violet-700',
   ESG: 'bg-teal-100 text-teal-700',
   HR: 'bg-pink-100 text-pink-700',
-  'Document Control': 'bg-gray-100 text-gray-700',
+  'Document Control': 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const FORMAT_STYLES: Record<string, string> = {
@@ -113,8 +113,8 @@ export default function TemplatesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Document Templates</h1>
-            <p className="text-gray-500 mt-1">ISO-compliant document templates for all IMS modules</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Templates</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO-compliant document templates for all IMS modules</p>
           </div>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium">
             <Plus className="h-4 w-4" /> Upload Template
@@ -138,7 +138,7 @@ export default function TemplatesPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6 items-center">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search templates, standards, tags..."
@@ -170,7 +170,7 @@ export default function TemplatesPage() {
 
         {/* Templates grid */}
         {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
             <p>No templates match your filters.</p>
           </div>
@@ -181,10 +181,10 @@ export default function TemplatesPage() {
                 <CardContent className="pt-5">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${CATEGORY_STYLES[tpl.category] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${CATEGORY_STYLES[tpl.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {tpl.category}
                       </span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${FORMAT_STYLES[tpl.format] || 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${FORMAT_STYLES[tpl.format] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
                         {tpl.format}
                       </span>
                     </div>
@@ -193,28 +193,28 @@ export default function TemplatesPage() {
                     )}
                   </div>
 
-                  <h3 className="font-semibold text-gray-900 mt-2 mb-1">{tpl.name}</h3>
-                  <p className="text-xs text-gray-500 line-clamp-2 mb-2">{tpl.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mt-2 mb-1">{tpl.name}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{tpl.description}</p>
 
-                  <p className="text-xs text-gray-400 mb-2">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
                     <span className="font-medium text-gray-600">Standard:</span> {tpl.standard}
                   </p>
 
                   <div className="flex flex-wrap gap-1 mb-3">
                     {tpl.tags.slice(0, 3).map(t => (
-                      <span key={t} className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded flex items-center gap-0.5">
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded flex items-center gap-0.5">
                         <Tag className="h-2.5 w-2.5" />{t}
                       </span>
                     ))}
                   </div>
 
-                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <div className="text-xs text-gray-400">
+                  <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div className="text-xs text-gray-400 dark:text-gray-500">
                       <p>v{tpl.version} · {tpl.usageCount} uses</p>
                       <p>Updated {new Date(tpl.lastUpdated).toLocaleDateString()}</p>
                     </div>
                     <div className="flex gap-1.5">
-                      <button className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Preview">
+                      <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400" title="Preview">
                         <Eye className="h-3.5 w-3.5" />
                       </button>
                       <button className="p-1.5 rounded hover:bg-blue-100 text-blue-600" title="Download">

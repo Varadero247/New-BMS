@@ -109,7 +109,7 @@ const PDCA_STAGES = ['PLAN', 'DO', 'CHECK', 'ACT'] as const;
 const IMPACT_LEVELS = ['NONE', 'LOW', 'MEDIUM', 'HIGH'] as const;
 
 const statusColors: Record<string, string> = {
-  IDEA_SUBMITTED: 'bg-gray-100 text-gray-700',
+  IDEA_SUBMITTED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   UNDER_EVALUATION: 'bg-blue-100 text-blue-700',
   APPROVED: 'bg-indigo-100 text-indigo-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
@@ -159,7 +159,7 @@ function impactColor(level: string): string {
 }
 
 function priorityColor(score: number | null): string {
-  if (!score) return 'bg-gray-100 text-gray-600';
+  if (!score) return 'bg-gray-100 dark:bg-gray-800 text-gray-600';
   if (score >= 80) return 'bg-red-100 text-red-800';
   if (score >= 50) return 'bg-amber-100 text-amber-800';
   return 'bg-green-100 text-green-800';
@@ -418,7 +418,7 @@ export default function ImprovementsClient() {
                     ? 'bg-blue-600 text-white font-medium'
                     : isComplete
                     ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 text-gray-400'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                 }`}
               >
                 {status.replace(/_/g, ' ')}
@@ -440,8 +440,8 @@ export default function ImprovementsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Continual Improvement</h1>
-            <p className="text-gray-500 mt-1">Track improvement ideas from submission to benefits realisation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Continual Improvement</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track improvement ideas from submission to benefits realisation</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadImprovements} className="flex items-center gap-2">
@@ -461,7 +461,7 @@ export default function ImprovementsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Ideas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Ideas</p>
                   <p className="text-3xl font-bold">{counts.total}</p>
                 </div>
                 <Lightbulb className="h-8 w-8 text-blue-500" />
@@ -472,7 +472,7 @@ export default function ImprovementsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Under Evaluation</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Under Evaluation</p>
                   <p className="text-3xl font-bold text-blue-600">{counts.underEvaluation}</p>
                 </div>
                 <Target className="h-8 w-8 text-blue-500" />
@@ -483,7 +483,7 @@ export default function ImprovementsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-3xl font-bold text-amber-600">{counts.inProgress}</p>
                 </div>
                 <Clock className="h-8 w-8 text-amber-500" />
@@ -494,7 +494,7 @@ export default function ImprovementsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Benefits Realised</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Benefits Realised</p>
                   <p className="text-3xl font-bold text-green-600">{counts.benefitsRealised}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
@@ -519,20 +519,20 @@ export default function ImprovementsClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by title, reference, submitter..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Category</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Category</Label>
                 <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                   <option value="all">All Categories</option>
                   {CATEGORIES.map(c => (
@@ -541,7 +541,7 @@ export default function ImprovementsClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {STATUSES.map(s => (
@@ -550,7 +550,7 @@ export default function ImprovementsClient() {
                 </Select>
               </div>
               <div className="min-w-[120px]">
-                <Label className="text-xs text-gray-500 mb-1 block">PDCA Stage</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">PDCA Stage</Label>
                 <Select value={pdcaFilter} onChange={(e) => setPdcaFilter(e.target.value)}>
                   <option value="all">All</option>
                   {PDCA_STAGES.map(s => (
@@ -559,7 +559,7 @@ export default function ImprovementsClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Source</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Source</Label>
                 <Select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}>
                   <option value="all">All Sources</option>
                   {SOURCES.map(s => (
@@ -594,21 +594,21 @@ export default function ImprovementsClient() {
                   <div
                     key={imp.id}
                     onClick={() => openDetail(imp)}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {imp.referenceNumber && (
-                            <span className="text-xs text-gray-500 font-mono">{imp.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{imp.referenceNumber}</span>
                           )}
-                          <Badge className={categoryColors[imp.category] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={categoryColors[imp.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {imp.category?.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={statusColors[imp.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[imp.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {imp.status?.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={pdcaColors[imp.pdcaStage] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={pdcaColors[imp.pdcaStage] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {imp.pdcaStage}
                           </Badge>
                           {imp.priorityScore != null && (
@@ -617,9 +617,9 @@ export default function ImprovementsClient() {
                             </Badge>
                           )}
                         </div>
-                        <h3 className="font-medium text-gray-900">{imp.title}</h3>
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{imp.description}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 flex-wrap">
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{imp.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{imp.description}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
                           {imp.submittedBy && <span>By: {imp.submittedBy}</span>}
                           {imp.department && <span>Dept: {imp.department}</span>}
                           {imp.source && <span>Source: {imp.source.replace(/_/g, ' ')}</span>}
@@ -630,12 +630,12 @@ export default function ImprovementsClient() {
                           <StatusPipeline currentStatus={imp.status} />
                         </div>
                       </div>
-                      <div className="text-sm text-gray-400 text-right ml-4 shrink-0">
+                      <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
                         {imp.estimatedSaving != null && imp.estimatedSaving > 0 && (
                           <div className="text-green-600 font-medium">{formatCurrency(imp.estimatedSaving)}</div>
                         )}
                         {imp.estimatedCost != null && imp.estimatedCost > 0 && (
-                          <div className="text-xs text-gray-400">Cost: {formatCurrency(imp.estimatedCost)}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">Cost: {formatCurrency(imp.estimatedCost)}</div>
                         )}
                       </div>
                     </div>
@@ -644,9 +644,9 @@ export default function ImprovementsClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Lightbulb className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No improvement ideas found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <Lightbulb className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No improvement ideas found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || categoryFilter !== 'all' || statusFilter !== 'all' || pdcaFilter !== 'all' || sourceFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by submitting your first improvement idea.'}
@@ -669,7 +669,7 @@ export default function ImprovementsClient() {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Submit Improvement Idea" size="full">
         <form onSubmit={handleSubmit}>
           {/* Section Navigation */}
-          <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
+          <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             {sections.map((section) => {
               const Icon = section.icon;
               return (
@@ -680,7 +680,7 @@ export default function ImprovementsClient() {
                   className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     activeSection === section.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -694,7 +694,7 @@ export default function ImprovementsClient() {
             {/* Section A: Improvement Idea */}
             {activeSection === 'idea' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Improvement Idea</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Improvement Idea</h3>
 
                 <div>
                   <Label htmlFor="imp-title">Title *</Label>
@@ -792,7 +792,7 @@ export default function ImprovementsClient() {
             {/* Section B: Impact Assessment */}
             {activeSection === 'impact' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Impact Assessment</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Impact Assessment</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -867,11 +867,11 @@ export default function ImprovementsClient() {
                 </div>
 
                 {/* Live Priority Score */}
-                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Priority Score (auto-calculated)</p>
-                      <p className="text-xs text-gray-500 mt-1">Based on impact assessments, cost, and savings</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Priority Score (auto-calculated)</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Based on impact assessments, cost, and savings</p>
                     </div>
                     <Badge className={`text-lg px-4 py-1 ${priorityColor(liveScore)}`}>
                       {liveScore}
@@ -893,7 +893,7 @@ export default function ImprovementsClient() {
             {/* Section C: Evaluation */}
             {activeSection === 'evaluation' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Evaluation & Approval</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Evaluation & Approval</h3>
 
                 <div>
                   <Label htmlFor="imp-status">Status</Label>
@@ -942,7 +942,7 @@ export default function ImprovementsClient() {
                         className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                           form.pdcaStage === stage
                             ? pdcaColors[stage]
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200'
                         }`}
                       >
                         {stage}
@@ -956,7 +956,7 @@ export default function ImprovementsClient() {
             {/* Section D: Implementation */}
             {activeSection === 'implementation' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Implementation</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Implementation</h3>
 
                 <div>
                   <Label htmlFor="imp-linkedActions">Linked Actions</Label>
@@ -969,10 +969,10 @@ export default function ImprovementsClient() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Pilot Required</p>
-                    <p className="text-sm text-gray-500">Does this improvement require a pilot before full implementation?</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Pilot Required</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Does this improvement require a pilot before full implementation?</p>
                   </div>
                   <button
                     type="button"
@@ -982,7 +982,7 @@ export default function ImprovementsClient() {
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                         form.pilotRequired ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
@@ -1034,7 +1034,7 @@ export default function ImprovementsClient() {
             {/* Section E: Benefits Realisation */}
             {activeSection === 'benefits' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Benefits Realisation</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Benefits Realisation</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1085,10 +1085,10 @@ export default function ImprovementsClient() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Share Across IMS</p>
-                    <p className="text-sm text-gray-500">Share this improvement and lessons learned with other IMS modules</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Share Across IMS</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Share this improvement and lessons learned with other IMS modules</p>
                   </div>
                   <button
                     type="button"
@@ -1098,7 +1098,7 @@ export default function ImprovementsClient() {
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                         form.shareAcrossIms ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
@@ -1110,7 +1110,7 @@ export default function ImprovementsClient() {
 
           <ModalFooter>
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 {sections.findIndex(s => s.id === activeSection) + 1} / {sections.length}
               </div>
               <div className="flex items-center gap-2">
@@ -1155,122 +1155,122 @@ export default function ImprovementsClient() {
         {selectedImprovement && (
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-6">
             {/* Status Pipeline */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Progress</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Progress</h3>
               <StatusPipeline currentStatus={selectedImprovement.status} />
             </div>
 
             {/* Section A: Improvement Idea */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 Improvement Idea
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Title</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Title</p>
                   <p className="text-sm font-medium">{selectedImprovement.title}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Category</p>
-                  <Badge className={categoryColors[selectedImprovement.category] || 'bg-gray-100'}>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Category</p>
+                  <Badge className={categoryColors[selectedImprovement.category] || 'bg-gray-100 dark:bg-gray-800'}>
                     {selectedImprovement.category?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Source</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Source</p>
                   <p className="text-sm">{selectedImprovement.source?.replace(/_/g, ' ') || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Submitted By</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Submitted By</p>
                   <p className="text-sm">{selectedImprovement.submittedBy || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Department</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Department</p>
                   <p className="text-sm">{selectedImprovement.department || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Date Submitted</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Date Submitted</p>
                   <p className="text-sm">{formatDate(selectedImprovement.dateSubmitted)}</p>
                 </div>
               </div>
               {selectedImprovement.description && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Description</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Description</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.description}</p>
                 </div>
               )}
               {selectedImprovement.currentState && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Current State</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Current State</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.currentState}</p>
                 </div>
               )}
               {selectedImprovement.proposedSolution && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Proposed Solution</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Proposed Solution</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.proposedSolution}</p>
                 </div>
               )}
               {selectedImprovement.expectedBenefits && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Expected Benefits</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Expected Benefits</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.expectedBenefits}</p>
                 </div>
               )}
             </div>
 
             {/* Section B: Impact Assessment */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 Impact Assessment
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Estimated Cost</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Cost</p>
                   <p className="text-sm font-medium">{formatCurrency(selectedImprovement.estimatedCost)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Estimated Saving</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Saving</p>
                   <p className="text-sm font-medium text-green-600">{formatCurrency(selectedImprovement.estimatedSaving)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Estimated Time</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Time</p>
                   <p className="text-sm">{selectedImprovement.estimatedTime || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Priority Score</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Priority Score</p>
                   {selectedImprovement.priorityScore != null ? (
                     <Badge className={priorityColor(selectedImprovement.priorityScore)}>
                       {selectedImprovement.priorityScore}
                     </Badge>
                   ) : (
-                    <p className="text-sm text-gray-400">-</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">-</p>
                   )}
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div>
-                  <p className="text-xs text-gray-500">Quality Impact</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Quality Impact</p>
                   <p className={`text-sm font-medium ${impactColor(selectedImprovement.qualityImpact)}`}>
                     {selectedImprovement.qualityImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Customer Impact</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Customer Impact</p>
                   <p className={`text-sm font-medium ${impactColor(selectedImprovement.customerImpact)}`}>
                     {selectedImprovement.customerImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Process Impact</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Process Impact</p>
                   <p className={`text-sm font-medium ${impactColor(selectedImprovement.processImpact)}`}>
                     {selectedImprovement.processImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Environmental Impact</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Environmental Impact</p>
                   <p className={`text-sm font-medium ${impactColor(selectedImprovement.environmentalImpact)}`}>
                     {selectedImprovement.environmentalImpact || 'NONE'}
                   </p>
@@ -1279,96 +1279,96 @@ export default function ImprovementsClient() {
             </div>
 
             {/* Section C: Evaluation */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <Target className="h-4 w-4" />
                 Evaluation
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Status</p>
-                  <Badge className={statusColors[selectedImprovement.status] || 'bg-gray-100'}>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                  <Badge className={statusColors[selectedImprovement.status] || 'bg-gray-100 dark:bg-gray-800'}>
                     {selectedImprovement.status?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">PDCA Stage</p>
-                  <Badge className={pdcaColors[selectedImprovement.pdcaStage] || 'bg-gray-100 text-gray-700'}>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">PDCA Stage</p>
+                  <Badge className={pdcaColors[selectedImprovement.pdcaStage] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                     {selectedImprovement.pdcaStage}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Approved By</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Approved By</p>
                   <p className="text-sm">{selectedImprovement.approvedBy || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Approval Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Approval Date</p>
                   <p className="text-sm">{formatDate(selectedImprovement.approvalDate)}</p>
                 </div>
               </div>
               {selectedImprovement.evaluationNotes && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Evaluation Notes</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Evaluation Notes</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.evaluationNotes}</p>
                 </div>
               )}
             </div>
 
             {/* Section D: Implementation */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <ArrowRight className="h-4 w-4" />
                 Implementation
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Implementation Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Implementation Date</p>
                   <p className="text-sm">{formatDate(selectedImprovement.implementationDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Implemented By</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Implemented By</p>
                   <p className="text-sm">{selectedImprovement.implementedBy || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Pilot Required</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Pilot Required</p>
                   <p className="text-sm">{selectedImprovement.pilotRequired ? 'Yes' : 'No'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">KPI to Measure</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">KPI to Measure</p>
                   <p className="text-sm">{selectedImprovement.kpiToMeasure || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Baseline Metric</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Baseline Metric</p>
                   <p className="text-sm">{selectedImprovement.baselineMetric || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Target Metric</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Target Metric</p>
                   <p className="text-sm">{selectedImprovement.targetMetric || '-'}</p>
                 </div>
               </div>
               {selectedImprovement.linkedActions && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Linked Actions</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Linked Actions</p>
                   <p className="text-sm mt-1">{selectedImprovement.linkedActions}</p>
                 </div>
               )}
               {selectedImprovement.pilotResults && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Pilot Results</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Pilot Results</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.pilotResults}</p>
                 </div>
               )}
             </div>
 
             {/* Section E: Benefits Realisation */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
                 Benefits Realisation
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Actual Cost</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Actual Cost</p>
                   <p className="text-sm font-medium">{formatCurrency(selectedImprovement.actualCost)}</p>
                   {selectedImprovement.actualCost != null && selectedImprovement.estimatedCost != null && selectedImprovement.estimatedCost > 0 && (
                     <p className={`text-xs mt-1 ${
@@ -1379,7 +1379,7 @@ export default function ImprovementsClient() {
                   )}
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Actual Saving</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Actual Saving</p>
                   <p className="text-sm font-medium text-green-600">{formatCurrency(selectedImprovement.actualSaving)}</p>
                   {selectedImprovement.actualSaving != null && selectedImprovement.estimatedSaving != null && selectedImprovement.estimatedSaving > 0 && (
                     <p className={`text-xs mt-1 ${
@@ -1392,19 +1392,19 @@ export default function ImprovementsClient() {
               </div>
               {selectedImprovement.qualityImprovement && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Quality Improvement Achieved</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Quality Improvement Achieved</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.qualityImprovement}</p>
                 </div>
               )}
               {selectedImprovement.lessonsLearned && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Lessons Learned</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Lessons Learned</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.lessonsLearned}</p>
                 </div>
               )}
               <div className="mt-3">
                 <div className={`flex items-center gap-2 px-3 py-2 rounded-lg inline-flex ${
-                  selectedImprovement.shareAcrossIms ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-400'
+                  selectedImprovement.shareAcrossIms ? 'bg-green-50 text-green-700' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'
                 }`}>
                   <div className={`h-2 w-2 rounded-full ${selectedImprovement.shareAcrossIms ? 'bg-green-500' : 'bg-gray-300'}`} />
                   <span className="text-sm">
@@ -1448,7 +1448,7 @@ export default function ImprovementsClient() {
                 </div>
               )}
               {aiAnalysis.result && (
-                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
+                <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-900 rounded-lg p-4 mt-2">
                   {aiAnalysis.result}
                   <AIDisclosure variant="inline" provider="claude" analysisType="Improvement Analysis" confidence={0.85} />
                 </div>

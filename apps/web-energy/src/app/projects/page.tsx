@@ -30,7 +30,7 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
   IN_PROGRESS: { label: 'In Progress', className: 'bg-yellow-100 text-yellow-700', icon: PlayCircle },
   COMPLETED: { label: 'Completed', className: 'bg-green-100 text-green-700', icon: CheckCircle },
   ON_HOLD: { label: 'On Hold', className: 'bg-orange-100 text-orange-700', icon: Clock },
-  CANCELLED: { label: 'Cancelled', className: 'bg-gray-100 text-gray-500', icon: XCircle },
+  CANCELLED: { label: 'Cancelled', className: 'bg-gray-100 dark:bg-gray-800 text-gray-500', icon: XCircle },
 };
 
 const empty: Partial<EnergyProject> = { name: '', description: '', type: 'LED_LIGHTING', status: 'PLANNED', estimatedSavings: 0, estimatedCost: 0, unit: 'kWh/year', priority: 'MEDIUM', responsible: '' };
@@ -94,8 +94,8 @@ export default function ProjectsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Energy Projects</h1>
-            <p className="text-gray-500 mt-1">Energy improvement projects and initiatives</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Energy Projects</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Energy improvement projects and initiatives</p>
           </div>
           <button onClick={openCreate} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors">
             <Plus className="h-5 w-5" /> Add Project
@@ -103,15 +103,15 @@ export default function ProjectsPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Projects</p><p className="text-2xl font-bold text-gray-900">{stats.total}</p></div><div className="p-3 bg-yellow-50 rounded-full"><FolderKanban className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">In Progress</p><p className="text-2xl font-bold text-yellow-700">{stats.inProgress}</p></div><div className="p-3 bg-yellow-50 rounded-full"><PlayCircle className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Completed</p><p className="text-2xl font-bold text-green-700">{stats.completed}</p></div><div className="p-3 bg-green-50 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Savings</p><p className="text-2xl font-bold text-blue-700">{stats.totalSavings.toLocaleString()} kWh</p></div><div className="p-3 bg-blue-50 rounded-full"><Zap className="h-6 w-6 text-blue-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p><p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p></div><div className="p-3 bg-yellow-50 rounded-full"><FolderKanban className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p><p className="text-2xl font-bold text-yellow-700">{stats.inProgress}</p></div><div className="p-3 bg-yellow-50 rounded-full"><PlayCircle className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Completed</p><p className="text-2xl font-bold text-green-700">{stats.completed}</p></div><div className="p-3 bg-green-50 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Savings</p><p className="text-2xl font-bold text-blue-700">{stats.totalSavings.toLocaleString()} kWh</p></div><div className="p-3 bg-blue-50 rounded-full"><Zap className="h-6 w-6 text-blue-600" /></div></div></CardContent></Card>
         </div>
 
         <div className="flex gap-3 mb-4 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search projects..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
           </div>
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
@@ -126,30 +126,30 @@ export default function ProjectsPage() {
             {filtered.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Priority</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Est. Savings</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Est. Cost</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Due</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                  <thead><tr className="border-b bg-gray-50 dark:bg-gray-800">
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Priority</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Est. Savings</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Est. Cost</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(item => {
                       const sc = statusConfig[item.status] || statusConfig.PLANNED;
                       const Icon = sc.icon;
-                      const priorityColors: Record<string, string> = { LOW: 'bg-gray-100 text-gray-600', MEDIUM: 'bg-blue-100 text-blue-700', HIGH: 'bg-orange-100 text-orange-700', CRITICAL: 'bg-red-100 text-red-700' };
+                      const priorityColors: Record<string, string> = { LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-600', MEDIUM: 'bg-blue-100 text-blue-700', HIGH: 'bg-orange-100 text-orange-700', CRITICAL: 'bg-red-100 text-red-700' };
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">
-                            <p className="font-medium text-gray-900">{item.name}</p>
-                            {item.responsible && <p className="text-xs text-gray-400">{item.responsible}</p>}
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
+                            {item.responsible && <p className="text-xs text-gray-400 dark:text-gray-500">{item.responsible}</p>}
                           </td>
                           <td className="py-3 px-4"><span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">{item.type?.replace(/_/g, ' ')}</span></td>
                           <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${priorityColors[item.priority || 'MEDIUM']}`}>{item.priority || 'MEDIUM'}</span></td>
-                          <td className="py-3 px-4 text-right font-mono text-green-700 font-medium">{item.estimatedSavings ? Number(item.estimatedSavings).toLocaleString() : '-'} <span className="text-xs text-gray-400">{item.unit}</span></td>
+                          <td className="py-3 px-4 text-right font-mono text-green-700 font-medium">{item.estimatedSavings ? Number(item.estimatedSavings).toLocaleString() : '-'} <span className="text-xs text-gray-400 dark:text-gray-500">{item.unit}</span></td>
                           <td className="py-3 px-4 text-right font-mono">{item.estimatedCost ? `$${Number(item.estimatedCost).toLocaleString()}` : '-'}</td>
                           <td className="py-3 px-4 text-gray-600 text-xs">{item.endDate ? new Date(item.endDate).toLocaleDateString() : '-'}</td>
                           <td className="py-3 px-4"><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.className}`}><Icon className="h-3 w-3" />{sc.label}</span></td>
@@ -166,7 +166,7 @@ export default function ProjectsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FolderKanban className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="font-medium">No projects found</p>
                 <p className="text-sm mt-1">Create your first energy improvement project</p>
@@ -179,22 +179,22 @@ export default function ProjectsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Edit Project' : 'Add Energy Project'} size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name *</label>
             <input value={editItem.name || ''} onChange={e => setEditItem(p => ({ ...p, name: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="e.g. LED Lighting Upgrade - Building A" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea value={editItem.description || ''} onChange={e => setEditItem(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
               <select value={editItem.type || 'LED_LIGHTING'} onChange={e => setEditItem(p => ({ ...p, type: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
               <select value={editItem.priority || 'MEDIUM'} onChange={e => setEditItem(p => ({ ...p, priority: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                 {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -202,35 +202,35 @@ export default function ProjectsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
               <input type="date" value={editItem.startDate || ''} onChange={e => setEditItem(p => ({ ...p, startDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
               <input type="date" value={editItem.endDate || ''} onChange={e => setEditItem(p => ({ ...p, endDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Est. Savings</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Savings</label>
               <input type="number" value={editItem.estimatedSavings || ''} onChange={e => setEditItem(p => ({ ...p, estimatedSavings: Number(e.target.value) }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
               <input value={editItem.unit || ''} onChange={e => setEditItem(p => ({ ...p, unit: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="kWh/year" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Est. Cost ($)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Cost ($)</label>
               <input type="number" value={editItem.estimatedCost || ''} onChange={e => setEditItem(p => ({ ...p, estimatedCost: Number(e.target.value) }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Responsible</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsible</label>
               <input value={editItem.responsible || ''} onChange={e => setEditItem(p => ({ ...p, responsible: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={editItem.status || 'PLANNED'} onChange={e => setEditItem(p => ({ ...p, status: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                 {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
               </select>
@@ -238,7 +238,7 @@ export default function ProjectsPage() {
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving || !editItem.name} className="px-4 py-2 text-sm bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2">
             {saving && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
             {isEditing ? 'Save Changes' : 'Add Project'}
@@ -249,7 +249,7 @@ export default function ProjectsPage() {
       <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Project" size="sm">
         <p className="text-gray-600 text-sm">Are you sure you want to delete this project?</p>
         <ModalFooter>
-          <button onClick={() => setDeleteModal(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteModal(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </ModalFooter>
       </Modal>

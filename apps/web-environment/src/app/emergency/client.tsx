@@ -45,10 +45,10 @@ interface DashboardData {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   ACTIVE: 'bg-green-100 text-green-800',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
-  ARCHIVED: 'bg-gray-100 text-gray-600',
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const OUTCOME_COLORS: Record<string, string> = {
@@ -132,21 +132,21 @@ export default function EmergencyPreparednessPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Emergency Preparedness</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 14001 Clause 8.2 - Emergency preparedness and response</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Emergency Preparedness</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 14001 Clause 8.2 - Emergency preparedness and response</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><FileText className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Total Plans</p><p className="text-2xl font-bold">{plans.length}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><CheckCircle className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500">Active Plans</p><p className="text-2xl font-bold">{activePlans}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-yellow-100 rounded-lg"><ShieldAlert className="h-5 w-5 text-yellow-600" /></div><div><p className="text-sm text-gray-500">Drills Conducted</p><p className="text-2xl font-bold">{totalDrills}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-red-100 rounded-lg"><AlertTriangle className="h-5 w-5 text-red-600" /></div><div><p className="text-sm text-gray-500">Open Incidents</p><p className="text-2xl font-bold">{dashboard?.openIncidents ?? 0}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><FileText className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Plans</p><p className="text-2xl font-bold">{plans.length}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><CheckCircle className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Active Plans</p><p className="text-2xl font-bold">{activePlans}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-yellow-100 rounded-lg"><ShieldAlert className="h-5 w-5 text-yellow-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Drills Conducted</p><p className="text-2xl font-bold">{totalDrills}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-red-100 rounded-lg"><AlertTriangle className="h-5 w-5 text-red-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p><p className="text-2xl font-bold">{dashboard?.openIncidents ?? 0}</p></div></div></CardContent></Card>
       </div>
 
       <div className="flex gap-2 border-b pb-2">
-        <button onClick={() => setActiveTab('plans')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'plans' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Emergency Plans</button>
-        <button onClick={() => setActiveTab('drills')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'drills' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Drills</button>
+        <button onClick={() => setActiveTab('plans')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'plans' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Emergency Plans</button>
+        <button onClick={() => setActiveTab('drills')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'drills' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Drills</button>
       </div>
 
       {activeTab === 'plans' && (
@@ -158,18 +158,18 @@ export default function EmergencyPreparednessPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : plans.length === 0 ? <p className="text-gray-500 text-center py-8">No emergency plans found.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : plans.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No emergency plans found.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Scenario</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Next Review</th></tr></thead>
+                  <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Scenario</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Next Review</th></tr></thead>
                   <tbody>
                     {plans.map(plan => (
-                      <tr key={plan.id} className="border-b hover:bg-gray-50">
+                      <tr key={plan.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-mono text-xs">{plan.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{plan.title}</td>
                         <td className="py-3 pr-4 text-gray-600 max-w-xs truncate">{plan.scenario}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[plan.status] || 'bg-gray-100'}>{plan.status.replace(/_/g, ' ')}</Badge></td>
-                        <td className="py-3 text-gray-500">{plan.nextReviewDate ? new Date(plan.nextReviewDate).toLocaleDateString() : '-'}</td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[plan.status] || 'bg-gray-100 dark:bg-gray-800'}>{plan.status.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{plan.nextReviewDate ? new Date(plan.nextReviewDate).toLocaleDateString() : '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -189,17 +189,17 @@ export default function EmergencyPreparednessPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : drills.length === 0 ? <p className="text-gray-500 text-center py-8">No drills recorded.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : drills.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No drills recorded.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Date</th><th className="pb-2 pr-4">Type</th><th className="pb-2 pr-4">Participants</th><th className="pb-2 pr-4">Outcome</th><th className="pb-2">Conducted By</th></tr></thead>
+                  <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Date</th><th className="pb-2 pr-4">Type</th><th className="pb-2 pr-4">Participants</th><th className="pb-2 pr-4">Outcome</th><th className="pb-2">Conducted By</th></tr></thead>
                   <tbody>
                     {drills.map(drill => (
-                      <tr key={drill.id} className="border-b hover:bg-gray-50">
+                      <tr key={drill.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4">{new Date(drill.drillDate).toLocaleDateString()}</td>
                         <td className="py-3 pr-4">{drill.drillType}</td>
                         <td className="py-3 pr-4 text-xs">{drill.participants.slice(0, 3).join(', ')}{drill.participants.length > 3 ? '...' : ''}</td>
-                        <td className="py-3 pr-4"><Badge className={OUTCOME_COLORS[drill.outcome] || 'bg-gray-100'}>{drill.outcome.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={OUTCOME_COLORS[drill.outcome] || 'bg-gray-100 dark:bg-gray-800'}>{drill.outcome.replace(/_/g, ' ')}</Badge></td>
                         <td className="py-3">{drill.conductedBy || '-'}</td>
                       </tr>
                     ))}

@@ -104,12 +104,12 @@ const typeColors: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
   IMPLEMENTED: 'bg-purple-100 text-purple-700',
-  CLOSED: 'bg-gray-100 text-gray-500',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 function rpnColor(rpn: number): string {
@@ -492,8 +492,8 @@ export default function FmeaClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">FMEA Management</h1>
-            <p className="text-gray-500 mt-1">Failure Mode and Effects Analysis</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">FMEA Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Failure Mode and Effects Analysis</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadFmeas} className="flex items-center gap-2">
@@ -513,7 +513,7 @@ export default function FmeaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total FMEAs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total FMEAs</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <FileSpreadsheet className="h-8 w-8 text-blue-500" />
@@ -524,7 +524,7 @@ export default function FmeaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-blue-600">{stats.active}</p>
                 </div>
                 <Clock className="h-8 w-8 text-blue-500" />
@@ -535,7 +535,7 @@ export default function FmeaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">High RPN ({'>'}200)</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">High RPN ({'>'}200)</p>
                   <p className="text-3xl font-bold text-red-600">{stats.highRpn}</p>
                 </div>
                 <AlertOctagon className="h-8 w-8 text-red-500" />
@@ -546,7 +546,7 @@ export default function FmeaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open Actions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open Actions</p>
                   <p className="text-3xl font-bold text-amber-600">{stats.openActions}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-amber-500" />
@@ -571,20 +571,20 @@ export default function FmeaClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by title, reference, product..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">FMEA Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">FMEA Type</Label>
                 <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
                   <option value="all">All Types</option>
                   {FMEA_TYPES.map(t => (
@@ -593,7 +593,7 @@ export default function FmeaClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {FMEA_STATUSES.map(s => (
@@ -628,18 +628,18 @@ export default function FmeaClient() {
                   <div
                     key={fmea.id}
                     onClick={() => loadFmeaDetail(fmea.id)}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {fmea.referenceNumber && (
-                            <span className="text-xs text-gray-500 font-mono">{fmea.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{fmea.referenceNumber}</span>
                           )}
-                          <Badge className={typeColors[fmea.fmeaType] || 'bg-gray-100'}>
+                          <Badge className={typeColors[fmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'}>
                             {typeLabels[fmea.fmeaType] || fmea.fmeaType}
                           </Badge>
-                          <Badge className={statusColors[fmea.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[fmea.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {fmea.status?.replace(/_/g, ' ')}
                           </Badge>
                           {fmea.highRPNCount > 0 && (
@@ -648,8 +648,8 @@ export default function FmeaClient() {
                             </Badge>
                           )}
                         </div>
-                        <h3 className="font-medium text-gray-900">{fmea.title}</h3>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{fmea.title}</h3>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                           {fmea.productProcess && <span>Product/Process: {fmea.productProcess}</span>}
                           <span>{fmea.totalFailureModes || 0} failure modes</span>
                           <span>{fmea.openActions || 0} open actions</span>
@@ -657,11 +657,11 @@ export default function FmeaClient() {
                       </div>
                       <div className="flex items-center gap-6 text-sm ml-4 shrink-0">
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">Rows</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Rows</p>
                           <p className="font-bold">{fmea.totalFailureModes || 0}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">High RPN</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">High RPN</p>
                           <p className={`font-bold ${fmea.highRPNCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {fmea.highRPNCount || 0}
                           </p>
@@ -673,9 +673,9 @@ export default function FmeaClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FileSpreadsheet className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No FMEAs found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <FileSpreadsheet className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No FMEAs found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || typeFilter !== 'all' || statusFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first FMEA.'}
@@ -782,12 +782,12 @@ export default function FmeaClient() {
         {detailLoading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <span className="ml-3 text-gray-500">Loading FMEA details...</span>
+            <span className="ml-3 text-gray-500 dark:text-gray-400">Loading FMEA details...</span>
           </div>
         ) : selectedFmea ? (
           <>
             {/* Tab Navigation */}
-            <div className="flex gap-1 mb-4 border-b border-gray-200 overflow-x-auto">
+            <div className="flex gap-1 mb-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
               {[
                 { id: 'header', label: 'Header' },
                 { id: 'table', label: `Analysis Table (${rows.length})` },
@@ -801,7 +801,7 @@ export default function FmeaClient() {
                   className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                   }`}
                 >
                   {tab.label}
@@ -813,58 +813,58 @@ export default function FmeaClient() {
               {/* Tab A: FMEA Header */}
               {activeTab === 'header' && (
                 <div className="space-y-4">
-                  <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div>
-                        <p className="text-xs text-gray-500">FMEA Type</p>
-                        <Badge className={typeColors[selectedFmea.fmeaType] || 'bg-gray-100'}>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">FMEA Type</p>
+                        <Badge className={typeColors[selectedFmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'}>
                           {typeLabels[selectedFmea.fmeaType] || selectedFmea.fmeaType}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Status</p>
-                        <Badge className={statusColors[selectedFmea.status] || 'bg-gray-100'}>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                        <Badge className={statusColors[selectedFmea.status] || 'bg-gray-100 dark:bg-gray-800'}>
                           {selectedFmea.status?.replace(/_/g, ' ')}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Reference</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Reference</p>
                         <p className="text-sm font-mono">{selectedFmea.referenceNumber || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Product / Process</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Product / Process</p>
                         <p className="text-sm">{selectedFmea.productProcess || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Part Number / Revision</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Part Number / Revision</p>
                         <p className="text-sm">{selectedFmea.partNumberRev || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Customer</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Customer</p>
                         <p className="text-sm">{selectedFmea.customer || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Date Initiated</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Date Initiated</p>
                         <p className="text-sm">{formatDate(selectedFmea.dateInitiated)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Next Review Date</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Next Review Date</p>
                         <p className="text-sm">{formatDate(selectedFmea.nextReviewDate)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Linked Process</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Linked Process</p>
                         <p className="text-sm">{selectedFmea.linkedProcess || '-'}</p>
                       </div>
                     </div>
                     {selectedFmea.teamMembers && (
                       <div className="mt-4">
-                        <p className="text-xs text-gray-500">Team Members</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Team Members</p>
                         <p className="text-sm mt-1">{selectedFmea.teamMembers}</p>
                       </div>
                     )}
                     {selectedFmea.scopeDescription && (
                       <div className="mt-3">
-                        <p className="text-xs text-gray-500">Scope Description</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Scope Description</p>
                         <p className="text-sm mt-1 whitespace-pre-wrap">{selectedFmea.scopeDescription}</p>
                       </div>
                     )}
@@ -876,7 +876,7 @@ export default function FmeaClient() {
               {activeTab === 'table' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">{rows.length} failure mode(s)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{rows.length} failure mode(s)</p>
                     <Button onClick={addRow} className="flex items-center gap-2" size="sm">
                       <Plus className="h-4 w-4" />
                       Add Row
@@ -885,19 +885,19 @@ export default function FmeaClient() {
 
                   {rows.length === 0 ? (
                     <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-                      <FileSpreadsheet className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500 mb-4">No failure modes added yet</p>
+                      <FileSpreadsheet className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">No failure modes added yet</p>
                       <Button onClick={addRow} variant="outline" className="flex items-center gap-2 mx-auto">
                         <Plus className="h-4 w-4" />
                         Add First Row
                       </Button>
                     </div>
                   ) : (
-                    <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                    <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
                       {/* Compact table header */}
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="bg-gray-50 border-b border-gray-200">
+                          <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                             <th className="px-2 py-2 text-left font-medium text-gray-600 w-8">#</th>
                             <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">Step / Item</th>
                             <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">Failure Mode</th>
@@ -918,14 +918,14 @@ export default function FmeaClient() {
                             return (
                               <React.Fragment key={row.id || `new-${index}`}>
                                 {/* Compact row */}
-                                <tr className={`border-b border-gray-100 hover:bg-gray-50 ${row._isDirty ? 'bg-yellow-50' : ''}`}>
-                                  <td className="px-2 py-2 text-gray-400">{index + 1}</td>
+                                <tr className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 ${row._isDirty ? 'bg-yellow-50' : ''}`}>
+                                  <td className="px-2 py-2 text-gray-400 dark:text-gray-500">{index + 1}</td>
                                   <td className="px-2 py-2">
                                     <input
                                       type="text"
                                       value={row.itemProcessStep}
                                       onChange={(e) => updateRow(index, 'itemProcessStep', e.target.value)}
-                                      className="w-full border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Process step"
                                     />
                                   </td>
@@ -934,7 +934,7 @@ export default function FmeaClient() {
                                       type="text"
                                       value={row.failureMode}
                                       onChange={(e) => updateRow(index, 'failureMode', e.target.value)}
-                                      className="w-full border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Failure mode"
                                     />
                                   </td>
@@ -943,7 +943,7 @@ export default function FmeaClient() {
                                       type="text"
                                       value={row.effectOfFailure}
                                       onChange={(e) => updateRow(index, 'effectOfFailure', e.target.value)}
-                                      className="w-full border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Effect"
                                     />
                                   </td>
@@ -974,7 +974,7 @@ export default function FmeaClient() {
                                     <select
                                       value={row.status}
                                       onChange={(e) => updateRow(index, 'status', e.target.value)}
-                                      className="text-xs border border-gray-200 rounded px-1 py-0.5"
+                                      className="text-xs border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5"
                                     >
                                       {ROW_STATUSES.map(s => (
                                         <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
@@ -986,7 +986,7 @@ export default function FmeaClient() {
                                       <button
                                         type="button"
                                         onClick={() => setExpandedRow(isExpanded ? null : index)}
-                                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors"
                                         title={isExpanded ? 'Collapse' : 'Expand'}
                                       >
                                         {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -995,7 +995,7 @@ export default function FmeaClient() {
                                         type="button"
                                         onClick={() => saveRow(index)}
                                         disabled={isSaving}
-                                        className="p-1 text-gray-400 hover:text-green-600 transition-colors disabled:opacity-50"
+                                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors disabled:opacity-50"
                                         title="Save row"
                                       >
                                         {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
@@ -1003,7 +1003,7 @@ export default function FmeaClient() {
                                       <button
                                         type="button"
                                         onClick={() => deleteRow(index)}
-                                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"
                                         title="Delete row"
                                       >
                                         <Trash2 className="h-3 w-3" />
@@ -1014,7 +1014,7 @@ export default function FmeaClient() {
 
                                 {/* Expanded row detail */}
                                 {isExpanded && (
-                                  <tr className="bg-gray-50">
+                                  <tr className="bg-gray-50 dark:bg-gray-800">
                                     <td colSpan={11} className="px-4 py-4">
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -1022,7 +1022,7 @@ export default function FmeaClient() {
                                           <textarea
                                             value={row.functionRequirement}
                                             onChange={(e) => updateRow(index, 'functionRequirement', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Function or requirement being analysed"
                                           />
@@ -1032,7 +1032,7 @@ export default function FmeaClient() {
                                           <textarea
                                             value={row.recommendedActions}
                                             onChange={(e) => updateRow(index, 'recommendedActions', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Recommended corrective/preventive actions"
                                           />
@@ -1044,7 +1044,7 @@ export default function FmeaClient() {
                                               type="text"
                                               value={row.assignedTo}
                                               onChange={(e) => updateRow(index, 'assignedTo', e.target.value)}
-                                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                              className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                               placeholder="Assignee"
                                             />
                                           </div>
@@ -1054,7 +1054,7 @@ export default function FmeaClient() {
                                               type="date"
                                               value={row.dueDate ? row.dueDate.split('T')[0] : ''}
                                               onChange={(e) => updateRow(index, 'dueDate', e.target.value)}
-                                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                              className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             />
                                           </div>
                                         </div>
@@ -1063,7 +1063,7 @@ export default function FmeaClient() {
                                           <textarea
                                             value={row.actionsTaken}
                                             onChange={(e) => updateRow(index, 'actionsTaken', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Actions taken to date"
                                           />
@@ -1071,25 +1071,25 @@ export default function FmeaClient() {
 
                                         {/* Revised ratings */}
                                         <div className="col-span-2">
-                                          <h4 className="text-xs font-semibold text-gray-700 uppercase mb-2 flex items-center gap-2">
+                                          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-2 flex items-center gap-2">
                                             <TrendingDown className="h-3 w-3" />
                                             Revised Ratings (Post-Action)
                                           </h4>
                                           <div className="flex items-center gap-4 flex-wrap">
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500">S:</label>
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">S:</label>
                                               <NumberRating value={row.revisedSeverity} onChange={(v) => updateRow(index, 'revisedSeverity', v)} />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500">O:</label>
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">O:</label>
                                               <NumberRating value={row.revisedOccurrence} onChange={(v) => updateRow(index, 'revisedOccurrence', v)} />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500">D:</label>
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">D:</label>
                                               <NumberRating value={row.revisedDetection} onChange={(v) => updateRow(index, 'revisedDetection', v)} />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500">Revised RPN:</label>
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">Revised RPN:</label>
                                               <Badge className={rpnColor(row.revisedRpn)}>
                                                 {row.revisedRpn}
                                               </Badge>
@@ -1131,24 +1131,24 @@ export default function FmeaClient() {
               {/* Tab C: Summary */}
               {activeTab === 'summary' && (
                 <div className="space-y-6">
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">FMEA Summary</h3>
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">FMEA Summary</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                       <div className="text-center">
                         <p className="text-3xl font-bold">{rowSummary.totalModes}</p>
-                        <p className="text-xs text-gray-500 mt-1">Total Failure Modes</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Failure Modes</p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-red-600">{rowSummary.highRpn}</p>
-                        <p className="text-xs text-gray-500 mt-1">High RPN ({'>'}200)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">High RPN ({'>'}200)</p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-amber-600">{rowSummary.mediumRpn}</p>
-                        <p className="text-xs text-gray-500 mt-1">Medium RPN (80-200)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Medium RPN (80-200)</p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-green-600">{rowSummary.lowRpn}</p>
-                        <p className="text-xs text-gray-500 mt-1">Low RPN ({'<'}80)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Low RPN ({'<'}80)</p>
                       </div>
                     </div>
                   </div>
@@ -1157,19 +1157,19 @@ export default function FmeaClient() {
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <p className="text-2xl font-bold text-amber-600">{rowSummary.openActs}</p>
-                        <p className="text-xs text-gray-500 mt-1">Open Actions</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Open Actions</p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <p className="text-2xl font-bold">{rowSummary.avgInitialRpn}</p>
-                        <p className="text-xs text-gray-500 mt-1">Avg Initial RPN</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Initial RPN</p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <p className="text-2xl font-bold text-green-600">{rowSummary.avgRevisedRpn}</p>
-                        <p className="text-xs text-gray-500 mt-1">Avg Revised RPN</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Revised RPN</p>
                         {rowSummary.avgInitialRpn > 0 && rowSummary.avgRevisedRpn > 0 && rowSummary.avgRevisedRpn < rowSummary.avgInitialRpn && (
                           <p className="text-xs text-green-600 mt-1">
                             {Math.round(((rowSummary.avgInitialRpn - rowSummary.avgRevisedRpn) / rowSummary.avgInitialRpn) * 100)}% improvement
@@ -1181,8 +1181,8 @@ export default function FmeaClient() {
 
                   {/* RPN Distribution Bar */}
                   {rowSummary.totalModes > 0 && (
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">RPN Distribution</h4>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">RPN Distribution</h4>
                       <div className="flex h-6 rounded-full overflow-hidden">
                         {rowSummary.highRpn > 0 && (
                           <div
@@ -1209,7 +1209,7 @@ export default function FmeaClient() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> High ({'>'}200)</span>
                         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" /> Medium (80-200)</span>
                         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /> Low ({'<'}80)</span>
@@ -1255,7 +1255,7 @@ export default function FmeaClient() {
                       </div>
                     )}
                     {aiAnalysis.result && (
-                      <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
+                      <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-900 rounded-lg p-4 mt-2">
                         {aiAnalysis.result}
                         <AIDisclosure variant="inline" provider="claude" analysisType="FMEA Analysis" confidence={0.85} />
                       </div>

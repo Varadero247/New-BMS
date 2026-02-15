@@ -45,7 +45,7 @@ const RATING_CONFIG = {
 const TIER_CONFIG: Record<number, { bg: string; text: string }> = {
   1: { bg: 'bg-purple-100', text: 'text-purple-700' },
   2: { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  3: { bg: 'bg-gray-100',   text: 'text-gray-600' },
+  3: { bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-600' },
 };
 
 function PPMGauge({ value, max = 2500 }: { value: number; max?: number }) {
@@ -54,7 +54,7 @@ function PPMGauge({ value, max = 2500 }: { value: number; max?: number }) {
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-gray-500">PPM</span>
+        <span className="text-gray-500 dark:text-gray-400">PPM</span>
         <span className={`font-bold ${value > 500 ? 'text-red-700' : value > 100 ? 'text-orange-600' : 'text-green-700'}`}>{value.toLocaleString()}</span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full">
@@ -72,7 +72,7 @@ function PercentGauge({ label, value, reverse = false }: { label: string; value:
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-gray-500">{label}</span>
+        <span className="text-gray-500 dark:text-gray-400">{label}</span>
         <span className={`font-bold ${textColor}`}>{value.toFixed(1)}%</span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full">
@@ -104,12 +104,12 @@ export default function SupplierDevClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Supplier Development</h1>
-            <p className="text-sm text-gray-500 mt-0.5">IATF 16949 Clause 8.4 — Supplier Performance & Development</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Supplier Development</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">IATF 16949 Clause 8.4 — Supplier Performance & Development</p>
           </div>
           <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -140,9 +140,9 @@ export default function SupplierDevClient() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search supplier name, category, location..."
@@ -174,16 +174,16 @@ export default function SupplierDevClient() {
             const tc = TIER_CONFIG[supplier.tier];
             const StatusIcon = sc.icon;
             return (
-              <div key={supplier.id} className={`bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow ${supplier.status === 'suspended' ? 'border-red-200 bg-red-50' : ''}`}>
-                <div className="px-5 py-4 border-b border-gray-100">
+              <div key={supplier.id} className={`bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow ${supplier.status === 'suspended' ? 'border-red-200 bg-red-50' : ''}`}>
+                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${tc.bg} ${tc.text}`}>Tier {supplier.tier}</span>
-                        <span className="text-xs text-gray-500">{supplier.category}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{supplier.category}</span>
                       </div>
-                      <h3 className="font-semibold text-gray-900">{supplier.name}</h3>
-                      <p className="text-xs text-gray-500">{supplier.location}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{supplier.name}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{supplier.location}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border-2 ${rc.bg} ${rc.text} ${rc.border}`}>
@@ -197,17 +197,17 @@ export default function SupplierDevClient() {
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     {supplier.trend === 'improving' && <span className="flex items-center gap-1 text-xs text-green-600"><TrendingUp className="w-3 h-3" />Improving</span>}
-                    {supplier.trend === 'stable' && <span className="flex items-center gap-1 text-xs text-gray-500"><Award className="w-3 h-3" />Stable</span>}
+                    {supplier.trend === 'stable' && <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><Award className="w-3 h-3" />Stable</span>}
                     {supplier.trend === 'declining' && <span className="flex items-center gap-1 text-xs text-red-600"><TrendingDown className="w-3 h-3" />Declining</span>}
-                    <span className="text-xs text-gray-400">&bull;</span>
-                    <span className="text-xs text-gray-500">Last audit: {supplier.lastAudit}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">&bull;</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Last audit: {supplier.lastAudit}</span>
                   </div>
                 </div>
                 <div className="px-5 py-4 space-y-3">
                   <PPMGauge value={supplier.ppm} />
                   <PercentGauge label="On-Time Delivery" value={supplier.onTimeDelivery} />
                   <PercentGauge label="Quality Score" value={supplier.qualityScore} />
-                  <div className="pt-2 border-t border-gray-100">
+                  <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs font-medium text-gray-600 mb-1">Development Plan</p>
                     <p className="text-xs text-gray-600 leading-relaxed">{supplier.developmentPlan}</p>
                   </div>
@@ -218,7 +218,7 @@ export default function SupplierDevClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 py-16 text-center text-gray-400">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 py-16 text-center text-gray-400 dark:text-gray-500">
             <TrendingUp className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p>No suppliers match your search</p>
           </div>

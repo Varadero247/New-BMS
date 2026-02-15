@@ -31,7 +31,7 @@ const DOCUMENT_TYPES = [
 ] as const;
 
 const DOCUMENT_STATUSES = [
-  { value: 'DRAFT', label: 'Draft', color: 'bg-gray-100 text-gray-700' },
+  { value: 'DRAFT', label: 'Draft', color: 'bg-gray-100 dark:bg-gray-800 text-gray-700' },
   { value: 'UNDER_REVIEW', label: 'Under Review', color: 'bg-yellow-100 text-yellow-700' },
   { value: 'APPROVED', label: 'Approved', color: 'bg-blue-100 text-blue-700' },
   { value: 'ACTIVE', label: 'Active', color: 'bg-green-100 text-green-700' },
@@ -216,7 +216,7 @@ export default function DocumentsClient() {
 
   const getStatusStyle = (status: string) => {
     const s = DOCUMENT_STATUSES.find(ds => ds.value === status);
-    return s?.color || 'bg-gray-100 text-gray-700';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   const getDocTypeConfig = (type: string) => {
@@ -369,8 +369,8 @@ export default function DocumentsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Document Control</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Control</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               Manage controlled documents, policies, procedures, and records
             </p>
           </div>
@@ -386,7 +386,7 @@ export default function DocumentsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Documents</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Documents</p>
                   <p className="text-3xl font-bold">{counts.total}</p>
                 </div>
                 <FileText className="h-8 w-8 text-blue-500" />
@@ -397,7 +397,7 @@ export default function DocumentsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-green-600">{counts.active}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -408,7 +408,7 @@ export default function DocumentsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Under Review</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Under Review</p>
                   <p className="text-3xl font-bold text-yellow-600">{counts.underReview}</p>
                 </div>
                 <Eye className="h-8 w-8 text-yellow-500" />
@@ -419,7 +419,7 @@ export default function DocumentsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Expiring Soon</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Expiring Soon</p>
                   <p className="text-3xl font-bold text-orange-600">{counts.expiringSoon}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-orange-500" />
@@ -445,7 +445,7 @@ export default function DocumentsClient() {
                     : tab.key === 'EXTERNAL'
                     ? 'bg-purple-600 text-white'
                     : 'bg-gray-800 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
               }`}
             >
               {tab.label}
@@ -458,19 +458,19 @@ export default function DocumentsClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-[220px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search by title, document number, author, ISO clause..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={typeFilter}
                 onChange={e => setTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
                 {DOCUMENT_TYPES.map(t => (
@@ -501,7 +501,7 @@ export default function DocumentsClient() {
             {loading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+                  <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredDocs.length > 0 ? (
@@ -519,17 +519,17 @@ export default function DocumentsClient() {
                           ? 'border-red-300 bg-red-50 hover:border-red-400'
                           : expiring
                           ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
-                          : 'border-gray-200 hover:border-blue-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div className="mt-1 flex-shrink-0">
-                            <IconComponent className="h-6 w-6 text-gray-400" />
+                            <IconComponent className="h-6 w-6 text-gray-400 dark:text-gray-500" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className="text-xs font-mono text-gray-500">
+                              <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                                 {doc.documentNumber}
                               </span>
                               <Badge
@@ -559,8 +559,8 @@ export default function DocumentsClient() {
                                 </Badge>
                               )}
                             </div>
-                            <h3 className="font-medium text-gray-900 truncate">{doc.title}</h3>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                            <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{doc.title}</h3>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500">
                               {doc.isoClause && <span>ISO {doc.isoClause}</span>}
                               {doc.author && <span>Author: {doc.author}</span>}
                               {doc.linkedProcess && <span>Process: {doc.linkedProcess}</span>}
@@ -577,7 +577,7 @@ export default function DocumentsClient() {
                               {new Date(doc.nextReviewDate).toLocaleDateString()}
                             </div>
                           )}
-                          <p className="text-xs text-gray-400 mt-1">Next Review</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Next Review</p>
                         </div>
                       </div>
                     </div>
@@ -586,9 +586,9 @@ export default function DocumentsClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-1">No documents found</h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
                   Start building your document library by creating your first controlled document.
                 </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
@@ -619,7 +619,7 @@ export default function DocumentsClient() {
                 className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeSection === s.key
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
                 {s.key}. {s.label}
@@ -638,7 +638,7 @@ export default function DocumentsClient() {
             {/* Section A: Document Identity */}
             {activeSection === 'A' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   A -- Document Identity
                 </div>
                 <div>
@@ -726,7 +726,7 @@ export default function DocumentsClient() {
             {/* Section B: Content Summary */}
             {activeSection === 'B' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   B -- Content Summary
                 </div>
                 <div>
@@ -775,7 +775,7 @@ export default function DocumentsClient() {
             {/* Section C: Ownership & Approval */}
             {activeSection === 'C' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   C -- Ownership & Approval
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -853,7 +853,7 @@ export default function DocumentsClient() {
             {/* Section D: Distribution & Access */}
             {activeSection === 'D' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   D -- Distribution & Access
                 </div>
                 <div>
@@ -906,10 +906,10 @@ export default function DocumentsClient() {
             {/* Section E: Related Documents */}
             {activeSection === 'E' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   E -- Related Documents
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Link this document to related procedures, forms, and records for cross-referencing.
                 </p>
                 <div>
@@ -957,7 +957,7 @@ export default function DocumentsClient() {
             {/* Section F: AI Document Review */}
             {activeSection === 'F' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   F -- AI Document Review
                 </div>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -990,8 +990,8 @@ export default function DocumentsClient() {
 
                   {aiReview && (
                     <div className="space-y-3 mt-4">
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Completeness Score</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Completeness Score</p>
                         <div className="flex items-center gap-2">
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
@@ -1006,8 +1006,8 @@ export default function DocumentsClient() {
                         </div>
                       </div>
                       {aiReview.complianceNotes && aiReview.complianceNotes.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Compliance Notes</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiReview.complianceNotes.map((note, idx) => (
                               <li key={idx}>{note}</li>
@@ -1016,8 +1016,8 @@ export default function DocumentsClient() {
                         </div>
                       )}
                       {aiReview.suggestedImprovements && aiReview.suggestedImprovements.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Suggested Improvements</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Improvements</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiReview.suggestedImprovements.map((sug, idx) => (
                               <li key={idx}>{sug}</li>
@@ -1025,13 +1025,13 @@ export default function DocumentsClient() {
                           </ul>
                         </div>
                       )}
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">ISO Alignment</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">ISO Alignment</p>
                         <p className="text-sm text-gray-800">{aiReview.isoAlignmentNotes}</p>
                       </div>
                       {aiReview.riskAreas && aiReview.riskAreas.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Risk Areas</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Areas</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiReview.riskAreas.map((risk, idx) => (
                               <li key={idx}>{risk}</li>
@@ -1039,8 +1039,8 @@ export default function DocumentsClient() {
                           </ul>
                         </div>
                       )}
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Review Recommendation</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Review Recommendation</p>
                         <p className="text-sm text-gray-800">{aiReview.reviewRecommendation}</p>
                       </div>
                       <AIDisclosure variant="inline" provider="claude" analysisType="Document Analysis" confidence={0.85} />

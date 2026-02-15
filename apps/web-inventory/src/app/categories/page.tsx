@@ -88,8 +88,8 @@ export default function CategoriesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-            <p className="text-gray-500 mt-1">Manage product categories and hierarchy</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Categories</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage product categories and hierarchy</p>
           </div>
           <Button onClick={openCreate}>
             <Plus className="h-4 w-4 mr-2" /> Add Category
@@ -100,19 +100,19 @@ export default function CategoriesPage() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Total Categories</p><p className="text-2xl font-bold">{categories.length}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Categories</p><p className="text-2xl font-bold">{categories.length}</p></div>
               <Tags className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent></Card>
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-green-600">{categories.filter(c => c.isActive).length}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-green-600">{categories.filter(c => c.isActive).length}</p></div>
               <Tags className="h-8 w-8 text-green-500" />
             </div>
           </CardContent></Card>
           <Card><CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div><p className="text-sm text-gray-500">Root Categories</p><p className="text-2xl font-bold text-blue-600">{categories.filter(c => !c.parent).length}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Root Categories</p><p className="text-2xl font-bold text-blue-600">{categories.filter(c => !c.parent).length}</p></div>
               <Tags className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent></Card>
@@ -121,7 +121,7 @@ export default function CategoriesPage() {
         {/* Search */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search categories..."
@@ -149,27 +149,27 @@ export default function CategoriesPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Parent</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Products</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Parent</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Products</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(cat => (
-                      <tr key={cat.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono font-medium text-gray-900">{cat.code}</td>
+                      <tr key={cat.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono font-medium text-gray-900 dark:text-gray-100">{cat.code}</td>
                         <td className="py-3 px-4">
                           <div>
-                            <p className="font-medium text-gray-900">{cat.name}</p>
-                            {cat.description && <p className="text-xs text-gray-500">{cat.description}</p>}
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{cat.name}</p>
+                            {cat.description && <p className="text-xs text-gray-500 dark:text-gray-400">{cat.description}</p>}
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-500">{cat.parent?.name || <span className="text-gray-300">—</span>}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{cat.parent?.name || <span className="text-gray-300 dark:text-gray-600">—</span>}</td>
                         <td className="py-3 px-4 text-gray-600">{cat._count?.products ?? 0}</td>
                         <td className="py-3 px-4">
-                          <Badge className={cat.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
+                          <Badge className={cat.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}>
                             {cat.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
@@ -189,7 +189,7 @@ export default function CategoriesPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Tags className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No categories found</p>
                 <Button className="mt-4" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Category</Button>

@@ -26,7 +26,7 @@ const sourceColors: Record<string, string> = {
   COLD_CALL: 'bg-orange-100 text-orange-700',
   TRADE_SHOW: 'bg-purple-100 text-purple-700',
   INBOUND: 'bg-teal-100 text-teal-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const initialFormState = {
@@ -168,8 +168,8 @@ export default function ContactsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
-            <p className="text-gray-500 mt-1">Manage your contact directory</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Contacts</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your contact directory</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Contact
@@ -185,7 +185,7 @@ export default function ContactsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search contacts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -216,19 +216,19 @@ export default function ContactsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Phone</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Account</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Created</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Phone</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Created</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredContacts.map((contact) => (
-                      <tr key={contact.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-900 font-medium">{contact.firstName} {contact.lastName}</td>
+                      <tr key={contact.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{contact.firstName} {contact.lastName}</td>
                         <td className="py-3 px-4 text-gray-600">
                           <div className="flex items-center gap-1"><Mail className="h-3 w-3" />{contact.email}</div>
                         </td>
@@ -237,13 +237,13 @@ export default function ContactsPage() {
                         </td>
                         <td className="py-3 px-4 text-gray-600">{contact.account?.name || contact.accountName || '-'}</td>
                         <td className="py-3 px-4">
-                          <Badge className={sourceColors[contact.source] || 'bg-gray-100 text-gray-700'}>{contact.source?.replace('_', ' ') || 'N/A'}</Badge>
+                          <Badge className={sourceColors[contact.source] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{contact.source?.replace('_', ' ') || 'N/A'}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{new Date(contact.createdAt).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(contact)} className="text-gray-400 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(contact.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => openEditModal(contact)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
+                            <button onClick={() => handleDelete(contact.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -252,7 +252,7 @@ export default function ContactsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No contacts found</p>
               </div>

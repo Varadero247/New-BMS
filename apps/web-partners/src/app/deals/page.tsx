@@ -122,7 +122,7 @@ export default function DealsPage() {
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
-          <div className="text-gray-400">Loading...</div>
+          <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
     );
@@ -232,7 +232,7 @@ export default function DealsPage() {
           {/* Deals Table */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             {deals.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
+              <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                 No deals yet. Click &quot;Submit New Deal&quot; to register your first referral.
               </div>
             ) : (
@@ -242,32 +242,32 @@ export default function DealsPage() {
                     <tr className="border-b border-gray-800">
                       <th
                         onClick={() => handleSort('companyName')}
-                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200"
+                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
                       >
                         Company <SortIcon field="companyName" />
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Contact</th>
                       <th
                         onClick={() => handleSort('value')}
-                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200"
+                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
                       >
                         Value <SortIcon field="value" />
                       </th>
                       <th
                         onClick={() => handleSort('commission')}
-                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200"
+                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
                       >
                         Commission <SortIcon field="commission" />
                       </th>
                       <th
                         onClick={() => handleSort('status')}
-                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200"
+                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
                       >
                         Status <SortIcon field="status" />
                       </th>
                       <th
                         onClick={() => handleSort('createdAt')}
-                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200"
+                        className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
                       >
                         Date <SortIcon field="createdAt" />
                       </th>
@@ -279,7 +279,7 @@ export default function DealsPage() {
                         <td className="py-3 px-6 text-sm text-white font-medium">{deal.companyName}</td>
                         <td className="py-3 px-6">
                           <div className="text-sm text-white">{deal.contactName}</div>
-                          <div className="text-xs text-gray-500">{deal.contactEmail}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{deal.contactEmail}</div>
                         </td>
                         <td className="py-3 px-6 text-sm text-white">{formatCurrency(deal.value)}</td>
                         <td className="py-3 px-6 text-sm text-green-400">{formatCurrency(deal.commission)}</td>
@@ -288,7 +288,7 @@ export default function DealsPage() {
                             {deal.status.replace(/_/g, ' ')}
                           </span>
                         </td>
-                        <td className="py-3 px-6 text-sm text-gray-400">
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
                           {new Date(deal.createdAt).toLocaleDateString('en-GB')}
                         </td>
                       </tr>

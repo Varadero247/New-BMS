@@ -32,13 +32,13 @@ const TYPE_CONFIG = {
   'heat-treat':         { label: 'Heat Treatment',       bg: 'bg-red-100',    text: 'text-red-700' },
   'surface-treatment':  { label: 'Surface Treatment',    bg: 'bg-purple-100', text: 'text-purple-700' },
   composites:           { label: 'Composites',           bg: 'bg-teal-100',   text: 'text-teal-700' },
-  'chemical-processing':{ label: 'Chemical Processing',  bg: 'bg-gray-100',   text: 'text-gray-700' },
+  'chemical-processing':{ label: 'Chemical Processing',  bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-700 dark:text-gray-300' },
 };
 
 const CERT_CONFIG = {
   NADCAP:             { label: 'NADCAP',            bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300' },
   'customer-approved':{ label: 'Customer Approved', bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300' },
-  internal:           { label: 'Internal',          bg: 'bg-gray-100',   text: 'text-gray-700',   border: 'border-gray-300' },
+  internal:           { label: 'Internal',          bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-700 dark:text-gray-300',   border: 'border-gray-300' },
 };
 
 const STATUS_CONFIG = {
@@ -76,12 +76,12 @@ export default function SpecialProcessesClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Special Processes</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D Clause 8.5.1 — NADCAP & Customer-Approved Special Processes</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Special Processes</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D Clause 8.5.1 — NADCAP & Customer-Approved Special Processes</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -116,9 +116,9 @@ export default function SpecialProcessesClient() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search process, supplier, accreditation #..."
@@ -152,10 +152,10 @@ export default function SpecialProcessesClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Process Name</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Certification</th>
@@ -166,7 +166,7 @@ export default function SpecialProcessesClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(proc => {
                 const tc = TYPE_CONFIG[proc.type];
                 const cc = CERT_CONFIG[proc.certification];
@@ -174,8 +174,8 @@ export default function SpecialProcessesClient() {
                 const StatusIcon = sc.icon;
                 const days = daysUntilExpiry(proc.expiryDate);
                 return (
-                  <tr key={proc.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">{proc.processName}</td>
+                  <tr key={proc.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{proc.processName}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${tc.bg} ${tc.text}`}>{tc.label}</span>
                     </td>
@@ -185,11 +185,11 @@ export default function SpecialProcessesClient() {
                         {cc.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{proc.performedBy}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{proc.accreditationNumber}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{proc.performedBy}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{proc.accreditationNumber}</td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="text-gray-700">{proc.expiryDate}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{proc.expiryDate}</p>
                         {proc.status === 'expiring-soon' && (
                           <p className="text-xs text-orange-600 flex items-center gap-1 mt-0.5">
                             <AlertTriangle className="w-3 h-3" />{days}d remaining
@@ -200,7 +200,7 @@ export default function SpecialProcessesClient() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{proc.lastAudit}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{proc.lastAudit}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
                         <StatusIcon className="w-3 h-3" />
@@ -213,7 +213,7 @@ export default function SpecialProcessesClient() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <Wrench className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No special processes match your filters</p>
             </div>

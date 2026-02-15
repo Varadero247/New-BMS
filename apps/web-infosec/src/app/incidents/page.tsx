@@ -112,8 +112,8 @@ export default function IncidentsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Security Incidents</h1>
-            <p className="text-gray-500 mt-1">Incident reporting and response management</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Security Incidents</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Incident reporting and response management</p>
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
             <Plus className="h-4 w-4" /> Report Incident
@@ -127,7 +127,7 @@ export default function IncidentsPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search incidents..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -154,25 +154,25 @@ export default function IncidentsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Severity</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reported</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">GDPR</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Severity</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reported</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">GDPR</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((incident) => {
                       const daysLeft = getDaysUntilDeadline(incident.gdprDeadline);
                       return (
-                        <tr key={incident.id} className="border-b hover:bg-gray-50">
+                        <tr key={incident.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                           <td className="py-3 px-4 font-mono text-xs text-gray-600">{incident.referenceNumber}</td>
-                          <td className="py-3 px-4 text-gray-900 font-medium">{incident.title}</td>
+                          <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{incident.title}</td>
                           <td className="py-3 px-4 text-gray-600">{incident.type.replace(/_/g, ' ')}</td>
                           <td className="py-3 px-4">
-                            <Badge className={severityColors[incident.severity] || 'bg-gray-100 text-gray-700'}>{incident.severity}</Badge>
+                            <Badge className={severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{incident.severity}</Badge>
                           </td>
                           <td className="py-3 px-4 text-gray-600">{incident.status}</td>
                           <td className="py-3 px-4 text-gray-600">{new Date(incident.reportedDate).toLocaleDateString()}</td>
@@ -187,7 +187,7 @@ export default function IncidentsPage() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-gray-400 dark:text-gray-500">-</span>
                             )}
                           </td>
                         </tr>
@@ -197,7 +197,7 @@ export default function IncidentsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <AlertOctagon className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No incidents found</p>
               </div>
@@ -209,30 +209,30 @@ export default function IncidentsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Report Security Incident" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
             <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
               <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
                 {incidentTypes.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
               <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
                 {severities.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Describe the incident in detail..." />
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" id="gdprBreach" checked={form.isGdprBreach} onChange={(e) => setForm({ ...form, isGdprBreach: e.target.checked })} className="rounded text-teal-600 focus:ring-teal-500" />
-            <label htmlFor="gdprBreach" className="text-sm text-gray-700">This is a GDPR-reportable breach (72-hour notification deadline)</label>
+            <label htmlFor="gdprBreach" className="text-sm text-gray-700 dark:text-gray-300">This is a GDPR-reportable breach (72-hour notification deadline)</label>
           </div>
         </div>
         <ModalFooter>

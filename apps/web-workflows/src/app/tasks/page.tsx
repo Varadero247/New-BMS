@@ -61,20 +61,20 @@ export default function TasksPage() {
       PENDING: 'bg-yellow-100 text-yellow-800',
       IN_PROGRESS: 'bg-blue-100 text-blue-800',
       COMPLETED: 'bg-green-100 text-green-800',
-      SKIPPED: 'bg-gray-100 text-gray-800',
+      SKIPPED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       CANCELLED: 'bg-red-100 text-red-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getPriorityBadge = (priority: string) => {
     const styles: Record<string, string> = {
-      LOW: 'bg-gray-100 text-gray-800',
+      LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       MEDIUM: 'bg-blue-100 text-blue-800',
       HIGH: 'bg-orange-100 text-orange-800',
       URGENT: 'bg-red-100 text-red-800',
     };
-    return styles[priority] || 'bg-gray-100 text-gray-800';
+    return styles[priority] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getTaskTypeBadge = (type: string) => {
@@ -84,9 +84,9 @@ export default function TasksPage() {
       ACTION: 'bg-green-100 text-green-800',
       DECISION: 'bg-orange-100 text-orange-800',
       NOTIFICATION: 'bg-blue-100 text-blue-800',
-      MANUAL: 'bg-gray-100 text-gray-800',
+      MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
     };
-    return styles[type] || 'bg-gray-100 text-gray-800';
+    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const isOverdue = (dueDate: string | null, status: string) => {
@@ -97,7 +97,7 @@ export default function TasksPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading tasks...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading tasks...</div>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export default function TasksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Workflow Tasks</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Workflow Tasks</h1>
       </div>
 
       {/* Filters */}
@@ -137,44 +137,44 @@ export default function TasksPage() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Clock className="h-8 w-8 text-yellow-500" />
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
               <p className="text-xl font-semibold">
                 {tasks.filter((t) => t.status === 'PENDING').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Play className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">In Progress</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
               <p className="text-xl font-semibold">
                 {tasks.filter((t) => t.status === 'IN_PROGRESS').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-8 w-8 text-red-500" />
             <div>
-              <p className="text-sm text-gray-500">Overdue</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
               <p className="text-xl font-semibold">
                 {tasks.filter((t) => isOverdue(t.dueDate, t.status)).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckSquare className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Completed</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
               <p className="text-xl font-semibold">
                 {tasks.filter((t) => t.status === 'COMPLETED').length}
               </p>
@@ -184,37 +184,37 @@ export default function TasksPage() {
       </div>
 
       {/* Tasks Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Task
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Workflow
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Priority
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Due Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {tasks.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No tasks found.
                 </td>
               </tr>
@@ -222,21 +222,21 @@ export default function TasksPage() {
               tasks.map((task) => (
                 <tr
                   key={task.id}
-                  className={`hover:bg-gray-50 ${isOverdue(task.dueDate, task.status) ? 'bg-red-50' : ''}`}
+                  className={`hover:bg-gray-50 dark:bg-gray-800 ${isOverdue(task.dueDate, task.status) ? 'bg-red-50' : ''}`}
                 >
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <CheckSquare className="h-5 w-5 text-gray-400" />
+                      <CheckSquare className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <div>
-                        <p className="font-medium text-gray-900">{task.title}</p>
-                        <p className="text-sm text-gray-500">{task.taskNumber}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{task.title}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{task.taskNumber}</p>
                       </div>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="text-sm text-gray-900">{task.instance?.title || 'N/A'}</p>
-                      <p className="text-xs text-gray-500">{task.instance?.instanceNumber}</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">{task.instance?.title || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{task.instance?.instanceNumber}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -251,14 +251,14 @@ export default function TasksPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     {task.dueDate ? (
-                      <span className={`text-sm ${isOverdue(task.dueDate, task.status) ? 'font-medium text-red-600' : 'text-gray-500'}`}>
+                      <span className={`text-sm ${isOverdue(task.dueDate, task.status) ? 'font-medium text-red-600' : 'text-gray-500 dark:text-gray-400'}`}>
                         {new Date(task.dueDate).toLocaleDateString()}
                         {isOverdue(task.dueDate, task.status) && (
                           <AlertTriangle className="ml-1 inline h-4 w-4 text-red-500" />
                         )}
                       </span>
                     ) : (
-                      <span className="text-sm text-gray-400">-</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -278,7 +278,7 @@ export default function TasksPage() {
                       )}
                       <Link
                         href={`/tasks/${task.id}`}
-                        className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200"
                       >
                         View
                       </Link>

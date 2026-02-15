@@ -70,8 +70,8 @@ export default function TemplatesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Document Templates</h1>
-            <p className="text-gray-500 mt-1">ISO 13485 / 21 CFR 820 / MDR EU — ready-to-use document templates</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Templates</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 / 21 CFR 820 / MDR EU — ready-to-use document templates</p>
           </div>
           <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2 text-teal-700 text-sm font-medium">
             {stats.total} templates available
@@ -80,17 +80,17 @@ export default function TemplatesPage() {
 
         <div className="grid grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Templates', value: stats.total, color: 'text-gray-900', bg: 'bg-gray-100' },
+            { label: 'Total Templates', value: stats.total, color: 'text-gray-900 dark:text-gray-100', bg: 'bg-gray-100 dark:bg-gray-800' },
             { label: 'Categories', value: stats.categories, color: 'text-teal-700', bg: 'bg-teal-100' },
             { label: 'Word (DOCX)', value: stats.docx, color: 'text-blue-700', bg: 'bg-blue-100' },
             { label: 'Excel (XLSX)', value: stats.xlsx, color: 'text-green-700', bg: 'bg-green-100' },
           ].map(s => (
-            <Card key={s.label}><CardContent className="pt-4"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">{s.label}</p><p className={`text-2xl font-bold ${s.color}`}>{s.value}</p></div><div className={`p-2 rounded-full ${s.bg}`}><FileText className={`h-5 w-5 ${s.color}`} /></div></div></CardContent></Card>
+            <Card key={s.label}><CardContent className="pt-4"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p><p className={`text-2xl font-bold ${s.color}`}>{s.value}</p></div><div className={`p-2 rounded-full ${s.bg}`}><FileText className={`h-5 w-5 ${s.color}`} /></div></div></CardContent></Card>
           ))}
         </div>
 
         <div className="flex gap-3 mb-6">
-          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" /><input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
+          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
           <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
             <option value="">All Categories</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -113,7 +113,7 @@ export default function TemplatesPage() {
                   <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                     <FileText className="h-5 w-5 text-teal-600" />
                     {category}
-                    <span className="text-sm font-normal text-gray-500">({catTemplates.length})</span>
+                    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({catTemplates.length})</span>
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {catTemplates.map(template => (
@@ -127,7 +127,7 @@ export default function TemplatesPage() {
         )}
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
             <p className="font-medium">No templates found</p>
             <p className="text-sm mt-1">Try adjusting your search or filter</p>
@@ -146,20 +146,20 @@ function TemplateCard({ template }: { template: Template }) {
           <div className="p-2 bg-teal-50 rounded-lg">
             <FileText className="h-5 w-5 text-teal-600" />
           </div>
-          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${FORMAT_COLORS[template.format] || 'bg-gray-100 text-gray-600'}`}>
+          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${FORMAT_COLORS[template.format] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>
             {template.format}
           </span>
         </div>
-        <h3 className="font-semibold text-gray-900 text-sm mb-1 leading-tight">{template.name}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1 leading-tight">{template.name}</h3>
         <p className="text-xs text-teal-600 font-medium mb-2">{template.standard}</p>
-        <p className="text-xs text-gray-500 mb-4 leading-relaxed line-clamp-3">{template.description}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-3">{template.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">v{template.version}</span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">v{template.version}</span>
           <div className="flex gap-2">
-            <button className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors" title="Preview">
+            <button className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors" title="Preview">
               <ExternalLink className="h-4 w-4" />
             </button>
-            <button className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors" title="Download">
+            <button className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors" title="Download">
               <Download className="h-4 w-4" />
             </button>
           </div>

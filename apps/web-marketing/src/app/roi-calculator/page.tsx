@@ -120,7 +120,7 @@ export default function ROICalculatorPage() {
             <h1 className="text-3xl md:text-4xl font-bold font-display text-white mb-3">
               ROI Calculator
             </h1>
-            <p className="text-gray-400 mb-10 text-lg">
+            <p className="text-gray-400 dark:text-gray-500 mb-10 text-lg">
               See how much time and money Nexara can save your organisation.
             </p>
 
@@ -260,7 +260,7 @@ export default function ROICalculatorPage() {
                   Current annual spend on compliance tools (optional)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">£</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">£</span>
                   <input
                     id="currentSpend"
                     name="currentSpend"
@@ -297,7 +297,7 @@ export default function ROICalculatorPage() {
             <h1 className="text-3xl md:text-4xl font-bold font-display text-white mb-2">
               {form.companyName}
             </h1>
-            <p className="text-gray-400 mb-12">
+            <p className="text-gray-400 dark:text-gray-500 mb-12">
               Recommended tier: <span className="text-white font-semibold">{result.recommendedTier}</span>
             </p>
 
@@ -306,25 +306,25 @@ export default function ROICalculatorPage() {
               <p className="text-6xl md:text-7xl font-bold font-display text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#34D399] animate-pulse">
                 {formatCurrency(result.totalROI)}
               </p>
-              <p className="text-gray-400 text-lg mt-2">total savings per year</p>
+              <p className="text-gray-400 dark:text-gray-500 text-lg mt-2">total savings per year</p>
             </div>
 
             {/* Breakdown cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12 text-left">
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 mb-1">Monthly cost</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Monthly cost</p>
                 <p className="text-2xl font-bold text-white">{formatCurrency(result.monthlyCost)}</p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 mb-1">Annual cost</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Annual cost</p>
                 <p className="text-2xl font-bold text-white">{formatCurrency(result.annualCost)}</p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 mb-1">Software consolidation saving</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Software consolidation saving</p>
                 <p className="text-2xl font-bold text-[#34D399]">{formatCurrency(result.softwareSaving)}</p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 mb-1">Time saving (annual)</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Time saving (annual)</p>
                 <p className="text-2xl font-bold text-[#34D399]">{formatCurrency(result.timeSavingAnnual)}</p>
               </div>
             </div>
@@ -339,7 +339,7 @@ export default function ROICalculatorPage() {
 
             <button
               onClick={() => { setStep(1); setResult(null); }}
-              className="block mx-auto mt-4 text-sm text-gray-400 hover:text-white transition"
+              className="block mx-auto mt-4 text-sm text-gray-400 dark:text-gray-500 hover:text-white transition"
             >
               Recalculate
             </button>

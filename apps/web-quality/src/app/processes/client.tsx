@@ -23,7 +23,7 @@ const PROCESS_TYPES = [
 ] as const;
 
 const PROCESS_STATUSES = [
-  { value: 'DRAFT', label: 'Draft', color: 'bg-gray-100 text-gray-600' },
+  { value: 'DRAFT', label: 'Draft', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'ACTIVE', label: 'Active', color: 'bg-green-100 text-green-800' },
   { value: 'UNDER_REVIEW', label: 'Under Review', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'RETIRED', label: 'Retired', color: 'bg-red-100 text-red-800' },
@@ -247,8 +247,8 @@ export default function ProcessesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Process Register</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 process management with turtle diagrams</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Process Register</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 process management with turtle diagrams</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Add Process
@@ -261,7 +261,7 @@ export default function ProcessesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Workflow className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500">Total Processes</p></div>
+              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total Processes</p></div>
             </div>
           </CardContent>
         </Card>
@@ -269,7 +269,7 @@ export default function ProcessesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.active}</p><p className="text-xs text-gray-500">Active</p></div>
+              <div><p className="text-2xl font-bold">{stats.active}</p><p className="text-xs text-gray-500 dark:text-gray-400">Active</p></div>
             </div>
           </CardContent>
         </Card>
@@ -277,7 +277,7 @@ export default function ProcessesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg"><Settings2 className="h-5 w-5 text-purple-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.management}</p><p className="text-xs text-gray-500">Management</p></div>
+              <div><p className="text-2xl font-bold">{stats.management}</p><p className="text-xs text-gray-500 dark:text-gray-400">Management</p></div>
             </div>
           </CardContent>
         </Card>
@@ -285,7 +285,7 @@ export default function ProcessesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Target className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.core}</p><p className="text-xs text-gray-500">Core</p></div>
+              <div><p className="text-2xl font-bold">{stats.core}</p><p className="text-xs text-gray-500 dark:text-gray-400">Core</p></div>
             </div>
           </CardContent>
         </Card>
@@ -293,7 +293,7 @@ export default function ProcessesClient() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><Workflow className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.support}</p><p className="text-xs text-gray-500">Support</p></div>
+              <div><p className="text-2xl font-bold">{stats.support}</p><p className="text-xs text-gray-500 dark:text-gray-400">Support</p></div>
             </div>
           </CardContent>
         </Card>
@@ -305,7 +305,7 @@ export default function ProcessesClient() {
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input placeholder="Search processes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
               </div>
             </div>
@@ -327,9 +327,9 @@ export default function ProcessesClient() {
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <Workflow className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Processes Found</h3>
-            <p className="text-gray-500 mb-4">Create your first process to get started with the process register.</p>
+            <Workflow className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Processes Found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Create your first process to get started with the process register.</p>
             <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Add Process</Button>
           </CardContent>
         </Card>
@@ -341,14 +341,14 @@ export default function ProcessesClient() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-gray-400">{r.referenceNumber}</span>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
                       {getBadge(r.processType, PROCESS_TYPES)}
                       {getBadge(r.status, PROCESS_STATUSES)}
-                      {r.version && <Badge className="bg-gray-100 text-gray-600">v{r.version}</Badge>}
+                      {r.version && <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">v{r.version}</Badge>}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{r.processName}</h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.purposeScope}</p>
-                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.processName}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.purposeScope}</p>
+                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <span>Owner: {r.processOwner}</span>
                       <span>Dept: {r.department}</span>
                       {r.isoClause && <span>ISO: {r.isoClause}</span>}
@@ -366,39 +366,39 @@ export default function ProcessesClient() {
 
                 {/* Expanded: Turtle Diagram */}
                 {expandedId === r.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
-                    <h4 className="font-semibold text-gray-700">Turtle Diagram</h4>
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300">Turtle Diagram</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-blue-50 p-3 rounded-lg">
                         <p className="text-xs font-semibold text-blue-700 mb-1">Inputs</p>
-                        <p className="text-sm text-gray-700">{r.inputs}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{r.inputs}</p>
                       </div>
                       <div className="bg-green-50 p-3 rounded-lg">
                         <p className="text-xs font-semibold text-green-700 mb-1">Outputs</p>
-                        <p className="text-sm text-gray-700">{r.outputs}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{r.outputs}</p>
                       </div>
                       {r.resourcesRequired && (
                         <div className="bg-yellow-50 p-3 rounded-lg">
                           <p className="text-xs font-semibold text-yellow-700 mb-1">Resources Required</p>
-                          <p className="text-sm text-gray-700">{r.resourcesRequired}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.resourcesRequired}</p>
                         </div>
                       )}
                       {r.competenceNeeded && (
                         <div className="bg-purple-50 p-3 rounded-lg">
                           <p className="text-xs font-semibold text-purple-700 mb-1">Competence Needed</p>
-                          <p className="text-sm text-gray-700">{r.competenceNeeded}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.competenceNeeded}</p>
                         </div>
                       )}
                       {r.keyActivities && (
                         <div className="bg-indigo-50 p-3 rounded-lg">
                           <p className="text-xs font-semibold text-indigo-700 mb-1">Key Activities</p>
-                          <p className="text-sm text-gray-700">{r.keyActivities}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.keyActivities}</p>
                         </div>
                       )}
                       {r.controlsMethods && (
                         <div className="bg-orange-50 p-3 rounded-lg">
                           <p className="text-xs font-semibold text-orange-700 mb-1">Controls & Methods</p>
-                          <p className="text-sm text-gray-700">{r.controlsMethods}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.controlsMethods}</p>
                         </div>
                       )}
                     </div>
@@ -406,26 +406,26 @@ export default function ProcessesClient() {
                     {/* KPIs */}
                     {(r.kpi1Description || r.kpi2Description || r.kpi3Description) && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Performance KPIs</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Performance KPIs</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {r.kpi1Description && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 1</p>
-                              <p className="text-sm text-gray-700">{r.kpi1Description}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi1Description}</p>
                               {r.kpi1Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi1Target}</p>}
                             </div>
                           )}
                           {r.kpi2Description && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 2</p>
-                              <p className="text-sm text-gray-700">{r.kpi2Description}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi2Description}</p>
                               {r.kpi2Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi2Target}</p>}
                             </div>
                           )}
                           {r.kpi3Description && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 3</p>
-                              <p className="text-sm text-gray-700">{r.kpi3Description}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi3Description}</p>
                               {r.kpi3Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi3Target}</p>}
                             </div>
                           )}
@@ -434,7 +434,7 @@ export default function ProcessesClient() {
                     )}
 
                     {/* Linkage */}
-                    <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
                       {r.precedingProcesses && <span>Preceding: {r.precedingProcesses}</span>}
                       {r.followingProcesses && <span>Following: {r.followingProcesses}</span>}
                       {r.customerOfOutput && <span>Customer: {r.customerOfOutput}</span>}
@@ -472,7 +472,7 @@ export default function ProcessesClient() {
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Basic Information</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>Process Name *</Label><Input value={form.processName} onChange={e => setForm({...form, processName: e.target.value})} /></div>
               <div><Label>Process Type *</Label>
@@ -494,7 +494,7 @@ export default function ProcessesClient() {
 
           {/* Turtle Diagram */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Turtle Diagram</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Turtle Diagram</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>Purpose / Scope *</Label><Textarea value={form.purposeScope} onChange={e => setForm({...form, purposeScope: e.target.value})} rows={2} /></div>
               <div><Label>Inputs *</Label><Textarea value={form.inputs} onChange={e => setForm({...form, inputs: e.target.value})} rows={3} /></div>
@@ -509,7 +509,7 @@ export default function ProcessesClient() {
 
           {/* KPIs */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Performance KPIs</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Performance KPIs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>KPI 1 Description</Label><Input value={form.kpi1Description} onChange={e => setForm({...form, kpi1Description: e.target.value})} /></div>
               <div><Label>KPI 1 Target</Label><Input value={form.kpi1Target} onChange={e => setForm({...form, kpi1Target: e.target.value})} /></div>
@@ -529,7 +529,7 @@ export default function ProcessesClient() {
 
           {/* Linkage */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Process Linkage</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Process Linkage</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Preceding Processes</Label><Input value={form.precedingProcesses} onChange={e => setForm({...form, precedingProcesses: e.target.value})} /></div>
               <div><Label>Following Processes</Label><Input value={form.followingProcesses} onChange={e => setForm({...form, followingProcesses: e.target.value})} /></div>
@@ -541,7 +541,7 @@ export default function ProcessesClient() {
 
           {/* Review */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Review Schedule</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Review Schedule</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Review Frequency</Label>
                 <Select value={form.reviewFrequency} onChange={e => setForm({...form, reviewFrequency: e.target.value})}>

@@ -231,8 +231,8 @@ export default function TrainingPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Training & Development</h1>
-            <p className="text-gray-500 mt-1">Courses, sessions, and employee development</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Training & Development</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Courses, sessions, and employee development</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="flex items-center gap-2" onClick={openCourseModal}>
@@ -250,7 +250,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Courses</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Courses</p>
                   <p className="text-2xl font-bold">{courses.length}</p>
                 </div>
                 <BookOpen className="h-8 w-8 text-blue-500" />
@@ -261,7 +261,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Upcoming Sessions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming Sessions</p>
                   <p className="text-2xl font-bold text-green-600">{upcomingSessions.length}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-green-500" />
@@ -272,7 +272,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Mandatory Courses</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Mandatory Courses</p>
                   <p className="text-2xl font-bold text-orange-600">
                     {courses.filter(c => c.isMandatory).length}
                   </p>
@@ -285,7 +285,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Enrollments</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Enrollments</p>
                   <p className="text-2xl font-bold text-purple-600">
                     {courses.reduce((sum, c) => sum + (c._count?.enrollments || 0), 0)}
                   </p>
@@ -327,7 +327,7 @@ export default function TrainingPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <GraduationCap className="h-5 w-5 text-blue-600" />
-                            <span className="text-sm text-gray-500">{course.code}</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{course.code}</span>
                           </div>
                           {course.isMandatory && (
                             <Badge className="bg-red-100 text-red-700">Mandatory</Badge>
@@ -335,15 +335,15 @@ export default function TrainingPage() {
                         </div>
                         <h3 className="font-medium mb-2">{course.name}</h3>
                         {course.description && (
-                          <p className="text-sm text-gray-500 mb-3 line-clamp-2">{course.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{course.description}</p>
                         )}
                         <div className="flex flex-wrap gap-2 mb-3">
-                          <Badge className={deliveryColors[course.deliveryMethod] || 'bg-gray-100'}>
+                          <Badge className={deliveryColors[course.deliveryMethod] || 'bg-gray-100 dark:bg-gray-800'}>
                             {course.deliveryMethod.replace('_', ' ')}
                           </Badge>
-                          <Badge className="bg-gray-100 text-gray-700">{course.category}</Badge>
+                          <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">{course.category}</Badge>
                         </div>
-                        <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
                             {course.duration}h
@@ -358,7 +358,7 @@ export default function TrainingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No courses found</p>
                 </div>
@@ -376,7 +376,7 @@ export default function TrainingPage() {
               {sessions.length > 0 ? (
                 <div className="space-y-4">
                   {sessions.map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                           <Calendar className="h-5 w-5 text-blue-600" />
@@ -384,11 +384,11 @@ export default function TrainingPage() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{session.course.name}</span>
-                            <Badge className={sessionStatusColors[session.status] || 'bg-gray-100'}>
+                            <Badge className={sessionStatusColors[session.status] || 'bg-gray-100 dark:bg-gray-800'}>
                               {session.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>{session.sessionCode}</span>
                             <span>•</span>
                             <span>
@@ -401,13 +401,13 @@ export default function TrainingPage() {
                         <p className="font-medium">
                           {session.enrolledCount} / {session.maxParticipants}
                         </p>
-                        <p className="text-sm text-gray-500">participants</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">participants</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No sessions found</p>
                 </div>

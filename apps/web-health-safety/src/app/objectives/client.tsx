@@ -30,7 +30,7 @@ const OBJECTIVE_STATUSES = [
   { value: 'AT_RISK', label: 'At Risk', color: 'bg-orange-100 text-orange-800' },
   { value: 'BEHIND', label: 'Behind', color: 'bg-red-100 text-red-800' },
   { value: 'ACHIEVED', label: 'Achieved', color: 'bg-emerald-100 text-emerald-800' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-800' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800' },
 ] as const;
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ export default function ObjectivesClient() {
 
   const getStatusColor = (status: string) => {
     const s = OBJECTIVE_STATUSES.find(os => os.value === status);
-    return s?.color || 'bg-gray-100 text-gray-800';
+    return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getCategoryLabel = (value: string) => {
@@ -257,8 +257,8 @@ export default function ObjectivesClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">OHS Objectives</h1>
-            <p className="text-gray-500 mt-1">Track and monitor safety objectives and targets</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">OHS Objectives</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and monitor safety objectives and targets</p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -268,27 +268,27 @@ export default function ObjectivesClient() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500">Total Objectives</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.ACHIEVED}</p><p className="text-sm text-gray-500">Achieved</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-blue-600">{counts.ON_TRACK}</p><p className="text-sm text-gray-500">On Track</p></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.AT_RISK}</p><p className="text-sm text-gray-500">At Risk / Behind</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold">{counts.total}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Objectives</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-green-600">{counts.ACHIEVED}</p><p className="text-sm text-gray-500 dark:text-gray-400">Achieved</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-blue-600">{counts.ON_TRACK}</p><p className="text-sm text-gray-500 dark:text-gray-400">On Track</p></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="text-center"><p className="text-3xl font-bold text-red-600">{counts.AT_RISK}</p><p className="text-sm text-gray-500 dark:text-gray-400">At Risk / Behind</p></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search objectives..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
           </div>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Statuses</option>
             {OBJECTIVE_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Categories</option>
             {OBJECTIVE_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -310,21 +310,21 @@ export default function ObjectivesClient() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-mono text-gray-500">{obj.referenceNumber}</span>
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{obj.referenceNumber}</span>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(obj.status)}`}>
                             {obj.status.replace(/_/g, ' ')}
                           </span>
                           <Badge variant="outline" className="text-xs">{getCategoryLabel(obj.category)}</Badge>
                         </div>
-                        <h3 className="font-medium text-gray-900">{obj.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{obj.title}</h3>
                         {obj.objectiveStatement && (
-                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{obj.objectiveStatement}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{obj.objectiveStatement}</p>
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-gray-700">{Math.round(progress)}%</p>
+                        <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{Math.round(progress)}%</p>
                         {obj.targetValue > 0 && (
-                          <p className="text-xs text-gray-400">{obj.currentValue}/{obj.targetValue} {obj.unit}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{obj.currentValue}/{obj.targetValue} {obj.unit}</p>
                         )}
                       </div>
                     </div>
@@ -337,7 +337,7 @@ export default function ObjectivesClient() {
                       }`} style={{ width: `${Math.min(100, progress)}%` }} />
                     </div>
 
-                    <div className="flex justify-between text-xs text-gray-400">
+                    <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500">
                       <span>{obj.owner || 'No owner'}</span>
                       <span>Target: {new Date(obj.targetDate).toLocaleDateString()}</span>
                       {totalMilestones > 0 && (
@@ -353,8 +353,8 @@ export default function ObjectivesClient() {
           <Card>
             <CardContent>
               <div className="text-center py-12">
-                <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No objectives defined yet</p>
+                <Target className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No objectives defined yet</p>
                 <Button variant="outline" className="mt-4" onClick={openModal}><Plus className="h-4 w-4 mr-2" />Create First Objective</Button>
               </div>
             </CardContent>
@@ -367,7 +367,7 @@ export default function ObjectivesClient() {
             <div className="flex gap-1 mb-6 border-b">
               {sections.map((s, i) => (
                 <button key={i} onClick={() => setSection(i)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${section === i ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
                   {s}
                 </button>
               ))}
@@ -498,7 +498,7 @@ export default function ObjectivesClient() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400">No milestones. Use AI to generate them or add manually.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No milestones. Use AI to generate them or add manually.</p>
                   )}
                 </div>
               </div>

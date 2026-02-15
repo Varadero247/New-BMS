@@ -57,9 +57,9 @@ function severityColor(s: string): string {
 function statusColor(s: string): string {
   if (s === 'ACTIVE') return 'bg-red-100 text-red-700';
   if (s === 'ACKNOWLEDGED') return 'bg-blue-100 text-blue-700';
-  if (s === 'DISMISSED') return 'bg-gray-100 text-gray-500';
+  if (s === 'DISMISSED') return 'bg-gray-100 dark:bg-gray-800 text-gray-500';
   if (s === 'RESOLVED') return 'bg-green-100 text-green-700';
-  return 'bg-gray-100 text-gray-700';
+  return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
 }
 
 function kpiStatusColor(s: string): string {
@@ -170,7 +170,7 @@ export default function AnomaliesPage() {
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'alerts'
                 ? 'bg-purple-100 text-purple-700 border-b-2 border-purple-600 dark:bg-purple-900/30 dark:text-purple-300'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300'
             }`}
           >
             Anomaly Alerts ({anomalies.length})
@@ -180,7 +180,7 @@ export default function AnomaliesPage() {
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'kpis'
                 ? 'bg-purple-100 text-purple-700 border-b-2 border-purple-600 dark:bg-purple-900/30 dark:text-purple-300'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300'
             }`}
           >
             Monitored KPIs ({kpis.length})
@@ -226,7 +226,7 @@ export default function AnomaliesPage() {
                           {anomaly.status === 'RESOLVED' ? (
                             <CheckCircle className="h-5 w-5 text-green-500" />
                           ) : anomaly.status === 'DISMISSED' ? (
-                            <XCircle className="h-5 w-5 text-gray-400" />
+                            <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           ) : anomaly.severity === 'CRITICAL' ? (
                             <ShieldAlert className="h-5 w-5 text-red-600" />
                           ) : (
@@ -242,7 +242,7 @@ export default function AnomaliesPage() {
                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${statusColor(anomaly.status)}`}>
                               {anomaly.status}
                             </span>
-                            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{anomaly.module}</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{anomaly.module}</span>
                           </div>
                           <p className="text-sm text-gray-600 dark:text-gray-300">{anomaly.description}</p>
 
@@ -251,15 +251,15 @@ export default function AnomaliesPage() {
                             <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
                               <div className="grid grid-cols-3 gap-4 text-sm">
                                 <div>
-                                  <p className="text-gray-400 text-xs">Expected</p>
+                                  <p className="text-gray-400 dark:text-gray-500 text-xs">Expected</p>
                                   <p className="font-semibold text-gray-700 dark:text-gray-300">{anomaly.expectedValue} {anomaly.unit}</p>
                                 </div>
                                 <div>
-                                  <p className="text-gray-400 text-xs">Actual</p>
+                                  <p className="text-gray-400 dark:text-gray-500 text-xs">Actual</p>
                                   <p className="font-semibold text-gray-700 dark:text-gray-300">{anomaly.actualValue} {anomaly.unit}</p>
                                 </div>
                                 <div>
-                                  <p className="text-gray-400 text-xs">Deviation</p>
+                                  <p className="text-gray-400 dark:text-gray-500 text-xs">Deviation</p>
                                   <p className={`font-semibold ${anomaly.deviationPercent > 0 ? 'text-red-600' : 'text-green-600'}`}>
                                     {anomaly.deviationPercent > 0 ? '+' : ''}{anomaly.deviationPercent}%
                                   </p>
@@ -271,7 +271,7 @@ export default function AnomaliesPage() {
                               </div>
                               {anomaly.dismissReason && (
                                 <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                  <p className="text-xs font-medium text-gray-500 mb-1">Dismiss Reason</p>
+                                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Dismiss Reason</p>
                                   <p className="text-sm text-gray-600 dark:text-gray-400">{anomaly.dismissReason}</p>
                                 </div>
                               )}
@@ -280,10 +280,10 @@ export default function AnomaliesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
-                        <span className="text-xs text-gray-400 whitespace-nowrap">{formatDate(anomaly.detectedAt)}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{formatDate(anomaly.detectedAt)}</span>
                         <button
                           onClick={() => setExpandedId(expandedId === anomaly.id ? null : anomaly.id)}
-                          className="text-gray-400 hover:text-purple-600 transition-colors"
+                          className="text-gray-400 dark:text-gray-500 hover:text-purple-600 transition-colors"
                           title="Toggle details"
                         >
                           <Eye className="h-4 w-4" />
@@ -294,7 +294,7 @@ export default function AnomaliesPage() {
                 </Card>
               ))}
               {filteredAnomalies.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-30" />
                   <p>No anomaly alerts match your filters.</p>
                 </div>
@@ -335,31 +335,31 @@ export default function AnomaliesPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">KPI</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Module</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500">Current</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500">Baseline</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500">Thresholds</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Frequency</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">KPI</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Module</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Current</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Baseline</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Thresholds</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Frequency</th>
                       </tr>
                     </thead>
                     <tbody>
                       {kpis.map(kpi => (
-                        <tr key={kpi.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                        <tr key={kpi.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/30">
                           <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{kpi.name}</td>
-                          <td className="py-3 px-4 text-gray-500 text-xs">{kpi.module}</td>
+                          <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">{kpi.module}</td>
                           <td className="py-3 px-4 text-right font-semibold text-gray-900 dark:text-gray-100">
-                            {kpi.currentValue} <span className="text-xs text-gray-400">{kpi.unit}</span>
+                            {kpi.currentValue} <span className="text-xs text-gray-400 dark:text-gray-500">{kpi.unit}</span>
                           </td>
-                          <td className="py-3 px-4 text-right text-gray-500">{kpi.baselineValue}</td>
-                          <td className="py-3 px-4 text-right text-gray-400 text-xs">{kpi.lowerThreshold} - {kpi.upperThreshold}</td>
+                          <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400">{kpi.baselineValue}</td>
+                          <td className="py-3 px-4 text-right text-gray-400 dark:text-gray-500 text-xs">{kpi.lowerThreshold} - {kpi.upperThreshold}</td>
                           <td className="py-3 px-4 text-center">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${kpiStatusColor(kpi.status)}`}>
                               {kpi.status}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-gray-400 text-xs">{kpi.checkFrequency}</td>
+                          <td className="py-3 px-4 text-gray-400 dark:text-gray-500 text-xs">{kpi.checkFrequency}</td>
                         </tr>
                       ))}
                     </tbody>

@@ -390,7 +390,7 @@ export default function ComplaintsClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-      <span className="ml-3 text-gray-500">Loading complaints...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading complaints...</span>
     </div>
   );
 
@@ -405,7 +405,7 @@ export default function ComplaintsClient() {
           {/* Back navigation */}
           <button
             onClick={() => { setView('list'); setSelectedComplaint(null); }}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-teal-600 mb-6 transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Complaints
@@ -421,7 +421,7 @@ export default function ComplaintsClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900">{selectedComplaint.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedComplaint.referenceNumber}</h1>
                     <Badge variant={getSeverityBadgeVariant(selectedComplaint.severity)}>
                       {selectedComplaint.severity}
                     </Badge>
@@ -429,16 +429,16 @@ export default function ComplaintsClient() {
                       {selectedComplaint.status?.replace(/_/g, ' ')}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-500 mb-2">Device: <strong>{selectedComplaint.deviceName}</strong></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Device: <strong>{selectedComplaint.deviceName}</strong></p>
                 </div>
                 <div className="flex items-center gap-2">
                   {/* MDR Status Indicator */}
                   <div className={`px-3 py-2 rounded-lg border ${
                     selectedComplaint.mdrReportable === 'YES' ? 'bg-red-50 border-red-200' :
                     selectedComplaint.mdrReportable === 'PENDING' ? 'bg-amber-50 border-amber-200' :
-                    'bg-gray-50 border-gray-200'
+                    'bg-gray-50 dark:bg-gray-800 border-gray-200'
                   }`}>
-                    <p className="text-xs font-medium text-gray-500 uppercase">MDR Status</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">MDR Status</p>
                     <Badge variant={getMdrBadgeVariant(selectedComplaint.mdrReportable)}>
                       {getMdrIcon(selectedComplaint.mdrReportable)}
                     </Badge>
@@ -447,40 +447,40 @@ export default function ComplaintsClient() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Complaint Date</p>
-                  <p className="text-sm text-gray-900">{formatDate(selectedComplaint.complaintDate)}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Complaint Date</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedComplaint.complaintDate)}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Source</p>
-                  <p className="text-sm text-gray-900">{selectedComplaint.source?.replace(/_/g, ' ')}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Source</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.source?.replace(/_/g, ' ')}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Reporter</p>
-                  <p className="text-sm text-gray-900">{selectedComplaint.reporterName || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Reporter</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.reporterName || '--'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Days Open</p>
-                  <p className="text-sm text-gray-900">{selectedComplaint.daysOpen ?? '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Days Open</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.daysOpen ?? '--'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Device ID</p>
-                  <p className="text-sm text-gray-900 font-mono">{selectedComplaint.deviceId || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device ID</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.deviceId || '--'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Lot Number</p>
-                  <p className="text-sm text-gray-900 font-mono">{selectedComplaint.lotNumber || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Lot Number</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.lotNumber || '--'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Serial Number</p>
-                  <p className="text-sm text-gray-900 font-mono">{selectedComplaint.serialNumber || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Serial Number</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.serialNumber || '--'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Contact</p>
-                  <p className="text-sm text-gray-900">{selectedComplaint.reporterContact || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Contact</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.reporterContact || '--'}</p>
                 </div>
               </div>
 
@@ -504,9 +504,9 @@ export default function ComplaintsClient() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Complaint Description</p>
-                <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedComplaint.description}</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Complaint Description</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedComplaint.description}</p>
               </div>
 
               {selectedComplaint.injuryOccurred && selectedComplaint.injuryDescription && (
@@ -641,8 +641,8 @@ export default function ComplaintsClient() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">Close Complaint</h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Close Complaint</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Ensure investigation is complete and MDR decision has been made before closing.
                     </p>
                   </div>
@@ -676,8 +676,8 @@ export default function ComplaintsClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Complaint Handling</h1>
-          <p className="text-gray-500 mt-1">Complaint Management & MDR/Vigilance Reporting</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Complaint Handling</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Complaint Management & MDR/Vigilance Reporting</p>
         </div>
 
         {/* MDR Warning Banner */}
@@ -701,7 +701,7 @@ export default function ComplaintsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Complaints</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Complaints</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <MessageSquare className="h-8 w-8 text-teal-500" />
@@ -712,7 +712,7 @@ export default function ComplaintsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Under Investigation</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Under Investigation</p>
                   <p className="text-3xl font-bold text-amber-600">{stats.underInvestigation}</p>
                 </div>
                 <Clock className="h-8 w-8 text-amber-500" />
@@ -723,7 +723,7 @@ export default function ComplaintsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">MDR Pending</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">MDR Pending</p>
                   <p className="text-3xl font-bold text-red-600">{stats.mdrPendingCount}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -734,7 +734,7 @@ export default function ComplaintsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Closed This Month</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Closed This Month</p>
                   <p className="text-3xl font-bold text-green-600">{stats.closedThisMonth}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -746,7 +746,7 @@ export default function ComplaintsClient() {
         {/* Filter bar */}
         <div className="flex items-center gap-4 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by device, reference, description, or reporter..."
               value={searchQuery}
@@ -786,9 +786,9 @@ export default function ComplaintsClient() {
         </div>
 
         {showFilters && (
-          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 flex-wrap">
+          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap">
             <div>
-              <Label className="text-xs text-gray-500">Status</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -801,7 +801,7 @@ export default function ComplaintsClient() {
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Severity</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Severity</Label>
               <Select
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
@@ -814,7 +814,7 @@ export default function ComplaintsClient() {
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Device Name</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Device Name</Label>
               <Input
                 value={deviceNameFilter}
                 onChange={(e) => setDeviceNameFilter(e.target.value)}
@@ -823,7 +823,7 @@ export default function ComplaintsClient() {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-500">MDR</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">MDR</Label>
               <Select
                 value={mdrFilter}
                 onChange={(e) => setMdrFilter(e.target.value)}
@@ -836,7 +836,7 @@ export default function ComplaintsClient() {
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Date From</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Date From</Label>
               <Input
                 type="date"
                 value={dateFromFilter}
@@ -845,7 +845,7 @@ export default function ComplaintsClient() {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Date To</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Date To</Label>
               <Input
                 type="date"
                 value={dateToFilter}
@@ -873,7 +873,7 @@ export default function ComplaintsClient() {
 
         {/* Results count */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredComplaints.length} of {complaints.length} complaints
           </p>
         </div>
@@ -885,35 +885,35 @@ export default function ComplaintsClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Device</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Date</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Source</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Severity</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">MDR</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Days Open</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Date</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Source</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Severity</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">MDR</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Days Open</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredComplaints.map((c) => (
                       <tr
                         key={c.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => openDetail(c)}
                       >
                         <td className="px-6 py-4">
                           <span className="text-sm font-mono text-gray-600">{c.referenceNumber || '--'}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900">{c.deviceName}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.deviceName}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700">{formatDate(c.complaintDate)}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(c.complaintDate)}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700">{c.source?.replace(/_/g, ' ')}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{c.source?.replace(/_/g, ' ')}</span>
                         </td>
                         <td className="px-6 py-4">
                           <Badge variant={getSeverityBadgeVariant(c.severity)}>
@@ -933,7 +933,7 @@ export default function ComplaintsClient() {
                         <td className="px-6 py-4">
                           <span className={`text-sm font-medium ${
                             (c.daysOpen || 0) > 30 ? 'text-red-600' :
-                            (c.daysOpen || 0) > 14 ? 'text-amber-600' : 'text-gray-700'
+                            (c.daysOpen || 0) > 14 ? 'text-amber-600' : 'text-gray-700 dark:text-gray-300'
                           }`}>
                             {c.daysOpen ?? '--'}
                           </span>
@@ -947,9 +947,9 @@ export default function ComplaintsClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No complaints found</h3>
-            <p className="text-gray-500 mb-6">Record and track complaints to meet post-market surveillance requirements.</p>
+            <MessageSquare className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No complaints found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Record and track complaints to meet post-market surveillance requirements.</p>
             <Button
               onClick={() => { setForm(emptyComplaintForm); setError(''); setShowCreateModal(true); }}
               className="bg-teal-600 hover:bg-teal-700"
@@ -977,8 +977,8 @@ export default function ComplaintsClient() {
             )}
 
             {/* Device Info */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Device Information</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Device Information</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1025,8 +1025,8 @@ export default function ComplaintsClient() {
             </div>
 
             {/* Complaint Details */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Complaint Details</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Complaint Details</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1099,8 +1099,8 @@ export default function ComplaintsClient() {
             </div>
 
             {/* Patient/Injury */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Patient & Injury Information</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Patient & Injury Information</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
@@ -1192,7 +1192,7 @@ export default function ComplaintsClient() {
         size="lg"
       >
         <div className="space-y-6">
-          <p className="text-sm text-gray-500">Complaints by month</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Complaints by month</p>
           {trendingData.length > 0 ? (
             <div className="space-y-2">
               {trendingData.map((item) => {
@@ -1201,7 +1201,7 @@ export default function ComplaintsClient() {
                 return (
                   <div key={item.month} className="flex items-center gap-3">
                     <span className="text-sm text-gray-600 w-24 flex-shrink-0">{item.month}</span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                    <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-6 overflow-hidden">
                       <div
                         className="bg-teal-500 h-full rounded-full flex items-center justify-end pr-2 transition-all"
                         style={{ width: `${Math.max(widthPercent, 8)}%` }}
@@ -1214,7 +1214,7 @@ export default function ComplaintsClient() {
               })}
             </div>
           ) : (
-            <p className="text-gray-400 text-center py-8">No trending data available.</p>
+            <p className="text-gray-400 dark:text-gray-500 text-center py-8">No trending data available.</p>
           )}
 
           <ModalFooter>

@@ -216,7 +216,7 @@ export default function PrivacyPage() {
               </tr>
             ) : (
               requests.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <tr key={r.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50">
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                       r.type === 'EXPORT'

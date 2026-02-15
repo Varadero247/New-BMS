@@ -198,7 +198,7 @@ function priorityColor(priority: string): string {
     case 'LOW':
       return 'bg-green-100 text-green-800 border-green-200';
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-800 border-gray-200';
   }
 }
 
@@ -431,8 +431,8 @@ export default function ActionsClient() {
     return (
       <div className="flex items-center gap-2 mb-3">
         <span className={`w-3 h-3 rounded-full ${colorMap[col] || 'bg-gray-400'}`} />
-        <span className="text-sm font-semibold text-gray-700">{formatLabel(col)}</span>
-        <span className="text-xs text-gray-400">({kanbanGroups[col]?.length || 0})</span>
+        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{formatLabel(col)}</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">({kanbanGroups[col]?.length || 0})</span>
       </div>
     );
   }
@@ -443,19 +443,19 @@ export default function ActionsClient() {
       <div
         key={action.id}
         className={`p-4 border rounded-lg transition-colors ${
-          overdue ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-green-300 bg-white'
+          overdue ? 'border-red-300 bg-red-50' : 'border-gray-200 dark:border-gray-700 hover:border-green-300 bg-white'
         }`}
       >
         {/* Header row */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400 font-mono">{action.referenceNumber}</span>
+          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{action.referenceNumber}</span>
           <Badge className={priorityColor(action.priority)}>
             {action.priority}
           </Badge>
         </div>
 
         {/* Title */}
-        <h4 className="font-medium text-gray-900 text-sm mb-1 line-clamp-1">{action.title}</h4>
+        <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 line-clamp-1">{action.title}</h4>
 
         {/* Action type badge */}
         <Badge variant={actionTypeBadgeVariant(action.actionType)} className="text-xs mb-2">
@@ -464,11 +464,11 @@ export default function ActionsClient() {
 
         {/* Description preview */}
         {action.description && (
-          <p className="text-xs text-gray-500 line-clamp-2 mb-3">{action.description}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{action.description}</p>
         )}
 
         {/* Assigned to & due date */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
           <span className="truncate max-w-[60%]">{action.assignedTo}</span>
           <span className={`flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : ''}`}>
             <Clock className="h-3 w-3" />
@@ -483,7 +483,7 @@ export default function ActionsClient() {
             style={{ width: `${Math.min(100, action.percentComplete || 0)}%` }}
           />
         </div>
-        <span className="text-xs text-gray-400">{action.percentComplete || 0}% complete</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">{action.percentComplete || 0}% complete</span>
 
         {/* Overdue warning */}
         {overdue && (
@@ -506,8 +506,8 @@ export default function ActionsClient() {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Environmental Actions</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Actions</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               Corrective, preventive and improvement actions for environmental management
             </p>
           </div>
@@ -525,8 +525,8 @@ export default function ActionsClient() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-gray-900">{counts.total}</p>
-                <p className="text-sm text-gray-500">Total</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{counts.total}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
               </div>
             </CardContent>
           </Card>
@@ -534,7 +534,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-blue-600">{counts.open}</p>
-                <p className="text-sm text-gray-500">Open</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
               </div>
             </CardContent>
           </Card>
@@ -542,7 +542,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-yellow-600">{counts.inProgress}</p>
-                <p className="text-sm text-gray-500">In Progress</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
               </div>
             </CardContent>
           </Card>
@@ -550,7 +550,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-600">{counts.overdue}</p>
-                <p className="text-sm text-gray-500">Overdue</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
               </div>
             </CardContent>
           </Card>
@@ -558,7 +558,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-green-600">{counts.completed}</p>
-                <p className="text-sm text-gray-500">Completed</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
               </div>
             </CardContent>
           </Card>
@@ -574,7 +574,7 @@ export default function ActionsClient() {
                   Search
                 </Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="search"
                     placeholder="Search actions..."
@@ -649,15 +649,15 @@ export default function ActionsClient() {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-            <span className="ml-3 text-gray-500">Loading actions...</span>
+            <span className="ml-3 text-gray-500 dark:text-gray-400">Loading actions...</span>
           </div>
         ) : filteredActions.length === 0 ? (
           <Card>
             <CardContent className="py-16">
               <div className="text-center">
-                <ClipboardList className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg mb-1">No environmental actions found</p>
-                <p className="text-gray-400 text-sm mb-6">
+                <ClipboardList className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 text-lg mb-1">No environmental actions found</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">
                   Click Create Action to add your first action
                 </p>
                 <Button
@@ -678,7 +678,7 @@ export default function ActionsClient() {
                 {renderColumnHeader(col)}
                 <div className="space-y-3">
                   {(kanbanGroups[col] || []).length === 0 ? (
-                    <div className="border border-dashed border-gray-200 rounded-lg p-4 text-center text-xs text-gray-400">
+                    <div className="border border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center text-xs text-gray-400 dark:text-gray-500">
                       No actions
                     </div>
                   ) : (
@@ -940,7 +940,7 @@ export default function ActionsClient() {
                       onChange={(e) => updateForm('percentComplete', Number(e.target.value))}
                       className="flex-1 h-2 appearance-none rounded-full bg-gray-200 accent-green-600"
                     />
-                    <span className="text-sm font-medium text-gray-700 w-10 text-right">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-10 text-right">
                       {form.percentComplete}%
                     </span>
                   </div>
@@ -1071,7 +1071,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Action Plan
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.actionPlan}
                           </p>
                         </div>
@@ -1081,7 +1081,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Priority Justification
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.priorityJustification}
                           </p>
                         </div>
@@ -1091,7 +1091,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Suggested Timeline
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.suggestedTimeline}
                           </p>
                         </div>
@@ -1101,7 +1101,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Resource Recommendations
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.resourceRecommendations}
                           </p>
                         </div>
@@ -1111,7 +1111,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Risk Factors
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.riskFactors}
                           </p>
                         </div>
@@ -1121,7 +1121,7 @@ export default function ActionsClient() {
                           <p className="text-xs font-semibold text-green-800 uppercase">
                             Related Regulations
                           </p>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {aiGenerated.relatedRegulations}
                           </p>
                         </div>

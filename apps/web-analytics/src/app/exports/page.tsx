@@ -33,7 +33,7 @@ const STATUS_STYLES: Record<string, string> = {
   COMPLETED: 'bg-green-100 text-green-700',
   PROCESSING: 'bg-blue-100 text-blue-700',
   FAILED: 'bg-red-100 text-red-700',
-  EXPIRED: 'bg-gray-100 text-gray-500',
+  EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
   QUEUED: 'bg-yellow-100 text-yellow-700',
 };
 
@@ -103,8 +103,8 @@ export default function ExportsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Data Exports</h1>
-            <p className="text-gray-500 mt-1">Download reports, datasets and query results</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Data Exports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Download reports, datasets and query results</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -138,7 +138,7 @@ export default function ExportsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search exports..."
@@ -172,7 +172,7 @@ export default function ExportsPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Download className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No exports found.</p>
               </div>
@@ -180,25 +180,25 @@ export default function ExportsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Export</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Format</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Requested By</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Rows</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Size</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Created</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Export</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Format</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Requested By</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Rows</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Size</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Created</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(exp => (
-                      <tr key={exp.id} className="border-b hover:bg-gray-50">
+                      <tr key={exp.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{exp.name}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{exp.name}</p>
                           {exp.expiresAt && exp.status === 'COMPLETED' && (
-                            <p className="text-xs text-gray-400">Expires {new Date(exp.expiresAt).toLocaleDateString()}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">Expires {new Date(exp.expiresAt).toLocaleDateString()}</p>
                           )}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -207,19 +207,19 @@ export default function ExportsPage() {
                             <span className="text-xs text-gray-600">{exp.format}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">{exp.source}</td>
-                        <td className="py-3 px-4 text-xs text-gray-500">{exp.requestedBy}</td>
-                        <td className="py-3 px-4 text-right text-gray-500 text-xs">
-                          {exp.rowCount !== null ? exp.rowCount.toLocaleString() : <span className="text-gray-300">—</span>}
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">{exp.source}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">{exp.requestedBy}</td>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400 text-xs">
+                          {exp.rowCount !== null ? exp.rowCount.toLocaleString() : <span className="text-gray-300 dark:text-gray-600">—</span>}
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-500 text-xs">
-                          {exp.sizeKb !== null ? formatSize(exp.sizeKb) : <span className="text-gray-300">—</span>}
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400 text-xs">
+                          {exp.sizeKb !== null ? formatSize(exp.sizeKb) : <span className="text-gray-300 dark:text-gray-600">—</span>}
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
                           {new Date(exp.createdAt).toLocaleString()}
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[exp.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[exp.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {exp.status === 'PROCESSING' ? (
                               <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3 animate-spin" />{exp.status}</span>
                             ) : exp.status}
@@ -232,7 +232,7 @@ export default function ExportsPage() {
                             </button>
                           )}
                           {exp.status === 'FAILED' && (
-                            <button className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="Retry">
+                            <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500" title="Retry">
                               <RefreshCw className="h-3.5 w-3.5" />
                             </button>
                           )}
@@ -249,21 +249,21 @@ export default function ExportsPage() {
         {/* New Export Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">New Export</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">New Export</h2>
                 <button onClick={() => setShowCreateModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Export Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Export Name</label>
                   <input type="text" placeholder="e.g. March CAPA Summary" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>Reports</option>
                       <option>Datasets</option>
@@ -272,7 +272,7 @@ export default function ExportsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>PDF</option>
                       <option>XLSX</option>
@@ -282,7 +282,7 @@ export default function ExportsPage() {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Generate Export</button>
               </div>
             </div>

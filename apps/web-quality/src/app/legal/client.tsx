@@ -87,8 +87,8 @@ const complianceColor = (status: string): string => {
     case 'COMPLIANT': return 'bg-green-100 text-green-800';
     case 'PARTIALLY_COMPLIANT': return 'bg-amber-100 text-amber-800';
     case 'NON_COMPLIANT': return 'bg-red-100 text-red-800';
-    case 'NOT_ASSESSED': return 'bg-gray-100 text-gray-600';
-    default: return 'bg-gray-100 text-gray-600';
+    case 'NOT_ASSESSED': return 'bg-gray-100 dark:bg-gray-800 text-gray-600';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-600';
   }
 };
 
@@ -333,8 +333,8 @@ export default function LegalClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quality Legal Register</h1>
-            <p className="text-gray-500 mt-1">Manage quality obligations, standards, and compliance requirements</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Legal Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage quality obligations, standards, and compliance requirements</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadRequirements} className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Requirements</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Requirements</p>
                   <p className="text-3xl font-bold">{counts.total}</p>
                 </div>
                 <Scale className="h-8 w-8 text-blue-500" />
@@ -365,7 +365,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Compliant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Compliant</p>
                   <p className="text-3xl font-bold text-green-600">{counts.compliant}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -376,7 +376,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Non-Compliant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Non-Compliant</p>
                   <p className="text-3xl font-bold text-red-600">{counts.nonCompliant}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -387,7 +387,7 @@ export default function LegalClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Due for Review</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Due for Review</p>
                   <p className="text-3xl font-bold text-amber-600">{counts.dueForReview}</p>
                 </div>
                 <Clock className="h-8 w-8 text-amber-500" />
@@ -412,20 +412,20 @@ export default function LegalClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by title, reference, body..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="min-w-[180px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Obligation Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Obligation Type</Label>
                 <Select value={obligationFilter} onChange={(e) => setObligationFilter(e.target.value)}>
                   <option value="all">All Types</option>
                   {OBLIGATION_TYPES.map(t => (
@@ -434,7 +434,7 @@ export default function LegalClient() {
                 </Select>
               </div>
               <div className="min-w-[180px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Compliance Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Compliance Status</Label>
                 <Select value={complianceFilter} onChange={(e) => setComplianceFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {COMPLIANCE_STATUSES.map(s => (
@@ -443,7 +443,7 @@ export default function LegalClient() {
                 </Select>
               </div>
               <div className="min-w-[150px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Record Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Record Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All</option>
                   {RECORD_STATUSES.map(s => (
@@ -484,14 +484,14 @@ export default function LegalClient() {
                       className={`p-4 border rounded-lg transition-colors cursor-pointer ${
                         overdue ? 'border-red-300 bg-red-50 hover:border-red-400' :
                         dueForReview ? 'border-amber-300 bg-amber-50 hover:border-amber-400' :
-                        'border-gray-200 hover:border-blue-300'
+                        'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             {req.referenceNumber && (
-                              <span className="text-xs text-gray-500 font-mono">{req.referenceNumber}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{req.referenceNumber}</span>
                             )}
                             <Badge className={complianceColor(req.complianceStatus)}>
                               {req.complianceStatus?.replace(/_/g, ' ')}
@@ -515,15 +515,15 @@ export default function LegalClient() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900">{req.title}</h3>
-                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{req.description}</p>
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 flex-wrap">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{req.title}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{req.description}</p>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
                             {req.issuingBody && <span>Issuing Body: {req.issuingBody}</span>}
                             {req.referenceDoc && <span>Ref: {req.referenceDoc}</span>}
                             {req.responsiblePerson && <span>Responsible: {req.responsiblePerson}</span>}
                           </div>
                         </div>
-                        <div className="text-sm text-gray-400 text-right ml-4 shrink-0">
+                        <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
                           <div className="text-xs">Next Assessment</div>
                           <div className={overdue ? 'text-red-600 font-medium' : dueForReview ? 'text-amber-600 font-medium' : ''}>
                             {formatDate(req.nextAssessmentDate)}
@@ -536,9 +536,9 @@ export default function LegalClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Scale className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No legal requirements found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <Scale className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No legal requirements found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || obligationFilter !== 'all' || complianceFilter !== 'all' || statusFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by adding your first quality legal requirement.'}
@@ -561,7 +561,7 @@ export default function LegalClient() {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Legal Requirement" size="full">
         <form onSubmit={handleSubmit}>
           {/* Section Navigation */}
-          <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
+          <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             {sections.map((section) => {
               const Icon = section.icon;
               return (
@@ -572,7 +572,7 @@ export default function LegalClient() {
                   className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     activeSection === section.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -586,7 +586,7 @@ export default function LegalClient() {
             {/* Section A: Requirement */}
             {activeSection === 'requirement' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Requirement Details</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Requirement Details</h3>
 
                 <div>
                   <Label htmlFor="legal-title">Title *</Label>
@@ -671,7 +671,7 @@ export default function LegalClient() {
             {/* Section B: Quality Specifics */}
             {activeSection === 'quality' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Quality Specifics</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Quality Specifics</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -720,7 +720,7 @@ export default function LegalClient() {
             {/* Section C: Compliance */}
             {activeSection === 'compliance' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Compliance Assessment</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Compliance Assessment</h3>
 
                 <div>
                   <Label htmlFor="legal-complianceStatus">Compliance Status *</Label>
@@ -783,7 +783,7 @@ export default function LegalClient() {
             {/* Section D: Monitoring */}
             {activeSection === 'monitoring' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Monitoring & Review</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Monitoring & Review</h3>
 
                 <div>
                   <Label htmlFor="legal-responsiblePerson">Responsible Person</Label>
@@ -847,14 +847,14 @@ export default function LegalClient() {
             {/* Section E: IMS Links */}
             {activeSection === 'ims' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">IMS Cross-References</h3>
-                <p className="text-sm text-gray-500">Link this requirement to other IMS modules for integrated compliance tracking.</p>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">IMS Cross-References</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Link this requirement to other IMS modules for integrated compliance tracking.</p>
 
                 <div className="space-y-4 mt-4">
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">Track in Health & Safety</p>
-                      <p className="text-sm text-gray-500">Also monitor this requirement in the H&S legal register</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Track in Health & Safety</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Also monitor this requirement in the H&S legal register</p>
                     </div>
                     <button
                       type="button"
@@ -864,17 +864,17 @@ export default function LegalClient() {
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                           form.trackedInHs ? 'translate-x-6' : 'translate-x-1'
                         }`}
                       />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">Track in Environment</p>
-                      <p className="text-sm text-gray-500">Also monitor this requirement in the Environmental legal register</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Track in Environment</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Also monitor this requirement in the Environmental legal register</p>
                     </div>
                     <button
                       type="button"
@@ -884,7 +884,7 @@ export default function LegalClient() {
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
                           form.trackedInEnv ? 'translate-x-6' : 'translate-x-1'
                         }`}
                       />
@@ -897,7 +897,7 @@ export default function LegalClient() {
 
           <ModalFooter>
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 {sections.findIndex(s => s.id === activeSection) + 1} / {sections.length}
               </div>
               <div className="flex items-center gap-2">
@@ -942,46 +942,46 @@ export default function LegalClient() {
         {selectedReq && (
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-6">
             {/* Section A: Requirement */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <Scale className="h-4 w-4" />
                 Requirement
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Title</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Title</p>
                   <p className="text-sm font-medium">{selectedReq.title}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Obligation Type</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Obligation Type</p>
                   <Badge variant={obligationBadgeVariant(selectedReq.obligationType)}>
                     {selectedReq.obligationType?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Issuing Body</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Issuing Body</p>
                   <p className="text-sm">{selectedReq.issuingBody || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Reference Document</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Reference Document</p>
                   <p className="text-sm">{selectedReq.referenceDoc || '-'}</p>
                 </div>
               </div>
               {selectedReq.description && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Description</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Description</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedReq.description}</p>
                 </div>
               )}
               {selectedReq.requirements && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Specific Requirements</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Specific Requirements</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedReq.requirements}</p>
                 </div>
               )}
               {selectedReq.applicableScope && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Applicable Scope</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Applicable Scope</p>
                   <p className="text-sm mt-1">{selectedReq.applicableScope}</p>
                 </div>
               )}
@@ -989,26 +989,26 @@ export default function LegalClient() {
 
             {/* Section B: Quality Specifics */}
             {(selectedReq.customerName || selectedReq.contractNumber || selectedReq.productServiceScope || selectedReq.certificationBody) && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                   <Shield className="h-4 w-4" />
                   Quality Specifics
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500">Customer Name</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Customer Name</p>
                     <p className="text-sm">{selectedReq.customerName || '-'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Contract Number</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Contract Number</p>
                     <p className="text-sm">{selectedReq.contractNumber || '-'}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-xs text-gray-500">Product/Service Scope</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Product/Service Scope</p>
                     <p className="text-sm">{selectedReq.productServiceScope || '-'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Certification Body</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Certification Body</p>
                     <p className="text-sm">{selectedReq.certificationBody || '-'}</p>
                   </div>
                 </div>
@@ -1016,24 +1016,24 @@ export default function LegalClient() {
             )}
 
             {/* Section C: Compliance */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
                 Compliance Assessment
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Compliance Status</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Compliance Status</p>
                   <Badge className={complianceColor(selectedReq.complianceStatus)}>
                     {selectedReq.complianceStatus?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Last Assessment</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Last Assessment</p>
                   <p className="text-sm">{formatDate(selectedReq.lastAssessmentDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Next Assessment</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Next Assessment</p>
                   <p className={`text-sm ${isOverdue(selectedReq.nextAssessmentDate) ? 'text-red-600 font-medium' : ''}`}>
                     {formatDate(selectedReq.nextAssessmentDate)}
                   </p>
@@ -1041,43 +1041,43 @@ export default function LegalClient() {
               </div>
               {selectedReq.complianceNotes && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Compliance Notes</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Compliance Notes</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedReq.complianceNotes}</p>
                 </div>
               )}
               {selectedReq.gapAnalysis && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Gap Analysis</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Gap Analysis</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedReq.gapAnalysis}</p>
                 </div>
               )}
             </div>
 
             {/* Section D: Monitoring */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Monitoring & Review
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Responsible Person</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Responsible Person</p>
                   <p className="text-sm">{selectedReq.responsiblePerson || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Review Frequency</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Review Frequency</p>
                   <p className="text-sm">{selectedReq.reviewFrequency?.replace(/_/g, ' ') || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Effective Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Effective Date</p>
                   <p className="text-sm">{formatDate(selectedReq.effectiveDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Expiry Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Expiry Date</p>
                   <p className="text-sm">{formatDate(selectedReq.expiryDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Record Status</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Record Status</p>
                   <Badge variant={statusBadgeVariant(selectedReq.status)}>
                     {selectedReq.status?.replace(/_/g, ' ')}
                   </Badge>
@@ -1086,17 +1086,17 @@ export default function LegalClient() {
             </div>
 
             {/* Section E: IMS Links */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <ExternalLink className="h-4 w-4" />
                 IMS Links
               </h3>
               <div className="flex gap-4">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${selectedReq.trackedInHs ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-400'}`}>
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${selectedReq.trackedInHs ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
                   <div className={`h-2 w-2 rounded-full ${selectedReq.trackedInHs ? 'bg-blue-500' : 'bg-gray-300'}`} />
                   <span className="text-sm">Health & Safety</span>
                 </div>
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${selectedReq.trackedInEnv ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-400'}`}>
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${selectedReq.trackedInEnv ? 'bg-green-50 text-green-700' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
                   <div className={`h-2 w-2 rounded-full ${selectedReq.trackedInEnv ? 'bg-green-500' : 'bg-gray-300'}`} />
                   <span className="text-sm">Environment</span>
                 </div>
@@ -1137,7 +1137,7 @@ export default function LegalClient() {
                 </div>
               )}
               {aiAnalysis.result && (
-                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap bg-white rounded-lg p-4 mt-2">
+                <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-900 rounded-lg p-4 mt-2">
                   {aiAnalysis.result}
                   <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
                 </div>

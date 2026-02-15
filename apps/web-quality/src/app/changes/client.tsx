@@ -35,18 +35,18 @@ const CHANGE_PRIORITIES = [
 ] as const;
 
 const CHANGE_STATUSES = [
-  { value: 'REQUESTED', label: 'Requested', color: 'bg-gray-100 text-gray-600' },
+  { value: 'REQUESTED', label: 'Requested', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'IMPACT_ASSESSED', label: 'Impact Assessed', color: 'bg-blue-100 text-blue-800' },
   { value: 'APPROVED', label: 'Approved', color: 'bg-green-100 text-green-800' },
   { value: 'REJECTED', label: 'Rejected', color: 'bg-red-100 text-red-800' },
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'VERIFICATION', label: 'Verification', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'CLOSED', label: 'Closed', color: 'bg-green-200 text-green-900' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-500' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500' },
 ] as const;
 
 const IMPACT_LEVELS = [
-  { value: 'NONE', label: 'None', color: 'bg-gray-100 text-gray-600' },
+  { value: 'NONE', label: 'None', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'LOW', label: 'Low', color: 'bg-green-100 text-green-800' },
   { value: 'MEDIUM', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'HIGH', label: 'High', color: 'bg-orange-100 text-orange-800' },
@@ -272,8 +272,8 @@ export default function ChangesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Change Management</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 change control with impact assessment</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Change Management</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 change control with impact assessment</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Request Change
@@ -282,10 +282,10 @@ export default function ChangesClient() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><GitBranch className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500">Total Changes</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-orange-100 rounded-lg"><Clock className="h-5 w-5 text-orange-600" /></div><div><p className="text-2xl font-bold">{stats.open}</p><p className="text-xs text-gray-500">Open</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{stats.approved}</p><p className="text-xs text-gray-500">Approved/Implementing</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-gray-100 rounded-lg"><Shield className="h-5 w-5 text-gray-600" /></div><div><p className="text-2xl font-bold">{stats.closed}</p><p className="text-xs text-gray-500">Closed</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><GitBranch className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total Changes</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-orange-100 rounded-lg"><Clock className="h-5 w-5 text-orange-600" /></div><div><p className="text-2xl font-bold">{stats.open}</p><p className="text-xs text-gray-500 dark:text-gray-400">Open</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{stats.approved}</p><p className="text-xs text-gray-500 dark:text-gray-400">Approved/Implementing</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><Shield className="h-5 w-5 text-gray-600" /></div><div><p className="text-2xl font-bold">{stats.closed}</p><p className="text-xs text-gray-500 dark:text-gray-400">Closed</p></div></div></CardContent></Card>
       </div>
 
       {/* Filters */}
@@ -294,7 +294,7 @@ export default function ChangesClient() {
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input placeholder="Search changes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
               </div>
             </div>
@@ -320,9 +320,9 @@ export default function ChangesClient() {
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <GitBranch className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Change Requests Found</h3>
-            <p className="text-gray-500 mb-4">Submit a change request to start the change management process.</p>
+            <GitBranch className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Change Requests Found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Submit a change request to start the change management process.</p>
             <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Request Change</Button>
           </CardContent>
         </Card>
@@ -334,13 +334,13 @@ export default function ChangesClient() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-gray-400">{r.referenceNumber}</span>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
                       {getBadge(r.priority, CHANGE_PRIORITIES)}
                       {getBadge(r.status, CHANGE_STATUSES)}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{r.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.reasonForChange}</p>
-                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.reasonForChange}</p>
+                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <span>Type: {CHANGE_TYPES.find(t => t.value === r.changeType)?.label}</span>
                       <span>Requested by: {r.requestedBy}</span>
                       <span>Dept: {r.department}</span>
@@ -358,10 +358,10 @@ export default function ChangesClient() {
 
                 {/* Expanded */}
                 {expandedId === r.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                     {/* Change Description */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                         <p className="text-xs font-semibold text-gray-600 mb-1">Current State</p>
                         <p className="text-sm">{r.currentState}</p>
                       </div>
@@ -374,7 +374,7 @@ export default function ChangesClient() {
                     {/* Impact Assessment */}
                     {(r.qualityImpact || r.customerImpact || r.processImpact) && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Impact Assessment</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Impact Assessment</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {[
                             { label: 'Quality', val: r.qualityImpact },
@@ -385,14 +385,14 @@ export default function ChangesClient() {
                             { label: 'Regulatory', val: r.regulatoryImpact },
                             { label: 'Financial', val: r.financialImpact },
                           ].filter(i => i.val && i.val !== 'NONE').map(i => (
-                            <div key={i.label} className="text-center p-2 rounded bg-gray-50">
-                              <p className="text-xs text-gray-500">{i.label}</p>
+                            <div key={i.label} className="text-center p-2 rounded bg-gray-50 dark:bg-gray-800">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{i.label}</p>
                               {getBadge(i.val!, IMPACT_LEVELS)}
                             </div>
                           ))}
                         </div>
                         {r.estimatedCost != null && r.estimatedCost > 0 && (
-                          <p className="text-sm text-gray-500 mt-2">Estimated Cost: ${r.estimatedCost.toLocaleString()}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Estimated Cost: ${r.estimatedCost.toLocaleString()}</p>
                         )}
                       </div>
                     )}
@@ -401,7 +401,7 @@ export default function ChangesClient() {
                     {r.approvedBy && (
                       <div className="bg-green-50 p-3 rounded-lg text-sm">
                         <p className="font-semibold text-green-700">Approved by: {r.approvedBy}</p>
-                        {r.approvalDate && <p className="text-xs text-gray-500">Date: {new Date(r.approvalDate).toLocaleDateString()}</p>}
+                        {r.approvalDate && <p className="text-xs text-gray-500 dark:text-gray-400">Date: {new Date(r.approvalDate).toLocaleDateString()}</p>}
                         {r.approvalNotes && <p className="mt-1">{r.approvalNotes}</p>}
                       </div>
                     )}
@@ -443,7 +443,7 @@ export default function ChangesClient() {
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Change Details</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Change Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
               <div><Label>Change Type *</Label>
@@ -471,7 +471,7 @@ export default function ChangesClient() {
 
           {/* Description */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Change Description</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Change Description</h3>
             <div className="grid grid-cols-1 gap-4">
               <div><Label>Current State *</Label><Textarea value={form.currentState} onChange={e => setForm({...form, currentState: e.target.value})} rows={2} /></div>
               <div><Label>Proposed Change *</Label><Textarea value={form.proposedChange} onChange={e => setForm({...form, proposedChange: e.target.value})} rows={2} /></div>
@@ -486,7 +486,7 @@ export default function ChangesClient() {
 
           {/* Impact Assessment */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Impact Assessment</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Impact Assessment</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { key: 'qualityImpact', label: 'Quality' },
@@ -526,7 +526,7 @@ export default function ChangesClient() {
 
           {/* Implementation */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Implementation & Approval</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Implementation & Approval</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Approved By</Label><Input value={form.approvedBy} onChange={e => setForm({...form, approvedBy: e.target.value})} /></div>
               <div><Label>Target Date</Label><Input type="date" value={form.targetDate} onChange={e => setForm({...form, targetDate: e.target.value})} /></div>

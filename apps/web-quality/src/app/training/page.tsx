@@ -43,8 +43,8 @@ export default function TrainingPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quality Training</h1>
-            <p className="text-gray-500 mt-1">Quality awareness and competency training</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Training</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Quality awareness and competency training</p>
           </div>
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -57,7 +57,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Sessions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Sessions</p>
                   <p className="text-2xl font-bold">{trainings.length}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -70,7 +70,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Upcoming</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming</p>
                   <p className="text-2xl font-bold text-blue-600">{upcomingTrainings.length}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
@@ -83,7 +83,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{completedTrainings.length}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -96,7 +96,7 @@ export default function TrainingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Trained</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Trained</p>
                   <p className="text-2xl font-bold">
                     {trainings.reduce((acc, t) => acc + (t.participants || 0), 0)}
                   </p>
@@ -127,18 +127,18 @@ export default function TrainingPage() {
               ) : upcomingTrainings.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingTrainings.map((training) => (
-                    <div key={training.id} className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                    <div key={training.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 transition-colors">
                       <div className="flex items-start justify-between">
                         <div>
                           <Badge variant="default">{training.trainingType}</Badge>
-                          <h3 className="font-medium text-gray-900 mt-1">{training.title}</h3>
-                          <p className="text-sm text-gray-500 mt-1">{training.description}</p>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">{training.title}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{training.description}</p>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-blue-600 font-medium">
                             {new Date(training.scheduledDate).toLocaleDateString()}
                           </p>
-                          <p className="text-xs text-gray-400">{training.participants} participants</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{training.participants} participants</p>
                         </div>
                       </div>
                     </div>
@@ -146,8 +146,8 @@ export default function TrainingPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No upcoming training scheduled</p>
+                  <Calendar className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">No upcoming training scheduled</p>
                 </div>
               )}
             </CardContent>
@@ -170,14 +170,14 @@ export default function TrainingPage() {
               ) : completedTrainings.length > 0 ? (
                 <div className="space-y-4">
                   {completedTrainings.slice(0, 5).map((training) => (
-                    <div key={training.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div key={training.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2">
                             <Badge variant="secondary">{training.trainingType}</Badge>
                             <Badge variant="outline" className="text-green-600">Completed</Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 mt-1">{training.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">{training.title}</h3>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-gray-600">
@@ -185,7 +185,7 @@ export default function TrainingPage() {
                               ? new Date(training.completedDate).toLocaleDateString()
                               : 'N/A'}
                           </p>
-                          <p className="text-xs text-gray-400">{training.participants} trained</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{training.participants} trained</p>
                         </div>
                       </div>
                     </div>
@@ -193,8 +193,8 @@ export default function TrainingPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <GraduationCap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No completed training records</p>
+                  <GraduationCap className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">No completed training records</p>
                 </div>
               )}
             </CardContent>

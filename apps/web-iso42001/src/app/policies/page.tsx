@@ -110,13 +110,13 @@ const policyTypeColors: Record<string, { bg: string; text: string; darkBg: strin
   RISK_MANAGEMENT: { bg: 'bg-red-100', text: 'text-red-700', darkBg: 'dark:bg-red-900/30', darkText: 'dark:text-red-300' },
   SECURITY: { bg: 'bg-orange-100', text: 'text-orange-700', darkBg: 'dark:bg-orange-900/30', darkText: 'dark:text-orange-300' },
   PRIVACY: { bg: 'bg-pink-100', text: 'text-pink-700', darkBg: 'dark:bg-pink-900/30', darkText: 'dark:text-pink-300' },
-  OTHER: { bg: 'bg-gray-100', text: 'text-gray-700', darkBg: 'dark:bg-gray-700', darkText: 'dark:text-gray-300' },
+  OTHER: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', darkBg: 'dark:bg-gray-700', darkText: 'dark:text-gray-300' },
 };
 
 const statusOptions = ['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED'];
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   APPROVED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   PUBLISHED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -787,7 +787,7 @@ export default function PoliciesPage() {
                   setViewModalOpen(false);
                   openEditModal(viewPolicy);
                 }}
-                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
+                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-sm"
               >
                 Edit Policy
               </button>
@@ -960,7 +960,7 @@ export default function PoliciesPage() {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800"
             >
               Cancel
             </button>

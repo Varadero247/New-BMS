@@ -114,23 +114,23 @@ export default function HaccpFlowPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">HACCP Flow</h1>
-            <p className="text-gray-500 mt-1">Process flow diagram and critical control point mapping</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">HACCP Flow</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Process flow diagram and critical control point mapping</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Step</Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Process Steps</p><p className="text-2xl font-bold">{items.length}</p></div><GitBranch className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">CCPs Identified</p><p className="text-2xl font-bold text-red-600">{ccps.length}</p></div><GitBranch className="h-8 w-8 text-red-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Non-CCPs</p><p className="text-2xl font-bold text-blue-600">{items.length - ccps.length}</p></div><GitBranch className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Process Steps</p><p className="text-2xl font-bold">{items.length}</p></div><GitBranch className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">CCPs Identified</p><p className="text-2xl font-bold text-red-600">{ccps.length}</p></div><GitBranch className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Non-CCPs</p><p className="text-2xl font-bold text-blue-600">{items.length - ccps.length}</p></div><GitBranch className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
         </div>
 
         {/* Search */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search process steps..." value={search} onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
           </div>
@@ -139,17 +139,17 @@ export default function HaccpFlowPage() {
         {/* Flow visualization */}
         {!loading && filtered.length > 0 && (
           <Card className="mb-6">
-            <CardHeader><CardTitle className="text-sm text-gray-500 font-medium uppercase tracking-wide">Process Flow</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-sm text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Process Flow</CardTitle></CardHeader>
             <CardContent>
               <div className="flex flex-wrap items-center gap-2">
                 {filtered.map((step, idx) => (
                   <div key={step.id} className="flex items-center gap-2">
-                    <div className={`px-3 py-2 rounded-lg text-sm font-medium border-2 ${step.isCCP ? 'border-red-400 bg-red-50 text-red-700' : 'border-gray-300 bg-white text-gray-700'}`}>
-                      <span className="text-xs text-gray-400 mr-1">#{step.step || step.stepNumber || idx + 1}</span>
+                    <div className={`px-3 py-2 rounded-lg text-sm font-medium border-2 ${step.isCCP ? 'border-red-400 bg-red-50 text-red-700' : 'border-gray-300 bg-white dark:bg-gray-900 text-gray-700'}`}>
+                      <span className="text-xs text-gray-400 dark:text-gray-500 mr-1">#{step.step || step.stepNumber || idx + 1}</span>
                       {step.processStep || step.title || step.name}
                       {step.isCCP && <span className="ml-2 text-xs bg-red-100 text-red-600 px-1 rounded">CCP</span>}
                     </div>
-                    {idx < filtered.length - 1 && <ArrowRight className="h-4 w-4 text-gray-400 flex-shrink-0" />}
+                    {idx < filtered.length - 1 && <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />}
                   </div>
                 ))}
               </div>
@@ -165,27 +165,27 @@ export default function HaccpFlowPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">#</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Process Step</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">CCP?</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Hazards</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Critical Limit</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">#</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Process Step</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">CCP?</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Hazards</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Critical Limit</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map((r, idx) => (
-                      <tr key={r.id} className={`border-b hover:bg-gray-50 ${r.isCCP ? 'bg-red-50' : ''}`}>
-                        <td className="py-3 px-4 text-gray-500 font-mono">{r.step || r.stepNumber || idx + 1}</td>
-                        <td className="py-3 px-4 font-medium text-gray-900">{r.processStep || r.title || r.name || '—'}</td>
+                      <tr key={r.id} className={`border-b hover:bg-gray-50 dark:bg-gray-800 ${r.isCCP ? 'bg-red-50' : ''}`}>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 font-mono">{r.step || r.stepNumber || idx + 1}</td>
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{r.processStep || r.title || r.name || '—'}</td>
                         <td className="py-3 px-4">
                           {r.isCCP
                             ? <span className="inline-flex px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">CCP</span>
-                            : <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">No</span>}
+                            : <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">No</span>}
                         </td>
                         <td className="py-3 px-4 text-gray-600 truncate max-w-xs">{r.hazards || '—'}</td>
                         <td className="py-3 px-4 text-gray-600">{r.criticalLimit || '—'}</td>
-                        <td className="py-3 px-4"><Badge className={r.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>{r.status}</Badge></td>
+                        <td className="py-3 px-4"><Badge className={r.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{r.status}</Badge></td>
                         <td className="py-3 px-4"><div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(r)}><Edit className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
@@ -196,7 +196,7 @@ export default function HaccpFlowPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No HACCP steps defined</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Step</Button>

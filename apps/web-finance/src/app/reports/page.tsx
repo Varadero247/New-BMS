@@ -85,24 +85,24 @@ export default function ReportsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Account</th>
-                    {data.rows[0]?.code !== undefined && <th className="text-left py-2 px-4 font-medium text-gray-500">Code</th>}
-                    <th className="text-right py-2 px-4 font-medium text-gray-500">Amount</th>
-                    {data.rows[0]?.previousAmount !== undefined && <th className="text-right py-2 px-4 font-medium text-gray-500">Previous</th>}
+                    <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                    {data.rows[0]?.code !== undefined && <th className="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>}
+                    <th className="text-right py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Amount</th>
+                    {data.rows[0]?.previousAmount !== undefined && <th className="text-right py-2 px-4 font-medium text-gray-500 dark:text-gray-400">Previous</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {data.rows.map((row, idx) => (
-                    <tr key={idx} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4 text-gray-900">{row.account}</td>
-                      {row.code !== undefined && <td className="py-2 px-4 font-mono text-gray-500 text-xs">{row.code}</td>}
+                    <tr key={idx} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <td className="py-2 px-4 text-gray-900 dark:text-gray-100">{row.account}</td>
+                      {row.code !== undefined && <td className="py-2 px-4 font-mono text-gray-500 dark:text-gray-400 text-xs">{row.code}</td>}
                       <td className="py-2 px-4 text-right font-medium">{formatCurrency(row.amount)}</td>
-                      {row.previousAmount !== undefined && <td className="py-2 px-4 text-right text-gray-500">{formatCurrency(row.previousAmount)}</td>}
+                      {row.previousAmount !== undefined && <td className="py-2 px-4 text-right text-gray-500 dark:text-gray-400">{formatCurrency(row.previousAmount)}</td>}
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 font-bold">
+                  <tr className="bg-gray-50 dark:bg-gray-800 font-bold">
                     <td className="py-2 px-4" colSpan={data.rows[0]?.code !== undefined ? 2 : 1}>Total {title}</td>
                     <td className="py-2 px-4 text-right">{formatCurrency(data.total)}</td>
                     {data.previousTotal !== undefined && <td className="py-2 px-4 text-right">{formatCurrency(data.previousTotal)}</td>}
@@ -111,7 +111,7 @@ export default function ReportsPage() {
               </table>
             </div>
           ) : (
-            <p className="text-center py-4 text-gray-500">No data for this period</p>
+            <p className="text-center py-4 text-gray-500 dark:text-gray-400">No data for this period</p>
           )}
         </CardContent>
       </Card>
@@ -129,8 +129,8 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Financial Reports</h1>
-            <p className="text-gray-500 mt-1">Generate and review financial statements</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Financial Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Generate and review financial statements</p>
           </div>
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" /> Export
@@ -165,7 +165,7 @@ export default function ReportsPage() {
                 className={`flex items-center gap-2 px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
                 <Icon className="h-4 w-4" />

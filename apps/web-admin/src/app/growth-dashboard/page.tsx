@@ -169,17 +169,17 @@ export default function GrowthDashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white">Growth Dashboard</h1>
-            <p className="text-gray-400 mt-1">Founder overview of key growth metrics</p>
+            <p className="text-gray-400 dark:text-gray-500 mt-1">Founder overview of key growth metrics</p>
           </div>
           <div className="flex items-center gap-4">
             {lastUpdated && (
-              <span className="text-gray-500 text-sm">
+              <span className="text-gray-500 dark:text-gray-400 text-sm">
                 Last updated: {lastUpdated.toLocaleTimeString()}
               </span>
             )}
             <button
               onClick={fetchMetrics}
-              className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 hover:text-white transition-colors"
+              className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 dark:text-gray-500 hover:text-white transition-colors"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -191,7 +191,7 @@ export default function GrowthDashboardPage() {
           <button
             onClick={() => setActiveTab('current')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'current' ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 hover:text-white'
+              activeTab === 'current' ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 dark:text-gray-500 hover:text-white'
             }`}
           >
             Current Metrics
@@ -199,7 +199,7 @@ export default function GrowthDashboardPage() {
           <button
             onClick={() => setActiveTab('plan-vs-actual')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-              activeTab === 'plan-vs-actual' ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 hover:text-white'
+              activeTab === 'plan-vs-actual' ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 dark:text-gray-500 hover:text-white'
             }`}
           >
             <Target className="w-4 h-4" />
@@ -265,9 +265,9 @@ export default function GrowthDashboardPage() {
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-4">Pipeline by Stage</h3>
+              <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-4">Pipeline by Stage</h3>
               {metrics.pipeline.stages.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No pipeline data available</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No pipeline data available</p>
               ) : (
                 <div className="space-y-4">
                   {metrics.pipeline.stages.map((stage) => (
@@ -291,11 +291,11 @@ export default function GrowthDashboardPage() {
             </div>
             <div className="space-y-4">
               <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-                <p className="text-gray-400 text-sm">Total Pipeline</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm">Total Pipeline</p>
                 <p className="text-2xl font-bold text-white mt-1">{formatCurrency(metrics.pipeline.totalValue)}</p>
               </div>
               <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-                <p className="text-gray-400 text-sm">Weighted Pipeline</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm">Weighted Pipeline</p>
                 <p className="text-2xl font-bold text-white mt-1">{formatCurrency(metrics.pipeline.weightedValue)}</p>
               </div>
             </div>
@@ -311,9 +311,9 @@ export default function GrowthDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Pie Chart (div-based) */}
             <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-4">Source Breakdown</h3>
+              <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-4">Source Breakdown</h3>
               {metrics.leadSources.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No lead source data available</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No lead source data available</p>
               ) : (
                 <div className="space-y-3">
                   {metrics.leadSources.map((source, i) => {
@@ -337,16 +337,16 @@ export default function GrowthDashboardPage() {
             </div>
             {/* Table */}
             <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-4">Source Details</h3>
+              <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-4">Source Details</h3>
               {metrics.leadSources.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No data</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No data</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#1B3A6B]/30">
-                      <th className="text-left py-2 text-gray-400 font-medium">Source</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">Leads</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">Value</th>
+                      <th className="text-left py-2 text-gray-400 dark:text-gray-500 font-medium">Source</th>
+                      <th className="text-right py-2 text-gray-400 dark:text-gray-500 font-medium">Leads</th>
+                      <th className="text-right py-2 text-gray-400 dark:text-gray-500 font-medium">Value</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -372,16 +372,16 @@ export default function GrowthDashboardPage() {
           </h2>
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
             {metrics.partnerLeaderboard.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No partner data available</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No partner data available</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Rank</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Partner</th>
-                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Referrals</th>
-                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Revenue</th>
-                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Conversion</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Rank</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Partner</th>
+                    <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Referrals</th>
+                    <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Revenue</th>
+                    <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Conversion</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,9 +422,9 @@ export default function GrowthDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Donut Chart (div-based) */}
             <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-4">Health Distribution</h3>
+              <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-4">Health Distribution</h3>
               {totalCustomers === 0 ? (
-                <p className="text-gray-500 text-center py-8">No customer data</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No customer data</p>
               ) : (
                 <>
                   <div className="relative w-40 h-40 mx-auto mb-4">
@@ -464,20 +464,20 @@ export default function GrowthDashboardPage() {
 
             {/* Bottom 10 List */}
             <div className="lg:col-span-2 bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-yellow-400" />
                 Bottom 10 Accounts
               </h3>
               {metrics.customerHealth.bottomTen.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No at-risk accounts</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No at-risk accounts</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#1B3A6B]/30">
-                      <th className="text-left py-2 text-gray-400 font-medium">Customer</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">Health Score</th>
-                      <th className="text-left py-2 text-gray-400 font-medium">Reason</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">MRR</th>
+                      <th className="text-left py-2 text-gray-400 dark:text-gray-500 font-medium">Customer</th>
+                      <th className="text-right py-2 text-gray-400 dark:text-gray-500 font-medium">Health Score</th>
+                      <th className="text-left py-2 text-gray-400 dark:text-gray-500 font-medium">Reason</th>
+                      <th className="text-right py-2 text-gray-400 dark:text-gray-500 font-medium">MRR</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -491,7 +491,7 @@ export default function GrowthDashboardPage() {
                             {customer.score}
                           </span>
                         </td>
-                        <td className="py-2 text-gray-400">{customer.reason}</td>
+                        <td className="py-2 text-gray-400 dark:text-gray-500">{customer.reason}</td>
                         <td className="py-2 text-white text-right">{formatCurrency(customer.mrr)}</td>
                       </tr>
                     ))}
@@ -510,16 +510,16 @@ export default function GrowthDashboardPage() {
           </h2>
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
             {metrics.renewals.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No upcoming renewals</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No upcoming renewals</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Renewal Date</th>
-                    <th className="text-right py-3 px-4 text-gray-400 font-medium">MRR</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Risk</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Action</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Customer</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Renewal Date</th>
+                    <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">MRR</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Risk</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -639,26 +639,26 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Director&apos;s Loan (£320K / 8% / 36mo)</h3>
+            <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500">Director&apos;s Loan (£320K / 8% / 36mo)</h3>
             <span className="text-white font-semibold text-sm">{dirLoanProgress.toFixed(1)}% repaid</span>
           </div>
           <div className="w-full bg-[#080B12] rounded-full h-3 mb-2">
             <div className="h-3 rounded-full bg-gradient-to-r from-red-600 to-red-400 transition-all" style={{ width: `${Math.min(dirLoanProgress, 100)}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Balance: {fmt(latestWithLoans?.dirLoanBal || 320000)}</span>
             <span>Payment: {fmt(latestWithLoans?.dirLoan || 0)}/mo</span>
           </div>
         </div>
         <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Starter Capital Loan (£30K / 8% / 24mo)</h3>
+            <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500">Starter Capital Loan (£30K / 8% / 24mo)</h3>
             <span className="text-white font-semibold text-sm">{starterLoanProgress.toFixed(1)}% repaid</span>
           </div>
           <div className="w-full bg-[#080B12] rounded-full h-3 mb-2">
             <div className="h-3 rounded-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all" style={{ width: `${Math.min(starterLoanProgress, 100)}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Balance: {fmt(latestWithLoans?.starterLoanBal || 30000)}</span>
             <span>Payment: {fmt(latestWithLoans?.starterLoan || 0)}/mo</span>
           </div>
@@ -674,10 +674,10 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-cyan-400 border border-dashed border-cyan-400 inline-block" /> Revised</span>
         </div>
         {rows.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No data available. Seed plan targets and trigger a snapshot first.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No data available. Seed plan targets and trigger a snapshot first.</p>
         ) : (
           <div className="overflow-x-auto">
-            <svg width={Math.max(rows.length * (barWidth * 2.5 + 8), 600)} height={chartHeight + 40} className="text-gray-400">
+            <svg width={Math.max(rows.length * (barWidth * 2.5 + 8), 600)} height={chartHeight + 40} className="text-gray-400 dark:text-gray-500">
               {rows.map((r, i) => {
                 const x = i * (barWidth * 2.5 + 8) + 20;
                 const planH = (r.plannedMrr / maxMrr) * chartHeight;
@@ -722,7 +722,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
               const maxIncome = Math.max(...incomeRows.map(r => r.salary + r.dividend), 1);
               const bw = Math.min(30, 600 / Math.max(incomeRows.length, 1) / 1.5);
               return (
-                <svg width={Math.max(incomeRows.length * (bw + 12) + 40, 600)} height={chartHeight + 40} className="text-gray-400">
+                <svg width={Math.max(incomeRows.length * (bw + 12) + 40, 600)} height={chartHeight + 40} className="text-gray-400 dark:text-gray-500">
                   {incomeRows.map((r, i) => {
                     const x = i * (bw + 12) + 20;
                     const salaryH = (r.salary / maxIncome) * chartHeight;
@@ -756,14 +756,14 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1B3A6B]/30">
-                <th className="text-left py-2 px-3 text-gray-400 font-medium">Month</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Plan MRR</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Actual MRR</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Revised*</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Plan Cust</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Actual Cust</th>
-                <th className="text-right py-2 px-3 text-gray-400 font-medium">Net Income</th>
-                <th className="text-center py-2 px-3 text-gray-400 font-medium">Status</th>
+                <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Month</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Plan MRR</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Actual MRR</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Revised*</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Plan Cust</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Actual Cust</th>
+                <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Net Income</th>
+                <th className="text-center py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -771,12 +771,12 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
                 <tr key={r.month} className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10">
                   <td className="py-2 px-3 text-white font-medium">
                     {new Date(r.month + '-01').toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })}
-                    <span className="text-gray-500 text-xs ml-1">M{r.monthNumber}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">M{r.monthNumber}</span>
                   </td>
-                  <td className="py-2 px-3 text-gray-400 text-right">{fmt(r.plannedMrr)}</td>
+                  <td className="py-2 px-3 text-gray-400 dark:text-gray-500 text-right">{fmt(r.plannedMrr)}</td>
                   <td className={`py-2 px-3 text-right font-medium ${ragColor(r.actualMrr, r.plannedMrr)}`}>{r.actualMrr > 0 ? fmt(r.actualMrr) : '—'}</td>
                   <td className="py-2 px-3 text-cyan-400 text-right">{r.revisedMrr ? `${fmt(r.revisedMrr)}*` : '—'}</td>
-                  <td className="py-2 px-3 text-gray-400 text-right">{r.plannedCust}</td>
+                  <td className="py-2 px-3 text-gray-400 dark:text-gray-500 text-right">{r.plannedCust}</td>
                   <td className={`py-2 px-3 text-right font-medium ${ragColor(r.actualCust, r.plannedCust)}`}>{r.actualCust > 0 ? r.actualCust : '—'}</td>
                   <td className="py-2 px-3 text-blue-400 text-right">{r.total !== 0 ? fmt(r.total) : '—'}</td>
                   <td className="py-2 px-3 text-center">
@@ -789,7 +789,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
                         {r.trajectory.replace('_', ' ')}
                       </span>
                     ) : r.actualMrr > 0 ? (
-                      <span className="text-gray-500 text-xs">—</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs">—</span>
                     ) : (
                       <span className="text-gray-600 text-xs">Future</span>
                     )}
@@ -799,7 +799,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
             </tbody>
           </table>
         </div>
-        <p className="text-gray-500 text-xs mt-3">* Revised targets are flagged with an asterisk, indicating recalibrated values.</p>
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-3">* Revised targets are flagged with an asterisk, indicating recalibrated values.</p>
       </div>
     </div>
   );
@@ -811,13 +811,13 @@ function StatCard({ label, value, icon: Icon, color, bgColor, subtitle }: {
   return (
     <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-gray-400 text-sm">{label}</span>
+        <span className="text-gray-400 dark:text-gray-500 text-sm">{label}</span>
         <div className={`w-8 h-8 rounded-lg ${bgColor} flex items-center justify-center`}>
           <Icon className={`w-4 h-4 ${color}`} />
         </div>
       </div>
       <p className="text-2xl font-bold text-white">{value}</p>
-      {subtitle && <p className="text-gray-500 text-xs mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{subtitle}</p>}
     </div>
   );
 }

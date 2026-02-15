@@ -386,7 +386,7 @@ function ScoreGauge({ score, max = 5 }: { score: number; max?: number }) {
           stroke="currentColor"
           strokeWidth="10"
           strokeLinecap="round"
-          className="text-gray-200 dark:text-gray-700"
+          className="text-gray-200 dark:text-gray-300"
         />
         {/* Value arc */}
         <path
@@ -411,7 +411,7 @@ function StatusBadge({ status }: { status: ResponseStatus }) {
   const map: Record<ResponseStatus, { cls: string; label: string }> = {
     Responded: { cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', label: 'Responded' },
     Pending: { cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', label: 'Pending' },
-    'No Response': { cls: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400', label: 'No Response' },
+    'No Response': { cls: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400', label: 'No Response' },
   };
   const { cls, label } = map[status];
   return <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>;
@@ -445,7 +445,7 @@ function PriorityBadge({ priority }: { priority: ActionPriority }) {
   const map: Record<ActionPriority, string> = {
     High: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
     Medium: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-    Low: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+    Low: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${map[priority]}`}>
@@ -796,10 +796,10 @@ export default function CustomerSatisfactionPage() {
                   <p className="text-amber-600 dark:text-amber-500">Pend.</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded p-1">
-                  <p className="font-semibold text-gray-700 dark:text-gray-400">
+                  <p className="font-semibold text-gray-700 dark:text-gray-300">
                     {surveys.filter((s) => s.status === 'No Response').length}
                   </p>
-                  <p className="text-gray-500">None</p>
+                  <p className="text-gray-500 dark:text-gray-400">None</p>
                 </div>
               </div>
             </CardContent>

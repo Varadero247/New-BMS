@@ -21,7 +21,7 @@ interface Template {
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   ARCHIVED: 'bg-orange-100 text-orange-700',
 };
 
@@ -108,8 +108,8 @@ export default function TemplatesPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
-          <p className="text-gray-500 mt-1">Finance document templates and forms</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Templates</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Finance document templates and forms</p>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
@@ -117,7 +117,7 @@ export default function TemplatesPage() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search templates..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
             </div>
           </CardContent>
@@ -134,16 +134,16 @@ export default function TemplatesPage() {
                         <FileText className="h-5 w-5 text-indigo-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">{template.name}</h3>
-                        <p className="text-xs text-gray-500 font-mono">{template.code}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{template.name}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{template.code}</p>
                       </div>
                     </div>
-                    <Badge className={statusColors[template.status] || 'bg-gray-100 text-gray-700'}>{template.status}</Badge>
+                    <Badge className={statusColors[template.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{template.status}</Badge>
                   </div>
                   {template.description && (
                     <p className="text-sm text-gray-600 mb-4 line-clamp-2">{template.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                  <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mb-4">
                     <span>v{template.version}</span>
                     {template.isBuiltIn && <Badge className="bg-indigo-50 text-indigo-600">Built-in</Badge>}
                     {template.category && <span>{template.category}</span>}
@@ -152,10 +152,10 @@ export default function TemplatesPage() {
                     <button onClick={() => viewTemplateDetails(template)} className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
                       <Eye className="h-3 w-3" /> View
                     </button>
-                    <button onClick={() => handleClone(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700">
+                    <button onClick={() => handleClone(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300">
                       <Copy className="h-3 w-3" /> Clone
                     </button>
-                    <button onClick={() => handleExport(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700">
+                    <button onClick={() => handleExport(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300">
                       <Download className="h-3 w-3" /> Export
                     </button>
                   </div>
@@ -166,7 +166,7 @@ export default function TemplatesPage() {
         ) : (
           <Card>
             <CardContent className="pt-6">
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No templates found for Finance module</p>
               </div>
@@ -180,16 +180,16 @@ export default function TemplatesPage() {
         {viewTemplate && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-sm text-gray-500">Code</p><p className="font-mono font-medium">{viewTemplate.code}</p></div>
-              <div><p className="text-sm text-gray-500">Version</p><p className="font-medium">v{viewTemplate.version}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Code</p><p className="font-mono font-medium">{viewTemplate.code}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Version</p><p className="font-medium">v{viewTemplate.version}</p></div>
             </div>
             {viewTemplate.description && (
-              <div><p className="text-sm text-gray-500">Description</p><p className="text-gray-700">{viewTemplate.description}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Description</p><p className="text-gray-700 dark:text-gray-300">{viewTemplate.description}</p></div>
             )}
             {templateContent && (
               <div>
-                <p className="text-sm text-gray-500 mb-2">Content Preview</p>
-                <div className="border rounded-md p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Content Preview</p>
+                <div className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800 max-h-96 overflow-y-auto">
                   <div dangerouslySetInnerHTML={{ __html: templateContent }} />
                 </div>
               </div>

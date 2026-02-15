@@ -134,7 +134,7 @@ const trendIcons: Record<Trend, React.ReactNode> = {
 
 const trendColors: Record<Trend, string> = {
   INCREASING: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  STABLE: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+  STABLE: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
   DECREASING: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
 };
 
@@ -648,7 +648,7 @@ export default function ContextPage() {
             className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
               saved
                 ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700'
-                : 'bg-card border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800'
+                : 'bg-card border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
             }`}
           >
             <Save className="h-4 w-4" />
@@ -696,7 +696,7 @@ export default function ContextPage() {
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'swot'
               ? 'bg-brand-600 text-white shadow-sm'
-              : 'bg-card border border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800'
+              : 'bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
           }`}
         >
           SWOT Analysis
@@ -706,7 +706,7 @@ export default function ContextPage() {
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'pestle'
               ? 'bg-brand-600 text-white shadow-sm'
-              : 'bg-card border border-border text-foreground hover:bg-gray-50 dark:hover:bg-gray-800'
+              : 'bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
           }`}
         >
           PESTLE Analysis

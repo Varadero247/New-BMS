@@ -74,8 +74,8 @@ export default function WarehousesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Warehouses</h1>
-            <p className="text-gray-500 mt-1">Manage storage locations and capacity</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Warehouses</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage storage locations and capacity</p>
           </div>
           <Button onClick={() => { setEditingWarehouse(null); setShowModal(true); }}>
             <Plus className="h-4 w-4 mr-2" />
@@ -87,7 +87,7 @@ export default function WarehousesPage() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Search warehouses..."
                 value={search}
@@ -119,7 +119,7 @@ export default function WarehousesPage() {
                     </div>
                     <div>
                       <CardTitle className="text-lg">{warehouse.name}</CardTitle>
-                      <p className="text-sm text-gray-500 font-mono">{warehouse.code}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">{warehouse.code}</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -130,26 +130,26 @@ export default function WarehousesPage() {
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <Package className="h-4 w-4 text-gray-400 mx-auto mb-1" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <Package className="h-4 w-4 text-gray-400 dark:text-gray-500 mx-auto mb-1" />
                       <p className="text-lg font-bold">{warehouse.stats?.totalProducts || 0}</p>
-                      <p className="text-xs text-gray-500">Products</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Products</p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <Warehouse className="h-4 w-4 text-gray-400 mx-auto mb-1" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <Warehouse className="h-4 w-4 text-gray-400 dark:text-gray-500 mx-auto mb-1" />
                       <p className="text-lg font-bold">{(warehouse.stats?.totalQuantity || 0).toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">Units</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Units</p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <DollarSign className="h-4 w-4 text-gray-400 mx-auto mb-1" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <DollarSign className="h-4 w-4 text-gray-400 dark:text-gray-500 mx-auto mb-1" />
                       <p className="text-lg font-bold">${((warehouse.stats?.totalValue || 0) / 1000).toFixed(0)}k</p>
-                      <p className="text-xs text-gray-500">Value</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Value</p>
                     </div>
                   </div>
 
                   {/* Contact */}
                   {(warehouse.phone || warehouse.email) && (
-                    <div className="text-sm text-gray-500 mb-4">
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                       {warehouse.phone && <p>{warehouse.phone}</p>}
                       {warehouse.email && <p>{warehouse.email}</p>}
                     </div>
@@ -157,7 +157,7 @@ export default function WarehousesPage() {
 
                   {/* Address */}
                   {warehouse.address && (
-                    <div className="flex items-start gap-2 text-sm text-gray-500 mb-4">
+                    <div className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
                       <MapPin className="h-4 w-4 mt-0.5" />
                       <span>
                         {[warehouse.address.street, warehouse.address.city, warehouse.address.state, warehouse.address.country]
@@ -183,8 +183,8 @@ export default function WarehousesPage() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
-              <Warehouse className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No warehouses found</p>
+              <Warehouse className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">No warehouses found</p>
               <Button className="mt-4" onClick={() => { setEditingWarehouse(null); setShowModal(true); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Warehouse
@@ -262,7 +262,7 @@ function WarehouseModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-auto">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold">
             {warehouse ? 'Edit Warehouse' : 'Add New Warehouse'}

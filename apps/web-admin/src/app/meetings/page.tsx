@@ -105,9 +105,9 @@ export default function MeetingsPage() {
         </div>
 
         {loading ? (
-          <div className="text-gray-400 text-center py-12">Loading meetings...</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Loading meetings...</div>
         ) : meetings.length === 0 ? (
-          <div className="text-gray-400 text-center py-12">No meetings recorded yet.</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">No meetings recorded yet.</div>
         ) : (
           <div className="space-y-3">
             {meetings.map((meeting) => {
@@ -124,17 +124,17 @@ export default function MeetingsPage() {
                         {meeting.type}
                       </span>
                       <span className="text-white font-medium">{meeting.title}</span>
-                      <span className="text-gray-500 text-sm">{formatDate(meeting.date)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(meeting.date)}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 text-gray-500 text-sm">
+                      <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
                         <Users className="w-3.5 h-3.5" />
                         {(meeting.attendees || []).length}
                       </div>
                       {expanded ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400" />
+                        <ChevronUp className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                       )}
                     </div>
                   </button>
@@ -143,14 +143,14 @@ export default function MeetingsPage() {
                     <div className="px-6 pb-5 border-t border-[#1B3A6B]/20">
                       {meeting.summary && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 mb-1">Summary</h3>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">Summary</h3>
                           <p className="text-gray-300 text-sm whitespace-pre-wrap">{meeting.summary}</p>
                         </div>
                       )}
 
                       {(meeting.attendees || []).length > 0 && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 mb-1">Attendees</h3>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">Attendees</h3>
                           <div className="flex flex-wrap gap-2">
                             {meeting.attendees.map((a, i) => (
                               <span key={i} className="px-2 py-0.5 bg-[#1B3A6B]/40 text-gray-300 rounded text-xs">
@@ -163,7 +163,7 @@ export default function MeetingsPage() {
 
                       {(meeting.actionItems || []).length > 0 && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 mb-2">Action Items</h3>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-2">Action Items</h3>
                           <div className="space-y-2">
                             {meeting.actionItems.map((item, idx) => (
                               <button
@@ -174,17 +174,17 @@ export default function MeetingsPage() {
                                 {item.completed ? (
                                   <CheckSquare className="w-4 h-4 text-green-400 flex-shrink-0" />
                                 ) : (
-                                  <Square className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                  <Square className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                                 )}
                                 <span
                                   className={`text-sm ${
-                                    item.completed ? 'text-gray-500 line-through' : 'text-gray-300'
+                                    item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-300'
                                   }`}
                                 >
                                   {item.text}
                                 </span>
                                 {item.assignee && (
-                                  <span className="text-xs text-gray-500 ml-auto">{item.assignee}</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">{item.assignee}</span>
                                 )}
                               </button>
                             ))}
@@ -206,7 +206,7 @@ export default function MeetingsPage() {
               <h2 className="text-lg font-bold text-white mb-4">New Meeting</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Title</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Title</label>
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -216,7 +216,7 @@ export default function MeetingsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-400 block mb-1">Type</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Type</label>
                     <select
                       value={form.type}
                       onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -229,7 +229,7 @@ export default function MeetingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400 block mb-1">Date</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Date</label>
                     <input
                       type="date"
                       value={form.date}
@@ -239,7 +239,7 @@ export default function MeetingsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Attendees (comma separated)</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Attendees (comma separated)</label>
                   <input
                     value={form.attendees}
                     onChange={(e) => setForm({ ...form, attendees: e.target.value })}
@@ -248,7 +248,7 @@ export default function MeetingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Summary</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Summary</label>
                   <textarea
                     value={form.summary}
                     onChange={(e) => setForm({ ...form, summary: e.target.value })}
@@ -258,7 +258,7 @@ export default function MeetingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Action Items (one per line)</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Action Items (one per line)</label>
                   <textarea
                     value={form.actionItems}
                     onChange={(e) => setForm({ ...form, actionItems: e.target.value })}
@@ -271,7 +271,7 @@ export default function MeetingsPage() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  className="px-4 py-2 text-gray-400 dark:text-gray-500 hover:text-white transition-colors text-sm"
                 >
                   Cancel
                 </button>

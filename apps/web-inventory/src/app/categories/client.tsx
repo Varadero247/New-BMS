@@ -78,33 +78,33 @@ function CategoryNode({ category, depth, searchTerm }: { category: Category; dep
 
   return (
     <div>
-      <div className={`flex items-center justify-between p-3 rounded-lg hover:bg-sky-50 transition-colors ${depth === 0 ? 'bg-white border border-gray-200' : ''}`} style={{ paddingLeft: `${depth * 24 + 12}px` }}>
+      <div className={`flex items-center justify-between p-3 rounded-lg hover:bg-sky-50 transition-colors ${depth === 0 ? 'bg-white dark:bg-gray-900 border border-gray-200' : ''}`} style={{ paddingLeft: `${depth * 24 + 12}px` }}>
         <div className="flex items-center gap-2">
           {hasChildren ? (
-            <button onClick={() => setIsExpanded(!isExpanded)} className="text-gray-400 hover:text-gray-600">
+            <button onClick={() => setIsExpanded(!isExpanded)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
               {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </button>
           ) : (
             <span className="w-4" />
           )}
-          {hasChildren ? <FolderOpen className="h-4 w-4 text-sky-500" /> : <Package className="h-4 w-4 text-gray-400" />}
+          {hasChildren ? <FolderOpen className="h-4 w-4 text-sky-500" /> : <Package className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900 text-sm">{category.name}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{category.name}</span>
               <span className="text-xs font-mono text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded">{category.code}</span>
-              {category.status === 'inactive' && <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">Inactive</span>}
+              {category.status === 'inactive' && <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">Inactive</span>}
             </div>
-            <p className="text-xs text-gray-500">{category.description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{category.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-6 text-sm">
           <div className="text-right">
-            <p className="font-medium text-gray-900">{category.itemCount}</p>
-            <p className="text-xs text-gray-400">items</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">{category.itemCount}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">items</p>
           </div>
           <div className="text-right min-w-[80px]">
-            <p className="font-medium text-gray-900">£{(category.totalValue / 1000).toFixed(0)}k</p>
-            <p className="text-xs text-gray-400">value</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">£{(category.totalValue / 1000).toFixed(0)}k</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">value</p>
           </div>
         </div>
       </div>
@@ -130,32 +130,32 @@ export default function CategoriesClient() {
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Inventory Categories</h1>
-        <p className="text-sm text-gray-500 mt-1">Hierarchical category structure for inventory classification</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Inventory Categories</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Hierarchical category structure for inventory classification</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Top-Level Categories</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{categories.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Top-Level Categories</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{categories.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Subcategories</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Subcategories</p>
           <p className="text-3xl font-bold text-sky-700 mt-1">{totalSubcategories}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total SKUs</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{totalItems.toLocaleString()}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total SKUs</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalItems.toLocaleString()}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Value</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Value</p>
           <p className="text-3xl font-bold text-green-700 mt-1">£{(totalValue / 1000000).toFixed(1)}M</p>
         </div>
       </div>
 
       {/* Value Distribution */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Value Distribution by Category</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Value Distribution by Category</h3>
         <div className="w-full h-8 flex rounded-lg overflow-hidden">
           {categories.filter((c) => c.status === 'active').map((c, i) => {
             const pct = (c.totalValue / totalValue) * 100;
@@ -181,7 +181,7 @@ export default function CategoriesClient() {
       </div>
 
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
         <input type="text" placeholder="Search categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
       </div>
 

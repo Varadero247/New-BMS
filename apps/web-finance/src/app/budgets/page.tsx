@@ -122,8 +122,8 @@ export default function BudgetsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Budget vs Actual</h1>
-            <p className="text-gray-500 mt-1">Track budget performance and variances</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Budget vs Actual</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track budget performance and variances</p>
           </div>
           <Button className="flex items-center gap-2" onClick={() => { setFormData({ accountId: '', fiscalYear: yearFilter, month: new Date().getMonth() + 1, budgetAmount: '', notes: '' }); setFormError(''); setCreateModalOpen(true); }}>
             <Plus className="h-4 w-4" /> Add Budget Entry
@@ -138,7 +138,7 @@ export default function BudgetsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Budget</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
                   <p className="text-2xl font-bold text-indigo-700">{formatCurrency(totalBudget)}</p>
                 </div>
                 <PiggyBank className="h-8 w-8 text-indigo-500" />
@@ -149,7 +149,7 @@ export default function BudgetsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Actual</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Actual</p>
                   <p className="text-2xl font-bold text-blue-700">{formatCurrency(totalActual)}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-500" />
@@ -160,7 +160,7 @@ export default function BudgetsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Variance</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Variance</p>
                   <p className={`text-2xl font-bold ${totalVariance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                     {formatCurrency(totalVariance)}
                   </p>
@@ -181,7 +181,7 @@ export default function BudgetsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search accounts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
@@ -207,13 +207,13 @@ export default function BudgetsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Account</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Year</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Month</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Budget</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actual</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Variance</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Var %</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Year</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Month</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Budget</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actual</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Variance</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Var %</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -221,12 +221,12 @@ export default function BudgetsPage() {
                       const variance = (item.budgetAmount || 0) - (item.actualAmount || 0);
                       const varPercent = item.budgetAmount ? ((variance / item.budgetAmount) * 100) : 0;
                       return (
-                        <tr key={item.id} className="border-b hover:bg-gray-50">
+                        <tr key={item.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                           <td className="py-3 px-4">
                             <div>
-                              <span className="font-medium text-gray-900">{item.account?.name || item.accountName || '-'}</span>
+                              <span className="font-medium text-gray-900 dark:text-gray-100">{item.account?.name || item.accountName || '-'}</span>
                               {(item.account?.code || item.accountCode) && (
-                                <span className="text-xs text-gray-400 ml-2 font-mono">{item.account?.code || item.accountCode}</span>
+                                <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 font-mono">{item.account?.code || item.accountCode}</span>
                               )}
                             </div>
                           </td>
@@ -247,7 +247,7 @@ export default function BudgetsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500"><PiggyBank className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No budget entries found</p></div>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400"><PiggyBank className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No budget entries found</p></div>
             )}
           </CardContent>
         </Card>

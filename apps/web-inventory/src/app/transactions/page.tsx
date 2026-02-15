@@ -83,10 +83,10 @@ export default function TransactionsPage() {
       CYCLE_COUNT: 'bg-yellow-100 text-yellow-700',
       RETURN: 'bg-orange-100 text-orange-700',
       DAMAGE: 'bg-red-100 text-red-700',
-      EXPIRED: 'bg-gray-100 text-gray-700',
+      EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
       INITIAL: 'bg-sky-100 text-sky-700',
     };
-    return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[type] || 'bg-gray-100 text-gray-700'}`}>{type.replace('_', ' ')}</span>;
+    return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{type.replace('_', ' ')}</span>;
   };
 
   const filteredTransactions = transactions.filter(t => {
@@ -111,8 +111,8 @@ export default function TransactionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Transaction History</h1>
-            <p className="text-gray-500 mt-1">Complete audit trail of inventory movements</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Transaction History</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Complete audit trail of inventory movements</p>
           </div>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
@@ -125,7 +125,7 @@ export default function TransactionsPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
               <div className="flex-1 min-w-[200px] relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by reference, SKU, or product..."
                   value={search}
@@ -139,7 +139,7 @@ export default function TransactionsPage() {
                   setTransactionType(e.target.value);
                   setMeta({ ...meta, page: 1 });
                 }}
-                className="px-4 py-2 border rounded-lg bg-white"
+                className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900"
               >
                 <option value="">All Types</option>
                 {transactionTypes.map(type => (
@@ -207,7 +207,7 @@ export default function TransactionsPage() {
                         <TableCell className="text-sm">
                           <div>
                             <p>{new Date(txn.transactionDate).toLocaleDateString()}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {new Date(txn.transactionDate).toLocaleTimeString()}
                             </p>
                           </div>
@@ -224,14 +224,14 @@ export default function TransactionsPage() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{txn.product.name}</p>
-                            <p className="text-xs text-gray-500">{txn.product.sku}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{txn.product.sku}</p>
                           </div>
                         </TableCell>
                         <TableCell>
                           {txn.transactionType.includes('TRANSFER') ? (
                             <div className="text-sm">
                               <p>{txn.fromWarehouse?.name || '-'}</p>
-                              <p className="text-xs text-gray-500">→ {txn.warehouse?.name || '-'}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">→ {txn.warehouse?.name || '-'}</p>
                             </div>
                           ) : (
                             <span>{txn.warehouse?.name || '-'}</span>
@@ -263,7 +263,7 @@ export default function TransactionsPage() {
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Showing {(meta.page - 1) * meta.limit + 1} to{' '}
                     {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} transactions
                   </p>
@@ -289,8 +289,8 @@ export default function TransactionsPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No transactions found</p>
+                <History className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No transactions found</p>
               </div>
             )}
           </CardContent>

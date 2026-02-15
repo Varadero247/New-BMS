@@ -60,7 +60,7 @@ interface RetentionSchedule {
 }
 
 const dpiaStatusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_REVIEW: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
@@ -217,14 +217,14 @@ export default function PrivacyPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Privacy Hub</h1>
-          <p className="text-gray-500 mt-1">ISO 27701 privacy information management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Privacy Hub</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 27701 privacy information management</p>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-6">
+        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
@@ -234,7 +234,7 @@ export default function PrivacyPage() {
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? 'border-teal-600 text-teal-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -265,19 +265,19 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Activity</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Purpose</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Legal Basis</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Data Categories</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Data Subjects</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Recipients</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Retention</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Activity</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Purpose</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Legal Basis</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Categories</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Subjects</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recipients</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Retention</th>
                             </tr>
                           </thead>
                           <tbody>
                             {ropaRecords.map(r => (
-                              <tr key={r.id} className="border-b hover:bg-gray-50">
-                                <td className="py-3 px-4 text-gray-900 font-medium">{r.activityName}</td>
+                              <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{r.activityName}</td>
                                 <td className="py-3 px-4 text-gray-600">{r.purpose}</td>
                                 <td className="py-3 px-4"><Badge className="bg-teal-100 text-teal-700">{r.legalBasis}</Badge></td>
                                 <td className="py-3 px-4 text-gray-600">{r.dataCategories}</td>
@@ -290,7 +290,7 @@ export default function PrivacyPage() {
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-12 text-gray-500">
+                      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                         <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>No processing activities recorded</p>
                       </div>
@@ -315,21 +315,21 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Risk Level</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Approved By</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Risk Level</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Approved By</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {dpiaRecords.map(d => (
-                              <tr key={d.id} className="border-b hover:bg-gray-50">
+                              <tr key={d.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                                 <td className="py-3 px-4 font-mono text-xs text-gray-600">{d.referenceNumber}</td>
-                                <td className="py-3 px-4 text-gray-900 font-medium">{d.title}</td>
+                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{d.title}</td>
                                 <td className="py-3 px-4">
-                                  <Badge className={dpiaStatusColors[d.status] || 'bg-gray-100 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
+                                  <Badge className={dpiaStatusColors[d.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
                                 </td>
                                 <td className="py-3 px-4 text-gray-600">{d.riskLevel}</td>
                                 <td className="py-3 px-4 text-gray-600">{d.approvedBy || '-'}</td>
@@ -344,7 +344,7 @@ export default function PrivacyPage() {
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-12 text-gray-500">
+                      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                         <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>No DPIAs recorded</p>
                       </div>
@@ -369,25 +369,25 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Requester</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Received</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Deadline</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Requester</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Received</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deadline</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {dsarRecords.map(d => {
                               const daysLeft = getDaysUntilDeadline(d.deadline);
                               return (
-                                <tr key={d.id} className="border-b hover:bg-gray-50">
+                                <tr key={d.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                                   <td className="py-3 px-4 font-mono text-xs text-gray-600">{d.referenceNumber}</td>
-                                  <td className="py-3 px-4 text-gray-900 font-medium">{d.requesterName}</td>
+                                  <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{d.requesterName}</td>
                                   <td className="py-3 px-4 text-gray-600">{d.requestType}</td>
                                   <td className="py-3 px-4">
-                                    <Badge className={dsarStatusColors[d.status] || 'bg-gray-100 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
+                                    <Badge className={dsarStatusColors[d.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
                                   </td>
                                   <td className="py-3 px-4 text-gray-600">{new Date(d.receivedDate).toLocaleDateString()}</td>
                                   <td className="py-3 px-4">
@@ -407,7 +407,7 @@ export default function PrivacyPage() {
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-12 text-gray-500">
+                      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                         <UserCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>No DSARs recorded</p>
                       </div>
@@ -426,17 +426,17 @@ export default function PrivacyPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Data Subject</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Purpose</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Consent Date</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Withdrawn</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Subject</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Purpose</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Consent Date</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Withdrawn</th>
                           </tr>
                         </thead>
                         <tbody>
                           {consentRecords.map(c => (
-                            <tr key={c.id} className="border-b hover:bg-gray-50">
-                              <td className="py-3 px-4 text-gray-900">{c.dataSubject}</td>
+                            <tr key={c.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{c.dataSubject}</td>
                               <td className="py-3 px-4 text-gray-600">{c.purpose}</td>
                               <td className="py-3 px-4">
                                 {c.consentGiven && !c.withdrawnDate ? (
@@ -453,7 +453,7 @@ export default function PrivacyPage() {
                       </table>
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-500">
+                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                       <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No consent records</p>
                     </div>
@@ -471,17 +471,17 @@ export default function PrivacyPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Data Category</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Retention Period</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Legal Basis</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Disposal Method</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Review Date</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Category</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Retention Period</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Legal Basis</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Disposal Method</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Review Date</th>
                           </tr>
                         </thead>
                         <tbody>
                           {retentionSchedules.map(r => (
-                            <tr key={r.id} className="border-b hover:bg-gray-50">
-                              <td className="py-3 px-4 text-gray-900 font-medium">{r.dataCategory}</td>
+                            <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{r.dataCategory}</td>
                               <td className="py-3 px-4 text-gray-600">{r.retentionPeriod}</td>
                               <td className="py-3 px-4 text-gray-600">{r.legalBasis}</td>
                               <td className="py-3 px-4 text-gray-600">{r.disposalMethod}</td>
@@ -492,7 +492,7 @@ export default function PrivacyPage() {
                       </table>
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-500">
+                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                       <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No retention schedules defined</p>
                     </div>
@@ -508,15 +508,15 @@ export default function PrivacyPage() {
       <Modal isOpen={ropaModalOpen} onClose={() => setRopaModalOpen(false)} title="Add Processing Activity" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Activity Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Name</label>
             <input type="text" value={ropaForm.activityName} onChange={(e) => setRopaForm({ ...ropaForm, activityName: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purpose</label>
             <input type="text" value={ropaForm.purpose} onChange={(e) => setRopaForm({ ...ropaForm, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Legal Basis</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Legal Basis</label>
             <select value={ropaForm.legalBasis} onChange={(e) => setRopaForm({ ...ropaForm, legalBasis: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
               <option value="CONSENT">Consent</option>
               <option value="CONTRACT">Contract</option>
@@ -528,21 +528,21 @@ export default function PrivacyPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data Categories</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Categories</label>
               <input type="text" value={ropaForm.dataCategories} onChange={(e) => setRopaForm({ ...ropaForm, dataCategories: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Personal, Financial" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data Subjects</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Subjects</label>
               <input type="text" value={ropaForm.dataSubjects} onChange={(e) => setRopaForm({ ...ropaForm, dataSubjects: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Employees, Customers" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Recipients</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipients</label>
               <input type="text" value={ropaForm.recipients} onChange={(e) => setRopaForm({ ...ropaForm, recipients: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Retention Period</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Retention Period</label>
               <input type="text" value={ropaForm.retentionPeriod} onChange={(e) => setRopaForm({ ...ropaForm, retentionPeriod: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., 7 years" />
             </div>
           </div>
@@ -559,11 +559,11 @@ export default function PrivacyPage() {
       <Modal isOpen={dpiaModalOpen} onClose={() => setDpiaModalOpen(false)} title="Create DPIA" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
             <input type="text" value={dpiaForm.title} onChange={(e) => setDpiaForm({ ...dpiaForm, title: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea value={dpiaForm.description} onChange={(e) => setDpiaForm({ ...dpiaForm, description: e.target.value })} rows={4} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
         </div>
@@ -579,15 +579,15 @@ export default function PrivacyPage() {
       <Modal isOpen={dsarModalOpen} onClose={() => setDsarModalOpen(false)} title="Log DSAR" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester Name</label>
             <input type="text" value={dsarForm.requesterName} onChange={(e) => setDsarForm({ ...dsarForm, requesterName: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester Email</label>
             <input type="email" value={dsarForm.requesterEmail} onChange={(e) => setDsarForm({ ...dsarForm, requesterEmail: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Request Type</label>
             <select value={dsarForm.requestType} onChange={(e) => setDsarForm({ ...dsarForm, requestType: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
               <option value="ACCESS">Access (Art. 15)</option>
               <option value="RECTIFICATION">Rectification (Art. 16)</option>

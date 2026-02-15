@@ -90,7 +90,7 @@ function getTypeBadgeColor(type: string): string {
     case 'SOFTWARE': return 'bg-purple-100 text-purple-800 border-purple-300';
     case 'DOCUMENT': return 'bg-slate-100 text-slate-800 border-slate-300';
     case 'INTERFACE': return 'bg-cyan-100 text-cyan-800 border-cyan-300';
-    default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800 border-gray-300';
   }
 }
 
@@ -365,7 +365,7 @@ export default function ConfigurationClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-      <span className="ml-3 text-gray-500">Loading configuration items...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading configuration items...</span>
     </div>
   );
 
@@ -382,8 +382,8 @@ export default function ConfigurationClient() {
       )}
 
       {/* Section A: Identification */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
           A -- Identification
         </h3>
         <div className="space-y-4">
@@ -464,8 +464,8 @@ export default function ConfigurationClient() {
       </div>
 
       {/* Section B: Configuration Details */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
           B -- Configuration Details
         </h3>
         <div className="space-y-4">
@@ -528,8 +528,8 @@ export default function ConfigurationClient() {
       </div>
 
       {/* Section C: Ownership & Location */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
           C -- Ownership & Location
         </h3>
         <div className="space-y-4">
@@ -588,25 +588,25 @@ export default function ConfigurationClient() {
       </div>
 
       {/* Section D: AI Analysis */}
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <button
           type="button"
           onClick={() => setAiExpanded(!aiExpanded)}
           className="flex items-center justify-between w-full text-left"
         >
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-purple-500" />
             D -- AI Configuration Analysis
           </h3>
           {aiExpanded ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
+            <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           )}
         </button>
         {aiExpanded && (
           <div className="mt-4 space-y-3">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               AI will analyze the configuration item details and provide AS9100D compliance recommendations.
             </p>
             <Button
@@ -623,7 +623,7 @@ export default function ConfigurationClient() {
               )}
             </Button>
             {aiAnalysis && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {aiAnalysis}
               </div>
             )}
@@ -642,8 +642,8 @@ export default function ConfigurationClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Configuration Items</h1>
-          <p className="text-gray-500 mt-1">AS9100D Clause 8.1.2 -- Configuration Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Configuration Items</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D Clause 8.1.2 -- Configuration Management</p>
         </div>
 
         {/* Summary Metrics */}
@@ -652,7 +652,7 @@ export default function ConfigurationClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Items</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
                   <p className="text-3xl font-bold">{summaryStats.total}</p>
                 </div>
                 <Settings className="h-8 w-8 text-indigo-500" />
@@ -663,9 +663,9 @@ export default function ConfigurationClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-green-600">{summaryStats.active}</p>
-                  <p className="text-xs text-gray-400 mt-1">{summaryStats.draft} draft</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{summaryStats.draft} draft</p>
                 </div>
                 <Shield className="h-8 w-8 text-green-500" />
               </div>
@@ -675,7 +675,7 @@ export default function ConfigurationClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Under Review</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Under Review</p>
                   <p className="text-3xl font-bold text-amber-600">{summaryStats.underReview}</p>
                 </div>
                 <GitPullRequest className="h-8 w-8 text-amber-500" />
@@ -686,9 +686,9 @@ export default function ConfigurationClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Critical Items</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Critical Items</p>
                   <p className="text-3xl font-bold text-red-600">{summaryStats.critical}</p>
-                  <p className="text-xs text-gray-400 mt-1">{summaryStats.major} major</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{summaryStats.major} major</p>
                 </div>
                 <Shield className="h-8 w-8 text-red-500" />
               </div>
@@ -696,7 +696,7 @@ export default function ConfigurationClient() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1"><Cpu className="h-3 w-3" /> Hardware</span>
                   <span className="font-medium">{summaryStats.hardware}</span>
@@ -751,7 +751,7 @@ export default function ConfigurationClient() {
             ))}
           </Select>
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by name, CI number, part number..."
               value={searchQuery}
@@ -762,13 +762,13 @@ export default function ConfigurationClient() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode('table')}
-              className={`px-3 py-2 rounded text-sm ${viewMode === 'table' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}
+              className={`px-3 py-2 rounded text-sm ${viewMode === 'table' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}
             >
               Table
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 rounded text-sm ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}
+              className={`px-3 py-2 rounded text-sm ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}
             >
               Grid
             </button>
@@ -791,28 +791,28 @@ export default function ConfigurationClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">CI Number</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Name</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Type</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Baseline</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Status</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Classification</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Rev</th>
-                        <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Actions</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">CI Number</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Name</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Type</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Baseline</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Classification</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Rev</th>
+                        <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                       {filteredItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                           <td className="px-4 py-3">
                             <span className="text-sm font-mono text-indigo-600 font-medium">{item.ciNumber}</span>
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
                               {item.partNumber && (
-                                <p className="text-xs text-gray-400">P/N: {item.partNumber}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">P/N: {item.partNumber}</p>
                               )}
                             </div>
                           </td>
@@ -824,9 +824,9 @@ export default function ConfigurationClient() {
                           </td>
                           <td className="px-4 py-3">
                             {item.baselineName ? (
-                              <span className="text-sm text-gray-700">{item.baselineName}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.baselineName}</span>
                             ) : (
-                              <span className="text-xs text-gray-400">None</span>
+                              <span className="text-xs text-gray-400 dark:text-gray-500">None</span>
                             )}
                           </td>
                           <td className="px-4 py-3">
@@ -846,21 +846,21 @@ export default function ConfigurationClient() {
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => openDetailModal(item)}
-                                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-indigo-600 transition-colors"
+                                className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-indigo-600 transition-colors"
                                 title="View details"
                               >
                                 <Eye className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => openEditModal(item)}
-                                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-indigo-600 transition-colors"
+                                className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-indigo-600 transition-colors"
                                 title="Edit"
                               >
                                 <Edit className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600 transition-colors"
+                                className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"
                                 title="Delete"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -888,13 +888,13 @@ export default function ConfigurationClient() {
                       <div className="flex items-center gap-1 ml-2">
                         <button
                           onClick={() => openEditModal(item)}
-                          className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-indigo-600"
+                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-indigo-600"
                         >
                           <Edit className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"
+                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-red-600"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -915,7 +915,7 @@ export default function ConfigurationClient() {
                         {item.classification}
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-gray-400">
+                    <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
                       <span>Rev {item.revision}</span>
                       {item.partNumber && <span>P/N: {item.partNumber}</span>}
                       <span>{new Date(item.createdAt).toLocaleDateString()}</span>
@@ -927,9 +927,9 @@ export default function ConfigurationClient() {
           )
         ) : (
           <div className="text-center py-16">
-            <Settings className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No configuration items found</h3>
-            <p className="text-gray-500 mb-6">
+            <Settings className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No configuration items found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Start by identifying the configuration items in your aerospace product structure per AS9100D Clause 8.1.2.
             </p>
             <Button
@@ -944,7 +944,7 @@ export default function ConfigurationClient() {
 
         {/* Results count */}
         {!loading && items.length > 0 && (
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredItems.length} of {items.length} configuration items
           </div>
         )}
@@ -993,7 +993,7 @@ export default function ConfigurationClient() {
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedItem.name}</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{selectedItem.name}</h2>
                 <p className="text-sm font-mono text-indigo-600 mt-1">{selectedItem.ciNumber}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -1008,62 +1008,62 @@ export default function ConfigurationClient() {
 
             {/* Description */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">Description</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Description</h3>
               <p className="text-sm text-gray-600">{selectedItem.description || 'No description provided.'}</p>
             </div>
 
             {/* Details Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500">Type</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Type</p>
                 <div className="flex items-center gap-1 mt-1">
                   {getTypeIcon(selectedItem.type)}
                   <span className="text-sm font-medium">{selectedItem.type}</span>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500">Revision</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Revision</p>
                 <p className="text-sm font-mono font-medium mt-1">{selectedItem.revision}</p>
               </div>
               {selectedItem.partNumber && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Part Number</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Part Number</p>
                   <p className="text-sm font-mono font-medium mt-1">{selectedItem.partNumber}</p>
                 </div>
               )}
               {selectedItem.serialNumber && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Serial Number</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Serial Number</p>
                   <p className="text-sm font-mono font-medium mt-1">{selectedItem.serialNumber}</p>
                 </div>
               )}
               {selectedItem.manufacturer && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Manufacturer</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Manufacturer</p>
                   <p className="text-sm font-medium mt-1">{selectedItem.manufacturer}</p>
                 </div>
               )}
               {selectedItem.owner && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Owner</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Owner</p>
                   <p className="text-sm font-medium mt-1">{selectedItem.owner}</p>
                 </div>
               )}
               {selectedItem.location && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Location</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Location</p>
                   <p className="text-sm font-medium mt-1">{selectedItem.location}</p>
                 </div>
               )}
               {selectedItem.documentRef && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Document Reference</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Document Reference</p>
                   <p className="text-sm font-mono font-medium mt-1">{selectedItem.documentRef}</p>
                 </div>
               )}
               {selectedItem.baselineName && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Baseline</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Baseline</p>
                   <p className="text-sm font-medium mt-1">{selectedItem.baselineName}</p>
                 </div>
               )}
@@ -1072,7 +1072,7 @@ export default function ConfigurationClient() {
             {/* Effectivity */}
             {(selectedItem.effectivityStart || selectedItem.effectivityEnd) && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Effectivity</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Effectivity</h3>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   {selectedItem.effectivityStart && (
                     <span>Start: {new Date(selectedItem.effectivityStart).toLocaleDateString()}</span>
@@ -1085,7 +1085,7 @@ export default function ConfigurationClient() {
             )}
 
             {/* Timestamps */}
-            <div className="flex items-center gap-6 text-xs text-gray-400 pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-6 text-xs text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-700">
               <span>Created: {new Date(selectedItem.createdAt).toLocaleString()}</span>
               <span>Updated: {new Date(selectedItem.updatedAt).toLocaleString()}</span>
             </div>

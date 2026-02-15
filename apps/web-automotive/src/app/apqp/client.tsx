@@ -58,7 +58,7 @@ const phaseColors: Record<number, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   PLANNING: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-orange-100 text-orange-700',
   ACTIVE: 'bg-orange-100 text-orange-700',
@@ -286,8 +286,8 @@ export default function ApqpClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">APQP Projects</h1>
-            <p className="text-gray-500 mt-1">Advanced Product Quality Planning</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">APQP Projects</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Advanced Product Quality Planning</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadProjects} className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export default function ApqpClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Projects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <FolderKanban className="h-8 w-8 text-orange-500" />
@@ -318,7 +318,7 @@ export default function ApqpClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-orange-600">{stats.active}</p>
                 </div>
                 <Clock className="h-8 w-8 text-orange-500" />
@@ -329,7 +329,7 @@ export default function ApqpClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">On Hold</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">On Hold</p>
                   <p className="text-3xl font-bold text-yellow-600">{stats.onHold}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-yellow-500" />
@@ -340,7 +340,7 @@ export default function ApqpClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-3xl font-bold text-green-600">{stats.completed}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -351,7 +351,7 @@ export default function ApqpClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
                   <p className="text-3xl font-bold text-red-600">{stats.overdueCount}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -376,20 +376,20 @@ export default function ApqpClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by name, reference, customer, product..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">APQP Phase</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">APQP Phase</Label>
                 <Select value={phaseFilter} onChange={(e) => setPhaseFilter(e.target.value)}>
                   <option value="all">All Phases</option>
                   {Object.entries(APQP_PHASES).map(([num, name]) => (
@@ -398,7 +398,7 @@ export default function ApqpClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {APQP_STATUSES.map(s => (
@@ -431,7 +431,7 @@ export default function ApqpClient() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Project #</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Name</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Product</th>
@@ -446,44 +446,44 @@ export default function ApqpClient() {
                     {filtered.map((project) => (
                       <tr
                         key={project.id}
-                        className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors ${
                           isOverdue(project) ? 'bg-red-50/50' : ''
                         }`}
                       >
                         <td className="px-4 py-3">
-                          <span className="text-xs font-mono text-gray-500">
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {project.referenceNumber || '-'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
                           <div>
-                            <p className="font-medium text-gray-900">{project.name}</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{project.name}</p>
                             {project.description && (
-                              <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[250px]">{project.description}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-[250px]">{project.description}</p>
                             )}
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div>
-                            <p className="text-sm text-gray-700">{project.productName || '-'}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">{project.productName || '-'}</p>
                             {project.productNumber && (
-                              <p className="text-xs text-gray-400">{project.productNumber}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">{project.productNumber}</p>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                           {project.customerName || '-'}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <div className="flex flex-col items-center gap-1">
-                            <Badge className={phaseColors[project.currentPhase] || 'bg-gray-100 text-gray-700'}>
+                            <Badge className={phaseColors[project.currentPhase] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                               P{project.currentPhase}: {APQP_PHASES[project.currentPhase] || 'Unknown'}
                             </Badge>
                             <PhaseProgressBar currentPhase={project.currentPhase} />
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={statusColors[project.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[project.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {project.status?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
@@ -492,7 +492,7 @@ export default function ApqpClient() {
                             {isOverdue(project) && (
                               <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
                             )}
-                            <span className={`text-sm ${isOverdue(project) ? 'text-red-600 font-medium' : 'text-gray-700'}`}>
+                            <span className={`text-sm ${isOverdue(project) ? 'text-red-600 font-medium' : 'text-gray-700 dark:text-gray-300'}`}>
                               {formatDate(project.targetDate)}
                             </span>
                           </div>
@@ -502,7 +502,7 @@ export default function ApqpClient() {
                             <button
                               type="button"
                               onClick={() => openDetail(project)}
-                              className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                              className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                               title="View details"
                             >
                               <Eye className="h-4 w-4" />
@@ -510,7 +510,7 @@ export default function ApqpClient() {
                             <button
                               type="button"
                               onClick={() => openEditModal(project)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors rounded hover:bg-blue-50"
+                              className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors rounded hover:bg-blue-50"
                               title="Edit project"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -524,9 +524,9 @@ export default function ApqpClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FolderKanban className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No APQP projects found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <FolderKanban className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No APQP projects found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || phaseFilter !== 'all' || statusFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first APQP project.'}
@@ -705,12 +705,12 @@ export default function ApqpClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedProject.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500">{selectedProject.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedProject.referenceNumber}</span>
               )}
-              <Badge className={phaseColors[selectedProject.currentPhase] || 'bg-gray-100'}>
+              <Badge className={phaseColors[selectedProject.currentPhase] || 'bg-gray-100 dark:bg-gray-800'}>
                 Phase {selectedProject.currentPhase}: {APQP_PHASES[selectedProject.currentPhase] || 'Unknown'}
               </Badge>
-              <Badge className={statusColors[selectedProject.status] || 'bg-gray-100'}>
+              <Badge className={statusColors[selectedProject.status] || 'bg-gray-100 dark:bg-gray-800'}>
                 {selectedProject.status?.replace(/_/g, ' ')}
               </Badge>
               {isOverdue(selectedProject) && (
@@ -719,8 +719,8 @@ export default function ApqpClient() {
             </div>
 
             {/* Phase Progress */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">APQP Phase Progress</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">APQP Phase Progress</h3>
               <div className="flex items-center justify-between mb-3">
                 {[1, 2, 3, 4, 5].map((phase) => (
                   <div key={phase} className="flex flex-col items-center flex-1">
@@ -740,7 +740,7 @@ export default function ApqpClient() {
                       )}
                     </div>
                     <p className={`text-xs text-center ${
-                      phase === selectedProject.currentPhase ? 'font-semibold text-orange-700' : 'text-gray-500'
+                      phase === selectedProject.currentPhase ? 'font-semibold text-orange-700' : 'text-gray-500 dark:text-gray-400'
                     }`}>
                       {APQP_PHASES[phase]}
                     </p>
@@ -756,71 +756,71 @@ export default function ApqpClient() {
             </div>
 
             {/* Project Details Grid */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Project Details</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Project Details</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Product Name</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Product Name</p>
                   <p className="text-sm font-medium">{selectedProject.productName || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Product / Part Number</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Product / Part Number</p>
                   <p className="text-sm font-medium font-mono">{selectedProject.productNumber || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Customer</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Customer</p>
                   <p className="text-sm font-medium">{selectedProject.customerName || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Start Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Start Date</p>
                   <p className="text-sm">{formatDate(selectedProject.startDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Target Date</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Target Date</p>
                   <p className={`text-sm ${isOverdue(selectedProject) ? 'text-red-600 font-medium' : ''}`}>
                     {formatDate(selectedProject.targetDate)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Created</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedProject.createdAt)}</p>
                 </div>
               </div>
 
               {selectedProject.description && (
                 <div className="mt-4">
-                  <p className="text-xs text-gray-500">Description</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Description</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedProject.description}</p>
                 </div>
               )}
 
               {selectedProject.teamMembers && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Team Members</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Team Members</p>
                   <p className="text-sm mt-1">{selectedProject.teamMembers}</p>
                 </div>
               )}
 
               {selectedProject.notes && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Notes</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Notes</p>
                   <p className="text-sm mt-1 whitespace-pre-wrap">{selectedProject.notes}</p>
                 </div>
               )}
             </div>
 
             {/* APQP Phase Deliverables Checklist */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 Phase {selectedProject.currentPhase} Deliverables: {APQP_PHASES[selectedProject.currentPhase]}
               </h3>
               <div className="space-y-2">
                 {getPhaseDeliverables(selectedProject.currentPhase).map((deliverable, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                    <div className="w-5 h-5 rounded border border-gray-300 flex items-center justify-center bg-white">
-                      <span className="text-xs text-gray-400">{idx + 1}</span>
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <div className="w-5 h-5 rounded border border-gray-300 flex items-center justify-center bg-white dark:bg-gray-900">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{idx + 1}</span>
                     </div>
-                    <span className="text-sm text-gray-700">{deliverable}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{deliverable}</span>
                   </div>
                 ))}
               </div>

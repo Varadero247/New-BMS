@@ -74,14 +74,14 @@ export default function HeatMapPage() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Risk Heat Map</h1>
-          <p className="text-sm text-gray-500 mt-1">Information security risk matrix — {risks.length} risks mapped</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Risk Heat Map</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Information security risk matrix — {risks.length} risks mapped</p>
         </div>
-        <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-          <button onClick={() => setViewMode('inherent')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'inherent' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+        <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button onClick={() => setViewMode('inherent')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'inherent' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
             Inherent Risk
           </button>
-          <button onClick={() => setViewMode('residual')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'residual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          <button onClick={() => setViewMode('residual')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'residual' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
             Residual Risk
           </button>
         </div>
@@ -89,33 +89,33 @@ export default function HeatMapPage() {
 
       {/* Summary */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Risks</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{risks.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Risks</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{risks.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">High / Critical</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">High / Critical</p>
           <p className="text-3xl font-bold text-red-600 mt-1">{criticalCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Categories</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Categories</p>
           <p className="text-3xl font-bold text-indigo-700 mt-1">{new Set(risks.map((r) => r.category)).size}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">View Mode</p>
-          <p className="text-lg font-bold text-gray-900 mt-1">{viewMode === 'inherent' ? 'Inherent' : 'Residual'}</p>
-          <p className="text-xs text-gray-400">{viewMode === 'inherent' ? 'Before controls' : 'After controls'}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">View Mode</p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mt-1">{viewMode === 'inherent' ? 'Inherent' : 'Residual'}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">{viewMode === 'inherent' ? 'Before controls' : 'After controls'}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Heat Map */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">5x5 Risk Matrix</h2>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">5x5 Risk Matrix</h2>
           <div className="flex">
             {/* Y-axis label */}
             <div className="flex flex-col items-center justify-center mr-2">
-              <span className="text-xs text-gray-500 font-medium" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                 Likelihood
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function HeatMapPage() {
               {[5, 4, 3, 2, 1].map((likelihood) => (
                 <div key={likelihood} className="flex items-stretch">
                   <div className="w-20 flex items-center justify-end pr-2">
-                    <span className="text-xs text-gray-500">{likelihoodLabels[likelihood]}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{likelihoodLabels[likelihood]}</span>
                   </div>
                   {[1, 2, 3, 4, 5].map((impact) => {
                     const cellRisks = getRisksByCell(likelihood, impact);
@@ -154,44 +154,44 @@ export default function HeatMapPage() {
                 <div className="w-20" />
                 {[1, 2, 3, 4, 5].map((impact) => (
                   <div key={impact} className="flex-1 text-center">
-                    <span className="text-xs text-gray-500">{impactLabels[impact]}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{impactLabels[impact]}</span>
                   </div>
                 ))}
               </div>
               <div className="text-center mt-1">
-                <span className="text-xs text-gray-500 font-medium">Impact</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Impact</span>
               </div>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200 flex-wrap">
+          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex-wrap">
             {[{ label: 'Critical (20-25)', color: 'bg-red-600' }, { label: 'High (15-19)', color: 'bg-red-500' }, { label: 'Medium (10-14)', color: 'bg-orange-500' }, { label: 'Low (5-9)', color: 'bg-amber-400' }, { label: 'Very Low (1-4)', color: 'bg-green-500' }].map((l) => (
               <div key={l.label} className="flex items-center gap-1.5">
                 <div className={`w-3 h-3 rounded ${l.color}`} />
-                <span className="text-xs text-gray-500">{l.label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{l.label}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Risk Details Panel */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 overflow-y-auto max-h-[600px]">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 overflow-y-auto max-h-[600px]">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             {selectedCell ? `Risks at L${selectedCell.l} x I${selectedCell.i}` : selectedRisk ? 'Risk Details' : 'Select a cell'}
           </h2>
           {selectedCell && (
             <div className="space-y-2">
               {getRisksByCell(selectedCell.l, selectedCell.i).map((r) => (
-                <button key={r.id} onClick={() => { setSelectedRisk(r); setSelectedCell(null); }} className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <button key={r.id} onClick={() => { setSelectedRisk(r); setSelectedCell(null); }} className="w-full text-left p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-indigo-600">{r.id}</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium text-white ${getRiskColor(r.likelihood * r.impact)}`}>
                       {getRiskLevel(r.likelihood * r.impact)}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-gray-900 mt-1">{r.title}</p>
-                  <p className="text-xs text-gray-500">{r.category} · {r.owner}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">{r.title}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{r.category} · {r.owner}</p>
                 </button>
               ))}
             </div>
@@ -202,10 +202,10 @@ export default function HeatMapPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono text-indigo-600">{selectedRisk.id}</span>
-                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">{selectedRisk.category}</span>
+                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600">{selectedRisk.category}</span>
                 </div>
-                <h3 className="text-base font-semibold text-gray-900 mt-1">{selectedRisk.title}</h3>
-                <p className="text-sm text-gray-500 mt-1">{selectedRisk.description}</p>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-1">{selectedRisk.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{selectedRisk.description}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-red-50 rounded-lg p-3">
@@ -220,7 +220,7 @@ export default function HeatMapPage() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-700 mb-1">Controls ({selectedRisk.controls.length})</p>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Controls ({selectedRisk.controls.length})</p>
                 <div className="flex flex-wrap gap-1">
                   {selectedRisk.controls.map((c) => (
                     <span key={c} className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs">{c}</span>
@@ -228,33 +228,33 @@ export default function HeatMapPage() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-700 mb-1">Treatment Plan</p>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Treatment Plan</p>
                 <p className="text-sm text-gray-600">{selectedRisk.treatmentPlan}</p>
               </div>
-              <div className="text-xs text-gray-400">Owner: {selectedRisk.owner}</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500">Owner: {selectedRisk.owner}</div>
             </div>
           )}
           {!selectedCell && !selectedRisk && (
-            <p className="text-sm text-gray-400">Click a cell on the heat map to view risks at that intersection.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Click a cell on the heat map to view risks at that intersection.</p>
           )}
         </div>
       </div>
 
       {/* Risk Register Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-200">
-          <h2 className="text-sm font-semibold text-gray-700">All Risks</h2>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">All Risks</h2>
         </div>
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="text-left px-4 py-2 font-medium text-gray-500 w-20">ID</th>
-              <th className="text-left px-4 py-2 font-medium text-gray-500">Risk</th>
-              <th className="text-left px-4 py-2 font-medium text-gray-500 w-24">Category</th>
-              <th className="text-center px-4 py-2 font-medium text-gray-500 w-20">Inherent</th>
-              <th className="text-center px-4 py-2 font-medium text-gray-500 w-20">Residual</th>
-              <th className="text-center px-4 py-2 font-medium text-gray-500 w-24">Level</th>
-              <th className="text-left px-4 py-2 font-medium text-gray-500 w-24">Owner</th>
+              <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-20">ID</th>
+              <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400">Risk</th>
+              <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Category</th>
+              <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-20">Inherent</th>
+              <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-20">Residual</th>
+              <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Level</th>
+              <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Owner</th>
             </tr>
           </thead>
           <tbody>
@@ -262,10 +262,10 @@ export default function HeatMapPage() {
               const inherent = r.likelihood * r.impact;
               const residual = r.residualLikelihood * r.residualImpact;
               return (
-                <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedRisk(r); setSelectedCell(null); }}>
+                <tr key={r.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => { setSelectedRisk(r); setSelectedCell(null); }}>
                   <td className="px-4 py-2 font-mono text-xs text-indigo-600">{r.id}</td>
-                  <td className="px-4 py-2 font-medium text-gray-900">{r.title}</td>
-                  <td className="px-4 py-2 text-xs text-gray-500">{r.category}</td>
+                  <td className="px-4 py-2 font-medium text-gray-900 dark:text-gray-100">{r.title}</td>
+                  <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{r.category}</td>
                   <td className="px-4 py-2 text-center"><span className={`inline-block w-8 h-6 rounded text-xs font-bold text-white leading-6 ${getRiskColor(inherent)}`}>{inherent}</span></td>
                   <td className="px-4 py-2 text-center"><span className={`inline-block w-8 h-6 rounded text-xs font-bold text-white leading-6 ${getRiskColor(residual)}`}>{residual}</span></td>
                   <td className="px-4 py-2 text-center"><span className={`px-2 py-0.5 rounded-full text-xs font-medium text-white ${getRiskColor(viewMode === 'inherent' ? inherent : residual)}`}>{getRiskLevel(viewMode === 'inherent' ? inherent : residual)}</span></td>

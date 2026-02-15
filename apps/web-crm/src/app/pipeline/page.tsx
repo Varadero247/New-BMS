@@ -23,7 +23,7 @@ interface BoardColumn {
 }
 
 const STAGES = [
-  { key: 'PROSPECTING', label: 'Prospecting', color: 'bg-gray-100 border-gray-300' },
+  { key: 'PROSPECTING', label: 'Prospecting', color: 'bg-gray-100 dark:bg-gray-800 border-gray-300' },
   { key: 'QUALIFICATION', label: 'Qualification', color: 'bg-blue-50 border-blue-300' },
   { key: 'PROPOSAL', label: 'Proposal', color: 'bg-violet-50 border-violet-300' },
   { key: 'NEGOTIATION', label: 'Negotiation', color: 'bg-amber-50 border-amber-300' },
@@ -113,8 +113,8 @@ export default function PipelinePage() {
       <div className="max-w-full mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Pipeline</h1>
-            <p className="text-gray-500 mt-1">Visual deal pipeline - click arrows to advance deals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Pipeline</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Visual deal pipeline - click arrows to advance deals</p>
           </div>
           <Button variant="outline" onClick={loadBoard} className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" /> Refresh
@@ -131,13 +131,13 @@ export default function PipelinePage() {
             const totalValue = col.deals.reduce((sum, d) => sum + (d.value || 0), 0);
 
             return (
-              <div key={col.stage} className={`min-w-[280px] w-72 rounded-lg border-2 ${stageInfo?.color || 'bg-gray-50 border-gray-200'}`}>
-                <div className="p-3 border-b border-gray-200">
+              <div key={col.stage} className={`min-w-[280px] w-72 rounded-lg border-2 ${stageInfo?.color || 'bg-gray-50 dark:bg-gray-800 border-gray-200'}`}>
+                <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">{col.label || stageInfo?.label}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{col.label || stageInfo?.label}</h3>
                     <Badge className="bg-violet-100 text-violet-700">{col.deals.length}</Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{formatCurrency(totalValue)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formatCurrency(totalValue)}</p>
                 </div>
 
                 <div className="p-2 space-y-2 max-h-[60vh] overflow-y-auto">
@@ -147,7 +147,7 @@ export default function PipelinePage() {
                       <Card key={deal.id} className="shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-3">
                           <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-medium text-gray-900 text-sm">{deal.title}</h4>
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">{deal.title}</h4>
                             {nextStage && (
                               <button
                                 onClick={() => moveDeal(deal.id, nextStage)}
@@ -158,19 +158,19 @@ export default function PipelinePage() {
                               </button>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                             <DollarSign className="h-3 w-3" />
-                            <span className="font-medium text-gray-900">{formatCurrency(deal.value || 0)}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(deal.value || 0)}</span>
                           </div>
                           {deal.accountName && (
-                            <p className="text-xs text-gray-500">{deal.accountName}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{deal.accountName}</p>
                           )}
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">
                               {deal.probability}% probability
                             </span>
                             {deal.expectedCloseDate && (
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
                                 {new Date(deal.expectedCloseDate).toLocaleDateString()}
                               </span>
                             )}
@@ -180,7 +180,7 @@ export default function PipelinePage() {
                     );
                   })}
                   {col.deals.length === 0 && (
-                    <div className="text-center py-8 text-gray-400 text-sm">
+                    <div className="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">
                       No deals
                     </div>
                   )}

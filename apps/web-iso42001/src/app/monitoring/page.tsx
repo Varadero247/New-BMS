@@ -686,7 +686,7 @@ export default function MonitoringDashboardPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setThresholdModalOpen(false)}
-                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
+                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-sm"
               >
                 Cancel
               </button>

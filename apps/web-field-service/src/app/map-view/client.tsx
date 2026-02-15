@@ -68,7 +68,7 @@ const statusBadgeColors: Record<JobStatus, string> = {
   'En Route': 'bg-yellow-100 text-yellow-700',
   'On Site': 'bg-purple-100 text-purple-700',
   Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-gray-100 text-gray-600',
+  Cancelled: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const priorityColors: Record<JobPriority, string> = {
@@ -110,15 +110,15 @@ export default function MapViewClient() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Service Map View</h1>
-          <p className="text-sm text-gray-500 mt-1">Real-time job locations and technician positions</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Service Map View</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Real-time job locations and technician positions</p>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-gray-600">
             <input type="checkbox" checked={showTechnicians} onChange={e => setShowTechnicians(e.target.checked)} className="rounded" />
             Show Technicians
           </label>
-          <a href="/jobs" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+          <a href="/jobs" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
             Jobs List
           </a>
         </div>
@@ -149,8 +149,8 @@ export default function MapViewClient() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg px-4 py-2">
-        <span className="text-xs text-gray-500">Status:</span>
+      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Status:</span>
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="Scheduled">Scheduled</option>
@@ -158,7 +158,7 @@ export default function MapViewClient() {
           <option value="On Site">On Site</option>
           <option value="Completed">Completed</option>
         </select>
-        <span className="text-xs text-gray-500">Region:</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">Region:</span>
         <select value={filterRegion} onChange={e => setFilterRegion(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="North">North</option>
@@ -171,17 +171,17 @@ export default function MapViewClient() {
 
       <div className="grid grid-cols-3 gap-4">
         {/* Map area */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-lg p-4">
-          <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{ height: 500 }}>
+        <div className="col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden" style={{ height: 500 }}>
             {/* Grid lines */}
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)', backgroundSize: '10% 10%' }} />
 
             {/* Region labels */}
-            <span className="absolute text-[10px] font-semibold text-gray-400 uppercase" style={{ top: '8%', left: '15%' }}>North</span>
-            <span className="absolute text-[10px] font-semibold text-gray-400 uppercase" style={{ top: '35%', left: '42%' }}>Central</span>
-            <span className="absolute text-[10px] font-semibold text-gray-400 uppercase" style={{ top: '35%', left: '72%' }}>East</span>
-            <span className="absolute text-[10px] font-semibold text-gray-400 uppercase" style={{ top: '70%', left: '42%' }}>South</span>
-            <span className="absolute text-[10px] font-semibold text-gray-400 uppercase" style={{ top: '55%', left: '8%' }}>West</span>
+            <span className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase" style={{ top: '8%', left: '15%' }}>North</span>
+            <span className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase" style={{ top: '35%', left: '42%' }}>Central</span>
+            <span className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase" style={{ top: '35%', left: '72%' }}>East</span>
+            <span className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase" style={{ top: '70%', left: '42%' }}>South</span>
+            <span className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase" style={{ top: '55%', left: '8%' }}>West</span>
 
             {/* Job markers */}
             {filteredJobs.map(job => (
@@ -196,10 +196,10 @@ export default function MapViewClient() {
                   <MapPin className="h-3.5 w-3.5 text-white" />
                 </div>
                 {selectedJob?.id === job.id && (
-                  <div className="absolute top-7 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-48 z-30">
-                    <p className="text-[10px] font-mono text-gray-400">{job.id}</p>
-                    <p className="text-xs font-semibold text-gray-900 truncate">{job.title}</p>
-                    <p className="text-[10px] text-gray-500">{job.customer}</p>
+                  <div className="absolute top-7 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 w-48 z-30">
+                    <p className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{job.id}</p>
+                    <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">{job.title}</p>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400">{job.customer}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${statusBadgeColors[job.status]}`}>{job.status}</span>
                       <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${priorityColors[job.priority]}`}>{job.priority}</span>
@@ -226,43 +226,43 @@ export default function MapViewClient() {
 
           {/* Legend */}
           <div className="flex items-center gap-4 mt-3">
-            <span className="text-[10px] text-gray-500 font-medium">Jobs:</span>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Jobs:</span>
             {(['Scheduled', 'En Route', 'On Site', 'Completed'] as JobStatus[]).map(s => (
               <div key={s} className="flex items-center gap-1">
                 <div className={`h-3 w-3 rounded-full ${statusColors[s]}`} />
-                <span className="text-[10px] text-gray-500">{s}</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400">{s}</span>
               </div>
             ))}
-            <span className="text-[10px] text-gray-500 font-medium ml-4">Techs:</span>
-            <div className="flex items-center gap-1"><div className="h-3 w-3 rounded-sm bg-green-500" /><span className="text-[10px] text-gray-500">Available</span></div>
-            <div className="flex items-center gap-1"><div className="h-3 w-3 rounded-sm bg-purple-500" /><span className="text-[10px] text-gray-500">On Job</span></div>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium ml-4">Techs:</span>
+            <div className="flex items-center gap-1"><div className="h-3 w-3 rounded-sm bg-green-500" /><span className="text-[10px] text-gray-500 dark:text-gray-400">Available</span></div>
+            <div className="flex items-center gap-1"><div className="h-3 w-3 rounded-sm bg-purple-500" /><span className="text-[10px] text-gray-500 dark:text-gray-400">On Job</span></div>
           </div>
         </div>
 
         {/* Technician panel */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700">Technicians</h3>
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Technicians</h3>
           {MOCK_TECHS.map(tech => (
-            <div key={tech.id} className="bg-white border border-gray-200 rounded-lg p-3">
+            <div key={tech.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-2">
                 <div className={`h-7 w-7 rounded-full ${techStatusColors[tech.status]} flex items-center justify-center`}>
                   <User className="h-3.5 w-3.5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-900">{tech.name}</p>
-                  <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${tech.status === 'Available' ? 'bg-green-100 text-green-700' : tech.status === 'On Job' ? 'bg-purple-100 text-purple-700' : tech.status === 'En Route' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">{tech.name}</p>
+                  <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${tech.status === 'Available' ? 'bg-green-100 text-green-700' : tech.status === 'On Job' ? 'bg-purple-100 text-purple-700' : tech.status === 'En Route' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>
                     {tech.status}
                   </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-1 text-[10px]">
-                <div><span className="text-gray-400">Jobs Done:</span> <span className="font-medium">{tech.jobsCompleted}</span></div>
-                <div><span className="text-gray-400">Hours:</span> <span className="font-medium">{tech.hoursWorked}h</span></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Jobs Done:</span> <span className="font-medium">{tech.jobsCompleted}</span></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Hours:</span> <span className="font-medium">{tech.hoursWorked}h</span></div>
               </div>
               {tech.currentJobId && (
-                <div className="mt-1.5 pt-1.5 border-t border-gray-100 text-[10px]">
-                  <span className="text-gray-400">Current:</span>{' '}
-                  <span className="font-medium text-gray-700">{MOCK_JOBS.find(j => j.id === tech.currentJobId)?.title}</span>
+                <div className="mt-1.5 pt-1.5 border-t border-gray-100 dark:border-gray-700 text-[10px]">
+                  <span className="text-gray-400 dark:text-gray-500">Current:</span>{' '}
+                  <span className="font-medium text-gray-700 dark:text-gray-300">{MOCK_JOBS.find(j => j.id === tech.currentJobId)?.title}</span>
                 </div>
               )}
             </div>

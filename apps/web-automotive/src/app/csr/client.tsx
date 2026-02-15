@@ -175,8 +175,8 @@ export default function CsrClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">CSR Register</h1>
-            <p className="text-gray-500 mt-1">Customer-Specific Requirements Compliance Tracker</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CSR Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Customer-Specific Requirements Compliance Tracker</p>
           </div>
           <Button variant="outline" onClick={() => { setLoading(true); loadCsrs(); }} className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
@@ -190,7 +190,7 @@ export default function CsrClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total CSRs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total CSRs</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <FileText className="h-8 w-8 text-orange-500" />
@@ -201,7 +201,7 @@ export default function CsrClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Compliant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Compliant</p>
                   <p className="text-3xl font-bold text-green-600">{stats.compliant}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -212,7 +212,7 @@ export default function CsrClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Partial</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Partial</p>
                   <p className="text-3xl font-bold text-yellow-600">{stats.partial}</p>
                 </div>
                 <MinusCircle className="h-8 w-8 text-yellow-500" />
@@ -223,7 +223,7 @@ export default function CsrClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Non-Compliant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Non-Compliant</p>
                   <p className="text-3xl font-bold text-red-600">{stats.nonCompliant}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-red-500" />
@@ -248,20 +248,20 @@ export default function CsrClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search by OEM, clause, requirement, gap notes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">OEM</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">OEM</Label>
                 <Select value={oemFilter} onChange={(e) => setOemFilter(e.target.value)}>
                   <option value="all">All OEMs</option>
                   {oems.map(o => (
@@ -270,7 +270,7 @@ export default function CsrClient() {
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 mb-1 block">Compliance Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Compliance Status</Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
                   {COMPLIANCE_STATUSES.map(s => (
@@ -303,7 +303,7 @@ export default function CsrClient() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">OEM</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">IATF Clause</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Requirement</th>
@@ -314,26 +314,26 @@ export default function CsrClient() {
                   </thead>
                   <tbody>
                     {filtered.map((csr) => (
-                      <tr key={csr.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <tr key={csr.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                         <td className="px-4 py-3">
-                          <span className="text-sm font-medium text-gray-900">{csr.oem}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{csr.oem}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-sm font-mono text-gray-600">{csr.iatfClause}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-700 max-w-[300px] block truncate" title={csr.requirement}>
+                          <span className="text-sm text-gray-700 dark:text-gray-300 max-w-[300px] block truncate" title={csr.requirement}>
                             {csr.requirement}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={`inline-flex items-center gap-1 ${statusColors[csr.complianceStatus] || 'bg-gray-100 text-gray-700'}`}>
+                          <Badge className={`inline-flex items-center gap-1 ${statusColors[csr.complianceStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {statusIcons[csr.complianceStatus]}
                             {csr.complianceStatus?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-500 max-w-[200px] block truncate" title={csr.gapNotes || ''}>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 max-w-[200px] block truncate" title={csr.gapNotes || ''}>
                             {csr.gapNotes || '-'}
                           </span>
                         </td>
@@ -341,7 +341,7 @@ export default function CsrClient() {
                           <button
                             type="button"
                             onClick={() => openEditModal(csr)}
-                            className="p-1.5 text-gray-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
+                            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-orange-600 transition-colors rounded hover:bg-orange-50"
                             title="Update compliance status"
                           >
                             <Edit2 className="h-4 w-4" />
@@ -354,9 +354,9 @@ export default function CsrClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">No CSRs found</h3>
-                <p className="text-sm text-gray-400 mb-6">
+                <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No CSRs found</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || oemFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Select an OEM to view their customer-specific requirements.'}
@@ -380,20 +380,20 @@ export default function CsrClient() {
           <form onSubmit={handleEditSubmit}>
             <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
               {/* Read-only info */}
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500">OEM</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">OEM</p>
                     <p className="text-sm font-medium">{selectedCsr.oem}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">IATF Clause</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">IATF Clause</p>
                     <p className="text-sm font-mono">{selectedCsr.iatfClause}</p>
                   </div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">Requirement</p>
-                  <p className="text-sm text-gray-700 mt-1">{selectedCsr.requirement}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Requirement</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{selectedCsr.requirement}</p>
                 </div>
               </div>
 

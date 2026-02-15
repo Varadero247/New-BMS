@@ -21,8 +21,8 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Payroll Reports</h1>
-            <p className="text-gray-500 mt-1">Generate and export payroll reports</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Payroll Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Generate and export payroll reports</p>
           </div>
           <div className="flex items-center gap-3">
             <input
@@ -46,7 +46,7 @@ export default function ReportsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-500 mb-4">{report.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{report.description}</p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="flex items-center gap-1">
                       <BarChart3 className="h-4 w-4" /> View

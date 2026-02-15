@@ -38,7 +38,7 @@ interface Idea {
 }
 
 const projectStatusColors: Record<string, string> = {
-  PROPOSED: 'bg-gray-100 text-gray-700',
+  PROPOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   APPROVED: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   ON_HOLD: 'bg-orange-100 text-orange-700',
@@ -122,8 +122,8 @@ export default function ContinuousImprovementPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Continuous Improvement</h1>
-            <p className="text-gray-500 mt-1">Projects, Kaizen Events, and Employee Ideas</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Continuous Improvement</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Projects, Kaizen Events, and Employee Ideas</p>
           </div>
           <div className="flex gap-2">
             <Link href="/ci/projects/new">
@@ -150,7 +150,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Projects</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Projects</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.activeProjects}</p>
                 </div>
                 <Target className="h-8 w-8 text-blue-500" />
@@ -161,7 +161,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{stats.completedProjects}</p>
                 </div>
                 <CheckSquare className="h-8 w-8 text-green-500" />
@@ -172,7 +172,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Savings</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Savings</p>
                   <p className="text-2xl font-bold text-green-600">
                     ${(stats.totalSavings / 1000).toFixed(0)}k
                   </p>
@@ -185,7 +185,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Upcoming Kaizen</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming Kaizen</p>
                   <p className="text-2xl font-bold text-purple-600">{stats.upcomingKaizen}</p>
                 </div>
                 <Zap className="h-8 w-8 text-purple-500" />
@@ -196,7 +196,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">New Ideas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">New Ideas</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.newIdeas}</p>
                 </div>
                 <Lightbulb className="h-8 w-8 text-yellow-500" />
@@ -207,7 +207,7 @@ export default function ContinuousImprovementPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Implemented</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Implemented</p>
                   <p className="text-2xl font-bold text-cyan-600">{stats.implementedIdeas}</p>
                 </div>
                 <CheckSquare className="h-8 w-8 text-cyan-500" />
@@ -249,18 +249,18 @@ export default function ContinuousImprovementPage() {
                 <div className="space-y-4">
                   {projects.map((project) => (
                     <Link key={project.id} href={`/ci/projects/${project.id}`}>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{project.title}</span>
-                            <Badge className={phaseColors[project.currentPhase] || 'bg-gray-100'}>
+                            <Badge className={phaseColors[project.currentPhase] || 'bg-gray-100 dark:bg-gray-800'}>
                               {project.currentPhase}
                             </Badge>
-                            <Badge className={projectStatusColors[project.status] || 'bg-gray-100'}>
+                            <Badge className={projectStatusColors[project.status] || 'bg-gray-100 dark:bg-gray-800'}>
                               {project.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>{project.projectNumber}</span>
                             <span>•</span>
                             <span>{project.methodology}</span>
@@ -274,7 +274,7 @@ export default function ContinuousImprovementPage() {
                         </div>
                         {project.actualSavings && (
                           <div className="text-right">
-                            <p className="text-sm text-gray-500">Actual Savings</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Actual Savings</p>
                             <p className="font-bold text-green-600">
                               ${(project.actualSavings / 1000).toFixed(0)}k
                             </p>
@@ -285,7 +285,7 @@ export default function ContinuousImprovementPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No projects found</p>
                 </div>
@@ -304,15 +304,15 @@ export default function ContinuousImprovementPage() {
                 <div className="space-y-4">
                   {kaizenEvents.map((event) => (
                     <Link key={event.id} href={`/ci/kaizen/${event.id}`}>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{event.title}</span>
-                            <Badge className={projectStatusColors[event.status] || 'bg-gray-100'}>
+                            <Badge className={projectStatusColors[event.status] || 'bg-gray-100 dark:bg-gray-800'}>
                               {event.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>{event.eventNumber}</span>
                             <span>•</span>
                             <span>{event.area}</span>
@@ -324,7 +324,7 @@ export default function ContinuousImprovementPage() {
                         </div>
                         {event.estimatedSavings && (
                           <div className="text-right">
-                            <p className="text-sm text-gray-500">Est. Savings</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Est. Savings</p>
                             <p className="font-bold text-green-600">
                               ${(event.estimatedSavings / 1000).toFixed(0)}k
                             </p>
@@ -335,7 +335,7 @@ export default function ContinuousImprovementPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <Zap className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No kaizen events found</p>
                 </div>
@@ -354,15 +354,15 @@ export default function ContinuousImprovementPage() {
                 <div className="space-y-4">
                   {ideas.map((idea) => (
                     <Link key={idea.id} href={`/ci/ideas/${idea.id}`}>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{idea.title}</span>
-                            <Badge className={ideaStatusColors[idea.status] || 'bg-gray-100'}>
+                            <Badge className={ideaStatusColors[idea.status] || 'bg-gray-100 dark:bg-gray-800'}>
                               {idea.status.replace('_', ' ')}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>{idea.ideaNumber}</span>
                             <span>•</span>
                             <span>{idea.category.replace('_', ' ')}</span>
@@ -375,7 +375,7 @@ export default function ContinuousImprovementPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <Lightbulb className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No ideas found</p>
                 </div>

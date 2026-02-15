@@ -62,7 +62,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   environment: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   compliance: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
   hr: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  maintenance: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+  maintenance: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
 };
 
 const TRIGGER_LABELS: Record<string, string> = {
@@ -89,7 +89,7 @@ const ACTION_LABELS: Record<string, string> = {
 function StatusIcon({ status }: { status: string }) {
   if (status === 'success') return <CheckCircle className="h-3.5 w-3.5 text-green-500" />;
   if (status === 'failed') return <XCircle className="h-3.5 w-3.5 text-red-500" />;
-  return <SkipForward className="h-3.5 w-3.5 text-gray-400" />;
+  return <SkipForward className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />;
 }
 
 export default function RulesPage() {
@@ -195,7 +195,7 @@ export default function RulesPage() {
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors capitalize ${
               activeCategory === cat
                 ? 'bg-brand-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             {cat === 'all' ? `All (${rules.length})` : `${cat} (${rules.filter(r => r.category === cat).length})`}
@@ -238,7 +238,7 @@ export default function RulesPage() {
                     {rule.enabled ? (
                       <ToggleRight className="h-7 w-7 text-green-500" />
                     ) : (
-                      <ToggleLeft className="h-7 w-7 text-gray-400" />
+                      <ToggleLeft className="h-7 w-7 text-gray-400 dark:text-gray-500" />
                     )}
                   </button>
                 </div>
@@ -255,21 +255,21 @@ export default function RulesPage() {
                   {rule.actions.map((action, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-300"
                     >
                       {ACTION_LABELS[action.type] || action.type}
                     </span>
                   ))}
 
                   {/* Category Badge */}
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[rule.category] || 'bg-gray-100 text-gray-700'}`}>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[rule.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                     <CategoryIcon className="h-3 w-3" />
                     {rule.category}
                   </span>
                 </div>
 
                 {/* Module Info */}
-                <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                <div className="mt-2 text-xs text-gray-400 dark:text-gray-400">
                   Module: <span className="font-medium">{rule.trigger.module}</span> -- Record: <span className="font-medium">{rule.trigger.recordType}</span>
                 </div>
               </div>
@@ -277,7 +277,7 @@ export default function RulesPage() {
               {/* Expand/Collapse */}
               <button
                 onClick={() => handleExpand(rule.id)}
-                className="w-full flex items-center justify-center gap-1 px-4 py-2 text-xs text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 border-t border-gray-100 dark:border-gray-800 transition-colors"
+                className="w-full flex items-center justify-center gap-1 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 border-t border-gray-100 dark:border-gray-700 transition-colors"
               >
                 {isExpanded ? (
                   <>Hide Executions <ChevronUp className="h-3.5 w-3.5" /></>
@@ -288,18 +288,18 @@ export default function RulesPage() {
 
               {/* Execution Log */}
               {isExpanded && (
-                <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-800">
+                <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
                   {logs.length === 0 ? (
-                    <p className="text-xs text-gray-400 py-3 text-center">No executions recorded yet</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 py-3 text-center">No executions recorded yet</p>
                   ) : (
-                    <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                    <ul className="divide-y divide-gray-100 dark:divide-gray-700">
                       {logs.map(log => (
                         <li key={log.id} className="flex items-center gap-2 py-2">
                           <StatusIcon status={log.status} />
                           <span className="text-xs text-gray-700 dark:text-gray-300 flex-1 truncate">
                             {log.details}
                           </span>
-                          <span className="text-xs text-gray-400 flex-shrink-0 flex items-center gap-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {new Date(log.timestamp).toLocaleString()}
                           </span>

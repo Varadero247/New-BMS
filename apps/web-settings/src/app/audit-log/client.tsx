@@ -42,9 +42,9 @@ const actionConfig: Record<ActionType, { label: string; color: string; icon: Rea
   create: { label: 'Create', color: 'bg-green-100 text-green-700', icon: <Plus className="h-3.5 w-3.5" /> },
   update: { label: 'Update', color: 'bg-blue-100 text-blue-700', icon: <Edit3 className="h-3.5 w-3.5" /> },
   delete: { label: 'Delete', color: 'bg-red-100 text-red-700', icon: <Trash2 className="h-3.5 w-3.5" /> },
-  read: { label: 'Read', color: 'bg-gray-100 text-gray-600', icon: <Eye className="h-3.5 w-3.5" /> },
+  read: { label: 'Read', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', icon: <Eye className="h-3.5 w-3.5" /> },
   login: { label: 'Login', color: 'bg-indigo-100 text-indigo-700', icon: <LogIn className="h-3.5 w-3.5" /> },
-  logout: { label: 'Logout', color: 'bg-gray-100 text-gray-600', icon: <LogOut className="h-3.5 w-3.5" /> },
+  logout: { label: 'Logout', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', icon: <LogOut className="h-3.5 w-3.5" /> },
   export: { label: 'Export', color: 'bg-purple-100 text-purple-700', icon: <FileText className="h-3.5 w-3.5" /> },
   'permission-change': { label: 'Permission', color: 'bg-amber-100 text-amber-700', icon: <Key className="h-3.5 w-3.5" /> },
 };
@@ -78,35 +78,35 @@ export default function AuditLogClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Shield className="h-6 w-6 text-indigo-600" />
           Platform Audit Log
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Complete audit trail of all actions across the IMS platform</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete audit trail of all actions across the IMS platform</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Events</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{entries.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Events</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{entries.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Unique Users</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Unique Users</p>
           <p className="text-3xl font-bold text-indigo-700 mt-1">{new Set(entries.map((e) => e.user)).size}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Access Denied</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Access Denied</p>
           <p className="text-3xl font-bold text-red-700 mt-1">{deniedCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Errors</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Errors</p>
           <p className="text-3xl font-bold text-amber-700 mt-1">{errorCount}</p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search users, details, resources..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
         <select value={moduleFilter} onChange={(e) => setModuleFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -119,7 +119,7 @@ export default function AuditLogClient() {
         </select>
         <div className="flex gap-2">
           {['all', 'success', 'denied', 'error'].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${statusFilter === s ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}>
               {s === 'all' ? 'All' : s[0].toUpperCase() + s.slice(1)}
             </button>
           ))}
@@ -127,16 +127,16 @@ export default function AuditLogClient() {
       </div>
 
       <div className="flex gap-6">
-        <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-12"></th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-36">Timestamp</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">User</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Action</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Module</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Details</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-12"></th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-36">Timestamp</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">User</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Action</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Module</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Details</th>
               </tr>
             </thead>
             <tbody>
@@ -146,13 +146,13 @@ export default function AuditLogClient() {
                   <tr
                     key={entry.id}
                     onClick={() => setSelectedEntry(entry)}
-                    className={`border-t border-gray-100 cursor-pointer hover:bg-indigo-50 transition-colors ${selectedEntry?.id === entry.id ? 'bg-indigo-50' : ''}`}
+                    className={`border-t border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 transition-colors ${selectedEntry?.id === entry.id ? 'bg-indigo-50' : ''}`}
                   >
                     <td className="px-4 py-3"><div className={`w-2.5 h-2.5 rounded-full ${statusColors[entry.status]}`} /></td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{entry.timestamp}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{entry.timestamp}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-800 text-xs">{entry.user}</p>
-                      <p className="text-xs text-gray-400">{entry.role}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{entry.role}</p>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${aCfg.color}`}>{aCfg.icon}{aCfg.label}</span>
@@ -167,24 +167,24 @@ export default function AuditLogClient() {
         </div>
 
         {selectedEntry && (
-          <div className="w-80 bg-white border border-gray-200 rounded-xl p-5 space-y-4 self-start sticky top-6">
+          <div className="w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 space-y-4 self-start sticky top-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-gray-900">Event Details</h3>
-              <button onClick={() => setSelectedEntry(null)} className="text-gray-400 hover:text-gray-600">x</button>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Event Details</h3>
+              <button onClick={() => setSelectedEntry(null)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">x</button>
             </div>
             <div className="space-y-3 text-sm">
-              <div><p className="text-xs text-gray-500">Timestamp</p><p className="font-mono text-xs">{selectedEntry.timestamp}</p></div>
-              <div><p className="text-xs text-gray-500">User</p><p className="font-medium">{selectedEntry.user}</p></div>
-              <div><p className="text-xs text-gray-500">Role</p><p>{selectedEntry.role}</p></div>
-              <div><p className="text-xs text-gray-500">Action</p><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${actionConfig[selectedEntry.action].color}`}>{actionConfig[selectedEntry.action].icon}{actionConfig[selectedEntry.action].label}</span></div>
-              <div><p className="text-xs text-gray-500">Module</p><p>{selectedEntry.module}</p></div>
-              <div><p className="text-xs text-gray-500">Resource</p><p>{selectedEntry.resource} ({selectedEntry.resourceId})</p></div>
-              <div><p className="text-xs text-gray-500">Status</p><div className="flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${statusColors[selectedEntry.status]}`} /><span className="capitalize">{selectedEntry.status}</span></div></div>
-              <div><p className="text-xs text-gray-500">Details</p><p className="text-gray-700">{selectedEntry.details}</p></div>
-              <div className="border-t border-gray-100 pt-3">
-                <p className="text-xs text-gray-500">IP Address</p><p className="font-mono text-xs">{selectedEntry.ipAddress}</p>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Timestamp</p><p className="font-mono text-xs">{selectedEntry.timestamp}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">User</p><p className="font-medium">{selectedEntry.user}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Role</p><p>{selectedEntry.role}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Action</p><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${actionConfig[selectedEntry.action].color}`}>{actionConfig[selectedEntry.action].icon}{actionConfig[selectedEntry.action].label}</span></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Module</p><p>{selectedEntry.module}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Resource</p><p>{selectedEntry.resource} ({selectedEntry.resourceId})</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Status</p><div className="flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${statusColors[selectedEntry.status]}`} /><span className="capitalize">{selectedEntry.status}</span></div></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">Details</p><p className="text-gray-700 dark:text-gray-300">{selectedEntry.details}</p></div>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">IP Address</p><p className="font-mono text-xs">{selectedEntry.ipAddress}</p>
               </div>
-              <div><p className="text-xs text-gray-500">User Agent</p><p className="text-xs text-gray-600">{selectedEntry.userAgent}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">User Agent</p><p className="text-xs text-gray-600">{selectedEntry.userAgent}</p></div>
             </div>
           </div>
         )}

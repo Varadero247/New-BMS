@@ -63,32 +63,32 @@ export default function VerificationClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Design Verification</h1>
-        <p className="text-sm text-gray-500 mt-1">Test execution and results tracking — ISO 13485:2016 Clause 7.3.6</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Design Verification</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Test execution and results tracking — ISO 13485:2016 Clause 7.3.6</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Tests</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{tests.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Tests</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{tests.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Pass Rate</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Pass Rate</p>
           <p className="text-3xl font-bold text-emerald-700 mt-1">{passRate}%</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Failures</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Failures</p>
           <p className="text-3xl font-bold text-red-600 mt-1">{failCount}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Pending</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Pending</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{tests.filter((t) => t.result === 'pending').length}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search tests..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterResult} onChange={(e) => setFilterResult(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -101,16 +101,16 @@ export default function VerificationClient() {
         </select>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-32">Test ID</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Test Name</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-36">Product</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Category</th>
-              <th className="text-center px-4 py-3 font-medium text-gray-500 w-24">Result</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Date</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-32">Test ID</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Test Name</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-36">Product</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Category</th>
+              <th className="text-center px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Result</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Date</th>
               <th className="w-8"></th>
             </tr>
           </thead>
@@ -121,23 +121,23 @@ export default function VerificationClient() {
               const isExpanded = expandedId === test.id;
               return (
                 <>
-                  <tr key={test.id} className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : test.id)}>
+                  <tr key={test.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : test.id)}>
                     <td className="px-4 py-2.5 font-mono text-xs text-blue-600">{test.testId}</td>
-                    <td className="px-4 py-2.5 font-medium text-gray-900 text-xs">{test.testName}</td>
+                    <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-gray-100 text-xs">{test.testName}</td>
                     <td className="px-4 py-2.5 text-xs text-gray-600">{test.product}</td>
-                    <td className="px-4 py-2.5 text-xs text-gray-500">{categoryLabels[test.category]}</td>
+                    <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">{categoryLabels[test.category]}</td>
                     <td className="px-4 py-2.5 text-center"><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${rc.color}`}><Icon className="h-3 w-3" />{rc.label}</span></td>
-                    <td className="px-4 py-2.5 text-xs text-gray-500">{test.testDate}</td>
-                    <td className="px-4 py-2.5">{isExpanded ? <ChevronDown className="h-3 w-3 text-gray-400" /> : <ChevronRight className="h-3 w-3 text-gray-400" />}</td>
+                    <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">{test.testDate}</td>
+                    <td className="px-4 py-2.5">{isExpanded ? <ChevronDown className="h-3 w-3 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-3 w-3 text-gray-400 dark:text-gray-500" />}</td>
                   </tr>
                   {isExpanded && (
-                    <tr key={`${test.id}-detail`} className="bg-gray-50">
+                    <tr key={`${test.id}-detail`} className="bg-gray-50 dark:bg-gray-800">
                       <td colSpan={7} className="px-4 py-3">
                         <div className="grid grid-cols-2 gap-4 text-xs ml-4">
-                          <div><span className="text-gray-500">Standard:</span> <span className="font-medium">{test.standard}</span></div>
-                          <div><span className="text-gray-500">Tester:</span> <span className="font-medium">{test.tester}</span></div>
-                          <div><span className="text-gray-500">Acceptance Criteria:</span> <span className="font-medium">{test.acceptanceCriteria}</span></div>
-                          <div><span className="text-gray-500">Actual Result:</span> <span className="font-medium">{test.actualResult}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Standard:</span> <span className="font-medium">{test.standard}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Tester:</span> <span className="font-medium">{test.tester}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Acceptance Criteria:</span> <span className="font-medium">{test.acceptanceCriteria}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Actual Result:</span> <span className="font-medium">{test.actualResult}</span></div>
                           {test.deviations && <div className="col-span-2"><span className="text-red-500">Deviation:</span> <span className="font-medium text-red-700">{test.deviations}</span></div>}
                         </div>
                       </td>

@@ -110,15 +110,15 @@ export default function NlqClient() {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-purple-600" />
           Natural Language Query
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Ask questions about your data in plain English — powered by @ims/nlq</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ask questions about your data in plain English — powered by @ims/nlq</p>
       </div>
 
       {/* Query Input */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
         <div className="flex gap-3">
           <div className="relative flex-1">
             <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-purple-400" />
@@ -143,7 +143,7 @@ export default function NlqClient() {
 
         {/* Suggestions */}
         <div className="mt-3">
-          <p className="text-xs text-gray-500 mb-2 flex items-center gap-1"><Lightbulb className="h-3.5 w-3.5" /> Suggested queries:</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1"><Lightbulb className="h-3.5 w-3.5" /> Suggested queries:</p>
           <div className="flex flex-wrap gap-2">
             {suggestedQueries.map((sq) => (
               <button
@@ -160,7 +160,7 @@ export default function NlqClient() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 flex items-center gap-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-600">Analysing your question and querying data...</p>
         </div>
@@ -169,12 +169,12 @@ export default function NlqClient() {
       {/* Results */}
       <div className="space-y-4">
         {results.map((r) => (
-          <div key={r.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-gray-100 bg-gray-50">
+          <div key={r.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{r.query}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{r.query}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-2">
                     <Clock className="h-3 w-3" /> {r.timestamp} · {r.duration.toFixed(1)}s
                   </p>
                 </div>
@@ -183,7 +183,7 @@ export default function NlqClient() {
                   {r.resultType === 'chart' && <BarChart3 className="h-4 w-4 text-green-500" />}
                   {r.resultType === 'metric' && <TrendingUp className="h-4 w-4 text-purple-500" />}
                   {r.sql && (
-                    <button onClick={() => setShowSql((prev) => { const n = new Set(prev); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })} className="text-xs text-gray-400 hover:text-gray-600 font-mono">SQL</button>
+                    <button onClick={() => setShowSql((prev) => { const n = new Set(prev); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 font-mono">SQL</button>
                   )}
                 </div>
               </div>
@@ -196,12 +196,12 @@ export default function NlqClient() {
               {r.resultType === 'table' && (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr>{(r.data.columns as string[]).map((col) => <th key={col} className="text-left px-3 py-2 font-medium text-gray-500 bg-gray-50">{col}</th>)}</tr>
+                    <tr>{(r.data.columns as string[]).map((col) => <th key={col} className="text-left px-3 py-2 font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">{col}</th>)}</tr>
                   </thead>
                   <tbody>
                     {(r.data.rows as (string | number)[][]).map((row, i) => (
-                      <tr key={i} className="border-t border-gray-100">
-                        {row.map((cell, j) => <td key={j} className="px-3 py-2 text-gray-700">{cell}</td>)}
+                      <tr key={i} className="border-t border-gray-100 dark:border-gray-700">
+                        {row.map((cell, j) => <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-300">{cell}</td>)}
                       </tr>
                     ))}
                   </tbody>
@@ -216,9 +216,9 @@ export default function NlqClient() {
                       const height = (val / max) * 100;
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <span className="text-xs text-gray-500">{val}k</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{val}k</span>
                           <div className="w-full bg-purple-400 rounded-t transition-all hover:bg-purple-500" style={{ height: `${height}%` }} />
-                          <span className="text-xs text-gray-400">{(r.data.months as string[])[i]}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{(r.data.months as string[])[i]}</span>
                         </div>
                       );
                     })}
@@ -230,11 +230,11 @@ export default function NlqClient() {
                 <div className="flex items-center gap-6">
                   <div>
                     <p className="text-4xl font-bold text-purple-700">{(r.data as Record<string, unknown>).value as number}</p>
-                    <p className="text-sm text-gray-500">{(r.data as Record<string, unknown>).label as string}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{(r.data as Record<string, unknown>).label as string}</p>
                   </div>
                   <div className="flex items-center gap-1 text-sm">
                     <TrendingUp className={`h-4 w-4 ${(r.data as Record<string, unknown>).trend === 'down' ? 'text-green-600 rotate-180' : 'text-red-600'}`} />
-                    <span className="text-gray-500">was {(r.data as Record<string, unknown>).previousValue as number} last period</span>
+                    <span className="text-gray-500 dark:text-gray-400">was {(r.data as Record<string, unknown>).previousValue as number} last period</span>
                   </div>
                 </div>
               )}

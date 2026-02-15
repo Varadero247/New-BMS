@@ -192,8 +192,8 @@ export default function GiftsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gifts & Hospitality Register</h1>
-            <p className="text-gray-500 mt-1">Track and approve gifts, hospitality, entertainment and travel</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Gifts & Hospitality Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and approve gifts, hospitality, entertainment and travel</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             Register Gift
@@ -204,30 +204,30 @@ export default function GiftsPage() {
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Pending Approval</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Pending Approval</p>
             <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
-            <p className="text-xs text-gray-400 mt-1">awaiting decision</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">awaiting decision</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Approved</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
             <p className="text-2xl font-bold text-green-600">{approvedCount}</p>
-            <p className="text-xs text-gray-400 mt-1">of {gifts.length} total</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">of {gifts.length} total</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Rejected</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Rejected</p>
             <p className="text-2xl font-bold text-red-600">{rejectedCount}</p>
-            <p className="text-xs text-gray-400 mt-1">not permitted</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">not permitted</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Received (USD)</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Received (USD)</p>
             <p className="text-2xl font-bold text-rose-600">${totalValueReceived.toLocaleString()}</p>
-            <p className="text-xs text-gray-400 mt-1">total value received</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">total value received</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 p-4">
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
@@ -252,34 +252,34 @@ export default function GiftsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Direction</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Counterparty</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approval</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Description</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Direction</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Counterparty</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Approval</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filtered.length > 0 ? (
                 filtered.map((gift) => (
-                  <tr key={gift.id} className="hover:bg-gray-50">
+                  <tr key={gift.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{gift.description}</p>
-                      {gift.notes && <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{gift.notes}</p>}
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{gift.description}</p>
+                      {gift.notes && <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-xs">{gift.notes}</p>}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[gift.type] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[gift.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {gift.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {gift.currency} {gift.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4">
@@ -290,13 +290,13 @@ export default function GiftsPage() {
                     <td className="px-6 py-4 text-sm text-gray-600">{gift.counterparty}</td>
                     <td className="px-6 py-4">
                       <div>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${approvalColors[gift.approvalStatus] || 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${approvalColors[gift.approvalStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                           {gift.approvalStatus}
                         </span>
-                        {gift.approvedBy && <p className="text-xs text-gray-400 mt-0.5">by {gift.approvedBy}</p>}
+                        {gift.approvedBy && <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">by {gift.approvedBy}</p>}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {gift.date ? new Date(gift.date).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-6 py-4 text-right whitespace-nowrap">
@@ -313,7 +313,7 @@ export default function GiftsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     {gifts.length === 0 ? 'No gift records found. Register one to get started.' : 'No records match your filters.'}
                   </td>
                 </tr>
@@ -328,16 +328,16 @@ export default function GiftsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">{editingGift ? 'Edit Gift Record' : 'Register Gift / Hospitality'}</h2>
-                <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{editingGift ? 'Edit Gift Record' : 'Register Gift / Hospitality'}</h2>
+                <button onClick={() => setModalOpen(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={form.description}
@@ -349,13 +349,13 @@ export default function GiftsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
                     <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Direction</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
                     <select value={form.givenOrReceived} onChange={(e) => setForm({ ...form, givenOrReceived: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {directionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
                     </select>
@@ -363,7 +363,7 @@ export default function GiftsPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Value <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       step="0.01"
@@ -375,14 +375,14 @@ export default function GiftsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
                     <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {commonCurrencies.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Counterparty <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Counterparty <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={form.counterparty}
@@ -394,13 +394,13 @@ export default function GiftsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Approval Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approval Status</label>
                     <select value={form.approvalStatus} onChange={(e) => setForm({ ...form, approvalStatus: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
                       {approvalStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approved By</label>
                     <input
                       type="text"
                       value={form.approvedBy}
@@ -411,7 +411,7 @@ export default function GiftsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date <span className="text-red-500">*</span></label>
                     <input
                       type="date"
                       value={form.date}
@@ -421,7 +421,7 @@ export default function GiftsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                     <input
                       type="text"
                       value={form.notes}
@@ -430,8 +430,8 @@ export default function GiftsPage() {
                     />
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
                     {editingGift ? 'Update' : 'Register'}
                   </button>

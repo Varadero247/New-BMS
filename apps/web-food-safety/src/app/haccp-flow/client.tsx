@@ -149,15 +149,15 @@ export default function HaccpFlowClient() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">HACCP Flow Diagram</h1>
-          <p className="text-sm text-gray-500 mt-1">Process flow with hazard analysis and critical control points (Codex Alimentarius)</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">HACCP Flow Diagram</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Process flow with hazard analysis and critical control points (Codex Alimentarius)</p>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-gray-600">
             <input type="checkbox" checked={showCCPsOnly} onChange={e => setShowCCPsOnly(e.target.checked)} className="rounded" />
             CCPs only
           </label>
-          <a href="/ccps" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+          <a href="/ccps" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
             CCP Register
           </a>
         </div>
@@ -165,9 +165,9 @@ export default function HaccpFlowClient() {
 
       {/* Summary */}
       <div className="grid grid-cols-4 gap-3">
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-          <p className="text-xl font-bold text-gray-900">{HACCP_STEPS.length}</p>
-          <p className="text-[10px] text-gray-500">Process Steps</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{HACCP_STEPS.length}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Process Steps</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
           <p className="text-xl font-bold text-red-700">{ccpCount}</p>
@@ -194,7 +194,7 @@ export default function HaccpFlowClient() {
               {/* Connector arrow */}
               {idx > 0 && (
                 <div className="flex justify-center py-1">
-                  <ArrowDown className="h-5 w-5 text-gray-300" />
+                  <ArrowDown className="h-5 w-5 text-gray-300 dark:text-gray-600" />
                 </div>
               )}
 
@@ -210,7 +210,7 @@ export default function HaccpFlowClient() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-gray-900">{step.name}</h3>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{step.name}</h3>
                         {step.isCCP && (
                           <Badge variant="destructive" className="text-[9px]">
                             <Shield className="h-2.5 w-2.5 mr-0.5" />
@@ -218,7 +218,7 @@ export default function HaccpFlowClient() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-gray-500 mt-0.5">{step.description}</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">{step.description}</p>
                     </div>
                   </div>
 
@@ -235,42 +235,42 @@ export default function HaccpFlowClient() {
                 {/* Expanded detail for CCP steps */}
                 {isSelected && step.isCCP && (
                   <div className="mt-4 pt-4 border-t border-red-200 grid grid-cols-2 gap-3 text-[11px]">
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-red-600 font-semibold block mb-0.5">Critical Limits</span>
-                      <span className="text-gray-700">{step.criticalLimits}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.criticalLimits}</span>
                     </div>
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-blue-600 font-semibold block mb-0.5">Monitoring</span>
-                      <span className="text-gray-700">{step.monitoring}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.monitoring}</span>
                     </div>
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-purple-600 font-semibold block mb-0.5">Frequency</span>
-                      <span className="text-gray-700">{step.frequency}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.frequency}</span>
                     </div>
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-orange-600 font-semibold block mb-0.5">Corrective Action</span>
-                      <span className="text-gray-700">{step.correctiveAction}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.correctiveAction}</span>
                     </div>
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-green-600 font-semibold block mb-0.5">Verification</span>
-                      <span className="text-gray-700">{step.verification}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.verification}</span>
                     </div>
-                    <div className="bg-white rounded p-2 border border-red-100">
+                    <div className="bg-white dark:bg-gray-900 rounded p-2 border border-red-100">
                       <span className="text-gray-600 font-semibold block mb-0.5">Records</span>
-                      <span className="text-gray-700">{step.records}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{step.records}</span>
                     </div>
                   </div>
                 )}
 
                 {/* Expanded detail for non-CCP steps */}
                 {isSelected && !step.isCCP && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <h4 className="text-[10px] font-semibold text-gray-600 mb-2">Hazard Analysis</h4>
                     <div className="space-y-1.5">
                       {step.hazards.map((h, i) => (
                         <div key={i} className="flex items-center gap-3 text-[11px]">
                           <span className={`font-medium rounded-full px-2 py-0.5 ${hazardColors[h.type]}`}>{h.type}</span>
-                          <span className="text-gray-700 flex-1">{h.name}</span>
+                          <span className="text-gray-700 dark:text-gray-300 flex-1">{h.name}</span>
                           <span className={`font-medium ${h.severity === 'High' ? 'text-red-600' : h.severity === 'Medium' ? 'text-yellow-600' : 'text-green-600'}`}>
                             {h.severity}
                           </span>
@@ -286,14 +286,14 @@ export default function HaccpFlowClient() {
       </div>
 
       {/* Legend */}
-      <div className="bg-white border border-gray-200 rounded-lg p-3">
-        <h4 className="text-xs font-semibold text-gray-700 mb-2">Legend</h4>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Legend</h4>
         <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-red-100 text-red-700">B</span><span className="text-[10px] text-gray-500">Biological</span></div>
-          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-purple-100 text-purple-700">C</span><span className="text-[10px] text-gray-500">Chemical</span></div>
-          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-orange-100 text-orange-700">P</span><span className="text-[10px] text-gray-500">Physical</span></div>
-          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-pink-100 text-pink-700">A</span><span className="text-[10px] text-gray-500">Allergen</span></div>
-          <div className="flex items-center gap-1.5"><div className="h-4 w-4 rounded-full bg-red-600 flex items-center justify-center text-[8px] text-white font-bold">!</div><span className="text-[10px] text-gray-500">Critical Control Point</span></div>
+          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-red-100 text-red-700">B</span><span className="text-[10px] text-gray-500 dark:text-gray-400">Biological</span></div>
+          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-purple-100 text-purple-700">C</span><span className="text-[10px] text-gray-500 dark:text-gray-400">Chemical</span></div>
+          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-orange-100 text-orange-700">P</span><span className="text-[10px] text-gray-500 dark:text-gray-400">Physical</span></div>
+          <div className="flex items-center gap-1.5"><span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-pink-100 text-pink-700">A</span><span className="text-[10px] text-gray-500 dark:text-gray-400">Allergen</span></div>
+          <div className="flex items-center gap-1.5"><div className="h-4 w-4 rounded-full bg-red-600 flex items-center justify-center text-[8px] text-white font-bold">!</div><span className="text-[10px] text-gray-500 dark:text-gray-400">Critical Control Point</span></div>
         </div>
       </div>
     </div>

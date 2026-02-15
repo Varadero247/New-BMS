@@ -49,7 +49,7 @@ const priorityColors: Record<Priority, string> = {
 const statusColors: Record<WOStatus, string> = {
   Scheduled: 'bg-blue-100 text-blue-700',
   'In Progress': 'bg-purple-100 text-purple-700',
-  'On Hold': 'bg-gray-100 text-gray-600',
+  'On Hold': 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   Completed: 'bg-green-100 text-green-700',
 };
 
@@ -140,8 +140,8 @@ export default function SchedulerClient() {
             const isWeekend = idx === 0 || idx === 6;
 
             return (
-              <div key={idx} className={`min-h-[300px] rounded-lg border p-2 ${isToday ? 'border-amber-400 bg-amber-50' : isWeekend ? 'bg-gray-50 border-gray-200' : 'border-gray-200'}`}>
-                <div className={`text-xs font-medium mb-2 ${isToday ? 'text-amber-700' : 'text-gray-500'}`}>
+              <div key={idx} className={`min-h-[300px] rounded-lg border p-2 ${isToday ? 'border-amber-400 bg-amber-50' : isWeekend ? 'bg-gray-50 dark:bg-gray-800 border-gray-200' : 'border-gray-200 dark:border-gray-700'}`}>
+                <div className={`text-xs font-medium mb-2 ${isToday ? 'text-amber-700' : 'text-gray-500 dark:text-gray-400'}`}>
                   {DAY_NAMES[idx]} {day.getDate()}
                 </div>
                 <div className="space-y-1.5">
@@ -149,23 +149,23 @@ export default function SchedulerClient() {
                     <button
                       key={wo.id}
                       onClick={() => setSelectedWO(selectedWO?.id === wo.id ? null : wo)}
-                      className={`w-full text-left p-2 rounded border-l-4 bg-white border border-gray-100 hover:shadow-sm transition-shadow ${typeColors[wo.type]} ${selectedWO?.id === wo.id ? 'ring-2 ring-amber-500' : ''}`}
+                      className={`w-full text-left p-2 rounded border-l-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 hover:shadow-sm transition-shadow ${typeColors[wo.type]} ${selectedWO?.id === wo.id ? 'ring-2 ring-amber-500' : ''}`}
                     >
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[9px] font-mono text-gray-400">{wo.id}</span>
+                        <span className="text-[9px] font-mono text-gray-400 dark:text-gray-500">{wo.id}</span>
                         <span className={`text-[9px] font-medium rounded-full px-1 py-0.5 ${priorityColors[wo.priority]}`}>
                           {wo.priority}
                         </span>
                       </div>
-                      <p className="text-[11px] font-medium text-gray-900 line-clamp-2">{wo.title}</p>
+                      <p className="text-[11px] font-medium text-gray-900 dark:text-gray-100 line-clamp-2">{wo.title}</p>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[9px] text-gray-500">{wo.assignee}</span>
-                        <span className="text-[9px] text-gray-400">{wo.estimatedHours}h</span>
+                        <span className="text-[9px] text-gray-500 dark:text-gray-400">{wo.assignee}</span>
+                        <span className="text-[9px] text-gray-400 dark:text-gray-500">{wo.estimatedHours}h</span>
                       </div>
                     </button>
                   ))}
                   {dayWOs.length === 0 && (
-                    <div className="text-xs text-gray-300 text-center py-6">No WOs</div>
+                    <div className="text-xs text-gray-300 dark:text-gray-600 text-center py-6">No WOs</div>
                   )}
                 </div>
               </div>
@@ -185,7 +185,7 @@ export default function SchedulerClient() {
     const cells: React.ReactNode[] = [];
 
     for (let i = 0; i < firstDayOfWeek; i++) {
-      cells.push(<div key={`e-${i}`} className="h-24 border border-gray-100 bg-gray-50" />);
+      cells.push(<div key={`e-${i}`} className="h-24 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -194,14 +194,14 @@ export default function SchedulerClient() {
       const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
       cells.push(
-        <div key={`d-${day}`} className={`h-24 border border-gray-100 p-1 overflow-hidden ${isToday ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50'}`}>
+        <div key={`d-${day}`} className={`h-24 border border-gray-100 dark:border-gray-700 p-1 overflow-hidden ${isToday ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50'}`}>
           <div className={`text-[10px] font-medium ${isToday ? 'text-amber-600' : 'text-gray-400'}`}>{day}</div>
           {dayWOs.slice(0, 2).map(wo => (
             <div key={wo.id} className={`text-[9px] px-1 rounded truncate mt-0.5 ${wo.priority === 'Emergency' ? 'bg-red-100 text-red-700' : wo.priority === 'High' ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700'}`}>
               {wo.title}
             </div>
           ))}
-          {dayWOs.length > 2 && <div className="text-[9px] text-gray-400 pl-1">+{dayWOs.length - 2}</div>}
+          {dayWOs.length > 2 && <div className="text-[9px] text-gray-400 dark:text-gray-500 pl-1">+{dayWOs.length - 2}</div>}
         </div>
       );
     }
@@ -216,7 +216,7 @@ export default function SchedulerClient() {
           </div>
         </div>
         <div className="grid grid-cols-7 mb-1">
-          {DAY_NAMES.map(d => <div key={d} className="text-center text-xs font-medium text-gray-500 py-1">{d}</div>)}
+          {DAY_NAMES.map(d => <div key={d} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-1">{d}</div>)}
         </div>
         <div className="grid grid-cols-7">{cells}</div>
       </div>
@@ -232,15 +232,15 @@ export default function SchedulerClient() {
           const active = techWOs.filter(wo => wo.status !== 'Completed').length;
 
           return (
-            <div key={tech} className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+            <div key={tech} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
                     <User className="h-4 w-4 text-amber-700" />
                   </div>
                   <div>
-                    <span className="text-sm font-semibold text-gray-900">{tech}</span>
-                    <span className="text-xs text-gray-500 ml-3">{active} active WOs | {hours}h total</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{tech}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-3">{active} active WOs | {hours}h total</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -250,25 +250,25 @@ export default function SchedulerClient() {
                       style={{ width: `${Math.min(100, (hours / 40) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-500">{Math.round((hours / 40) * 100)}%</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{Math.round((hours / 40) * 100)}%</span>
                 </div>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {techWOs.map(wo => (
                   <div
                     key={wo.id}
                     onClick={() => setSelectedWO(selectedWO?.id === wo.id ? null : wo)}
-                    className={`px-4 py-2.5 flex items-center gap-4 cursor-pointer hover:bg-gray-50 ${selectedWO?.id === wo.id ? 'bg-amber-50' : ''}`}
+                    className={`px-4 py-2.5 flex items-center gap-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 ${selectedWO?.id === wo.id ? 'bg-amber-50' : ''}`}
                   >
-                    <span className="text-xs font-mono text-gray-400 w-24 flex-shrink-0">{wo.id}</span>
+                    <span className="text-xs font-mono text-gray-400 dark:text-gray-500 w-24 flex-shrink-0">{wo.id}</span>
                     <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 w-16 text-center flex-shrink-0 ${priorityColors[wo.priority]}`}>{wo.priority}</span>
-                    <span className="text-xs text-gray-900 flex-1 truncate">{wo.title}</span>
-                    <span className="text-[10px] text-gray-400 flex-shrink-0">{wo.asset}</span>
+                    <span className="text-xs text-gray-900 dark:text-gray-100 flex-1 truncate">{wo.title}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 flex-shrink-0">{wo.asset}</span>
                     <span className={`text-[10px] font-medium rounded-full px-2 py-0.5 flex-shrink-0 ${statusColors[wo.status]}`}>{wo.status}</span>
-                    <span className="text-xs text-gray-500 flex-shrink-0 w-16 text-right">{wo.startDate.slice(5)}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 w-16 text-right">{wo.startDate.slice(5)}</span>
                   </div>
                 ))}
-                {techWOs.length === 0 && <div className="px-4 py-6 text-center text-xs text-gray-400">No work orders assigned</div>}
+                {techWOs.length === 0 && <div className="px-4 py-6 text-center text-xs text-gray-400 dark:text-gray-500">No work orders assigned</div>}
               </div>
             </div>
           );
@@ -282,10 +282,10 @@ export default function SchedulerClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Work Order Scheduler</h1>
-          <p className="text-sm text-gray-500 mt-1">Schedule and track maintenance work orders by week, month, or technician</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Work Order Scheduler</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Schedule and track maintenance work orders by week, month, or technician</p>
         </div>
-        <a href="/work-orders" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <a href="/work-orders" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Work Orders List
         </a>
       </div>
@@ -302,10 +302,10 @@ export default function SchedulerClient() {
           <p className="text-xl font-bold text-purple-700">{inProgress}</p>
           <p className="text-[10px] text-purple-500">In Progress</p>
         </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-          <AlertTriangle className="h-5 w-5 text-gray-500 mx-auto mb-1" />
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+          <AlertTriangle className="h-5 w-5 text-gray-500 dark:text-gray-400 mx-auto mb-1" />
           <p className="text-xl font-bold text-gray-600">{onHold}</p>
-          <p className="text-[10px] text-gray-500">On Hold</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">On Hold</p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
           <CheckCircle className="h-5 w-5 text-green-600 mx-auto mb-1" />
@@ -320,9 +320,9 @@ export default function SchedulerClient() {
       </div>
 
       {/* View toggle + filters */}
-      <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-2.5">
+      <div className="flex items-center justify-between bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5">
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-500">Priority:</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Priority:</span>
           <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="text-xs border rounded px-2 py-1">
             <option value="">All</option>
             <option value="Emergency">Emergency</option>
@@ -330,7 +330,7 @@ export default function SchedulerClient() {
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
-          <span className="text-xs text-gray-500">Type:</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Type:</span>
           <select value={filterType} onChange={e => setFilterType(e.target.value)} className="text-xs border rounded px-2 py-1">
             <option value="">All</option>
             <option value="Preventive">Preventive</option>
@@ -344,7 +344,7 @@ export default function SchedulerClient() {
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-1 rounded text-xs font-medium ${view === v ? 'bg-amber-100 text-amber-700' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 rounded text-xs font-medium ${view === v ? 'bg-amber-100 text-amber-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
             >
               {v === 'week' ? 'Week' : v === 'calendar' ? 'Month' : 'Technician'}
             </button>
@@ -362,13 +362,13 @@ export default function SchedulerClient() {
         ].map(t => (
           <div key={t.type} className="flex items-center gap-1.5">
             <div className={`w-3 h-1.5 rounded ${t.color}`} />
-            <span className="text-xs text-gray-500">{t.type}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{t.type}</span>
           </div>
         ))}
       </div>
 
       {/* Main content */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         {view === 'week' && renderWeekView()}
         {view === 'calendar' && renderCalendarView()}
         {view === 'technician' && renderTechnicianView()}
@@ -376,22 +376,22 @@ export default function SchedulerClient() {
 
       {/* Detail panel */}
       {selectedWO && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-mono text-gray-500">{selectedWO.id}</span>
+              <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedWO.id}</span>
               <Badge variant="secondary">{selectedWO.type}</Badge>
               <span className={`text-xs font-medium rounded-full px-2 py-0.5 ${priorityColors[selectedWO.priority]}`}>{selectedWO.priority}</span>
               <span className={`text-xs font-medium rounded-full px-2 py-0.5 ${statusColors[selectedWO.status]}`}>{selectedWO.status}</span>
             </div>
-            <button onClick={() => setSelectedWO(null)} className="text-xs text-gray-400 hover:text-gray-600">Close</button>
+            <button onClick={() => setSelectedWO(null)} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600">Close</button>
           </div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">{selectedWO.title}</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">{selectedWO.title}</h3>
           <div className="grid grid-cols-4 gap-4 text-xs">
-            <div><span className="text-gray-500">Asset:</span> <span className="font-medium text-gray-900">{selectedWO.asset}</span></div>
-            <div><span className="text-gray-500">Assignee:</span> <span className="font-medium text-gray-900">{selectedWO.assignee}</span></div>
-            <div><span className="text-gray-500">Schedule:</span> <span className="font-medium text-gray-900">{selectedWO.startDate} to {selectedWO.endDate}</span></div>
-            <div><span className="text-gray-500">Est. Hours:</span> <span className="font-medium text-gray-900">{selectedWO.estimatedHours}h</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Asset:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedWO.asset}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Assignee:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedWO.assignee}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Schedule:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedWO.startDate} to {selectedWO.endDate}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Est. Hours:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{selectedWO.estimatedHours}h</span></div>
           </div>
         </div>
       )}

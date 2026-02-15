@@ -39,7 +39,7 @@ const statusColors: Record<string, string> = {
   EXPIRED: 'bg-red-100 text-red-700',
   EXPIRING_SOON: 'bg-orange-100 text-orange-700',
   PENDING_RENEWAL: 'bg-yellow-100 text-yellow-700',
-  SUSPENDED: 'bg-gray-100 text-gray-700',
+  SUSPENDED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   REVOKED: 'bg-red-100 text-red-800',
 };
 
@@ -268,8 +268,8 @@ export default function CertificationsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Certifications</h1>
-            <p className="text-gray-500 mt-1">Track employee certifications and renewals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Certifications</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track employee certifications and renewals</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={checkCompliance} disabled={aiLoading || certifications.length === 0} className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export default function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{totalCerts}</p>
                 </div>
                 <Award className="h-8 w-8 text-emerald-500" />
@@ -301,7 +301,7 @@ export default function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">{activeCerts}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -312,7 +312,7 @@ export default function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Expiring Soon</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Expiring Soon</p>
                   <p className="text-2xl font-bold text-orange-600">{expiringSoonCerts}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-orange-500" />
@@ -323,7 +323,7 @@ export default function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Expired</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Expired</p>
                   <p className="text-2xl font-bold text-red-600">{expiredCerts}</p>
                 </div>
                 <XCircle className="h-8 w-8 text-red-500" />
@@ -346,7 +346,7 @@ export default function CertificationsPage() {
               <div className="flex items-center gap-4 mb-4 mt-3">
                 <div className="text-center">
                   <span className="text-3xl font-bold">{complianceResult.complianceScore ?? 'N/A'}</span>
-                  <p className="text-sm text-gray-500">Score</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Score</p>
                 </div>
                 <Badge className={complianceResult.complianceStatus === 'COMPLIANT' ? 'bg-green-100 text-green-700' : complianceResult.complianceStatus === 'AT_RISK' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}>{complianceResult.complianceStatus || 'Unknown'}</Badge>
                 {complianceResult.budgetEstimate && <p className="text-sm text-gray-600">Est. Budget: {complianceResult.budgetEstimate}</p>}
@@ -359,7 +359,7 @@ export default function CertificationsPage() {
                       <div key={i} className="text-sm mb-2 p-2 bg-amber-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">Expires: {c.expiryDate} | Urgency: {c.urgency}</p>
-                        {c.renewalSteps && <p className="text-gray-500 mt-1">{c.renewalSteps}</p>}
+                        {c.renewalSteps && <p className="text-gray-500 dark:text-gray-400 mt-1">{c.renewalSteps}</p>}
                       </div>
                     ))}
                   </div>
@@ -371,7 +371,7 @@ export default function CertificationsPage() {
                       <div key={i} className="text-sm mb-2 p-2 bg-red-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">Priority: {c.priority} | {c.reason}</p>
-                        {c.provider && <p className="text-gray-500 mt-1">Provider: {c.provider}</p>}
+                        {c.provider && <p className="text-gray-500 dark:text-gray-400 mt-1">Provider: {c.provider}</p>}
                       </div>
                     ))}
                   </div>
@@ -379,7 +379,7 @@ export default function CertificationsPage() {
               </div>
               {complianceResult.recommendations?.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
-                  <h4 className="font-medium text-gray-700 mb-2">Recommendations</h4>
+                  <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Recommendations</h4>
                   <ul className="text-sm space-y-1">
                     {complianceResult.recommendations.map((r: string, i: number) => <li key={i}>{'\u2022'} {r}</li>)}
                   </ul>
@@ -395,7 +395,7 @@ export default function CertificationsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search certifications..."
@@ -466,13 +466,13 @@ export default function CertificationsPage() {
                             />
                           </div>
                           <div>
-                            <h3 className="font-medium text-gray-900">{cert.name}</h3>
-                            <p className="text-sm text-gray-500">{cert.issuingOrganization}</p>
+                            <h3 className="font-medium text-gray-900 dark:text-gray-100">{cert.name}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{cert.issuingOrganization}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => openEditModal(cert)}
-                          className="text-gray-400 hover:text-gray-600 p-1"
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 p-1"
                           title="Edit certification"
                         >
                           <Edit2 className="h-4 w-4" />
@@ -485,14 +485,14 @@ export default function CertificationsPage() {
                           <span>
                             {cert.employee.firstName} {cert.employee.lastName}
                           </span>
-                          <span className="text-gray-400">({cert.employee.employeeNumber})</span>
+                          <span className="text-gray-400 dark:text-gray-500">({cert.employee.employeeNumber})</span>
                         </div>
                         {cert.credentialId && (
-                          <div className="text-gray-500">
+                          <div className="text-gray-500 dark:text-gray-400">
                             Credential: {cert.credentialId}
                           </div>
                         )}
-                        <div className="flex items-center gap-2 text-gray-500">
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                           <Clock className="h-4 w-4" />
                           <span>
                             Issued: {new Date(cert.issueDate).toLocaleDateString()}
@@ -505,7 +505,7 @@ export default function CertificationsPage() {
                                 ? 'text-orange-600 font-medium'
                                 : expired
                                 ? 'text-red-600 font-medium'
-                                : 'text-gray-500'
+                                : 'text-gray-500 dark:text-gray-400'
                             }`}
                           >
                             <Clock className="h-4 w-4" />
@@ -518,12 +518,12 @@ export default function CertificationsPage() {
                           </div>
                         )}
                         {cert.doesNotExpire && (
-                          <div className="text-gray-500 italic">Does not expire</div>
+                          <div className="text-gray-500 dark:text-gray-400 italic">Does not expire</div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Badge className={statusColors[cert.status] || 'bg-gray-100 text-gray-700'}>
+                        <Badge className={statusColors[cert.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                           {statusLabels[cert.status] || cert.status}
                         </Badge>
                         {cert.renewalRequired && (
@@ -535,7 +535,7 @@ export default function CertificationsPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No certifications found</p>
               </div>
@@ -555,7 +555,7 @@ export default function CertificationsPage() {
         >
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employee *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee *</label>
               <select
                 value={formEmployeeId}
                 onChange={(e) => setFormEmployeeId(e.target.value)}
@@ -570,7 +570,7 @@ export default function CertificationsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Certification Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Certification Name *</label>
               <input
                 type="text"
                 value={formName}
@@ -580,7 +580,7 @@ export default function CertificationsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Issuing Body *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issuing Body *</label>
               <input
                 type="text"
                 value={formIssuingOrganization}
@@ -591,7 +591,7 @@ export default function CertificationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Credential ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Credential ID</label>
                 <input
                   type="text"
                   value={formCredentialId}
@@ -601,7 +601,7 @@ export default function CertificationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Credential URL</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Credential URL</label>
                 <input
                   type="url"
                   value={formCredentialUrl}
@@ -613,7 +613,7 @@ export default function CertificationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issue Date *</label>
                 <input
                   type="date"
                   value={formIssueDate}
@@ -622,13 +622,13 @@ export default function CertificationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date</label>
                 <input
                   type="date"
                   value={formExpiryDate}
                   onChange={(e) => setFormExpiryDate(e.target.value)}
                   disabled={formDoesNotExpire}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100"
+                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100 dark:bg-gray-800"
                 />
               </div>
             </div>
@@ -656,7 +656,7 @@ export default function CertificationsPage() {
               </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Certificate URL</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Certificate URL</label>
               <input
                 type="url"
                 value={formCertificateUrl}
@@ -698,14 +698,14 @@ export default function CertificationsPage() {
           {editCert && (
             <>
               <div className="space-y-4">
-                <div className="p-3 bg-gray-50 rounded-md">
+                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                   <p className="font-medium">{editCert.name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {editCert.employee.firstName} {editCert.employee.lastName} - {editCert.issuingOrganization}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
@@ -719,7 +719,7 @@ export default function CertificationsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date</label>
                   <input
                     type="date"
                     value={editExpiryDate}

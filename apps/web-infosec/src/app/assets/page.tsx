@@ -123,8 +123,8 @@ export default function AssetsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Register</h1>
-            <p className="text-gray-500 mt-1">Information assets inventory</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Asset Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Information assets inventory</p>
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
             <Plus className="h-4 w-4" /> Add Asset
@@ -138,7 +138,7 @@ export default function AssetsPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search assets..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -161,24 +161,24 @@ export default function AssetsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Classification</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Owner</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Format</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Encryption</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Classification</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Format</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Encryption</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((asset) => (
-                      <tr key={asset.id} className="border-b hover:bg-gray-50">
+                      <tr key={asset.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4 font-mono text-xs text-gray-600">{asset.referenceNumber}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{asset.name}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{asset.name}</td>
                         <td className="py-3 px-4 text-gray-600">{asset.type}</td>
                         <td className="py-3 px-4">
-                          <Badge className={classificationColors[asset.classification] || 'bg-gray-100 text-gray-700'}>{asset.classification}</Badge>
+                          <Badge className={classificationColors[asset.classification] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{asset.classification}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{asset.owner}</td>
                         <td className="py-3 px-4 text-gray-600">{asset.format}</td>
@@ -186,7 +186,7 @@ export default function AssetsPage() {
                           {asset.encryptionRequired ? (
                             <Badge className="bg-teal-100 text-teal-700">Required</Badge>
                           ) : (
-                            <span className="text-gray-400">No</span>
+                            <span className="text-gray-400 dark:text-gray-500">No</span>
                           )}
                         </td>
                         <td className="py-3 px-4">
@@ -198,7 +198,7 @@ export default function AssetsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Server className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No assets found</p>
               </div>
@@ -210,18 +210,18 @@ export default function AssetsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingAsset ? 'Edit Asset' : 'Add Asset'} size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
             <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
               <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
                 {assetTypes.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Classification</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Classification</label>
               <select value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
                 {classifications.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -229,17 +229,17 @@ export default function AssetsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
               <input type="text" value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
               <input type="text" value={form.format} onChange={(e) => setForm({ ...form, format: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Digital, Physical, Cloud" />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" id="encryption" checked={form.encryptionRequired} onChange={(e) => setForm({ ...form, encryptionRequired: e.target.checked })} className="rounded text-teal-600 focus:ring-teal-500" />
-            <label htmlFor="encryption" className="text-sm text-gray-700">Encryption Required</label>
+            <label htmlFor="encryption" className="text-sm text-gray-700 dark:text-gray-300">Encryption Required</label>
           </div>
         </div>
         <ModalFooter>

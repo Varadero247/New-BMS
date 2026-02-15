@@ -30,7 +30,7 @@ const CAPA_STATUSES = [
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-purple-100 text-purple-800' },
   { value: 'VERIFICATION', label: 'Verification', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'CLOSED', label: 'Closed', color: 'bg-green-100 text-green-800' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-600' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
 ] as const;
 
 const SEVERITIES = [
@@ -547,8 +547,8 @@ export default function CapaClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">CAPA Management</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               Corrective and Preventive Actions with root cause analysis and effectiveness verification
             </p>
           </div>
@@ -564,7 +564,7 @@ export default function CapaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total CAPAs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total CAPAs</p>
                   <p className="text-3xl font-bold">{counts.total}</p>
                 </div>
                 <Target className="h-8 w-8 text-blue-500" />
@@ -575,7 +575,7 @@ export default function CapaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
                   <p className="text-3xl font-bold text-blue-600">{counts.open}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-blue-500" />
@@ -586,7 +586,7 @@ export default function CapaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Verification</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Verification</p>
                   <p className="text-3xl font-bold text-purple-600">{counts.inVerification}</p>
                 </div>
                 <Shield className="h-8 w-8 text-purple-500" />
@@ -597,7 +597,7 @@ export default function CapaClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Closed This Month</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Closed This Month</p>
                   <p className="text-3xl font-bold text-green-600">{counts.closedThisMonth}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -611,19 +611,19 @@ export default function CapaClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-[220px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search CAPAs by title, reference, description..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={capaTypeFilter}
                 onChange={e => setCapaTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
                 {CAPA_TYPES.map(t => (
@@ -633,7 +633,7 @@ export default function CapaClient() {
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Statuses</option>
                 {CAPA_STATUSES.map(s => (
@@ -643,7 +643,7 @@ export default function CapaClient() {
               <select
                 value={severityFilter}
                 onChange={e => setSeverityFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Severities</option>
                 {SEVERITIES.map(s => (
@@ -653,7 +653,7 @@ export default function CapaClient() {
               <select
                 value={triggerFilter}
                 onChange={e => setTriggerFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Triggers</option>
                 {TRIGGER_SOURCES.map(t => (
@@ -684,7 +684,7 @@ export default function CapaClient() {
             {loading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-28 bg-gray-100 rounded-lg" />
+                  <div key={i} className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredCapas.length > 0 ? (
@@ -700,13 +700,13 @@ export default function CapaClient() {
                       className={`p-4 border rounded-lg transition-colors cursor-pointer ${
                         isOverdue
                           ? 'border-red-300 bg-red-50 hover:border-red-400'
-                          : 'border-gray-200 hover:border-blue-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="text-xs font-mono text-gray-500">
+                            <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                               {capa.referenceNumber}
                             </span>
                             <Badge variant="outline">
@@ -721,13 +721,13 @@ export default function CapaClient() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 truncate">{capa.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{capa.title}</h3>
                           {capa.description && (
-                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                               {capa.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                             {capa.triggerSource && (
                               <span>
                                 Trigger: {TRIGGER_SOURCES.find(t => t.value === capa.triggerSource)?.label || capa.triggerSource}
@@ -740,7 +740,7 @@ export default function CapaClient() {
                           {/* Progress Bar */}
                           {capa.percentComplete > 0 && (
                             <div className="mt-2">
-                              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                                 <span>Progress</span>
                                 <span>{capa.percentComplete}%</span>
                               </div>
@@ -766,7 +766,7 @@ export default function CapaClient() {
                               {new Date(capa.targetClosureDate).toLocaleDateString()}
                             </div>
                           )}
-                          <p className="text-xs text-gray-400 mt-1">Target Close</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Target Close</p>
                         </div>
                       </div>
                     </div>
@@ -775,9 +775,9 @@ export default function CapaClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Target className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <Target className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-1">No CAPAs found</h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
                   Create your first CAPA to start tracking corrective and preventive actions with root cause analysis.
                 </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
@@ -808,7 +808,7 @@ export default function CapaClient() {
                 className={`px-2.5 py-2 text-xs font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeSection === s.key
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
                 {s.key}. {s.label}
@@ -827,7 +827,7 @@ export default function CapaClient() {
             {/* ── Section A: Identification ─────────────────────────── */}
             {activeSection === 'A' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   A -- Identification
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -914,7 +914,7 @@ export default function CapaClient() {
             {/* ── Section B: Containment ────────────────────────────── */}
             {activeSection === 'B' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   B -- Containment
                 </div>
                 <div>
@@ -927,7 +927,7 @@ export default function CapaClient() {
                     />
                     Immediate Action Required
                   </Label>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Toggle on if containment actions must be taken immediately to prevent further impact.
                   </p>
                 </div>
@@ -967,7 +967,7 @@ export default function CapaClient() {
             {/* ── Section C: Root Cause Analysis ────────────────────── */}
             {activeSection === 'C' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   C -- Root Cause Analysis
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -1187,7 +1187,7 @@ export default function CapaClient() {
 
                 {/* ── IS/IS NOT, FAULT_TREE, OTHER ─────────────────── */}
                 {(form.rcaMethod === 'IS_IS_NOT' || form.rcaMethod === 'FAULT_TREE' || form.rcaMethod === 'OTHER') && (
-                  <div className="space-y-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="space-y-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-800">
                       {RCA_METHODS.find(m => m.value === form.rcaMethod)?.label} Analysis
                     </h4>
@@ -1219,11 +1219,11 @@ export default function CapaClient() {
             {/* ── Section D: Actions Table ──────────────────────────── */}
             {activeSection === 'D' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   D -- CAPA Actions
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Define specific corrective/preventive actions to address the root cause.
                   </p>
                   <Button type="button" size="sm" variant="outline" onClick={addCapaAction}>
@@ -1237,10 +1237,10 @@ export default function CapaClient() {
                     {capaActions.map((action, idx) => (
                       <div
                         key={idx}
-                        className="border border-gray-200 rounded-lg p-4 space-y-3"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500">
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                             Action #{idx + 1}
                           </span>
                           <div className="flex items-center gap-2">
@@ -1335,8 +1335,8 @@ export default function CapaClient() {
                   </div>
                 ) : (
                   <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
-                    <BarChart3 className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-400">
+                    <BarChart3 className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400 dark:text-gray-500">
                       No actions yet. Click "Add Action" to define corrective/preventive actions.
                     </p>
                   </div>
@@ -1347,7 +1347,7 @@ export default function CapaClient() {
             {/* ── Section E: Effectiveness ──────────────────────────── */}
             {activeSection === 'E' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   E -- Effectiveness Criteria
                 </div>
                 <div>
@@ -1396,7 +1396,7 @@ export default function CapaClient() {
             {/* ── Section F: Status ─────────────────────────────────── */}
             {activeSection === 'F' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   F -- Status & Progress
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -1426,7 +1426,7 @@ export default function CapaClient() {
                       onChange={e => updateForm('percentComplete', parseInt(e.target.value))}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                     />
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                       <span>0%</span>
                       <span>25%</span>
                       <span>50%</span>
@@ -1463,7 +1463,7 @@ export default function CapaClient() {
                       value={form.actualClosureDate}
                       onChange={e => updateForm('actualClosureDate', e.target.value)}
                     />
-                    <p className="text-xs text-gray-500 mt-1">Leave blank until CAPA is actually closed.</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank until CAPA is actually closed.</p>
                   </div>
                 </div>
               </div>
@@ -1472,7 +1472,7 @@ export default function CapaClient() {
             {/* ── Section G: Verification & Closure ─────────────────── */}
             {activeSection === 'G' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   G -- Verification & Closure
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -1525,7 +1525,7 @@ export default function CapaClient() {
                     />
                     Actions verified as effective
                   </Label>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Confirm that all actions have been verified and are effectively addressing the root cause.
                   </p>
                 </div>
@@ -1545,10 +1545,10 @@ export default function CapaClient() {
             {/* ── Section H: Cross-Links ────────────────────────────── */}
             {activeSection === 'H' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   H -- Cross-Links
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Link this CAPA to related records across the quality and management system.
                 </p>
                 <div className="grid grid-cols-2 gap-4">
@@ -1617,7 +1617,7 @@ export default function CapaClient() {
             {/* ── Section I: AI CAPA Analysis ───────────────────────── */}
             {activeSection === 'I' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   I -- AI CAPA Analysis
                 </div>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -1652,8 +1652,8 @@ export default function CapaClient() {
                   {aiAnalysis && (
                     <div className="space-y-3 mt-4">
                       {aiAnalysis.suggestedRootCauses && aiAnalysis.suggestedRootCauses.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Suggested Root Causes</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Root Causes</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.suggestedRootCauses.map((cause, idx) => (
                               <li key={idx}>{cause}</li>
@@ -1662,8 +1662,8 @@ export default function CapaClient() {
                         </div>
                       )}
                       {aiAnalysis.suggestedActions && aiAnalysis.suggestedActions.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Suggested Actions</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Actions</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.suggestedActions.map((act, idx) => (
                               <li key={idx}>{act}</li>
@@ -1671,21 +1671,21 @@ export default function CapaClient() {
                           </ul>
                         </div>
                       )}
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Risk Assessment</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Assessment</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.riskAssessment}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Effectiveness Recommendations</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effectiveness Recommendations</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.effectivenessRecommendations}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Compliance Notes</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.complianceNotes}</p>
                       </div>
                       {aiAnalysis.bestPractices && aiAnalysis.bestPractices.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Best Practices</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Best Practices</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.bestPractices.map((bp, idx) => (
                               <li key={idx}>{bp}</li>

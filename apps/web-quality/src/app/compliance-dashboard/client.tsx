@@ -153,8 +153,8 @@ export default function ComplianceDashboardClient() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ISO 9001:2015 Compliance Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Clause-by-clause compliance status and gap analysis</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ISO 9001:2015 Compliance Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Clause-by-clause compliance status and gap analysis</p>
       </div>
 
       {/* Overall gauge */}
@@ -168,19 +168,19 @@ export default function ComplianceDashboardClient() {
                   strokeDasharray={`${overallPct} 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-gray-900">{overallPct}%</span>
-                <span className="text-[10px] text-gray-500 uppercase">Compliant</span>
+                <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">{overallPct}%</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase">Compliant</span>
               </div>
             </div>
-            <div className="mt-3 text-sm text-gray-500">{compliantClauses} of {totalClauses} clauses fully compliant</div>
+            <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">{compliantClauses} of {totalClauses} clauses fully compliant</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Evidence Coverage</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Evidence Coverage</h3>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{totalEvidence} / {totalRequired} items</span>
+              <span className="text-gray-500 dark:text-gray-400">{totalEvidence} / {totalRequired} items</span>
               <span className="font-bold text-blue-600">{evidencePct}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
@@ -197,7 +197,7 @@ export default function ComplianceDashboardClient() {
 
         <Card>
           <CardContent className="p-6 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700">Upcoming Actions</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Upcoming Actions</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-50 border border-yellow-200">
                 <span className="h-2 w-2 rounded-full bg-yellow-500 shrink-0" />
@@ -222,7 +222,7 @@ export default function ComplianceDashboardClient() {
 
       {/* Filter */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500">Filter:</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">Filter:</span>
         {[
           { value: '', label: 'All Clauses' },
           { value: 'compliant', label: 'Compliant' },
@@ -235,7 +235,7 @@ export default function ComplianceDashboardClient() {
             className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
               filterStatus === f.value
                 ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 hover:bg-gray-50'
             }`}
           >
             {f.label}
@@ -251,26 +251,26 @@ export default function ComplianceDashboardClient() {
           const clauseEvidencePct = clause.required > 0 ? Math.round((clause.evidence / clause.required) * 100) : 0;
 
           return (
-            <div key={clause.clause} className="bg-white rounded-lg border overflow-hidden">
+            <div key={clause.clause} className="bg-white dark:bg-gray-900 rounded-lg border overflow-hidden">
               <button
                 type="button"
                 onClick={() => setExpandedClause(isExpanded ? null : clause.clause)}
-                className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 text-blue-700 font-bold text-sm shrink-0">
                   {clause.clause}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">{clause.title}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{clause.title}</h3>
                     <Badge variant={sc.variant as any}>{sc.label}</Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{clause.description}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{clause.description}</p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">Evidence</div>
-                    <div className="text-sm font-medium text-gray-900">{clause.evidence}/{clause.required}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Evidence</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{clause.evidence}/{clause.required}</div>
                   </div>
                   <div className="w-16 h-2 bg-gray-200 rounded-full">
                     <div
@@ -278,7 +278,7 @@ export default function ComplianceDashboardClient() {
                       style={{ width: `${clauseEvidencePct}%` }}
                     />
                   </div>
-                  <svg className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className={`h-5 w-5 text-gray-400 dark:text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -287,34 +287,34 @@ export default function ComplianceDashboardClient() {
               {isExpanded && (
                 <div className="border-t">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
                       <tr>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700 w-20">Clause</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700">Requirement</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700 w-32">Status</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-700">Notes</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-20">Clause</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Requirement</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300 w-32">Status</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Notes</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {clause.subClauses.map(sub => {
                         const subSc = statusConfig[sub.status];
                         return (
-                          <tr key={sub.id} className="hover:bg-gray-50">
+                          <tr key={sub.id} className="hover:bg-gray-50 dark:bg-gray-800">
                             <td className="px-4 py-2 font-mono text-xs text-blue-600">{sub.id}</td>
-                            <td className="px-4 py-2 text-gray-900">{sub.title}</td>
+                            <td className="px-4 py-2 text-gray-900 dark:text-gray-100">{sub.title}</td>
                             <td className="px-4 py-2">
                               <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${subSc.color}`}>
                                 {subSc.label}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-xs text-gray-500">{sub.notes || '—'}</td>
+                            <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{sub.notes || '—'}</td>
                           </tr>
                         );
                       })}
                     </tbody>
                   </table>
                   {clause.link && (
-                    <div className="px-4 py-2 border-t bg-gray-50">
+                    <div className="px-4 py-2 border-t bg-gray-50 dark:bg-gray-800">
                       <a href={clause.link} className="text-xs text-blue-600 hover:underline">Go to related module →</a>
                     </div>
                   )}

@@ -129,8 +129,8 @@ export default function UsersPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-            <p className="text-gray-500 mt-1">Manage system users, roles, and access</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage system users, roles, and access</p>
           </div>
           <Button onClick={() => setShowInviteModal(true)} className="flex items-center gap-2">
             <UserPlus className="h-4 w-4" />
@@ -143,7 +143,7 @@ export default function UsersPage() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-3xl font-bold">{users.length}</p>
-              <p className="text-sm text-gray-500">Total Users</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
             </CardContent>
           </Card>
           <Card>
@@ -151,7 +151,7 @@ export default function UsersPage() {
               <p className="text-3xl font-bold text-green-600">
                 {users.filter(u => u.isActive).length}
               </p>
-              <p className="text-sm text-gray-500">Active</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
             </CardContent>
           </Card>
           <Card>
@@ -159,7 +159,7 @@ export default function UsersPage() {
               <p className="text-3xl font-bold text-blue-600">
                 {users.filter(u => u.role === 'ADMIN').length}
               </p>
-              <p className="text-sm text-gray-500">Admins</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
             </CardContent>
           </Card>
           <Card>
@@ -167,7 +167,7 @@ export default function UsersPage() {
               <p className="text-3xl font-bold text-purple-600">
                 {availableRoles.length}
               </p>
-              <p className="text-sm text-gray-500">Available Roles</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Available Roles</p>
             </CardContent>
           </Card>
         </div>
@@ -175,19 +175,19 @@ export default function UsersPage() {
         {/* Filters */}
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Roles</option>
             <option value="ADMIN">Admin</option>
@@ -213,12 +213,12 @@ export default function UsersPage() {
                 ))}
               </div>
             ) : filteredUsers.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-gray-400 dark:text-gray-500">
                 <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No users found</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredUsers.map((user) => (
                   <div key={user.id} className="py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -228,13 +228,13 @@ export default function UsersPage() {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{getUserName(user)}</p>
-                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{getUserName(user)}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <Mail className="h-3 w-3" />
                           {user.email}
                         </p>
                         {user.jobTitle && (
-                          <p className="text-xs text-gray-400">{user.jobTitle}{user.department ? ` — ${user.department}` : ''}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{user.jobTitle}{user.department ? ` — ${user.department}` : ''}</p>
                         )}
                       </div>
                     </div>
@@ -297,7 +297,7 @@ export default function UsersPage() {
         <div className="p-4">
           {selectedUser && (
             <>
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Assigning roles to <strong>{getUserName(selectedUser)}</strong> ({selectedUser.email})
               </p>
               <div className="max-h-[400px] overflow-y-auto space-y-1">
@@ -308,12 +308,12 @@ export default function UsersPage() {
                     className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                       selectedRoles.includes(role.id)
                         ? 'border-blue-300 bg-blue-50'
-                        : 'border-gray-100 hover:bg-gray-50'
+                        : 'border-gray-100 dark:border-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-900">{role.name}</p>
-                      <p className="text-xs text-gray-500">{role.description}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{role.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{role.description}</p>
                     </div>
                     {selectedRoles.includes(role.id) && (
                       <Check className="h-4 w-4 text-blue-600" />
@@ -322,7 +322,7 @@ export default function UsersPage() {
                 ))}
               </div>
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-500">{selectedRoles.length} roles selected</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedRoles.length} roles selected</p>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => setShowRoleModal(false)}>Cancel</Button>
                   <Button onClick={saveRoles}>Save Roles</Button>
@@ -337,51 +337,51 @@ export default function UsersPage() {
       <Modal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} title="Invite New User" size="md">
         <div className="p-4 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Email</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Email</label>
             <input
               type="email"
               value={inviteForm.email}
               onChange={(e) => setInviteForm(f => ({ ...f, email: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="user@company.com"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">First Name</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">First Name</label>
               <input
                 type="text"
                 value={inviteForm.firstName}
                 onChange={(e) => setInviteForm(f => ({ ...f, firstName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">Last Name</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Last Name</label>
               <input
                 type="text"
                 value={inviteForm.lastName}
                 onChange={(e) => setInviteForm(f => ({ ...f, lastName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Temporary Password</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Temporary Password</label>
             <input
               type="password"
               value={inviteForm.password}
               onChange={(e) => setInviteForm(f => ({ ...f, password: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Min 8 characters"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Legacy Role</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Legacy Role</label>
             <select
               value={inviteForm.role}
               onChange={(e) => setInviteForm(f => ({ ...f, role: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="USER">User</option>
               <option value="MANAGER">Manager</option>

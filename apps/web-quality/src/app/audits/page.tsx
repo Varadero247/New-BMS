@@ -33,7 +33,7 @@ const statusColors: Record<string, string> = {
   REPORTING: 'bg-orange-100 text-orange-700',
   FINDINGS_REVIEW: 'bg-pink-100 text-pink-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-gray-100 text-gray-700',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 const typeColors: Record<string, string> = {
@@ -113,8 +113,8 @@ export default function AuditsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Audit Management</h1>
-            <p className="text-gray-500 mt-1">Internal and external audit scheduling and findings</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Audit Management</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Internal and external audit scheduling and findings</p>
           </div>
           <div className="flex gap-2">
             <Link href="/audits/schedule">
@@ -136,7 +136,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Audits</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Audits</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <ClipboardCheck className="h-8 w-8 text-blue-500" />
@@ -147,7 +147,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Planned</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Planned</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.planned}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
@@ -158,7 +158,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.inProgress}</p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-500" />
@@ -169,7 +169,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -180,7 +180,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Findings</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Findings</p>
                   <p className="text-2xl font-bold text-orange-600">{stats.totalFindings}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-orange-500" />
@@ -191,7 +191,7 @@ export default function AuditsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Major NCs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Major NCs</p>
                   <p className="text-2xl font-bold text-red-600">{stats.majorNCs}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-red-500" />
@@ -213,8 +213,8 @@ export default function AuditsPage() {
                 {upcomingAudits.map((audit) => (
                   <div key={audit.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="text-center bg-white p-2 rounded-lg shadow-sm">
-                        <p className="text-xs text-gray-500">
+                      <div className="text-center bg-white dark:bg-gray-900 p-2 rounded-lg shadow-sm">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(audit.plannedStartDate).toLocaleDateString('en-US', { month: 'short' })}
                         </p>
                         <p className="text-lg font-bold">
@@ -223,12 +223,12 @@ export default function AuditsPage() {
                       </div>
                       <div>
                         <p className="font-medium">{audit.title}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {audit.auditeeDepartment || audit.auditType}
                         </p>
                       </div>
                     </div>
-                    <Badge className={typeColors[audit.auditType] || 'bg-gray-100'}>
+                    <Badge className={typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'}>
                       {audit.auditType}
                     </Badge>
                   </div>
@@ -281,23 +281,23 @@ export default function AuditsPage() {
               <div className="space-y-4">
                 {audits.map((audit) => (
                   <Link key={audit.id} href={`/audits/${audit.id}`}>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{audit.title}</span>
-                          <Badge className={statusColors[audit.status] || 'bg-gray-100'}>
+                          <Badge className={statusColors[audit.status] || 'bg-gray-100 dark:bg-gray-800'}>
                             {audit.status.replace('_', ' ')}
                           </Badge>
-                          <Badge className={typeColors[audit.auditType] || 'bg-gray-100'}>
+                          <Badge className={typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'}>
                             {audit.auditType}
                           </Badge>
                           {audit.overallRating && (
-                            <Badge className={ratingColors[audit.overallRating] || 'bg-gray-100'}>
+                            <Badge className={ratingColors[audit.overallRating] || 'bg-gray-100 dark:bg-gray-800'}>
                               {audit.overallRating.replace('_', ' ')}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                           <span>{audit.auditNumber}</span>
                           <span>•</span>
                           <span>
@@ -319,7 +319,7 @@ export default function AuditsPage() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <Users className="h-4 w-4" />
                         <span>{audit._count?.teamMembers || 0}</span>
                       </div>
@@ -328,7 +328,7 @@ export default function AuditsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <ClipboardCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No audits found</p>
               </div>

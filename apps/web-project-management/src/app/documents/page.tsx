@@ -37,8 +37,8 @@ const statusColors: Record<string, string> = {
   DRAFT: 'bg-yellow-100 text-yellow-700',
   UNDER_REVIEW: 'bg-blue-100 text-blue-700',
   APPROVED: 'bg-green-100 text-green-700',
-  SUPERSEDED: 'bg-gray-100 text-gray-700',
-  ARCHIVED: 'bg-gray-100 text-gray-500',
+  SUPERSEDED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const initialForm = {
@@ -122,25 +122,25 @@ export default function DocumentsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Documents</h1>
-            <p className="text-gray-500 mt-1">Project document library and version control</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Documents</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Project document library and version control</p>
           </div>
           <Button className="bg-blue-600 hover:bg-blue-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Document</Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Documents</p><p className="text-2xl font-bold">{items.length}</p></div><FileText className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Approved</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'APPROVED').length}</p></div><FileText className="h-8 w-8 text-green-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Drafts</p><p className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'DRAFT').length}</p></div><FileText className="h-8 w-8 text-yellow-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Under Review</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'UNDER_REVIEW').length}</p></div><FileText className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Documents</p><p className="text-2xl font-bold">{items.length}</p></div><FileText className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Approved</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'APPROVED').length}</p></div><FileText className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Drafts</p><p className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'DRAFT').length}</p></div><FileText className="h-8 w-8 text-yellow-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Under Review</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => i.status === 'UNDER_REVIEW').length}</p></div><FileText className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search documents..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
@@ -174,28 +174,28 @@ export default function DocumentsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Project</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Version</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Author</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Project</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Version</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Author</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(d => (
-                      <tr key={d.id} className="border-b hover:bg-gray-50">
+                      <tr key={d.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{d.title || d.name || '—'}</p>
-                          {d.description && <p className="text-xs text-gray-500 truncate max-w-xs">{d.description}</p>}
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{d.title || d.name || '—'}</p>
+                          {d.description && <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{d.description}</p>}
                         </td>
-                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${typeColors[d.type || d.category || ''] || 'bg-gray-100 text-gray-700'}`}>{(d.type || d.category || '—').replace(/_/g,' ')}</span></td>
+                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${typeColors[d.type || d.category || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{(d.type || d.category || '—').replace(/_/g,' ')}</span></td>
                         <td className="py-3 px-4 text-gray-600">{d.projectName || '—'}</td>
                         <td className="py-3 px-4 font-mono text-gray-600">v{d.version || '1.0'}</td>
-                        <td className="py-3 px-4 text-gray-500">{d.author || '—'}</td>
-                        <td className="py-3 px-4 text-gray-500">{new Date(d.createdAt).toLocaleDateString()}</td>
-                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[d.status] || 'bg-gray-100 text-gray-700'}`}>{d.status.replace(/_/g,' ')}</span></td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{d.author || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{new Date(d.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[d.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{d.status.replace(/_/g,' ')}</span></td>
                         <td className="py-3 px-4"><div className="flex justify-end gap-2">
                           {d.fileUrl && <Button variant="ghost" size="sm" onClick={() => window.open(d.fileUrl, '_blank')}><Download className="h-4 w-4" /></Button>}
                           <Button variant="ghost" size="sm" onClick={() => openEdit(d)}><Edit className="h-4 w-4" /></Button>
@@ -207,7 +207,7 @@ export default function DocumentsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No documents found</p>
                 <Button className="mt-4 bg-blue-600 hover:bg-blue-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Document</Button>

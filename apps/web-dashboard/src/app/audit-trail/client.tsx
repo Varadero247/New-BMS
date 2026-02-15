@@ -128,10 +128,10 @@ export default function AuditTrailClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Audit Trail</h1>
-          <p className="text-sm text-gray-500 mt-1">Cross-module activity log with full traceability</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Audit Trail</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cross-module activity log with full traceability</p>
         </div>
-        <button className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <button className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Export CSV
         </button>
       </div>
@@ -140,32 +140,32 @@ export default function AuditTrailClient() {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-gray-900">{filtered.length}</div>
-            <div className="text-sm text-gray-500">Total Events</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filtered.length}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Events</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600">{actionCounts['CREATE'] || 0}</div>
-            <div className="text-sm text-gray-500">Creates</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Creates</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-blue-600">{actionCounts['UPDATE'] || 0}</div>
-            <div className="text-sm text-gray-500">Updates</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Updates</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-red-600">{actionCounts['DELETE'] || 0}</div>
-            <div className="text-sm text-gray-500">Deletes</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Deletes</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 bg-white rounded-lg border p-4">
+      <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-900 rounded-lg border p-4">
         <input
           type="text"
           placeholder="Search user, resource, details..."
@@ -176,14 +176,14 @@ export default function AuditTrailClient() {
         <select
           value={moduleFilter}
           onChange={(e) => setModuleFilter(e.target.value)}
-          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white"
+          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white dark:bg-gray-900"
         >
           {MODULES.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
         <select
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value as AuditAction | 'ALL')}
-          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white"
+          className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white dark:bg-gray-900"
         >
           <option value="ALL">All Actions</option>
           {ACTIONS.map(a => <option key={a} value={a}>{a}</option>)}
@@ -196,7 +196,7 @@ export default function AuditTrailClient() {
               className={`px-3 py-2 text-xs font-medium ${
                 dateRange === range
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-900 text-gray-600 hover:bg-gray-50'
               }`}
             >
               {range === 'all' ? 'All' : range}
@@ -206,35 +206,35 @@ export default function AuditTrailClient() {
       </div>
 
       {/* Audit Table */}
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-gray-50 dark:bg-gray-800 border-b">
             <tr>
-              <th className="text-left p-3 font-medium text-gray-700 w-40">Timestamp</th>
-              <th className="text-left p-3 font-medium text-gray-700 w-40">User</th>
-              <th className="text-left p-3 font-medium text-gray-700 w-28">Module</th>
-              <th className="text-left p-3 font-medium text-gray-700 w-24">Action</th>
-              <th className="text-left p-3 font-medium text-gray-700">Resource</th>
-              <th className="text-left p-3 font-medium text-gray-700">Details</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300 w-40">Timestamp</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300 w-40">User</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300 w-28">Module</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300 w-24">Action</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Resource</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Details</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-12 text-center text-gray-500">No audit entries match your filters</td>
+                <td colSpan={6} className="p-12 text-center text-gray-500 dark:text-gray-400">No audit entries match your filters</td>
               </tr>
             ) : filtered.slice(0, 100).map(entry => {
               const ac = actionConfig[entry.action];
               const ts = new Date(entry.timestamp);
               return (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="p-3 font-mono text-xs text-gray-500">
+                <tr key={entry.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="p-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                     {ts.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}{' '}
                     {ts.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </td>
-                  <td className="p-3 text-xs text-gray-700 truncate max-w-[160px]">{entry.user}</td>
+                  <td className="p-3 text-xs text-gray-700 dark:text-gray-300 truncate max-w-[160px]">{entry.user}</td>
                   <td className="p-3">
-                    <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700">
+                    <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                       {entry.module}
                     </span>
                   </td>
@@ -244,15 +244,15 @@ export default function AuditTrailClient() {
                       {entry.action}
                     </span>
                   </td>
-                  <td className="p-3 text-xs font-medium text-gray-900 truncate max-w-[200px]">{entry.resource}</td>
-                  <td className="p-3 text-xs text-gray-500 truncate max-w-[250px]">{entry.details}</td>
+                  <td className="p-3 text-xs font-medium text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{entry.resource}</td>
+                  <td className="p-3 text-xs text-gray-500 dark:text-gray-400 truncate max-w-[250px]">{entry.details}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
         {filtered.length > 100 && (
-          <div className="p-3 text-center text-xs text-gray-500 border-t bg-gray-50">
+          <div className="p-3 text-center text-xs text-gray-500 dark:text-gray-400 border-t bg-gray-50 dark:bg-gray-800">
             Showing 100 of {filtered.length} entries
           </div>
         )}

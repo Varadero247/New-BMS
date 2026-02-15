@@ -92,14 +92,14 @@ export default function DataMapPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">GDPR Data Map</h1>
-        <p className="text-sm text-gray-500 mt-1">Processing activities and data flow inventory (ROPA)</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">GDPR Data Map</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Processing activities and data flow inventory (ROPA)</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-6 gap-3">
         {[
-          { label: 'Data Categories', value: stats.total, color: 'text-gray-900' },
+          { label: 'Data Categories', value: stats.total, color: 'text-gray-900 dark:text-gray-100' },
           { label: 'Personal', value: stats.personal, color: 'text-blue-600' },
           { label: 'Sensitive', value: stats.sensitive, color: 'text-orange-600' },
           { label: 'Special Category', value: stats.special, color: 'text-red-600' },
@@ -109,7 +109,7 @@ export default function DataMapPage() {
           <Card key={s.label}>
             <CardContent className="p-3 text-center">
               <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
-              <div className="text-[10px] text-gray-500 mt-0.5">{s.label}</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">{s.label}</div>
             </CardContent>
           </Card>
         ))}
@@ -122,7 +122,7 @@ export default function DataMapPage() {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1.5 text-xs font-medium rounded-md border ${
-              filter === f ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              filter === f ? 'bg-teal-600 text-white border-teal-600' : 'bg-white dark:bg-gray-900 text-gray-600 border-gray-300 hover:bg-gray-50'
             }`}
           >
             {f === 'all' ? 'All' : f === 'special-category' ? 'Special Category' : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -142,45 +142,45 @@ export default function DataMapPage() {
             >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">{cat.name}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{cat.name}</h3>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${tc.bg}`}>{tc.label}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-gray-500">Legal Basis:</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{cat.legalBasis.split('(')[0].trim()}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Legal Basis:</span>
+                    <p className="text-gray-700 dark:text-gray-300 font-medium mt-0.5">{cat.legalBasis.split('(')[0].trim()}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500">Retention:</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{cat.retention}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Retention:</span>
+                    <p className="text-gray-700 dark:text-gray-300 font-medium mt-0.5">{cat.retention}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500">Volume:</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{cat.volume}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Volume:</span>
+                    <p className="text-gray-700 dark:text-gray-300 font-medium mt-0.5">{cat.volume}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500">Subjects:</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{cat.subjects.join(', ')}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Subjects:</span>
+                    <p className="text-gray-700 dark:text-gray-300 font-medium mt-0.5">{cat.subjects.join(', ')}</p>
                   </div>
                 </div>
 
                 {/* Expanded detail */}
                 {selectedCategory?.id === cat.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Data Sources</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Data Sources</h4>
                       <div className="flex flex-wrap gap-1">
                         {cat.sources.map(s => <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>)}
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Processors</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Processors</h4>
                       <div className="flex flex-wrap gap-1">
                         {cat.processors.map(p => <Badge key={p} variant="secondary" className="text-[10px]">{p}</Badge>)}
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">International Transfers</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">International Transfers</h4>
                       <div className="flex flex-wrap gap-1">
                         {cat.transfers.map(t => (
                           <Badge key={t} variant={t.includes('US') ? 'destructive' : 'secondary'} className="text-[10px]">{t}</Badge>
@@ -188,8 +188,8 @@ export default function DataMapPage() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Full Legal Basis</h4>
-                      <p className="text-xs text-gray-700">{cat.legalBasis}</p>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Full Legal Basis</h4>
+                      <p className="text-xs text-gray-700 dark:text-gray-300">{cat.legalBasis}</p>
                     </div>
                   </div>
                 )}

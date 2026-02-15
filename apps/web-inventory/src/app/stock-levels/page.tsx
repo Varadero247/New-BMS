@@ -105,8 +105,8 @@ export default function StockLevelsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Stock Levels</h1>
-            <p className="text-gray-500 mt-1">Multi-warehouse inventory view</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Stock Levels</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Multi-warehouse inventory view</p>
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function StockLevelsPage() {
           <CardContent className="pt-6">
             <div className="flex gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by SKU, name, or bin location..."
                   value={search}
@@ -129,7 +129,7 @@ export default function StockLevelsPage() {
                   setSelectedWarehouse(e.target.value);
                   setMeta({ ...meta, page: 1 });
                 }}
-                className="px-4 py-2 border rounded-lg bg-white"
+                className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900"
               >
                 <option value="">All Warehouses</option>
                 {warehouses.map((wh) => (
@@ -187,12 +187,12 @@ export default function StockLevelsPage() {
                           <TableCell>
                             <div>
                               <p className="font-medium">{item.product.name}</p>
-                              <p className="text-xs text-gray-500 font-mono">{item.product.sku}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.product.sku}</p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Warehouse className="h-4 w-4 text-gray-400" />
+                              <Warehouse className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                               <span>{item.warehouse.name}</span>
                             </div>
                           </TableCell>
@@ -200,7 +200,7 @@ export default function StockLevelsPage() {
                             {item.binLocation ? (
                               <Badge variant="outline">{item.binLocation}</Badge>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-gray-400 dark:text-gray-500">-</span>
                             )}
                           </TableCell>
                           <TableCell className="text-right font-semibold">
@@ -231,7 +231,7 @@ export default function StockLevelsPage() {
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Showing {filteredInventory.length} of {meta.total} items
                   </p>
                   <div className="flex gap-2">
@@ -256,9 +256,9 @@ export default function StockLevelsPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <Layers className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No inventory records found</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <Layers className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No inventory records found</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                   Add products and receive stock to see inventory levels
                 </p>
               </div>
@@ -270,13 +270,13 @@ export default function StockLevelsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-500">Total Items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
               <p className="text-2xl font-bold">{meta.total}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-500">Total Quantity</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Quantity</p>
               <p className="text-2xl font-bold">
                 {inventory.reduce((sum, item) => sum + item.quantityOnHand, 0).toLocaleString()}
               </p>
@@ -284,7 +284,7 @@ export default function StockLevelsPage() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-500">Total Value</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Value</p>
               <p className="text-2xl font-bold">
                 ${inventory.reduce((sum, item) => sum + item.inventoryValue, 0).toLocaleString()}
               </p>
@@ -292,7 +292,7 @@ export default function StockLevelsPage() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-500">Low Stock Items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Low Stock Items</p>
               <p className="text-2xl font-bold text-orange-600">
                 {inventory.filter(item => item.quantityOnHand <= item.product.reorderPoint).length}
               </p>

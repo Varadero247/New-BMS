@@ -93,18 +93,18 @@ const CHAR_TYPE_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
-  INACTIVE: 'bg-gray-100 text-gray-600',
+  INACTIVE: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
   OPEN: 'bg-red-100 text-red-800',
   INVESTIGATING: 'bg-blue-100 text-blue-800',
   CONTAINED: 'bg-orange-100 text-orange-800',
   CORRECTED: 'bg-teal-100 text-teal-800',
-  CLOSED: 'bg-gray-100 text-gray-600',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   INITIATED: 'bg-yellow-100 text-yellow-800',
   COMPLIANT: 'bg-green-100 text-green-800',
   NON_COMPLIANT: 'bg-red-100 text-red-800',
   PENDING: 'bg-yellow-100 text-yellow-800',
-  EXEMPT: 'bg-gray-100 text-gray-600',
+  EXEMPT: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -282,8 +282,8 @@ export default function ProductSafetyPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Product Safety Management</h1>
-          <p className="text-sm text-gray-500 mt-1">AS9100D / IATF 16949 -- Safety-critical characteristics, incidents & recalls</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Product Safety Management</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">AS9100D / IATF 16949 -- Safety-critical characteristics, incidents & recalls</p>
         </div>
       </div>
 
@@ -294,7 +294,7 @@ export default function ProductSafetyPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><Shield className="h-5 w-5 text-blue-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Total Characteristics</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Characteristics</p>
                 <p className="text-2xl font-bold">{totalChars}</p>
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function ProductSafetyPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg"><AlertTriangle className="h-5 w-5 text-red-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">SC (Safety)</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">SC (Safety)</p>
                 <p className="text-2xl font-bold">{scCount}</p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function ProductSafetyPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg"><Clock className="h-5 w-5 text-orange-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Open Incidents</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
                 <p className="text-2xl font-bold">{openIncidents}</p>
               </div>
             </div>
@@ -327,7 +327,7 @@ export default function ProductSafetyPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-100 rounded-lg"><Package className="h-5 w-5 text-yellow-600" /></div>
               <div>
-                <p className="text-sm text-gray-500">Active Recalls</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Active Recalls</p>
                 <p className="text-2xl font-bold">{activeRecalls}</p>
               </div>
             </div>
@@ -340,7 +340,7 @@ export default function ProductSafetyPage() {
                 {nonCompliant > 0 ? <XCircle className="h-5 w-5 text-red-600" /> : <CheckCircle className="h-5 w-5 text-green-600" />}
               </div>
               <div>
-                <p className="text-sm text-gray-500">Non-Compliant</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Non-Compliant</p>
                 <p className="text-2xl font-bold">{nonCompliant}</p>
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function ProductSafetyPage() {
           <button
             key={tab.key}
             onClick={() => { setActiveTab(tab.key); setStatusFilter(''); }}
-            className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
           >
             {tab.label}
           </button>
@@ -371,7 +371,7 @@ export default function ProductSafetyPage() {
             </div>
             <div className="flex gap-2 mt-3">
               <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input placeholder="Search by part number..." value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} className="pl-10" />
               </div>
               <Select value={statusFilter} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}>
@@ -384,14 +384,14 @@ export default function ProductSafetyPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : characteristics.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No safety characteristics defined.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No safety characteristics defined.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Ref</th>
                       <th className="pb-2 pr-4">Part Number</th>
                       <th className="pb-2 pr-4">Part Name</th>
@@ -403,14 +403,14 @@ export default function ProductSafetyPage() {
                   </thead>
                   <tbody>
                     {characteristics.map(c => (
-                      <tr key={c.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedChar(c); setShowCharDetail(true); }}>
+                      <tr key={c.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => { setSelectedChar(c); setShowCharDetail(true); }}>
                         <td className="py-3 pr-4 font-mono text-xs">{c.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{c.partNumber}</td>
                         <td className="py-3 pr-4">{c.partName}</td>
-                        <td className="py-3 pr-4"><Badge className={CHAR_TYPE_COLORS[c.characteristicType] || 'bg-gray-100'}>{c.characteristicType}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={CHAR_TYPE_COLORS[c.characteristicType] || 'bg-gray-100 dark:bg-gray-800'}>{c.characteristicType}</Badge></td>
                         <td className="py-3 pr-4 text-xs max-w-[200px] truncate">{c.controlMethod}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[c.status] || 'bg-gray-100'}>{c.status}</Badge></td>
-                        <td className="py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[c.status] || 'bg-gray-100 dark:bg-gray-800'}>{c.status}</Badge></td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -442,14 +442,14 @@ export default function ProductSafetyPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : incidents.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No safety incidents recorded.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No safety incidents recorded.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Ref</th>
                       <th className="pb-2 pr-4">Title</th>
                       <th className="pb-2 pr-4">Product</th>
@@ -461,14 +461,14 @@ export default function ProductSafetyPage() {
                   </thead>
                   <tbody>
                     {incidents.map(inc => (
-                      <tr key={inc.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedIncident(inc); setShowIncidentDetail(true); }}>
+                      <tr key={inc.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => { setSelectedIncident(inc); setShowIncidentDetail(true); }}>
                         <td className="py-3 pr-4 font-mono text-xs">{inc.refNumber}</td>
                         <td className="py-3 pr-4 font-medium max-w-[200px] truncate">{inc.title}</td>
                         <td className="py-3 pr-4">{inc.product}</td>
-                        <td className="py-3 pr-4"><Badge className={SEVERITY_COLORS[inc.severity] || 'bg-gray-100'}>{inc.severity}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={SEVERITY_COLORS[inc.severity] || 'bg-gray-100 dark:bg-gray-800'}>{inc.severity}</Badge></td>
                         <td className="py-3 pr-4">{inc.source}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[inc.status] || 'bg-gray-100'}>{inc.status}</Badge></td>
-                        <td className="py-3 text-gray-500">{new Date(inc.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[inc.status] || 'bg-gray-100 dark:bg-gray-800'}>{inc.status}</Badge></td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(inc.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -500,14 +500,14 @@ export default function ProductSafetyPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : recalls.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No recall investigations.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No recall investigations.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Ref</th>
                       <th className="pb-2 pr-4">Product</th>
                       <th className="pb-2 pr-4">Reason</th>
@@ -519,18 +519,18 @@ export default function ProductSafetyPage() {
                   </thead>
                   <tbody>
                     {recalls.map(rcl => (
-                      <tr key={rcl.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedRecall(rcl); setShowRecallDetail(true); }}>
+                      <tr key={rcl.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => { setSelectedRecall(rcl); setShowRecallDetail(true); }}>
                         <td className="py-3 pr-4 font-mono text-xs">{rcl.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{rcl.product}</td>
                         <td className="py-3 pr-4 max-w-[200px] truncate">{rcl.reason}</td>
                         <td className="py-3 pr-4">{rcl.affectedQuantity.toLocaleString()}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[rcl.status] || 'bg-gray-100'}>{rcl.status}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[rcl.status] || 'bg-gray-100 dark:bg-gray-800'}>{rcl.status}</Badge></td>
                         <td className="py-3 pr-4 text-xs">
                           {rcl.customerNotified && <span className="text-green-600 mr-2">Customer</span>}
                           {rcl.regulatoryNotified && <span className="text-blue-600">Regulatory</span>}
-                          {!rcl.customerNotified && !rcl.regulatoryNotified && <span className="text-gray-400">None</span>}
+                          {!rcl.customerNotified && !rcl.regulatoryNotified && <span className="text-gray-400 dark:text-gray-500">None</span>}
                         </td>
-                        <td className="py-3 text-gray-500">{new Date(rcl.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(rcl.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -561,14 +561,14 @@ export default function ProductSafetyPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 text-center py-8">Loading...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
             ) : compliance.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No compliance records.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No compliance records.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Part Number</th>
                       <th className="pb-2 pr-4">Part Name</th>
                       <th className="pb-2 pr-4">Regulation</th>
@@ -580,14 +580,14 @@ export default function ProductSafetyPage() {
                   </thead>
                   <tbody>
                     {compliance.map(c => (
-                      <tr key={c.id} className="border-b hover:bg-gray-50">
+                      <tr key={c.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-medium">{c.partNumber}</td>
                         <td className="py-3 pr-4">{c.partName}</td>
                         <td className="py-3 pr-4"><Badge className="bg-blue-100 text-blue-800">{c.regulation}</Badge></td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[c.status] || 'bg-gray-100'}>{c.status.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[c.status] || 'bg-gray-100 dark:bg-gray-800'}>{c.status.replace(/_/g, ' ')}</Badge></td>
                         <td className="py-3 pr-4 font-mono text-xs">{c.certificateRef || '-'}</td>
                         <td className="py-3 pr-4">{c.expiryDate ? new Date(c.expiryDate).toLocaleDateString() : '-'}</td>
-                        <td className="py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -737,22 +737,22 @@ export default function ProductSafetyPage() {
         {selectedChar && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Part Number:</span> <span className="font-medium">{selectedChar.partNumber}</span></div>
-              <div><span className="text-gray-500">Part Name:</span> <span className="font-medium">{selectedChar.partName}</span></div>
-              <div><span className="text-gray-500">Type:</span> <Badge className={CHAR_TYPE_COLORS[selectedChar.characteristicType]}>{selectedChar.characteristicType}</Badge> <span className="text-xs text-gray-400 ml-1">{CHAR_TYPE_LABELS[selectedChar.characteristicType]}</span></div>
-              <div><span className="text-gray-500">Status:</span> <Badge className={STATUS_COLORS[selectedChar.status]}>{selectedChar.status}</Badge></div>
-              <div><span className="text-gray-500">Control Method:</span> <span className="font-medium">{selectedChar.controlMethod}</span></div>
-              <div><span className="text-gray-500">Measurement:</span> <span className="font-medium">{selectedChar.measurementMethod || '-'}</span></div>
-              <div><span className="text-gray-500">Tolerance:</span> <span className="font-medium">{selectedChar.tolerance || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Part Number:</span> <span className="font-medium">{selectedChar.partNumber}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Part Name:</span> <span className="font-medium">{selectedChar.partName}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Type:</span> <Badge className={CHAR_TYPE_COLORS[selectedChar.characteristicType]}>{selectedChar.characteristicType}</Badge> <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">{CHAR_TYPE_LABELS[selectedChar.characteristicType]}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedChar.status]}>{selectedChar.status}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Control Method:</span> <span className="font-medium">{selectedChar.controlMethod}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Measurement:</span> <span className="font-medium">{selectedChar.measurementMethod || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Tolerance:</span> <span className="font-medium">{selectedChar.tolerance || '-'}</span></div>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">Description:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Description:</span>
               <p className="mt-1 text-sm bg-blue-50 p-3 rounded">{selectedChar.description}</p>
             </div>
             {selectedChar.notes && (
               <div>
-                <span className="text-gray-500 text-sm">Notes:</span>
-                <p className="mt-1 text-sm bg-gray-50 p-3 rounded">{selectedChar.notes}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Notes:</span>
+                <p className="mt-1 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded">{selectedChar.notes}</p>
               </div>
             )}
           </div>
@@ -764,31 +764,31 @@ export default function ProductSafetyPage() {
         {selectedIncident && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Product:</span> <span className="font-medium">{selectedIncident.product}</span></div>
-              <div><span className="text-gray-500">Part Number:</span> <span className="font-medium">{selectedIncident.partNumber || '-'}</span></div>
-              <div><span className="text-gray-500">Severity:</span> <Badge className={SEVERITY_COLORS[selectedIncident.severity]}>{selectedIncident.severity}</Badge></div>
-              <div><span className="text-gray-500">Source:</span> <span className="font-medium">{selectedIncident.source}</span></div>
-              <div><span className="text-gray-500">Status:</span> <Badge className={STATUS_COLORS[selectedIncident.status]}>{selectedIncident.status}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Product:</span> <span className="font-medium">{selectedIncident.product}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Part Number:</span> <span className="font-medium">{selectedIncident.partNumber || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Severity:</span> <Badge className={SEVERITY_COLORS[selectedIncident.severity]}>{selectedIncident.severity}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Source:</span> <span className="font-medium">{selectedIncident.source}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedIncident.status]}>{selectedIncident.status}</Badge></div>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">Description:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Description:</span>
               <p className="mt-1 text-sm bg-red-50 p-3 rounded">{selectedIncident.description}</p>
             </div>
             {selectedIncident.immediateAction && (
               <div>
-                <span className="text-gray-500 text-sm">Immediate Action:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Immediate Action:</span>
                 <p className="mt-1 text-sm bg-orange-50 p-3 rounded">{selectedIncident.immediateAction}</p>
               </div>
             )}
             {selectedIncident.rootCause && (
               <div>
-                <span className="text-gray-500 text-sm">Root Cause:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Root Cause:</span>
                 <p className="mt-1 text-sm bg-blue-50 p-3 rounded">{selectedIncident.rootCause}</p>
               </div>
             )}
             {selectedIncident.correctiveAction && (
               <div>
-                <span className="text-gray-500 text-sm">Corrective Action:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Corrective Action:</span>
                 <p className="mt-1 text-sm bg-green-50 p-3 rounded">{selectedIncident.correctiveAction}</p>
               </div>
             )}
@@ -815,30 +815,30 @@ export default function ProductSafetyPage() {
         {selectedRecall && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Product:</span> <span className="font-medium">{selectedRecall.product}</span></div>
-              <div><span className="text-gray-500">Affected Qty:</span> <span className="font-medium">{selectedRecall.affectedQuantity.toLocaleString()}</span></div>
-              <div><span className="text-gray-500">Status:</span> <Badge className={STATUS_COLORS[selectedRecall.status]}>{selectedRecall.status}</Badge></div>
-              <div><span className="text-gray-500">Regulatory Body:</span> <span className="font-medium">{selectedRecall.regulatoryBody || '-'}</span></div>
-              <div><span className="text-gray-500">Customer Notified:</span> <span className={`font-medium ${selectedRecall.customerNotified ? 'text-green-600' : 'text-red-600'}`}>{selectedRecall.customerNotified ? 'Yes' : 'No'}</span></div>
-              <div><span className="text-gray-500">Regulatory Notified:</span> <span className={`font-medium ${selectedRecall.regulatoryNotified ? 'text-green-600' : 'text-red-600'}`}>{selectedRecall.regulatoryNotified ? 'Yes' : 'No'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Product:</span> <span className="font-medium">{selectedRecall.product}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Affected Qty:</span> <span className="font-medium">{selectedRecall.affectedQuantity.toLocaleString()}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedRecall.status]}>{selectedRecall.status}</Badge></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Regulatory Body:</span> <span className="font-medium">{selectedRecall.regulatoryBody || '-'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Customer Notified:</span> <span className={`font-medium ${selectedRecall.customerNotified ? 'text-green-600' : 'text-red-600'}`}>{selectedRecall.customerNotified ? 'Yes' : 'No'}</span></div>
+              <div><span className="text-gray-500 dark:text-gray-400">Regulatory Notified:</span> <span className={`font-medium ${selectedRecall.regulatoryNotified ? 'text-green-600' : 'text-red-600'}`}>{selectedRecall.regulatoryNotified ? 'Yes' : 'No'}</span></div>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">Reason:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Reason:</span>
               <p className="mt-1 text-sm bg-red-50 p-3 rounded">{selectedRecall.reason}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">Scope:</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">Scope:</span>
               <p className="mt-1 text-sm bg-orange-50 p-3 rounded">{selectedRecall.scope}</p>
             </div>
             {selectedRecall.containmentAction && (
               <div>
-                <span className="text-gray-500 text-sm">Containment Action:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Containment Action:</span>
                 <p className="mt-1 text-sm bg-blue-50 p-3 rounded">{selectedRecall.containmentAction}</p>
               </div>
             )}
             {selectedRecall.correctiveAction && (
               <div>
-                <span className="text-gray-500 text-sm">Corrective Action:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Corrective Action:</span>
                 <p className="mt-1 text-sm bg-green-50 p-3 rounded">{selectedRecall.correctiveAction}</p>
               </div>
             )}

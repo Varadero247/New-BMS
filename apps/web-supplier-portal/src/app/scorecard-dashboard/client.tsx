@@ -107,7 +107,7 @@ const gradeConfig: Record<string, { bg: string; text: string }> = {
 const tierConfig: Record<string, string> = {
   Strategic: 'bg-purple-100 text-purple-700',
   Preferred: 'bg-blue-100 text-blue-700',
-  Approved: 'bg-gray-100 text-gray-700',
+  Approved: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   Conditional: 'bg-red-100 text-red-700',
 };
 
@@ -121,11 +121,11 @@ function ScoreBar({ value, label }: { value: number; label: string }) {
   const color = value >= 90 ? 'bg-green-500' : value >= 75 ? 'bg-blue-500' : value >= 60 ? 'bg-yellow-500' : 'bg-red-500';
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] text-gray-500 w-24 text-right">{label}</span>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+      <span className="text-[10px] text-gray-500 dark:text-gray-400 w-24 text-right">{label}</span>
+      <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} />
       </div>
-      <span className="text-xs font-medium text-gray-700 w-8">{value}</span>
+      <span className="text-xs font-medium text-gray-700 dark:text-gray-300 w-8">{value}</span>
     </div>
   );
 }
@@ -158,41 +158,41 @@ export default function ScorecardDashboardClient() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Supplier Scorecard Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Performance overview of all suppliers — weighted KPIs across quality, delivery, responsiveness, cost & compliance</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Supplier Scorecard Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Performance overview of all suppliers — weighted KPIs across quality, delivery, responsiveness, cost & compliance</p>
         </div>
-        <a href="/scorecards" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <a href="/scorecards" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Table View
         </a>
       </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
           <Award className="h-6 w-6 text-cyan-600 mx-auto mb-1" />
-          <p className="text-2xl font-bold text-gray-900">{avgScore}</p>
-          <p className="text-xs text-gray-500">Avg Score</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgScore}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Avg Score</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
           <Star className="h-6 w-6 text-green-600 mx-auto mb-1" />
           <p className="text-2xl font-bold text-green-700">{gradeA}</p>
-          <p className="text-xs text-gray-500">Grade A Suppliers</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Grade A Suppliers</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
           <AlertTriangle className="h-6 w-6 text-red-600 mx-auto mb-1" />
           <p className="text-2xl font-bold text-red-700">{highRisk}</p>
-          <p className="text-xs text-gray-500">High Risk</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">High Risk</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
           <AlertTriangle className="h-6 w-6 text-orange-600 mx-auto mb-1" />
           <p className="text-2xl font-bold text-orange-700">{totalNCRs}</p>
-          <p className="text-xs text-gray-500">Open NCRs</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Open NCRs</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg px-4 py-2.5">
-        <span className="text-xs text-gray-500">Tier:</span>
+      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Tier:</span>
         <select value={filterTier} onChange={e => setFilterTier(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="Strategic">Strategic</option>
@@ -200,20 +200,20 @@ export default function ScorecardDashboardClient() {
           <option value="Approved">Approved</option>
           <option value="Conditional">Conditional</option>
         </select>
-        <span className="text-xs text-gray-500">Risk:</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">Risk:</span>
         <select value={filterRisk} onChange={e => setFilterRisk(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="Low">Low</option>
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
-        <span className="text-xs text-gray-500">Sort:</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">Sort:</span>
         <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="text-xs border rounded px-2 py-1">
           <option value="score">Score (High to Low)</option>
           <option value="name">Name (A-Z)</option>
           <option value="risk">Risk Level</option>
         </select>
-        <span className="ml-auto text-xs text-gray-400">{suppliers.length} suppliers</span>
+        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">{suppliers.length} suppliers</span>
       </div>
 
       {/* Supplier cards */}
@@ -227,13 +227,13 @@ export default function ScorecardDashboardClient() {
             <div
               key={supplier.id}
               onClick={() => setSelectedSupplier(isSelected ? null : supplier)}
-              className={`bg-white border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-cyan-500 border-cyan-300' : 'border-gray-200'}`}
+              className={`bg-white dark:bg-gray-900 border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-cyan-500 border-cyan-300' : 'border-gray-200 dark:border-gray-700'}`}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900">{supplier.name}</h3>
-                  <p className="text-[10px] text-gray-400">{supplier.category} | {supplier.id}</p>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{supplier.name}</h3>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500">{supplier.category} | {supplier.id}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[10px] font-medium rounded-full px-2 py-0.5 ${tierConfig[supplier.tier]}`}>{supplier.tier}</span>
@@ -244,13 +244,13 @@ export default function ScorecardDashboardClient() {
               {/* Score + Grade */}
               <div className="flex items-center gap-4 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className={`h-12 w-12 rounded-full flex items-center justify-center ${gradeConfig[supplier.grade]?.bg || 'bg-gray-100'}`}>
-                    <span className={`text-lg font-bold ${gradeConfig[supplier.grade]?.text || 'text-gray-700'}`}>{supplier.grade}</span>
+                  <div className={`h-12 w-12 rounded-full flex items-center justify-center ${gradeConfig[supplier.grade]?.bg || 'bg-gray-100 dark:bg-gray-800'}`}>
+                    <span className={`text-lg font-bold ${gradeConfig[supplier.grade]?.text || 'text-gray-700 dark:text-gray-300'}`}>{supplier.grade}</span>
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-gray-900">{supplier.currentScore}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{supplier.currentScore}</p>
                     <div className="flex items-center gap-1">
-                      {trend > 0 ? <TrendingUp className="h-3 w-3 text-green-600" /> : trend < 0 ? <TrendingDown className="h-3 w-3 text-red-600" /> : <Minus className="h-3 w-3 text-gray-400" />}
+                      {trend > 0 ? <TrendingUp className="h-3 w-3 text-green-600" /> : trend < 0 ? <TrendingDown className="h-3 w-3 text-red-600" /> : <Minus className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
                       <span className={`text-[10px] ${trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-400'}`}>
                         {trend > 0 ? '+' : ''}{trend} vs last quarter
                       </span>
@@ -260,10 +260,10 @@ export default function ScorecardDashboardClient() {
 
                 {/* Quick KPIs */}
                 <div className="ml-auto grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                  <div><span className="text-gray-400">OTD:</span> <span className={`font-medium ${supplier.onTimeDelivery >= 95 ? 'text-green-700' : supplier.onTimeDelivery >= 85 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.onTimeDelivery}%</span></div>
-                  <div><span className="text-gray-400">PPM:</span> <span className={`font-medium ${supplier.qualityPpm <= 200 ? 'text-green-700' : supplier.qualityPpm <= 500 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.qualityPpm}</span></div>
-                  <div><span className="text-gray-400">NCRs:</span> <span className={`font-medium ${supplier.ncrCount === 0 ? 'text-green-700' : supplier.ncrCount <= 2 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.ncrCount}</span></div>
-                  <div><span className="text-gray-400">Lead:</span> <span className="font-medium text-gray-700">{supplier.leadTimeDays}d</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">OTD:</span> <span className={`font-medium ${supplier.onTimeDelivery >= 95 ? 'text-green-700' : supplier.onTimeDelivery >= 85 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.onTimeDelivery}%</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">PPM:</span> <span className={`font-medium ${supplier.qualityPpm <= 200 ? 'text-green-700' : supplier.qualityPpm <= 500 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.qualityPpm}</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">NCRs:</span> <span className={`font-medium ${supplier.ncrCount === 0 ? 'text-green-700' : supplier.ncrCount <= 2 ? 'text-yellow-700' : 'text-red-700'}`}>{supplier.ncrCount}</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">Lead:</span> <span className="font-medium text-gray-700 dark:text-gray-300">{supplier.leadTimeDays}d</span></div>
                 </div>
               </div>
 
@@ -280,26 +280,26 @@ export default function ScorecardDashboardClient() {
 
               {/* Expanded detail — history */}
               {isSelected && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Quarterly History</h4>
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Quarterly History</h4>
                   <div className="overflow-x-auto">
                     <table className="w-full text-[10px]">
                       <thead>
-                        <tr className="border-b border-gray-100">
-                          <th className="text-left py-1 text-gray-500">Period</th>
-                          <th className="text-center py-1 text-gray-500">Quality</th>
-                          <th className="text-center py-1 text-gray-500">Delivery</th>
-                          <th className="text-center py-1 text-gray-500">Response</th>
-                          <th className="text-center py-1 text-gray-500">Cost</th>
-                          <th className="text-center py-1 text-gray-500">Compliance</th>
-                          <th className="text-center py-1 text-gray-500">Overall</th>
-                          <th className="text-center py-1 text-gray-500">Grade</th>
+                        <tr className="border-b border-gray-100 dark:border-gray-700">
+                          <th className="text-left py-1 text-gray-500 dark:text-gray-400">Period</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Quality</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Delivery</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Response</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Cost</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Compliance</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Overall</th>
+                          <th className="text-center py-1 text-gray-500 dark:text-gray-400">Grade</th>
                         </tr>
                       </thead>
                       <tbody>
                         {supplier.history.map(h => (
-                          <tr key={h.period} className="border-b border-gray-50">
-                            <td className="py-1.5 font-medium text-gray-700">{h.period}</td>
+                          <tr key={h.period} className="border-b border-gray-50 dark:border-gray-800">
+                            <td className="py-1.5 font-medium text-gray-700 dark:text-gray-300">{h.period}</td>
                             <td className="py-1.5 text-center">{h.quality}</td>
                             <td className="py-1.5 text-center">{h.delivery}</td>
                             <td className="py-1.5 text-center">{h.responsiveness}</td>
@@ -307,7 +307,7 @@ export default function ScorecardDashboardClient() {
                             <td className="py-1.5 text-center">{h.compliance}</td>
                             <td className="py-1.5 text-center font-bold">{h.overall}</td>
                             <td className="py-1.5 text-center">
-                              <span className={`inline-flex items-center justify-center h-5 w-5 rounded-full text-[9px] font-bold ${gradeConfig[h.grade]?.bg || 'bg-gray-100'} ${gradeConfig[h.grade]?.text || 'text-gray-700'}`}>
+                              <span className={`inline-flex items-center justify-center h-5 w-5 rounded-full text-[9px] font-bold ${gradeConfig[h.grade]?.bg || 'bg-gray-100 dark:bg-gray-800'} ${gradeConfig[h.grade]?.text || 'text-gray-700 dark:text-gray-300'}`}>
                                 {h.grade}
                               </span>
                             </td>

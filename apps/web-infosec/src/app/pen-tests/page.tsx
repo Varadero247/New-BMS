@@ -143,62 +143,62 @@ export default function PenTestsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Penetration Tests</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage third-party penetration testing assessments and remediation efforts</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Penetration Tests</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track and manage third-party penetration testing assessments and remediation efforts</p>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Tests</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">{totalTests}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Tests</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{totalTests}</p>
             </div>
             <BarChart3 className="h-5 w-5 text-cyan-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">{completedTests} completed</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{completedTests} completed</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">In Progress</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">In Progress</p>
               <p className="text-2xl font-bold text-blue-600 mt-2">{inProgressTests}</p>
             </div>
             <Zap className="h-5 w-5 text-blue-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Active assessments</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Active assessments</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Critical Findings</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Critical Findings</p>
               <p className="text-2xl font-bold text-red-600 mt-2">{totalCriticalFindings}</p>
             </div>
             <AlertCircle className="h-5 w-5 text-red-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Across all tests</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Across all tests</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Remediation Rate</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Remediation Rate</p>
               <p className="text-2xl font-bold text-green-600 mt-2">{remediationRate}%</p>
             </div>
             <CheckCircle2 className="h-5 w-5 text-green-500" />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Findings addressed</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Findings addressed</p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search by test name or vendor..."
@@ -250,17 +250,17 @@ export default function PenTestsPage() {
             : { critical: 0, high: 0, medium: 0 };
 
           return (
-            <div key={test.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div key={test.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               {/* Card Header */}
               <button
                 onClick={() => setExpandedTestId(isExpanded ? null : test.id)}
-                className="w-full px-4 py-4 hover:bg-gray-50 text-left"
+                className="w-full px-4 py-4 hover:bg-gray-50 dark:bg-gray-800 text-left"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     {/* Title and Type */}
                     <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-gray-900">{test.name}</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{test.name}</h3>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium ${tc.bg} ${tc.text}`}>
                         {tc.label}
                       </span>
@@ -279,7 +279,7 @@ export default function PenTestsPage() {
                       <div className="flex items-center gap-2 text-xs text-gray-600">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>{startDate.toLocaleDateString()} - {endDate.toLocaleDateString()}</span>
-                        <span className="text-gray-400">({daysSpan} days)</span>
+                        <span className="text-gray-400 dark:text-gray-500">({daysSpan} days)</span>
                       </div>
                     </div>
 
@@ -302,7 +302,7 @@ export default function PenTestsPage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-gray-500 ml-2">
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 ml-2">
                         {test.findingsCount} total finding{test.findingsCount !== 1 ? 's' : ''}
                       </span>
                     </div>
@@ -312,7 +312,7 @@ export default function PenTestsPage() {
                   <div className="flex items-center gap-4">
                     {test.findingsCount > 0 && (
                       <div className="flex items-center gap-1">
-                        <div className="h-2 w-32 bg-gray-100 rounded-full overflow-hidden flex">
+                        <div className="h-2 w-32 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex">
                           {findingsSeverityPercent.critical > 0 && (
                             <div className="bg-red-500 h-full" style={{ width: `${findingsSeverityPercent.critical}%` }} />
                           )}
@@ -325,38 +325,38 @@ export default function PenTestsPage() {
                         </div>
                       </div>
                     )}
-                    <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
                   </div>
                 </div>
               </button>
 
               {/* Expanded Details */}
               {isExpanded && (
-                <div className="border-t border-gray-100 bg-gray-50 p-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
                   <div className="space-y-4">
                     <div>
-                      <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-2">Scope</p>
-                      <p className="text-sm text-gray-700">{test.scope}</p>
+                      <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-2">Scope</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{test.scope}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-2">Executive Summary</p>
-                      <p className="text-sm text-gray-700">{test.executiveSummary}</p>
+                      <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-2">Executive Summary</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{test.executiveSummary}</p>
                     </div>
 
                     {test.findingsCount > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-2">Findings Breakdown</p>
+                        <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-2">Findings Breakdown</p>
                         <div className="grid grid-cols-3 gap-3">
-                          <div className="bg-white border border-red-200 rounded p-3">
+                          <div className="bg-white dark:bg-gray-900 border border-red-200 rounded p-3">
                             <p className="text-[10px] font-medium text-gray-600 uppercase mb-1">Critical</p>
                             <p className="text-lg font-bold text-red-600">{test.criticalFindings}</p>
                           </div>
-                          <div className="bg-white border border-orange-200 rounded p-3">
+                          <div className="bg-white dark:bg-gray-900 border border-orange-200 rounded p-3">
                             <p className="text-[10px] font-medium text-gray-600 uppercase mb-1">High</p>
                             <p className="text-lg font-bold text-orange-600">{test.highFindings}</p>
                           </div>
-                          <div className="bg-white border border-yellow-200 rounded p-3">
+                          <div className="bg-white dark:bg-gray-900 border border-yellow-200 rounded p-3">
                             <p className="text-[10px] font-medium text-gray-600 uppercase mb-1">Medium</p>
                             <p className="text-lg font-bold text-yellow-600">{test.mediumFindings}</p>
                           </div>
@@ -379,9 +379,9 @@ export default function PenTestsPage() {
       </div>
 
       {filteredTests.length === 0 && (
-        <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
-          <AlertCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">No penetration tests found matching your criteria</p>
+        <div className="text-center py-12 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <AlertCircle className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No penetration tests found matching your criteria</p>
         </div>
       )}
     </div>

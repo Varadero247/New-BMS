@@ -27,7 +27,7 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
   AT_RISK: { label: 'At Risk', className: 'bg-yellow-100 text-yellow-700', icon: AlertCircle },
   BEHIND: { label: 'Behind', className: 'bg-red-100 text-red-700', icon: AlertCircle },
   ACHIEVED: { label: 'Achieved', className: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelled', className: 'bg-gray-100 text-gray-500', icon: Clock },
+  CANCELLED: { label: 'Cancelled', className: 'bg-gray-100 dark:bg-gray-800 text-gray-500', icon: Clock },
 };
 
 const empty: Partial<EnergyTarget> = { name: '', description: '', targetValue: 0, currentValue: 0, unit: 'kWh', status: 'ON_TRACK', energySource: 'ELECTRICITY', responsible: '' };
@@ -91,8 +91,8 @@ export default function TargetsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Energy Targets</h1>
-            <p className="text-gray-500 mt-1">Energy reduction targets and objectives (ISO 50001 §6.2)</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Energy Targets</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Energy reduction targets and objectives (ISO 50001 §6.2)</p>
           </div>
           <button onClick={openCreate} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors">
             <Plus className="h-5 w-5" /> Set Target
@@ -100,15 +100,15 @@ export default function TargetsPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Targets</p><p className="text-2xl font-bold text-gray-900">{stats.total}</p></div><div className="p-3 bg-yellow-50 rounded-full"><Target className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">On Track</p><p className="text-2xl font-bold text-green-700">{stats.onTrack}</p></div><div className="p-3 bg-green-50 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Achieved</p><p className="text-2xl font-bold text-emerald-700">{stats.achieved}</p></div><div className="p-3 bg-emerald-50 rounded-full"><TrendingDown className="h-6 w-6 text-emerald-600" /></div></div></CardContent></Card>
-          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">At Risk / Behind</p><p className="text-2xl font-bold text-red-700">{stats.atRisk}</p></div><div className="p-3 bg-red-50 rounded-full"><AlertCircle className="h-6 w-6 text-red-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Targets</p><p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p></div><div className="p-3 bg-yellow-50 rounded-full"><Target className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">On Track</p><p className="text-2xl font-bold text-green-700">{stats.onTrack}</p></div><div className="p-3 bg-green-50 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Achieved</p><p className="text-2xl font-bold text-emerald-700">{stats.achieved}</p></div><div className="p-3 bg-emerald-50 rounded-full"><TrendingDown className="h-6 w-6 text-emerald-600" /></div></div></CardContent></Card>
+          <Card><CardContent className="pt-5"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">At Risk / Behind</p><p className="text-2xl font-bold text-red-700">{stats.atRisk}</p></div><div className="p-3 bg-red-50 rounded-full"><AlertCircle className="h-6 w-6 text-red-600" /></div></div></CardContent></Card>
         </div>
 
         <div className="flex gap-3 mb-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search targets..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
           </div>
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
@@ -123,15 +123,15 @@ export default function TargetsPage() {
             {filtered.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Target</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Current</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500" style={{ minWidth: 140 }}>Progress</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Due</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                  <thead><tr className="border-b bg-gray-50 dark:bg-gray-800">
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Target</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Current</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400" style={{ minWidth: 140 }}>Progress</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(item => {
@@ -141,12 +141,12 @@ export default function TargetsPage() {
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">
-                            <p className="font-medium text-gray-900">{item.name}</p>
-                            {item.responsible && <p className="text-xs text-gray-400">{item.responsible}</p>}
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
+                            {item.responsible && <p className="text-xs text-gray-400 dark:text-gray-500">{item.responsible}</p>}
                           </td>
                           <td className="py-3 px-4"><span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700">{item.energySource || '-'}</span></td>
-                          <td className="py-3 px-4 text-right font-mono font-medium">{Number(item.targetValue).toLocaleString()} <span className="text-xs text-gray-400">{item.unit}</span></td>
-                          <td className="py-3 px-4 text-right font-mono text-gray-600">{item.currentValue != null ? Number(item.currentValue).toLocaleString() : '-'} <span className="text-xs text-gray-400">{item.unit}</span></td>
+                          <td className="py-3 px-4 text-right font-mono font-medium">{Number(item.targetValue).toLocaleString()} <span className="text-xs text-gray-400 dark:text-gray-500">{item.unit}</span></td>
+                          <td className="py-3 px-4 text-right font-mono text-gray-600">{item.currentValue != null ? Number(item.currentValue).toLocaleString() : '-'} <span className="text-xs text-gray-400 dark:text-gray-500">{item.unit}</span></td>
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -170,7 +170,7 @@ export default function TargetsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Target className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="font-medium">No targets found</p>
                 <p className="text-sm mt-1">Set your first energy reduction target</p>
@@ -183,58 +183,58 @@ export default function TargetsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Edit Target' : 'Set Energy Target'} size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Target Name *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Name *</label>
             <input value={editItem.name || ''} onChange={e => setEditItem(p => ({ ...p, name: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="e.g. Reduce electricity consumption by 15%" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea value={editItem.description || ''} onChange={e => setEditItem(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Value *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value *</label>
               <input type="number" value={editItem.targetValue || ''} onChange={e => setEditItem(p => ({ ...p, targetValue: Number(e.target.value) }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Current Value</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Value</label>
               <input type="number" value={editItem.currentValue || ''} onChange={e => setEditItem(p => ({ ...p, currentValue: Number(e.target.value) }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
               <input value={editItem.unit || ''} onChange={e => setEditItem(p => ({ ...p, unit: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="kWh, %" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
               <input type="date" value={editItem.startDate || ''} onChange={e => setEditItem(p => ({ ...p, startDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Date</label>
               <input type="date" value={editItem.targetDate || ''} onChange={e => setEditItem(p => ({ ...p, targetDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Energy Source</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Energy Source</label>
               <select value={editItem.energySource || 'ELECTRICITY'} onChange={e => setEditItem(p => ({ ...p, energySource: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                 {ENERGY_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select value={editItem.status || 'ON_TRACK'} onChange={e => setEditItem(p => ({ ...p, status: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                 {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Responsible Person</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsible Person</label>
             <input value={editItem.responsible || ''} onChange={e => setEditItem(p => ({ ...p, responsible: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Name or role" />
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving || !editItem.name} className="px-4 py-2 text-sm bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2">
             {saving && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
             {isEditing ? 'Save Changes' : 'Set Target'}
@@ -245,7 +245,7 @@ export default function TargetsPage() {
       <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Target" size="sm">
         <p className="text-gray-600 text-sm">Are you sure you want to delete this target?</p>
         <ModalFooter>
-          <button onClick={() => setDeleteModal(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteModal(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </ModalFooter>
       </Modal>

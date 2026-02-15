@@ -309,7 +309,7 @@ export function ControlChart({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
         No data available for control chart
       </div>
     );
@@ -325,22 +325,22 @@ export function ControlChart({
 
       {/* Statistics summary */}
       <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-gray-900">{mean.toFixed(3)}</p>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{mean.toFixed(3)}</p>
           <p className="text-xs text-gray-600">Mean (X̄)</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-gray-900">{stdDev.toFixed(3)}</p>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{stdDev.toFixed(3)}</p>
           <p className="text-xs text-gray-600">Std Dev (σ)</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
           <p className={`text-lg font-bold ${outOfControlCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
             {outOfControlCount}
           </p>
           <p className="text-xs text-gray-600">Out of Control</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-gray-900">{data.length}</p>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.length}</p>
           <p className="text-xs text-gray-600">Samples</p>
         </div>
       </div>

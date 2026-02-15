@@ -45,7 +45,7 @@ interface Sequence {
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
   PAUSED: 'bg-yellow-100 text-yellow-700',
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   ARCHIVED: 'bg-orange-100 text-orange-700',
 };
 
@@ -59,7 +59,7 @@ const stepTypeLabels: Record<string, string> = {
 
 const stepTypeColors: Record<string, string> = {
   EMAIL: 'bg-blue-100 text-blue-700',
-  WAIT: 'bg-gray-100 text-gray-700',
+  WAIT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   TASK: 'bg-amber-100 text-amber-700',
   LINKEDIN: 'bg-indigo-100 text-indigo-700',
   CALL: 'bg-green-100 text-green-700',
@@ -298,8 +298,8 @@ export default function SequencesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Email Sequences</h1>
-            <p className="text-gray-500 mt-1">Automated multi-step email outreach campaigns</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Email Sequences</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Automated multi-step email outreach campaigns</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Sequence
@@ -319,8 +319,8 @@ export default function SequencesPage() {
                   <Play className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Active Sequences</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalActive}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Sequences</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalActive}</p>
                 </div>
               </div>
             </CardContent>
@@ -332,8 +332,8 @@ export default function SequencesPage() {
                   <Users className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Enrolled</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalEnrolled}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Enrolled</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalEnrolled}</p>
                 </div>
               </div>
             </CardContent>
@@ -345,8 +345,8 @@ export default function SequencesPage() {
                   <Mail className="h-5 w-5 text-violet-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Sequences</p>
-                  <p className="text-2xl font-bold text-gray-900">{sequences.length}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Sequences</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{sequences.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -359,7 +359,7 @@ export default function SequencesPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search sequences..."
@@ -398,29 +398,29 @@ export default function SequencesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Steps</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Enrolled</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Completed</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Open Rate</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Created</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Steps</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Enrolled</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Completed</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Open Rate</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Created</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredSequences.map(seq => (
-                      <tr key={seq.id} className="border-b hover:bg-gray-50">
+                      <tr key={seq.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <div>
-                            <p className="font-medium text-gray-900">{seq.name}</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{seq.name}</p>
                             {seq.description && (
-                              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{seq.description}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{seq.description}</p>
                             )}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[seq.status] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={statusColors[seq.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {seq.status}
                           </Badge>
                         </td>
@@ -439,7 +439,7 @@ export default function SequencesPage() {
                               {seq.openRate.toFixed(1)}%
                             </span>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           )}
                         </td>
                         <td className="py-3 px-4 text-gray-600">
@@ -449,7 +449,7 @@ export default function SequencesPage() {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => openViewModal(seq)}
-                              className="text-gray-400 hover:text-violet-600 p-1"
+                              className="text-gray-400 dark:text-gray-500 hover:text-violet-600 p-1"
                               title="View details"
                             >
                               <Eye className="h-4 w-4" />
@@ -457,7 +457,7 @@ export default function SequencesPage() {
                             {seq.status === 'ACTIVE' ? (
                               <button
                                 onClick={() => handlePause(seq.id)}
-                                className="text-gray-400 hover:text-yellow-600 p-1"
+                                className="text-gray-400 dark:text-gray-500 hover:text-yellow-600 p-1"
                                 title="Pause sequence"
                               >
                                 <Pause className="h-4 w-4" />
@@ -465,7 +465,7 @@ export default function SequencesPage() {
                             ) : seq.status === 'DRAFT' || seq.status === 'PAUSED' ? (
                               <button
                                 onClick={() => handleActivate(seq.id)}
-                                className="text-gray-400 hover:text-green-600 p-1"
+                                className="text-gray-400 dark:text-gray-500 hover:text-green-600 p-1"
                                 title="Activate sequence"
                               >
                                 <Play className="h-4 w-4" />
@@ -473,14 +473,14 @@ export default function SequencesPage() {
                             ) : null}
                             <button
                               onClick={() => openEditModal(seq)}
-                              className="text-gray-400 hover:text-violet-600 p-1"
+                              className="text-gray-400 dark:text-gray-500 hover:text-violet-600 p-1"
                               title="Edit"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(seq.id)}
-                              className="text-gray-400 hover:text-red-600 p-1"
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600 p-1"
                               title="Delete"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -493,10 +493,10 @@ export default function SequencesPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="font-medium mb-1">No email sequences found</p>
-                <p className="text-sm text-gray-400 mb-4">Create your first automated outreach sequence</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">Create your first automated outreach sequence</p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
                   <Plus className="h-4 w-4" /> Create Sequence
                 </Button>
@@ -542,7 +542,7 @@ export default function SequencesPage() {
             </div>
             <div className="space-y-3">
               {steps.map((step, idx) => (
-                <div key={idx} className="border rounded-lg p-4 bg-gray-50">
+                <div key={idx} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500 text-white text-xs font-bold">
@@ -559,7 +559,7 @@ export default function SequencesPage() {
                         <option value="LINKEDIN">LinkedIn</option>
                         <option value="CALL">Call</option>
                       </select>
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                         <Clock className="h-3 w-3" />
                         Wait
                         <input
@@ -654,7 +654,7 @@ export default function SequencesPage() {
             </div>
             <div className="space-y-3">
               {steps.map((step, idx) => (
-                <div key={idx} className="border rounded-lg p-4 bg-gray-50">
+                <div key={idx} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500 text-white text-xs font-bold">
@@ -671,7 +671,7 @@ export default function SequencesPage() {
                         <option value="LINKEDIN">LinkedIn</option>
                         <option value="CALL">Call</option>
                       </select>
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                         <Clock className="h-3 w-3" />
                         <input
                           type="number"
@@ -734,10 +734,10 @@ export default function SequencesPage() {
           <div className="space-y-5">
             {/* Status & Meta */}
             <div className="flex items-center gap-3">
-              <Badge className={statusColors[viewSequence.status] || 'bg-gray-100 text-gray-700'}>
+              <Badge className={statusColors[viewSequence.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                 {viewSequence.status}
               </Badge>
-              <span className="text-sm text-gray-500">Created {new Date(viewSequence.createdAt).toLocaleDateString()}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Created {new Date(viewSequence.createdAt).toLocaleDateString()}</span>
             </div>
             {viewSequence.description && (
               <p className="text-gray-600 text-sm">{viewSequence.description}</p>
@@ -745,24 +745,24 @@ export default function SequencesPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <p className="text-2xl font-bold text-gray-900">{viewSequence.stepsCount || viewSequence._count?.steps || 0}</p>
-                <p className="text-xs text-gray-500 mt-1">Steps</p>
+              <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{viewSequence.stepsCount || viewSequence._count?.steps || 0}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Steps</p>
               </div>
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <p className="text-2xl font-bold text-blue-700">{viewSequence.enrolledCount || viewSequence._count?.enrollments || 0}</p>
-                <p className="text-xs text-gray-500 mt-1">Enrolled</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Enrolled</p>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <p className="text-2xl font-bold text-green-700">{viewSequence.completedCount || 0}</p>
-                <p className="text-xs text-gray-500 mt-1">Completed</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Completed</p>
               </div>
             </div>
 
             {/* Steps */}
             {viewSequence.steps && viewSequence.steps.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-900 mb-3">Sequence Steps</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Sequence Steps</h3>
                 <div className="space-y-2">
                   {viewSequence.steps.map((step, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-3 border rounded-lg">
@@ -771,17 +771,17 @@ export default function SequencesPage() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={stepTypeColors[step.type] || 'bg-gray-100 text-gray-700'}>
+                          <Badge className={stepTypeColors[step.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                             {stepTypeLabels[step.type] || step.type}
                           </Badge>
                           {step.delayDays > 0 && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                               <Clock className="h-3 w-3" /> {step.delayDays}d delay
                             </span>
                           )}
                         </div>
                         {step.subject && (
-                          <p className="text-sm font-medium text-gray-900">{step.subject}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{step.subject}</p>
                         )}
                         {step.body && (
                           <p className="text-xs text-gray-600 mt-1 line-clamp-2">{step.body}</p>

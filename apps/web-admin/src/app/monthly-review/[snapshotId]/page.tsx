@@ -129,7 +129,7 @@ export default function SnapshotDetailPage() {
       <div className="min-h-screen bg-[#080B12]">
         <Sidebar />
         <main className="ml-64 p-8">
-          <div className="text-gray-400 text-center py-12">Loading snapshot...</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Loading snapshot...</div>
         </main>
       </div>
     );
@@ -140,7 +140,7 @@ export default function SnapshotDetailPage() {
       <div className="min-h-screen bg-[#080B12]">
         <Sidebar />
         <main className="ml-64 p-8">
-          <div className="text-gray-400 text-center py-12">Snapshot not found</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Snapshot not found</div>
         </main>
       </div>
     );
@@ -156,7 +156,7 @@ export default function SnapshotDetailPage() {
       <main className="ml-64 p-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => router.push('/monthly-review')} className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 hover:text-white">
+          <button onClick={() => router.push('/monthly-review')} className="p-2 bg-[#112240] border border-[#1B3A6B]/30 rounded-lg text-gray-400 dark:text-gray-500 hover:text-white">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="flex-1">
@@ -182,22 +182,22 @@ export default function SnapshotDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left py-2 px-3 text-gray-400 font-medium">Metric</th>
-                  <th className="text-right py-2 px-3 text-gray-400 font-medium">Plan</th>
-                  <th className="text-right py-2 px-3 text-gray-400 font-medium">Actual</th>
-                  <th className="text-right py-2 px-3 text-gray-400 font-medium">Variance</th>
+                  <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Metric</th>
+                  <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Plan</th>
+                  <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Actual</th>
+                  <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Variance</th>
                 </tr>
               </thead>
               <tbody>
                 <KpiRow label="MRR" actual={fmt(snapshot.mrr)} plan={planTarget ? fmt(planTarget.plannedMrr) : '—'} variance={planTarget ? `${((Number(snapshot.mrr) - Number(planTarget.plannedMrr)) / Math.max(1, Number(planTarget.plannedMrr)) * 100).toFixed(1)}%` : '—'} colorClass={planTarget ? varColor(Number(snapshot.mrr), Number(planTarget.plannedMrr)) : 'text-gray-400'} />
-                <KpiRow label="ARR" actual={fmt(snapshot.arr)} plan={planTarget ? fmt(Number(planTarget.plannedMrr) * 12) : '—'} variance="—" colorClass="text-gray-400" />
+                <KpiRow label="ARR" actual={fmt(snapshot.arr)} plan={planTarget ? fmt(Number(planTarget.plannedMrr) * 12) : '—'} variance="—" colorClass="text-gray-400 dark:text-gray-500" />
                 <KpiRow label="Customers" actual={String(snapshot.customers)} plan={planTarget ? String(planTarget.plannedCustomers) : '—'} variance={planTarget ? String(snapshot.customers - planTarget.plannedCustomers) : '—'} colorClass={planTarget ? varColor(snapshot.customers, planTarget.plannedCustomers) : 'text-gray-400'} />
-                <KpiRow label="New Customers" actual={String(snapshot.newCustomers)} plan={planTarget ? String(planTarget.plannedNewCustomers) : '—'} variance="—" colorClass="text-gray-400" />
-                <KpiRow label="Revenue Churn" actual={pct(snapshot.revenueChurnPct)} plan={planTarget ? pct(planTarget.plannedChurnPct) : '—'} variance="—" colorClass="text-gray-400" />
-                <KpiRow label="Pipeline" actual={fmt(snapshot.pipelineValue)} plan="—" variance="—" colorClass="text-gray-400" />
-                <KpiRow label="Win Rate" actual={pct(snapshot.winRate)} plan="—" variance="—" colorClass="text-gray-400" />
-                <KpiRow label="ARPU" actual={fmt(snapshot.arpu)} plan={planTarget ? fmt(planTarget.plannedArpu) : '—'} variance="—" colorClass="text-gray-400" />
-                <KpiRow label="LTV" actual={fmt(snapshot.ltv)} plan="—" variance="—" colorClass="text-gray-400" />
+                <KpiRow label="New Customers" actual={String(snapshot.newCustomers)} plan={planTarget ? String(planTarget.plannedNewCustomers) : '—'} variance="—" colorClass="text-gray-400 dark:text-gray-500" />
+                <KpiRow label="Revenue Churn" actual={pct(snapshot.revenueChurnPct)} plan={planTarget ? pct(planTarget.plannedChurnPct) : '—'} variance="—" colorClass="text-gray-400 dark:text-gray-500" />
+                <KpiRow label="Pipeline" actual={fmt(snapshot.pipelineValue)} plan="—" variance="—" colorClass="text-gray-400 dark:text-gray-500" />
+                <KpiRow label="Win Rate" actual={pct(snapshot.winRate)} plan="—" variance="—" colorClass="text-gray-400 dark:text-gray-500" />
+                <KpiRow label="ARPU" actual={fmt(snapshot.arpu)} plan={planTarget ? fmt(planTarget.plannedArpu) : '—'} variance="—" colorClass="text-gray-400 dark:text-gray-500" />
+                <KpiRow label="LTV" actual={fmt(snapshot.ltv)} plan="—" variance="—" colorClass="text-gray-400 dark:text-gray-500" />
               </tbody>
             </table>
           </div>
@@ -222,7 +222,7 @@ export default function SnapshotDetailPage() {
               Alerts & Red Flags
             </h2>
             {alerts.length === 0 ? (
-              <p className="text-gray-500 text-sm">No alerts this month.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">No alerts this month.</p>
             ) : (
               <ul className="space-y-2">
                 {alerts.map((a, i) => (
@@ -243,10 +243,10 @@ export default function SnapshotDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left py-2 px-3 text-gray-400 font-medium">Metric</th>
-                  <th className="text-right py-2 px-3 text-gray-400 font-medium">Current</th>
-                  <th className="text-right py-2 px-3 text-gray-400 font-medium">Suggested</th>
-                  <th className="text-left py-2 px-3 text-gray-400 font-medium">Rationale</th>
+                  <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Metric</th>
+                  <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Current</th>
+                  <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Suggested</th>
+                  <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium">Rationale</th>
                 </tr>
               </thead>
               <tbody>
@@ -255,7 +255,7 @@ export default function SnapshotDetailPage() {
                     <td className="py-2 px-3 text-white">{r.metric}</td>
                     <td className="py-2 px-3 text-gray-300 text-right">{fmt(r.current)}</td>
                     <td className="py-2 px-3 text-blue-400 text-right font-medium">{fmt(r.suggested)}</td>
-                    <td className="py-2 px-3 text-gray-400 text-xs">{r.rationale}</td>
+                    <td className="py-2 px-3 text-gray-400 dark:text-gray-500 text-xs">{r.rationale}</td>
                   </tr>
                 ))}
               </tbody>
@@ -284,7 +284,7 @@ export default function SnapshotDetailPage() {
             <h2 className="text-lg font-semibold text-white mb-4">Approve Targets</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-gray-400 text-sm mb-1">Override MRR Target</label>
+                <label className="block text-gray-400 dark:text-gray-500 text-sm mb-1">Override MRR Target</label>
                 <input
                   type="number"
                   value={overrideMrr}
@@ -294,7 +294,7 @@ export default function SnapshotDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-gray-400 text-sm mb-1">Override Customer Target</label>
+                <label className="block text-gray-400 dark:text-gray-500 text-sm mb-1">Override Customer Target</label>
                 <input
                   type="number"
                   value={overrideCustomers}
@@ -338,7 +338,7 @@ function KpiRow({ label, actual, plan, variance, colorClass }: { label: string; 
   return (
     <tr className="border-b border-[#1B3A6B]/10">
       <td className="py-2 px-3 text-gray-300">{label}</td>
-      <td className="py-2 px-3 text-gray-500 text-right">{plan}</td>
+      <td className="py-2 px-3 text-gray-500 dark:text-gray-400 text-right">{plan}</td>
       <td className="py-2 px-3 text-white text-right font-medium">{actual}</td>
       <td className={`py-2 px-3 text-right font-medium ${colorClass}`}>{variance}</td>
     </tr>
@@ -348,7 +348,7 @@ function KpiRow({ label, actual, plan, variance, colorClass }: { label: string; 
 function IncomeCard({ label, value, color, large }: { label: string; value: string; color: string; large?: boolean }) {
   return (
     <div className={`${large ? 'bg-[#1B3A6B]/20 border border-[#1B3A6B]/40' : ''} rounded-lg p-3`}>
-      <p className="text-gray-400 text-xs">{label}</p>
+      <p className="text-gray-400 dark:text-gray-500 text-xs">{label}</p>
       <p className={`${large ? 'text-xl' : 'text-lg'} font-bold ${color} mt-1`}>{value}</p>
     </div>
   );

@@ -88,11 +88,11 @@ export default function NlqPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
             <Sparkles className="h-8 w-8 text-purple-500" />
             Natural Language Query
           </h1>
-          <p className="text-gray-500 mt-1">Ask questions about your IMS data in plain English — powered by AI</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Ask questions about your IMS data in plain English — powered by AI</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -127,7 +127,7 @@ export default function NlqPage() {
 
                 {/* Example queries */}
                 <div className="mt-4">
-                  <p className="text-xs text-gray-400 mb-2 font-medium">Try an example:</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2 font-medium">Try an example:</p>
                   <div className="flex flex-wrap gap-2">
                     {EXAMPLE_QUERIES.slice(0, 4).map(eq => (
                       <button
@@ -177,10 +177,10 @@ export default function NlqPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">AI Explanation</p>
-                        <p className="text-sm text-gray-700 mt-1">{result.explanation}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">AI Explanation</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{result.explanation}</p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded whitespace-nowrap ml-4">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded whitespace-nowrap ml-4">
                         <Clock className="h-3.5 w-3.5" />
                         {result.executionTime}ms
                       </div>
@@ -208,22 +208,22 @@ export default function NlqPage() {
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Table className="h-4 w-4 text-purple-500" />
                       Results
-                      <span className="ml-1 text-xs font-normal text-gray-400">({result.rows.length} rows)</span>
+                      <span className="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">({result.rows.length} rows)</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
                     {result.rows.length === 0 ? (
-                      <div className="py-12 text-center text-gray-500">
-                        <BarChart3 className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <BarChart3 className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600 mb-2" />
                         <p>No data returned for this query.</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50">
+                            <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                               {result.columns.map(col => (
-                                <th key={col} className="text-left py-3 px-4 text-gray-500 font-medium text-xs uppercase tracking-wide">
+                                <th key={col} className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium text-xs uppercase tracking-wide">
                                   {col}
                                 </th>
                               ))}
@@ -231,15 +231,15 @@ export default function NlqPage() {
                           </thead>
                           <tbody>
                             {result.rows.map((row, i) => (
-                              <tr key={i} className="border-b border-gray-50 hover:bg-purple-50/30">
+                              <tr key={i} className="border-b border-gray-50 dark:border-gray-800 hover:bg-purple-50/30">
                                 {result.columns.map(col => (
-                                  <td key={col} className="py-3 px-4 text-gray-700">
+                                  <td key={col} className="py-3 px-4 text-gray-700 dark:text-gray-300">
                                     {col === 'Severity' ? (
                                       <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                                         row[col] === 'CRITICAL' ? 'bg-red-100 text-red-700' :
                                         row[col] === 'HIGH' ? 'bg-orange-100 text-orange-700' :
                                         row[col] === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-gray-100 text-gray-700'
+                                        'bg-gray-100 dark:bg-gray-800 text-gray-700'
                                       }`}>
                                         {row[col]}
                                       </span>
@@ -274,13 +274,13 @@ export default function NlqPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-400" />
+                  <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   Recent Queries
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {history.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No queries yet</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No queries yet</p>
                 ) : (
                   <div className="space-y-2">
                     {history.map(item => (
@@ -289,8 +289,8 @@ export default function NlqPage() {
                         onClick={() => runQuery(item.query)}
                         className="w-full text-left p-2 rounded-lg hover:bg-purple-50 transition-colors group"
                       >
-                        <p className="text-xs text-gray-700 line-clamp-2 group-hover:text-purple-700">{item.query}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">{item.rowCount} rows · {item.timestamp.toLocaleTimeString()}</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-purple-700">{item.query}</p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{item.rowCount} rows · {item.timestamp.toLocaleTimeString()}</p>
                       </button>
                     ))}
                   </div>

@@ -33,7 +33,7 @@ const statusColors: Record<string, string> = {
   INVESTIGATING: 'bg-yellow-100 text-yellow-700',
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   RESOLVED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 export default function IncidentsPage() {
@@ -145,8 +145,8 @@ export default function IncidentsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Incidents</h1>
-            <p className="text-gray-500 mt-1">AI system incidents and event tracking</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Incidents</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">AI system incidents and event tracking</p>
           </div>
           <button onClick={openAddModal} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
             Report Incident
@@ -155,7 +155,7 @@ export default function IncidentsPage() {
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 p-4">
           <div className="flex gap-4">
             <select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">All Severities</option>
@@ -168,38 +168,38 @@ export default function IncidentsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">System</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Severity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">System</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Severity</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredIncidents.length > 0 ? (
                 filteredIncidents.map((incident) => (
-                  <tr key={incident.id} className="hover:bg-gray-50">
+                  <tr key={incident.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{incident.title}</p>
-                      {incident.description && <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">{incident.description}</p>}
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{incident.title}</p>
+                      {incident.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">{incident.description}</p>}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{incident.system}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{incident.system}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${severityColors[incident.severity] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {incident.severity}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[incident.status] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[incident.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {incident.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(incident.incidentDate).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -210,7 +210,7 @@ export default function IncidentsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">No incidents found</td>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">No incidents found</td>
                 </tr>
               )}
             </tbody>
@@ -222,55 +222,55 @@ export default function IncidentsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{editingIncident ? 'Edit Incident' : 'Report Incident'}</h2>
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{editingIncident ? 'Edit Incident' : 'Report Incident'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                   <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows={3} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">AI System</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI System</label>
                     <input type="text" value={form.system} onChange={(e) => setForm({ ...form, system: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Incident Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Incident Date</label>
                     <input type="date" value={form.incidentDate} onChange={(e) => setForm({ ...form, incidentDate: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
                     <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                       {severityOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                     <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                       {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Reported By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reported By</label>
                     <input type="text" value={form.reportedBy} onChange={(e) => setForm({ ...form, reportedBy: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Root Cause</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Root Cause</label>
                   <textarea value={form.rootCause} onChange={(e) => setForm({ ...form, rootCause: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows={2} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Corrective Action</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Corrective Action</label>
                   <textarea value={form.correctiveAction} onChange={(e) => setForm({ ...form, correctiveAction: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows={2} />
                 </div>
                 <div className="flex justify-end gap-3 pt-4">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                     {editingIncident ? 'Update' : 'Create'}
                   </button>

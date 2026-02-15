@@ -65,14 +65,14 @@ export default function MilestonesPage() {
 
   const statusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      PENDING: 'bg-gray-100 text-gray-700',
+      PENDING: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
       ON_TRACK: 'bg-blue-100 text-blue-700',
       AT_RISK: 'bg-amber-100 text-amber-700',
       DELAYED: 'bg-red-100 text-red-700',
       COMPLETED: 'bg-green-100 text-green-700',
       CANCELLED: 'bg-red-100 text-red-700',
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   if (loading) {
@@ -91,11 +91,11 @@ export default function MilestonesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Flag className="h-6 w-6 text-blue-600" />
               Milestones
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Track project milestones and deliverables</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Track project milestones and deliverables</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -107,10 +107,10 @@ export default function MilestonesPage() {
         </div>
 
         {/* Filter */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -125,29 +125,29 @@ export default function MilestonesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Planned Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actual Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Critical</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approval</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Project</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Planned Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actual Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Critical</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Approval</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {milestones.map((milestone) => (
-                  <tr key={milestone.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900">{milestone.milestoneName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{milestone.project?.projectName || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                  <tr key={milestone.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{milestone.milestoneName}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{milestone.project?.projectName || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {milestone.plannedDate ? new Date(milestone.plannedDate).toLocaleDateString() : '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {milestone.actualDate ? new Date(milestone.actualDate).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-4 py-3">
@@ -175,7 +175,7 @@ export default function MilestonesPage() {
                 ))}
                 {milestones.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       No milestones found. Create your first milestone.
                     </td>
                   </tr>
@@ -189,7 +189,7 @@ export default function MilestonesPage() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Milestone" size="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
               <select
                 required
                 value={form.projectId}
@@ -203,7 +203,7 @@ export default function MilestonesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Milestone Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Milestone Name</label>
               <input
                 type="text"
                 required
@@ -213,7 +213,7 @@ export default function MilestonesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Planned Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Date</label>
               <input
                 type="date"
                 required
@@ -230,7 +230,7 @@ export default function MilestonesPage() {
                   onChange={(e) => setForm({ ...form, isCritical: e.target.checked })}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Critical Milestone</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Critical Milestone</span>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -239,11 +239,11 @@ export default function MilestonesPage() {
                   onChange={(e) => setForm({ ...form, requiresApproval: e.target.checked })}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Requires Approval</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Requires Approval</span>
               </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 rows={3}
                 value={form.milestoneDescription}
@@ -252,7 +252,7 @@ export default function MilestonesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables (one per line)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deliverables (one per line)</label>
               <textarea
                 rows={3}
                 value={form.deliverables}
@@ -265,7 +265,7 @@ export default function MilestonesPage() {
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>

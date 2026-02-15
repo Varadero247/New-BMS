@@ -30,7 +30,7 @@ const jobs: Job[] = [
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   open: { label: 'Open', color: 'bg-emerald-100 text-emerald-700' },
-  closed: { label: 'Closed', color: 'bg-gray-100 text-gray-600' },
+  closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   'on-hold': { label: 'On Hold', color: 'bg-amber-100 text-amber-700' },
   draft: { label: 'Draft', color: 'bg-blue-100 text-blue-700' },
 };
@@ -61,32 +61,32 @@ export default function JobPostingsClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Job Postings</h1>
-        <p className="text-sm text-gray-500 mt-1">Active vacancies and recruitment pipeline</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Job Postings</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Active vacancies and recruitment pipeline</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Postings</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{jobs.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Postings</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{jobs.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Open Positions</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Open Positions</p>
           <p className="text-3xl font-bold text-emerald-700 mt-1">{openJobs}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Applicants</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Applicants</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{totalApplicants}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg per Posting</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{Math.round(totalApplicants / jobs.length)}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg per Posting</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{Math.round(totalApplicants / jobs.length)}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search jobs..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -101,15 +101,15 @@ export default function JobPostingsClient() {
           const tc = typeConfig[job.type];
           const isExpanded = expandedId === job.id;
           return (
-            <div key={job.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : job.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50">
+            <div key={job.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : job.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <Briefcase className="h-5 w-5 text-blue-500" />
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{job.title}</p>
-                      <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{job.title}</p>
+                      <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                         <span>{job.department}</span>
                         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>
                         <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${tc.color}`}>{tc.label}</span>
@@ -117,22 +117,22 @@ export default function JobPostingsClient() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-xs text-gray-500"><Users className="h-3 w-3" />{job.applicants}</span>
+                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><Users className="h-3 w-3" />{job.applicants}</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>{sc.label}</span>
                   </div>
                 </div>
               </button>
               {isExpanded && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 ml-12 space-y-2">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 ml-12 space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <div><span className="text-gray-500">Salary:</span> <span className="font-medium">{job.salary}</span></div>
-                    <div><span className="text-gray-500">Posted:</span> <span className="font-medium">{job.postedDate}</span></div>
-                    <div><span className="text-gray-500">Closing:</span> <span className="font-medium">{job.closingDate}</span></div>
-                    <div><span className="text-gray-500">Hiring Mgr:</span> <span className="font-medium">{job.hiringManager}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Salary:</span> <span className="font-medium">{job.salary}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Posted:</span> <span className="font-medium">{job.postedDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Closing:</span> <span className="font-medium">{job.closingDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Hiring Mgr:</span> <span className="font-medium">{job.hiringManager}</span></div>
                   </div>
-                  <p className="text-xs text-gray-700">{job.description}</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">{job.description}</p>
                   <div>
-                    <p className="text-xs font-medium text-gray-700 mb-1">Requirements:</p>
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Requirements:</p>
                     <ul className="list-disc list-inside text-xs text-gray-600 space-y-0.5">
                       {job.requirements.map((r) => <li key={r}>{r}</li>)}
                     </ul>

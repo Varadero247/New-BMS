@@ -172,8 +172,8 @@ export default function AdjustmentsPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Stock Adjustments</h1>
-          <p className="text-gray-500 mt-1">Cycle counts, transfers, and inventory adjustments</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Stock Adjustments</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Cycle counts, transfers, and inventory adjustments</p>
         </div>
 
         {/* Adjustment Type Selection */}
@@ -193,7 +193,7 @@ export default function AdjustmentsPage() {
                     className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                       isSelected
                         ? 'border-sky-500 bg-sky-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                     }`}
                   >
                     <div className={`p-2 rounded-lg ${type.color}`}>
@@ -237,7 +237,7 @@ export default function AdjustmentsPage() {
               <div>
                 <label className="block text-sm font-medium mb-2">Product *</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     placeholder="Search by SKU or product name..."
                     value={searchQuery}
@@ -259,12 +259,12 @@ export default function AdjustmentsPage() {
                           setSearchQuery(product.name);
                           setProducts([]);
                         }}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:bg-gray-800 flex items-center gap-3"
                       >
-                        <Package className="h-4 w-4 text-gray-400" />
+                        <Package className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <div>
                           <p className="font-medium">{product.name}</p>
-                          <p className="text-xs text-gray-500">{product.sku}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{product.sku}</p>
                         </div>
                       </button>
                     ))}
@@ -274,7 +274,7 @@ export default function AdjustmentsPage() {
                   <div className="mt-2 p-3 bg-sky-50 rounded-lg flex items-center justify-between">
                     <div>
                       <p className="font-medium">{selectedProduct.name}</p>
-                      <p className="text-sm text-gray-500">{selectedProduct.sku}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{selectedProduct.sku}</p>
                     </div>
                     <Button
                       type="button"

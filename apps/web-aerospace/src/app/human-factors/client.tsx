@@ -91,11 +91,11 @@ function getSeverityVariant(severity: string): 'success' | 'warning' | 'info' | 
 
 function getSeverityColor(severity: string): string {
   switch (severity) {
-    case 'LOW': return 'bg-gray-100 text-gray-700 border-gray-300';
+    case 'LOW': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
     case 'MEDIUM': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
     case 'HIGH': return 'bg-orange-100 text-orange-700 border-orange-300';
     case 'CRITICAL': return 'bg-red-100 text-red-700 border-red-300';
-    default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -295,7 +295,7 @@ export default function HumanFactorsClient() {
   const LoadingSpinner = ({ text }: { text: string }) => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-      <span className="ml-3 text-gray-500">{text}</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">{text}</span>
     </div>
   );
 
@@ -317,12 +317,12 @@ export default function HumanFactorsClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Human Factors</h1>
-          <p className="text-gray-500 mt-1">Aviation human factors management -- Dirty Dozen analysis and fatigue risk</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Human Factors</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Aviation human factors management -- Dirty Dozen analysis and fatigue risk</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 mb-8">
+        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-8">
           {[
             { key: 'incidents' as const, label: 'Incidents', icon: AlertTriangle },
             { key: 'fatigue' as const, label: 'Fatigue', icon: Activity },
@@ -336,7 +336,7 @@ export default function HumanFactorsClient() {
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                   activeTab === tab.key
                     ? 'border-indigo-600 text-indigo-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -354,7 +354,7 @@ export default function HumanFactorsClient() {
             {/* Filter bar */}
             <div className="flex items-center gap-4 mb-6 flex-wrap">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by title, ref number, category..."
                   value={searchQuery}
@@ -378,28 +378,28 @@ export default function HumanFactorsClient() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Ref</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Title</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Category (Dirty Dozen)</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Severity</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Date</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Title</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Category (Dirty Dozen)</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Severity</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Date</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredIncidents.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                             <td className="px-4 py-3">
                               <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber || '--'}</span>
                             </td>
                             <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
                               {item.description && (
-                                <p className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{item.description}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">{item.description}</p>
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-sm text-gray-700">{item.category}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.category}</span>
                             </td>
                             <td className="px-4 py-3">
                               <Badge variant={getSeverityVariant(item.severity)}>
@@ -420,9 +420,9 @@ export default function HumanFactorsClient() {
               </Card>
             ) : (
               <div className="text-center py-16">
-                <AlertTriangle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Human Factors Incidents</h3>
-                <p className="text-gray-500 mb-6">
+                <AlertTriangle className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Human Factors Incidents</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
                   Report a human factors incident to begin tracking Dirty Dozen categories.
                 </p>
                 <Button
@@ -436,7 +436,7 @@ export default function HumanFactorsClient() {
             )}
 
             {!incidentsLoading && incidents.length > 0 && (
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Showing {filteredIncidents.length} of {incidents.length} incidents
               </div>
             )}
@@ -451,7 +451,7 @@ export default function HumanFactorsClient() {
             {/* Filter bar */}
             <div className="flex items-center gap-4 mb-6 flex-wrap">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search by personnel name..."
                   value={searchQuery}
@@ -475,30 +475,30 @@ export default function HumanFactorsClient() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Ref</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Personnel Name</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Hours Worked</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Rest Hours</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Fatigue Score</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Risk Level</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Date</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Personnel Name</th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Hours Worked</th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Rest Hours</th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Fatigue Score</th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Risk Level</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Date</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredFatigue.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
                             <td className="px-4 py-3">
                               <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber || '--'}</span>
                             </td>
                             <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-gray-900">{item.personnelName}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.personnelName}</p>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-sm text-gray-700">{item.hoursWorked}h</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.hoursWorked}h</span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-sm text-gray-700">{item.restHours}h</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.restHours}h</span>
                             </td>
                             <td className="px-4 py-3 text-center">
                               <span className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full border ${getFatigueRiskColor(item.fatigueScore)}`}>
@@ -524,9 +524,9 @@ export default function HumanFactorsClient() {
               </Card>
             ) : (
               <div className="text-center py-16">
-                <Activity className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Fatigue Assessments</h3>
-                <p className="text-gray-500 mb-6">
+                <Activity className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Fatigue Assessments</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
                   Create a fatigue assessment to begin monitoring personnel fatigue risk.
                 </p>
                 <Button
@@ -540,7 +540,7 @@ export default function HumanFactorsClient() {
             )}
 
             {!fatigueLoading && fatigueAssessments.length > 0 && (
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Showing {filteredFatigue.length} of {fatigueAssessments.length} assessments
               </div>
             )}
@@ -560,7 +560,7 @@ export default function HumanFactorsClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500">Total Incidents</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents</p>
                           <p className="text-3xl font-bold">{dashboardData?.totalIncidents || 0}</p>
                         </div>
                         <AlertTriangle className="h-8 w-8 text-indigo-500" />
@@ -572,7 +572,7 @@ export default function HumanFactorsClient() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-gray-500">{item.severity}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.severity}</p>
                             <p className="text-3xl font-bold">{item.count}</p>
                           </div>
                           <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getSeverityColor(item.severity)}`}>
@@ -587,29 +587,29 @@ export default function HumanFactorsClient() {
                 {/* Dirty Dozen Analysis */}
                 <Card>
                   <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Dirty Dozen Category Analysis</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Dirty Dozen Category Analysis</h3>
                     {dirtyDozenData.length > 0 ? (
                       <div className="space-y-3">
                         {dirtyDozenData.map((item, idx) => (
                           <div key={item.category} className="flex items-center gap-4">
-                            <div className="w-48 text-sm text-gray-700 text-right truncate" title={item.category}>
+                            <div className="w-48 text-sm text-gray-700 dark:text-gray-300 text-right truncate" title={item.category}>
                               {item.category}
                             </div>
-                            <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                            <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-6 overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${getCategoryBarColor(idx)} transition-all duration-500`}
                                 style={{ width: `${(item.count / maxDDCount) * 100}%` }}
                               />
                             </div>
-                            <div className="w-10 text-sm font-semibold text-gray-700 text-right">
+                            <div className="w-10 text-sm font-semibold text-gray-700 dark:text-gray-300 text-right">
                               {item.count}
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12 text-gray-400">
-                        <Brain className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+                        <Brain className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                         <p className="text-sm">No Dirty Dozen data available yet.</p>
                         <p className="text-xs mt-1">Report human factors incidents to populate this analysis.</p>
                       </div>
@@ -621,7 +621,7 @@ export default function HumanFactorsClient() {
                 {dashboardData?.bySeverity && dashboardData.bySeverity.length > 0 && (
                   <Card>
                     <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-6">Incidents by Severity</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Incidents by Severity</h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {dashboardData.bySeverity.map((item) => (
                           <div key={item.severity} className="text-center">
@@ -653,8 +653,8 @@ export default function HumanFactorsClient() {
               </div>
             )}
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 Incident Details
               </h3>
               <div className="space-y-4">
@@ -745,8 +745,8 @@ export default function HumanFactorsClient() {
               </div>
             )}
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 Assessment Details
               </h3>
               <div className="space-y-4">
@@ -808,12 +808,12 @@ export default function HumanFactorsClient() {
                       {fatigueForm.fatigueScore}/10
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                     <span>1 - Alert</span>
                     <span>5 - Moderate</span>
                     <span>10 - Exhausted</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Risk Level: <span className="font-semibold">{getFatigueRiskLabel(Number(fatigueForm.fatigueScore))}</span>
                   </p>
                 </div>

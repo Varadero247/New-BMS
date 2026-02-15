@@ -170,15 +170,15 @@ export default function ApiKeysPage() {
           </thead>
           <tbody className="divide-y dark:divide-gray-700">
             {loading ? (
-              <tr><td colSpan={6} className="p-6 text-center text-gray-500">Loading...</td></tr>
+              <tr><td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
             ) : keys.length === 0 ? (
-              <tr><td colSpan={6} className="p-6 text-center text-gray-500">No API keys yet. Create one to get started.</td></tr>
+              <tr><td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">No API keys yet. Create one to get started.</td></tr>
             ) : (
               keys.map(key => (
-                <tr key={key.id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                <tr key={key.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
                   <td className="p-3">
                     <div className="font-medium text-gray-900 dark:text-gray-100">{key.name}</div>
-                    <div className="text-xs text-gray-500">Created {new Date(key.createdAt).toLocaleDateString()}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Created {new Date(key.createdAt).toLocaleDateString()}</div>
                   </td>
                   <td className="p-3 font-mono text-xs text-gray-600 dark:text-gray-400">{key.keyPrefix}...</td>
                   <td className="p-3">
@@ -192,7 +192,7 @@ export default function ApiKeysPage() {
                     {key.lastUsedAt ? (
                       <div>
                         <div>{new Date(key.lastUsedAt).toLocaleString()}</div>
-                        <div className="text-gray-400">{key.usageCount} calls</div>
+                        <div className="text-gray-400 dark:text-gray-500">{key.usageCount} calls</div>
                       </div>
                     ) : 'Never'}
                   </td>
@@ -224,8 +224,8 @@ export default function ApiKeysPage() {
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">API Usage</h3>
         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-          <p>Base URL: <code className="bg-white dark:bg-gray-700 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">https://api.ims.local/api/v1</code></p>
-          <p>Authentication: <code className="bg-white dark:bg-gray-700 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">Authorization: Bearer rxk_...</code></p>
+          <p>Base URL: <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">https://api.ims.local/api/v1</code></p>
+          <p>Authentication: <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">Authorization: Bearer rxk_...</code></p>
           <p>Rate limit: 1,000 requests/minute per key</p>
         </div>
       </div>
@@ -242,7 +242,7 @@ export default function ApiKeysPage() {
                   value={newKeyName}
                   onChange={e => setNewKeyName(e.target.value)}
                   placeholder="e.g. Production Integration"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>

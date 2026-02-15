@@ -60,7 +60,7 @@ const impactLevelOptions = ['NEGLIGIBLE', 'LOW', 'MODERATE', 'HIGH', 'VERY_HIGH'
 const statusOptions = ['DRAFT', 'IN_PROGRESS', 'COMPLETED', 'APPROVED', 'ARCHIVED'];
 
 const impactColors: Record<string, string> = {
-  NEGLIGIBLE: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+  NEGLIGIBLE: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
   LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   MODERATE: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
@@ -68,7 +68,7 @@ const impactColors: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
   IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   COMPLETED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   APPROVED: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
@@ -218,7 +218,7 @@ function ScoreSlider({ label, description, value, onChange, color }: {
             className={`flex-1 h-8 rounded-md text-xs font-bold transition-all ${
               score <= value
                 ? 'text-white'
-                : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 dark:bg-gray-800 dark:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
             style={score <= value ? { backgroundColor: color, opacity: 0.6 + (score / value) * 0.4 } : undefined}
           >
@@ -516,7 +516,7 @@ export default function ImpactAssessmentsPage() {
             {wizardSteps.map((step, idx) => (
               <div key={step} className="flex-1 flex items-center">
                 <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                  idx <= wizardStep ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                  idx <= wizardStep ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-500 dark:text-gray-400 dark:bg-gray-700 dark:text-gray-400'
                 }`}>{idx + 1}</div>
                 <span className={`ml-2 text-xs font-medium hidden sm:block ${idx <= wizardStep ? 'text-foreground' : 'text-muted-foreground'}`}>{step}</span>
                 {idx < wizardSteps.length - 1 && <div className={`flex-1 h-0.5 mx-2 ${idx < wizardStep ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'}`} />}

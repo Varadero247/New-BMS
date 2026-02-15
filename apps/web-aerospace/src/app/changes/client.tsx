@@ -27,7 +27,7 @@ const MOCK_ECRS: ECR[] = [
 ];
 
 const STATUS_CONFIG = {
-  draft:       { label: 'Draft',       bg: 'bg-gray-100',   text: 'text-gray-700',   icon: FileEdit },
+  draft:       { label: 'Draft',       bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-700 dark:text-gray-300',   icon: FileEdit },
   review:      { label: 'In Review',   bg: 'bg-blue-100',   text: 'text-blue-700',   icon: Clock },
   approved:    { label: 'Approved',    bg: 'bg-green-100',  text: 'text-green-700',  icon: CheckCircle2 },
   implemented: { label: 'Implemented', bg: 'bg-purple-100', text: 'text-purple-700', icon: CheckCircle2 },
@@ -36,7 +36,7 @@ const STATUS_CONFIG = {
 
 const TYPE_CONFIG = {
   major:     { label: 'Major',     bg: 'bg-orange-100', text: 'text-orange-700' },
-  minor:     { label: 'Minor',     bg: 'bg-gray-100',   text: 'text-gray-600' },
+  minor:     { label: 'Minor',     bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-600' },
   emergency: { label: 'Emergency', bg: 'bg-red-100',    text: 'text-red-700' },
 };
 
@@ -70,13 +70,13 @@ export default function EngineeringChangesClient() {
   }), []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Engineering Changes</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D Clause 8.3.6 — Engineering Change Requests</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Engineering Changes</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D Clause 8.3.6 — Engineering Change Requests</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -88,32 +88,32 @@ export default function EngineeringChangesClient() {
       <div className="px-6 py-6 space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total ECRs</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{counts.total}</p>
-            <p className="text-xs text-gray-500 mt-1">All time</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total ECRs</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{counts.total}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All time</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Open / In Review</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open / In Review</p>
             <p className="text-3xl font-bold text-blue-600 mt-1">{counts.open}</p>
-            <p className="text-xs text-gray-500 mt-1">Awaiting action</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Awaiting action</p>
           </div>
-          <div className="bg-white rounded-lg border border-red-200 p-4 bg-red-50">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-red-200 p-4 bg-red-50">
             <p className="text-xs text-red-600 uppercase tracking-wide font-medium">Emergency</p>
             <p className="text-3xl font-bold text-red-700 mt-1">{counts.emergency}</p>
             <p className="text-xs text-red-500 mt-1">Expedited review</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Implemented</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Implemented</p>
             <p className="text-3xl font-bold text-purple-600 mt-1">{counts.implemented}</p>
-            <p className="text-xs text-gray-500 mt-1">Closed out</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Closed out</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search ECR number, title, requestor..."
@@ -147,10 +147,10 @@ export default function EngineeringChangesClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="w-6 px-4 py-3"></th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">ECR Number</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Title</th>
@@ -161,7 +161,7 @@ export default function EngineeringChangesClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Submitted</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(ecr => {
                 const status = STATUS_CONFIG[ecr.status];
                 const type = TYPE_CONFIG[ecr.type];
@@ -170,12 +170,12 @@ export default function EngineeringChangesClient() {
                 const isExpanded = expandedId === ecr.id;
                 return (
                   <>
-                    <tr key={ecr.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : ecr.id)}>
-                      <td className="px-4 py-3 text-gray-400">
+                    <tr key={ecr.id} className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : ecr.id)}>
+                      <td className="px-4 py-3 text-gray-400 dark:text-gray-500">
                         {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                       </td>
                       <td className="px-4 py-3 font-mono font-medium text-blue-700">{ecr.ecrNumber}</td>
-                      <td className="px-4 py-3 text-gray-900 max-w-xs truncate">{ecr.title}</td>
+                      <td className="px-4 py-3 text-gray-900 dark:text-gray-100 max-w-xs truncate">{ecr.title}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${type.bg} ${type.text}`}>{type.label}</span>
                       </td>
@@ -192,11 +192,11 @@ export default function EngineeringChangesClient() {
                               <div key={n} className={`w-2 h-4 rounded-sm ${n <= ecr.impactLevel ? impact.color : 'bg-gray-200'}`} />
                             ))}
                           </div>
-                          <span className="text-xs text-gray-500">{impact.label}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{impact.label}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">{ecr.requestor}</td>
-                      <td className="px-4 py-3 text-gray-500">{ecr.dateSubmitted}</td>
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{ecr.requestor}</td>
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{ecr.dateSubmitted}</td>
                     </tr>
                     {isExpanded && (
                       <tr key={`${ecr.id}-expanded`} className="bg-blue-50">
@@ -216,7 +216,7 @@ export default function EngineeringChangesClient() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No engineering changes match your filters</p>
             </div>

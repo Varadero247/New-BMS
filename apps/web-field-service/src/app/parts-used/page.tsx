@@ -98,12 +98,12 @@ export default function PartsUsedPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8 bg-gray-50">
+      <main className="flex-1 p-8 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Parts Used</h1>
-              <p className="text-gray-500 mt-1">Track parts and materials consumed on jobs</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Parts Used</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Track parts and materials consumed on jobs</p>
             </div>
             <button onClick={openCreate} className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 flex items-center gap-2 font-medium">
               <Plus className="h-5 w-5" /> Log Parts
@@ -121,7 +121,7 @@ export default function PartsUsedPage() {
                 <Card key={s.label} className={`border ${s.border}`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div><p className="text-xs text-gray-500">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
+                      <div><p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
                       <div className={`p-2 rounded-lg ${s.bg}`}><Icon className={`h-5 w-5 ${s.color}`} /></div>
                     </div>
                   </CardContent>
@@ -132,7 +132,7 @@ export default function PartsUsedPage() {
 
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search parts..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
@@ -154,7 +154,7 @@ export default function PartsUsedPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
+                      <tr className="border-b bg-gray-50 dark:bg-gray-800">
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Part Name</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Part #</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-600">Category</th>
@@ -169,8 +169,8 @@ export default function PartsUsedPage() {
                     <tbody>
                       {filtered.map(item => (
                         <tr key={item.id} className="border-b hover:bg-sky-50 transition-colors">
-                          <td className="py-3 px-4 font-medium text-gray-900">{item.partName || item.name || '-'}</td>
-                          <td className="py-3 px-4 font-mono text-xs text-gray-500">{item.partNumber || '-'}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.partName || item.name || '-'}</td>
+                          <td className="py-3 px-4 font-mono text-xs text-gray-500 dark:text-gray-400">{item.partNumber || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.category || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.jobNumber || '-'}</td>
                           <td className="py-3 px-4 text-gray-600">{item.technicianName || '-'}</td>
@@ -189,7 +189,7 @@ export default function PartsUsedPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-400">
+                <div className="text-center py-16 text-gray-400 dark:text-gray-500">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-40" />
                   <p className="font-medium">No parts usage recorded</p>
                   <p className="text-sm mt-1">Log your first parts record to get started</p>
@@ -205,54 +205,54 @@ export default function PartsUsedPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Part Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Part Name *</label>
               <input value={form.partName} onChange={e => setForm(f => ({ ...f, partName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. HVAC Filter 24x24" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Part Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Part Number</label>
               <input value={form.partNumber} onChange={e => setForm(f => ({ ...f, partNumber: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. HVAC-F-2424" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="e.g. HVAC, Electrical, Plumbing" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Number</label>
               <input value={form.jobNumber} onChange={e => setForm(f => ({ ...f, jobNumber: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Related job number" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Technician</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Technician</label>
               <input value={form.technicianName} onChange={e => setForm(f => ({ ...f, technicianName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Technician name" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
               <input type="number" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="1" min="1" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Unit Cost ($)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Cost ($)</label>
               <input type="number" value={form.unitCost} onChange={e => setForm(f => ({ ...f, unitCost: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="0.00" min="0" step="0.01" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
               <input value={form.supplier} onChange={e => setForm(f => ({ ...f, supplier: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Supplier name" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date Used</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Used</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50">
             {saving ? 'Saving...' : editItem ? 'Update Record' : 'Log Parts'}
           </button>
@@ -262,7 +262,7 @@ export default function PartsUsedPage() {
       <Modal isOpen={!!deleteItem} onClose={() => setDeleteItem(null)} title="Delete Record" size="sm">
         <p className="text-sm text-gray-600">Delete parts record for <span className="font-semibold">{deleteItem?.partName || deleteItem?.name}</span>? This action cannot be undone.</p>
         <ModalFooter>
-          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={() => setDeleteItem(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
           <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </ModalFooter>
       </Modal>

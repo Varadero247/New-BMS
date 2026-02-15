@@ -115,15 +115,15 @@ export default function TemplatesClient() {
       INVENTORY: 'bg-sky-100 text-sky-700',
       HR: 'bg-orange-100 text-orange-700',
     };
-    return colors[mod] || 'bg-gray-100 text-gray-700';
+    return colors[mod] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   const renderFormField = (field: FieldDefinition) => {
     if (field.type === 'section') {
       return (
-        <div key={field.name} className="col-span-2 pt-4 pb-2 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{field.label}</h3>
-          {field.description && <p className="text-sm text-gray-500 mt-1">{field.description}</p>}
+        <div key={field.name} className="col-span-2 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{field.label}</h3>
+          {field.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>}
         </div>
       );
     }
@@ -131,7 +131,7 @@ export default function TemplatesClient() {
     if (field.type === 'textarea') {
       return (
         <div key={field.name} className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {field.label} {field.required && <span className="text-red-500">*</span>}
           </label>
           <textarea
@@ -148,7 +148,7 @@ export default function TemplatesClient() {
     if (field.type === 'select') {
       return (
         <div key={field.name}>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {field.label} {field.required && <span className="text-red-500">*</span>}
           </label>
           <select
@@ -175,7 +175,7 @@ export default function TemplatesClient() {
             checked={!!formData[field.name]}
             onChange={(e) => handleFormChange(field.name, e.target.checked)}
           />
-          <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
+          <label htmlFor={field.name} className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {field.label}
           </label>
         </div>
@@ -184,7 +184,7 @@ export default function TemplatesClient() {
 
     return (
       <div key={field.name}>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {field.label} {field.required && <span className="text-red-500">*</span>}
         </label>
         <Input
@@ -207,8 +207,8 @@ export default function TemplatesClient() {
               <FileText className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Template Library</h1>
-              <p className="text-gray-500 mt-1">Browse and use templates across all IMS modules</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Template Library</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Browse and use templates across all IMS modules</p>
             </div>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function TemplatesClient() {
         {/* Filter Bar */}
         <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search templates..."
               value={search}
@@ -225,7 +225,7 @@ export default function TemplatesClient() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-400" />
+            <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <select
               className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={categoryFilter}
@@ -237,7 +237,7 @@ export default function TemplatesClient() {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <select
               className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={statusFilter}
@@ -260,17 +260,17 @@ export default function TemplatesClient() {
         ) : templates.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => (
-              <Card key={template.id} className="hover:shadow-md transition-shadow border border-gray-200">
+              <Card key={template.id} className="hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700">
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between mb-3">
                     <Badge className="bg-purple-100 text-purple-700 text-xs font-mono">{template.code}</Badge>
                     <Badge className={getModuleBadgeColor(template.module)}>{template.module.replace('_', ' ')}</Badge>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3 line-clamp-2">{template.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{template.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{template.description}</p>
                   <div className="flex items-center gap-2 mb-4">
                     <Badge variant="outline" className="text-xs">{template.category}</Badge>
-                    <span className="text-xs text-gray-400">{template.usageCount} uses</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{template.usageCount} uses</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => handlePreview(template)}>
@@ -292,9 +292,9 @@ export default function TemplatesClient() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No templates found</p>
-            <p className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</p>
+            <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 text-lg">No templates found</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try adjusting your search or filters</p>
           </div>
         )}
 
@@ -313,16 +313,16 @@ export default function TemplatesClient() {
                 <Badge variant="outline">{selectedTemplate.status}</Badge>
               </div>
               <p className="text-sm text-gray-600">{selectedTemplate.description}</p>
-              <div className="border-t border-gray-200 pt-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Field Definitions</h4>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Field Definitions</h4>
                 <div className="space-y-2">
                   {selectedTemplate.fieldDefinitions?.map((field) => (
-                    <div key={field.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={field.name} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div>
-                        <span className="text-sm font-medium text-gray-900">{field.label}</span>
-                        <span className="text-xs text-gray-500 ml-2">({field.type})</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{field.label}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({field.type})</span>
                         {field.description && (
-                          <p className="text-xs text-gray-400 mt-0.5">{field.description}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{field.description}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -337,7 +337,7 @@ export default function TemplatesClient() {
                   ))}
                 </div>
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-gray-400 dark:text-gray-500">
                 Version {selectedTemplate.version} | Used {selectedTemplate.usageCount} times
               </div>
             </div>
@@ -359,7 +359,7 @@ export default function TemplatesClient() {
         >
           {selectedTemplate && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500">{selectedTemplate.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedTemplate.description}</p>
               <div className="grid grid-cols-2 gap-4">
                 {selectedTemplate.fieldDefinitions?.map((field) => renderFormField(field))}
               </div>

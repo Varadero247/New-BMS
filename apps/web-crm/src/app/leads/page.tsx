@@ -139,8 +139,8 @@ export default function LeadsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Leads</h1>
-            <p className="text-gray-500 mt-1">Manage and qualify incoming leads</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Leads</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and qualify incoming leads</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Lead
@@ -156,7 +156,7 @@ export default function LeadsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -185,21 +185,21 @@ export default function LeadsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Company</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Score</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Company</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Score</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLeads.map((lead) => (
-                      <tr key={lead.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{lead.reference || '-'}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{lead.firstName} {lead.lastName}</td>
+                      <tr key={lead.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{lead.reference || '-'}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{lead.firstName} {lead.lastName}</td>
                         <td className="py-3 px-4 text-gray-600">{lead.email}</td>
                         <td className="py-3 px-4 text-gray-600">{lead.company || '-'}</td>
                         <td className="py-3 px-4">
@@ -211,16 +211,16 @@ export default function LeadsPage() {
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[lead.status] || 'bg-gray-100 text-gray-700'}>{lead.status}</Badge>
+                          <Badge className={statusColors[lead.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{lead.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             {(lead.status === 'NEW' || lead.status === 'CONTACTED') && (
                               <>
-                                <button onClick={() => handleQualify(lead.id)} className="text-gray-400 hover:text-green-600" title="Qualify">
+                                <button onClick={() => handleQualify(lead.id)} className="text-gray-400 dark:text-gray-500 hover:text-green-600" title="Qualify">
                                   <CheckCircle className="h-4 w-4" />
                                 </button>
-                                <button onClick={() => handleDisqualify(lead.id)} className="text-gray-400 hover:text-red-600" title="Disqualify">
+                                <button onClick={() => handleDisqualify(lead.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" title="Disqualify">
                                   <XCircle className="h-4 w-4" />
                                 </button>
                               </>
@@ -233,7 +233,7 @@ export default function LeadsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No leads found</p>
               </div>

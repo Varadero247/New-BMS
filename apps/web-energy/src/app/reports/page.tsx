@@ -28,7 +28,7 @@ interface EnergyReport {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  DRAFT:       { label: 'Draft',       color: 'bg-gray-100 text-gray-700',   icon: Clock },
+  DRAFT:       { label: 'Draft',       color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',   icon: Clock },
   GENERATING:  { label: 'Generating',  color: 'bg-blue-100 text-blue-700',   icon: RefreshCw },
   PUBLISHED:   { label: 'Published',   color: 'bg-green-100 text-green-700', icon: CheckCircle },
   UNDER_REVIEW:{ label: 'Under Review',color: 'bg-yellow-100 text-yellow-700',icon: AlertCircle },
@@ -207,8 +207,8 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Energy Reports</h1>
-            <p className="text-gray-500 mt-1">Generate, review, and manage energy performance reports — ISO 50001 §9.1</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Energy Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Generate, review, and manage energy performance reports — ISO 50001 §9.1</p>
           </div>
           <button
             onClick={openCreate}
@@ -225,8 +225,8 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Total Reports</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{totalReports}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Reports</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalReports}</p>
                 </div>
                 <div className="h-12 w-12 bg-yellow-100 rounded-xl flex items-center justify-center">
                   <FileText className="h-6 w-6 text-yellow-600" />
@@ -238,7 +238,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Published</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Published</p>
                   <p className="text-3xl font-bold text-green-600 mt-1">{published}</p>
                 </div>
                 <div className="h-12 w-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -251,7 +251,7 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Under Review</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Under Review</p>
                   <p className="text-3xl font-bold text-yellow-600 mt-1">{underReview}</p>
                 </div>
                 <div className="h-12 w-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -264,11 +264,11 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Drafts</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Drafts</p>
                   <p className="text-3xl font-bold text-gray-600 mt-1">{drafts}</p>
                 </div>
-                <div className="h-12 w-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-gray-500" />
+                <div className="h-12 w-12 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-gray-500 dark:text-gray-400" />
                 </div>
               </div>
             </CardContent>
@@ -278,7 +278,7 @@ export default function ReportsPage() {
         {/* Search & Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search reports..."
@@ -288,7 +288,7 @@ export default function ReportsPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-400" />
+            <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
@@ -325,14 +325,14 @@ export default function ReportsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Period</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Format</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Generated</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <tr className="border-b bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Period</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Format</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Generated</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -342,9 +342,9 @@ export default function ReportsPage() {
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">
-                            <div className="font-medium text-gray-900">{item.title}</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{item.title}</div>
                             {item.description && (
-                              <div className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{item.description}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">{item.description}</div>
                             )}
                           </td>
                           <td className="py-3 px-4">
@@ -355,21 +355,21 @@ export default function ReportsPage() {
                           </td>
                           <td className="py-3 px-4 text-gray-600 whitespace-nowrap">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                              <Calendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
                               <span className="text-xs">{formatDate(item.periodStart)} – {formatDate(item.periodEnd)}</span>
                             </div>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                               <FileText className="h-3 w-3" />
                               {item.format}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-gray-500 text-xs whitespace-nowrap">
+                          <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
                             {item.generatedAt ? (
                               <div>
                                 <div>{formatDate(item.generatedAt)}</div>
-                                {item.generatedBy && <div className="text-gray-400">{item.generatedBy}</div>}
+                                {item.generatedBy && <div className="text-gray-400 dark:text-gray-500">{item.generatedBy}</div>}
                               </div>
                             ) : '—'}
                           </td>
@@ -383,7 +383,7 @@ export default function ReportsPage() {
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => openView(item)}
-                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                 title="View details"
                               >
                                 <Eye className="h-4 w-4" />
@@ -393,7 +393,7 @@ export default function ReportsPage() {
                                   href={item.fileUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                                  className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                                   title="Download"
                                 >
                                   <Download className="h-4 w-4" />
@@ -401,14 +401,14 @@ export default function ReportsPage() {
                               )}
                               <button
                                 onClick={() => openEdit(item)}
-                                className="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded transition-colors"
+                                className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded transition-colors"
                                 title="Edit"
                               >
                                 <FileText className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => confirmDelete(item.id)}
-                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                 title="Delete"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -422,9 +422,9 @@ export default function ReportsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-16 text-gray-400">
+              <div className="text-center py-16 text-gray-400 dark:text-gray-500">
                 <FileText className="h-14 w-14 mx-auto mb-4 opacity-40" />
-                <p className="font-medium text-gray-500">No reports found</p>
+                <p className="font-medium text-gray-500 dark:text-gray-400">No reports found</p>
                 <p className="text-sm mt-1">Generate your first energy report to get started</p>
               </div>
             )}
@@ -441,7 +441,7 @@ export default function ReportsPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Report Title <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Title <span className="text-red-500">*</span></label>
             <input
               type="text"
               value={editItem.title || ''}
@@ -453,7 +453,7 @@ export default function ReportsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Type</label>
               <select
                 value={editItem.type || 'ENERGY_PERFORMANCE'}
                 onChange={e => setEditItem(p => ({ ...p, type: e.target.value }))}
@@ -465,7 +465,7 @@ export default function ReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
               <select
                 value={editItem.format || 'PDF'}
                 onChange={e => setEditItem(p => ({ ...p, format: e.target.value }))}
@@ -480,7 +480,7 @@ export default function ReportsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Period Start <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period Start <span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={editItem.periodStart || ''}
@@ -489,7 +489,7 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Period End <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period End <span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={editItem.periodEnd || ''}
@@ -501,7 +501,7 @@ export default function ReportsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select
                 value={editItem.status || 'DRAFT'}
                 onChange={e => setEditItem(p => ({ ...p, status: e.target.value }))}
@@ -513,7 +513,7 @@ export default function ReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Energy Sources</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Energy Sources</label>
               <select
                 value={editItem.energySources || 'ALL'}
                 onChange={e => setEditItem(p => ({ ...p, energySources: e.target.value }))}
@@ -527,7 +527,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scope</label>
             <input
               type="text"
               value={editItem.scope || ''}
@@ -538,7 +538,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Generated By</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Generated By</label>
             <input
               type="text"
               value={editItem.generatedBy || ''}
@@ -549,7 +549,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea
               value={editItem.description || ''}
               onChange={e => setEditItem(p => ({ ...p, description: e.target.value }))}
@@ -560,7 +560,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Key Findings</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Key Findings</label>
             <textarea
               value={editItem.findings || ''}
               onChange={e => setEditItem(p => ({ ...p, findings: e.target.value }))}
@@ -571,7 +571,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Recommendations</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendations</label>
             <textarea
               value={editItem.recommendations || ''}
               onChange={e => setEditItem(p => ({ ...p, recommendations: e.target.value }))}
@@ -585,7 +585,7 @@ export default function ReportsPage() {
         <ModalFooter>
           <button
             onClick={() => setModalOpen(false)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
           >
             Cancel
           </button>
@@ -610,8 +610,8 @@ export default function ReportsPage() {
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{viewItem.title}</h3>
-                <p className="text-sm text-gray-500 mt-0.5">{formatTypeLabel(viewItem.type)}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{viewItem.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{formatTypeLabel(viewItem.type)}</p>
               </div>
               {(() => {
                 const sc = STATUS_CONFIG[viewItem.status] || STATUS_CONFIG['DRAFT'];
@@ -625,55 +625,55 @@ export default function ReportsPage() {
               })()}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4 text-sm">
+            <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-sm">
               <div>
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Period</span>
-                <p className="text-gray-900 mt-0.5">{formatDate(viewItem.periodStart)} – {formatDate(viewItem.periodEnd)}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Period</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-0.5">{formatDate(viewItem.periodStart)} – {formatDate(viewItem.periodEnd)}</p>
               </div>
               <div>
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Format</span>
-                <p className="text-gray-900 mt-0.5">{viewItem.format}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Format</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-0.5">{viewItem.format}</p>
               </div>
               <div>
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Energy Sources</span>
-                <p className="text-gray-900 mt-0.5">{viewItem.energySources || '—'}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Energy Sources</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-0.5">{viewItem.energySources || '—'}</p>
               </div>
               <div>
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Generated By</span>
-                <p className="text-gray-900 mt-0.5">{viewItem.generatedBy || '—'}</p>
+                <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Generated By</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-0.5">{viewItem.generatedBy || '—'}</p>
               </div>
               {viewItem.generatedAt && (
                 <div>
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Generated At</span>
-                  <p className="text-gray-900 mt-0.5">{formatDate(viewItem.generatedAt)}</p>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Generated At</span>
+                  <p className="text-gray-900 dark:text-gray-100 mt-0.5">{formatDate(viewItem.generatedAt)}</p>
                 </div>
               )}
               {viewItem.scope && (
                 <div>
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Scope</span>
-                  <p className="text-gray-900 mt-0.5">{viewItem.scope}</p>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">Scope</span>
+                  <p className="text-gray-900 dark:text-gray-100 mt-0.5">{viewItem.scope}</p>
                 </div>
               )}
             </div>
 
             {viewItem.description && (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-1">Description</p>
-                <p className="text-sm text-gray-700">{viewItem.description}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Description</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{viewItem.description}</p>
               </div>
             )}
 
             {viewItem.findings && (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-1">Key Findings</p>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{viewItem.findings}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Key Findings</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{viewItem.findings}</p>
               </div>
             )}
 
             {viewItem.recommendations && (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-1">Recommendations</p>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{viewItem.recommendations}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Recommendations</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{viewItem.recommendations}</p>
               </div>
             )}
 
@@ -682,8 +682,8 @@ export default function ReportsPage() {
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-yellow-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Report File</p>
-                    {viewItem.fileSize && <p className="text-xs text-gray-500">{viewItem.fileSize}</p>}
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Report File</p>
+                    {viewItem.fileSize && <p className="text-xs text-gray-500 dark:text-gray-400">{viewItem.fileSize}</p>}
                   </div>
                 </div>
                 <a
@@ -702,7 +702,7 @@ export default function ReportsPage() {
           <ModalFooter>
             <button
               onClick={() => { setViewModal(false); openEdit(viewItem); }}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
             >
               Edit Report
             </button>
@@ -729,7 +729,7 @@ export default function ReportsPage() {
         <ModalFooter>
           <button
             onClick={() => setDeleteModal(false)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
           >
             Cancel
           </button>

@@ -211,7 +211,7 @@ export default function ChangelogPage() {
                       {chip.label}
                     </span>
                     {!entry.isPublished && (
-                      <span className="px-2 py-0.5 text-xs font-semibold rounded bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                      <span className="px-2 py-0.5 text-xs font-semibold rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                         Draft
                       </span>
                     )}

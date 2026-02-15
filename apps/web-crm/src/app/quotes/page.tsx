@@ -27,7 +27,7 @@ interface Quote {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SENT: 'bg-blue-100 text-blue-700',
   ACCEPTED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
@@ -163,8 +163,8 @@ export default function QuotesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quotes</h1>
-            <p className="text-gray-500 mt-1">Create and manage sales quotes</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quotes</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Create and manage sales quotes</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Quote
@@ -180,7 +180,7 @@ export default function QuotesPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search quotes..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -209,32 +209,32 @@ export default function QuotesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Deal</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Total</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Valid Until</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deal</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Valid Until</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredQuotes.map((quote) => (
-                      <tr key={quote.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{quote.reference || '-'}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{quote.title}</td>
+                      <tr key={quote.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{quote.reference || '-'}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{quote.title}</td>
                         <td className="py-3 px-4 text-gray-600">{quote.deal?.title || quote.dealTitle || '-'}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(quote.total || 0)}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[quote.status] || 'bg-gray-100 text-gray-700'}>{quote.status}</Badge>
+                          <Badge className={statusColors[quote.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{quote.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{quote.validUntil ? new Date(quote.validUntil).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewQuote(quote); setViewModalOpen(true); }} className="text-gray-400 hover:text-violet-600">
+                            <button onClick={() => { setViewQuote(quote); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-violet-600">
                               <Eye className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(quote.id)} className="text-gray-400 hover:text-red-600">
+                            <button onClick={() => handleDelete(quote.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -245,7 +245,7 @@ export default function QuotesPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No quotes found</p>
               </div>
@@ -281,11 +281,11 @@ export default function QuotesPage() {
             </div>
             <table className="w-full text-sm border">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Description</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-24">Qty</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Unit Price</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Amount</th>
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-24">Qty</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Unit Price</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Amount</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -309,7 +309,7 @@ export default function QuotesPage() {
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t bg-gray-50 font-medium">
+                <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
                   <td colSpan={3} className="py-2 px-3 text-right">Total:</td>
                   <td className="py-2 px-3 text-right">{formatCurrency(quoteTotal)}</td>
                   <td></td>
@@ -329,17 +329,17 @@ export default function QuotesPage() {
         {viewQuote && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Title</p><p className="font-medium">{viewQuote.title}</p></div>
-              <div><p className="text-sm text-gray-500">Total</p><p className="font-medium text-green-700">{formatCurrency(viewQuote.total || 0)}</p></div>
-              <div><p className="text-sm text-gray-500">Status</p><Badge className={statusColors[viewQuote.status]}>{viewQuote.status}</Badge></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Title</p><p className="font-medium">{viewQuote.title}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total</p><p className="font-medium text-green-700">{formatCurrency(viewQuote.total || 0)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Status</p><Badge className={statusColors[viewQuote.status]}>{viewQuote.status}</Badge></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-sm text-gray-500">Deal</p><p className="font-medium">{viewQuote.deal?.title || viewQuote.dealTitle || '-'}</p></div>
-              <div><p className="text-sm text-gray-500">Valid Until</p><p className="font-medium">{viewQuote.validUntil ? new Date(viewQuote.validUntil).toLocaleDateString() : '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Deal</p><p className="font-medium">{viewQuote.deal?.title || viewQuote.dealTitle || '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Valid Until</p><p className="font-medium">{viewQuote.validUntil ? new Date(viewQuote.validUntil).toLocaleDateString() : '-'}</p></div>
             </div>
             {viewQuote.lines && viewQuote.lines.length > 0 && (
               <table className="w-full text-sm border">
-                <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
+                <thead><tr className="bg-gray-50 dark:bg-gray-800"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
                 <tbody>
                   {viewQuote.lines.map((line, idx) => (
                     <tr key={idx} className="border-t">

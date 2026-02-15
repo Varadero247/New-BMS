@@ -102,32 +102,32 @@ export default function KPIsPage() {
     <div className="space-y-4">
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Name *</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="KPI name" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+        <div className="col-span-2"><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="KPI name" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
             <option value="RELIABILITY">Reliability</option><option value="MAINTENANCE">Maintenance</option><option value="COST">Cost</option><option value="SAFETY">Safety</option><option value="AVAILABILITY">Availability</option><option value="PERFORMANCE">Performance</option>
           </select>
         </div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.period} onChange={e => setForm(f => ({ ...f, period: e.target.value }))}>
             <option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="QUARTERLY">Quarterly</option><option value="ANNUAL">Annual</option>
           </select>
         </div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Current Value</label><input type="number" step="any" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} placeholder="0" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Target</label><input type="number" step="any" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.target} onChange={e => setForm(f => ({ ...f, target: e.target.value }))} placeholder="0" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Unit</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} placeholder="%, h, $, ..." /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Trend</label>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Value</label><input type="number" step="any" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} placeholder="0" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target</label><input type="number" step="any" className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.target} onChange={e => setForm(f => ({ ...f, target: e.target.value }))} placeholder="0" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} placeholder="%, h, $, ..." /></div>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Trend</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.trend} onChange={e => setForm(f => ({ ...f, trend: e.target.value }))}>
             <option value="UP">Up</option><option value="DOWN">Down</option><option value="STABLE">Stable</option>
           </select>
         </div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Owner</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.owner} onChange={e => setForm(f => ({ ...f, owner: e.target.value }))} placeholder="KPI owner name" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label><input className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.owner} onChange={e => setForm(f => ({ ...f, owner: e.target.value }))} placeholder="KPI owner name" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
           <select className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
             <option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option>
           </select>
         </div>
-        <div className="col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea rows={2} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="KPI description and measurement method..." /></div>
+        <div className="col-span-2"><label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label><textarea rows={2} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="KPI description and measurement method..." /></div>
       </div>
     </div>
   );
@@ -138,7 +138,7 @@ export default function KPIsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <div><h1 className="text-3xl font-bold text-gray-900">KPIs</h1><p className="text-gray-500 mt-1">Key performance indicators for maintenance operations</p></div>
+          <div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">KPIs</h1><p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicators for maintenance operations</p></div>
           <button onClick={openCreate} className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 flex items-center gap-2"><Plus className="h-5 w-5" /> Add KPI</button>
         </div>
 
@@ -153,7 +153,7 @@ export default function KPIsPage() {
             return (
               <Card key={card.label}><CardContent className="pt-5">
                 <div className="flex items-center justify-between">
-                  <div><p className="text-sm text-gray-500">{card.label}</p><p className={`text-2xl font-bold ${card.color}`}>{card.value}</p></div>
+                  <div><p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p><p className={`text-2xl font-bold ${card.color}`}>{card.value}</p></div>
                   <div className={`p-3 rounded-full ${card.bg}`}><Icon className={`h-6 w-6 ${card.color}`} /></div>
                 </div>
               </CardContent></Card>
@@ -162,7 +162,7 @@ export default function KPIsPage() {
         </div>
 
         <Card className="mb-6"><CardContent className="pt-5"><div className="flex flex-wrap gap-4 items-center">
-          <div className="flex-1 min-w-[200px] relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" placeholder="Search KPIs..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" /></div>
+          <div className="flex-1 min-w-[200px] relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search KPIs..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" /></div>
           <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm"><option value="">All Categories</option><option value="RELIABILITY">Reliability</option><option value="MAINTENANCE">Maintenance</option><option value="COST">Cost</option><option value="SAFETY">Safety</option><option value="AVAILABILITY">Availability</option><option value="PERFORMANCE">Performance</option></select>
         </div></CardContent></Card>
 
@@ -171,15 +171,15 @@ export default function KPIsPage() {
           <CardContent>
             {filtered.length > 0 ? (
               <div className="overflow-x-auto"><table className="w-full text-sm">
-                <thead><tr className="border-b">{['Name','Category','Progress','Value','Target','Trend','Period','Owner','Actions'].map(h => <th key={h} className="text-left py-3 px-4 font-medium text-gray-500">{h}</th>)}</tr></thead>
+                <thead><tr className="border-b">{['Name','Category','Progress','Value','Target','Trend','Period','Owner','Actions'].map(h => <th key={h} className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">{h}</th>)}</tr></thead>
                 <tbody>{filtered.map(kpi => {
                   const perf = getPerformanceColor(kpi.value, kpi.target);
                   const pct = kpi.target ? Math.min(Math.round((kpi.value / kpi.target) * 100), 100) : 0;
                   return (
-                    <tr key={kpi.id} className="border-b hover:bg-gray-50">
+                    <tr key={kpi.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                       <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{kpi.name}</div>
-                        {kpi.description && <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">{kpi.description}</div>}
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{kpi.name}</div>
+                        {kpi.description && <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-[200px]">{kpi.description}</div>}
                       </td>
                       <td className="py-3 px-4 text-gray-600">{kpi.category}</td>
                       <td className="py-3 px-4">
@@ -191,30 +191,30 @@ export default function KPIsPage() {
                         </div>
                         <span className={`text-xs font-medium ${perf.text}`}>{perf.label}</span>
                       </td>
-                      <td className="py-3 px-4 font-medium text-gray-900">{kpi.value} {kpi.unit}</td>
+                      <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{kpi.value} {kpi.unit}</td>
                       <td className="py-3 px-4 text-gray-600">{kpi.target} {kpi.unit}</td>
                       <td className="py-3 px-4">
                         {kpi.trend === 'UP' && <span className="inline-flex items-center gap-1 text-green-600 text-xs font-medium"><TrendingUp className="h-3 w-3" />Up</span>}
                         {kpi.trend === 'DOWN' && <span className="inline-flex items-center gap-1 text-red-600 text-xs font-medium"><TrendingDown className="h-3 w-3" />Down</span>}
-                        {kpi.trend === 'STABLE' && <span className="inline-flex items-center gap-1 text-gray-500 text-xs font-medium"><Minus className="h-3 w-3" />Stable</span>}
+                        {kpi.trend === 'STABLE' && <span className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs font-medium"><Minus className="h-3 w-3" />Stable</span>}
                       </td>
                       <td className="py-3 px-4 text-gray-600 text-xs">{kpi.period}</td>
                       <td className="py-3 px-4 text-gray-600">{kpi.owner || '-'}</td>
-                      <td className="py-3 px-4"><div className="flex items-center gap-2"><button onClick={() => openEdit(kpi)} className="text-gray-400 hover:text-amber-600"><Edit2 className="h-4 w-4" /></button><button onClick={() => openDelete(kpi)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button></div></td>
+                      <td className="py-3 px-4"><div className="flex items-center gap-2"><button onClick={() => openEdit(kpi)} className="text-gray-400 dark:text-gray-500 hover:text-amber-600"><Edit2 className="h-4 w-4" /></button><button onClick={() => openDelete(kpi)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button></div></td>
                     </tr>
                   );
                 })}</tbody>
               </table></div>
             ) : (
-              <div className="text-center py-12 text-gray-500"><BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-40" /><p className="font-medium">No KPIs found</p><p className="text-sm mt-1">Add your first KPI to start tracking performance</p></div>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400"><BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-40" /><p className="font-medium">No KPIs found</p><p className="text-sm mt-1">Add your first KPI to start tracking performance</p></div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Add KPI" size="lg"><FormFields /><ModalFooter><button onClick={() => setCreateOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button><button onClick={handleCreate} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">{saving ? 'Saving...' : 'Add KPI'}</button></ModalFooter></Modal>
-      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit KPI" size="lg"><FormFields /><ModalFooter><button onClick={() => setEditOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button><button onClick={handleEdit} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">{saving ? 'Saving...' : 'Save'}</button></ModalFooter></Modal>
-      <Modal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete KPI" size="sm"><div className="flex items-start gap-3"><div className="flex-shrink-0 p-2 bg-red-100 rounded-full"><Ban className="h-5 w-5 text-red-600" /></div><p className="text-sm text-gray-700">Delete KPI <span className="font-semibold">{selected?.name}</span>? This cannot be undone.</p></div><ModalFooter><button onClick={() => setDeleteOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50">Cancel</button><button onClick={handleDelete} disabled={saving} className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50">{saving ? 'Deleting...' : 'Delete'}</button></ModalFooter></Modal>
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Add KPI" size="lg"><FormFields /><ModalFooter><button onClick={() => setCreateOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button><button onClick={handleCreate} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">{saving ? 'Saving...' : 'Add KPI'}</button></ModalFooter></Modal>
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit KPI" size="lg"><FormFields /><ModalFooter><button onClick={() => setEditOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button><button onClick={handleEdit} disabled={saving} className="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50">{saving ? 'Saving...' : 'Save'}</button></ModalFooter></Modal>
+      <Modal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete KPI" size="sm"><div className="flex items-start gap-3"><div className="flex-shrink-0 p-2 bg-red-100 rounded-full"><Ban className="h-5 w-5 text-red-600" /></div><p className="text-sm text-gray-700 dark:text-gray-300">Delete KPI <span className="font-semibold">{selected?.name}</span>? This cannot be undone.</p></div><ModalFooter><button onClick={() => setDeleteOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 dark:bg-gray-800">Cancel</button><button onClick={handleDelete} disabled={saving} className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50">{saving ? 'Deleting...' : 'Delete'}</button></ModalFooter></Modal>
     </div>
   );
 }

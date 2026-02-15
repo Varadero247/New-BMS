@@ -74,12 +74,12 @@ export default function TimesheetsPage() {
 
   const statusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-700',
+      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
       SUBMITTED: 'bg-blue-100 text-blue-700',
       APPROVED: 'bg-green-100 text-green-700',
       REJECTED: 'bg-red-100 text-red-700',
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   if (loading) {
@@ -98,11 +98,11 @@ export default function TimesheetsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Clock className="h-6 w-6 text-blue-600" />
               Timesheets
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Time tracking and timesheet management</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Time tracking and timesheet management</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -114,10 +114,10 @@ export default function TimesheetsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -130,7 +130,7 @@ export default function TimesheetsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Employee ID</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Employee ID</label>
               <input
                 type="text"
                 value={filterEmployeeId}
@@ -142,37 +142,37 @@ export default function TimesheetsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Overtime</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Activity</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Billable</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Project</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Task</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Hours</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Overtime</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Activity</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Billable</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {timesheets.map((ts) => (
-                  <tr key={ts.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900">{ts.project?.projectName || ts.projectId}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{ts.task?.taskName || ts.taskId || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{ts.employeeId}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                  <tr key={ts.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{ts.project?.projectName || ts.projectId}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.task?.taskName || ts.taskId || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.employeeId}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {ts.workDate ? new Date(ts.workDate).toLocaleDateString() : '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{ts.hoursWorked}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{ts.overtime || 0}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{ts.activityType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">{ts.hoursWorked}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.overtime || 0}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.activityType}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        ts.isBillable ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        ts.isBillable ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
                       }`}>
                         {ts.isBillable ? 'Yes' : 'No'}
                       </span>
@@ -186,7 +186,7 @@ export default function TimesheetsPage() {
                 ))}
                 {timesheets.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       No timesheet entries found. Create your first entry.
                     </td>
                   </tr>
@@ -201,7 +201,7 @@ export default function TimesheetsPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
                 <select
                   required
                   value={form.projectId}
@@ -215,7 +215,7 @@ export default function TimesheetsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Task ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task ID</label>
                 <input
                   type="text"
                   value={form.taskId}
@@ -226,7 +226,7 @@ export default function TimesheetsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID</label>
                 <input
                   type="text"
                   required
@@ -236,7 +236,7 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Work Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Work Date</label>
                 <input
                   type="date"
                   required
@@ -248,7 +248,7 @@ export default function TimesheetsPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hours Worked</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hours Worked</label>
                 <input
                   type="number"
                   step="0.5"
@@ -259,7 +259,7 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Overtime</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overtime</label>
                 <input
                   type="number"
                   step="0.5"
@@ -269,7 +269,7 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Activity Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Type</label>
                 <select
                   value={form.activityType}
                   onChange={(e) => setForm({ ...form, activityType: e.target.value })}
@@ -296,10 +296,10 @@ export default function TimesheetsPage() {
                 onChange={(e) => setForm({ ...form, isBillable: e.target.checked })}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">Billable</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Billable</span>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 rows={3}
                 value={form.description}
@@ -311,7 +311,7 @@ export default function TimesheetsPage() {
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>

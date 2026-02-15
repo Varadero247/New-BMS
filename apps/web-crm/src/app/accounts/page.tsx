@@ -161,8 +161,8 @@ export default function AccountsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Accounts</h1>
-            <p className="text-gray-500 mt-1">Manage customer and partner accounts</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Accounts</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage customer and partner accounts</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Account
@@ -178,7 +178,7 @@ export default function AccountsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search accounts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -206,30 +206,30 @@ export default function AccountsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Industry</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Contacts</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Deals</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Lifetime Revenue</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Industry</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Contacts</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deals</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Lifetime Revenue</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAccounts.map((account) => (
-                      <tr key={account.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-900 font-medium">{account.name}</td>
+                      <tr key={account.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{account.name}</td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[account.type] || 'bg-gray-100 text-gray-700'}>{account.type}</Badge>
+                          <Badge className={typeColors[account.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{account.type}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{account.industry || '-'}</td>
                         <td className="py-3 px-4 text-center text-gray-600">{account._count?.contacts ?? account.contactsCount ?? 0}</td>
                         <td className="py-3 px-4 text-center text-gray-600">{account._count?.deals ?? account.dealsCount ?? 0}</td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">{formatCurrency(account.lifetimeRevenue || 0)}</td>
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(account.lifetimeRevenue || 0)}</td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(account)} className="text-gray-400 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => openEditModal(account)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
+                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -238,7 +238,7 @@ export default function AccountsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No accounts found</p>
               </div>

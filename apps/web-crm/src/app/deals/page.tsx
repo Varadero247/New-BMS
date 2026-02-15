@@ -152,8 +152,8 @@ export default function DealsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Deals</h1>
-            <p className="text-gray-500 mt-1">Track and manage sales opportunities</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Deals</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage sales opportunities</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Deal
@@ -169,7 +169,7 @@ export default function DealsPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search deals..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
@@ -205,23 +205,23 @@ export default function DealsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Value</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Stage</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Probability</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Expected Close</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Assigned To</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Stage</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Probability</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Expected Close</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredDeals.map((deal) => (
-                      <tr key={deal.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{deal.reference || '-'}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{deal.title}</td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">{formatCurrency(deal.value || 0)}</td>
+                      <tr key={deal.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{deal.reference || '-'}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{deal.title}</td>
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(deal.value || 0)}</td>
                         <td className="py-3 px-4">
                           <Badge className="bg-violet-100 text-violet-700">{stageLabels[deal.stage] || deal.stage}</Badge>
                         </td>
@@ -229,14 +229,14 @@ export default function DealsPage() {
                         <td className="py-3 px-4 text-gray-600">{deal.expectedCloseDate ? new Date(deal.expectedCloseDate).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-gray-600">{deal.assignedTo || '-'}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[deal.status] || 'bg-gray-100 text-gray-700'}>{deal.status}</Badge>
+                          <Badge className={statusColors[deal.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{deal.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewDeal(deal); setViewModalOpen(true); }} className="text-gray-400 hover:text-violet-600">
+                            <button onClick={() => { setViewDeal(deal); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-violet-600">
                               <Eye className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(deal.id)} className="text-gray-400 hover:text-red-600">
+                            <button onClick={() => handleDelete(deal.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -247,7 +247,7 @@ export default function DealsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No deals found</p>
               </div>
@@ -292,18 +292,18 @@ export default function DealsPage() {
         {viewDeal && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Reference</p><p className="font-mono font-medium">{viewDeal.reference || '-'}</p></div>
-              <div><p className="text-sm text-gray-500">Value</p><p className="font-medium text-green-700">{formatCurrency(viewDeal.value || 0)}</p></div>
-              <div><p className="text-sm text-gray-500">Probability</p><p className="font-medium">{viewDeal.probability}%</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Reference</p><p className="font-mono font-medium">{viewDeal.reference || '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Value</p><p className="font-medium text-green-700">{formatCurrency(viewDeal.value || 0)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Probability</p><p className="font-medium">{viewDeal.probability}%</p></div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Stage</p><Badge className="bg-violet-100 text-violet-700">{stageLabels[viewDeal.stage] || viewDeal.stage}</Badge></div>
-              <div><p className="text-sm text-gray-500">Status</p><Badge className={statusColors[viewDeal.status]}>{viewDeal.status}</Badge></div>
-              <div><p className="text-sm text-gray-500">Account</p><p className="font-medium">{viewDeal.account?.name || viewDeal.accountName || '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Stage</p><Badge className="bg-violet-100 text-violet-700">{stageLabels[viewDeal.stage] || viewDeal.stage}</Badge></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Status</p><Badge className={statusColors[viewDeal.status]}>{viewDeal.status}</Badge></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Account</p><p className="font-medium">{viewDeal.account?.name || viewDeal.accountName || '-'}</p></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-sm text-gray-500">Expected Close</p><p className="font-medium">{viewDeal.expectedCloseDate ? new Date(viewDeal.expectedCloseDate).toLocaleDateString() : '-'}</p></div>
-              <div><p className="text-sm text-gray-500">Assigned To</p><p className="font-medium">{viewDeal.assignedTo || '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Expected Close</p><p className="font-medium">{viewDeal.expectedCloseDate ? new Date(viewDeal.expectedCloseDate).toLocaleDateString() : '-'}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Assigned To</p><p className="font-medium">{viewDeal.assignedTo || '-'}</p></div>
             </div>
           </div>
         )}

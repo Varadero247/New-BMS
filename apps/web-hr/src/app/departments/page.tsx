@@ -146,8 +146,8 @@ export default function DepartmentsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Departments</h1>
-            <p className="text-gray-500 mt-1">Organizational structure</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Departments</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Organizational structure</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Department
@@ -160,7 +160,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Departments</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Departments</p>
                   <p className="text-2xl font-bold">{departments.length}</p>
                 </div>
                 <Building2 className="h-8 w-8 text-emerald-500" />
@@ -171,7 +171,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">
                     {departments.filter(d => d.isActive).length}
                   </p>
@@ -184,7 +184,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Employees</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Employees</p>
                   <p className="text-2xl font-bold text-blue-600">{totalEmployees}</p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -211,20 +211,20 @@ export default function DepartmentsPage() {
                           </div>
                           <div>
                             <h3 className="font-medium">{dept.name}</h3>
-                            <p className="text-sm text-gray-500">{dept.code}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{dept.code}</p>
                           </div>
                         </div>
-                        <Badge className={dept.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                        <Badge className={dept.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
                           {dept.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
 
                       {dept.description && (
-                        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{dept.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{dept.description}</p>
                       )}
 
                       {dept.parent && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
                           <ChevronRight className="h-4 w-4" />
                           Parent: {dept.parent.name}
                         </div>
@@ -235,7 +235,7 @@ export default function DepartmentsPage() {
                           <Users className="h-4 w-4" />
                           {dept._count?.employees || 0} employees
                         </div>
-                        <div className="text-gray-500">
+                        <div className="text-gray-500 dark:text-gray-400">
                           {dept._count?.positions || 0} positions
                         </div>
                       </div>
@@ -244,7 +244,7 @@ export default function DepartmentsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No departments found</p>
               </div>

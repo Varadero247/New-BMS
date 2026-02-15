@@ -45,7 +45,7 @@ const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   SUSPENDED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   WITHDRAWN: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  EXPIRED: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
   IN_RENEWAL: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
 };
 
@@ -143,7 +143,7 @@ export default function CertificationsPage() {
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Certifications</h1>
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading...</p>
       </div>
     );
   }
@@ -178,7 +178,7 @@ export default function CertificationsPage() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{cert.standard}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{cert.certificationBody} -- {cert.certificateNumber}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[cert.status] || 'bg-gray-100 text-gray-700'}`}>
+                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[cert.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                     {cert.status}
                   </span>
                 </div>
@@ -249,7 +249,7 @@ export default function CertificationsPage() {
                                 </span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs text-gray-700 dark:text-gray-300">{b.description}</p>
-                                  <p className="text-[10px] text-gray-500 mt-0.5">-{b.deduction} points | {b.module}</p>
+                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">-{b.deduction} points | {b.module}</p>
                                 </div>
                               </div>
                             ))}
@@ -305,7 +305,7 @@ export default function CertificationsPage() {
                   value={form.standard}
                   onChange={e => setForm(f => ({ ...f, standard: e.target.value }))}
                   placeholder="e.g. ISO 9001:2015"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
@@ -314,7 +314,7 @@ export default function CertificationsPage() {
                   value={form.scope}
                   onChange={e => setForm(f => ({ ...f, scope: e.target.value }))}
                   placeholder="Scope of certification..."
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   rows={2}
                 />
               </div>
@@ -325,7 +325,7 @@ export default function CertificationsPage() {
                     value={form.certificationBody}
                     onChange={e => setForm(f => ({ ...f, certificationBody: e.target.value }))}
                     placeholder="e.g. BSI"
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
@@ -334,7 +334,7 @@ export default function CertificationsPage() {
                     value={form.certificateNumber}
                     onChange={e => setForm(f => ({ ...f, certificateNumber: e.target.value }))}
                     placeholder="e.g. FS 123456"
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
               </div>
@@ -345,7 +345,7 @@ export default function CertificationsPage() {
                     type="date"
                     value={form.issueDate}
                     onChange={e => setForm(f => ({ ...f, issueDate: e.target.value }))}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
@@ -354,7 +354,7 @@ export default function CertificationsPage() {
                     type="date"
                     value={form.expiryDate}
                     onChange={e => setForm(f => ({ ...f, expiryDate: e.target.value }))}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
               </div>
@@ -363,7 +363,7 @@ export default function CertificationsPage() {
                 <select
                   value={form.status}
                   onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 >
                   <option value="ACTIVE">Active</option>
                   <option value="SUSPENDED">Suspended</option>

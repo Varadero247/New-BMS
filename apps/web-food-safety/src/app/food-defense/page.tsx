@@ -119,8 +119,8 @@ export default function FoodDefensePage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Food Defense</h1>
-            <p className="text-gray-500 mt-1">Intentional adulteration threat assessment and mitigation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Food Defense</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Intentional adulteration threat assessment and mitigation</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Threat</Button>
         </div>
@@ -134,17 +134,17 @@ export default function FoodDefensePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Threats</p><p className="text-2xl font-bold">{items.length}</p></div><Shield className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">High Risk</p><p className="text-2xl font-bold text-red-600">{highRisk.length}</p></div><AlertTriangle className="h-8 w-8 text-red-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Open</p><p className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'OPEN').length}</p></div><Shield className="h-8 w-8 text-yellow-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Mitigated</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'MITIGATED' || i.status === 'CLOSED').length}</p></div><Shield className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Threats</p><p className="text-2xl font-bold">{items.length}</p></div><Shield className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">High Risk</p><p className="text-2xl font-bold text-red-600">{highRisk.length}</p></div><AlertTriangle className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Open</p><p className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'OPEN').length}</p></div><Shield className="h-8 w-8 text-yellow-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Mitigated</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'MITIGATED' || i.status === 'CLOSED').length}</p></div><Shield className="h-8 w-8 text-green-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search by title or area..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
             </div>
@@ -167,26 +167,26 @@ export default function FoodDefensePage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Area</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Threat Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Likelihood</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Severity</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Risk Level</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Area</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Threat Type</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Likelihood</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Severity</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Risk Level</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(r => {
                       const risk = getRiskLevel(r.likelihood || 'LOW', r.severity || 'LOW');
                       return (
-                        <tr key={r.id} className="border-b hover:bg-gray-50">
+                        <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                           <td className="py-3 px-4">
-                            <p className="font-medium text-gray-900">{r.title || r.name || '—'}</p>
-                            {r.vulnerability && <p className="text-xs text-gray-500 truncate max-w-xs">{r.vulnerability}</p>}
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{r.title || r.name || '—'}</p>
+                            {r.vulnerability && <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{r.vulnerability}</p>}
                           </td>
                           <td className="py-3 px-4 text-gray-600">{r.area || '—'}</td>
-                          <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${threatColors[r.threatType || ''] || 'bg-gray-100 text-gray-700'}`}>{(r.threatType || '—').replace(/_/g,' ')}</span></td>
+                          <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${threatColors[r.threatType || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{(r.threatType || '—').replace(/_/g,' ')}</span></td>
                           <td className="py-3 px-4 text-gray-600">{r.likelihood || '—'}</td>
                           <td className="py-3 px-4 text-gray-600">{r.severity || '—'}</td>
                           <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${risk.color}`}>{risk.label}</span></td>
@@ -202,7 +202,7 @@ export default function FoodDefensePage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Shield className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No food defense records found</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Threat</Button>

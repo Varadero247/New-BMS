@@ -211,7 +211,7 @@ export function COQDashboard({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
         No Cost of Quality data available
       </div>
     );
@@ -223,7 +223,7 @@ export function COQDashboard({
   return (
     <div className="w-full space-y-6">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">{title}</h3>
       )}
 
       {/* Summary Cards */}
@@ -260,14 +260,14 @@ export function COQDashboard({
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border p-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-4">Cost Distribution</h4>
+        <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Cost Distribution</h4>
           <div className="h-64">
             <canvas ref={pieChartRef} />
           </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-4">Costs by Category</h4>
+        <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Costs by Category</h4>
           <div className="h-64">
             <canvas ref={barChartRef} />
           </div>
@@ -276,11 +276,11 @@ export function COQDashboard({
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-gray-900">{formatCurrency(summary.total)}</p>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.total)}</p>
           <p className="text-sm text-gray-600">Total Cost of Quality</p>
           {summary.coqRatio !== null && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {summary.coqRatio.toFixed(2)}% of Revenue
             </p>
           )}
@@ -302,8 +302,8 @@ export function COQDashboard({
       </div>
 
       {/* Optimal balance indicator */}
-      <div className="bg-white rounded-lg border p-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Cost Balance Analysis</h4>
+      <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Cost Balance Analysis</h4>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between text-xs text-gray-600 mb-1">
@@ -326,7 +326,7 @@ export function COQDashboard({
             </div>
           </div>
         </div>
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
           {summary.conformanceCost > summary.nonConformanceCost
             ? '✓ Good balance: Investing more in prevention and appraisal typically reduces failure costs over time.'
             : '⚠ Consider increasing prevention investments to reduce failure costs.'}
@@ -342,8 +342,8 @@ export function COQDashboard({
               style={{ backgroundColor: typeColors[key as keyof typeof typeColors].border }}
             />
             <div>
-              <p className="font-medium text-gray-700">{label}</p>
-              <p className="text-gray-500 text-xs">{typeDescriptions[key as keyof typeof typeDescriptions]}</p>
+              <p className="font-medium text-gray-700 dark:text-gray-300">{label}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs">{typeDescriptions[key as keyof typeof typeDescriptions]}</p>
             </div>
           </div>
         ))}

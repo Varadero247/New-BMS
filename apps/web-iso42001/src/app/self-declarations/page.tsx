@@ -678,7 +678,7 @@ export default function SelfDeclarationsPage() {
             <div className="flex justify-end gap-3 pt-6 border-t border-border mt-6 print:hidden">
               <button
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
+                className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-sm"
               >
                 <Printer className="h-4 w-4" />
                 Print
@@ -688,7 +688,7 @@ export default function SelfDeclarationsPage() {
                   setViewModalOpen(false);
                   openEditModal(viewDeclaration);
                 }}
-                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
+                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-sm"
               >
                 Edit
               </button>
@@ -865,7 +865,7 @@ export default function SelfDeclarationsPage() {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800"
             >
               Cancel
             </button>

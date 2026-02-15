@@ -67,23 +67,23 @@ export default function CCPsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Critical Control Points</h1>
-            <p className="text-gray-500 mt-1">Manage HACCP critical control points</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Critical Control Points</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage HACCP critical control points</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add CCP</Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total CCPs</p><p className="text-2xl font-bold">{items.length}</p></div><Crosshair className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE' || i.status === 'IN_CONTROL').length}</p></div><Crosshair className="h-8 w-8 text-green-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Needs Attention</p><p className="text-2xl font-bold text-red-600">{items.filter(i => i.status === 'DEVIATION' || i.status === 'OUT_OF_CONTROL').length}</p></div><Crosshair className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total CCPs</p><p className="text-2xl font-bold">{items.length}</p></div><Crosshair className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE' || i.status === 'IN_CONTROL').length}</p></div><Crosshair className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Needs Attention</p><p className="text-2xl font-bold text-red-600">{items.filter(i => i.status === 'DEVIATION' || i.status === 'OUT_OF_CONTROL').length}</p></div><Crosshair className="h-8 w-8 text-red-500" /></div></CardContent></Card>
         </div>
 
         {/* Search */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input type="text" placeholder="Search CCPs..." value={search} onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
           </div>
@@ -98,18 +98,18 @@ export default function CCPsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Process Step</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Hazard Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Critical Limit</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Monitoring</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Process Step</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Hazard Type</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Critical Limit</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Monitoring</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(c => (
-                      <tr key={c.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{c.name}</td>
+                      <tr key={c.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{c.name}</td>
                         <td className="py-3 px-4 text-gray-600">{c.processStep || '—'}</td>
                         <td className="py-3 px-4"><Badge variant="outline">{c.hazardType}</Badge></td>
                         <td className="py-3 px-4 text-gray-600">{c.criticalLimit || '—'}</td>
@@ -129,7 +129,7 @@ export default function CCPsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Crosshair className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No CCPs found</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add CCP</Button>

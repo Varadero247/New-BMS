@@ -123,8 +123,8 @@ export default function BenchmarksPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Benchmarks</h1>
-            <p className="text-gray-500 mt-1">Compare your performance against industry averages and top quartile</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Benchmarks</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Compare your performance against industry averages and top quartile</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
@@ -163,11 +163,11 @@ export default function BenchmarksPage() {
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="w-44 flex-shrink-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                    <p className="text-xs text-gray-400">{item.category}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{item.category}</p>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-gray-100 rounded-full h-2">
+                      <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${item.percentile >= 70 ? 'bg-green-500' : item.percentile >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
                           style={{ width: `${item.percentile}%` }}
@@ -188,7 +188,7 @@ export default function BenchmarksPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search benchmarks..."
@@ -219,7 +219,7 @@ export default function BenchmarksPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <GitCompare className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No benchmarks found.</p>
               </div>
@@ -227,44 +227,44 @@ export default function BenchmarksPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Metric</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Category</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Your Score</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Industry Avg</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Top Quartile</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Percentile</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Ranking</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Source</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Metric</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Your Score</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Industry Avg</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Top Quartile</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Percentile</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ranking</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(b => (
-                      <tr key={b.id} className="border-b hover:bg-gray-50">
+                      <tr key={b.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{b.name}</p>
-                          <p className="text-xs text-gray-400">{b.period} · {b.direction === 'lower_better' ? 'Lower is better' : 'Higher is better'}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{b.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{b.period} · {b.direction === 'lower_better' ? 'Lower is better' : 'Higher is better'}</p>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_STYLES[b.category] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_STYLES[b.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {b.category}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <span className={`font-bold ${b.ranking === 'ABOVE' ? 'text-green-600' : b.ranking === 'BELOW' ? 'text-red-600' : 'text-gray-900'}`}>
+                          <span className={`font-bold ${b.ranking === 'ABOVE' ? 'text-green-600' : b.ranking === 'BELOW' ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
                             {b.yourScore}
                           </span>
-                          <span className="text-xs text-gray-400 ml-1">{b.unit}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">{b.unit}</span>
                         </td>
                         <td className="py-3 px-4 text-right text-gray-600">
-                          {b.industryAvg}<span className="text-xs text-gray-400 ml-1">{b.unit}</span>
+                          {b.industryAvg}<span className="text-xs text-gray-400 dark:text-gray-500 ml-1">{b.unit}</span>
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-500">
-                          {b.topQuartile}<span className="text-xs text-gray-400 ml-1">{b.unit}</span>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400">
+                          {b.topQuartile}<span className="text-xs text-gray-400 dark:text-gray-500 ml-1">{b.unit}</span>
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex flex-col items-center gap-1">
-                            <div className="w-16 bg-gray-100 rounded-full h-1.5">
+                            <div className="w-16 bg-gray-100 dark:bg-gray-800 rounded-full h-1.5">
                               <div
                                 className={`h-1.5 rounded-full ${b.percentile >= 70 ? 'bg-green-500' : b.percentile >= 40 ? 'bg-yellow-500' : 'bg-red-400'}`}
                                 style={{ width: `${b.percentile}%` }}
@@ -276,11 +276,11 @@ export default function BenchmarksPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${RANKING_STYLES[b.ranking] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${RANKING_STYLES[b.ranking] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {b.ranking === 'ABOVE' ? 'Above Avg' : b.ranking === 'BELOW' ? 'Below Avg' : 'Average'}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">{b.source}</td>
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">{b.source}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -293,51 +293,51 @@ export default function BenchmarksPage() {
         {/* Add Benchmark Modal */}
         {showAddModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Add Benchmark</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Benchmark</h2>
                 <button onClick={() => setShowAddModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Metric Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metric Name</label>
                   <input type="text" placeholder="e.g. Waste Recycling Rate" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       {categories.map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
                     <input type="text" placeholder="e.g. %" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Score</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Score</label>
                     <input type="number" placeholder="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Industry Avg</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Industry Avg</label>
                     <input type="number" placeholder="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Top Quartile</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Top Quartile</label>
                     <input type="number" placeholder="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data Source</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Source</label>
                   <input type="text" placeholder="e.g. Industry Report 2025" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Add Benchmark</button>
               </div>
             </div>

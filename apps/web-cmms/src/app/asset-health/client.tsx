@@ -87,42 +87,42 @@ export default function AssetHealthClient() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Asset Health Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Equipment reliability, OEE, and maintenance performance metrics</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Asset Health Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Equipment reliability, OEE, and maintenance performance metrics</p>
         </div>
-        <a href="/assets" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+        <a href="/assets" className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">
           Asset Register
         </a>
       </div>
 
       {/* Top gauges */}
       <div className="grid grid-cols-5 gap-3">
-        <div className="bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex flex-col items-center">
           <Gauge value={avgHealth} max={100} size="md" label="Fleet Health" color="auto" />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex flex-col items-center">
           <Gauge value={avgOEE} max={100} size="md" label="Avg OEE" sublabel="Production" color="blue" />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center flex flex-col justify-center">
           <AlertTriangle className="h-6 w-6 text-red-600 mx-auto mb-1" />
           <p className="text-2xl font-bold text-red-700">{criticalAlerts}</p>
-          <p className="text-[10px] text-gray-500">Critical/Poor Assets</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Critical/Poor Assets</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center flex flex-col justify-center">
           <Clock className="h-6 w-6 text-blue-600 mx-auto mb-1" />
-          <p className="text-lg font-bold text-gray-900">{avgMTBF}h <span className="text-xs text-gray-400">MTBF</span></p>
-          <p className="text-lg font-bold text-gray-900">{avgMTTR}h <span className="text-xs text-gray-400">MTTR</span></p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{avgMTBF}h <span className="text-xs text-gray-400 dark:text-gray-500">MTBF</span></p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{avgMTTR}h <span className="text-xs text-gray-400 dark:text-gray-500">MTTR</span></p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center flex flex-col justify-center">
           <Wrench className="h-6 w-6 text-orange-600 mx-auto mb-1" />
           <p className="text-2xl font-bold text-orange-700">{totalFailures}</p>
-          <p className="text-[10px] text-gray-500">Total Failures (YTD)</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Total Failures (YTD)</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg px-4 py-2.5">
-        <span className="text-xs text-gray-500">Criticality:</span>
+      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Criticality:</span>
         <select value={filterCriticality} onChange={e => setFilterCriticality(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="Critical">Critical</option>
@@ -130,7 +130,7 @@ export default function AssetHealthClient() {
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
         </select>
-        <span className="text-xs text-gray-500">Health:</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">Health:</span>
         <select value={filterHealth} onChange={e => setFilterHealth(e.target.value)} className="text-xs border rounded px-2 py-1">
           <option value="">All</option>
           <option value="Good">Good</option>
@@ -138,14 +138,14 @@ export default function AssetHealthClient() {
           <option value="Poor">Poor</option>
           <option value="Critical">Critical</option>
         </select>
-        <span className="text-xs text-gray-500">Sort:</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">Sort:</span>
         <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="text-xs border rounded px-2 py-1">
           <option value="health">Health Score (Low first)</option>
           <option value="oee">OEE (High first)</option>
           <option value="mtbf">MTBF (Low first)</option>
           <option value="failures">Failures (High first)</option>
         </select>
-        <span className="ml-auto text-xs text-gray-400">{assets.length} assets</span>
+        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">{assets.length} assets</span>
       </div>
 
       {/* Asset cards */}
@@ -158,7 +158,7 @@ export default function AssetHealthClient() {
             <div
               key={asset.id}
               onClick={() => setSelectedAsset(isSelected ? null : asset)}
-              className={`bg-white border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-amber-500 border-amber-300' : 'border-gray-200'}`}
+              className={`bg-white dark:bg-gray-900 border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-amber-500 border-amber-300' : 'border-gray-200 dark:border-gray-700'}`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -166,8 +166,8 @@ export default function AssetHealthClient() {
                     <Server className={`h-5 w-5 ${asset.healthScore >= 80 ? 'text-green-700' : asset.healthScore >= 60 ? 'text-yellow-700' : 'text-red-700'}`} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{asset.name}</h3>
-                    <p className="text-[10px] text-gray-400">{asset.tag} | {asset.category}</p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{asset.name}</h3>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500">{asset.tag} | {asset.category}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -181,59 +181,59 @@ export default function AssetHealthClient() {
                 <div className="flex items-center gap-3">
                   <Gauge value={asset.healthScore} max={100} size="sm" color="auto" />
                   <div>
-                    <p className="text-[10px] text-gray-500">Health</p>
-                    <p className="text-sm font-bold text-gray-900">{asset.healthScore}%</p>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400">Health</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{asset.healthScore}%</p>
                   </div>
                 </div>
                 {asset.oee > 0 && (
                   <div className="flex items-center gap-3">
                     <Gauge value={asset.oee} max={100} size="sm" color="blue" />
                     <div>
-                      <p className="text-[10px] text-gray-500">OEE</p>
-                      <p className="text-sm font-bold text-gray-900">{asset.oee}%</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400">OEE</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{asset.oee}%</p>
                     </div>
                   </div>
                 )}
                 <div className="ml-auto grid grid-cols-2 gap-x-4 gap-y-0.5 text-[10px]">
-                  <div><span className="text-gray-400">MTBF:</span> <span className="font-medium">{asset.mtbf}h</span></div>
-                  <div><span className="text-gray-400">MTTR:</span> <span className="font-medium">{asset.mttr}h</span></div>
-                  <div><span className="text-gray-400">Failures:</span> <span className={`font-medium ${asset.failureCount > 5 ? 'text-red-600' : 'text-gray-700'}`}>{asset.failureCount}</span></div>
-                  <div><span className="text-gray-400">Age:</span> <span className="font-medium">{asset.age}/{asset.expectedLife}yr</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">MTBF:</span> <span className="font-medium">{asset.mtbf}h</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">MTTR:</span> <span className="font-medium">{asset.mttr}h</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">Failures:</span> <span className={`font-medium ${asset.failureCount > 5 ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'}`}>{asset.failureCount}</span></div>
+                  <div><span className="text-gray-400 dark:text-gray-500">Age:</span> <span className="font-medium">{asset.age}/{asset.expectedLife}yr</span></div>
                 </div>
               </div>
 
               {/* Life bar */}
               <div className="mb-1">
-                <div className="flex items-center justify-between text-[9px] text-gray-400 mb-0.5">
+                <div className="flex items-center justify-between text-[9px] text-gray-400 dark:text-gray-500 mb-0.5">
                   <span>Asset Life</span>
                   <span>{Math.round(lifePercent)}% used</span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full ${lifePercent >= 80 ? 'bg-red-500' : lifePercent >= 60 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${lifePercent}%` }} />
                 </div>
               </div>
 
               {/* Expanded detail */}
               {isSelected && asset.oee > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                   <h4 className="text-[10px] font-semibold text-gray-600 mb-2">OEE Breakdown</h4>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="text-center">
                       <Gauge value={asset.availability} max={100} size="sm" color="green" />
-                      <p className="text-[10px] text-gray-500 mt-1">Availability</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">Availability</p>
                     </div>
                     <div className="text-center">
                       <Gauge value={asset.performance} max={100} size="sm" color="blue" />
-                      <p className="text-[10px] text-gray-500 mt-1">Performance</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">Performance</p>
                     </div>
                     <div className="text-center">
                       <Gauge value={asset.quality} max={100} size="sm" color="purple" />
-                      <p className="text-[10px] text-gray-500 mt-1">Quality</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">Quality</p>
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
-                    <div><span className="text-gray-500">Last PM:</span> <span className="font-medium text-gray-700">{asset.lastPM}</span></div>
-                    <div><span className="text-gray-500">Next PM:</span> <span className={`font-medium ${new Date(asset.nextPM) < new Date() ? 'text-red-600' : 'text-gray-700'}`}>{asset.nextPM}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Last PM:</span> <span className="font-medium text-gray-700 dark:text-gray-300">{asset.lastPM}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Next PM:</span> <span className={`font-medium ${new Date(asset.nextPM) < new Date() ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'}`}>{asset.nextPM}</span></div>
                   </div>
                 </div>
               )}

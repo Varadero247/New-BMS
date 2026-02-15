@@ -104,25 +104,25 @@ export default function ProductsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-            <p className="text-gray-500 mt-1">Product registry and food safety specifications</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Products</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Product registry and food safety specifications</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Product</Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Products</p><p className="text-2xl font-bold">{items.length}</p></div><Package className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE').length}</p></div><Package className="h-8 w-8 text-green-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Finished Goods</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => i.category === 'FINISHED_GOODS').length}</p></div><Package className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Categories</p><p className="text-2xl font-bold text-purple-600">{categories.length}</p></div><Package className="h-8 w-8 text-purple-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p><p className="text-2xl font-bold">{items.length}</p></div><Package className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'ACTIVE').length}</p></div><Package className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Finished Goods</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => i.category === 'FINISHED_GOODS').length}</p></div><Package className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Categories</p><p className="text-2xl font-bold text-purple-600">{categories.length}</p></div><Package className="h-8 w-8 text-purple-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search by name, SKU..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
             </div>
@@ -146,26 +146,26 @@ export default function ProductsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">SKU</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Shelf Life</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Allergens</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">SKU</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Shelf Life</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Allergens</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(p => (
-                      <tr key={p.id} className="border-b hover:bg-gray-50">
+                      <tr key={p.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{p.name}</p>
-                          {p.description && <p className="text-xs text-gray-500 truncate max-w-xs">{p.description}</p>}
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{p.name}</p>
+                          {p.description && <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{p.description}</p>}
                         </td>
                         <td className="py-3 px-4 font-mono text-gray-600">{p.sku || '—'}</td>
                         <td className="py-3 px-4"><Badge variant="outline">{(p.category || '—').replace(/_/g,' ')}</Badge></td>
                         <td className="py-3 px-4 text-gray-600">{p.shelfLife ? `${p.shelfLife} ${p.shelfLifeUnit || ''}`.trim() : '—'}</td>
-                        <td className="py-3 px-4 text-gray-500 truncate max-w-xs">{p.allergens || '—'}</td>
-                        <td className="py-3 px-4"><Badge className={p.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : p.status === 'DISCONTINUED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}>{p.status}</Badge></td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 truncate max-w-xs">{p.allergens || '—'}</td>
+                        <td className="py-3 px-4"><Badge className={p.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : p.status === 'DISCONTINUED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{p.status}</Badge></td>
                         <td className="py-3 px-4"><div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Edit className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
@@ -176,7 +176,7 @@ export default function ProductsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Package className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No products found</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Product</Button>

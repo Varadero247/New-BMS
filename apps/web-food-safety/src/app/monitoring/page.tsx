@@ -72,8 +72,8 @@ export default function MonitoringPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Monitoring Records</h1>
-            <p className="text-gray-500 mt-1">CCP monitoring data and results</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Monitoring Records</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">CCP monitoring data and results</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={() => { setForm(initialForm); setFormError(''); setModalOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />Log Reading
@@ -89,17 +89,17 @@ export default function MonitoringPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Records</p><p className="text-2xl font-bold">{items.length}</p></div><Activity className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">In Control</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'IN_CONTROL' || i.status === 'PASS').length}</p></div><Activity className="h-8 w-8 text-green-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Deviations</p><p className="text-2xl font-bold text-red-600">{deviations.length}</p></div><Activity className="h-8 w-8 text-red-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Today</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => new Date(i.createdAt).toDateString() === new Date().toDateString()).length}</p></div><Activity className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Records</p><p className="text-2xl font-bold">{items.length}</p></div><Activity className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">In Control</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'IN_CONTROL' || i.status === 'PASS').length}</p></div><Activity className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Deviations</p><p className="text-2xl font-bold text-red-600">{deviations.length}</p></div><Activity className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Today</p><p className="text-2xl font-bold text-blue-600">{items.filter(i => new Date(i.createdAt).toDateString() === new Date().toDateString()).length}</p></div><Activity className="h-8 w-8 text-blue-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search records..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
             </div>
@@ -122,22 +122,22 @@ export default function MonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">CCP</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Parameter</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Value</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Recorded By</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">CCP</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Parameter</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recorded By</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(r => (
-                      <tr key={r.id} className={`border-b hover:bg-gray-50 ${r.status === 'DEVIATION' ? 'bg-red-50' : ''}`}>
-                        <td className="py-3 px-4 text-gray-900">{r.ccpName || (ccps.find(c => c.id === r.ccpId)?.name) || '—'}</td>
-                        <td className="py-3 px-4 font-medium text-gray-900">{r.parameter || '—'}</td>
+                      <tr key={r.id} className={`border-b hover:bg-gray-50 dark:bg-gray-800 ${r.status === 'DEVIATION' ? 'bg-red-50' : ''}`}>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{r.ccpName || (ccps.find(c => c.id === r.ccpId)?.name) || '—'}</td>
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{r.parameter || '—'}</td>
                         <td className="py-3 px-4 text-gray-600">{r.value !== undefined ? `${r.value} ${r.unit || ''}`.trim() : '—'}</td>
-                        <td className="py-3 px-4 text-gray-500">{r.recordedBy || '—'}</td>
-                        <td className="py-3 px-4 text-gray-500">{r.recordedAt ? new Date(r.recordedAt).toLocaleString() : new Date(r.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{r.recordedBy || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{r.recordedAt ? new Date(r.recordedAt).toLocaleString() : new Date(r.createdAt).toLocaleDateString()}</td>
                         <td className="py-3 px-4">
                           <Badge className={r.status === 'IN_CONTROL' || r.status === 'PASS' ? 'bg-green-100 text-green-700' : r.status === 'DEVIATION' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}>
                             {r.status.replace(/_/g, ' ')}
@@ -150,7 +150,7 @@ export default function MonitoringPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Activity className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No monitoring records found</p>
               </div>

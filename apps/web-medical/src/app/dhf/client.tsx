@@ -64,7 +64,7 @@ const dhfRecords: DHFRecord[] = [
 
 const phaseLabels = ['concept', 'feasibility', 'design', 'verification', 'validation', 'transfer', 'production'];
 const statusConfig: Record<string, { label: string; color: string }> = {
-  draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },
+  draft: { label: 'Draft', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   review: { label: 'In Review', color: 'bg-amber-100 text-amber-700' },
   approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700' },
   obsolete: { label: 'Obsolete', color: 'bg-red-100 text-red-600' },
@@ -84,31 +84,31 @@ export default function DHFClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Design History File (DHF)</h1>
-        <p className="text-sm text-gray-500 mt-1">Device design documentation per FDA 21 CFR 820.30 / ISO 13485:2016 Clause 7.3</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Design History File (DHF)</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Device design documentation per FDA 21 CFR 820.30 / ISO 13485:2016 Clause 7.3</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Active DHFs</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{dhfRecords.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active DHFs</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{dhfRecords.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Documents</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Documents</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{dhfRecords.reduce((s, r) => s + r.documents.length, 0)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Pending Review</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Pending Review</p>
           <p className="text-3xl font-bold text-amber-700 mt-1">{dhfRecords.reduce((s, r) => s + r.documents.filter((d) => d.status === 'review').length, 0)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Avg Completeness</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Avg Completeness</p>
           <p className="text-3xl font-bold text-emerald-700 mt-1">{Math.round(dhfRecords.reduce((s, r) => s + r.completeness, 0) / dhfRecords.length)}%</p>
         </div>
       </div>
 
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
         <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
       </div>
 
@@ -117,15 +117,15 @@ export default function DHFClient() {
           const isExpanded = expandedId === dhf.id;
           const phaseIndex = phaseLabels.indexOf(dhf.phase);
           return (
-            <div key={dhf.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : dhf.id)} className="w-full text-left px-4 py-4 hover:bg-gray-50">
+            <div key={dhf.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : dhf.id)} className="w-full text-left px-4 py-4 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <FolderOpen className="h-5 w-5 text-blue-500" />
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{dhf.product}</p>
-                      <p className="text-xs text-gray-500">{dhf.documents.length} documents · Phase: {dhf.phase}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dhf.product}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dhf.documents.length} documents · Phase: {dhf.phase}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -140,35 +140,35 @@ export default function DHFClient() {
                   {phaseLabels.map((p, i) => (
                     <div key={p} className="flex-1 text-center">
                       <div className={`h-1.5 rounded-full ${i <= phaseIndex ? 'bg-blue-500' : 'bg-gray-200'}`} />
-                      <p className="text-[9px] text-gray-400 mt-0.5 capitalize">{p}</p>
+                      <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-0.5 capitalize">{p}</p>
                     </div>
                   ))}
                 </div>
               </button>
               {isExpanded && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-gray-100 dark:border-gray-700">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
                       <tr>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-28">Doc Number</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500">Title</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-24">Type</th>
-                        <th className="text-center px-4 py-2 font-medium text-gray-500 w-16">Ver</th>
-                        <th className="text-center px-4 py-2 font-medium text-gray-500 w-24">Status</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-24">Modified</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-28">Doc Number</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Type</th>
+                        <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-16">Ver</th>
+                        <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Status</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-24">Modified</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dhf.documents.map((doc) => {
                         const sc = statusConfig[doc.status];
                         return (
-                          <tr key={doc.id} className="border-t border-gray-100 hover:bg-gray-50">
+                          <tr key={doc.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800">
                             <td className="px-4 py-2 font-mono text-xs text-blue-600">{doc.docNumber}</td>
-                            <td className="px-4 py-2 font-medium text-gray-900 text-xs">{doc.title}</td>
-                            <td className="px-4 py-2 text-xs text-gray-500">{typeLabels[doc.type]}</td>
+                            <td className="px-4 py-2 font-medium text-gray-900 dark:text-gray-100 text-xs">{doc.title}</td>
+                            <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{typeLabels[doc.type]}</td>
                             <td className="px-4 py-2 text-center text-xs text-gray-600">v{doc.version}</td>
                             <td className="px-4 py-2 text-center"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>{sc.label}</span></td>
-                            <td className="px-4 py-2 text-xs text-gray-500">{doc.lastModified}</td>
+                            <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{doc.lastModified}</td>
                           </tr>
                         );
                       })}

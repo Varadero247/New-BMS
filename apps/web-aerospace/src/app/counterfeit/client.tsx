@@ -67,12 +67,12 @@ export default function CounterfeitPartsClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Counterfeit Parts Prevention</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D Clause 8.1.4 — Prevention of Counterfeit/Suspect Unapproved Parts</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Counterfeit Parts Prevention</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D Clause 8.1.4 — Prevention of Counterfeit/Suspect Unapproved Parts</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -99,17 +99,17 @@ export default function CounterfeitPartsClient() {
             <p className="text-3xl font-bold text-red-700 mt-1">{counts.quarantined}</p>
             <p className="text-xs text-red-500 mt-1">Do not use</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">High Risk Score</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">High Risk Score</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{counts.highRisk}</p>
-            <p className="text-xs text-gray-500 mt-1">Risk score &ge; 75</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Risk score &ge; 75</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search part number, description, supplier..."
@@ -134,10 +134,10 @@ export default function CounterfeitPartsClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Part Number</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Description</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Supplier</th>
@@ -148,20 +148,20 @@ export default function CounterfeitPartsClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(v => {
                 const mc = METHOD_CONFIG[v.verificationMethod];
                 const sc = STATUS_CONFIG[v.status];
                 const risk = getRiskColor(v.riskScore);
                 const StatusIcon = sc.icon;
                 return (
-                  <tr key={v.id} className={`hover:bg-gray-50 ${v.status === 'quarantined' ? 'bg-red-50' : v.status === 'suspect' ? 'bg-yellow-50' : ''}`}>
-                    <td className="px-4 py-3 font-mono font-medium text-gray-900">{v.partNumber}</td>
-                    <td className="px-4 py-3 text-gray-700 max-w-[180px]">
+                  <tr key={v.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${v.status === 'quarantined' ? 'bg-red-50' : v.status === 'suspect' ? 'bg-yellow-50' : ''}`}>
+                    <td className="px-4 py-3 font-mono font-medium text-gray-900 dark:text-gray-100">{v.partNumber}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-[180px]">
                       <p className="truncate">{v.partDescription}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">{v.notes}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{v.notes}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{v.supplier}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{v.supplier}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${mc.bg} ${mc.text}`}>
                         <Microscope className="w-3 h-3" />
@@ -176,8 +176,8 @@ export default function CounterfeitPartsClient() {
                         <span className={`text-xs font-bold ${risk.text}`}>{v.riskScore}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{v.lastCheck}</td>
-                    <td className="px-4 py-3 text-gray-700">{v.quantity.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{v.lastCheck}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{v.quantity.toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
                         <StatusIcon className="w-3 h-3" />
@@ -190,7 +190,7 @@ export default function CounterfeitPartsClient() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No verifications match your filters</p>
             </div>

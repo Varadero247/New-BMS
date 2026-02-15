@@ -41,7 +41,7 @@ function ScoreBar({ value, color }: { value: number; color: string }) {
     red: 'bg-red-500', green: 'bg-green-500', blue: 'bg-blue-500', cyan: 'bg-cyan-500',
   };
   return (
-    <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
+    <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 mt-2">
       <div
         className={`h-2 rounded-full transition-all ${colors[color] || 'bg-gray-400'}`}
         style={{ width: `${value}%` }}
@@ -53,7 +53,7 @@ function ScoreBar({ value, color }: { value: number; color: string }) {
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
   if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />;
   if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-500" />;
-  return <Minus className="h-4 w-4 text-gray-400" />;
+  return <Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />;
 }
 
 export default function ExecutiveSummaryPage() {
@@ -104,15 +104,15 @@ export default function ExecutiveSummaryPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Executive Summary</h1>
-              <p className="text-gray-500 mt-1">Cross-module IMS performance overview</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Executive Summary</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Cross-module IMS performance overview</p>
             </div>
             <select
               value={period}
@@ -132,9 +132,9 @@ export default function ExecutiveSummaryPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{kpi.label}</p>
-                      <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{kpi.sub}</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{kpi.label}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{kpi.value}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{kpi.sub}</p>
                     </div>
                     <TrendIcon trend={kpi.trend} />
                   </div>
@@ -157,7 +157,7 @@ export default function ExecutiveSummaryPage() {
                           <Icon className={`h-5 w-5 text-${mod.color}-600`} />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{mod.label}</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">{mod.label}</p>
                           <div className="flex items-center gap-1 mt-0.5">
                             <TrendIcon trend={mod.trend} />
                             <span className={`text-xs font-medium ${mod.trend === 'up' ? 'text-green-600' : mod.trend === 'down' ? 'text-red-600' : 'text-gray-400'}`}>
@@ -167,13 +167,13 @@ export default function ExecutiveSummaryPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-3xl font-bold text-gray-900">{mod.score}</span>
-                        <span className="text-lg text-gray-400">%</span>
+                        <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">{mod.score}</span>
+                        <span className="text-lg text-gray-400 dark:text-gray-500">%</span>
                       </div>
                     </div>
                     <ScoreBar value={mod.score} color={mod.color} />
                     <div className="flex gap-4 mt-3">
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
                         <Clock className="h-3.5 w-3.5 text-orange-400" />
                         {mod.openItems} open items
                       </div>
@@ -214,11 +214,11 @@ export default function ExecutiveSummaryPage() {
                     { ref: 'QR-2026-005', title: 'Supplier qualification gap — Component X', module: 'Quality', level: 'HIGH', score: 18 },
                     { ref: 'ENV-ASP-2026-003', title: 'Cooling tower discharge exceeding limits', module: 'Environmental', level: 'MEDIUM', score: 15 },
                   ].map(risk => (
-                    <div key={risk.ref} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={risk.ref} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{risk.title}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{risk.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-400">{risk.ref}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{risk.ref}</span>
                           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${risk.module === 'InfoSec' ? 'bg-cyan-100 text-cyan-700' : risk.module === 'H&S' ? 'bg-red-100 text-red-700' : risk.module === 'Quality' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
                             {risk.module}
                           </span>
@@ -228,7 +228,7 @@ export default function ExecutiveSummaryPage() {
                         <span className={`text-xs px-2 py-1 rounded font-medium ${risk.level === 'CRITICAL' ? 'bg-red-100 text-red-700' : risk.level === 'HIGH' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
                           {risk.level}
                         </span>
-                        <span className="text-lg font-bold text-gray-300">{risk.score}</span>
+                        <span className="text-lg font-bold text-gray-300 dark:text-gray-600">{risk.score}</span>
                       </div>
                     </div>
                   ))}
@@ -254,8 +254,8 @@ export default function ExecutiveSummaryPage() {
                   ].map(obj => (
                     <div key={obj.label}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-700 font-medium">{obj.label}</span>
-                        <span className="text-gray-500">{obj.current}%</span>
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">{obj.label}</span>
+                        <span className="text-gray-500 dark:text-gray-400">{obj.current}%</span>
                       </div>
                       <ScoreBar value={obj.current} color={obj.color} />
                     </div>
@@ -277,13 +277,13 @@ export default function ExecutiveSummaryPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Module</th>
-                      <th className="text-right py-3 px-4 text-gray-500 font-medium">Compliance %</th>
-                      <th className="text-right py-3 px-4 text-gray-500 font-medium">Open CAPAs</th>
-                      <th className="text-right py-3 px-4 text-gray-500 font-medium">Overdue</th>
-                      <th className="text-right py-3 px-4 text-gray-500 font-medium">Last Audit</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Trend</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Module</th>
+                      <th className="text-right py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Compliance %</th>
+                      <th className="text-right py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Open CAPAs</th>
+                      <th className="text-right py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Overdue</th>
+                      <th className="text-right py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Last Audit</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Trend</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -294,8 +294,8 @@ export default function ExecutiveSummaryPage() {
                       { module: 'InfoSec', compliance: 78, capaOpen: 9, overdue: 2, lastAudit: 'Dec 2025', trend: 'up' as const },
                       { module: 'ESG', compliance: 71, capaOpen: 4, overdue: 1, lastAudit: 'Nov 2025', trend: 'stable' as const },
                     ].map(row => (
-                      <tr key={row.module} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{row.module}</td>
+                      <tr key={row.module} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{row.module}</td>
                         <td className="py-3 px-4 text-right">
                           <span className={`font-semibold ${row.compliance >= 90 ? 'text-green-600' : row.compliance >= 80 ? 'text-blue-600' : 'text-orange-600'}`}>
                             {row.compliance}%
@@ -305,7 +305,7 @@ export default function ExecutiveSummaryPage() {
                         <td className="py-3 px-4 text-right">
                           <span className={row.overdue > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>{row.overdue}</span>
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-500">{row.lastAudit}</td>
+                        <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400">{row.lastAudit}</td>
                         <td className="py-3 px-4">
                           <TrendIcon trend={row.trend} />
                         </td>

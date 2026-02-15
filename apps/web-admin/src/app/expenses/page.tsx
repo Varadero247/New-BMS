@@ -128,18 +128,18 @@ export default function ExpensesPage() {
             <div className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-gray-400">Pending Approval</span>
+                <span className="text-sm text-gray-400 dark:text-gray-500">Pending Approval</span>
               </div>
               <div className="text-2xl font-bold text-white">{formatCurrency(summary.totalPending.amount)}</div>
-              <div className="text-xs text-gray-500 mt-1">{summary.totalPending.count} expenses</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{summary.totalPending.count} expenses</div>
             </div>
             <div className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-gray-400">Approved This Month</span>
+                <span className="text-sm text-gray-400 dark:text-gray-500">Approved This Month</span>
               </div>
               <div className="text-2xl font-bold text-white">{formatCurrency(summary.totalApproved.amount)}</div>
-              <div className="text-xs text-gray-500 mt-1">{summary.totalApproved.count} expenses</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{summary.totalApproved.count} expenses</div>
             </div>
           </div>
         )}
@@ -160,21 +160,21 @@ export default function ExpensesPage() {
 
         {/* Expenses Table */}
         {loading ? (
-          <div className="text-gray-400 text-center py-12">Loading expenses...</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Loading expenses...</div>
         ) : expenses.length === 0 ? (
-          <div className="text-gray-400 text-center py-12">No expenses found.</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">No expenses found.</div>
         ) : (
           <div className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Title</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Category</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Amount</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Vendor</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Date</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-400 uppercase">Actions</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Title</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Category</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Amount</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Vendor</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Date</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Status</th>
+                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -185,7 +185,7 @@ export default function ExpensesPage() {
                       <td className="px-6 py-3.5">
                         <span className="text-white text-sm font-medium">{expense.title}</span>
                         {expense.description && (
-                          <p className="text-gray-500 text-xs mt-0.5 truncate max-w-xs">{expense.description}</p>
+                          <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5 truncate max-w-xs">{expense.description}</p>
                         )}
                       </td>
                       <td className="px-6 py-3.5">
@@ -195,10 +195,10 @@ export default function ExpensesPage() {
                         <span className="text-white text-sm font-medium">{formatCurrency(expense.amount)}</span>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-gray-400 text-sm">{expense.vendor || '-'}</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-sm">{expense.vendor || '-'}</span>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-gray-400 text-sm">{formatDate(expense.expenseDate)}</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-sm">{formatDate(expense.expenseDate)}</span>
                       </td>
                       <td className="px-6 py-3.5">
                         <span className={`px-2.5 py-0.5 rounded text-xs font-medium ${badge.bg} ${badge.text}`}>
@@ -240,7 +240,7 @@ export default function ExpensesPage() {
               <h2 className="text-lg font-bold text-white mb-4">New Expense</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Title</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Title</label>
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -249,7 +249,7 @@ export default function ExpensesPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Description</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Description</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -260,7 +260,7 @@ export default function ExpensesPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-400 block mb-1">Amount</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Amount</label>
                     <input
                       type="number"
                       step="0.01"
@@ -271,7 +271,7 @@ export default function ExpensesPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400 block mb-1">Category</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Category</label>
                     <select
                       value={form.category}
                       onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -284,7 +284,7 @@ export default function ExpensesPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Vendor</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Vendor</label>
                   <input
                     value={form.vendor}
                     onChange={(e) => setForm({ ...form, vendor: e.target.value })}
@@ -293,7 +293,7 @@ export default function ExpensesPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Receipt URL</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Receipt URL</label>
                   <input
                     value={form.receiptUrl}
                     onChange={(e) => setForm({ ...form, receiptUrl: e.target.value })}
@@ -305,7 +305,7 @@ export default function ExpensesPage() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  className="px-4 py-2 text-gray-400 dark:text-gray-500 hover:text-white transition-colors text-sm"
                 >
                   Cancel
                 </button>

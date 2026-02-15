@@ -55,7 +55,7 @@ export default function ApiDocsPage() {
           <button
             onClick={handleCopy}
             disabled={!spec}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 disabled:opacity-50"
           >
             {copied ? 'Copied!' : 'Copy JSON'}
           </button>
@@ -121,7 +121,7 @@ export default function ApiDocsPage() {
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Raw Specification</h2>
-              <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">openapi.json</span>
+              <span className="text-xs text-gray-400 dark:text-gray-400 font-mono">openapi.json</span>
             </div>
             <pre className="p-6 overflow-auto max-h-[600px] text-xs font-mono text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-950">
               {JSON.stringify(spec, null, 2)}

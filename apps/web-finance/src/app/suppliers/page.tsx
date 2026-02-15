@@ -154,8 +154,8 @@ export default function SuppliersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Suppliers</h1>
-            <p className="text-gray-500 mt-1">Manage your supplier directory</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Suppliers</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your supplier directory</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Supplier
@@ -167,7 +167,7 @@ export default function SuppliersPage() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search suppliers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
             </div>
           </CardContent>
@@ -183,28 +183,28 @@ export default function SuppliersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Phone</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Payment Terms</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Phone</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Payment Terms</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredSuppliers.map((supplier) => (
-                      <tr key={supplier.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{supplier.code}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{supplier.name}</td>
+                      <tr key={supplier.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{supplier.code}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{supplier.name}</td>
                         <td className="py-3 px-4 text-gray-600"><div className="flex items-center gap-1"><Mail className="h-3 w-3" />{supplier.email}</div></td>
                         <td className="py-3 px-4 text-gray-600">{supplier.phone ? <div className="flex items-center gap-1"><Phone className="h-3 w-3" />{supplier.phone}</div> : '-'}</td>
                         <td className="py-3 px-4"><Badge className="bg-indigo-100 text-indigo-700">{supplier.paymentTerms?.replace('_', ' ') || 'NET 30'}</Badge></td>
-                        <td className="py-3 px-4"><Badge className={supplier.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}>{supplier.isActive ? 'Active' : 'Inactive'}</Badge></td>
+                        <td className="py-3 px-4"><Badge className={supplier.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>{supplier.isActive ? 'Active' : 'Inactive'}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(supplier)} className="text-gray-400 hover:text-indigo-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(supplier.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => openEditModal(supplier)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Edit className="h-4 w-4" /></button>
+                            <button onClick={() => handleDelete(supplier.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -213,7 +213,7 @@ export default function SuppliersPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500"><Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No suppliers found</p></div>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400"><Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>No suppliers found</p></div>
             )}
           </CardContent>
         </Card>

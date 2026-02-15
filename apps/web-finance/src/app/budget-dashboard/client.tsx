@@ -82,23 +82,23 @@ export default function BudgetDashboardClient() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Budget vs Actual</h1>
-          <p className="text-sm text-gray-500 mt-1">{period} — Year-to-date performance and forecast variance analysis</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Budget vs Actual</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{period} — Year-to-date performance and forecast variance analysis</p>
         </div>
       </div>
 
       {/* Top gauges */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={budgetUtilization} max={100} size="lg" label="Budget Utilization" sublabel="YTD" color={budgetUtilization > 100 ? 'red' : budgetUtilization > 95 ? 'yellow' : 'green'} />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center flex flex-col justify-center">
           <DollarSign className="h-6 w-6 text-blue-600 mx-auto mb-1" />
-          <p className="text-xl font-bold text-gray-900">{formatCurrency(totalBudget)}</p>
-          <p className="text-[10px] text-gray-500">Annual Budget</p>
-          <p className="text-xs text-gray-400 mt-1">Forecast: {formatCurrency(totalForecast)}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalBudget)}</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Annual Budget</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Forecast: {formatCurrency(totalForecast)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center flex flex-col justify-center">
           {totalVariance >= 0 ? (
             <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-1" />
           ) : (
@@ -107,19 +107,19 @@ export default function BudgetDashboardClient() {
           <p className={`text-xl font-bold ${totalVariance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
             {totalVariance >= 0 ? '+' : '-'}{formatCurrency(totalVariance)}
           </p>
-          <p className="text-[10px] text-gray-500">YTD Variance</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">YTD Variance</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-center flex flex-col justify-center">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center flex flex-col justify-center">
           <AlertTriangle className="h-6 w-6 text-orange-600 mx-auto mb-1" />
           <p className="text-xl font-bold text-orange-700">{overBudgetLines}</p>
-          <p className="text-[10px] text-gray-500">Lines Over Budget</p>
-          <p className="text-xs text-gray-400 mt-1">of {BUDGET_LINES.length} total</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Lines Over Budget</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">of {BUDGET_LINES.length} total</p>
         </div>
       </div>
 
       {/* Monthly chart */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Monthly Budget vs Actual</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Monthly Budget vs Actual</h3>
         <div className="flex items-end gap-3 h-40">
           {MONTHLY_DATA.map(m => (
             <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
@@ -129,7 +129,7 @@ export default function BudgetDashboardClient() {
                   <div className={`w-5 rounded-t ${m.actual > m.budget ? 'bg-red-400' : 'bg-green-400'}`} style={{ height: `${(m.actual / maxMonthly) * 120}px` }} />
                 )}
               </div>
-              <span className="text-[10px] text-gray-500">{m.month}</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">{m.month}</span>
               {m.actual > 0 && (
                 <span className={`text-[9px] font-medium ${m.actual > m.budget ? 'text-red-600' : 'text-green-600'}`}>
                   {m.actual > m.budget ? '+' : ''}{formatCurrency(m.actual - m.budget)}
@@ -139,25 +139,25 @@ export default function BudgetDashboardClient() {
           ))}
         </div>
         <div className="flex items-center gap-4 mt-2 justify-center">
-          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-blue-200" /><span className="text-[10px] text-gray-500">Budget</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-green-400" /><span className="text-[10px] text-gray-500">Under Budget</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-red-400" /><span className="text-[10px] text-gray-500">Over Budget</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-blue-200" /><span className="text-[10px] text-gray-500 dark:text-gray-400">Budget</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-green-400" /><span className="text-[10px] text-gray-500 dark:text-gray-400">Under Budget</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-2 rounded bg-red-400" /><span className="text-[10px] text-gray-500 dark:text-gray-400">Over Budget</span></div>
         </div>
       </div>
 
       {/* Department summary */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Department Summary</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Department Summary</h3>
         <div className="grid grid-cols-5 gap-3">
           {deptSummary.map(d => (
             <button
               key={d.dept}
               onClick={() => setSelectedDept(selectedDept === d.dept ? '' : d.dept)}
-              className={`border rounded-lg p-3 text-center transition-all ${selectedDept === d.dept ? 'ring-2 ring-lime-500 border-lime-300' : 'border-gray-200 hover:border-gray-300'}`}
+              className={`border rounded-lg p-3 text-center transition-all ${selectedDept === d.dept ? 'ring-2 ring-lime-500 border-lime-300' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
             >
-              <p className="text-xs font-semibold text-gray-700">{d.dept}</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">{d.dept}</p>
               <div className="mt-1">
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full ${d.variance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
                     style={{ width: `${Math.min(100, (d.actual / d.budget) * 100)}%` }}
@@ -175,17 +175,17 @@ export default function BudgetDashboardClient() {
       {/* Filter info */}
       {selectedDept && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Showing:</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Showing:</span>
           <Badge variant="secondary">{selectedDept}</Badge>
           <button onClick={() => setSelectedDept('')} className="text-xs text-blue-600 hover:underline">Clear filter</button>
         </div>
       )}
 
       {/* Budget lines table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <table className="w-full text-xs">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
+            <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Department</th>
               <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Category</th>
               <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Annual Budget</th>
@@ -197,14 +197,14 @@ export default function BudgetDashboardClient() {
               <th className="text-center py-2.5 px-3 font-semibold text-gray-600">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {filtered.map(line => (
-              <tr key={line.id} className="hover:bg-gray-50">
-                <td className="py-2.5 px-3 text-gray-700 font-medium">{line.department}</td>
-                <td className="py-2.5 px-3 text-gray-900">{line.category}</td>
+              <tr key={line.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                <td className="py-2.5 px-3 text-gray-700 dark:text-gray-300 font-medium">{line.department}</td>
+                <td className="py-2.5 px-3 text-gray-900 dark:text-gray-100">{line.category}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-gray-600">{formatCurrency(line.annualBudget)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-gray-600">{formatCurrency(line.ytdBudget)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-gray-900 font-medium">{formatCurrency(line.ytdActual)}</td>
+                <td className="py-2.5 px-3 text-right font-mono text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(line.ytdActual)}</td>
                 <td className={`py-2.5 px-3 text-right font-mono font-medium ${line.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {line.variance >= 0 ? '+' : '-'}{formatCurrency(line.variance)}
                 </td>
@@ -228,8 +228,8 @@ export default function BudgetDashboardClient() {
             ))}
           </tbody>
           <tfoot>
-            <tr className="bg-gray-50 border-t-2 border-gray-300 font-semibold">
-              <td colSpan={2} className="py-2.5 px-3 text-gray-700">Total</td>
+            <tr className="bg-gray-50 dark:bg-gray-800 border-t-2 border-gray-300 font-semibold">
+              <td colSpan={2} className="py-2.5 px-3 text-gray-700 dark:text-gray-300">Total</td>
               <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(filtered.reduce((s, b) => s + b.annualBudget, 0))}</td>
               <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(filtered.reduce((s, b) => s + b.ytdBudget, 0))}</td>
               <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(filtered.reduce((s, b) => s + b.ytdActual, 0))}</td>

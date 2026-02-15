@@ -76,7 +76,7 @@ const STATUS_COLORS: Record<string, string> = {
   AT_RISK: 'bg-yellow-100 text-yellow-800',
   OFF_TRACK: 'bg-red-100 text-red-800',
   ACHIEVED: 'bg-blue-100 text-blue-800',
-  CANCELLED: 'bg-gray-100 text-gray-600',
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -232,8 +232,8 @@ export default function ESGDashboardClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">ESG / Sustainability Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">GRI/TCFD-aligned environmental, social and governance tracking</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ESG / Sustainability Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">GRI/TCFD-aligned environmental, social and governance tracking</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowMetricModal(true)}>
@@ -254,9 +254,9 @@ export default function ESGDashboardClient() {
                 <TrendingDown className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total GHG</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total GHG</p>
                 <p className="text-2xl font-bold">{summary ? formatNumber(summary.ghg.total) : '0'}</p>
-                <p className="text-xs text-gray-400">tCO2e</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
               </div>
             </div>
           </CardContent>
@@ -269,9 +269,9 @@ export default function ESGDashboardClient() {
                 <Zap className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Energy</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Energy</p>
                 <p className="text-2xl font-bold">{summary ? formatNumber(summary.energy.total) : '0'}</p>
-                <p className="text-xs text-gray-400">MWh</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">MWh</p>
               </div>
             </div>
           </CardContent>
@@ -284,9 +284,9 @@ export default function ESGDashboardClient() {
                 <Droplets className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Water</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Water</p>
                 <p className="text-2xl font-bold">{summary ? formatNumber(summary.water.total) : '0'}</p>
-                <p className="text-xs text-gray-400">m3</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">m3</p>
               </div>
             </div>
           </CardContent>
@@ -299,9 +299,9 @@ export default function ESGDashboardClient() {
                 <Trash2 className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Waste</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Waste</p>
                 <p className="text-2xl font-bold">{summary ? formatNumber(summary.waste.total) : '0'}</p>
-                <p className="text-xs text-gray-400">tonnes</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">tonnes</p>
               </div>
             </div>
           </CardContent>
@@ -317,31 +317,31 @@ export default function ESGDashboardClient() {
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-red-50 rounded-lg">
-                <p className="text-sm text-gray-500">Scope 1 (Direct)</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Scope 1 (Direct)</p>
                 <p className="text-xl font-bold text-red-700">{formatNumber(summary.ghg.scope1)}</p>
-                <p className="text-xs text-gray-400">tCO2e</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
                   <div className="bg-red-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%` }} />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%</p>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <p className="text-sm text-gray-500">Scope 2 (Electricity)</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Scope 2 (Electricity)</p>
                 <p className="text-xl font-bold text-orange-700">{formatNumber(summary.ghg.scope2)}</p>
-                <p className="text-xs text-gray-400">tCO2e</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
                   <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%` }} />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%</p>
               </div>
               <div className="text-center p-4 bg-amber-50 rounded-lg">
-                <p className="text-sm text-gray-500">Scope 3 (Supply Chain)</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Scope 3 (Supply Chain)</p>
                 <p className="text-xl font-bold text-amber-700">{formatNumber(summary.ghg.scope3)}</p>
-                <p className="text-xs text-gray-400">tCO2e</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
                   <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%` }} />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%</p>
               </div>
             </div>
           </CardContent>
@@ -350,9 +350,9 @@ export default function ESGDashboardClient() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b pb-2">
-        <button onClick={() => setActiveTab('overview')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'overview' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Overview</button>
-        <button onClick={() => setActiveTab('targets')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'targets' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Targets</button>
-        <button onClick={() => setActiveTab('metrics')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'metrics' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Metrics</button>
+        <button onClick={() => setActiveTab('overview')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'overview' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Overview</button>
+        <button onClick={() => setActiveTab('targets')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'targets' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Targets</button>
+        <button onClick={() => setActiveTab('metrics')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'metrics' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Metrics</button>
       </div>
 
       {/* Filter Bar */}
@@ -375,12 +375,12 @@ export default function ESGDashboardClient() {
             </CardHeader>
             <CardContent>
               {trends.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No trend data available. Start recording ESG metrics to see trends.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No trend data available. Start recording ESG metrics to see trends.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left text-gray-500">
+                      <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                         <th className="pb-2 pr-4">Period</th>
                         <th className="pb-2 pr-4">Scope 1</th>
                         <th className="pb-2 pr-4">Scope 2</th>
@@ -392,7 +392,7 @@ export default function ESGDashboardClient() {
                     </thead>
                     <tbody>
                       {trends.map(t => (
-                        <tr key={t.period} className="border-b hover:bg-gray-50">
+                        <tr key={t.period} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                           <td className="py-2 pr-4 font-mono text-xs">{t.period}</td>
                           <td className="py-2 pr-4">{typeof t.GHG_SCOPE_1 === 'number' ? t.GHG_SCOPE_1.toFixed(1) : '-'}</td>
                           <td className="py-2 pr-4">{typeof t.GHG_SCOPE_2 === 'number' ? t.GHG_SCOPE_2.toFixed(1) : '-'}</td>
@@ -416,36 +416,36 @@ export default function ESGDashboardClient() {
                 <CardTitle>Target Progress</CardTitle>
                 <div className="flex gap-2 text-sm">
                   <span className="text-green-600 font-medium">{summary?.targets.achieved ?? 0} achieved</span>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-400 dark:text-gray-500">|</span>
                   <span className="text-yellow-600 font-medium">{summary?.targets.atRisk ?? 0} at risk</span>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-400 dark:text-gray-500">|</span>
                   <span className="text-gray-600 font-medium">{summary?.targets.total ?? 0} total</span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {targets.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No ESG targets set. Click &quot;Set Target&quot; to get started.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No ESG targets set. Click &quot;Set Target&quot; to get started.</p>
               ) : (
                 <div className="space-y-4">
                   {targets.slice(0, 5).map(t => (
                     <div key={t.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-gray-500">{t.refNumber}</span>
-                          <Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100'}>{getCategoryLabel(t.category)}</Badge>
-                          <Badge className={STATUS_COLORS[t.status] || 'bg-gray-100'}>{t.status.replace(/_/g, ' ')}</Badge>
+                          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{t.refNumber}</span>
+                          <Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100 dark:bg-gray-800'}>{getCategoryLabel(t.category)}</Badge>
+                          <Badge className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}>{t.status.replace(/_/g, ' ')}</Badge>
                         </div>
                         <span className="text-sm font-medium">{t.progressPercent}%</span>
                       </div>
-                      <p className="text-sm text-gray-700 mb-2">{t.description}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{t.description}</p>
                       <div className="bg-gray-200 rounded-full h-2.5">
                         <div
                           className={`h-2.5 rounded-full ${t.status === 'ACHIEVED' ? 'bg-blue-500' : t.status === 'AT_RISK' ? 'bg-yellow-500' : t.status === 'OFF_TRACK' ? 'bg-red-500' : 'bg-green-500'}`}
                           style={{ width: `${Math.min(100, t.progressPercent)}%` }}
                         />
                       </div>
-                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                         <span>Baseline: {t.baselineValue} {t.unit} ({t.baselineYear})</span>
                         <span>Current: {t.currentValue ?? '-'} {t.unit}</span>
                         <span>Target: {t.targetValue} {t.unit} ({t.targetYear})</span>
@@ -469,11 +469,11 @@ export default function ESGDashboardClient() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : targets.length === 0 ? <p className="text-gray-500 text-center py-8">No targets found.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : targets.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No targets found.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Ref</th>
                       <th className="pb-2 pr-4">Category</th>
                       <th className="pb-2 pr-4">Description</th>
@@ -486,9 +486,9 @@ export default function ESGDashboardClient() {
                   </thead>
                   <tbody>
                     {targets.map(t => (
-                      <tr key={t.id} className="border-b hover:bg-gray-50">
+                      <tr key={t.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-mono text-xs">{t.refNumber}</td>
-                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100 text-gray-800'}>{getCategoryLabel(t.category)}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>{getCategoryLabel(t.category)}</Badge></td>
                         <td className="py-3 pr-4 max-w-xs truncate">{t.description}</td>
                         <td className="py-3 pr-4 text-right">{t.baselineValue} {t.unit}</td>
                         <td className="py-3 pr-4 text-right">{t.targetValue} {t.unit}</td>
@@ -501,7 +501,7 @@ export default function ESGDashboardClient() {
                             <span className="text-xs">{t.progressPercent}%</span>
                           </div>
                         </td>
-                        <td className="py-3"><Badge className={STATUS_COLORS[t.status] || 'bg-gray-100'}>{t.status.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3"><Badge className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}>{t.status.replace(/_/g, ' ')}</Badge></td>
                       </tr>
                     ))}
                   </tbody>
@@ -522,11 +522,11 @@ export default function ESGDashboardClient() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : metrics.length === 0 ? <p className="text-gray-500 text-center py-8">No metrics recorded.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : metrics.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No metrics recorded.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-gray-500">
+                    <tr className="border-b text-left text-gray-500 dark:text-gray-400">
                       <th className="pb-2 pr-4">Period</th>
                       <th className="pb-2 pr-4">Category</th>
                       <th className="pb-2 pr-4">Subcategory</th>
@@ -538,17 +538,17 @@ export default function ESGDashboardClient() {
                   </thead>
                   <tbody>
                     {metrics.map(m => (
-                      <tr key={m.id} className="border-b hover:bg-gray-50">
+                      <tr key={m.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-mono text-xs">{m.period}</td>
-                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[m.category] || 'bg-gray-100'}>{getCategoryLabel(m.category)}</Badge></td>
+                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[m.category] || 'bg-gray-100 dark:bg-gray-800'}>{getCategoryLabel(m.category)}</Badge></td>
                         <td className="py-3 pr-4">{m.subcategory}</td>
                         <td className="py-3 pr-4 text-right font-medium">{m.value.toFixed(2)}</td>
-                        <td className="py-3 pr-4 text-gray-500">{m.unit}</td>
-                        <td className="py-3 pr-4 text-gray-500">{m.source || '-'}</td>
+                        <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{m.unit}</td>
+                        <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{m.source || '-'}</td>
                         <td className="py-3">
                           {m.verified
                             ? <Badge className="bg-green-100 text-green-800">Verified</Badge>
-                            : <Badge className="bg-gray-100 text-gray-600">Unverified</Badge>}
+                            : <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">Unverified</Badge>}
                         </td>
                       </tr>
                     ))}

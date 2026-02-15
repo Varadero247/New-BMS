@@ -141,7 +141,7 @@ function FactorBar({ factor }: { factor: FactorScore }) {
           style={{ width: `${Math.min(100, factor.score)}%` }}
         />
       </div>
-      <p className="text-xs text-gray-400">Weight: {(factor.weight * 100).toFixed(0)}%</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">Weight: {(factor.weight * 100).toFixed(0)}%</p>
     </div>
   );
 }
@@ -204,7 +204,7 @@ export default function ComplianceScoresPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
 
       <main className="flex-1 overflow-auto p-8">
@@ -212,11 +212,11 @@ export default function ComplianceScoresPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Multi-Standard Compliance</h1>
-              <p className="text-gray-500 mt-1">Live compliance scores across all IMS standards</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Multi-Standard Compliance</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Live compliance scores across all IMS standards</p>
             </div>
             {data?.generatedAt && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 Last calculated: {new Date(data.generatedAt).toLocaleString()}
               </p>
             )}
@@ -231,7 +231,7 @@ export default function ComplianceScoresPage() {
           {data && (
             <>
               {/* Overall IMS Score */}
-              <Card className="border-2 border-gray-200">
+              <Card className="border-2 border-gray-200 dark:border-gray-700">
                 <CardContent className="pt-8 pb-8">
                   <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="flex-1 flex justify-center">
@@ -244,11 +244,11 @@ export default function ComplianceScoresPage() {
                     </div>
                     <div className="flex-1 space-y-6">
                       <div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                           <Shield className="h-6 w-6 text-blue-600" />
                           IMS Health Summary
                         </h2>
-                        <p className="text-gray-500 text-sm mb-4">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                           Weighted compliance across {data.standards.length} active management system standards
                         </p>
                       </div>
@@ -285,7 +285,7 @@ export default function ComplianceScoresPage() {
 
               {/* Standard Cards */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-gray-600" />
                   Standard Compliance Scores
                 </h2>
@@ -330,7 +330,7 @@ export default function ComplianceScoresPage() {
                               const barColor = factor.score >= 85 ? 'bg-green-400' : factor.score >= 70 ? 'bg-amber-400' : 'bg-red-400';
                               return (
                                 <div key={factor.name} className="flex items-center gap-2">
-                                  <span className="text-xs text-gray-500 w-28 truncate" title={factor.label}>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 w-28 truncate" title={factor.label}>
                                     {factor.label.split(' ').slice(0, 3).join(' ')}
                                   </span>
                                   <div className="flex-1 bg-gray-200 rounded-full h-1.5">
@@ -345,7 +345,7 @@ export default function ComplianceScoresPage() {
                             })}
                           </div>
 
-                          <p className="text-xs text-gray-400 mt-3 text-center">
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
                             Click for detailed breakdown
                           </p>
                         </CardContent>
@@ -389,7 +389,7 @@ export default function ComplianceScoresPage() {
         {selectedStandard && (
           <div className="space-y-6">
             {/* Score overview */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
               <div className="flex items-center gap-4">
                 <ComplianceGaugeWidget
                   score={selectedStandard.score}
@@ -405,10 +405,10 @@ export default function ComplianceScoresPage() {
                     {selectedStandard.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Standard Weight: {(selectedStandard.weight * 100).toFixed(0)}%
                 </p>
-                <Badge className={STANDARD_COLORS[selectedStandard.code]?.badge || 'bg-gray-100 text-gray-800'}>
+                <Badge className={STANDARD_COLORS[selectedStandard.code]?.badge || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>
                   {selectedStandard.code.replace(/_/g, ' ')}
                 </Badge>
               </div>
@@ -416,7 +416,7 @@ export default function ComplianceScoresPage() {
 
             {/* Factor breakdown */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
                 Factor Breakdown
               </h3>
@@ -428,8 +428,8 @@ export default function ComplianceScoresPage() {
             </div>
 
             {/* Thresholds */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Threshold Definitions</h4>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Threshold Definitions</h4>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -448,7 +448,7 @@ export default function ComplianceScoresPage() {
 
             {/* Recommendations */}
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Areas for Improvement</h4>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Areas for Improvement</h4>
               <div className="space-y-2">
                 {selectedStandard.factors
                   .filter(f => f.score < 85)

@@ -30,7 +30,7 @@ const activities: ValidationActivity[] = [
 ];
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  planned: { label: 'Planned', color: 'bg-gray-100 text-gray-600' },
+  planned: { label: 'Planned', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   'protocol-approved': { label: 'Protocol Approved', color: 'bg-blue-100 text-blue-700' },
   'in-execution': { label: 'In Execution', color: 'bg-amber-100 text-amber-700' },
   'report-draft': { label: 'Report Draft', color: 'bg-purple-100 text-purple-700' },
@@ -59,32 +59,32 @@ export default function ValidationClient() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Design Validation</h1>
-        <p className="text-sm text-gray-500 mt-1">Clinical evaluation, usability, and process validation — ISO 13485:2016 Clause 7.3.7</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Design Validation</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Clinical evaluation, usability, and process validation — ISO 13485:2016 Clause 7.3.7</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Activities</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{activities.length}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Activities</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{activities.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Completed</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Completed</p>
           <p className="text-3xl font-bold text-emerald-700 mt-1">{completed}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">In Execution</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">In Execution</p>
           <p className="text-3xl font-bold text-amber-700 mt-1">{inProgress}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Total Findings</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Findings</p>
           <p className="text-3xl font-bold text-blue-700 mt-1">{totalFindings}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input type="text" placeholder="Search activities..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -98,39 +98,39 @@ export default function ValidationClient() {
           const sc = statusConfig[activity.status];
           const isExpanded = expandedId === activity.id;
           return (
-            <div key={activity.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <button onClick={() => setExpandedId(isExpanded ? null : activity.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50">
+            <div key={activity.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <button onClick={() => setExpandedId(isExpanded ? null : activity.id)} className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                    {isExpanded ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-mono text-blue-600">{activity.validationId}</span>
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">{typeLabels[activity.type]}</span>
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600">{typeLabels[activity.type]}</span>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 mt-0.5">{activity.title}</p>
-                      <p className="text-xs text-gray-500">{activity.product}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-0.5">{activity.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{activity.product}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>{sc.label}</span>
                     {activity.participants > 0 && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500"><Users className="h-3 w-3" />{activity.participants}</span>
+                      <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><Users className="h-3 w-3" />{activity.participants}</span>
                     )}
                   </div>
                 </div>
               </button>
               {isExpanded && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 space-y-2 ml-7">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 space-y-2 ml-7">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <div><span className="text-gray-500">Protocol:</span> <span className="font-medium text-gray-900">{activity.protocol}</span></div>
-                    <div><span className="text-gray-500">Start:</span> <span className="font-medium">{activity.startDate}</span></div>
-                    <div><span className="text-gray-500">End:</span> <span className="font-medium">{activity.endDate}</span></div>
-                    <div><span className="text-gray-500">Owner:</span> <span className="font-medium">{activity.owner}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Protocol:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{activity.protocol}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Start:</span> <span className="font-medium">{activity.startDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">End:</span> <span className="font-medium">{activity.endDate}</span></div>
+                    <div><span className="text-gray-500 dark:text-gray-400">Owner:</span> <span className="font-medium">{activity.owner}</span></div>
                   </div>
                   <div className="text-xs">
-                    <span className="text-gray-500">Summary:</span>
-                    <p className="text-gray-700 mt-0.5">{activity.summary}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Summary:</span>
+                    <p className="text-gray-700 dark:text-gray-300 mt-0.5">{activity.summary}</p>
                   </div>
                   {activity.findings > 0 && (
                     <div className="flex items-center gap-1 text-xs text-amber-600">

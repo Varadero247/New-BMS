@@ -86,8 +86,8 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-            <p className="text-gray-500 mt-1">Generate and manage analytical reports</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Generate and manage analytical reports</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -114,7 +114,7 @@ export default function ReportsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search reports..."
@@ -137,7 +137,7 @@ export default function ReportsPage() {
         {/* Reports grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.length === 0 ? (
-            <div className="col-span-full text-center py-12 text-gray-500">
+            <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
               <p>No reports found.</p>
             </div>
@@ -145,17 +145,17 @@ export default function ReportsPage() {
             <Card key={report.id} className="hover:shadow-md transition-shadow">
               <CardContent className="pt-5">
                 <div className="flex items-start justify-between mb-2">
-                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${TYPE_COLORS[report.type] || 'bg-gray-100 text-gray-700'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${TYPE_COLORS[report.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                     {report.type}
                   </span>
                   <span className={`text-xs px-2 py-0.5 rounded font-medium ${report.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                     {report.status}
                   </span>
                 </div>
-                <h3 className="font-semibold text-gray-900 mt-2 mb-1">{report.name}</h3>
-                <p className="text-xs text-gray-500 line-clamp-2">{report.description}</p>
-                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                  <div className="text-xs text-gray-400">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mt-2 mb-1">{report.name}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{report.description}</p>
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
                     {report.schedule ? (
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{report.schedule}</span>
                     ) : (
@@ -163,10 +163,10 @@ export default function ReportsPage() {
                     )}
                   </div>
                   <div className="flex gap-1.5">
-                    <button className="p-1.5 rounded hover:bg-gray-100 text-gray-500">
+                    <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
                       <Eye className="h-3.5 w-3.5" />
                     </button>
-                    <button className="p-1.5 rounded hover:bg-gray-100 text-gray-500">
+                    <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
                       <Download className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -179,31 +179,31 @@ export default function ReportsPage() {
         {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-md p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Create Report</h2>
                 <button onClick={() => setShowCreateModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Report Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Name</label>
                   <input type="text" placeholder="e.g. Monthly Safety Performance" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Type</label>
                   <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                     {types.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-5">
-                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Create</button>
               </div>
             </div>

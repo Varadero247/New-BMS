@@ -131,20 +131,20 @@ export default function PayrollPage() {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
+      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       PROCESSING: 'bg-yellow-100 text-yellow-800',
       CALCULATED: 'bg-blue-100 text-blue-800',
       APPROVED: 'bg-indigo-100 text-indigo-800',
       COMPLETED: 'bg-green-100 text-green-800',
       CANCELLED: 'bg-red-100 text-red-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading payroll runs...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading payroll runs...</div>
       </div>
     );
   }
@@ -152,7 +152,7 @@ export default function PayrollPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Payroll Runs</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payroll Runs</h1>
         <div className="flex items-center space-x-3">
           <button
             onClick={handleAiValidate}
@@ -191,42 +191,42 @@ export default function PayrollPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Calendar className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Runs</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Runs</p>
               <p className="text-xl font-semibold">{runs.length}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <DollarSign className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Gross</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Gross</p>
               <p className="text-xl font-semibold">
                 {formatCurrency(runs.reduce((sum, r) => sum + r.totalGross, 0))}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Users className="h-8 w-8 text-purple-500" />
             <div>
-              <p className="text-sm text-gray-500">Employees Paid</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Employees Paid</p>
               <p className="text-xl font-semibold">
                 {runs.reduce((sum, r) => sum + r.employeeCount, 0)}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Play className="h-8 w-8 text-orange-500" />
             <div>
-              <p className="text-sm text-gray-500">In Progress</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
               <p className="text-xl font-semibold">
                 {runs.filter((r) => r.status === 'PROCESSING').length}
               </p>
@@ -237,14 +237,14 @@ export default function PayrollPage() {
 
       {/* AI Validation Result */}
       {aiResult && (
-        <div className="rounded-lg border-2 border-green-400 bg-white p-4 shadow">
+        <div className="rounded-lg border-2 border-green-400 bg-white dark:bg-gray-900 p-4 shadow">
           <button
             onClick={() => setAiExpanded(!aiExpanded)}
             className="flex w-full items-center justify-between"
           >
             <div className="flex items-center space-x-2">
               <Sparkles className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">AI Payroll Validation</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Payroll Validation</h3>
               {aiResult.isValid !== undefined && (
                 <span className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                   aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -254,16 +254,16 @@ export default function PayrollPage() {
               )}
             </div>
             {aiExpanded ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
+              <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
+              <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
           </button>
           {aiExpanded && (
             <div className="mt-4 space-y-3">
               <AIDisclosure variant="inline" provider="claude" analysisType="Payroll Analysis" confidence={0.85} />
               {aiResult.averagePerEmployee !== undefined && (
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   <span className="font-medium">Average Per Employee:</span>{' '}
                   {formatCurrency(aiResult.averagePerEmployee)}
                 </p>
@@ -304,63 +304,63 @@ export default function PayrollPage() {
       )}
 
       {/* Payroll Runs Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Run Number
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Period
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Pay Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Employees
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Total Gross
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Total Net
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {runs.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No payroll runs found. Create your first payroll run to get started.
                 </td>
               </tr>
             ) : (
               runs.map((run) => (
-                <tr key={run.id} className="hover:bg-gray-50">
+                <tr key={run.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(run.status)}
-                      <span className="font-medium text-gray-900">{run.runNumber}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{run.runNumber}</span>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(run.periodStart).toLocaleDateString()} -{' '}
                     {new Date(run.periodEnd).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(run.payDate).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {run.employeeCount}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(run.totalGross)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-green-600">
@@ -391,7 +391,7 @@ export default function PayrollPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Period Start</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period Start</label>
               <input
                 type="date"
                 value={formData.periodStart}
@@ -401,7 +401,7 @@ export default function PayrollPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Period End</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period End</label>
               <input
                 type="date"
                 value={formData.periodEnd}
@@ -413,7 +413,7 @@ export default function PayrollPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Pay Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Date</label>
               <input
                 type="date"
                 value={formData.payDate}
@@ -423,7 +423,7 @@ export default function PayrollPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Pay Frequency</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Frequency</label>
               <select
                 value={formData.payFrequency}
                 onChange={(e) => setFormData({ ...formData, payFrequency: e.target.value })}
@@ -440,7 +440,7 @@ export default function PayrollPage() {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
             >
               Cancel
             </button>

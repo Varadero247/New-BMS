@@ -119,7 +119,7 @@ const statusConfig = {
   compliant: { label: 'Compliant', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="h-4 w-4 text-green-600" />, ringColor: 'ring-green-500' },
   partial: { label: 'Partial', color: 'bg-amber-100 text-amber-800', icon: <AlertTriangle className="h-4 w-4 text-amber-600" />, ringColor: 'ring-amber-500' },
   'non-compliant': { label: 'Non-Compliant', color: 'bg-red-100 text-red-800', icon: <XCircle className="h-4 w-4 text-red-600" />, ringColor: 'ring-red-500' },
-  'not-assessed': { label: 'Not Assessed', color: 'bg-gray-100 text-gray-600', icon: <Clock className="h-4 w-4 text-gray-400" />, ringColor: 'ring-gray-400' },
+  'not-assessed': { label: 'Not Assessed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', icon: <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />, ringColor: 'ring-gray-400' },
 };
 
 export default function ComplianceTrackerClient() {
@@ -164,14 +164,14 @@ export default function ComplianceTrackerClient() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">AS9100D Compliance Tracker</h1>
-        <p className="text-sm text-gray-500 mt-1">Aviation, Space & Defence Quality Management System — Clause-by-clause compliance status</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AS9100D Compliance Tracker</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Aviation, Space & Defence Quality Management System — Clause-by-clause compliance status</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Overall Compliance</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Overall Compliance</p>
           <p className="text-3xl font-bold text-indigo-700 mt-1">{complianceRate}%</p>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div
@@ -180,37 +180,37 @@ export default function ComplianceTrackerClient() {
             />
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Compliant</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Compliant</p>
           <div className="flex items-center gap-2 mt-1">
             <CheckCircle className="h-5 w-5 text-green-600" />
             <p className="text-3xl font-bold text-green-700">{compliantCount}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-1">of {totalReqs} requirements</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">of {totalReqs} requirements</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Partial</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Partial</p>
           <div className="flex items-center gap-2 mt-1">
             <AlertTriangle className="h-5 w-5 text-amber-600" />
             <p className="text-3xl font-bold text-amber-700">{partialCount}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-1">needs attention</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">needs attention</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Non-Compliant</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Non-Compliant</p>
           <div className="flex items-center gap-2 mt-1">
             <XCircle className="h-5 w-5 text-red-600" />
             <p className="text-3xl font-bold text-red-700">{ncCount}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-1">critical items</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">critical items</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase font-medium">Open Findings</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Open Findings</p>
           <div className="flex items-center gap-2 mt-1">
             <FileCheck className="h-5 w-5 text-indigo-600" />
             <p className="text-3xl font-bold text-indigo-700">{totalFindings}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-1">audit findings</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">audit findings</p>
         </div>
       </div>
 
@@ -238,7 +238,7 @@ export default function ComplianceTrackerClient() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search clauses, titles..."
@@ -248,7 +248,7 @@ export default function ComplianceTrackerClient() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
+          <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           {['all', 'compliant', 'partial', 'non-compliant', 'not-assessed'].map((s) => (
             <button
               key={s}
@@ -256,7 +256,7 @@ export default function ComplianceTrackerClient() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 statusFilter === s
                   ? 'bg-indigo-100 text-indigo-800'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {s === 'all' ? 'All' : statusConfig[s as keyof typeof statusConfig].label}
@@ -266,8 +266,8 @@ export default function ComplianceTrackerClient() {
       </div>
 
       {/* Section Progress Overview */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Section Compliance Overview</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Section Compliance Overview</h3>
         <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
           {sections.map((section) => {
             const sCompliant = section.requirements.filter((r) => r.status === 'compliant').length;
@@ -280,9 +280,9 @@ export default function ComplianceTrackerClient() {
                   setExpandedSections(new Set([section.id]));
                   document.getElementById(`section-${section.id}`)?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="text-left p-3 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-colors"
+                className="text-left p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 transition-colors"
               >
-                <p className="text-xs font-semibold text-gray-500">Cl. {section.number}</p>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Cl. {section.number}</p>
                 <p className="text-sm font-medium text-gray-800 truncate">{section.title}</p>
                 <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                   <div
@@ -290,7 +290,7 @@ export default function ComplianceTrackerClient() {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{sCompliant}/{sTotal} compliant</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{sCompliant}/{sTotal} compliant</p>
               </button>
             );
           })}
@@ -308,18 +308,18 @@ export default function ComplianceTrackerClient() {
             <div
               key={section.id}
               id={`section-${section.id}`}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
             >
               <button
                 onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400" /> : <ChevronRight className="h-5 w-5 text-gray-400" />}
+                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
                   <div className="p-2 bg-indigo-50 rounded-lg">{section.icon}</div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-900">Clause {section.number} — {section.title}</p>
-                    <p className="text-xs text-gray-500">{sCompliant}/{sTotal} requirements compliant</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Clause {section.number} — {section.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{sCompliant}/{sTotal} requirements compliant</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -336,16 +336,16 @@ export default function ComplianceTrackerClient() {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-gray-100 dark:border-gray-700">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
                       <tr>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-20">Clause</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500">Requirement</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-32">Status</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-32">Owner</th>
-                        <th className="text-center px-4 py-2 font-medium text-gray-500 w-20">Findings</th>
-                        <th className="text-left px-4 py-2 font-medium text-gray-500 w-28">Next Review</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-20">Clause</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400">Requirement</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-32">Status</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-32">Owner</th>
+                        <th className="text-center px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-20">Findings</th>
+                        <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400 w-28">Next Review</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -356,14 +356,14 @@ export default function ComplianceTrackerClient() {
                           <tr
                             key={req.id}
                             onClick={() => setSelectedReq(req)}
-                            className={`border-t border-gray-100 cursor-pointer hover:bg-indigo-50 transition-colors ${
+                            className={`border-t border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 transition-colors ${
                               selectedReq?.id === req.id ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-300' : ''
                             }`}
                           >
-                            <td className="px-4 py-3 font-mono text-xs text-gray-700">{req.clause}</td>
+                            <td className="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{req.clause}</td>
                             <td className="px-4 py-3">
-                              <p className="font-medium text-gray-900">{req.title}</p>
-                              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{req.description}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-100">{req.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{req.description}</p>
                             </td>
                             <td className="px-4 py-3">
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
@@ -376,10 +376,10 @@ export default function ComplianceTrackerClient() {
                               {req.findings > 0 ? (
                                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 text-xs font-bold">{req.findings}</span>
                               ) : (
-                                <span className="text-gray-300">—</span>
+                                <span className="text-gray-300 dark:text-gray-600">—</span>
                               )}
                             </td>
-                            <td className={`px-4 py-3 text-xs ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
+                            <td className={`px-4 py-3 text-xs ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
                               {isOverdue && '⚠ '}{req.nextReview}
                             </td>
                           </tr>
@@ -396,16 +396,16 @@ export default function ComplianceTrackerClient() {
 
       {/* Detail Panel */}
       {selectedReq && (
-        <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-gray-200 shadow-xl z-50 overflow-y-auto">
+        <div className="fixed inset-y-0 right-0 w-96 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 shadow-xl z-50 overflow-y-auto">
           <div className="p-6 space-y-5">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-mono text-indigo-600">Clause {selectedReq.clause}</p>
-                <h3 className="text-lg font-bold text-gray-900 mt-1">{selectedReq.title}</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mt-1">{selectedReq.title}</h3>
               </div>
               <button
                 onClick={() => setSelectedReq(null)}
-                className="text-gray-400 hover:text-gray-600 text-xl"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 text-xl"
               >
                 ×
               </button>
@@ -419,40 +419,40 @@ export default function ComplianceTrackerClient() {
             </div>
 
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Description</h4>
-              <p className="text-sm text-gray-700">{selectedReq.description}</p>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Description</h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{selectedReq.description}</p>
             </div>
 
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Owner</h4>
-              <p className="text-sm text-gray-700">{selectedReq.owner}</p>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Owner</h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{selectedReq.owner}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Last Audit</h4>
-                <p className="text-sm text-gray-700">{selectedReq.lastAudit}</p>
+                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Last Audit</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{selectedReq.lastAudit}</p>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Next Review</h4>
-                <p className={`text-sm ${new Date(selectedReq.nextReview) < new Date() ? 'text-red-600 font-semibold' : 'text-gray-700'}`}>
+                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Next Review</h4>
+                <p className={`text-sm ${new Date(selectedReq.nextReview) < new Date() ? 'text-red-600 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>
                   {selectedReq.nextReview}
                 </p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Open Findings</h4>
-              <p className="text-2xl font-bold text-gray-900">{selectedReq.findings}</p>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Open Findings</h4>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedReq.findings}</p>
             </div>
 
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Evidence</h4>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Evidence</h4>
               <div className="space-y-1">
                 {selectedReq.evidence.map((e, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <div key={i} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <FileCheck className="h-4 w-4 text-indigo-500" />
-                    <span className="text-sm text-gray-700">{e}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{e}</span>
                   </div>
                 ))}
               </div>
@@ -460,8 +460,8 @@ export default function ComplianceTrackerClient() {
 
             {selectedReq.notes && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Notes</h4>
-                <p className="text-sm text-gray-700 bg-amber-50 p-3 rounded-lg border border-amber-100">{selectedReq.notes}</p>
+                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Notes</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300 bg-amber-50 p-3 rounded-lg border border-amber-100">{selectedReq.notes}</p>
               </div>
             )}
           </div>

@@ -17,7 +17,7 @@ interface Template {
 }
 
 const CATEGORIES = ['AS9100D', 'AS9102_FAI', 'NADCAP', 'CONFIGURATION', 'SAFETY', 'MRO', 'AUDIT', 'GENERAL'];
-const catColor = (c: string) => c === 'AS9100D' ? 'bg-indigo-100 text-indigo-700' : c === 'NADCAP' ? 'bg-purple-100 text-purple-700' : c === 'AS9102_FAI' ? 'bg-blue-100 text-blue-700' : c === 'SAFETY' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700';
+const catColor = (c: string) => c === 'AS9100D' ? 'bg-indigo-100 text-indigo-700' : c === 'NADCAP' ? 'bg-purple-100 text-purple-700' : c === 'AS9102_FAI' ? 'bg-blue-100 text-blue-700' : c === 'SAFETY' ? 'bg-red-100 text-red-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700';
 
 export default function TemplatesPage() {
   const [items, setItems] = useState<Template[]>([]);
@@ -43,11 +43,11 @@ export default function TemplatesPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <div><h1 className="text-3xl font-bold text-gray-900">Templates</h1><p className="text-gray-500 mt-1">AS9100D / AS9102 / NADCAP document templates</p></div>
+          <div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Templates</h1><p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D / AS9102 / NADCAP document templates</p></div>
         </div>
 
         <div className="flex gap-3 mb-6">
-          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" /><input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
+          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
           <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
             <option value="">All Categories</option>{CATEGORIES.map(c => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
           </select>
@@ -62,10 +62,10 @@ export default function TemplatesPage() {
                     <FileText className="h-8 w-8 text-indigo-600 mt-0.5" />
                     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${catColor(item.category)}`}>{item.category.replace(/_/g, ' ')}</span>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3 line-clamp-2">{item.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{item.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{item.description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">v{item.version} · {item.format}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">v{item.version} · {item.format}</span>
                     {item.downloadUrl && (
                       <a href={item.downloadUrl} className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700">
                         <Download className="h-3 w-3" /> Download
@@ -77,7 +77,7 @@ export default function TemplatesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 text-gray-500"><FileText className="h-12 w-12 mx-auto mb-4 opacity-30" /><p className="text-lg">No templates found</p><p className="text-sm mt-1">Templates will appear here when added to the system</p></div>
+          <div className="text-center py-16 text-gray-500 dark:text-gray-400"><FileText className="h-12 w-12 mx-auto mb-4 opacity-30" /><p className="text-lg">No templates found</p><p className="text-sm mt-1">Templates will appear here when added to the system</p></div>
         )}
       </div>
     </div>

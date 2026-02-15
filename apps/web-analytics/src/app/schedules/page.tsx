@@ -34,7 +34,7 @@ const MOCK_SCHEDULES: ScheduleItem[] = [
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
   PAUSED: 'bg-yellow-100 text-yellow-700',
-  DISABLED: 'bg-gray-100 text-gray-500',
+  DISABLED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
   FAILED: 'bg-red-100 text-red-700',
 };
 
@@ -47,7 +47,7 @@ const FREQ_COLORS: Record<string, string> = {
 };
 
 function SuccessRate({ success, total }: { success: number; total: number }) {
-  if (total === 0) return <span className="text-xs text-gray-400">No runs yet</span>;
+  if (total === 0) return <span className="text-xs text-gray-400 dark:text-gray-500">No runs yet</span>;
   const pct = Math.round((success / total) * 100);
   return (
     <span className={`text-xs font-medium ${pct >= 90 ? 'text-green-600' : pct >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -120,8 +120,8 @@ export default function SchedulesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Report Schedules</h1>
-            <p className="text-gray-500 mt-1">Automate report generation and delivery to recipients</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Report Schedules</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Automate report generation and delivery to recipients</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -148,7 +148,7 @@ export default function SchedulesPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search schedules..."
@@ -178,7 +178,7 @@ export default function SchedulesPage() {
           </CardHeader>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p>No schedules found.</p>
               </div>
@@ -186,53 +186,53 @@ export default function SchedulesPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Schedule</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Frequency</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Cron</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Next Run</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Last Run</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Success Rate</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Recipients</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Schedule</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Frequency</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Cron</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Next Run</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Last Run</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Success Rate</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recipients</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(sched => (
-                      <tr key={sched.id} className={`border-b hover:bg-gray-50 ${sched.status === 'PAUSED' ? 'opacity-70' : ''}`}>
+                      <tr key={sched.id} className={`border-b hover:bg-gray-50 dark:bg-gray-800 ${sched.status === 'PAUSED' ? 'opacity-70' : ''}`}>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-gray-900">{sched.name}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{sched.reportName} · {sched.format}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{sched.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sched.reportName} · {sched.format}</p>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${FREQ_COLORS[sched.frequency] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${FREQ_COLORS[sched.frequency] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {sched.frequency}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-700">{sched.cronExpression}</code>
+                          <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">{sched.cronExpression}</code>
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
                           {sched.nextRun ? (
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {new Date(sched.nextRun).toLocaleString()}
                             </span>
-                          ) : <span className="text-gray-300">Paused</span>}
+                          ) : <span className="text-gray-300 dark:text-gray-600">Paused</span>}
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
-                          {sched.lastRun ? new Date(sched.lastRun).toLocaleString() : <span className="text-gray-300">Never</span>}
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+                          {sched.lastRun ? new Date(sched.lastRun).toLocaleString() : <span className="text-gray-300 dark:text-gray-600">Never</span>}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <SuccessRate success={sched.successCount} total={sched.successCount + sched.failureCount} />
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
+                        <td className="py-3 px-4 text-xs text-gray-500 dark:text-gray-400">
                           <p>{sched.recipients.length} recipient{sched.recipients.length !== 1 ? 's' : ''}</p>
-                          <p className="text-gray-400 truncate max-w-[140px]">{sched.recipients[0]}</p>
+                          <p className="text-gray-400 dark:text-gray-500 truncate max-w-[140px]">{sched.recipients[0]}</p>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[sched.status] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[sched.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {sched.status}
                           </span>
                         </td>
@@ -261,20 +261,20 @@ export default function SchedulesPage() {
         {/* Create Schedule Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Add Schedule</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Schedule</h2>
                 <button onClick={() => setShowCreateModal(false)}>
-                  <XCircle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Schedule Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Schedule Name</label>
                   <input type="text" placeholder="e.g. Weekly Safety Digest" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Report</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report</label>
                   <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                     <option>H&S Performance Dashboard</option>
                     <option>Q1 2026 Compliance Summary</option>
@@ -283,7 +283,7 @@ export default function SchedulesPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frequency</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>Daily</option>
                       <option>Weekly</option>
@@ -293,7 +293,7 @@ export default function SchedulesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                       <option>PDF</option>
                       <option>XLSX</option>
@@ -301,12 +301,12 @@ export default function SchedulesPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Recipients (comma-separated emails)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipients (comma-separated emails)</label>
                   <input type="text" placeholder="alice@company.com, bob@company.com" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancel</button>
+                <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">Create Schedule</button>
               </div>
             </div>

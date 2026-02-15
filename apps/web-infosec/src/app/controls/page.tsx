@@ -18,7 +18,7 @@ interface Control {
 }
 
 const statusColors: Record<string, string> = {
-  NOT_STARTED: 'bg-gray-100 text-gray-700',
+  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   PARTIAL: 'bg-yellow-100 text-yellow-700',
   IMPLEMENTED: 'bg-green-100 text-green-700',
   NOT_APPLICABLE: 'bg-blue-100 text-blue-700',
@@ -114,8 +114,8 @@ export default function ControlsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Annex A Controls</h1>
-          <p className="text-gray-500 mt-1">ISO 27001:2022 Annex A control implementation tracking</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Annex A Controls</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 27001:2022 Annex A control implementation tracking</p>
         </div>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
@@ -125,7 +125,7 @@ export default function ControlsPage() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search controls..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -147,8 +147,8 @@ export default function ControlsPage() {
             return (
               <Card key={s}>
                 <CardContent className="pt-4 pb-4 text-center">
-                  <p className="text-2xl font-bold text-gray-900">{count}</p>
-                  <p className="text-xs text-gray-500">{s.replace(/_/g, ' ')}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{s.replace(/_/g, ' ')}</p>
                 </CardContent>
               </Card>
             );
@@ -163,29 +163,29 @@ export default function ControlsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Control ID</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Domain</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Applicable</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Owner</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Control ID</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Domain</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Applicable</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((control) => (
-                      <tr key={control.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => openEditModal(control)}>
+                      <tr key={control.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => openEditModal(control)}>
                         <td className="py-3 px-4 font-mono text-xs text-gray-600">{control.controlId}</td>
-                        <td className="py-3 px-4 text-gray-900 font-medium">{control.title}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{control.title}</td>
                         <td className="py-3 px-4 text-gray-600">{control.domain}</td>
                         <td className="py-3 px-4">
                           {control.applicability ? (
                             <Badge className="bg-green-100 text-green-700">Yes</Badge>
                           ) : (
-                            <Badge className="bg-gray-100 text-gray-500">No</Badge>
+                            <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">No</Badge>
                           )}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[control.implementationStatus] || 'bg-gray-100 text-gray-700'}>{control.implementationStatus.replace(/_/g, ' ')}</Badge>
+                          <Badge className={statusColors[control.implementationStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{control.implementationStatus.replace(/_/g, ' ')}</Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{control.owner || '-'}</td>
                       </tr>
@@ -194,7 +194,7 @@ export default function ControlsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No controls found</p>
               </div>
@@ -206,26 +206,26 @@ export default function ControlsPage() {
       <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title={`Edit Control: ${editingControl?.controlId || ''}`} size="lg">
         {editingControl && (
           <div className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="font-medium text-gray-900">{editingControl.title}</p>
-              <p className="text-sm text-gray-500 mt-1">{editingControl.domain}</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <p className="font-medium text-gray-900 dark:text-gray-100">{editingControl.title}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{editingControl.domain}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Implementation Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Implementation Status</label>
               <select value={editForm.implementationStatus} onChange={(e) => setEditForm({ ...editForm, implementationStatus: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
                 {statuses.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
               <input type="text" value={editForm.owner} onChange={(e) => setEditForm({ ...editForm, owner: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Implementation Notes</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Implementation Notes</label>
               <textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} rows={3} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Evidence</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Evidence</label>
               <textarea value={editForm.evidence} onChange={(e) => setEditForm({ ...editForm, evidence: e.target.value })} rows={3} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Reference to evidence documents..." />
             </div>
           </div>

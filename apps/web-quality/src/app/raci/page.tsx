@@ -101,8 +101,8 @@ export default function RaciPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">RACI Matrix</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 §5.3 — Organizational roles, responsibilities and authorities</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">RACI Matrix</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 §5.3 — Organizational roles, responsibilities and authorities</p>
         </div>
         <div className="flex gap-2">
           <div className="flex rounded-lg border overflow-hidden">
@@ -125,21 +125,21 @@ export default function RaciPage() {
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               {Object.keys(matrix).length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No RACI entries. Add entries to see the matrix.</div>
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">No RACI entries. Add entries to see the matrix.</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                     <tr>
-                      <th className="text-left p-3 font-medium text-gray-700 min-w-[200px]">Process / Activity</th>
-                      {roles.map(role => <th key={role} className="text-center p-3 font-medium text-gray-700 min-w-[100px]">{role}</th>)}
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300 min-w-[200px]">Process / Activity</th>
+                      {roles.map(role => <th key={role} className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 min-w-[100px]">{role}</th>)}
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {Object.entries(matrix).map(([process, activities]) => (
                       Object.entries(activities).map(([activity, entries], idx) => (
-                        <tr key={`${process}-${activity}`} className="hover:bg-gray-50">
+                        <tr key={`${process}-${activity}`} className="hover:bg-gray-50 dark:bg-gray-800">
                           <td className="p-3">
-                            {idx === 0 && <div className="font-semibold text-gray-900 mb-1">{process}</div>}
+                            {idx === 0 && <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{process}</div>}
                             <div className="text-gray-600 pl-4">{activity}</div>
                           </td>
                           {roles.map(role => {
@@ -150,7 +150,7 @@ export default function RaciPage() {
                                   <Badge variant={raciColors[match.raciType] as any}>
                                     {raciLetters[match.raciType]}
                                   </Badge>
-                                ) : <span className="text-gray-300">—</span>}
+                                ) : <span className="text-gray-300 dark:text-gray-600">—</span>}
                               </td>
                             );
                           })}
@@ -167,7 +167,7 @@ export default function RaciPage() {
         <>
           <div className="flex gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input placeholder="Search processes, activities, roles..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
             </div>
             <Button variant="outline" onClick={fetchItems}><RefreshCw className="h-4 w-4" /></Button>
@@ -177,23 +177,23 @@ export default function RaciPage() {
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                     <tr>
-                      <th className="text-left p-3 font-medium text-gray-700">Process</th>
-                      <th className="text-left p-3 font-medium text-gray-700">Activity</th>
-                      <th className="text-left p-3 font-medium text-gray-700">Role</th>
-                      <th className="text-left p-3 font-medium text-gray-700">Person</th>
-                      <th className="text-left p-3 font-medium text-gray-700">RACI</th>
-                      <th className="text-left p-3 font-medium text-gray-700">Actions</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Process</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Activity</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Role</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Person</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">RACI</th>
+                      <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {loading ? (
-                      <tr><td colSpan={6} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                      <tr><td colSpan={6} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                     ) : items.length === 0 ? (
-                      <tr><td colSpan={6} className="p-8 text-center text-gray-500">No entries found</td></tr>
+                      <tr><td colSpan={6} className="p-8 text-center text-gray-500 dark:text-gray-400">No entries found</td></tr>
                     ) : items.map(item => (
-                      <tr key={item.id} className="hover:bg-gray-50">
+                      <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800">
                         <td className="p-3 font-medium">{item.processName}</td>
                         <td className="p-3 text-gray-600">{item.activityName}</td>
                         <td className="p-3 text-gray-600">{item.roleName}</td>

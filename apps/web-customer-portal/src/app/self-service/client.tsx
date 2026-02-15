@@ -62,11 +62,11 @@ const ticketStatus: Record<string, { label: string; color: string }> = {
   open: { label: 'Open', color: 'bg-blue-100 text-blue-700' },
   'in-progress': { label: 'In Progress', color: 'bg-amber-100 text-amber-700' },
   resolved: { label: 'Resolved', color: 'bg-green-100 text-green-700' },
-  closed: { label: 'Closed', color: 'bg-gray-100 text-gray-600' },
+  closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
 };
 
 const orderStatus: Record<string, { label: string; color: string; step: number }> = {
-  pending: { label: 'Pending', color: 'bg-gray-100 text-gray-600', step: 1 },
+  pending: { label: 'Pending', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', step: 1 },
   confirmed: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700', step: 2 },
   'in-production': { label: 'In Production', color: 'bg-amber-100 text-amber-700', step: 3 },
   shipped: { label: 'Shipped', color: 'bg-purple-100 text-purple-700', step: 4 },
@@ -92,14 +92,14 @@ export default function SelfServiceClient() {
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Customer Self-Service</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back — manage your orders, tickets, and documents</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Customer Self-Service</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Welcome back — manage your orders, tickets, and documents</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
         {tabs.map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}>
             {tab.icon}{tab.label}
           </button>
         ))}
@@ -108,48 +108,48 @@ export default function SelfServiceClient() {
       {activeTab === 'overview' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Open Tickets</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Open Tickets</p>
               <p className="text-3xl font-bold text-blue-700 mt-1">{openTickets}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Active Orders</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active Orders</p>
               <p className="text-3xl font-bold text-amber-700 mt-1">{activeOrders}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Order Value</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">£{(totalOrderValue / 1000).toFixed(0)}k</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Order Value</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">£{(totalOrderValue / 1000).toFixed(0)}k</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-medium">Documents</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{documents.length}</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Documents</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{documents.length}</p>
             </div>
           </div>
 
           {/* Recent Activity */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Recent Tickets</h3>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Recent Tickets</h3>
               <div className="space-y-2">
                 {tickets.slice(0, 3).map((t) => (
-                  <div key={t.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                  <div key={t.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 line-clamp-1">{t.subject}</p>
-                      <p className="text-xs text-gray-500">{t.created}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1">{t.subject}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{t.created}</p>
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ticketStatus[t.status].color}`}>{ticketStatus[t.status].label}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Active Orders</h3>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Active Orders</h3>
               <div className="space-y-2">
                 {orders.filter((o) => o.status !== 'delivered').map((o) => (
-                  <div key={o.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                  <div key={o.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{o.orderNumber}</p>
-                      <p className="text-xs text-gray-500">£{o.total.toLocaleString()} · Due {o.expectedDelivery}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{o.orderNumber}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">£{o.total.toLocaleString()} · Due {o.expectedDelivery}</p>
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${orderStatus[o.status].color}`}>{orderStatus[o.status].label}</span>
                   </div>
@@ -161,25 +161,25 @@ export default function SelfServiceClient() {
       )}
 
       {activeTab === 'tickets' && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Subject</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Category</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Priority</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Last Update</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Subject</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Category</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Priority</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Last Update</th>
               </tr>
             </thead>
             <tbody>
               {tickets.map((t) => (
-                <tr key={t.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.subject}</td>
+                <tr key={t.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{t.subject}</td>
                   <td className="px-4 py-3 text-gray-600 text-xs">{t.category}</td>
-                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${t.priority === 'high' ? 'bg-red-100 text-red-700' : t.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>{t.priority}</span></td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${t.priority === 'high' ? 'bg-red-100 text-red-700' : t.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}`}>{t.priority}</span></td>
                   <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ticketStatus[t.status].color}`}>{ticketStatus[t.status].label}</span></td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{t.lastUpdate}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{t.lastUpdate}</td>
                 </tr>
               ))}
             </tbody>
@@ -192,18 +192,18 @@ export default function SelfServiceClient() {
           {orders.map((o) => {
             const step = orderStatus[o.status].step;
             return (
-              <div key={o.id} className="bg-white border border-gray-200 rounded-xl p-4">
+              <div key={o.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">{o.orderNumber}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{o.orderNumber}</p>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${orderStatus[o.status].color}`}>{orderStatus[o.status].label}</span>
                     </div>
-                    <p className="text-sm text-gray-500">{o.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{o.description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">£{o.total.toLocaleString()}</p>
-                    <p className="text-xs text-gray-400">{o.items} items</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">£{o.total.toLocaleString()}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{o.items} items</p>
                   </div>
                 </div>
                 {/* Progress Steps */}
@@ -211,11 +211,11 @@ export default function SelfServiceClient() {
                   {['Pending', 'Confirmed', 'In Production', 'Shipped', 'Delivered'].map((s, i) => (
                     <div key={s} className="flex-1">
                       <div className={`h-2 rounded-full ${i + 1 <= step ? 'bg-blue-500' : 'bg-gray-200'}`} />
-                      <p className="text-xs text-gray-400 mt-1 text-center">{s}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-center">{s}</p>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                   <span>Ordered: {o.orderDate}</span>
                   <span>Expected: {o.expectedDelivery}</span>
                 </div>
@@ -226,24 +226,24 @@ export default function SelfServiceClient() {
       )}
 
       {activeTab === 'documents' && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Document</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-24">Type</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-20">Size</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500 w-28">Date</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-500 w-20">Action</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Document</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-24">Type</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-20">Size</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-28">Date</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-20">Action</th>
               </tr>
             </thead>
             <tbody>
               {documents.map((d) => (
-                <tr key={d.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3"><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-blue-500" /><span className="font-medium text-gray-900">{d.name}</span></div></td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{d.type}</td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{d.size}</td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{d.uploadDate}</td>
+                <tr key={d.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="px-4 py-3"><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-blue-500" /><span className="font-medium text-gray-900 dark:text-gray-100">{d.name}</span></div></td>
+                  <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{d.type}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{d.size}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{d.uploadDate}</td>
                   <td className="px-4 py-3 text-center">
                     <button className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><Download className="h-4 w-4" /></button>
                   </td>

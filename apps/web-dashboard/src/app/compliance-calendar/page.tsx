@@ -128,15 +128,15 @@ export default function ComplianceCalendarPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Compliance Calendar</h1>
-              <p className="text-gray-500 mt-1">Upcoming audits, reviews, inspections and deadlines</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Compliance Calendar</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Upcoming audits, reviews, inspections and deadlines</p>
             </div>
             <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
               <Plus className="h-4 w-4" />
@@ -158,8 +158,8 @@ export default function ComplianceCalendarPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
                       </div>
                       <div className={`p-2 rounded-full bg-${stat.color}-100`}>
                         <Icon className={`h-5 w-5 text-${stat.color}-600`} />
@@ -178,10 +178,10 @@ export default function ComplianceCalendarPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{MONTHS[month]} {year}</CardTitle>
                   <div className="flex items-center gap-2">
-                    <button onClick={prevMonth} className="p-1.5 rounded hover:bg-gray-100">
+                    <button onClick={prevMonth} className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
                       <ChevronLeft className="h-4 w-4 text-gray-600" />
                     </button>
-                    <button onClick={nextMonth} className="p-1.5 rounded hover:bg-gray-100">
+                    <button onClick={nextMonth} className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
                       <ChevronRight className="h-4 w-4 text-gray-600" />
                     </button>
                   </div>
@@ -191,7 +191,7 @@ export default function ComplianceCalendarPage() {
                 {/* Day headers */}
                 <div className="grid grid-cols-7 mb-2">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                    <div key={d} className="text-center text-xs font-medium text-gray-400 py-1">{d}</div>
+                    <div key={d} className="text-center text-xs font-medium text-gray-400 dark:text-gray-500 py-1">{d}</div>
                   ))}
                 </div>
                 {/* Calendar grid */}
@@ -217,7 +217,7 @@ export default function ComplianceCalendarPage() {
                           'border-transparent hover:bg-gray-50'
                         }`}
                       >
-                        <span className={`text-xs font-medium block text-right ${isToday ? 'text-white' : 'text-gray-700'}`}>
+                        <span className={`text-xs font-medium block text-right ${isToday ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                           {day}
                         </span>
                         <div className="mt-0.5 space-y-0.5 overflow-hidden">
@@ -234,7 +234,7 @@ export default function ComplianceCalendarPage() {
                             </div>
                           ))}
                           {dayEvents.length > 2 && (
-                            <div className="text-[9px] text-gray-400 px-1">+{dayEvents.length - 2} more</div>
+                            <div className="text-[9px] text-gray-400 dark:text-gray-500 px-1">+{dayEvents.length - 2} more</div>
                           )}
                         </div>
                       </div>
@@ -244,19 +244,19 @@ export default function ComplianceCalendarPage() {
 
                 {/* Selected day events */}
                 {selectedEvents && selectedEvents.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <p className="text-sm font-medium text-gray-700 mb-3">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Events on {new Date(selectedDate!).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                     <div className="space-y-2">
                       {selectedEvents.map(ev => (
-                        <div key={ev.id} className="flex items-start gap-3 p-2 rounded-lg bg-gray-50">
+                        <div key={ev.id} className="flex items-start gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
                           <span className={`text-xs px-2 py-0.5 rounded font-medium whitespace-nowrap mt-0.5 ${TYPE_COLORS[ev.type]}`}>
                             {ev.type}
                           </span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{ev.title}</p>
-                            <p className="text-xs text-gray-500">{ev.module} · {ev.assignee}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{ev.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{ev.module} · {ev.assignee}</p>
                           </div>
                           <span className={`text-xs px-2 py-0.5 rounded font-medium whitespace-nowrap ${STATUS_COLORS[ev.status]}`}>
                             {ev.status}
@@ -277,7 +277,7 @@ export default function ComplianceCalendarPage() {
                   <select
                     value={statusFilter}
                     onChange={e => setStatusFilter(e.target.value)}
-                    className="text-xs border border-gray-200 rounded px-2 py-1 font-normal"
+                    className="text-xs border border-gray-200 dark:border-gray-700 rounded px-2 py-1 font-normal"
                   >
                     <option value="">All</option>
                     <option value="OVERDUE">Overdue</option>
@@ -290,13 +290,13 @@ export default function ComplianceCalendarPage() {
               <CardContent>
                 <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                   {filteredEvents.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">No events found.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No events found.</p>
                   ) : filteredEvents.map(ev => (
-                    <div key={ev.id} className="p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                    <div key={ev.id} className="p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:border-gray-700 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{ev.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{ev.module}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{ev.title}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ev.module}</p>
                         </div>
                         <span className={`text-xs px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${STATUS_COLORS[ev.status]}`}>
                           {ev.status === 'OVERDUE' ? 'Overdue' : ev.status === 'COMPLETED' ? 'Done' : ev.status === 'IN_PROGRESS' ? 'Active' : 'Upcoming'}
@@ -306,8 +306,8 @@ export default function ComplianceCalendarPage() {
                         <span className={`text-xs px-1.5 py-0.5 rounded border font-medium ${TYPE_COLORS[ev.type]}`}>
                           {ev.type}
                         </span>
-                        <Clock className="h-3 w-3 text-gray-300" />
-                        <span className="text-xs text-gray-500">
+                        <Clock className="h-3 w-3 text-gray-300 dark:text-gray-600" />
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(ev.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                         </span>
                       </div>

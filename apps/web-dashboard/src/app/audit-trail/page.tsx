@@ -38,11 +38,11 @@ const ACTION_COLORS: Record<string, string> = {
   UPDATE: 'bg-blue-100 text-blue-700',
   DELETE: 'bg-red-100 text-red-700',
   LOGIN: 'bg-purple-100 text-purple-700',
-  LOGOUT: 'bg-gray-100 text-gray-700',
+  LOGOUT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   APPROVE: 'bg-emerald-100 text-emerald-700',
   REJECT: 'bg-red-100 text-red-700',
   EXPORT: 'bg-amber-100 text-amber-700',
-  VIEW: 'bg-gray-100 text-gray-500',
+  VIEW: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const MOCK_ENTRIES: AuditEntry[] = [
@@ -124,17 +124,17 @@ export default function AuditTrailPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
       <Sidebar />
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Audit Trail</h1>
-              <p className="text-gray-500 mt-1">Complete activity log across all IMS modules</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Audit Trail</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Complete activity log across all IMS modules</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Download className="h-4 w-4" />
               Export CSV
             </button>
@@ -160,7 +160,7 @@ export default function AuditTrailPage() {
             <CardContent className="pt-4 pb-4">
               <div className="flex flex-wrap gap-3">
                 <div className="relative flex-1 min-w-48">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search events, users, IDs..."
@@ -201,52 +201,52 @@ export default function AuditTrailPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Timestamp</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Action</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Module</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Description</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">User</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">IP</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Timestamp</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Action</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Module</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">Description</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">User</th>
+                      <th className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">IP</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginated.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-12 text-center text-gray-500">No audit entries match your filters.</td>
+                        <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">No audit entries match your filters.</td>
                       </tr>
                     ) : paginated.map(entry => (
-                      <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-500 whitespace-nowrap">
+                      <tr key={entry.id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                           <div className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5 text-gray-300" />
+                            <Clock className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
                             <span>{timeAgo(entry.createdAt)}</span>
                           </div>
-                          <div className="text-xs text-gray-400 mt-0.5">
+                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                             {new Date(entry.createdAt).toLocaleString()}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${ACTION_COLORS[entry.action] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${ACTION_COLORS[entry.action] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {entry.action}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${MODULE_COLORS[entry.module] || 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${MODULE_COLORS[entry.module] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                             {entry.module}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-700">
+                        <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
                           <div className="font-medium">{entry.description}</div>
-                          <div className="text-xs text-gray-400">{entry.entityType} · {entry.entityId}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">{entry.entityType} · {entry.entityId}</div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5">
-                            <User className="h-3.5 w-3.5 text-gray-400" />
-                            <span className="text-gray-700">{entry.userName}</span>
+                            <User className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                            <span className="text-gray-700 dark:text-gray-300">{entry.userName}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-400 font-mono text-xs">{entry.ipAddress}</td>
+                        <td className="py-3 px-4 text-gray-400 dark:text-gray-500 font-mono text-xs">{entry.ipAddress}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -255,23 +255,23 @@ export default function AuditTrailPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-                  <p className="text-sm text-gray-500">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
                   </p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="p-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+                      className="p-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <span className="text-sm text-gray-700">Page {page} of {totalPages}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Page {page} of {totalPages}</span>
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
-                      className="p-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+                      className="p-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>

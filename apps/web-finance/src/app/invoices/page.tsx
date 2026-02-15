@@ -37,7 +37,7 @@ interface Customer {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SENT: 'bg-blue-100 text-blue-700',
   PARTIALLY_PAID: 'bg-amber-100 text-amber-700',
   PAID: 'bg-green-100 text-green-700',
@@ -202,8 +202,8 @@ export default function InvoicesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
-            <p className="text-gray-500 mt-1">Manage customer invoices and receivables</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Invoices</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage customer invoices and receivables</p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Invoice
@@ -219,7 +219,7 @@ export default function InvoicesPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search invoices..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
@@ -249,40 +249,40 @@ export default function InvoicesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Customer</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Issue Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Due Date</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Total</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Amount Due</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Customer</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Issue Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due Date</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount Due</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredInvoices.map((inv) => (
-                      <tr key={inv.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-gray-900">{inv.reference}</td>
-                        <td className="py-3 px-4 text-gray-900">{inv.customer?.name || inv.customerName || '-'}</td>
+                      <tr key={inv.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{inv.reference}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{inv.customer?.name || inv.customerName || '-'}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(inv.issueDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-gray-600">{new Date(inv.dueDate).toLocaleDateString()}</td>
                         <td className="py-3 px-4 text-right font-medium">{formatCurrency(inv.total)}</td>
                         <td className="py-3 px-4 text-right font-medium text-red-600">{formatCurrency(inv.amountDue)}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[inv.status] || 'bg-gray-100 text-gray-700'}>{inv.status}</Badge>
+                          <Badge className={statusColors[inv.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{inv.status}</Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewInvoice(inv); setViewModalOpen(true); }} className="text-gray-400 hover:text-indigo-600">
+                            <button onClick={() => { setViewInvoice(inv); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600">
                               <Eye className="h-4 w-4" />
                             </button>
                             {inv.status === 'DRAFT' && (
-                              <button onClick={() => handleSend(inv.id)} className="text-gray-400 hover:text-blue-600">
+                              <button onClick={() => handleSend(inv.id)} className="text-gray-400 dark:text-gray-500 hover:text-blue-600">
                                 <Send className="h-4 w-4" />
                               </button>
                             )}
                             {(inv.status === 'DRAFT' || inv.status === 'SENT') && (
-                              <button onClick={() => handleVoid(inv.id)} className="text-gray-400 hover:text-red-600">
+                              <button onClick={() => handleVoid(inv.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             )}
@@ -294,7 +294,7 @@ export default function InvoicesPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No invoices found</p>
               </div>
@@ -337,11 +337,11 @@ export default function InvoicesPage() {
             </div>
             <table className="w-full text-sm border">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">Description</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-24">Qty</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Unit Price</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 w-32">Amount</th>
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-24">Qty</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Unit Price</th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400 w-32">Amount</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -365,7 +365,7 @@ export default function InvoicesPage() {
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t bg-gray-50 font-medium">
+                <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
                   <td colSpan={3} className="py-2 px-3 text-right">Total:</td>
                   <td className="py-2 px-3 text-right">{formatCurrency(invoiceTotal)}</td>
                   <td></td>
@@ -385,21 +385,21 @@ export default function InvoicesPage() {
         {viewInvoice && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Customer</p><p className="font-medium">{viewInvoice.customer?.name || viewInvoice.customerName}</p></div>
-              <div><p className="text-sm text-gray-500">Issue Date</p><p className="font-medium">{new Date(viewInvoice.issueDate).toLocaleDateString()}</p></div>
-              <div><p className="text-sm text-gray-500">Due Date</p><p className="font-medium">{new Date(viewInvoice.dueDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Customer</p><p className="font-medium">{viewInvoice.customer?.name || viewInvoice.customerName}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Issue Date</p><p className="font-medium">{new Date(viewInvoice.issueDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Due Date</p><p className="font-medium">{new Date(viewInvoice.dueDate).toLocaleDateString()}</p></div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div><p className="text-sm text-gray-500">Total</p><p className="font-medium">{formatCurrency(viewInvoice.total)}</p></div>
-              <div><p className="text-sm text-gray-500">Paid</p><p className="font-medium text-green-600">{formatCurrency(viewInvoice.amountPaid || 0)}</p></div>
-              <div><p className="text-sm text-gray-500">Due</p><p className="font-medium text-red-600">{formatCurrency(viewInvoice.amountDue)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Total</p><p className="font-medium">{formatCurrency(viewInvoice.total)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Paid</p><p className="font-medium text-green-600">{formatCurrency(viewInvoice.amountPaid || 0)}</p></div>
+              <div><p className="text-sm text-gray-500 dark:text-gray-400">Due</p><p className="font-medium text-red-600">{formatCurrency(viewInvoice.amountDue)}</p></div>
             </div>
             <div>
               <Badge className={statusColors[viewInvoice.status]}>{viewInvoice.status}</Badge>
             </div>
             {viewInvoice.lines && viewInvoice.lines.length > 0 && (
               <table className="w-full text-sm border">
-                <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
+                <thead><tr className="bg-gray-50 dark:bg-gray-800"><th className="text-left py-2 px-3">Description</th><th className="text-right py-2 px-3">Qty</th><th className="text-right py-2 px-3">Unit Price</th><th className="text-right py-2 px-3">Amount</th></tr></thead>
                 <tbody>
                   {viewInvoice.lines.map((line, idx) => (
                     <tr key={idx} className="border-t">

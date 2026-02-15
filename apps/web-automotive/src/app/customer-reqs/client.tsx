@@ -141,7 +141,7 @@ const REQ_STATUS_CONFIG = {
   compliant:       { label: 'Compliant',       bg: 'bg-green-100',  text: 'text-green-700',  icon: CheckCircle2 },
   'in-progress':   { label: 'In Progress',     bg: 'bg-blue-100',   text: 'text-blue-700',   icon: Clock },
   'non-compliant': { label: 'Non-Compliant',   bg: 'bg-red-100',    text: 'text-red-700',    icon: XCircle },
-  'not-applicable':{ label: 'N/A',             bg: 'bg-gray-100',   text: 'text-gray-500',   icon: XCircle },
+  'not-applicable':{ label: 'N/A',             bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-500 dark:text-gray-400',   icon: XCircle },
 };
 
 function ComplianceBar({ level }: { level: number }) {
@@ -173,12 +173,12 @@ export default function CustomerReqsClient() {
   const totalNonCompliant = MOCK_CUSTOMER_REQS.reduce((s, r) => s + r.requirements.filter(req => req.status === 'non-compliant').length, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Customer-Specific Requirements</h1>
-            <p className="text-sm text-gray-500 mt-0.5">IATF 16949 — Customer-Specific Requirements (CSRs) Compliance</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Customer-Specific Requirements</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">IATF 16949 — Customer-Specific Requirements (CSRs) Compliance</p>
           </div>
           <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -190,9 +190,9 @@ export default function CustomerReqsClient() {
       <div className="px-6 py-6 space-y-6">
         {/* Summary */}
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Customers Tracked</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{MOCK_CUSTOMER_REQS.length}</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Customers Tracked</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{MOCK_CUSTOMER_REQS.length}</p>
           </div>
           <div className={`rounded-lg border p-4 ${avgCompliance >= 90 ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
             <p className={`text-xs uppercase tracking-wide font-medium ${avgCompliance >= 90 ? 'text-green-600' : 'text-yellow-600'}`}>Avg Compliance</p>
@@ -211,9 +211,9 @@ export default function CustomerReqsClient() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search customer name or standard..."
@@ -231,7 +231,7 @@ export default function CustomerReqsClient() {
             const nonCompliantCount = csr.requirements.filter(r => r.status === 'non-compliant').length;
             const inProgressCount = csr.requirements.filter(r => r.status === 'in-progress').length;
             return (
-              <div key={csr.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div key={csr.id} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Card Header */}
                 <div className="px-5 py-4">
                   <div className="flex items-start gap-4">
@@ -241,8 +241,8 @@ export default function CustomerReqsClient() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-3 mb-1">
                         <div>
-                          <h3 className="font-semibold text-gray-900">{csr.customer}</h3>
-                          <p className="text-xs text-gray-500">{csr.standard}</p>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{csr.customer}</h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{csr.standard}</p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           {nonCompliantCount > 0 && (
@@ -255,15 +255,15 @@ export default function CustomerReqsClient() {
                               <Clock className="w-3 h-3" />{inProgressCount} in progress
                             </span>
                           )}
-                          <button onClick={() => setExpandedId(isExpanded ? null : csr.id)} className="p-1 rounded hover:bg-gray-100">
-                            {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-500" /> : <ChevronRight className="w-4 h-4 text-gray-500" />}
+                          <button onClick={() => setExpandedId(isExpanded ? null : csr.id)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
+                            {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
                           </button>
                         </div>
                       </div>
                       <div className="mt-2">
                         <ComplianceBar level={csr.complianceLevel} />
                       </div>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <span>{csr.requirements.length} requirements</span>
                         <span>&bull;</span>
                         <span>Contact: {csr.contactName} ({csr.contactEmail})</span>
@@ -278,7 +278,7 @@ export default function CustomerReqsClient() {
 
                 {/* Expanded Requirement Checklist */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 px-5 py-4">
+                  <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-4">
                     <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Requirements Checklist</p>
                     <div className="space-y-2">
                       {csr.requirements.map((req, idx) => {
@@ -292,14 +292,14 @@ export default function CustomerReqsClient() {
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                               {req.dueDate && (
-                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                   <Clock className="w-3 h-3" />Due {req.dueDate}
                                 </span>
                               )}
                               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${rc.bg} ${rc.text}`}>
                                 {rc.label}
                               </span>
-                              <span className="text-xs text-gray-400">{req.owner}</span>
+                              <span className="text-xs text-gray-400 dark:text-gray-500">{req.owner}</span>
                             </div>
                           </div>
                         );
@@ -313,7 +313,7 @@ export default function CustomerReqsClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 py-16 text-center text-gray-400">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 py-16 text-center text-gray-400 dark:text-gray-500">
             <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p>No customer requirements match your search</p>
           </div>

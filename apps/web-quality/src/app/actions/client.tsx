@@ -39,7 +39,7 @@ const ACTION_STATUSES = [
   { value: 'PENDING_VERIFICATION', label: 'Pending Verification', color: 'bg-purple-100 text-purple-800' },
   { value: 'VERIFIED', label: 'Verified', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 text-gray-600' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
 ] as const;
 
 const ACTION_SOURCES = [
@@ -371,8 +371,8 @@ export default function ActionsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quality Actions</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Actions</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               Track corrective, preventive, and improvement actions across the quality system
             </p>
           </div>
@@ -388,7 +388,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Actions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Actions</p>
                   <p className="text-3xl font-bold">{counts.total}</p>
                 </div>
                 <ClipboardList className="h-8 w-8 text-blue-500" />
@@ -399,7 +399,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
                   <p className="text-3xl font-bold text-blue-600">{counts.open}</p>
                 </div>
                 <Target className="h-8 w-8 text-blue-500" />
@@ -410,7 +410,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
                   <p className="text-3xl font-bold text-red-600">{counts.overdue}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-red-500" />
@@ -421,7 +421,7 @@ export default function ActionsClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed This Month</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed This Month</p>
                   <p className="text-3xl font-bold text-green-600">{counts.completedThisMonth}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -435,19 +435,19 @@ export default function ActionsClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-[220px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search actions by title, reference, assignee..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={typeFilter}
                 onChange={e => setTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
                 {ACTION_TYPES.map(t => (
@@ -457,7 +457,7 @@ export default function ActionsClient() {
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Statuses</option>
                 {ACTION_STATUSES.map(s => (
@@ -467,7 +467,7 @@ export default function ActionsClient() {
               <select
                 value={priorityFilter}
                 onChange={e => setPriorityFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Priorities</option>
                 {ACTION_PRIORITIES.map(p => (
@@ -477,7 +477,7 @@ export default function ActionsClient() {
               <select
                 value={sourceFilter}
                 onChange={e => setSourceFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Sources</option>
                 {ACTION_SOURCES.map(s => (
@@ -508,7 +508,7 @@ export default function ActionsClient() {
             {loading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-28 bg-gray-100 rounded-lg" />
+                  <div key={i} className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredActions.length > 0 ? (
@@ -521,13 +521,13 @@ export default function ActionsClient() {
                       className={`p-4 border rounded-lg transition-colors cursor-pointer ${
                         overdue
                           ? 'border-red-300 bg-red-50 hover:border-red-400'
-                          : 'border-gray-200 hover:border-blue-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="text-xs font-mono text-gray-500">
+                            <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                               {action.referenceNumber}
                             </span>
                             {getStatusBadge(action.status)}
@@ -543,13 +543,13 @@ export default function ActionsClient() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 truncate">{action.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{action.title}</h3>
                           {action.description && (
-                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                               {action.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                             {action.assignedTo && (
                               <span>Assigned: {action.assignedTo}</span>
                             )}
@@ -562,7 +562,7 @@ export default function ActionsClient() {
                           {/* Progress Bar */}
                           {action.percentComplete > 0 && (
                             <div className="mt-2">
-                              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                                 <span>Progress</span>
                                 <span>{action.percentComplete}%</span>
                               </div>
@@ -605,9 +605,9 @@ export default function ActionsClient() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <ClipboardList className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <ClipboardList className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-1">No actions found</h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
                   Create your first quality action to start tracking corrective and preventive measures.
                 </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
@@ -638,7 +638,7 @@ export default function ActionsClient() {
                 className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeSection === s.key
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
                 {s.key}. {s.label}
@@ -657,7 +657,7 @@ export default function ActionsClient() {
             {/* Section A: Action Detail */}
             {activeSection === 'A' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   A -- Action Detail
                 </div>
                 <div>
@@ -745,7 +745,7 @@ export default function ActionsClient() {
             {/* Section B: Assignment */}
             {activeSection === 'B' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   B -- Assignment
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -797,7 +797,7 @@ export default function ActionsClient() {
             {/* Section C: Progress */}
             {activeSection === 'C' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   C -- Progress
                 </div>
                 <div>
@@ -818,7 +818,7 @@ export default function ActionsClient() {
                     value={form.completionDate}
                     onChange={e => updateForm('completionDate', e.target.value)}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank until the action is actually completed.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank until the action is actually completed.</p>
                 </div>
                 <div>
                   <Label htmlFor="act-percentComplete">
@@ -834,7 +834,7 @@ export default function ActionsClient() {
                     onChange={e => updateForm('percentComplete', parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
                     <span>0%</span>
                     <span>25%</span>
                     <span>50%</span>
@@ -848,7 +848,7 @@ export default function ActionsClient() {
             {/* Section D: Verification */}
             {activeSection === 'D' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   D -- Verification
                 </div>
                 <div>
@@ -893,7 +893,7 @@ export default function ActionsClient() {
                     />
                     Action verified as effective
                   </Label>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Check this box once the action has been verified to have resolved the issue effectively.
                   </p>
                 </div>
@@ -903,10 +903,10 @@ export default function ActionsClient() {
             {/* Section E: Cross-Links */}
             {activeSection === 'E' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   E -- Cross-Links
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Link this action to related quality records for traceability.
                 </p>
                 <div className="grid grid-cols-2 gap-4">
@@ -955,7 +955,7 @@ export default function ActionsClient() {
             {/* Section F: AI Analysis */}
             {activeSection === 'F' && (
               <div className="space-y-4">
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                   F -- AI Action Analysis
                 </div>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -988,25 +988,25 @@ export default function ActionsClient() {
 
                   {aiAnalysis && (
                     <div className="space-y-3 mt-4">
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Risk Level</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Level</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.riskLevel}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Suggested Priority</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Priority</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.suggestedPriority}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Potential Impact</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Potential Impact</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.potentialImpact}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Suggested Timeline</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Timeline</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.suggestedTimeline}</p>
                       </div>
                       {aiAnalysis.recommendedActions && aiAnalysis.recommendedActions.length > 0 && (
-                        <div className="bg-white rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Recommended Steps</p>
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Recommended Steps</p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.recommendedActions.map((rec, idx) => (
                               <li key={idx}>{rec}</li>
@@ -1014,8 +1014,8 @@ export default function ActionsClient() {
                           </ul>
                         </div>
                       )}
-                      <div className="bg-white rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">Compliance Notes</p>
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
                         <p className="text-sm text-gray-800">{aiAnalysis.complianceNotes}</p>
                       </div>
                     </div>

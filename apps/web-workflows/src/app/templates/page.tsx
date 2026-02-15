@@ -102,8 +102,8 @@ export default function TemplatesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workflow Templates</h1>
-          <p className="text-gray-500 text-sm mt-1">Start from an ISO-compliant template or build from scratch</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Workflow Templates</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Start from an ISO-compliant template or build from scratch</p>
         </div>
         <a
           href="/definitions/new"
@@ -116,24 +116,24 @@ export default function TemplatesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg bg-white p-4 shadow text-center">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow text-center">
           <p className="text-2xl font-bold text-indigo-600">{templates.length}</p>
-          <p className="text-sm text-gray-500 mt-0.5">Total Templates</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Total Templates</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow text-center">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow text-center">
           <p className="text-2xl font-bold text-indigo-600">{templates.filter(t => t.isBuiltIn).length}</p>
-          <p className="text-sm text-gray-500 mt-0.5">Built-in Templates</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Built-in Templates</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow text-center">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow text-center">
           <p className="text-2xl font-bold text-indigo-600">{templates.reduce((s, t) => s + t.usageCount, 0)}</p>
-          <p className="text-sm text-gray-500 mt-0.5">Total Deployments</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Total Deployments</p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Search templates, tags..."
@@ -156,9 +156,9 @@ export default function TemplatesPage() {
 
       {/* Template Grid */}
       {filtered.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 shadow text-center">
-          <FileText className="mx-auto h-12 w-12 text-gray-300" />
-          <p className="mt-4 text-gray-500">No templates match your search.</p>
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-12 shadow text-center">
+          <FileText className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
+          <p className="mt-4 text-gray-500 dark:text-gray-400">No templates match your search.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -170,10 +170,10 @@ export default function TemplatesPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${CATEGORY_COLORS[template.category] || 'bg-gray-100 text-gray-700'}`}>
+                      <div className={`p-1.5 rounded-lg ${CATEGORY_COLORS[template.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         <Icon className="h-4 w-4" />
                       </div>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${CATEGORY_COLORS[template.category] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${CATEGORY_COLORS[template.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {template.category.replace(/_/g, ' ')}
                       </span>
                     </div>
@@ -183,31 +183,31 @@ export default function TemplatesPage() {
                   </div>
 
                   {/* Name & Code */}
-                  <h3 className="font-semibold text-gray-900">{template.name}</h3>
-                  <p className="text-xs text-gray-400 font-mono mt-0.5">{template.code}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{template.name}</h3>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{template.code}</p>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-500 mt-2 flex-1 line-clamp-3">{template.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex-1 line-clamp-3">{template.description}</p>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1 mt-3">
                     {template.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                      <span key={tag} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 px-2 py-0.5 rounded">
                         {tag}
                       </span>
                     ))}
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                       {template.estimatedDuration && (
                         <span>{template.estimatedDuration}d avg</span>
                       )}
                       <span>{template.usageCount} uses</span>
                     </div>
                     <div className="flex gap-2">
-                      <button className="flex items-center gap-1 text-xs px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 text-gray-600">
+                      <button className="flex items-center gap-1 text-xs px-2 py-1 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:bg-gray-800 text-gray-600">
                         <Download className="h-3.5 w-3.5" />
                         Preview
                       </button>

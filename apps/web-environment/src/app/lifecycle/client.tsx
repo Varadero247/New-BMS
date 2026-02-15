@@ -29,10 +29,10 @@ interface LifeCycleStage {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
+  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   IN_PROGRESS: 'bg-blue-100 text-blue-800',
   COMPLETED: 'bg-green-100 text-green-800',
-  ARCHIVED: 'bg-gray-100 text-gray-600',
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -115,16 +115,16 @@ export default function LifeCycleAssessmentPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Life Cycle Assessment</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 14001 Clause 8.1 - Life cycle perspective</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Life Cycle Assessment</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 14001 Clause 8.1 - Life cycle perspective</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}><Plus className="h-4 w-4 mr-2" /> New Assessment</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Recycle className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Total Assessments</p><p className="text-2xl font-bold">{assessments.length}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Recycle className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500">In Progress</p><p className="text-2xl font-bold">{assessments.filter(a => a.status === 'IN_PROGRESS').length}</p></div></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Recycle className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Completed</p><p className="text-2xl font-bold">{assessments.filter(a => a.status === 'COMPLETED').length}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Recycle className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Assessments</p><p className="text-2xl font-bold">{assessments.length}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-blue-100 rounded-lg"><Recycle className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p><p className="text-2xl font-bold">{assessments.filter(a => a.status === 'IN_PROGRESS').length}</p></div></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><Recycle className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500 dark:text-gray-400">Completed</p><p className="text-2xl font-bold">{assessments.filter(a => a.status === 'COMPLETED').length}</p></div></div></CardContent></Card>
       </div>
 
       {selectedAssessment ? (
@@ -133,45 +133,45 @@ export default function LifeCycleAssessmentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>{selectedAssessment.title}</CardTitle>
-                <p className="text-sm text-gray-500 mt-1">{selectedAssessment.refNumber} - {selectedAssessment.productProcess}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{selectedAssessment.refNumber} - {selectedAssessment.productProcess}</p>
               </div>
               <Button variant="outline" onClick={() => setSelectedAssessment(null)}>Back to List</Button>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center gap-2 mb-6 py-4 bg-gray-50 rounded-lg overflow-x-auto">
+            <div className="flex items-center justify-center gap-2 mb-6 py-4 bg-gray-50 dark:bg-gray-800 rounded-lg overflow-x-auto">
               {(selectedAssessment.stages || []).map((stage, i) => (
                 <div key={stage.id} className="flex items-center gap-2">
                   <button
                     onClick={() => openStageEdit(stage)}
-                    className={`px-4 py-3 rounded-lg text-sm font-medium text-center min-w-[140px] transition-colors hover:ring-2 hover:ring-green-300 ${stage.aspects ? 'bg-green-100 text-green-800' : 'bg-white text-gray-600 border'}`}
+                    className={`px-4 py-3 rounded-lg text-sm font-medium text-center min-w-[140px] transition-colors hover:ring-2 hover:ring-green-300 ${stage.aspects ? 'bg-green-100 text-green-800' : 'bg-white dark:bg-gray-900 text-gray-600 border'}`}
                   >
                     <div>{STAGE_LABELS[stage.stageName] || stage.stageName}</div>
                     {stage.severity && <Badge className={`mt-1 text-xs ${SEVERITY_COLORS[stage.severity] || ''}`}>Severity: {stage.severity}</Badge>}
                   </button>
-                  {i < (selectedAssessment.stages?.length || 0) - 1 && <ArrowRight className="h-4 w-4 text-gray-400 flex-shrink-0" />}
+                  {i < (selectedAssessment.stages?.length || 0) - 1 && <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />}
                 </div>
               ))}
             </div>
-            <p className="text-sm text-gray-500 text-center">Click a stage to edit its environmental aspects, impacts, and controls.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Click a stage to edit its environmental aspects, impacts, and controls.</p>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader><CardTitle>Assessments</CardTitle></CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 text-center py-8">Loading...</p> : assessments.length === 0 ? <p className="text-gray-500 text-center py-8">No assessments found.</p> : (
+            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : assessments.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No assessments found.</p> : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b text-left text-gray-500"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Product/Process</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
+                  <thead><tr className="border-b text-left text-gray-500 dark:text-gray-400"><th className="pb-2 pr-4">Ref</th><th className="pb-2 pr-4">Title</th><th className="pb-2 pr-4">Product/Process</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Created</th></tr></thead>
                   <tbody>
                     {assessments.map(a => (
-                      <tr key={a.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => handleSelectAssessment(a.id)}>
+                      <tr key={a.id} className="border-b hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => handleSelectAssessment(a.id)}>
                         <td className="py-3 pr-4 font-mono text-xs">{a.refNumber}</td>
                         <td className="py-3 pr-4 font-medium">{a.title}</td>
                         <td className="py-3 pr-4">{a.productProcess}</td>
-                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[a.status] || 'bg-gray-100'}>{a.status.replace(/_/g, ' ')}</Badge></td>
-                        <td className="py-3 text-gray-500">{new Date(a.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4"><Badge className={STATUS_COLORS[a.status] || 'bg-gray-100 dark:bg-gray-800'}>{a.status.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(a.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>

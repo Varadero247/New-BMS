@@ -72,8 +72,8 @@ function getPriorityColor(priority: string): string {
     case 'AOG': return 'bg-red-100 text-red-700 border-red-300';
     case 'URGENT': return 'bg-orange-100 text-orange-700 border-orange-300';
     case 'ROUTINE': return 'bg-blue-100 text-blue-700 border-blue-300';
-    case 'DEFERRED': return 'bg-gray-100 text-gray-600 border-gray-300';
-    default: return 'bg-gray-100 text-gray-600 border-gray-300';
+    case 'DEFERRED': return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
   }
 }
 
@@ -91,10 +91,10 @@ function getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'sec
 
 function getTaskStatusColor(status: string): string {
   switch (status) {
-    case 'PENDING': return 'bg-gray-100 text-gray-700 border-gray-300';
+    case 'PENDING': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
     case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700 border-blue-300';
     case 'COMPLETED': return 'bg-green-100 text-green-700 border-green-300';
-    default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -307,7 +307,7 @@ export default function WorkOrdersClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-      <span className="ml-3 text-gray-500">Loading MRO Work Orders...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading MRO Work Orders...</span>
     </div>
   );
 
@@ -323,7 +323,7 @@ export default function WorkOrdersClient() {
           <div className="mb-6">
             <button
               onClick={() => { setSelectedItem(null); fetchItems(); }}
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors mb-4"
+              className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Work Orders
@@ -332,13 +332,13 @@ export default function WorkOrdersClient() {
             {detailLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
-                <span className="ml-2 text-gray-500">Loading...</span>
+                <span className="ml-2 text-gray-500 dark:text-gray-400">Loading...</span>
               </div>
             ) : (
               <>
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900">{selectedItem.title}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{selectedItem.title}</h1>
                     <p className="text-sm font-mono text-indigo-600 mt-1">{selectedItem.refNumber}</p>
                     <div className="flex items-center gap-3 mt-2">
                       <Badge variant={getStatusVariant(selectedItem.status)}>
@@ -393,30 +393,30 @@ export default function WorkOrdersClient() {
 
                 {/* WO metadata */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Aircraft Type</p>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Aircraft Type</p>
                     <p className="text-sm font-medium mt-1">{selectedItem.aircraftType || '--'}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Aircraft Registration</p>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Aircraft Registration</p>
                     <p className="text-sm font-mono font-medium mt-1">{selectedItem.aircraftReg || '--'}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Due Date</p>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Due Date</p>
                     <p className="text-sm font-medium mt-1">
                       {selectedItem.dueDate ? new Date(selectedItem.dueDate).toLocaleDateString() : '--'}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Created</p>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                     <p className="text-sm font-medium mt-1">{new Date(selectedItem.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 
                 {/* Description */}
                 {selectedItem.description && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Description</h3>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</h3>
                     <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedItem.description}</p>
                   </div>
                 )}
@@ -441,7 +441,7 @@ export default function WorkOrdersClient() {
 
                 {/* Task Cards */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                     Tasks ({selectedItem.tasks?.length || 0})
                   </h3>
                   {selectedItem.tasks && selectedItem.tasks.length > 0 ? (
@@ -449,19 +449,19 @@ export default function WorkOrdersClient() {
                       {selectedItem.tasks.map((task) => (
                         <div
                           key={task.id}
-                          className="border border-gray-200 rounded-lg p-4 hover:border-indigo-200 transition-colors"
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-indigo-200 transition-colors"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-1">
-                                <span className="text-xs font-mono text-gray-400">#{task.taskNumber}</span>
+                                <span className="text-xs font-mono text-gray-400 dark:text-gray-500">#{task.taskNumber}</span>
                                 <span className={`inline-flex text-xs px-2 py-0.5 rounded-full border ${getTaskStatusColor(task.status)}`}>
                                   {task.status}
                                 </span>
                               </div>
-                              <p className="text-sm font-medium text-gray-900">{task.title}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{task.title}</p>
                               {task.description && (
-                                <p className="text-xs text-gray-500 mt-1">{task.description}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{task.description}</p>
                               )}
                               {task.completedAt && (
                                 <p className="text-xs text-green-600 mt-1">
@@ -485,8 +485,8 @@ export default function WorkOrdersClient() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-400 border border-dashed border-gray-200 rounded-lg">
-                      <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <div className="text-center py-12 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                      <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                       <p className="text-sm">No tasks added yet.</p>
                       <p className="text-xs mt-1">Click "Add Task" to create work order tasks.</p>
                     </div>
@@ -550,8 +550,8 @@ export default function WorkOrdersClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">MRO Work Orders</h1>
-          <p className="text-gray-500 mt-1">Maintenance, Repair & Overhaul work order management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">MRO Work Orders</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Maintenance, Repair & Overhaul work order management</p>
         </div>
 
         {/* Summary Metrics */}
@@ -560,7 +560,7 @@ export default function WorkOrdersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total WOs</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total WOs</p>
                   <p className="text-3xl font-bold">{summaryStats.total}</p>
                 </div>
                 <Wrench className="h-8 w-8 text-indigo-500" />
@@ -571,7 +571,7 @@ export default function WorkOrdersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Open</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
                   <p className="text-3xl font-bold text-amber-600">{summaryStats.open}</p>
                 </div>
                 <Clock className="h-8 w-8 text-amber-400" />
@@ -582,7 +582,7 @@ export default function WorkOrdersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">In Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
                   <p className="text-3xl font-bold text-blue-600">{summaryStats.inProgress}</p>
                 </div>
                 <Play className="h-8 w-8 text-blue-500" />
@@ -593,7 +593,7 @@ export default function WorkOrdersClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Released</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Released</p>
                   <p className="text-3xl font-bold text-green-600">{summaryStats.released}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -625,7 +625,7 @@ export default function WorkOrdersClient() {
             ))}
           </Select>
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by title, ref number, aircraft..."
               value={searchQuery}
@@ -649,34 +649,34 @@ export default function WorkOrdersClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Ref Number</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Title</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Aircraft Type</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Registration</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Priority</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Status</th>
-                      <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3"></th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref Number</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Title</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Aircraft Type</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Registration</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Priority</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
+                      <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredItems.map((item) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => fetchDetail(item.id)}
                       >
                         <td className="px-4 py-3">
                           <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-700">{item.aircraftType || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item.aircraftType || '--'}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm font-mono text-gray-700">{item.aircraftReg || '--'}</span>
+                          <span className="text-sm font-mono text-gray-700 dark:text-gray-300">{item.aircraftReg || '--'}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getPriorityColor(item.priority)}`}>
@@ -689,7 +689,7 @@ export default function WorkOrdersClient() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <ChevronRight className="h-4 w-4 text-gray-400 inline" />
+                          <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500 inline" />
                         </td>
                       </tr>
                     ))}
@@ -700,9 +700,9 @@ export default function WorkOrdersClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <Wrench className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Work Orders found</h3>
-            <p className="text-gray-500 mb-6">
+            <Wrench className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Work Orders found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Create a work order to begin tracking MRO activities.
             </p>
             <Button
@@ -717,7 +717,7 @@ export default function WorkOrdersClient() {
 
         {/* Results count */}
         {!loading && items.length > 0 && (
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredItems.length} of {items.length} work orders
           </div>
         )}
@@ -735,8 +735,8 @@ export default function WorkOrdersClient() {
               </div>
             )}
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
                 Work Order Details
               </h3>
               <div className="space-y-4">
@@ -797,7 +797,7 @@ export default function WorkOrdersClient() {
                         <option key={p} value={p}>{p}</option>
                       ))}
                     </Select>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       AOG = Aircraft on Ground (highest), DEFERRED = Scheduled later
                     </p>
                   </div>

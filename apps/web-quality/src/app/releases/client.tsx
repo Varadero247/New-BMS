@@ -111,22 +111,22 @@ export default function ReleasesPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Release Records</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 §8.6 — Release of products and services</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Release Records</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 §8.6 — Release of products and services</p>
         </div>
         <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />New Release</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500">Total</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.decision === 'APPROVED').length}</div><div className="text-sm text-gray-500">Approved</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{items.filter(i => i.decision === 'ON_HOLD').length}</div><div className="text-sm text-gray-500">On Hold</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{items.filter(i => i.decision === 'REJECTED').length}</div><div className="text-sm text-gray-500">Rejected</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500 dark:text-gray-400">Total</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.decision === 'APPROVED').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Approved</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{items.filter(i => i.decision === 'ON_HOLD').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">On Hold</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{items.filter(i => i.decision === 'REJECTED').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Rejected</div></CardContent></Card>
       </div>
 
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <Input placeholder="Search products or batches..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
         </div>
         <Select value={filterDecision} onChange={e => { setFilterDecision(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
@@ -140,24 +140,24 @@ export default function ReleasesPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Product</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Batch</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Decision</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Authorised By</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Date</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Product</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Batch</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Decision</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Authorised By</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Date</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                 ) : items.length === 0 ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">No release records found</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">No release records found</td></tr>
                 ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
                     <td className="p-3 font-medium">{item.productName}</td>
                     <td className="p-3 text-gray-600">{item.batchNumber || '—'}</td>
@@ -182,7 +182,7 @@ export default function ReleasesPage() {
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
           <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 py-2">Page {pagination.page} of {pagination.totalPages}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
           <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
         </div>
       )}

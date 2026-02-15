@@ -63,29 +63,29 @@ export default function MonthlyReviewListPage() {
               <CalendarCheck className="w-6 h-6 text-blue-400" />
               Monthly Reviews
             </h1>
-            <p className="text-gray-400 mt-1">Performance snapshots and target approvals</p>
+            <p className="text-gray-400 dark:text-gray-500 mt-1">Performance snapshots and target approvals</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-gray-400 text-center py-12">Loading...</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Loading...</div>
         ) : snapshots.length === 0 ? (
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-12 text-center">
             <CalendarCheck className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No monthly snapshots yet.</p>
-            <p className="text-gray-500 text-sm mt-2">Snapshots are generated on the 1st of each month, or triggered manually.</p>
+            <p className="text-gray-400 dark:text-gray-500">No monthly snapshots yet.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Snapshots are generated on the 1st of each month, or triggered manually.</p>
           </div>
         ) : (
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Month</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">MRR</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Customers</th>
-                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Trajectory</th>
-                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Approved</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium"></th>
+                  <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Month</th>
+                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">MRR</th>
+                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Customers</th>
+                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Trajectory</th>
+                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Approved</th>
+                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium"></th>
                 </tr>
               </thead>
               <tbody>
@@ -93,7 +93,7 @@ export default function MonthlyReviewListPage() {
                   <tr key={s.id} className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10">
                     <td className="py-3 px-4 text-white font-medium">
                       {formatMonth(s.month)}
-                      <span className="text-gray-500 text-xs ml-2">M{s.monthNumber}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs ml-2">M{s.monthNumber}</span>
                     </td>
                     <td className="py-3 px-4 text-white text-right">{formatCurrency(s.mrr)}</td>
                     <td className="py-3 px-4 text-gray-300 text-right">{s.customers}</td>

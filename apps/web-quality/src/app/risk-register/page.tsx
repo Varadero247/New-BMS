@@ -39,8 +39,8 @@ const statusColors: Record<string, string> = {
   TREATMENT_PLANNED: 'bg-yellow-100 text-yellow-700',
   TREATMENT_IN_PROGRESS: 'bg-orange-100 text-orange-700',
   MONITORED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 text-gray-700',
-  ACCEPTED: 'bg-gray-100 text-gray-500',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+  ACCEPTED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
 };
 
 const categoryIcons: Record<string, string> = {
@@ -118,8 +118,8 @@ export default function RiskRegisterPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Risk Register</h1>
-            <p className="text-gray-500 mt-1">Enterprise risk management and treatment tracking</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk Register</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Enterprise risk management and treatment tracking</p>
           </div>
           <Link href="/risk-register/new">
             <Button className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Risks</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Risks</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <Activity className="h-8 w-8 text-blue-500" />
@@ -145,7 +145,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Extreme</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Extreme</p>
                   <p className="text-2xl font-bold text-red-600">{stats.extreme}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -156,7 +156,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">High</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">High</p>
                   <p className="text-2xl font-bold text-orange-600">{stats.high}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-orange-500" />
@@ -167,7 +167,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Medium</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Medium</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.medium}</p>
                 </div>
                 <Activity className="h-8 w-8 text-yellow-500" />
@@ -178,7 +178,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Low</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Low</p>
                   <p className="text-2xl font-bold text-green-600">{stats.low}</p>
                 </div>
                 <TrendingDown className="h-8 w-8 text-green-500" />
@@ -189,7 +189,7 @@ export default function RiskRegisterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">With Treatment</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">With Treatment</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.withTreatments}</p>
                 </div>
                 <Shield className="h-8 w-8 text-blue-500" />
@@ -206,11 +206,11 @@ export default function RiskRegisterPage() {
           <CardContent>
             <div className="flex items-center gap-8">
               <div className="flex flex-col items-center">
-                <span className="text-xs text-gray-500 mb-2 -rotate-90 w-20">Likelihood →</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 -rotate-90 w-20">Likelihood →</span>
               </div>
               <div className="flex-1">
                 <div className="flex justify-end mb-1">
-                  <span className="text-xs text-gray-500">Impact →</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Impact →</span>
                 </div>
                 <div className="grid grid-cols-5 gap-1">
                   {riskMatrix.map((row, rowIdx) =>
@@ -232,7 +232,7 @@ export default function RiskRegisterPage() {
                     })
                   )}
                 </div>
-                <div className="flex justify-between mt-2 text-xs text-gray-500">
+                <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
                   <span>1</span>
                   <span>2</span>
                   <span>3</span>
@@ -287,22 +287,22 @@ export default function RiskRegisterPage() {
               <div className="space-y-4">
                 {risks.map((risk) => (
                   <Link key={risk.id} href={`/risk-register/${risk.id}`}>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                       <div className="flex items-center gap-4">
                         <span className="text-2xl">{categoryIcons[risk.riskCategory] || '⚠️'}</span>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{risk.title}</span>
                             {risk.currentRiskLevel && (
-                              <Badge className={riskLevelColors[risk.currentRiskLevel] || 'bg-gray-100'}>
+                              <Badge className={riskLevelColors[risk.currentRiskLevel] || 'bg-gray-100 dark:bg-gray-800'}>
                                 {risk.currentRiskLevel}
                               </Badge>
                             )}
-                            <Badge className={statusColors[risk.status] || 'bg-gray-100'}>
+                            <Badge className={statusColors[risk.status] || 'bg-gray-100 dark:bg-gray-800'}>
                               {risk.status.replace(/_/g, ' ')}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>{risk.riskNumber}</span>
                             <span>•</span>
                             <span>{risk.riskCategory.replace('_', ' ')}</span>
@@ -330,7 +330,7 @@ export default function RiskRegisterPage() {
                           L: {risk.likelihood} × I: {risk.impact}
                         </div>
                         {risk.nextReviewDate && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
                             Review: {new Date(risk.nextReviewDate).toLocaleDateString()}
                           </div>
                         )}
@@ -340,7 +340,7 @@ export default function RiskRegisterPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No risks found</p>
               </div>

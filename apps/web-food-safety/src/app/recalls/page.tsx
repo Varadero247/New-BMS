@@ -115,8 +115,8 @@ export default function RecallsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Product Recalls</h1>
-            <p className="text-gray-500 mt-1">Recall management and traceability</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Product Recalls</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Recall management and traceability</p>
           </div>
           <Button className="bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Initiate Recall</Button>
         </div>
@@ -130,17 +130,17 @@ export default function RecallsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Total Recalls</p><p className="text-2xl font-bold">{items.length}</p></div><RotateCcw className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Active</p><p className="text-2xl font-bold text-red-600">{active.length}</p></div><RotateCcw className="h-8 w-8 text-red-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Class I</p><p className="text-2xl font-bold text-red-600">{items.filter(i => i.recallClass === 'CLASS_I').length}</p></div><AlertTriangle className="h-8 w-8 text-red-500" /></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500">Closed</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'CLOSED').length}</p></div><RotateCcw className="h-8 w-8 text-green-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Total Recalls</p><p className="text-2xl font-bold">{items.length}</p></div><RotateCcw className="h-8 w-8 text-orange-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Active</p><p className="text-2xl font-bold text-red-600">{active.length}</p></div><RotateCcw className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Class I</p><p className="text-2xl font-bold text-red-600">{items.filter(i => i.recallClass === 'CLASS_I').length}</p></div><AlertTriangle className="h-8 w-8 text-red-500" /></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-500 dark:text-gray-400">Closed</p><p className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'CLOSED').length}</p></div><RotateCcw className="h-8 w-8 text-green-500" /></div></CardContent></Card>
         </div>
 
         {/* Filters */}
         <Card className="mb-6"><CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input type="text" placeholder="Search by product, lot number..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none" />
             </div>
@@ -163,25 +163,25 @@ export default function RecallsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Lot Number</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Reason</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Class</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Initiated By</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Product</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Lot Number</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reason</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Class</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Initiated By</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
                   </tr></thead>
                   <tbody>
                     {filtered.map(r => (
-                      <tr key={r.id} className={`border-b hover:bg-gray-50 ${r.status === 'ACTIVE' ? 'bg-red-50' : ''}`}>
-                        <td className="py-3 px-4 font-medium text-gray-900">{r.product || r.productName}</td>
+                      <tr key={r.id} className={`border-b hover:bg-gray-50 dark:bg-gray-800 ${r.status === 'ACTIVE' ? 'bg-red-50' : ''}`}>
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{r.product || r.productName}</td>
                         <td className="py-3 px-4 font-mono text-gray-600">{r.lotNumber || '—'}</td>
                         <td className="py-3 px-4 text-gray-600 max-w-xs truncate">{r.reason || '—'}</td>
-                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${classColors[r.recallClass || ''] || 'bg-gray-100 text-gray-700'}`}>{(r.recallClass || '—').replace(/_/g,' ')}</span></td>
-                        <td className="py-3 px-4 text-gray-500">{r.initiatedBy || '—'}</td>
-                        <td className="py-3 px-4 text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</td>
-                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[r.status] || 'bg-gray-100 text-gray-700'}`}>{r.status}</span></td>
+                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${classColors[r.recallClass || ''] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{(r.recallClass || '—').replace(/_/g,' ')}</span></td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{r.initiatedBy || '—'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[r.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{r.status}</span></td>
                         <td className="py-3 px-4"><div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(r)}><Edit className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
@@ -192,7 +192,7 @@ export default function RecallsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <RotateCcw className="h-12 w-12 mx-auto mb-4 opacity-40" />
                 <p>No recalls found</p>
                 <Button className="mt-4 bg-orange-600 hover:bg-orange-700" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Initiate Recall</Button>

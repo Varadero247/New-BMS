@@ -136,32 +136,32 @@ export default function ExpensesPage() {
       MEALS: 'bg-orange-100 text-orange-800',
       ACCOMMODATION: 'bg-purple-100 text-purple-800',
       TRANSPORTATION: 'bg-teal-100 text-teal-800',
-      OFFICE_SUPPLIES: 'bg-gray-100 text-gray-800',
+      OFFICE_SUPPLIES: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       SOFTWARE: 'bg-indigo-100 text-indigo-800',
       HARDWARE: 'bg-cyan-100 text-cyan-800',
       TRAINING: 'bg-green-100 text-green-800',
       COMMUNICATION: 'bg-yellow-100 text-yellow-800',
       CLIENT_ENTERTAINMENT: 'bg-pink-100 text-pink-800',
-      MISCELLANEOUS: 'bg-gray-100 text-gray-800',
+      MISCELLANEOUS: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
     };
-    return styles[category] || 'bg-gray-100 text-gray-800';
+    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
+      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       SUBMITTED: 'bg-yellow-100 text-yellow-800',
       APPROVED: 'bg-green-100 text-green-800',
       REJECTED: 'bg-red-100 text-red-800',
       REIMBURSED: 'bg-blue-100 text-blue-800',
     };
-    return styles[status] || 'bg-gray-100 text-gray-800';
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-gray-500">Loading expenses...</div>
+        <div className="text-gray-500 dark:text-gray-400">Loading expenses...</div>
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Expense Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Expense Management</h1>
         <div className="flex items-center space-x-3">
           <button
             onClick={async () => {
@@ -221,7 +221,7 @@ export default function ExpensesPage() {
             </h3>
             <button
               onClick={() => setAiResult(null)}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300"
             >
               Dismiss
             </button>
@@ -250,7 +250,7 @@ export default function ExpensesPage() {
             </div>
             {aiResult.policyChecks && aiResult.policyChecks.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Policy Checks:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Policy Checks:</p>
                 <ul className="mt-1 list-inside list-disc text-sm text-gray-600">
                   {aiResult.policyChecks.map((check: any, i: number) => (
                     <li key={i}>
@@ -265,13 +265,13 @@ export default function ExpensesPage() {
             )}
             {aiResult.approvalRecommendation && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Recommendation:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Recommendation:</p>
                 <p className="text-sm text-gray-600">{aiResult.approvalRecommendation}</p>
               </div>
             )}
             {aiResult.suggestions && aiResult.suggestions.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Suggestions:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Suggestions:</p>
                 <ul className="mt-1 list-inside list-disc text-sm text-gray-600">
                   {aiResult.suggestions.map((s: string, i: number) => (
                     <li key={i}>{s}</li>
@@ -316,42 +316,42 @@ export default function ExpensesPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Receipt className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Expenses</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
               <p className="text-xl font-semibold">{meta.total}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <Clock className="h-8 w-8 text-yellow-500" />
             <div>
-              <p className="text-sm text-gray-500">Pending Approval</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending Approval</p>
               <p className="text-xl font-semibold">
                 {expenses.filter((e) => e.status === 'SUBMITTED').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <CheckCircle className="h-8 w-8 text-green-500" />
             <div>
-              <p className="text-sm text-gray-500">Approved</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Approved</p>
               <p className="text-xl font-semibold">
                 {expenses.filter((e) => e.status === 'APPROVED').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
+        <div className="rounded-lg bg-white dark:bg-gray-900 p-4 shadow">
           <div className="flex items-center space-x-3">
             <DollarSign className="h-8 w-8 text-purple-500" />
             <div>
-              <p className="text-sm text-gray-500">Total Amount</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Amount</p>
               <p className="text-xl font-semibold">
                 {formatCurrency(expenses.reduce((sum, e) => sum + e.amount, 0))}
               </p>
@@ -361,58 +361,58 @@ export default function ExpensesPage() {
       </div>
 
       {/* Expenses Table */}
-      <div className="rounded-lg bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg bg-white dark:bg-gray-900 shadow">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Expense #
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Employee
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Category
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Description
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Amount
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {expenses.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No expenses found.
                 </td>
               </tr>
             ) : (
               expenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-gray-50">
+                <tr key={expense.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <Receipt className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900">{expense.expenseNumber}</span>
+                      <Receipt className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{expense.expenseNumber}</span>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
                         {expense.employee.firstName} {expense.employee.lastName}
                       </p>
-                      <p className="text-sm text-gray-500">{expense.employee.employeeNumber}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{expense.employee.employeeNumber}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -420,16 +420,16 @@ export default function ExpensesPage() {
                       {expense.category.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-500">
+                  <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {expense.description}
                     {expense.merchant && (
-                      <span className="block text-xs text-gray-400">@ {expense.merchant}</span>
+                      <span className="block text-xs text-gray-400 dark:text-gray-500">@ {expense.merchant}</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(expense.amount, expense.currency)}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(expense.expenseDate).toLocaleDateString()}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -469,7 +469,7 @@ export default function ExpensesPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee ID</label>
               <input
                 type="text"
                 value={formData.employeeId}
@@ -480,7 +480,7 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -501,7 +501,7 @@ export default function ExpensesPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
             <input
               type="text"
               value={formData.description}
@@ -512,7 +512,7 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Merchant</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Merchant</label>
               <input
                 type="text"
                 value={formData.merchant}
@@ -522,7 +522,7 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Amount</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
               <input
                 type="number"
                 step="0.01"
@@ -535,7 +535,7 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Currency</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
               <input
                 type="text"
                 value={formData.currency}
@@ -544,7 +544,7 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Expense Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Expense Date</label>
               <input
                 type="date"
                 value={formData.expenseDate}
@@ -556,7 +556,7 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Project Code</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Code</label>
               <input
                 type="text"
                 value={formData.projectCode}
@@ -566,7 +566,7 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Cost Center</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cost Center</label>
               <input
                 type="text"
                 value={formData.costCenter}
@@ -583,10 +583,10 @@ export default function ExpensesPage() {
               onChange={(e) => setFormData({ ...formData, isBillable: e.target.checked })}
               className="rounded border-gray-300"
             />
-            <label className="text-sm text-gray-700">Billable</label>
+            <label className="text-sm text-gray-700 dark:text-gray-300">Billable</label>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Notes</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -599,7 +599,7 @@ export default function ExpensesPage() {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
             >
               Cancel
             </button>

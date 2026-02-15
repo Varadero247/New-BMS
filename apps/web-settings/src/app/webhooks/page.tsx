@@ -198,15 +198,15 @@ export default function WebhooksPage() {
             Webhook signing secret (shown once -- save it now):
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-white border rounded px-3 py-2 text-sm font-mono text-gray-900">
+            <code className="flex-1 bg-white dark:bg-gray-900 border rounded px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100">
               {showSecret ? newSecret : newSecret.substring(0, 10) + '*'.repeat(30)}
             </code>
-            <button onClick={() => setShowSecret(!showSecret)} className="p-2 text-gray-500 hover:text-gray-700">
+            <button onClick={() => setShowSecret(!showSecret)} className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300">
               {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
             <button
               onClick={() => navigator.clipboard.writeText(newSecret)}
-              className="p-2 text-gray-500 hover:text-gray-700"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300"
             >
               <Copy className="h-4 w-4" />
             </button>
@@ -237,12 +237,12 @@ export default function WebhooksPage() {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">URL</th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Events</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Triggered</th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Name</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">URL</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Events</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Last Triggered</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -250,24 +250,24 @@ export default function WebhooksPage() {
                 <>
                   <tr
                     key={ep.id}
-                    className={`hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer ${!ep.enabled ? 'opacity-60' : ''}`}
+                    className={`hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 cursor-pointer ${!ep.enabled ? 'opacity-60' : ''}`}
                     onClick={() => handleExpand(ep.id)}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Webhook className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <Webhook className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                         <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{ep.name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm text-gray-500 font-mono">{truncateUrl(ep.url)}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 font-mono">{truncateUrl(ep.url)}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {ep.events.length} events
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {ep.lastTriggeredAt
                         ? new Date(ep.lastTriggeredAt).toLocaleString()
                         : <span className="text-gray-300 dark:text-gray-600">Never</span>
@@ -280,7 +280,7 @@ export default function WebhooksPage() {
                         {ep.enabled ? (
                           <ToggleRight className="h-6 w-6 text-green-500" />
                         ) : (
-                          <ToggleLeft className="h-6 w-6 text-gray-400" />
+                          <ToggleLeft className="h-6 w-6 text-gray-400 dark:text-gray-500" />
                         )}
                       </button>
                     </td>
@@ -307,9 +307,9 @@ export default function WebhooksPage() {
                   {expandedId === ep.id && (
                     <tr key={`${ep.id}-deliveries`}>
                       <td colSpan={6} className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
-                        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Recent Deliveries</h4>
+                        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Recent Deliveries</h4>
                         {(deliveries[ep.id] || []).length === 0 ? (
-                          <p className="text-xs text-gray-400 py-2">No deliveries yet</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 py-2">No deliveries yet</p>
                         ) : (
                           <div className="space-y-1.5">
                             {(deliveries[ep.id] || []).map(d => (
@@ -321,13 +321,13 @@ export default function WebhooksPage() {
                                   {d.status}
                                 </span>
                                 <span className="font-mono text-gray-600 dark:text-gray-400">{d.event}</span>
-                                <span className="text-gray-400">
+                                <span className="text-gray-400 dark:text-gray-500">
                                   {d.responseCode ? `HTTP ${d.responseCode}` : '--'}
                                 </span>
-                                <span className="text-gray-400">
+                                <span className="text-gray-400 dark:text-gray-500">
                                   Attempts: {d.attempts}
                                 </span>
-                                <span className="text-gray-400 ml-auto">
+                                <span className="text-gray-400 dark:text-gray-500 ml-auto">
                                   {new Date(d.createdAt).toLocaleString()}
                                 </span>
                               </div>
@@ -350,7 +350,7 @@ export default function WebhooksPage() {
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">New Webhook Endpoint</h2>
-              <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setShowCreateModal(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
                 &times;
               </button>
             </div>
@@ -397,7 +397,7 @@ export default function WebhooksPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 A signing secret will be auto-generated and shown once after creation.
               </p>
             </div>
@@ -405,7 +405,7 @@ export default function WebhooksPage() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
               >
                 Cancel
               </button>

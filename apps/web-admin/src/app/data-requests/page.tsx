@@ -113,7 +113,7 @@ export default function DataRequestsPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold">Data Subject Requests</h1>
-              <p className="text-gray-400 text-sm">GDPR/DSAR management with SLA tracking</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm">GDPR/DSAR management with SLA tracking</p>
             </div>
           </div>
           <button
@@ -132,7 +132,7 @@ export default function DataRequestsPage() {
               key={s}
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                statusFilter === s ? 'bg-blue-600 text-white' : 'bg-[#1B3A6B]/40 text-gray-400 hover:text-white'
+                statusFilter === s ? 'bg-blue-600 text-white' : 'bg-[#1B3A6B]/40 text-gray-400 dark:text-gray-500 hover:text-white'
               }`}
             >
               {s || 'All'}
@@ -143,20 +143,20 @@ export default function DataRequestsPage() {
         {/* Table */}
         <div className="bg-[#0F2440] rounded-xl border border-[#1B3A6B]/30 overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center text-gray-400">Loading data requests...</div>
+            <div className="p-12 text-center text-gray-400 dark:text-gray-500">Loading data requests...</div>
           ) : requests.length === 0 ? (
-            <div className="p-12 text-center text-gray-400">No data requests found.</div>
+            <div className="p-12 text-center text-gray-400 dark:text-gray-500">No data requests found.</div>
           ) : (
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Type</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Requester</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Received</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Deadline</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Days Left</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 uppercase">Action</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Type</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Requester</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Status</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Received</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Deadline</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Days Left</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,7 +165,7 @@ export default function DataRequestsPage() {
                     <td className="px-6 py-4 text-sm font-medium">{r.type}</td>
                     <td className="px-6 py-4">
                       <div className="text-sm">{r.requesterName}</div>
-                      <div className="text-xs text-gray-400">{r.requesterEmail}</div>
+                      <div className="text-xs text-gray-400 dark:text-gray-500">{r.requesterEmail}</div>
                     </td>
                     <td className="px-6 py-4">{statusBadge(r.status)}</td>
                     <td className="px-6 py-4 text-sm text-gray-300">{formatDate(r.createdAt)}</td>
@@ -181,7 +181,7 @@ export default function DataRequestsPage() {
                           {NEXT_STATUS[r.status]}
                         </button>
                       ) : (
-                        <span className="text-xs text-gray-500">--</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">--</span>
                       )}
                     </td>
                   </tr>
@@ -197,13 +197,13 @@ export default function DataRequestsPage() {
             <div className="bg-[#0F2440] rounded-xl border border-[#1B3A6B]/30 w-full max-w-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold">New Data Subject Request</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
+                <button onClick={() => setShowModal(false)} className="text-gray-400 dark:text-gray-500 hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Request Type</label>
+                  <label className="block text-sm text-gray-400 dark:text-gray-500 mb-1">Request Type</label>
                   <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-[#0A1628] border border-[#1B3A6B]/50 rounded-lg px-3 py-2 text-sm text-white">
                     {REQUEST_TYPES.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -212,21 +212,21 @@ export default function DataRequestsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Requester Name</label>
+                    <label className="block text-sm text-gray-400 dark:text-gray-500 mb-1">Requester Name</label>
                     <input value={form.requesterName} onChange={(e) => setForm({ ...form, requesterName: e.target.value })} className="w-full bg-[#0A1628] border border-[#1B3A6B]/50 rounded-lg px-3 py-2 text-sm text-white" />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Email</label>
+                    <label className="block text-sm text-gray-400 dark:text-gray-500 mb-1">Email</label>
                     <input type="email" value={form.requesterEmail} onChange={(e) => setForm({ ...form, requesterEmail: e.target.value })} className="w-full bg-[#0A1628] border border-[#1B3A6B]/50 rounded-lg px-3 py-2 text-sm text-white" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Description</label>
+                  <label className="block text-sm text-gray-400 dark:text-gray-500 mb-1">Description</label>
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full bg-[#0A1628] border border-[#1B3A6B]/50 rounded-lg px-3 py-2 text-sm text-white" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
+                <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-400 dark:text-gray-500 hover:text-white transition-colors">Cancel</button>
                 <button onClick={handleCreate} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">Submit DSAR</button>
               </div>
             </div>

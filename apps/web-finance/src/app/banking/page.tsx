@@ -34,7 +34,7 @@ const accountTypeColors: Record<string, string> = {
   SAVINGS: 'bg-green-100 text-green-700',
   CREDIT_CARD: 'bg-red-100 text-red-700',
   MONEY_MARKET: 'bg-purple-100 text-purple-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
 };
 
 function formatCurrency(amount: number): string {
@@ -182,8 +182,8 @@ export default function BankingPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Banking</h1>
-            <p className="text-gray-500 mt-1">Manage bank accounts and transactions</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Banking</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage bank accounts and transactions</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="flex items-center gap-2" onClick={() => { setAccountForm({ name: '', accountNumber: '', bankName: '', type: 'CHECKING', currency: 'USD', balance: '' }); setFormError(''); setCreateAccountOpen(true); }}>
@@ -222,20 +222,20 @@ export default function BankingPage() {
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-medium text-gray-900">{account.name}</h3>
-                    <p className="text-xs text-gray-500">{account.bankName} - {account.accountNumber}</p>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{account.name}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{account.bankName} - {account.accountNumber}</p>
                   </div>
-                  <Badge className={accountTypeColors[account.type] || 'bg-gray-100 text-gray-700'}>{account.type}</Badge>
+                  <Badge className={accountTypeColors[account.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{account.type}</Badge>
                 </div>
                 <p className={`text-2xl font-bold ${account.balance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   {formatCurrency(account.balance)}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">{account.currency}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{account.currency}</p>
               </CardContent>
             </Card>
           ))}
           {accounts.length === 0 && (
-            <div className="col-span-3 text-center py-8 text-gray-500">
+            <div className="col-span-3 text-center py-8 text-gray-500 dark:text-gray-400">
               <Landmark className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No bank accounts yet</p>
             </div>
@@ -256,7 +256,7 @@ export default function BankingPage() {
             <div className="flex flex-wrap gap-4 items-center mb-4">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input type="text" placeholder="Search transactions..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
@@ -272,21 +272,21 @@ export default function BankingPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Amount</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Balance</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Reconciled</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Balance</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reconciled</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredTransactions.map((tx) => (
-                      <tr key={tx.id} className="border-b hover:bg-gray-50">
+                      <tr key={tx.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4 text-gray-600">{new Date(tx.date).toLocaleDateString()}</td>
-                        <td className="py-3 px-4 text-gray-900">{tx.description}</td>
-                        <td className="py-3 px-4 text-gray-500 font-mono text-xs">{tx.reference || '-'}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{tx.description}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{tx.reference || '-'}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1">
                             {tx.type === 'CREDIT' ? (
@@ -312,7 +312,7 @@ export default function BankingPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Landmark className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No transactions found</p>
               </div>

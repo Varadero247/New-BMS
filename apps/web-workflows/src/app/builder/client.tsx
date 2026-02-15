@@ -245,7 +245,7 @@ function TriggerProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Trigger Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Trigger Type</label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
@@ -257,7 +257,7 @@ function TriggerProperties({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Module</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Module</label>
         <input
           type="text"
           value={node.config.module || ''}
@@ -267,7 +267,7 @@ function TriggerProperties({
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Record Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Record Type</label>
         <input
           type="text"
           value={node.config.record_type || ''}
@@ -278,7 +278,7 @@ function TriggerProperties({
       </div>
       {(node.subType === 'schedule_cron') && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Cron Expression</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cron Expression</label>
           <input
             type="text"
             value={node.config.schedule || ''}
@@ -290,7 +290,7 @@ function TriggerProperties({
       )}
       {(node.subType === 'date_reached') && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Date Field</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date Field</label>
           <input
             type="text"
             value={node.config.field || ''}
@@ -302,7 +302,7 @@ function TriggerProperties({
       )}
       {(node.subType === 'field_changed') && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Field Name</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field Name</label>
           <input
             type="text"
             value={node.config.field || ''}
@@ -329,7 +329,7 @@ function ConditionProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Condition Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Condition Type</label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
@@ -341,7 +341,7 @@ function ConditionProperties({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Field</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field</label>
         <input
           type="text"
           value={node.config.field || ''}
@@ -351,7 +351,7 @@ function ConditionProperties({
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Operator</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Operator</label>
         <select
           value={node.config.operator || '=='}
           onChange={(e) => setConfig('operator', e.target.value)}
@@ -367,7 +367,7 @@ function ConditionProperties({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Value</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</label>
         <input
           type="text"
           value={node.config.value || ''}
@@ -378,7 +378,7 @@ function ConditionProperties({
       </div>
       {node.subType === 'custom_expression' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Expression</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expression</label>
           <textarea
             value={node.config.expression || ''}
             onChange={(e) => setConfig('expression', e.target.value)}
@@ -405,7 +405,7 @@ function ActionProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Action Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Action Type</label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
@@ -419,7 +419,7 @@ function ActionProperties({
       {(node.subType === 'create_record' || node.subType === 'update_field') && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Target Module</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Target Module</label>
             <input
               type="text"
               value={node.config.module || ''}
@@ -429,7 +429,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Field</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field</label>
             <input
               type="text"
               value={node.config.field || ''}
@@ -439,7 +439,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Value</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</label>
             <input
               type="text"
               value={node.config.value || ''}
@@ -453,7 +453,7 @@ function ActionProperties({
       {node.subType === 'assign_user' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Role</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</label>
             <input
               type="text"
               value={node.config.role || ''}
@@ -463,7 +463,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Reason</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Reason</label>
             <input
               type="text"
               value={node.config.reason || ''}
@@ -477,7 +477,7 @@ function ActionProperties({
       {node.subType === 'create_task' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Task Type</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Task Type</label>
             <input
               type="text"
               value={node.config.task_type || ''}
@@ -487,7 +487,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Title</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</label>
             <input
               type="text"
               value={node.config.title || ''}
@@ -497,7 +497,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Due (days)</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due (days)</label>
             <input
               type="number"
               value={node.config.due_days || ''}
@@ -511,7 +511,7 @@ function ActionProperties({
       {(node.subType === 'send_email' || node.subType === 'send_notification') && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Recipient</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipient</label>
             <input
               type="text"
               value={node.config.recipient || ''}
@@ -521,7 +521,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Template</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Template</label>
             <input
               type="text"
               value={node.config.template || ''}
@@ -535,7 +535,7 @@ function ActionProperties({
       {node.subType === 'call_webhook' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">URL</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">URL</label>
             <input
               type="text"
               value={node.config.url || ''}
@@ -545,7 +545,7 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Method</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Method</label>
             <select
               value={node.config.method || 'POST'}
               onChange={(e) => setConfig('method', e.target.value)}
@@ -560,7 +560,7 @@ function ActionProperties({
       )}
       {node.subType === 'publish_event' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Event Name</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Event Name</label>
           <input
             type="text"
             value={node.config.event_name || ''}
@@ -587,7 +587,7 @@ function NotificationProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Channel</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Channel</label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
@@ -599,7 +599,7 @@ function NotificationProperties({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Recipient</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipient</label>
         <input
           type="text"
           value={node.config.recipient || ''}
@@ -610,7 +610,7 @@ function NotificationProperties({
       </div>
       {(node.subType === 'email' || node.subType === 'sms') && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Message Template</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Message Template</label>
           <input
             type="text"
             value={node.config.template || ''}
@@ -622,7 +622,7 @@ function NotificationProperties({
       )}
       {node.subType === 'in_app' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Message</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Message</label>
           <textarea
             value={node.config.message || ''}
             onChange={(e) => setConfig('message', e.target.value)}
@@ -634,7 +634,7 @@ function NotificationProperties({
       )}
       {node.subType === 'escalation' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 uppercase">Escalation Level</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Escalation Level</label>
           <select
             value={node.config.escalation_level || '1'}
             onChange={(e) => setConfig('escalation_level', e.target.value)}
@@ -819,7 +819,7 @@ export function WorkflowBuilderClient() {
         {/* Connector line */}
         {index > 0 && (
           <div className="flex justify-center py-1">
-            <svg width="24" height="32" viewBox="0 0 24 32" className="text-gray-400">
+            <svg width="24" height="32" viewBox="0 0 24 32" className="text-gray-400 dark:text-gray-500">
               <line x1="12" y1="0" x2="12" y2="24" stroke="currentColor" strokeWidth="2" />
               <polygon points="6,24 12,32 18,24" fill="currentColor" />
             </svg>
@@ -832,7 +832,7 @@ export function WorkflowBuilderClient() {
           className={`group relative mx-auto w-80 cursor-pointer rounded-xl border-2 p-4 shadow-sm transition-all hover:shadow-md ${
             isSelected
               ? `${palette.borderColor} ${palette.bgLight} ring-2 ring-offset-2 ring-${palette.color}-300`
-              : `border-gray-200 bg-white hover:${palette.borderColor}`
+              : `border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:${palette.borderColor}`
           }`}
         >
           {/* Delete button */}
@@ -855,12 +855,12 @@ export function WorkflowBuilderClient() {
                 <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${palette.bgLight} ${palette.textColor}`}>
                   {node.type}
                 </span>
-                <span className="text-xs text-gray-400">#{index + 1}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">#{index + 1}</span>
               </div>
-              <p className="mt-1 text-sm font-medium text-gray-900">
+              <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
                 {getSubTypeLabel(node.type, node.subType)}
               </p>
-              <p className="mt-0.5 truncate text-xs text-gray-500">
+              <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
                 {summarizeConfig(node.config)}
               </p>
             </div>
@@ -893,20 +893,20 @@ export function WorkflowBuilderClient() {
       )}
 
       {/* Top Toolbar */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
         <div className="flex items-center space-x-4">
           <input
             type="text"
             value={workflow.name}
             onChange={(e) => setWorkflow((prev) => ({ ...prev, name: e.target.value }))}
-            className="border-b border-transparent bg-transparent text-lg font-semibold text-gray-900 focus:border-indigo-500 focus:outline-none"
+            className="border-b border-transparent bg-transparent text-lg font-semibold text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:outline-none"
             placeholder="Workflow Name"
           />
           <span
             className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
               workflow.status === 'ACTIVE'
                 ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-800'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
             }`}
           >
             {workflow.status}
@@ -918,7 +918,7 @@ export function WorkflowBuilderClient() {
           <div className="relative">
             <button
               onClick={() => setTemplateDropdownOpen(!templateDropdownOpen)}
-              className="flex items-center space-x-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex items-center space-x-1 rounded-lg border border-gray-300 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
             >
               <span>ISO Templates</span>
               <ChevronDown className="h-4 w-4" />
@@ -929,9 +929,9 @@ export function WorkflowBuilderClient() {
                   className="fixed inset-0 z-10"
                   onClick={() => setTemplateDropdownOpen(false)}
                 />
-                <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border border-gray-200 bg-white shadow-lg">
+                <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg">
                   <div className="p-2">
-                    <p className="px-2 py-1 text-xs font-semibold uppercase text-gray-400">
+                    <p className="px-2 py-1 text-xs font-semibold uppercase text-gray-400 dark:text-gray-500">
                       Built-in Templates
                     </p>
                     {ISO_TEMPLATES.map((tpl) => (
@@ -940,8 +940,8 @@ export function WorkflowBuilderClient() {
                         onClick={() => loadTemplate(tpl)}
                         className="w-full rounded-md px-2 py-2 text-left hover:bg-indigo-50"
                       >
-                        <p className="text-sm font-medium text-gray-900">{tpl.name}</p>
-                        <p className="text-xs text-gray-500">{tpl.description}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{tpl.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{tpl.description}</p>
                       </button>
                     ))}
                   </div>
@@ -952,7 +952,7 @@ export function WorkflowBuilderClient() {
 
           <button
             onClick={handleTest}
-            className="flex items-center space-x-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="flex items-center space-x-1 rounded-lg border border-gray-300 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
           >
             <Play className="h-4 w-4" />
             <span>Test</span>
@@ -982,12 +982,12 @@ export function WorkflowBuilderClient() {
       </div>
 
       {/* Description row */}
-      <div className="border-b border-gray-100 bg-white px-4 py-2">
+      <div className="border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2">
         <input
           type="text"
           value={workflow.description}
           onChange={(e) => setWorkflow((prev) => ({ ...prev, description: e.target.value }))}
-          className="w-full bg-transparent text-sm text-gray-500 placeholder-gray-400 focus:outline-none"
+          className="w-full bg-transparent text-sm text-gray-500 dark:text-gray-400 placeholder-gray-400 focus:outline-none"
           placeholder="Add a description for this workflow..."
         />
       </div>
@@ -995,8 +995,8 @@ export function WorkflowBuilderClient() {
       {/* Main area: sidebar + canvas + properties */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Node Palette */}
-        <div className="w-60 flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50 p-4">
-          <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <div className="w-60 flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
             Node Palette
           </h3>
           {CATEGORY_ORDER.map((cat) => {
@@ -1018,7 +1018,7 @@ export function WorkflowBuilderClient() {
                       draggable
                       onDragStart={() => handleDragStart(cat, st.value)}
                       onClick={() => addNode(cat, st.value)}
-                      className={`cursor-grab rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all hover:border-${palette.color}-300 hover:${palette.bgLight} hover:shadow-sm active:cursor-grabbing`}
+                      className={`cursor-grab rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 transition-all hover:border-${palette.color}-300 hover:${palette.bgLight} hover:shadow-sm active:cursor-grabbing`}
                     >
                       {st.label}
                     </div>
@@ -1042,10 +1042,10 @@ export function WorkflowBuilderClient() {
                 <div className="rounded-full bg-indigo-100 p-4">
                   <GitBranch className="h-10 w-10 text-indigo-500" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Start Building Your Workflow
                 </h3>
-                <p className="mt-2 max-w-xs text-sm text-gray-500">
+                <p className="mt-2 max-w-xs text-sm text-gray-500 dark:text-gray-400">
                   Click a node type from the left palette or drag it onto this canvas. Load an ISO
                   template from the toolbar to get started quickly.
                 </p>
@@ -1059,7 +1059,7 @@ export function WorkflowBuilderClient() {
                   </button>
                   <button
                     onClick={() => setTemplateDropdownOpen(true)}
-                    className="flex items-center space-x-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex items-center space-x-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
                   >
                     <span>Load Template</span>
                   </button>
@@ -1071,7 +1071,7 @@ export function WorkflowBuilderClient() {
 
                 {/* Add node button */}
                 <div className="flex justify-center py-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-300">
+                  <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-300 dark:text-gray-600">
                     <line x1="12" y1="0" x2="12" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" />
                   </svg>
                 </div>
@@ -1100,11 +1100,11 @@ export function WorkflowBuilderClient() {
         </div>
 
         {/* Right Sidebar - Properties Panel */}
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-l border-gray-200 bg-white">
+        <div className="w-72 flex-shrink-0 overflow-y-auto border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
           {selectedNode ? (
             <div className="p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">Node Properties</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Node Properties</h3>
                 <button
                   onClick={() => removeNode(selectedNode.id)}
                   className="rounded-lg p-1 text-red-500 hover:bg-red-50"
@@ -1128,7 +1128,7 @@ export function WorkflowBuilderClient() {
                           <span className={`text-xs font-semibold uppercase ${p.textColor}`}>
                             {selectedNode.type}
                           </span>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {getSubTypeLabel(selectedNode.type, selectedNode.subType)}
                           </p>
                         </div>
@@ -1155,11 +1155,11 @@ export function WorkflowBuilderClient() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-gray-100 p-3">
-                <Filter className="h-6 w-6 text-gray-400" />
+              <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-3">
+                <Filter className="h-6 w-6 text-gray-400 dark:text-gray-500" />
               </div>
-              <p className="mt-3 text-sm font-medium text-gray-500">No Node Selected</p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400">No Node Selected</p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 Click a node on the canvas to view and edit its properties.
               </p>
             </div>

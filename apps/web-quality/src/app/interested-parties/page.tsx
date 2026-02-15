@@ -151,8 +151,8 @@ export default function InterestedPartiesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Interested Parties</h1>
-          <p className="text-sm text-gray-500 mt-1">ISO 9001:2015 &sect;4.2 &mdash; Understanding needs and expectations of interested parties</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Interested Parties</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 &sect;4.2 &mdash; Understanding needs and expectations of interested parties</p>
         </div>
         <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Interested Party</Button>
       </div>
@@ -164,7 +164,7 @@ export default function InterestedPartiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-blue-600">{pagination.total || items.length}</div>
-                <div className="text-sm text-gray-500">Total Parties</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Total Parties</div>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <Users className="h-5 w-5 text-blue-600" />
@@ -177,7 +177,7 @@ export default function InterestedPartiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-indigo-600">{internalCount}</div>
-                <div className="text-sm text-gray-500">Internal</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Internal</div>
               </div>
               <div className="p-3 bg-indigo-100 rounded-full">
                 <Building2 className="h-5 w-5 text-indigo-600" />
@@ -190,7 +190,7 @@ export default function InterestedPartiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-purple-600">{externalCount}</div>
-                <div className="text-sm text-gray-500">External</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">External</div>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
                 <Globe className="h-5 w-5 text-purple-600" />
@@ -203,7 +203,7 @@ export default function InterestedPartiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-                <div className="text-sm text-gray-500">Active</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Active</div>
               </div>
               <div className="p-3 bg-green-100 rounded-full">
                 <FileText className="h-5 w-5 text-green-600" />
@@ -216,7 +216,7 @@ export default function InterestedPartiesPage() {
       {/* Filters */}
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <Input
             placeholder="Search parties..."
             value={search}
@@ -240,37 +240,37 @@ export default function InterestedPartiesPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Party Name</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Type</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Review Frequency</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Issues</th>
-                  <th className="text-left p-3 font-medium text-gray-700">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Party Name</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Type</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Review Frequency</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Issues</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                 ) : items.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="p-8 text-center">
-                      <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500">No interested parties found</p>
-                      <p className="text-sm text-gray-400 mt-1">Start by identifying the interested parties relevant to your QMS.</p>
+                      <Users className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                      <p className="text-gray-500 dark:text-gray-400">No interested parties found</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Start by identifying the interested parties relevant to your QMS.</p>
                     </td>
                   </tr>
                 ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openEdit(item)}>
+                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => openEdit(item)}>
                     <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
                     <td className="p-3">
-                      <div className="font-medium text-gray-900">{item.partyName}</div>
-                      <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.reasonForInclusion}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{item.partyName}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{item.reasonForInclusion}</div>
                     </td>
                     <td className="p-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeColors[item.partyType] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeColors[item.partyType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
                         {item.partyType}
                       </span>
                     </td>
@@ -295,7 +295,7 @@ export default function InterestedPartiesPage() {
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
           <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 py-2">Page {pagination.page} of {pagination.totalPages}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
           <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
         </div>
       )}

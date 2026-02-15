@@ -264,7 +264,7 @@ export default function PMSClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-      <span className="ml-3 text-gray-500">Loading PMS plans...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading PMS plans...</span>
     </div>
   );
 
@@ -279,7 +279,7 @@ export default function PMSClient() {
           {/* Back navigation */}
           <button
             onClick={() => { setView('list'); setSelectedPlan(null); }}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-teal-600 mb-6 transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to PMS Plans
@@ -295,7 +295,7 @@ export default function PMSClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900">{selectedPlan.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedPlan.referenceNumber}</h1>
                     <Badge variant={getStatusBadgeVariant(selectedPlan.status)}>
                       {selectedPlan.status?.replace(/_/g, ' ')}
                     </Badge>
@@ -303,8 +303,8 @@ export default function PMSClient() {
                       <Badge variant="warning">PMCF Required</Badge>
                     )}
                   </div>
-                  <p className="text-lg text-gray-700 mb-1">{selectedPlan.planTitle}</p>
-                  <p className="text-sm text-gray-500">Device: <strong>{selectedPlan.deviceName}</strong></p>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">{selectedPlan.planTitle}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Device: <strong>{selectedPlan.deviceName}</strong></p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -319,28 +319,28 @@ export default function PMSClient() {
               </div>
 
               {selectedPlan.description && (
-                <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Description</p>
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedPlan.description}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedPlan.description}</p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Device ID</p>
-                  <p className="text-sm text-gray-900 font-mono">{selectedPlan.deviceId || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device ID</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedPlan.deviceId || '--'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Review Frequency</p>
-                  <p className="text-sm text-gray-900">{selectedPlan.reviewFrequency?.replace(/_/g, ' ')}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Review Frequency</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedPlan.reviewFrequency?.replace(/_/g, ' ')}</p>
                 </div>
-                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50'}`}>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Last Review</p>
-                  <p className="text-sm text-gray-900">{formatDate(selectedPlan.lastReviewDate)}</p>
+                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Last Review</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedPlan.lastReviewDate)}</p>
                 </div>
-                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50'}`}>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Next Review</p>
-                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.nextReviewDate) ? 'text-red-700' : 'text-gray-900'}`}>
+                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Next Review</p>
+                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.nextReviewDate) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}>
                     {formatDate(selectedPlan.nextReviewDate)}
                     {isOverdue(selectedPlan.nextReviewDate) && ' (OVERDUE)'}
                   </p>
@@ -348,16 +348,16 @@ export default function PMSClient() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">PSUR Due</p>
-                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.psurDue) ? 'text-red-700' : 'text-gray-900'}`}>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">PSUR Due</p>
+                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.psurDue) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}>
                     {formatDate(selectedPlan.psurDue)}
                     {isOverdue(selectedPlan.psurDue) && ' (OVERDUE)'}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Data Sources</p>
-                  <p className="text-sm text-gray-900">{selectedPlan.dataSourceTypes || '--'}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Data Sources</p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedPlan.dataSourceTypes || '--'}</p>
                 </div>
               </div>
             </CardContent>
@@ -462,40 +462,40 @@ export default function PMSClient() {
           {/* Back navigation */}
           <button
             onClick={() => setView('list')}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-teal-600 mb-6 transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to PMS Plans
           </button>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">PMS Dashboard</h1>
-            <p className="text-gray-500 mt-1">Post-Market Surveillance Overview</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">PMS Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Post-Market Surveillance Overview</p>
           </div>
 
           {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Total Plans</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Plans</p>
                 <p className="text-3xl font-bold">{dashboard.totalPlans}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Active Plans</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Active Plans</p>
                 <p className="text-3xl font-bold text-green-600">{dashboard.activePlans}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Reports Pending</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Reports Pending</p>
                 <p className="text-3xl font-bold text-amber-600">{dashboard.reportsPending}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Overdue Reviews</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Reviews</p>
                 <p className="text-3xl font-bold text-red-600">{dashboard.overdueReviews}</p>
               </CardContent>
             </Card>
@@ -511,20 +511,20 @@ export default function PMSClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Device</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Plan</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Next Review</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Plan</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Next Review</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {dashboard.upcomingReviews.map((p) => (
-                        <tr key={p.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.deviceName}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{p.planTitle}</td>
+                        <tr key={p.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{p.deviceName}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{p.planTitle}</td>
                           <td className="px-6 py-4">
-                            <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700'}`}>
+                            <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}>
                               {formatDate(p.nextReviewDate)}
                               {isOverdue(p.nextReviewDate) && ' (OVERDUE)'}
                             </span>
@@ -551,21 +551,21 @@ export default function PMSClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Type</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Title</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Period</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Type</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Title</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Period</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {dashboard.recentReports.map((r) => (
-                        <tr key={r.id} className="hover:bg-gray-50">
+                        <tr key={r.id} className="hover:bg-gray-50 dark:bg-gray-800">
                           <td className="px-6 py-4">
                             <Badge variant={r.reportType === 'PSUR' ? 'info' : 'warning'}>{r.reportType}</Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{r.title}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{r.title}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                             {formatDate(r.periodStart)} - {formatDate(r.periodEnd)}
                           </td>
                           <td className="px-6 py-4">
@@ -593,8 +593,8 @@ export default function PMSClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Post-Market Surveillance</h1>
-          <p className="text-gray-500 mt-1">PMS Plans, PSUR & PMCF Reports</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Post-Market Surveillance</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">PMS Plans, PSUR & PMCF Reports</p>
         </div>
 
         {/* Overdue Warning Banner */}
@@ -618,7 +618,7 @@ export default function PMSClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Plans</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Plans</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <Activity className="h-8 w-8 text-teal-500" />
@@ -629,7 +629,7 @@ export default function PMSClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-green-600">{stats.active}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -640,7 +640,7 @@ export default function PMSClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Reports Pending</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Reports Pending</p>
                   <p className="text-3xl font-bold text-amber-600">{stats.reportsPending}</p>
                 </div>
                 <FileText className="h-8 w-8 text-amber-500" />
@@ -651,7 +651,7 @@ export default function PMSClient() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue Reviews</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Reviews</p>
                   <p className="text-3xl font-bold text-red-600">{stats.overdueReviews}</p>
                 </div>
                 <Clock className="h-8 w-8 text-red-500" />
@@ -663,7 +663,7 @@ export default function PMSClient() {
         {/* Filter bar */}
         <div className="flex items-center gap-4 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search by device, reference, or plan title..."
               value={searchQuery}
@@ -712,9 +712,9 @@ export default function PMSClient() {
         </div>
 
         {showFilters && (
-          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 flex-wrap">
+          <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap">
             <div>
-              <Label className="text-xs text-gray-500">Status</Label>
+              <Label className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -739,7 +739,7 @@ export default function PMSClient() {
 
         {/* Results count */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {filteredPlans.length} of {plans.length} plans
           </p>
         </div>
@@ -751,28 +751,28 @@ export default function PMSClient() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Device Name</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Last Review</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Next Review</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">PMCF</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Name</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Last Review</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Next Review</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">PMCF</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredPlans.map((p) => (
                       <tr
                         key={p.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
                         onClick={() => openDetail(p)}
                       >
                         <td className="px-6 py-4">
                           <span className="text-sm font-mono text-gray-600">{p.referenceNumber || '--'}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900">{p.deviceName}</p>
-                          <p className="text-xs text-gray-500">{p.planTitle}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.deviceName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{p.planTitle}</p>
                         </td>
                         <td className="px-6 py-4">
                           <Badge variant={getStatusBadgeVariant(p.status)}>
@@ -780,10 +780,10 @@ export default function PMSClient() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700">{formatDate(p.lastReviewDate)}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(p.lastReviewDate)}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700'}`}>
+                          <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}>
                             {formatDate(p.nextReviewDate)}
                             {isOverdue(p.nextReviewDate) && ' !'}
                           </span>
@@ -800,9 +800,9 @@ export default function PMSClient() {
           </Card>
         ) : (
           <div className="text-center py-16">
-            <Eye className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No PMS plans found</h3>
-            <p className="text-gray-500 mb-6">Create post-market surveillance plans to monitor device safety and performance.</p>
+            <Eye className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No PMS plans found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Create post-market surveillance plans to monitor device safety and performance.</p>
             <Button
               onClick={() => { setForm(emptyPlanForm); setError(''); setShowCreateModal(true); }}
               className="bg-teal-600 hover:bg-teal-700"

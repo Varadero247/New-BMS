@@ -69,12 +69,12 @@ export default function FODPreventionClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">FOD Prevention</h1>
-            <p className="text-sm text-gray-500 mt-0.5">AS9100D — Foreign Object Damage / Debris Prevention Program</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">FOD Prevention</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">AS9100D — Foreign Object Damage / Debris Prevention Program</p>
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -96,22 +96,22 @@ export default function FODPreventionClient() {
             <p className="text-3xl font-bold text-yellow-700 mt-1">{counts.investigating}</p>
             <p className="text-xs text-yellow-600 mt-1">Root cause analysis</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Critical Severity</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Critical Severity</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{counts.critical}</p>
-            <p className="text-xs text-gray-500 mt-1">Highest priority</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Highest priority</p>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Incidents (MTD)</p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Incidents (MTD)</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{counts.incidents}</p>
-            <p className="text-xs text-gray-500 mt-1">Confirmed FOD events</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Confirmed FOD events</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap gap-3">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search area, description, reporter..."
@@ -141,10 +141,10 @@ export default function FODPreventionClient() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Area</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Severity</th>
@@ -155,14 +155,14 @@ export default function FODPreventionClient() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filtered.map(event => {
                 const tc = TYPE_CONFIG[event.type];
                 const sc2 = SEVERITY_CONFIG[event.severity];
                 const st = STATUS_CONFIG[event.status];
                 const StatusIcon = st.icon;
                 return (
-                  <tr key={event.id} className={`hover:bg-gray-50 ${event.status === 'open' && event.severity === 'critical' ? 'bg-red-50' : ''}`}>
+                  <tr key={event.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${event.status === 'open' && event.severity === 'critical' ? 'bg-red-50' : ''}`}>
                     <td className="px-4 py-3 text-gray-800 font-medium max-w-[140px]">
                       <p className="text-xs leading-tight">{event.area}</p>
                     </td>
@@ -175,14 +175,14 @@ export default function FODPreventionClient() {
                         {sc2.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700 max-w-xs">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-xs">
                       <p className="text-xs leading-relaxed line-clamp-2">{event.description}</p>
                     </td>
                     <td className="px-4 py-3 text-gray-600 max-w-xs">
                       <p className="text-xs leading-relaxed line-clamp-2">{event.correctiveAction}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{event.reportedBy}</td>
-                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{event.date}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">{event.reportedBy}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{event.date}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${st.bg} ${st.text}`}>
                         <StatusIcon className="w-3 h-3" />
@@ -195,7 +195,7 @@ export default function FODPreventionClient() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <Eye className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No FOD events match your filters</p>
             </div>
