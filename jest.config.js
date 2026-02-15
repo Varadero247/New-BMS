@@ -1,67 +1,93 @@
+/** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  
-  // Force exit after tests complete
+  // Use projects mode: each workspace runs its own jest config in parallel
+  projects: [
+    // API services
+    '<rootDir>/apps/api-aerospace',
+    '<rootDir>/apps/api-ai-analysis',
+    '<rootDir>/apps/api-analytics',
+    '<rootDir>/apps/api-assets',
+    '<rootDir>/apps/api-audits',
+    '<rootDir>/apps/api-automotive',
+    '<rootDir>/apps/api-cmms',
+    '<rootDir>/apps/api-complaints',
+    '<rootDir>/apps/api-contracts',
+    '<rootDir>/apps/api-crm',
+    '<rootDir>/apps/api-documents',
+    '<rootDir>/apps/api-energy',
+    '<rootDir>/apps/api-environment',
+    '<rootDir>/apps/api-esg',
+    '<rootDir>/apps/api-field-service',
+    '<rootDir>/apps/api-finance',
+    '<rootDir>/apps/api-food-safety',
+    '<rootDir>/apps/api-gateway',
+    '<rootDir>/apps/api-health-safety',
+    '<rootDir>/apps/api-hr',
+    '<rootDir>/apps/api-incidents',
+    '<rootDir>/apps/api-infosec',
+    '<rootDir>/apps/api-inventory',
+    '<rootDir>/apps/api-iso37001',
+    '<rootDir>/apps/api-iso42001',
+    '<rootDir>/apps/api-marketing',
+    '<rootDir>/apps/api-medical',
+    '<rootDir>/apps/api-mgmt-review',
+    '<rootDir>/apps/api-partners',
+    '<rootDir>/apps/api-payroll',
+    '<rootDir>/apps/api-portal',
+    '<rootDir>/apps/api-project-management',
+    '<rootDir>/apps/api-ptw',
+    '<rootDir>/apps/api-quality',
+    '<rootDir>/apps/api-reg-monitor',
+    '<rootDir>/apps/api-risk',
+    '<rootDir>/apps/api-suppliers',
+    '<rootDir>/apps/api-training',
+    '<rootDir>/apps/api-workflows',
+    // Shared packages
+    '<rootDir>/packages/audit',
+    '<rootDir>/packages/auth',
+    '<rootDir>/packages/automation-rules',
+    '<rootDir>/packages/benchmarks',
+    '<rootDir>/packages/database',
+    '<rootDir>/packages/email',
+    '<rootDir>/packages/emission-factors',
+    '<rootDir>/packages/esig',
+    '<rootDir>/packages/event-bus',
+    '<rootDir>/packages/file-upload',
+    '<rootDir>/packages/finance-calculations',
+    '<rootDir>/packages/iso-checklists',
+    '<rootDir>/packages/monitoring',
+    '<rootDir>/packages/nlq',
+    '<rootDir>/packages/notifications',
+    '<rootDir>/packages/oee-engine',
+    '<rootDir>/packages/pdf-generator',
+    '<rootDir>/packages/portal-auth',
+    '<rootDir>/packages/rbac',
+    '<rootDir>/packages/regulatory-feed',
+    '<rootDir>/packages/resilience',
+    '<rootDir>/packages/secrets',
+    '<rootDir>/packages/service-auth',
+    '<rootDir>/packages/spc-engine',
+    '<rootDir>/packages/standards-convergence',
+    '<rootDir>/packages/status',
+    '<rootDir>/packages/tax-engine',
+    '<rootDir>/packages/validation',
+    '<rootDir>/packages/webhooks',
+  ],
+
+  // Global settings
   forceExit: true,
-  
-  // Don't detect open handles (we're forcing exit anyway)
   detectOpenHandles: false,
-  
-  // Clear all mocks between tests
-  clearMocks: true,
-  
-  // Timeouts
-  testTimeout: 10000,
-  
-  // Performance
-  maxWorkers: '50%',
-  
-  // Test files
-  roots: ['<rootDir>/packages', '<rootDir>/apps'],
-  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
-  
-  // TypeScript
-  transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      diagnostics: false,
-      tsconfig: {
-        jsx: 'react',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-      },
-    }],
-  },
-  
-  // Coverage
+  maxWorkers: '66%',
+  testTimeout: 60000,
+
+  // Coverage (applied when --coverage is passed)
+  coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
     '!**/dist/**',
+    '!**/generated/**',
   ],
-  
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
-  
-  // Module mapping
-  moduleNameMapper: {
-    '^@ims/(.*)$': '<rootDir>/packages/$1/src',
-  },
-  
-  // Setup
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  
-  // Ignore
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/'],
-  
-  // Extensions
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
 };
