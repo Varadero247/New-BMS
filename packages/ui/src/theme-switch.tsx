@@ -125,7 +125,7 @@ export function ThemeSwitch({ className }: ThemeSwitchProps) {
     <div ref={ref} className={cn('fixed bottom-6 right-6 z-50', className)}>
       {/* Dropdown menu (appears above the button) */}
       {open && (
-        <div className="absolute bottom-full right-0 mb-2 w-40 rounded-xl border border-[var(--border-default,#1E2E48)] bg-[var(--bg-card,#162032)] shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150">
+        <div className="absolute bottom-full right-0 mb-2 w-40 rounded-xl border border-gray-700 bg-gray-900 shadow-lg overflow-hidden">
           {options.map((opt) => {
             const Icon = opt.icon;
             const isActive = theme === opt.value;
@@ -136,14 +136,14 @@ export function ThemeSwitch({ className }: ThemeSwitchProps) {
                 className={cn(
                   'flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-[var(--blue-mid,#3B78F5)]/15 text-[var(--blue-hi,#5B94FF)]'
-                    : 'text-[var(--silver,#8EA8CC)] hover:bg-[var(--raised,#1C2940)] hover:text-[var(--light,#C8D9EF)]'
+                    ? 'bg-blue-500/15 text-blue-400'
+                    : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                 )}
               >
                 <Icon className="h-4 w-4" />
                 <span>{opt.label}</span>
                 {isActive && (
-                  <svg className="ml-auto h-4 w-4 text-[var(--teal-core,#00C4A8)]" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="ml-auto h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
                 )}
@@ -159,10 +159,10 @@ export function ThemeSwitch({ className }: ThemeSwitchProps) {
         onClick={() => setOpen(!open)}
         className={cn(
           'group flex items-center gap-2 rounded-full px-4 py-2.5',
-          'border border-[var(--border-default,#1E2E48)]',
-          'bg-[var(--bg-card,#162032)] shadow-lg',
-          'text-[var(--silver,#8EA8CC)] hover:text-[var(--white,#EDF3FC)]',
-          'hover:border-[var(--blue-mid,#3B78F5)]/50',
+          'border border-gray-700',
+          'bg-gray-900 shadow-lg',
+          'text-gray-400 hover:text-white',
+          'hover:border-blue-500/50',
           'transition-all duration-200',
         )}
         aria-label="Change theme"
