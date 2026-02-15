@@ -1,0 +1,330 @@
+// Marketing Schema - Lead Capture, Onboarding, Partners, Prospect Intelligence, Renewal/Win-Back
+// Sales & Marketing Automation Stack
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/marketing"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MARKETING_DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum MktLeadSource {
+  ROI_CALCULATOR
+  CHATBOT
+  LANDING_PAGE
+  PARTNER_REFERRAL
+  ORGANIC_SEARCH
+  PAID_ADS
+  DIRECT
+  LINKEDIN
+}
+
+enum MktDealStatus {
+  SUBMITTED
+  IN_DEMO
+  NEGOTIATING
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum MktPayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum MktPartnerTier {
+  REFERRAL
+  CO_SELL
+  RESELLER
+  GCC_SPECIALIST
+}
+
+enum MktPartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum MktOutreachStatus {
+  PENDING
+  SENT
+  CONNECTED
+  REPLIED
+  MEETING
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum MktOutreachTemplate {
+  ISO_CONSULTANT
+  QUALITY_MANAGER
+  EHS_MANAGER
+  GCC_PROCUREMENT
+  CERTIFICATION_BODY
+}
+
+enum MktHealthTrend {
+  IMPROVING
+  DECLINING
+  STABLE
+}
+
+enum MktEmailJobStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+// ============================================
+// PHASE 1 — Lead Capture
+// ============================================
+
+model MktLead {
+  id            String       @id @default(cuid())
+  email         String
+  name          String
+  company       String?
+  jobTitle      String?
+  source        MktLeadSource
+  industry      String?
+  employeeCount String?
+  isoCount      Int?
+  roiEstimate   Float?
+  hubspotId     String?
+  convertedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("mkt_leads")
+}
+
+model MktLandingPageContent {
+  id        String   @id @default(cuid())
+  pageKey   String   @unique
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("mkt_landing_page_content")
+}
+
+model MktChatSession {
+  id           String   @id @default(cuid())
+  visitorId    String?
+  messages     Json     @default("[]")
+  captured     Boolean  @default(false)
+  capturedData Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("mkt_chat_sessions")
+}
+
+// ============================================
+// PHASE 2 — Onboarding & Health
+// ============================================
+
+model MktEmailLog {
+  id         String    @id @default(cuid())
+  userId     String?
+  email      String
+  template   String
+  subject    String
+  sentAt     DateTime  @default(now())
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  bounced    Boolean   @default(false)
+  sequenceId String?
+  createdAt  DateTime  @default(now())
+
+  @@map("mkt_email_logs")
+}
+
+model MktHealthScore {
+  id        String         @id @default(cuid())
+  userId    String
+  orgId     String
+  score     Int
+  trend     MktHealthTrend
+  breakdown Json
+  createdAt DateTime       @default(now())
+
+  @@map("mkt_health_scores")
+}
+
+model MktEmailJob {
+  id           String           @id @default(cuid())
+  userId       String?
+  email        String
+  template     String
+  subject      String
+  htmlContent  String?
+  textContent  String?
+  scheduledFor DateTime
+  status       MktEmailJobStatus @default(PENDING)
+  sentAt       DateTime?
+  error        String?
+  sequenceId   String?
+  createdAt    DateTime         @default(now())
+
+  @@index([status, scheduledFor])
+  @@map("mkt_email_jobs")
+}
+
+// ============================================
+// PHASE 3 — Partners
+// ============================================
+
+model MktPartner {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  name            String
+  company         String
+  phone           String?
+  tier            MktPartnerTier   @default(REFERRAL)
+  isoSpecialisms  String[]
+  referralCode    String           @unique @default(cuid())
+  referralUrl     String?
+  status          MktPartnerStatus @default(PENDING)
+  hubspotId       String?
+  stripeAccountId String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deals           MktPartnerDeal[]
+  payouts         MktPartnerPayout[]
+
+  @@map("mkt_partners")
+}
+
+model MktPartnerDeal {
+  id              String        @id @default(cuid())
+  partnerId       String
+  companyName     String
+  contactName     String
+  contactEmail    String
+  estimatedUsers  Int
+  isoStandards    String[]
+  estimatedACV    Float?
+  status          MktDealStatus @default(SUBMITTED)
+  closedAt        DateTime?
+  actualACV       Float?
+  commissionRate  Float         @default(0.25)
+  commissionValue Float?
+  commissionPaid  Boolean       @default(false)
+  hubspotDealId   String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  partner         MktPartner    @relation(fields: [partnerId], references: [id])
+
+  @@map("mkt_partner_deals")
+}
+
+model MktPartnerPayout {
+  id               String        @id @default(cuid())
+  partnerId        String
+  amount           Float
+  currency         String        @default("GBP")
+  status           MktPayoutStatus @default(PENDING)
+  stripeTransferId String?
+  requestedAt      DateTime      @default(now())
+  processedAt      DateTime?
+  dealIds          String[]
+  partner          MktPartner    @relation(fields: [partnerId], references: [id])
+
+  @@map("mkt_partner_payouts")
+}
+
+// ============================================
+// PHASE 4 — Prospect Intelligence
+// ============================================
+
+model MktProspectResearch {
+  id                 String   @id @default(cuid())
+  companyName        String
+  website            String?
+  industry           String?
+  companiesHouseData Json?
+  isosCertified      String[]
+  generatedEmail     Json?
+  hubspotDealId      String?
+  status             String   @default("researched")
+  sourceContext      String?
+  createdAt          DateTime @default(now())
+  createdBy          String
+
+  @@map("mkt_prospect_research")
+}
+
+model MktLinkedInOutreach {
+  id            String              @id @default(cuid())
+  prospectName  String
+  prospectTitle String?
+  company       String
+  linkedinUrl   String
+  template      MktOutreachTemplate
+  generatedMsg  String
+  customContext String?
+  status        MktOutreachStatus   @default(PENDING)
+  sentAt        DateTime?
+  connectedAt   DateTime?
+  repliedAt     DateTime?
+  meetingAt     DateTime?
+  closedAt      DateTime?
+  hubspotDealId String?
+  notes         String?
+  createdAt     DateTime            @default(now())
+  createdBy     String
+
+  @@map("mkt_linkedin_outreach")
+}
+
+// ============================================
+// PHASE 5 — Renewal & Win-Back
+// ============================================
+
+model MktRenewalSequence {
+  id          String    @id @default(cuid())
+  orgId       String    @unique
+  renewalDate DateTime
+  day90Sent   Boolean   @default(false)
+  day60Sent   Boolean   @default(false)
+  day30Sent   Boolean   @default(false)
+  day7Sent    Boolean   @default(false)
+  couponCode90 String?
+  couponCode30 String?
+  couponCode7  String?
+  renewedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("mkt_renewal_sequences")
+}
+
+model MktWinBackSequence {
+  id                 String    @id @default(cuid())
+  orgId              String    @unique
+  cancelledAt        DateTime
+  cancellationReason String?
+  day3Sent           Boolean   @default(false)
+  day7Sent           Boolean   @default(false)
+  day14Sent          Boolean   @default(false)
+  day30Sent          Boolean   @default(false)
+  reactivatedAt      DateTime?
+  winBackOffer       String?
+  token              String    @unique @default(cuid())
+
+  @@map("mkt_winback_sequences")
+}

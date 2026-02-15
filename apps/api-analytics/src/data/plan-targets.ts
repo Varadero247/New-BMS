@@ -1,0 +1,70 @@
+/**
+ * 36-month business plan targets for Nexara.
+ * Month 1 = March 2026 (launch month).
+ * MRR figures in GBP. Customer counts are cumulative paying customers.
+ *
+ * Dual Loan Model (Phase 7):
+ *   - Director's Loan: £320,000 at 8% over 36 months, starts M3
+ *   - Starter Capital Loan: £30,000 at 8% over 24 months, starts M2
+ */
+
+export interface PlanTargetSeed {
+  monthNumber: number;
+  month: string;       // YYYY-MM
+  plannedMrr: number;
+  plannedCustomers: number;
+  plannedNewCustomers: number;
+  plannedChurnPct: number;
+  plannedArpu: number;
+  founderDirLoan: number;
+  founderStarterLoan: number;
+}
+
+// Director's Loan: £320k, 8%, 36 months — monthly payment = £10,028.27
+const DIR_LOAN_PAYMENT = 10028.27;
+// Starter Loan: £30k, 8%, 24 months — monthly payment = £1,357.07
+const STARTER_LOAN_PAYMENT = 1357.07;
+
+export const PLAN_TARGETS: PlanTargetSeed[] = [
+  // Year 1 — Seed / Early Growth
+  { monthNumber: 1,  month: '2026-03', plannedMrr: 0,      plannedCustomers: 0,   plannedNewCustomers: 0,  plannedChurnPct: 0,   plannedArpu: 0,   founderDirLoan: 0,              founderStarterLoan: 0 },
+  { monthNumber: 2,  month: '2026-04', plannedMrr: 1750,   plannedCustomers: 2,   plannedNewCustomers: 2,  plannedChurnPct: 0,   plannedArpu: 875, founderDirLoan: 0,              founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 3,  month: '2026-05', plannedMrr: 4500,   plannedCustomers: 5,   plannedNewCustomers: 3,  plannedChurnPct: 0,   plannedArpu: 900, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 4,  month: '2026-06', plannedMrr: 8500,   plannedCustomers: 9,   plannedNewCustomers: 4,  plannedChurnPct: 0,   plannedArpu: 944, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 5,  month: '2026-07', plannedMrr: 14000,  plannedCustomers: 14,  plannedNewCustomers: 5,  plannedChurnPct: 0,   plannedArpu: 1000, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 6,  month: '2026-08', plannedMrr: 22000,  plannedCustomers: 20,  plannedNewCustomers: 7,  plannedChurnPct: 2,   plannedArpu: 1100, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 7,  month: '2026-09', plannedMrr: 32000,  plannedCustomers: 28,  plannedNewCustomers: 9,  plannedChurnPct: 2,   plannedArpu: 1143, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 8,  month: '2026-10', plannedMrr: 45000,  plannedCustomers: 37,  plannedNewCustomers: 10, plannedChurnPct: 2.5, plannedArpu: 1216, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 9,  month: '2026-11', plannedMrr: 62000,  plannedCustomers: 48,  plannedNewCustomers: 12, plannedChurnPct: 2.5, plannedArpu: 1292, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 10, month: '2026-12', plannedMrr: 82000,  plannedCustomers: 60,  plannedNewCustomers: 14, plannedChurnPct: 3,   plannedArpu: 1367, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 11, month: '2027-01', plannedMrr: 105000, plannedCustomers: 73,  plannedNewCustomers: 15, plannedChurnPct: 3,   plannedArpu: 1438, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 12, month: '2027-02', plannedMrr: 135000, plannedCustomers: 88,  plannedNewCustomers: 18, plannedChurnPct: 3,   plannedArpu: 1534, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+
+  // Year 2 — Scaling
+  { monthNumber: 13, month: '2027-03', plannedMrr: 165000,  plannedCustomers: 100, plannedNewCustomers: 15, plannedChurnPct: 3,   plannedArpu: 1650, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 14, month: '2027-04', plannedMrr: 195000,  plannedCustomers: 113, plannedNewCustomers: 16, plannedChurnPct: 3,   plannedArpu: 1726, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 15, month: '2027-05', plannedMrr: 230000,  plannedCustomers: 127, plannedNewCustomers: 17, plannedChurnPct: 3,   plannedArpu: 1811, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 16, month: '2027-06', plannedMrr: 270000,  plannedCustomers: 142, plannedNewCustomers: 18, plannedChurnPct: 3,   plannedArpu: 1901, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 17, month: '2027-07', plannedMrr: 315000,  plannedCustomers: 158, plannedNewCustomers: 20, plannedChurnPct: 3,   plannedArpu: 1994, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 18, month: '2027-08', plannedMrr: 365000,  plannedCustomers: 175, plannedNewCustomers: 21, plannedChurnPct: 3,   plannedArpu: 2086, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 19, month: '2027-09', plannedMrr: 420000,  plannedCustomers: 193, plannedNewCustomers: 22, plannedChurnPct: 2.5, plannedArpu: 2176, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 20, month: '2027-10', plannedMrr: 480000,  plannedCustomers: 212, plannedNewCustomers: 24, plannedChurnPct: 2.5, plannedArpu: 2264, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 21, month: '2027-11', plannedMrr: 550000,  plannedCustomers: 232, plannedNewCustomers: 25, plannedChurnPct: 2.5, plannedArpu: 2371, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 22, month: '2027-12', plannedMrr: 625000,  plannedCustomers: 253, plannedNewCustomers: 26, plannedChurnPct: 2.5, plannedArpu: 2470, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 23, month: '2028-01', plannedMrr: 710000,  plannedCustomers: 275, plannedNewCustomers: 28, plannedChurnPct: 2.5, plannedArpu: 2582, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 24, month: '2028-02', plannedMrr: 800000,  plannedCustomers: 300, plannedNewCustomers: 30, plannedChurnPct: 2,   plannedArpu: 2667, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+
+  // Year 3 — Maturity (Starter loan paid off after M25)
+  { monthNumber: 25, month: '2028-03', plannedMrr: 900000,   plannedCustomers: 322, plannedNewCustomers: 28, plannedChurnPct: 2, plannedArpu: 2795, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: STARTER_LOAN_PAYMENT },
+  { monthNumber: 26, month: '2028-04', plannedMrr: 1010000,  plannedCustomers: 345, plannedNewCustomers: 29, plannedChurnPct: 2, plannedArpu: 2928, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 27, month: '2028-05', plannedMrr: 1130000,  plannedCustomers: 369, plannedNewCustomers: 30, plannedChurnPct: 2, plannedArpu: 3062, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 28, month: '2028-06', plannedMrr: 1260000,  plannedCustomers: 394, plannedNewCustomers: 31, plannedChurnPct: 2, plannedArpu: 3198, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 29, month: '2028-07', plannedMrr: 1400000,  plannedCustomers: 420, plannedNewCustomers: 33, plannedChurnPct: 2, plannedArpu: 3333, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 30, month: '2028-08', plannedMrr: 1560000,  plannedCustomers: 447, plannedNewCustomers: 34, plannedChurnPct: 2, plannedArpu: 3490, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 31, month: '2028-09', plannedMrr: 1740000,  plannedCustomers: 475, plannedNewCustomers: 35, plannedChurnPct: 1.5, plannedArpu: 3663, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 32, month: '2028-10', plannedMrr: 1940000,  plannedCustomers: 504, plannedNewCustomers: 36, plannedChurnPct: 1.5, plannedArpu: 3849, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 33, month: '2028-11', plannedMrr: 2160000,  plannedCustomers: 534, plannedNewCustomers: 38, plannedChurnPct: 1.5, plannedArpu: 4045, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 34, month: '2028-12', plannedMrr: 2400000,  plannedCustomers: 565, plannedNewCustomers: 39, plannedChurnPct: 1.5, plannedArpu: 4248, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 35, month: '2029-01', plannedMrr: 2680000,  plannedCustomers: 597, plannedNewCustomers: 40, plannedChurnPct: 1.5, plannedArpu: 4490, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+  { monthNumber: 36, month: '2029-02', plannedMrr: 3250000,  plannedCustomers: 630, plannedNewCustomers: 42, plannedChurnPct: 1.5, plannedArpu: 5159, founderDirLoan: DIR_LOAN_PAYMENT, founderStarterLoan: 0 },
+];

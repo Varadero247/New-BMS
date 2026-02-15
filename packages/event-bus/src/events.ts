@@ -1,4 +1,4 @@
-export const RESOLVEX_EVENTS: Record<string, { description: string; triggers: string[] }> = {
+export const NEXARA_EVENTS: Record<string, { description: string; triggers: string[] }> = {
   // Quality → CMMS
   'calibration.failed': {
     description: 'Calibration result out of tolerance',
@@ -81,9 +81,9 @@ export const RESOLVEX_EVENTS: Record<string, { description: string; triggers: st
 };
 
 export function getEventTriggers(eventType: string): string[] {
-  return RESOLVEX_EVENTS[eventType]?.triggers || [];
+  return NEXARA_EVENTS[eventType]?.triggers || [];
 }
 
 export function getAllEventTypes(): string[] {
-  return Object.keys(RESOLVEX_EVENTS);
+  return Object.keys(NEXARA_EVENTS);
 }

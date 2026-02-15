@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-export interface ResolvexConfig {
+export interface NexaraConfig {
   baseUrl: string;
   apiKey: string;
   timeout?: number;
@@ -102,12 +102,12 @@ export interface ApiResponse<T> {
   };
 }
 
-export class ResolvexClient {
+export class NexaraClient {
   private baseUrl: string;
   private apiKey: string;
   private timeout: number;
 
-  constructor(config: ResolvexConfig) {
+  constructor(config: NexaraConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, '');
     this.apiKey = config.apiKey;
     this.timeout = config.timeout || 30000;
@@ -130,7 +130,7 @@ export class ResolvexClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(`Resolvex API Error ${response.status}: ${error.message || response.statusText}`);
+        throw new Error(`Nexara API Error ${response.status}: ${error.message || response.statusText}`);
       }
 
       return response.json();
@@ -202,4 +202,4 @@ export class ResolvexClient {
   }
 }
 
-export default ResolvexClient;
+export default NexaraClient;

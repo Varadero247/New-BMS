@@ -42,6 +42,9 @@ start_service "@ims/api-hr" "api-hr" "HR API"
 start_service "@ims/api-payroll" "api-payroll" "Payroll API"
 start_service "@ims/api-workflows" "api-workflows" "Workflows API"
 start_service "@ims/api-project-management" "api-project-management" "Project Management API"
+start_service "@ims/api-automotive" "api-automotive" "Automotive API"
+start_service "@ims/api-medical" "api-medical" "Medical API"
+start_service "@ims/api-aerospace" "api-aerospace" "Aerospace API"
 start_service "@ims/api-finance" "api-finance" "Finance API"
 start_service "@ims/api-crm" "api-crm" "CRM API"
 start_service "@ims/api-infosec" "api-infosec" "InfoSec API"
@@ -54,6 +57,8 @@ start_service "@ims/api-analytics" "api-analytics" "Analytics API"
 start_service "@ims/api-field-service" "api-field-service" "Field Service API"
 start_service "@ims/api-iso42001" "api-iso42001" "ISO 42001 AI Management API"
 start_service "@ims/api-iso37001" "api-iso37001" "ISO 37001 Anti-Bribery API"
+start_service "@ims/api-marketing" "api-marketing" "Marketing API"
+start_service "@ims/api-partners" "api-partners" "Partners API"
 
 sleep 3  # Give APIs time to start
 
@@ -80,6 +85,12 @@ start_service "@ims/web-workflows" "web-workflows" "Workflows Web"
 sleep 2
 start_service "@ims/web-project-management" "web-project-management" "Project Management Web"
 sleep 2
+start_service "@ims/web-automotive" "web-automotive" "Automotive Web"
+sleep 2
+start_service "@ims/web-medical" "web-medical" "Medical Web"
+sleep 2
+start_service "@ims/web-aerospace" "web-aerospace" "Aerospace Web"
+sleep 2
 start_service "@ims/web-finance" "web-finance" "Finance Web"
 sleep 2
 start_service "@ims/web-crm" "web-crm" "CRM Web"
@@ -105,6 +116,10 @@ sleep 2
 start_service "@ims/web-iso42001" "web-iso42001" "ISO 42001 AI Management Web"
 sleep 2
 start_service "@ims/web-iso37001" "web-iso37001" "ISO 37001 Anti-Bribery Web"
+sleep 2
+start_service "@ims/web-partners" "web-partners" "Partners Portal Web"
+sleep 2
+start_service "@ims/web-admin" "web-admin" "Admin Dashboard Web"
 
 echo ""
 echo "All services starting..."
@@ -121,6 +136,9 @@ echo "  HR:                 http://localhost:3006 (API: 4006)"
 echo "  Payroll:            http://localhost:3007 (API: 4007)"
 echo "  Workflows:          http://localhost:3008 (API: 4008)"
 echo "  Project Management: http://localhost:3009 (API: 4009)"
+echo "  Automotive:         http://localhost:3010 (API: 4010)"
+echo "  Medical:            http://localhost:3011 (API: 4011)"
+echo "  Aerospace:          http://localhost:3012 (API: 4012)"
 echo "  Finance:            http://localhost:3013 (API: 4013)"
 echo "  CRM:                http://localhost:3014 (API: 4014)"
 echo "  InfoSec:            http://localhost:3015 (API: 4015)"
@@ -134,6 +152,9 @@ echo "  Analytics:          http://localhost:3022 (API: 4021)"
 echo "  Field Service:      http://localhost:3023 (API: 4022)"
 echo "  ISO 42001 AI Mgmt:  http://localhost:3024 (API: 4023)"
 echo "  ISO 37001 Anti-Brib:http://localhost:3025 (API: 4024)"
+echo "  Marketing:          http://localhost:3030 (API: 4025)"
+echo "  Partners Portal:    http://localhost:3026 (API: 4026)"
+echo "  Admin Dashboard:    http://localhost:3027"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"

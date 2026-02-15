@@ -7,7 +7,7 @@ export class EventSubscriber {
   private running = false;
   private streamPrefix: string;
 
-  constructor(redisUrl?: string, streamPrefix = 'resolvex:events:') {
+  constructor(redisUrl?: string, streamPrefix = 'nexara:events:') {
     this.streamPrefix = streamPrefix;
     if (redisUrl) {
       this.redis = new Redis(redisUrl);

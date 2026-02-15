@@ -39,6 +39,22 @@ jobs:
           - api-hr
           - api-payroll
           - api-workflows
+          - api-project-management
+          - api-automotive
+          - api-medical
+          - api-aerospace
+          - api-finance
+          - api-crm
+          - api-infosec
+          - api-esg
+          - api-cmms
+          - api-portal
+          - api-food-safety
+          - api-energy
+          - api-analytics
+          - api-field-service
+          - api-iso42001
+          - api-iso37001
 
     steps:
       - name: Checkout

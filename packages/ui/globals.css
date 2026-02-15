@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Resolvex 2026 — Light mode */
+    /* Nexara 2026 — Light mode */
     --background: 210 40% 98%;       /* #F8FAFC */
     --foreground: 222 47% 11%;       /* #0F172A */
 
@@ -76,7 +76,7 @@
 
   .dark,
   [data-theme="dark"] {
-    /* Resolvex 2026 — Dark mode (default) */
+    /* Nexara 2026 — Dark mode (default) */
     --background: 221 39% 11%;       /* #111827 */
     --foreground: 213 31% 95%;       /* #F1F5F9 */
 

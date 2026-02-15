@@ -419,7 +419,7 @@ export default function FeatureFlagsPage() {
           <p>
             <strong>React hook:</strong>{' '}
             <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-              {`import { useFeatureFlag } from '@ims/feature-flags/src/useFeatureFlag';`}
+              {`import { useFeatureFlag } from '@ims/feature-flags';`}
             </code>
           </p>
           <p>

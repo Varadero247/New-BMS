@@ -74,6 +74,23 @@ jobs:
       INVENTORY_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       WORKFLOWS_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       AI_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      PROJECT_MANAGEMENT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      AUTOMOTIVE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      MEDICAL_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      AEROSPACE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      FINANCE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      CRM_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      INFOSEC_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      ESG_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      CMMS_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      PORTAL_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      FOOD_SAFETY_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      ENERGY_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      ANALYTICS_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      FIELD_SERVICE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      ISO42001_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      ISO37001_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: test-jwt-secret-that-is-at-least-64-characters-long-for-testing-purposes-only
       JWT_REFRESH_SECRET: test-refresh-secret-that-is-at-least-64-characters-long-for-testing

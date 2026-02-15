@@ -89,6 +89,8 @@ const SERVICES = {
   fieldService: process.env.SERVICE_FIELD_SERVICE_URL || process.env.FIELD_SERVICE_URL || 'http://localhost:4022',
   iso42001: process.env.SERVICE_ISO42001_URL || process.env.ISO42001_URL || 'http://localhost:4023',
   iso37001: process.env.SERVICE_ISO37001_URL || process.env.ISO37001_URL || 'http://localhost:4024',
+  marketing: process.env.SERVICE_MARKETING_URL || process.env.MARKETING_URL || 'http://localhost:4025',
+  partners: process.env.SERVICE_PARTNERS_URL || process.env.PARTNERS_URL || 'http://localhost:4026',
 };
 
 // Generate service token for inter-service authentication
@@ -134,6 +136,7 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3017', 'http://localhost:3018', 'http://localhost:3019',
   'http://localhost:3020', 'http://localhost:3021', 'http://localhost:3022',
   'http://localhost:3023', 'http://localhost:3024', 'http://localhost:3025',
+  'http://localhost:3026', 'http://localhost:3027', 'http://localhost:3030',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -367,6 +370,8 @@ app.use('/api/v1/analytics', addVersionHeader('v1'), createServiceProxy('Analyti
 app.use('/api/v1/field-service', addVersionHeader('v1'), createServiceProxy('Field Service', SERVICES.fieldService, '/api/v1/field-service', 'Field Service service unavailable'));
 app.use('/api/v1/iso42001', addVersionHeader('v1'), createServiceProxy('ISO 42001', SERVICES.iso42001, '/api/v1/iso42001', 'ISO 42001 AI Management service unavailable'));
 app.use('/api/v1/iso37001', addVersionHeader('v1'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/v1/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
+app.use('/api/v1/marketing', addVersionHeader('v1'), createServiceProxy('Marketing', SERVICES.marketing, '/api/v1/marketing', 'Marketing service unavailable'));
+app.use('/api/v1/partners', addVersionHeader('v1'), createServiceProxy('Partners', SERVICES.partners, '/api/v1/partners', 'Partners service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -395,6 +400,8 @@ app.use('/api/analytics', deprecatedRoute('/api/v1/analytics'), createServicePro
 app.use('/api/field-service', deprecatedRoute('/api/v1/field-service'), createServiceProxy('Field Service', SERVICES.fieldService, '/api/field-service', 'Field Service service unavailable'));
 app.use('/api/iso42001', deprecatedRoute('/api/v1/iso42001'), createServiceProxy('ISO 42001', SERVICES.iso42001, '/api/iso42001', 'ISO 42001 AI Management service unavailable'));
 app.use('/api/iso37001', deprecatedRoute('/api/v1/iso37001'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
+app.use('/api/marketing', deprecatedRoute('/api/v1/marketing'), createServiceProxy('Marketing', SERVICES.marketing, '/api/marketing', 'Marketing service unavailable'));
+app.use('/api/partners', deprecatedRoute('/api/v1/partners'), createServiceProxy('Partners', SERVICES.partners, '/api/partners', 'Partners service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

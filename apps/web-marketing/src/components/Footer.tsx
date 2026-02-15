@@ -73,7 +73,7 @@ export default function Footer() {
             <div className="bg-teal rounded-lg w-8 h-8 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
               R
             </div>
-            <p className="font-display text-white mt-3 font-semibold">Resolvex IMS</p>
+            <p className="font-display text-white mt-3 font-semibold">Nexara IMS</p>
             <p className="text-gray-500 text-sm mt-2 font-body leading-relaxed">
               Unified compliance intelligence for modern enterprises.
             </p>
@@ -90,7 +90,7 @@ export default function Footer() {
         <div className="border-t border-white/[0.06] mt-12 pt-8 flex justify-between items-center flex-wrap gap-4">
           {/* Copyright */}
           <p className="text-white/35 text-sm font-body">
-            &copy; 2026 Resolvex Ltd. All rights reserved.
+            &copy; 2026 Nexara Ltd. All rights reserved.
           </p>
 
           {/* Cert badges */}

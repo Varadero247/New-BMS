@@ -1,5 +1,5 @@
 /**
- * IMS Design Tokens — Resolvex 2026 Enterprise Palette
+ * IMS Design Tokens — Nexara 2026 Enterprise Palette
  *
  * Brand colours, typography, spacing, radius, and shadows.
  * Source of truth consumed by tailwind preset and CSS variables.

@@ -38,6 +38,28 @@ import executiveRouter from './routes/executive';
 import unifiedRisksRouter from './routes/unified-risks';
 import predictionsRouter from './routes/predictions';
 import anomaliesRouter from './routes/anomalies';
+import monthlyReviewRouter from './routes/monthly-review';
+// Session A — Finance
+import stripeDunningRouter from './routes/webhooks/stripe-dunning';
+import cashflowRouter from './routes/cashflow';
+// Session B — Support & Product
+import intercomWebhookRouter from './routes/webhooks/intercom';
+import sentryWebhookRouter from './routes/webhooks/sentry';
+import githubWebhookRouter from './routes/webhooks/github';
+import featureRequestsRouter from './routes/feature-requests';
+import releaseNotesRouter from './routes/release-notes';
+import uptimeRouter from './routes/uptime';
+// Session C — Compliance
+import contractsRouter from './routes/contracts';
+import gdprRouter from './routes/gdpr';
+import dsarsRouter from './routes/dsars';
+import certificationsRouter from './routes/certifications';
+// Session D — Business Intelligence
+import competitorsRouter from './routes/competitors';
+import boardPacksRouter from './routes/board-packs';
+import meetingsRouter from './routes/meetings';
+import expensesRouter from './routes/expenses';
+import { startScheduler } from './scheduler';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4021;
@@ -79,6 +101,27 @@ app.use('/api/exports', exportsRouter);
 app.use('/api/queries', queriesRouter);
 app.use('/api/schedules', schedulesRouter);
 app.use('/api/benchmarks', benchmarksRouter);
+app.use('/api/monthly-review', monthlyReviewRouter);
+// Session A — Finance
+app.use('/api/webhooks/stripe-dunning', stripeDunningRouter);
+app.use('/api/cashflow', cashflowRouter);
+// Session B — Support & Product
+app.use('/api/webhooks/intercom', intercomWebhookRouter);
+app.use('/api/webhooks/sentry', sentryWebhookRouter);
+app.use('/api/webhooks/github', githubWebhookRouter);
+app.use('/api/feature-requests', featureRequestsRouter);
+app.use('/api/release-notes', releaseNotesRouter);
+app.use('/api/uptime', uptimeRouter);
+// Session C — Compliance
+app.use('/api/contracts', contractsRouter);
+app.use('/api/gdpr', gdprRouter);
+app.use('/api/dsars', dsarsRouter);
+app.use('/api/certifications', certificationsRouter);
+// Session D — Business Intelligence
+app.use('/api/competitors', competitorsRouter);
+app.use('/api/board-packs', boardPacksRouter);
+app.use('/api/meetings', meetingsRouter);
+app.use('/api/expenses', expensesRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
@@ -99,6 +142,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 const server = app.listen(PORT, () => {
   logger.info(`Analytics API server running on port ${PORT}`);
+  startScheduler();
 });
 
 const gracefulShutdown = async (signal: string) => {

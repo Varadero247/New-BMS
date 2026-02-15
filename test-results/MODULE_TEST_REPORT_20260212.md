@@ -1,4 +1,4 @@
-# Resolvex IMS - Module Test Report
+# Nexara IMS - Module Test Report
 
 **Date:** 12 February 2026
 **Tester:** Claude Code (Opus 4.6)
@@ -405,7 +405,7 @@ Some routes don't have root GET handlers. Correct list endpoints:
 
 ## Final Verdict
 
-**ALL MODULES PASSING.** The Resolvex IMS platform is fully operational with:
+**ALL MODULES PASSING.** The Nexara IMS platform is fully operational with:
 
 - 25 API services handling 200+ endpoint groups across 25 business domains
 - 26 web applications serving all management modules

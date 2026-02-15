@@ -76,7 +76,7 @@ export function NpsSurvey({ onSubmit, onDismiss, className }: NpsSurveyProps) {
         {step === 'score' && (
           <div>
             <p className="text-sm text-foreground font-medium mb-3">
-              How likely are you to recommend Resolvex to a colleague?
+              How likely are you to recommend Nexara to a colleague?
             </p>
             <div className="flex gap-1 justify-between mb-2">
               {Array.from({ length: 11 }, (_, i) => (
@@ -150,7 +150,7 @@ export function NpsSurvey({ onSubmit, onDismiss, className }: NpsSurveyProps) {
               </svg>
             </div>
             <p className="text-sm font-semibold text-foreground">Thank you for your feedback!</p>
-            <p className="text-xs text-muted-foreground mt-1">Your response helps us improve Resolvex.</p>
+            <p className="text-xs text-muted-foreground mt-1">Your response helps us improve Nexara.</p>
           </div>
         )}
       </div>

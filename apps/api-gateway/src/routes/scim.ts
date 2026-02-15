@@ -56,7 +56,7 @@ const scimUserStore = new Map<string, ScimUser>();
 const scimGroupStore = new Map<string, ScimGroup>();
 const scimTokenStore = new Map<string, ScimBearerToken>();
 
-// Seed default groups from Resolvex roles
+// Seed default groups from Nexara roles
 const defaultGroups: Array<{ id: string; name: string }> = [
   { id: 'role-admin', name: 'Admin' },
   { id: 'role-manager', name: 'Manager' },
@@ -442,7 +442,7 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
   }
 });
 
-// GET /scim/v2/Groups — list groups (maps to Resolvex roles)
+// GET /scim/v2/Groups — list groups (maps to Nexara roles)
 router.get('/Groups', (req: Request, res: Response) => {
   try {
     const startIndex = Math.max(1, parseInt(req.query.startIndex as string) || 1);

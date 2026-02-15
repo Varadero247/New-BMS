@@ -128,7 +128,7 @@ describe('pdf-generator', () => {
       invoiceNumber: 'INV-2026-001',
       date: '2026-01-15',
       dueDate: '2026-02-15',
-      company: { name: 'Resolvex Ltd', address: '123 Business St\nLondon', taxId: 'GB123456789' },
+      company: { name: 'Nexara Ltd', address: '123 Business St\nLondon', taxId: 'GB123456789' },
       customer: { name: 'Client Corp', address: '456 Client Ave\nManchester' },
       items: [
         { description: 'Consulting Services', quantity: 10, unitPrice: 150, total: 1500 },
@@ -147,7 +147,7 @@ describe('pdf-generator', () => {
       expect(Buffer.isBuffer(result)).toBe(true);
       const html = result.toString('utf-8');
       expect(html).toContain('INV-2026-001');
-      expect(html).toContain('Resolvex Ltd');
+      expect(html).toContain('Nexara Ltd');
       expect(html).toContain('Consulting Services');
     });
 

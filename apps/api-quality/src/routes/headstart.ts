@@ -592,7 +592,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
         standardsCovered: standards.length,
         clausesSaved: savedClauses,
         efficiencyGain: `${efficiencyGain}%`,
-        message: `By using Resolvex's Standards Convergence Engine, ${savedClauses} shared Annex SL clauses are satisfied once across ${standards.length} standards — reducing compliance workload by approximately ${efficiencyGain}%.`,
+        message: `By using Nexara's Standards Convergence Engine, ${savedClauses} shared Annex SL clauses are satisfied once across ${standards.length} standards — reducing compliance workload by approximately ${efficiencyGain}%.`,
       };
     }
 

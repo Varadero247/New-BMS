@@ -60,7 +60,7 @@ Rewrote from 301 to 424 lines. Key changes:
 
 Updated all 3 priority documentation files + reports:
 
-**`Resolvex _PROJECT_SUMMARY.md`** (v1.0 → v1.1):
+**`Nexara _PROJECT_SUMMARY.md`** (v1.0 → v1.1):
 - H&S section: Replaced generic feature list with 5 detailed implemented modules
 - Database models: Updated H&S models (7 models + 11 enums)
 - AI section: Added H&S AI routes table
@@ -89,7 +89,7 @@ Updated all 3 priority documentation files + reports:
 | `apps/api-health-safety/__tests__/risks.api.test.ts` | Rewritten (fixed mock, orderBy) |
 | `apps/api-health-safety/__tests__/incidents.api.test.ts` | Rewritten (fixed mock, added tests) |
 | `apps/web-health-safety/src/app/page.tsx` | Dashboard rewrite with 6-endpoint data |
-| `Resolvex _PROJECT_SUMMARY.md` | H&S modules, tests, security, known issues |
+| `Nexara _PROJECT_SUMMARY.md` | H&S modules, tests, security, known issues |
 | `README.md` | H&S modules, packages, AI, testing |
 | `QUICK_REFERENCE.md` | Complete rewrite |
 | `reports/daily/report-2026-02-10.md` | Added Session 3 details |

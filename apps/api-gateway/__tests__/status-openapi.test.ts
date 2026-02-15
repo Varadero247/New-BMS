@@ -21,7 +21,7 @@ jest.mock('@ims/status', () => ({
 
 const mockGenerateOpenApiSpec = jest.fn().mockReturnValue({
   openapi: '3.0.3',
-  info: { title: 'Resolvex IMS API', version: '1.0.0' },
+  info: { title: 'Nexara IMS API', version: '1.0.0' },
   paths: {},
 });
 

@@ -51,6 +51,8 @@ check_service 4021 "Analytics API"
 check_service 4022 "Field Service API"
 check_service 4023 "ISO 42001 AI Management API"
 check_service 4024 "ISO 37001 Anti-Bribery API"
+check_service 4025 "Marketing API"
+check_service 4026 "Partners API"
 
 echo ""
 echo "Web Applications:"
@@ -80,8 +82,11 @@ check_service 3022 "Analytics Web"
 check_service 3023 "Field Service Web"
 check_service 3024 "ISO 42001 AI Management Web"
 check_service 3025 "ISO 37001 Anti-Bribery Web"
+check_service 3026 "Partners Portal Web"
+check_service 3027 "Admin Dashboard Web"
+check_service 3030 "Marketing Web"
 
 echo ""
 # Count running services using ss
-RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-2][0-9]|40[0-2][0-9]) ")
-echo "Total services running: $RUNNING / 50"
+RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-3][0-9]|40[0-2][0-9]) ")
+echo "Total services running: $RUNNING / 56"

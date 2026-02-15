@@ -303,12 +303,21 @@ importers:
       '@ims/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@ims/email':
+        specifier: workspace:*
+        version: link:../../packages/email
+      '@ims/hubspot-client':
+        specifier: workspace:*
+        version: link:../../packages/hubspot-client
       '@ims/monitoring':
         specifier: workspace:*
         version: link:../../packages/monitoring
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/stripe-client':
+        specifier: workspace:*
+        version: link:../../packages/stripe-client
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -327,6 +336,9 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.1
+      node-cron:
+        specifier: ^3.0.3
+        version: 3.0.3
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
@@ -349,6 +361,9 @@ importers:
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.30
+      '@types/node-cron':
+        specifier: ^3.0.11
+        version: 3.0.11
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
@@ -750,15 +765,30 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.14
       '@types/morgan':
         specifier: ^1.9.9
         version: 1.9.10
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.30
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.3
       '@types/uuid':
         specifier: ^9.0.0
         version: 9.0.8
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3))
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.4.6(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -1737,6 +1767,91 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  apps/api-marketing:
+    dependencies:
+      '@ims/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@ims/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@ims/email':
+        specifier: workspace:*
+        version: link:../../packages/email
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../../packages/monitoring
+      '@ims/rbac':
+        specifier: workspace:*
+        version: link:../../packages/rbac
+      '@ims/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.2
+      express:
+        specifier: ^4.18.2
+        version: 4.22.1
+      helmet:
+        specifier: ^7.1.0
+        version: 7.2.0
+      node-cron:
+        specifier: ^3.0.3
+        version: 3.0.3
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
+    devDependencies:
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.14
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.30
+      '@types/node-cron':
+        specifier: ^3.0.11
+        version: 3.0.11
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.3
+      '@types/uuid':
+        specifier: ^9.0.0
+        version: 9.0.8
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3))
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.4.6(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
   apps/api-medical:
     dependencies:
       '@ims/auth':
@@ -1797,6 +1912,88 @@ importers:
       '@types/morgan':
         specifier: ^1.9.9
         version: 1.9.10
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.30
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.3
+      '@types/uuid':
+        specifier: ^9.0.0
+        version: 9.0.8
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3))
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.4.6(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
+  apps/api-partners:
+    dependencies:
+      '@ims/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@ims/monitoring':
+        specifier: workspace:*
+        version: link:../../packages/monitoring
+      '@ims/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
+      bcryptjs:
+        specifier: ^2.4.3
+        version: 2.4.3
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.2
+      express:
+        specifier: ^4.18.2
+        version: 4.22.1
+      helmet:
+        specifier: ^7.1.0
+        version: 7.2.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.3
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
+    devDependencies:
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.14
+      '@types/jsonwebtoken':
+        specifier: ^9.0.5
+        version: 9.0.10
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.30
@@ -2277,8 +2474,8 @@ importers:
         specifier: ^5.0.7
         version: 5.0.7(jspdf@4.0.0)
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2338,6 +2535,76 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  apps/web-admin:
+    dependencies:
+      '@ims/charts':
+        specifier: workspace:*
+        version: link:../../packages/charts
+      '@ims/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@ims/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@ims/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: ^5.17.0
+        version: 5.90.19(react@18.3.1)
+      axios:
+        specifier: ^1.6.2
+        version: 1.13.2
+      chart.js:
+        specifier: ^4.5.1
+        version: 4.5.1
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
+      next:
+        specifier: 15.5.12
+        version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      recharts:
+        specifier: ^2.12.0
+        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwind-merge:
+        specifier: ^2.2.0
+        version: 2.6.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.30
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.27)
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.23(postcss@8.5.6)
+      postcss:
+        specifier: ^8.4.32
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.0
+        version: 3.4.19(tsx@4.21.0)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   apps/web-aerospace:
     dependencies:
       '@ims/charts':
@@ -2371,8 +2638,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2441,8 +2708,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2511,8 +2778,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2581,8 +2848,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2694,8 +2961,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2755,8 +3022,8 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2831,8 +3098,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2898,8 +3165,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2968,8 +3235,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3023,8 +3290,8 @@ importers:
         specifier: ^1.6.7
         version: 1.13.2
       lucide-react:
-        specifier: ^0.344.0
-        version: 0.344.0(react@19.2.3)
+        specifier: ^0.474.0
+        version: 0.474.0(react@19.2.3)
       next:
         specifier: 15.1.6
         version: 15.1.6(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -3087,8 +3354,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3154,8 +3421,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3221,8 +3488,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3291,8 +3558,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3404,8 +3671,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3536,6 +3803,55 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  apps/web-marketing:
+    dependencies:
+      '@ims/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@ims/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      lucide-react:
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
+      next:
+        specifier: 15.5.12
+        version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.30
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.27)
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.23(postcss@8.5.6)
+      eslint:
+        specifier: ^8.56.0
+        version: 8.57.1
+      eslint-config-next:
+        specifier: 15.0.0
+        version: 15.0.0(eslint@8.57.1)(typescript@5.9.3)
+      postcss:
+        specifier: ^8.4.32
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.0
+        version: 3.4.19(tsx@4.21.0)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
   apps/web-medical:
     dependencies:
       '@ims/charts':
@@ -3569,8 +3885,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3580,6 +3896,73 @@ importers:
       react-chartjs-2:
         specifier: ^5.3.1
         version: 5.3.1(chart.js@4.5.1)(react@18.3.1)
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwind-merge:
+        specifier: ^2.2.0
+        version: 2.6.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.30
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.27)
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.23(postcss@8.5.6)
+      postcss:
+        specifier: ^8.4.32
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.0
+        version: 3.4.19(tsx@4.21.0)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  apps/web-partners:
+    dependencies:
+      '@ims/charts':
+        specifier: workspace:*
+        version: link:../../packages/charts
+      '@ims/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@ims/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@ims/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: ^5.17.0
+        version: 5.90.19(react@18.3.1)
+      axios:
+        specifier: ^1.6.2
+        version: 1.13.2
+      chart.js:
+        specifier: ^4.5.1
+        version: 4.5.1
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
+      next:
+        specifier: 15.5.12
+        version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
@@ -3624,8 +4007,8 @@ importers:
         specifier: ^4.4.1
         version: 4.5.1
       lucide-react:
-        specifier: ^0.294.0
-        version: 0.294.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3685,8 +4068,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3758,8 +4141,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3822,8 +4205,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3889,8 +4272,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.1
       lucide-react:
-        specifier: ^0.303.0
-        version: 0.303.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3941,8 +4324,8 @@ importers:
         specifier: ^4.4.1
         version: 4.5.1
       lucide-react:
-        specifier: ^0.294.0
-        version: 0.294.0(react@18.3.1)
+        specifier: ^0.474.0
+        version: 0.474.0(react@18.3.1)
       next:
         specifier: 15.5.12
         version: 15.5.12(@babel/core@7.28.6)(@opentelemetry/api@1.7.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4484,7 +4867,25 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  packages/hubspot-client:
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
   packages/i18n: {}
+
+  packages/intercom-client:
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
 
   packages/iso-checklists:
     devDependencies:
@@ -4714,9 +5115,6 @@ importers:
 
   packages/rbac:
     dependencies:
-      express:
-        specifier: ^4.18.0
-        version: 4.22.1
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
@@ -4736,12 +5134,21 @@ importers:
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.27
+      '@types/supertest':
+        specifier: ^6.0.3
+        version: 6.0.3
+      express:
+        specifier: ^4.18.2
+        version: 4.22.1
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3))
       react:
         specifier: ^18.3.1
         version: 18.3.1
+      supertest:
+        specifier: ^7.2.2
+        version: 7.2.2
       ts-jest:
         specifier: ^29.1.1
         version: 29.4.6(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
@@ -4946,6 +5353,15 @@ importers:
       ts-jest:
         specifier: ^29.1.1
         version: 29.4.6(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.30)(ts-node@10.9.2(@swc/core@1.15.11(@swc/helpers@0.5.15))(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
+  packages/stripe-client:
+    devDependencies:
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.15.11(@swc/helpers@0.5.15))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -8307,6 +8723,33 @@ packages:
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
 
+  '@types/d3-array@3.2.2':
+    resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
+
+  '@types/d3-color@3.1.3':
+    resolution: {integrity: sha512-iO90scth9WAbmgv7ogoq57O9YpKmFBbmoEoCHDB2xMBY0+/KVrqAaCDyCE16dUspeOvIxFFRI+0sEtqDqy2b4A==}
+
+  '@types/d3-ease@3.0.2':
+    resolution: {integrity: sha512-NcV1JjO5oDzoK26oMzbILE6HW7uVXOHLQvHshBUW4UMdZGfiY6v5BeQwh9a9tCzv+CeefZQHJt5SRgK154RtiA==}
+
+  '@types/d3-interpolate@3.0.4':
+    resolution: {integrity: sha512-mgLPETlrpVV1YRJIglr4Ez47g7Yxjl1lj7YKsiMCb27VJH9W8NVM6Bb9d8kkpG/uAQS5AmbA48q2IAolKKo1MA==}
+
+  '@types/d3-path@3.1.1':
+    resolution: {integrity: sha512-VMZBYyQvbGmWyWVea0EHs/BwLgxc+MKi1zLDCONksozI4YJMcTt8ZEuIR4Sb1MMTE8MMW49v0IwI5+b7RmfWlg==}
+
+  '@types/d3-scale@4.0.9':
+    resolution: {integrity: sha512-dLmtwB8zkAeO/juAMfnV+sItKjlsw2lKdZVVy6LRr0cBmegxSABiLEpGVmSJJ8O08i4+sGR6qQtb6WtuwJdvVw==}
+
+  '@types/d3-shape@3.1.8':
+    resolution: {integrity: sha512-lae0iWfcDeR7qt7rA88BNiqdvPS5pFVPpo5OfjElwNaT2yyekbM0C9vK+yqBqEmHr6lDkRnYNoTBYlAgJa7a4w==}
+
+  '@types/d3-time@3.0.4':
+    resolution: {integrity: sha512-yuzZug1nkAAaBlBBikKZTgzCeA+k1uy4ZFwWANOfKw5z5LRhV0gNA7gNkKm7HoK+HRN0wX3EkxGk0fpbWhmB7g==}
+
+  '@types/d3-timer@3.0.2':
+    resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
+
   '@types/doctrine@0.0.9':
     resolution: {integrity: sha512-eOIHzCUSH7SMfonMG1LsC2f8vxBFtho6NGBznK41R84YzPuvSBzrhEps33IsQiOW9+VL6NQ9DbjQJznk/S4uRA==}
 
@@ -8407,6 +8850,9 @@ packages:
 
   '@types/mysql@2.15.22':
     resolution: {integrity: sha512-wK1pzsJVVAjYCSZWQoWHziQZbNggXFDUEIGf54g4ZM/ERuP86uGdWeKZWMYlqTPMZfHJJvLPyogXGvCOg87yLQ==}
+
+  '@types/node-cron@3.0.11':
+    resolution: {integrity: sha512-0ikrnug3/IyneSHqCBeslAhlK2aBfYek1fGo4bP4QnZPmiqSGRK+Oy7ZMisLWkesffJvQ1cqAcBnJC+8+nxIAg==}
 
   '@types/node-fetch@2.6.13':
     resolution: {integrity: sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==}
@@ -9344,6 +9790,50 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
+  d3-array@3.2.4:
+    resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
+    engines: {node: '>=12'}
+
+  d3-color@3.1.0:
+    resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
+    engines: {node: '>=12'}
+
+  d3-ease@3.0.1:
+    resolution: {integrity: sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==}
+    engines: {node: '>=12'}
+
+  d3-format@3.1.2:
+    resolution: {integrity: sha512-AJDdYOdnyRDV5b6ArilzCPPwc1ejkHcoyFarqlPqT7zRYjhavcT3uSrqcMvsgh2CgoPbK3RCwyHaVyxYcP2Arg==}
+    engines: {node: '>=12'}
+
+  d3-interpolate@3.0.1:
+    resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
+    engines: {node: '>=12'}
+
+  d3-path@3.1.0:
+    resolution: {integrity: sha512-p3KP5HCf/bvjBSSKuXid6Zqijx7wIfNW+J/maPs+iwR35at5JCbLUT0LzF1cnjbCHWhqzQTIN2Jpe8pRebIEFQ==}
+    engines: {node: '>=12'}
+
+  d3-scale@4.0.2:
+    resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
+    engines: {node: '>=12'}
+
+  d3-shape@3.2.0:
+    resolution: {integrity: sha512-SaLBuwGm3MOViRq2ABk3eLoxwZELpH6zhl3FbAoJ7Vm1gofKx6El1Ib5z23NUEhF9AsGl7y+dzLe5Cw2AArGTA==}
+    engines: {node: '>=12'}
+
+  d3-time-format@4.1.0:
+    resolution: {integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==}
+    engines: {node: '>=12'}
+
+  d3-time@3.1.0:
+    resolution: {integrity: sha512-VqKjzBLejbSMT4IgbmVgDjpkYrNWUYJnbCGo874u7MMKIWsILRX+OpX/gTk8MqjpT1A/c6HY2dCA77ZN0lkQ2Q==}
+    engines: {node: '>=12'}
+
+  d3-timer@3.0.1:
+    resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
+    engines: {node: '>=12'}
+
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
 
@@ -9393,6 +9883,9 @@ packages:
   decamelize@1.2.0:
     resolution: {integrity: sha512-z2S+W9X73hAUUki+N+9Za2lBlun89zigOyGrsax+KUQ6wKW4ZoWpEYBkGhQjwAjjDCkWxhY0VKEhk8wzY7F5cA==}
     engines: {node: '>=0.10.0'}
+
+  decimal.js-light@2.5.1:
+    resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
 
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
@@ -9490,6 +9983,9 @@ packages:
   docx@9.5.2:
     resolution: {integrity: sha512-IJDqLzYeCGtnHJRtljEHCX/v9aQS0jgzpyD3BSxClEepFfn4h/H/5RVRminu05Kf4e29oMDZKRGyQo/5nQZmMg==}
     engines: {node: '>=10'}
+
+  dom-helpers@5.2.1:
+    resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
 
   dompurify@3.3.1:
     resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
@@ -9793,6 +10289,10 @@ packages:
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  fast-equals@5.4.0:
+    resolution: {integrity: sha512-jt2DW/aNFNwke7AUd+Z+e6pz39KO5rzdbbFCg2sGafS4mk13MI7Z8O5z9cADNn5lhGODIgLwug6TZO2ctf7kcw==}
+    engines: {node: '>=6.0.0'}
 
   fast-glob@3.3.1:
     resolution: {integrity: sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==}
@@ -10213,6 +10713,10 @@ packages:
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
     engines: {node: '>= 0.4'}
+
+  internmap@2.0.3:
+    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
+    engines: {node: '>=12'}
 
   intl-messageformat@11.1.2:
     resolution: {integrity: sha512-ucSrQmZGAxfiBHfBRXW/k7UC8MaGFlEj4Ry1tKiDcmgwQm1y3EDl40u+4VNHYomxJQMJi9NEI3riDRlth96jKg==}
@@ -10776,6 +11280,9 @@ packages:
   lodash.throttle@4.1.1:
     resolution: {integrity: sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==}
 
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
@@ -10801,20 +11308,15 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@0.294.0:
-    resolution: {integrity: sha512-V7o0/VECSGbLHn3/1O67FUgBwWB+hmzshrgDVRJQhMh8uj5D3HBuIvhuAmQTtlupILSplwIZg5FTc4tTKMA2SA==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0
-
   lucide-react@0.303.0:
     resolution: {integrity: sha512-B0B9T3dLEFBYPCUlnUS1mvAhW1craSbF9HO+JfBjAtpFUJ7gMIqmEwNSclikY3RiN2OnCkj/V1ReAQpaHae8Bg==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
 
-  lucide-react@0.344.0:
-    resolution: {integrity: sha512-6YyBnn91GB45VuVT96bYCOKElbJzUHqp65vX8cDcu55MQL9T969v4dhGClpljamuI/+KMO9P6w9Acq1CVQGvIQ==}
+  lucide-react@0.474.0:
+    resolution: {integrity: sha512-CmghgHkh0OJNmxGKWc0qfPJCYHASPMVSyGY8fj3xgk4v84ItqDg64JNKFZn5hC6E0vHi6gxnbCgwhyVB09wQtA==}
     peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   magic-bytes.js@1.13.0:
     resolution: {integrity: sha512-afO2mnxW7GDTXMm5/AoN1WuOcdoKhtgXjIvHmobqTD1grNplhGdv3PFOyjCVmrnOZBIT/gD/koDKpYG+0mvHcg==}
@@ -11135,6 +11637,10 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
+
+  node-cron@3.0.3:
+    resolution: {integrity: sha512-dOal67//nohNgYWb+nWmg5dkFdIwDm8EpeGYMekPMrngV3637lqnX0lbUcCtgibHTz6SEz7DAIjKvKDFYCnO1A==}
+    engines: {node: '>=6.0.0'}
 
   node-dir@0.1.17:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
@@ -11671,6 +12177,18 @@ packages:
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0
 
+  react-smooth@4.0.4:
+    resolution: {integrity: sha512-gnGKTpYwqL0Iii09gHobNolvX4Kiq4PKx6eWBCYYix+8cdw+cGo3do906l1NBPKkSWx1DghC1dlWG9L2uGd61Q==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  react-transition-group@4.4.5:
+    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
+    peerDependencies:
+      react: '>=16.6.0'
+      react-dom: '>=16.6.0'
+
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
@@ -11719,6 +12237,16 @@ packages:
   recast@0.23.11:
     resolution: {integrity: sha512-YTUo+Flmw4ZXiWfQKGcwwc11KnoRAYgzAE2E7mXKCjSviTKShtxBsN6YUUBB2gtaBzKzeKunxhUwNHQuRryhWA==}
     engines: {node: '>= 4'}
+
+  recharts-scale@0.4.5:
+    resolution: {integrity: sha512-kivNFO+0OcUNu7jQquLXAxz1FIwZj8nrj+YkOKc5694NbjCvcT6aSZiIzNzd2Kul4o4rTto8QVR9lMNtxD4G1w==}
+
+  recharts@2.15.4:
+    resolution: {integrity: sha512-UT/q6fwS3c1dHbXv2uFgYJ9BMFHu3fwnd7AYZaEQhXuYQ4hgsxLvsUXzGdKeZrW5xopzDCvuA2N41WJ88I7zIw==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   redis-errors@1.2.0:
     resolution: {integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==}
@@ -12590,6 +13118,10 @@ packages:
   utrie@1.0.2:
     resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
 
+  uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -12611,6 +13143,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  victory-vendor@36.9.2:
+    resolution: {integrity: sha512-PnpQQMuxlwYdocC8fIJqVXvkeViHYzotI+NJrCuav0ZYFoq912ZHBk3mCeuj+5/VpodOjPe1z0Fk2ihgzlXqjQ==}
 
   vite@5.4.21:
     resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
@@ -16332,6 +16867,30 @@ snapshots:
     dependencies:
       '@types/node': 20.19.30
 
+  '@types/d3-array@3.2.2': {}
+
+  '@types/d3-color@3.1.3': {}
+
+  '@types/d3-ease@3.0.2': {}
+
+  '@types/d3-interpolate@3.0.4':
+    dependencies:
+      '@types/d3-color': 3.1.3
+
+  '@types/d3-path@3.1.1': {}
+
+  '@types/d3-scale@4.0.9':
+    dependencies:
+      '@types/d3-time': 3.0.4
+
+  '@types/d3-shape@3.1.8':
+    dependencies:
+      '@types/d3-path': 3.1.1
+
+  '@types/d3-time@3.0.4': {}
+
+  '@types/d3-timer@3.0.2': {}
+
   '@types/doctrine@0.0.9': {}
 
   '@types/estree@1.0.8': {}
@@ -16459,6 +17018,8 @@ snapshots:
   '@types/mysql@2.15.22':
     dependencies:
       '@types/node': 20.19.30
+
+  '@types/node-cron@3.0.11': {}
 
   '@types/node-fetch@2.6.13':
     dependencies:
@@ -17493,6 +18054,44 @@ snapshots:
 
   csstype@3.2.3: {}
 
+  d3-array@3.2.4:
+    dependencies:
+      internmap: 2.0.3
+
+  d3-color@3.1.0: {}
+
+  d3-ease@3.0.1: {}
+
+  d3-format@3.1.2: {}
+
+  d3-interpolate@3.0.1:
+    dependencies:
+      d3-color: 3.1.0
+
+  d3-path@3.1.0: {}
+
+  d3-scale@4.0.2:
+    dependencies:
+      d3-array: 3.2.4
+      d3-format: 3.1.2
+      d3-interpolate: 3.0.1
+      d3-time: 3.1.0
+      d3-time-format: 4.1.0
+
+  d3-shape@3.2.0:
+    dependencies:
+      d3-path: 3.1.0
+
+  d3-time-format@4.1.0:
+    dependencies:
+      d3-time: 3.1.0
+
+  d3-time@3.1.0:
+    dependencies:
+      d3-array: 3.2.4
+
+  d3-timer@3.0.1: {}
+
   damerau-levenshtein@1.0.8: {}
 
   data-view-buffer@1.0.2:
@@ -17530,6 +18129,8 @@ snapshots:
       ms: 2.1.3
 
   decamelize@1.2.0: {}
+
+  decimal.js-light@2.5.1: {}
 
   decimal.js@10.6.0: {}
 
@@ -17608,6 +18209,11 @@ snapshots:
       nanoid: 5.1.6
       xml: 1.0.1
       xml-js: 1.6.11
+
+  dom-helpers@5.2.1:
+    dependencies:
+      '@babel/runtime': 7.28.6
+      csstype: 3.2.3
 
   dompurify@3.3.1:
     optionalDependencies:
@@ -18145,6 +18751,8 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
+  fast-equals@5.4.0: {}
+
   fast-glob@3.3.1:
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -18618,6 +19226,8 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.2
       side-channel: 1.1.0
+
+  internmap@2.0.3: {}
 
   intl-messageformat@11.1.2:
     dependencies:
@@ -19398,6 +20008,8 @@ snapshots:
 
   lodash.throttle@4.1.1: {}
 
+  lodash@4.17.23: {}
+
   log-symbols@4.1.0:
     dependencies:
       chalk: 4.1.2
@@ -19430,15 +20042,15 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.294.0(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-
   lucide-react@0.303.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
-  lucide-react@0.344.0(react@19.2.3):
+  lucide-react@0.474.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
+  lucide-react@0.474.0(react@19.2.3):
     dependencies:
       react: 19.2.3
 
@@ -19891,6 +20503,10 @@ snapshots:
   node-abort-controller@3.1.1: {}
 
   node-addon-api@7.1.1: {}
+
+  node-cron@3.0.3:
+    dependencies:
+      uuid: 8.3.2
 
   node-dir@0.1.17:
     dependencies:
@@ -20471,6 +21087,23 @@ snapshots:
       react: 18.3.1
       react-is: 18.3.1
 
+  react-smooth@4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      fast-equals: 5.4.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+
+  react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.28.6
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
@@ -20537,6 +21170,23 @@ snapshots:
       source-map: 0.6.1
       tiny-invariant: 1.3.3
       tslib: 2.8.1
+
+  recharts-scale@0.4.5:
+    dependencies:
+      decimal.js-light: 2.5.1
+
+  recharts@2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      clsx: 2.1.1
+      eventemitter3: 4.0.7
+      lodash: 4.17.23
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 18.3.1
+      react-smooth: 4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      recharts-scale: 0.4.5
+      tiny-invariant: 1.3.3
+      victory-vendor: 36.9.2
 
   redis-errors@1.2.0: {}
 
@@ -21604,6 +22254,8 @@ snapshots:
       base64-arraybuffer: 1.0.2
     optional: true
 
+  uuid@8.3.2: {}
+
   uuid@9.0.1: {}
 
   v8-compile-cache-lib@3.0.1: {}
@@ -21622,6 +22274,23 @@ snapshots:
   validator@13.15.26: {}
 
   vary@1.1.2: {}
+
+  victory-vendor@36.9.2:
+    dependencies:
+      '@types/d3-array': 3.2.2
+      '@types/d3-ease': 3.0.2
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-scale': 4.0.9
+      '@types/d3-shape': 3.1.8
+      '@types/d3-time': 3.0.4
+      '@types/d3-timer': 3.0.2
+      d3-array: 3.2.4
+      d3-ease: 3.0.1
+      d3-interpolate: 3.0.1
+      d3-scale: 4.0.2
+      d3-shape: 3.2.0
+      d3-time: 3.1.0
+      d3-timer: 3.0.1
 
   vite@5.4.21(@types/node@20.19.30)(terser@5.46.0):
     dependencies:

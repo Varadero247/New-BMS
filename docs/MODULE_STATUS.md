@@ -1,6 +1,6 @@
 # Module Status
 
-Last updated: 2026-02-13
+Last updated: 2026-02-14
 
 ## API Services
 
@@ -14,6 +14,7 @@ Last updated: 2026-02-13
 | HR | HRM | api-hr | 4006 | Active | 79 | 305 | 2026-02-13 |
 | Payroll | Payroll | api-payroll | 4007 | Active | 39 | 163 | 2026-02-13 |
 | Workflows | BPM | api-workflows | 4008 | Active | 61 | 231 | 2026-02-13 |
+| Dashboard | IMS Aggregator | api | 4025 | Active | - | - | 2026-02-14 |
 | Project Management | PMBOK/ISO 21502 | api-project-management | 4009 | Active | 65 | 230 | 2026-02-13 |
 | Automotive | IATF 16949 | api-automotive | 4010 | Active | 43 | 502 | 2026-02-13 |
 | Medical Devices | ISO 13485 | api-medical | 4011 | Active | 66 | 584 | 2026-02-13 |
@@ -32,7 +33,7 @@ Last updated: 2026-02-13
 | ISO 42001 | AI Management | api-iso42001 | 4023 | Active | 35 | 120 | 2026-02-13 |
 | ISO 37001 | Anti-Bribery | api-iso37001 | 4024 | Active | 30 | 105 | 2026-02-13 |
 
-**Total: 25 services | ~1,469 endpoints | ~7,829 tests**
+**Total: 25 services | ~1,469 endpoints | ~7,877 tests**
 
 ## Shared Packages
 
@@ -59,7 +60,7 @@ Last updated: 2026-02-13
 | @ims/types | Shared TypeScript types | - |
 | @ims/ui | Shared UI components | - |
 | @ims/charts | Chart components | - |
-| @ims/sdk | @resolvex/sdk NPM package | - |
+| @ims/sdk | @nexara/sdk NPM package | - |
 | @ims/testing | Test utilities | - |
 
 | @ims/rbac | Role-based access control (39 roles, 17 modules) | 65 |
@@ -71,7 +72,7 @@ Last updated: 2026-02-13
 | @ims/oee-engine | Overall Equipment Effectiveness engine | - |
 | @ims/portal-auth | Portal authentication | - |
 | @ims/nlq | Natural language query engine | - |
-| @ims/tax-engine | Multi-jurisdiction tax calculation | - |
+| @ims/tax-engine | Multi-jurisdiction tax calculation | 35 |
 | @ims/event-bus | Inter-service event bus | - |
 | @ims/standards-convergence | Standards overlap analysis | - |
 | @ims/pdf-generator | PDF document generation | - |

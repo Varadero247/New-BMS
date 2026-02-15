@@ -545,6 +545,8 @@ services:
       PORT: 4010
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      AUTOMOTIVE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -568,6 +570,8 @@ services:
       PORT: 4011
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      MEDICAL_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -591,6 +595,8 @@ services:
       PORT: 4012
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      AEROSPACE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -614,6 +620,8 @@ services:
       PORT: 4013
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      FINANCE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -637,6 +645,8 @@ services:
       PORT: 4014
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      CRM_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -660,6 +670,8 @@ services:
       PORT: 4015
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      INFOSEC_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -683,6 +695,8 @@ services:
       PORT: 4016
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ESG_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -706,6 +720,8 @@ services:
       PORT: 4017
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      CMMS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -729,6 +745,8 @@ services:
       PORT: 4018
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      PORTAL_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -752,6 +770,8 @@ services:
       PORT: 4019
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      FOOD_SAFETY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -775,6 +795,8 @@ services:
       PORT: 4020
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ENERGY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -798,6 +820,8 @@ services:
       PORT: 4021
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ANALYTICS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -821,6 +845,8 @@ services:
       PORT: 4022
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      FIELD_SERVICE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -844,6 +870,8 @@ services:
       PORT: 4023
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ISO42001_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -867,6 +895,8 @@ services:
       PORT: 4024
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ISO37001_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -876,6 +906,361 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  web-automotive:
+    build:
+      context: .
+      dockerfile: ./apps/web-automotive/Dockerfile
+    container_name: ims-web-automotive
+    restart: unless-stopped
+    ports:
+      - '3010:3010'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-medical:
+    build:
+      context: .
+      dockerfile: ./apps/web-medical/Dockerfile
+    container_name: ims-web-medical
+    restart: unless-stopped
+    ports:
+      - '3011:3011'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3011"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-aerospace:
+    build:
+      context: .
+      dockerfile: ./apps/web-aerospace/Dockerfile
+    container_name: ims-web-aerospace
+    restart: unless-stopped
+    ports:
+      - '3012:3012'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3012"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-finance:
+    build:
+      context: .
+      dockerfile: ./apps/web-finance/Dockerfile
+    container_name: ims-web-finance
+    restart: unless-stopped
+    ports:
+      - '3013:3013'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3013"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-crm:
+    build:
+      context: .
+      dockerfile: ./apps/web-crm/Dockerfile
+    container_name: ims-web-crm
+    restart: unless-stopped
+    ports:
+      - '3014:3014'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3014"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-infosec:
+    build:
+      context: .
+      dockerfile: ./apps/web-infosec/Dockerfile
+    container_name: ims-web-infosec
+    restart: unless-stopped
+    ports:
+      - '3015:3015'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-esg:
+    build:
+      context: .
+      dockerfile: ./apps/web-esg/Dockerfile
+    container_name: ims-web-esg
+    restart: unless-stopped
+    ports:
+      - '3016:3016'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3016"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-cmms:
+    build:
+      context: .
+      dockerfile: ./apps/web-cmms/Dockerfile
+    container_name: ims-web-cmms
+    restart: unless-stopped
+    ports:
+      - '3017:3017'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3017"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-customer-portal:
+    build:
+      context: .
+      dockerfile: ./apps/web-customer-portal/Dockerfile
+    container_name: ims-web-customer-portal
+    restart: unless-stopped
+    ports:
+      - '3018:3018'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3018"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-supplier-portal:
+    build:
+      context: .
+      dockerfile: ./apps/web-supplier-portal/Dockerfile
+    container_name: ims-web-supplier-portal
+    restart: unless-stopped
+    ports:
+      - '3019:3019'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3019"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-food-safety:
+    build:
+      context: .
+      dockerfile: ./apps/web-food-safety/Dockerfile
+    container_name: ims-web-food-safety
+    restart: unless-stopped
+    ports:
+      - '3020:3020'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3020"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-energy:
+    build:
+      context: .
+      dockerfile: ./apps/web-energy/Dockerfile
+    container_name: ims-web-energy
+    restart: unless-stopped
+    ports:
+      - '3021:3021'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3021"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-analytics:
+    build:
+      context: .
+      dockerfile: ./apps/web-analytics/Dockerfile
+    container_name: ims-web-analytics
+    restart: unless-stopped
+    ports:
+      - '3022:3022'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3022"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-field-service:
+    build:
+      context: .
+      dockerfile: ./apps/web-field-service/Dockerfile
+    container_name: ims-web-field-service
+    restart: unless-stopped
+    ports:
+      - '3023:3023'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3023"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-iso42001:
+    build:
+      context: .
+      dockerfile: ./apps/web-iso42001/Dockerfile
+    container_name: ims-web-iso42001
+    restart: unless-stopped
+    ports:
+      - '3024:3024'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3024"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-iso37001:
+    build:
+      context: .
+      dockerfile: ./apps/web-iso37001/Dockerfile
+    container_name: ims-web-iso37001
+    restart: unless-stopped
+    ports:
+      - '3025:3025'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3025"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-marketing:
+    build:
+      context: .
+      dockerfile: ./apps/api-marketing/Dockerfile
+    container_name: ims-api-marketing
+    restart: unless-stopped
+    expose:
+      - '4025'
+    environment:
+      NODE_ENV: production
+      PORT: 4025
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      MARKETING_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      HUBSPOT_API_KEY: ${HUBSPOT_API_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4025/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-partners:
+    build:
+      context: .
+      dockerfile: ./apps/api-partners/Dockerfile
+    container_name: ims-api-partners
+    restart: unless-stopped
+    expose:
+      - '4026'
+    environment:
+      NODE_ENV: production
+      PORT: 4026
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      MARKETING_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4026/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
 
 volumes:
   postgres_data:

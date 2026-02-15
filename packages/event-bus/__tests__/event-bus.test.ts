@@ -1,6 +1,6 @@
 import { EventPublisher } from '../src/publisher';
 import { EventSubscriber } from '../src/subscriber';
-import { RESOLVEX_EVENTS, getEventTriggers, getAllEventTypes } from '../src/events';
+import { NEXARA_EVENTS, getEventTriggers, getAllEventTypes } from '../src/events';
 import { EventPayload } from '../src/types';
 
 // Mock ioredis so tests don't need a real Redis connection
@@ -15,13 +15,13 @@ jest.mock('ioredis', () => {
 });
 
 describe('@ims/event-bus', () => {
-  describe('RESOLVEX_EVENTS registry', () => {
+  describe('NEXARA_EVENTS registry', () => {
     it('should contain 17 event types', () => {
-      expect(Object.keys(RESOLVEX_EVENTS)).toHaveLength(17);
+      expect(Object.keys(NEXARA_EVENTS)).toHaveLength(17);
     });
 
     it('should have description and triggers for every event', () => {
-      for (const [eventType, config] of Object.entries(RESOLVEX_EVENTS)) {
+      for (const [eventType, config] of Object.entries(NEXARA_EVENTS)) {
         expect(config.description).toBeDefined();
         expect(typeof config.description).toBe('string');
         expect(config.description.length).toBeGreaterThan(0);
@@ -31,58 +31,58 @@ describe('@ims/event-bus', () => {
     });
 
     it('should include calibration.failed event', () => {
-      expect(RESOLVEX_EVENTS['calibration.failed']).toBeDefined();
-      expect(RESOLVEX_EVENTS['calibration.failed'].triggers).toContain('quality.ncr.auto_create');
-      expect(RESOLVEX_EVENTS['calibration.failed'].triggers).toContain('cmms.asset.quarantine');
+      expect(NEXARA_EVENTS['calibration.failed']).toBeDefined();
+      expect(NEXARA_EVENTS['calibration.failed'].triggers).toContain('quality.ncr.auto_create');
+      expect(NEXARA_EVENTS['calibration.failed'].triggers).toContain('cmms.asset.quarantine');
     });
 
     it('should include incident.reported event', () => {
-      expect(RESOLVEX_EVENTS['incident.reported']).toBeDefined();
-      expect(RESOLVEX_EVENTS['incident.reported'].triggers).toContain('cmms.permit_to_work.review');
+      expect(NEXARA_EVENTS['incident.reported']).toBeDefined();
+      expect(NEXARA_EVENTS['incident.reported'].triggers).toContain('cmms.permit_to_work.review');
     });
 
     it('should include invoice.overdue event', () => {
-      expect(RESOLVEX_EVENTS['invoice.overdue']).toBeDefined();
-      expect(RESOLVEX_EVENTS['invoice.overdue'].triggers).toContain('crm.account.alert');
+      expect(NEXARA_EVENTS['invoice.overdue']).toBeDefined();
+      expect(NEXARA_EVENTS['invoice.overdue'].triggers).toContain('crm.account.alert');
     });
 
     it('should include deal.closed_won event with cross-module triggers', () => {
-      expect(RESOLVEX_EVENTS['deal.closed_won']).toBeDefined();
-      expect(RESOLVEX_EVENTS['deal.closed_won'].triggers).toContain('finance.invoice.draft_create');
-      expect(RESOLVEX_EVENTS['deal.closed_won'].triggers).toContain('pm.project.auto_create');
-      expect(RESOLVEX_EVENTS['deal.closed_won'].triggers).toContain('workflow.onboarding.trigger');
+      expect(NEXARA_EVENTS['deal.closed_won']).toBeDefined();
+      expect(NEXARA_EVENTS['deal.closed_won'].triggers).toContain('finance.invoice.draft_create');
+      expect(NEXARA_EVENTS['deal.closed_won'].triggers).toContain('pm.project.auto_create');
+      expect(NEXARA_EVENTS['deal.closed_won'].triggers).toContain('workflow.onboarding.trigger');
     });
 
     it('should include equipment.failure event', () => {
-      expect(RESOLVEX_EVENTS['equipment.failure']).toBeDefined();
-      expect(RESOLVEX_EVENTS['equipment.failure'].triggers).toContain('health_safety.incident.prompt');
+      expect(NEXARA_EVENTS['equipment.failure']).toBeDefined();
+      expect(NEXARA_EVENTS['equipment.failure'].triggers).toContain('health_safety.incident.prompt');
     });
 
     it('should include payroll.run.complete event', () => {
-      expect(RESOLVEX_EVENTS['payroll.run.complete']).toBeDefined();
-      expect(RESOLVEX_EVENTS['payroll.run.complete'].triggers).toContain('esg.social.gender_pay_gap.recalculate');
+      expect(NEXARA_EVENTS['payroll.run.complete']).toBeDefined();
+      expect(NEXARA_EVENTS['payroll.run.complete'].triggers).toContain('esg.social.gender_pay_gap.recalculate');
     });
 
     it('should include training.completed event', () => {
-      expect(RESOLVEX_EVENTS['training.completed']).toBeDefined();
-      expect(RESOLVEX_EVENTS['training.completed'].triggers).toContain('quality.competency.update');
-      expect(RESOLVEX_EVENTS['training.completed'].triggers).toContain('hr.training_matrix.update');
+      expect(NEXARA_EVENTS['training.completed']).toBeDefined();
+      expect(NEXARA_EVENTS['training.completed'].triggers).toContain('quality.competency.update');
+      expect(NEXARA_EVENTS['training.completed'].triggers).toContain('hr.training_matrix.update');
     });
 
     it('should include portal events', () => {
-      expect(RESOLVEX_EVENTS['portal.complaint.submitted']).toBeDefined();
-      expect(RESOLVEX_EVENTS['portal.supplier.ppap_submitted']).toBeDefined();
+      expect(NEXARA_EVENTS['portal.complaint.submitted']).toBeDefined();
+      expect(NEXARA_EVENTS['portal.supplier.ppap_submitted']).toBeDefined();
     });
 
     it('should include ai.incident.reported event', () => {
-      expect(RESOLVEX_EVENTS['ai.incident.reported']).toBeDefined();
-      expect(RESOLVEX_EVENTS['ai.incident.reported'].triggers).toContain('infosec.incident.review');
+      expect(NEXARA_EVENTS['ai.incident.reported']).toBeDefined();
+      expect(NEXARA_EVENTS['ai.incident.reported'].triggers).toContain('infosec.incident.review');
     });
 
     it('should include anti-bribery events', () => {
-      expect(RESOLVEX_EVENTS['antibribery.gift.reported']).toBeDefined();
-      expect(RESOLVEX_EVENTS['antibribery.investigation.opened']).toBeDefined();
-      expect(RESOLVEX_EVENTS['antibribery.investigation.opened'].triggers).toContain('hr.suspension.review');
+      expect(NEXARA_EVENTS['antibribery.gift.reported']).toBeDefined();
+      expect(NEXARA_EVENTS['antibribery.investigation.opened']).toBeDefined();
+      expect(NEXARA_EVENTS['antibribery.investigation.opened'].triggers).toContain('hr.suspension.review');
     });
   });
 

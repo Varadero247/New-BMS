@@ -174,4 +174,10 @@ export function initEmailService(config: Partial<EmailConfig>): EmailService {
   return emailService;
 }
 
+export async function sendEmail(options: SendEmailOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  return getEmailService().send(options);
+}
+
+export { monthlyReportEmail } from './templates/monthly-report';
+
 export default EmailService;

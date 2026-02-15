@@ -15,7 +15,7 @@ export interface CookieConsentProps {
   className?: string;
 }
 
-const STORAGE_KEY = 'resolvex:consent';
+const STORAGE_KEY = 'nexara:consent';
 const TWELVE_MONTHS_MS = 365 * 24 * 60 * 60 * 1000;
 
 function getStoredConsent(): CookieChoices | null {

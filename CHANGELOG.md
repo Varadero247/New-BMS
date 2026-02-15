@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Resolvex IMS project will be documented in this file.
+All notable changes to the Nexara IMS project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mobile offline scaffold (React Native + OfflineSyncEngine)
 - GDPR compliance (data export, erasure, retention policies)
 - Auto-generated reports (management review, audit, KPI pack, compliance summary)
-- Webhooks engine + @resolvex/sdk NPM package
+- Webhooks engine + @nexara/sdk NPM package
 - @ims/a11y WCAG 2.2 AA accessibility package
 - AI automotive APQP + PPAP analysis types
 - 90 UAT scenarios + demo seed data

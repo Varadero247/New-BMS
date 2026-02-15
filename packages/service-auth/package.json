@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs --dts",
-    "dev": "tsup src/index.ts --format cjs --dts --watch",
+    "dev": "tsup src/index.ts --format cjs --watch",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },

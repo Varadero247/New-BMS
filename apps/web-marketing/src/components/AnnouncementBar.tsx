@@ -27,7 +27,7 @@ export default function AnnouncementBar() {
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
         <div className="flex-1 text-center font-body">
           <span className="font-medium">
-            🎉 Resolvex IMS v3.0 — AI-powered risk controls, 29 ISO frameworks &amp; real-time dashboards.
+            🎉 Nexara IMS v3.0 — AI-powered risk controls, 29 ISO frameworks &amp; real-time dashboards.
           </span>{' '}
           <a
             href="/blog/v3-announcement"

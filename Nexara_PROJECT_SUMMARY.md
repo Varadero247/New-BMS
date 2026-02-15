@@ -2,7 +2,7 @@
 
 ## Executive Overview
 
-**Project Name**: IMS - Resolvex   
+**Project Name**: IMS - Nexara   
 **Version**: 1.0.0  
 **Architecture**: Microservices Monorepo  
 **Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
-import { Link as LinkIcon, RefreshCw, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
+import { Link as Link, RefreshCw, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Integration {
@@ -157,7 +157,7 @@ export default function IntegrationsPage() {
                   <p className="text-sm text-gray-500">Total Integrations</p>
                   <p className="text-2xl font-bold text-gray-900">{integrations.length}</p>
                 </div>
-                <LinkIcon className="h-8 w-8 text-indigo-500" />
+                <Link className="h-8 w-8 text-indigo-500" />
               </div>
             </CardContent>
           </Card>
@@ -199,7 +199,7 @@ export default function IntegrationsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className={`p-3 rounded-lg ${isConnected ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
-                        <LinkIcon className={`h-6 w-6 ${isConnected ? info.color : 'text-gray-400'}`} />
+                        <Link className={`h-6 w-6 ${isConnected ? info.color : 'text-gray-400'}`} />
                       </div>
                       <div>
                         <h3 className={`text-lg font-bold ${info.color}`}>{integration.name}</h3>

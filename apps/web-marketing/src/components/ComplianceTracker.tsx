@@ -47,7 +47,7 @@ export default function ComplianceTracker() {
             Track every standard in real time
           </h2>
           <p className="text-gray-400 mt-4 max-w-md font-body leading-relaxed">
-            Resolvex continuously monitors your compliance posture across every active standard.
+            Nexara continuously monitors your compliance posture across every active standard.
             No spreadsheets. No guesswork. Just a live, auditable view your whole team can trust.
           </p>
 

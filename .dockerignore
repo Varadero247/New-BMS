@@ -23,11 +23,32 @@ build
 logs
 
 # Environment files
-.env*.local
+.env
+.env.*
+**/.env
+**/.env.*
 
 # IDE
 .vscode
 .idea
+
+# Tests
+**/__tests__
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+coverage
+**/coverage
+jest.config.*
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Scripts (not needed in containers)
+scripts
 
 # OS
 .DS_Store

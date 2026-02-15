@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
-import { Plus, Search, HandshakeIcon, Eye, Trash2 } from 'lucide-react';
+import { Plus, Search,  Eye, Trash2 ,  Briefcase } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Deal {
@@ -195,7 +195,7 @@ export default function DealsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HandshakeIcon className="h-5 w-5 text-violet-600" />
+              <Briefcase className="h-5 w-5 text-violet-600" />
               Deals ({filteredDeals.length})
             </CardTitle>
           </CardHeader>
@@ -248,7 +248,7 @@ export default function DealsPage() {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
-                <HandshakeIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No deals found</p>
               </div>
             )}

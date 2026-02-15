@@ -190,7 +190,7 @@
 
 ### TC-MED-020: Register UDI Device
 **Given** I am on the UDI page
-**When** I click "New Device" and enter: Device Name "GlucoSense X1", Model Number "GS-X1-100", Manufacturer "Resolvex Medical Inc.", Device Class "CLASS_II", GMDN Code "47301"
+**When** I click "New Device" and enter: Device Name "GlucoSense X1", Model Number "GS-X1-100", Manufacturer "Nexara Medical Inc.", Device Class "CLASS_II", GMDN Code "47301"
 **Then** the UDI device record is created with reference "UDI-2602-XXXX" and status "DRAFT"
 **Result:** [ ] Pass / [ ] Fail
 **Notes:**

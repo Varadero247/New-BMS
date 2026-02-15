@@ -15,7 +15,7 @@ import {
   Calculator,
   BarChart3,
   PiggyBank,
-  Link as LinkIcon,
+  Link as Link,
   Home,
   Settings,
 } from 'lucide-react';
@@ -47,7 +47,7 @@ const reportsNavigation = [
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Budgets', href: '/budgets', icon: PiggyBank },
   { name: 'Budget Dashboard', href: '/budget-dashboard', icon: BarChart3 },
-  { name: 'Integrations', href: '/integrations', icon: LinkIcon },
+  { name: 'Integrations', href: '/integrations', icon: Link },
 ];
 
 const externalLinks = [

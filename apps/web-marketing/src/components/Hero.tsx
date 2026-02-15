@@ -95,7 +95,7 @@ function LoginCard() {
         {/* Header */}
         <div className="mb-6">
           <h2 className="font-display text-2xl font-bold text-white mb-1">Welcome back</h2>
-          <p className="text-gray-400 text-sm font-body">Sign in to your Resolvex account</p>
+          <p className="text-gray-400 text-sm font-body">Sign in to your Nexara account</p>
         </div>
 
         {/* Error */}
@@ -245,7 +245,7 @@ function LoginCard() {
 
         {/* Register link */}
         <p className="mt-5 text-center text-gray-500 text-sm font-body">
-          New to Resolvex?{' '}
+          New to Nexara?{' '}
           <a
             href="/auth/register"
             className="text-teal hover:text-teal/80 transition-colors font-medium"
@@ -326,7 +326,7 @@ export default function Hero() {
 
             {/* Subtext */}
             <p className="text-lg text-gray-400 font-body font-light max-w-lg mb-8">
-              Resolvex unifies 29 ISO standards, ESG reporting and regulatory compliance into a
+              Nexara unifies 29 ISO standards, ESG reporting and regulatory compliance into a
               single AI-powered management system — so your team can focus on outcomes, not
               spreadsheets.
             </p>
@@ -368,7 +368,7 @@ export default function Hero() {
                   +
                 </div>
                 <div className="text-gray-400 text-sm font-body mt-1">
-                  Organisations trust Resolvex
+                  Organisations trust Nexara
                 </div>
               </div>
 

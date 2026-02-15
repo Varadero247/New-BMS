@@ -29,7 +29,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: ims-secrets
-                  key: REDIS_PASSWORD  # Should be DB password
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               value: ims
             - name: PGDATA

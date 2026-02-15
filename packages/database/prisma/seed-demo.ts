@@ -627,7 +627,7 @@ async function seedMedical() {
     refNumber: refNumber('UDI', 1),
     deviceName: 'GlucoSense X1',
     modelNumber: 'GS-X1-100',
-    manufacturer: 'Resolvex Medical Inc.',
+    manufacturer: 'Nexara Medical Inc.',
     deviceClass: 'CLASS_II' as const,
     gmdn: '47301',
     status: 'ACTIVE' as const,

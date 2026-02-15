@@ -362,3 +362,688 @@ model AnalyticsSchedule {
   @@index([nextRun])
   @@map("analytics_schedules")
 }
+
+// ============================================
+// MONTHLY PERFORMANCE TRACKING
+// ============================================
+
+enum TrajectoryStatus {
+  BEHIND
+  ON_TRACK
+  AHEAD
+}
+
+model MonthlySnapshot {
+  id                  String            @id @default(uuid())
+  month               String            // YYYY-MM format
+  monthNumber         Int               // 1-36 (plan month)
+
+  // Stripe / Revenue metrics
+  mrr                 Decimal           @default(0)
+  arr                 Decimal           @default(0)
+  newMrr              Decimal           @default(0)
+  churnedMrr          Decimal           @default(0)
+  netNewMrr           Decimal           @default(0)
+  mrrGrowthPct        Decimal           @default(0)
+  revenueChurnPct     Decimal           @default(0)
+  customers           Int               @default(0)
+  newCustomers        Int               @default(0)
+  churnedCustomers    Int               @default(0)
+  arpu                Decimal           @default(0)
+  ltv                 Decimal           @default(0)
+
+  // HubSpot / Pipeline metrics
+  pipelineValue       Decimal           @default(0)
+  pipelineDeals       Int               @default(0)
+  wonDeals            Int               @default(0)
+  lostDeals           Int               @default(0)
+  avgDealSize         Decimal           @default(0)
+  winRate             Decimal           @default(0)
+  newLeads            Int               @default(0)
+  qualifiedLeads      Int               @default(0)
+  avgSalesCycle       Decimal           @default(0)
+
+  // Platform / Database metrics
+  activeTrials        Int               @default(0)
+  trialConversions    Int               @default(0)
+  trialConversionPct  Decimal           @default(0)
+  avgHealthScore      Decimal           @default(0)
+  nps                 Decimal           @default(0)
+  activePartners      Int               @default(0)
+  partnerRevenue      Decimal           @default(0)
+
+  // Founder income
+  founderSalary              Decimal           @default(0)
+  founderLoanPayment         Decimal           @default(0)
+  founderDividend            Decimal           @default(0)
+  founderSavings             Decimal           @default(0)
+  founderTotalIncome         Decimal           @default(0)
+
+  // Dual loan breakdown (Phase 7)
+  founderDirLoanPayment      Decimal           @default(0)
+  founderDirLoanInterest     Decimal           @default(0)
+  founderDirLoanPrincipal    Decimal           @default(0)
+  founderDirLoanBalance      Decimal           @default(0)
+  founderStarterLoanPayment  Decimal           @default(0)
+  founderStarterLoanInterest Decimal           @default(0)
+  founderStarterLoanPrincipal Decimal          @default(0)
+  founderStarterLoanBalance  Decimal           @default(0)
+
+  // AI analysis
+  aiSummary           String?
+  aiAlerts            Json?             // string[]
+  aiRecommendations   Json?             // { metric, current, suggested, rationale }[]
+  trajectory          TrajectoryStatus?
+
+  // Target approval
+  targetsApproved     Boolean           @default(false)
+  approvedAt          DateTime?
+  approvedBy          String?
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([month])
+  @@index([monthNumber])
+  @@index([trajectory])
+  @@map("monthly_snapshots")
+}
+
+model PlanTarget {
+  id                  String            @id @default(uuid())
+  month               String            // YYYY-MM format
+  monthNumber         Int               // 1-36
+
+  plannedMrr          Decimal           @default(0)
+  plannedArr          Decimal           @default(0)
+  plannedCustomers    Int               @default(0)
+  plannedNewCustomers Int               @default(0)
+  plannedChurnPct     Decimal           @default(0)
+  plannedArpu         Decimal           @default(0)
+
+  // Dual loan targets (Phase 7)
+  founderDirLoan      Decimal           @default(0)
+  founderStarterLoan  Decimal           @default(0)
+
+  // Revised targets (after recalibration)
+  revisedMrr          Decimal?
+  revisedCustomers    Int?
+  revisedAt           DateTime?
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([month])
+  @@index([monthNumber])
+  @@map("plan_targets")
+}
+
+// ============================================
+// STARTER LOAN CONFIG (Phase 7)
+// ============================================
+
+model StarterLoanConfig {
+  id          String    @id @default(uuid())
+  facility    Decimal                       // £30,000
+  rate        Decimal                       // 0.08 (8%)
+  termMonths  Int                           // 24
+  startMonth  Int                           // 2 (month number when drawdown begins)
+  drawdowns   Json                          // [{ month: 2, amount: 30000 }]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("starter_loan_configs")
+}
+
+model StarterLoanPayment {
+  id                String    @id @default(uuid())
+  monthNumber       Int
+  month             String                    // YYYY-MM
+  payment           Decimal   @default(0)
+  interest          Decimal   @default(0)
+  principal         Decimal   @default(0)
+  openingBalance    Decimal   @default(0)
+  closingBalance    Decimal   @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([monthNumber])
+  @@map("starter_loan_payments")
+}
+
+// ============================================
+// SESSION A — FINANCE AUTOMATION
+// ============================================
+
+enum DunningStep {
+  DAY_0
+  DAY_3
+  DAY_7
+  DAY_9
+  DAY_14
+  CANCELLED
+}
+
+model DunningSequence {
+  id              String      @id @default(uuid())
+  stripeCustomerId String
+  stripeInvoiceId  String     @unique
+  customerEmail   String
+  customerName    String
+  amountDue       Decimal
+  currency        String      @default("gbp")
+  currentStep     DunningStep @default(DAY_0)
+  nextActionAt    DateTime
+  resolvedAt      DateTime?
+  cancelledAt     DateTime?
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([currentStep])
+  @@index([nextActionAt])
+  @@map("dunning_sequences")
+}
+
+model VatSummary {
+  id            String    @id @default(uuid())
+  period        String    @unique  // YYYY-MM or YYYY-QN
+  totalRevenue  Decimal   @default(0)
+  ukVat         Decimal   @default(0)
+  euVat         Decimal   @default(0)
+  gccVat        Decimal   @default(0)
+  restOfWorld   Decimal   @default(0)
+  breakdown     Json?     // { country: string, revenue: number, vatRate: number, vatDue: number }[]
+  filingStatus  String    @default("DRAFT")  // DRAFT | FILED | PAID
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("vat_summaries")
+}
+
+model CashFlowForecast {
+  id            String    @id @default(uuid())
+  weekStart     DateTime
+  weekNumber    Int
+  openingBalance Decimal  @default(0)
+  inflows       Decimal   @default(0)
+  outflows      Decimal   @default(0)
+  closingBalance Decimal  @default(0)
+  details       Json?     // line-item breakdown
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([weekStart])
+  @@map("cashflow_forecasts")
+}
+
+model CompanyCashPosition {
+  id            String    @id @default(uuid())
+  date          DateTime  @unique @default(now())
+  bankBalance   Decimal   @default(0)
+  receivables   Decimal   @default(0)
+  payables      Decimal   @default(0)
+  runway        Int       @default(0)  // months of runway
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("company_cash_positions")
+}
+
+model PlannedExpense {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  amount        Decimal
+  frequency     String    @default("MONTHLY")  // MONTHLY | QUARTERLY | ANNUAL | ONE_OFF
+  nextDueDate   DateTime?
+  vendor        String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive])
+  @@map("planned_expenses")
+}
+
+model ApprovedVendor {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  monthlyCost   Decimal   @default(0)
+  annualCost    Decimal   @default(0)
+  contractEnd   DateTime?
+  isActive      Boolean   @default(true)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive])
+  @@map("approved_vendors")
+}
+
+model AnnualAccountsPack {
+  id            String    @id @default(uuid())
+  fiscalYear    String    @unique  // e.g. "2026-2027"
+  generatedAt   DateTime  @default(now())
+  totalRevenue  Decimal   @default(0)
+  totalExpenses Decimal   @default(0)
+  netProfit     Decimal   @default(0)
+  sections      Json?     // structured sections for accountant
+  fileUrl       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("annual_accounts_packs")
+}
+
+// ============================================
+// SESSION B — SUPPORT & PRODUCT INTELLIGENCE
+// ============================================
+
+enum TicketPriority {
+  P1_CRITICAL
+  P2_HIGH
+  P3_MEDIUM
+  P4_LOW
+}
+
+enum TicketCategory {
+  BUG
+  FEATURE_REQUEST
+  BILLING
+  ONBOARDING
+  INTEGRATION
+  GENERAL
+}
+
+model SupportTicketLog {
+  id              String          @id @default(uuid())
+  externalId      String          @unique  // Intercom conversation ID
+  subject         String
+  customerEmail   String
+  priority        TicketPriority  @default(P3_MEDIUM)
+  category        TicketCategory  @default(GENERAL)
+  aiClassification Json?          // { confidence, suggestedPriority, suggestedCategory, tags }
+  resolvedAt      DateTime?
+  firstResponseMs Int?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([priority])
+  @@index([category])
+  @@map("support_ticket_logs")
+}
+
+enum FeatureStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  PLANNED
+  IN_PROGRESS
+  SHIPPED
+  DECLINED
+}
+
+model FeatureRequest {
+  id            String        @id @default(uuid())
+  title         String
+  description   String
+  requestedBy   String?       // customer email or name
+  votes         Int           @default(1)
+  status        FeatureStatus @default(SUBMITTED)
+  priority      Int           @default(0)
+  tags          Json?
+  linkedIssue   String?       // GitHub issue URL
+  shippedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([votes])
+  @@map("feature_requests")
+}
+
+model BugReport {
+  id              String    @id @default(uuid())
+  sentryEventId   String    @unique
+  title           String
+  level           String    @default("error")  // error | warning | fatal
+  platform        String?
+  environment     String?
+  githubIssueUrl  String?
+  aiSummary       String?
+  resolvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([level])
+  @@map("bug_reports")
+}
+
+model Changelog {
+  id            String    @id @default(uuid())
+  version       String
+  title         String
+  summary       String
+  details       Json?     // { category: string, items: string[] }[]
+  commitSha     String?
+  publishedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([publishedAt])
+  @@map("changelogs")
+}
+
+enum UptimeStatus {
+  UP
+  DOWN
+  DEGRADED
+}
+
+model UptimeCheck {
+  id            String       @id @default(uuid())
+  serviceName   String
+  url           String
+  expectedStatus Int         @default(200)
+  lastStatus    UptimeStatus @default(UP)
+  lastCheckedAt DateTime?
+  avgResponseMs Int          @default(0)
+  uptimePct     Decimal      @default(100)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  incidents UptimeIncident[]
+
+  @@unique([serviceName])
+  @@map("uptime_checks")
+}
+
+model UptimeIncident {
+  id            String    @id @default(uuid())
+  uptimeCheckId String
+  startedAt     DateTime  @default(now())
+  resolvedAt    DateTime?
+  durationMs    Int?
+  statusCode    Int?
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  uptimeCheck UptimeCheck @relation(fields: [uptimeCheckId], references: [id])
+
+  @@index([uptimeCheckId])
+  @@index([startedAt])
+  @@map("uptime_incidents")
+}
+
+// ============================================
+// SESSION C — COMPLIANCE & LEGAL
+// ============================================
+
+enum ContractStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  RENEWED
+}
+
+model Contract {
+  id            String          @id @default(uuid())
+  name          String
+  vendor        String
+  category      String          // licence | subscription | legal | certification
+  startDate     DateTime
+  endDate       DateTime
+  renewalDate   DateTime?
+  annualCost    Decimal         @default(0)
+  status        ContractStatus  @default(ACTIVE)
+  autoRenew     Boolean         @default(false)
+  ownerEmail    String?
+  notes         String?
+  documentUrl   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([status])
+  @@index([endDate])
+  @@map("contracts")
+}
+
+model GdprDataCategory {
+  id            String    @id @default(uuid())
+  category      String    @unique  // e.g. "Customer PII", "Employee Records"
+  legalBasis    String    // consent | contract | legitimate_interest | legal_obligation
+  retentionDays Int       @default(730)  // 2 years default
+  systems       Json?     // list of systems holding this data
+  lastAudit     DateTime?
+  complianceStatus String @default("COMPLIANT")  // COMPLIANT | AT_RISK | NON_COMPLIANT
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("gdpr_data_categories")
+}
+
+model DataProcessingAgreement {
+  id            String    @id @default(uuid())
+  processorName String
+  purpose       String
+  dataTypes     Json?     // string[] of data categories
+  signedDate    DateTime?
+  expiryDate    DateTime?
+  documentUrl   String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive])
+  @@map("data_processing_agreements")
+}
+
+enum DsarType {
+  ACCESS
+  ERASURE
+  RECTIFICATION
+  PORTABILITY
+  RESTRICTION
+  OBJECTION
+}
+
+enum DsarStatus {
+  RECEIVED
+  VERIFIED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+model DataRequest {
+  id            String      @id @default(uuid())
+  type          DsarType
+  status        DsarStatus  @default(RECEIVED)
+  requesterEmail String
+  requesterName String
+  description   String?
+  receivedAt    DateTime    @default(now())
+  deadlineAt    DateTime                      // 30 days from receipt
+  completedAt   DateTime?
+  responseNotes String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([status])
+  @@index([deadlineAt])
+  @@map("data_requests")
+}
+
+model ComplianceDeadline {
+  id            String    @id @default(uuid())
+  name          String
+  category      String    // certification | audit | licence | review
+  dueDate       DateTime
+  renewalFrequency String? // ANNUAL | QUARTERLY | BIANNUAL
+  lastCompletedAt DateTime?
+  ownerEmail    String?
+  status        String    @default("UPCOMING")  // UPCOMING | DUE_SOON | OVERDUE | COMPLETED
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([dueDate])
+  @@index([status])
+  @@map("compliance_deadlines")
+}
+
+// ============================================
+// SESSION D — BUSINESS INTELLIGENCE
+// ============================================
+
+model CompetitorMonitor {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  website       String?
+  category      String?   // direct | indirect | emerging
+  lastCheckedAt DateTime?
+  notes         String?
+  intel         Json?     // [{ date, type, detail }]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("competitor_monitors")
+}
+
+model BrandMention {
+  id            String    @id @default(uuid())
+  source        String    // twitter | linkedin | reddit | news
+  url           String?
+  content       String
+  sentiment     String?   // positive | neutral | negative
+  mentionedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([source])
+  @@index([mentionedAt])
+  @@map("brand_mentions")
+}
+
+model ReviewLog {
+  id            String    @id @default(uuid())
+  platform      String    // g2 | capterra | trustpilot
+  rating        Int
+  reviewerName  String?
+  title         String?
+  content       String
+  responseText  String?
+  respondedAt   DateTime?
+  publishedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([platform])
+  @@map("review_logs")
+}
+
+model BoardPack {
+  id            String    @id @default(uuid())
+  quarter       String    @unique  // e.g. "2026-Q2"
+  title         String
+  generatedAt   DateTime  @default(now())
+  sections      Json?     // structured sections
+  fileUrl       String?
+  status        String    @default("DRAFT")  // DRAFT | FINAL | DISTRIBUTED
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("board_packs")
+}
+
+model BoardMember {
+  id            String    @id @default(uuid())
+  name          String
+  role          String    // chair | non-exec | observer | advisor
+  email         String    @unique
+  appointedAt   DateTime  @default(now())
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive])
+  @@map("board_members")
+}
+
+model CohortData {
+  id            String    @id @default(uuid())
+  cohortMonth   String    // YYYY-MM (month customers signed up)
+  measureMonth  String    // YYYY-MM (month of measurement)
+  customersStart Int      @default(0)
+  customersEnd  Int       @default(0)
+  retentionPct  Decimal   @default(0)
+  mrrStart      Decimal   @default(0)
+  mrrEnd        Decimal   @default(0)
+  ndrPct        Decimal   @default(0)  // net dollar retention
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([cohortMonth, measureMonth])
+  @@map("cohort_data")
+}
+
+enum MeetingType {
+  BOARD
+  TEAM
+  CUSTOMER
+  PARTNER
+  INVESTOR
+  OTHER
+}
+
+model MeetingNote {
+  id            String      @id @default(uuid())
+  title         String
+  type          MeetingType @default(OTHER)
+  date          DateTime    @default(now())
+  attendees     Json?       // string[]
+  summary       String?
+  actionItems   Json?       // [{ item, assignee, dueDate, completed }]
+  createdBy     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([type])
+  @@index([date])
+  @@map("meeting_notes")
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+model Expense {
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  amount        Decimal
+  currency      String        @default("GBP")
+  category      String
+  vendor        String?
+  receiptUrl    String?
+  status        ExpenseStatus @default(DRAFT)
+  submittedBy   String?
+  approvedBy    String?
+  approvedAt    DateTime?
+  paidAt        DateTime?
+  expenseDate   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([expenseDate])
+  @@map("expenses")
+}

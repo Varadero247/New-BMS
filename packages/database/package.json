@@ -110,11 +110,15 @@
     "./iso37001": {
       "import": "./generated/iso37001/index.js",
       "require": "./generated/iso37001/index.js"
+    },
+    "./marketing": {
+      "import": "./generated/marketing/index.js",
+      "require": "./generated/marketing/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
     "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
@@ -173,7 +177,9 @@
     "generate:iso42001": "prisma generate --schema=prisma/schemas/iso42001.prisma",
     "generate:iso37001": "prisma generate --schema=prisma/schemas/iso37001.prisma",
     "push:iso42001": "prisma db push --schema=prisma/schemas/iso42001.prisma",
-    "push:iso37001": "prisma db push --schema=prisma/schemas/iso37001.prisma"
+    "push:iso37001": "prisma db push --schema=prisma/schemas/iso37001.prisma",
+    "generate:marketing": "prisma generate --schema=prisma/schemas/marketing.prisma",
+    "push:marketing": "prisma db push --schema=prisma/schemas/marketing.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

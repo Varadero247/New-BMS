@@ -1,0 +1,202 @@
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    monthlySnapshot: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      upsert: jest.fn(),
+      update: jest.fn(),
+    },
+    planTarget: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+    },
+  },
+  Prisma: {
+    Decimal: jest.fn((v: any) => v),
+  },
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+jest.mock('@ims/email', () => ({
+  sendEmail: jest.fn().mockResolvedValue({ success: true }),
+  monthlyReportEmail: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>', text: 'test' }),
+}));
+
+jest.mock('../src/jobs/ai-variance', () => ({
+  runVarianceAnalysis: jest.fn().mockResolvedValue(null),
+}));
+
+jest.mock('../src/jobs/recalibration', () => ({
+  runRecalibration: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@ims/stripe-client', () => ({
+  StripeClient: jest.fn().mockImplementation(() => ({
+    listSubscriptions: jest.fn().mockResolvedValue([]),
+  })),
+}));
+
+jest.mock('@ims/hubspot-client', () => ({
+  HubSpotClient: jest.fn().mockImplementation(() => ({
+    getDeals: jest.fn().mockResolvedValue([]),
+    getContacts: jest.fn().mockResolvedValue([]),
+  })),
+}));
+
+import {
+  calculateAmortisation,
+  calculateFounderIncome,
+} from '../src/jobs/monthly-snapshot.job';
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('Dual Loan Model', () => {
+  // -------------------------------------------------------------------------
+  // calculateAmortisation unit tests
+  // -------------------------------------------------------------------------
+  describe('calculateAmortisation', () => {
+    it('computes correct amortisation for a known loan', () => {
+      // £100,000 at 6% over 12 months
+      const result = calculateAmortisation(100000, 0.06, 12, 1);
+      expect(result.payment).toBeGreaterThan(0);
+      expect(result.interest).toBeCloseTo(500, 0); // 100k * 0.06/12 = 500
+      expect(result.principalPaid).toBeGreaterThan(0);
+      expect(result.balance).toBeLessThan(100000);
+      expect(result.payment).toBeCloseTo(result.interest + result.principalPaid, 2);
+    });
+
+    it('returns zero payment for paymentNumber = 0', () => {
+      const result = calculateAmortisation(100000, 0.06, 12, 0);
+      expect(result.payment).toBe(0);
+      expect(result.interest).toBe(0);
+      expect(result.principalPaid).toBe(0);
+      expect(result.balance).toBe(100000); // balance is still principal when no payments made
+    });
+
+    it('returns zero balance after the last payment', () => {
+      const result = calculateAmortisation(100000, 0.06, 12, 12);
+      expect(result.balance).toBeCloseTo(0, 0);
+      expect(result.payment).toBeGreaterThan(0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Director's Loan and Starter Loan parameters
+  // -------------------------------------------------------------------------
+  describe('Director\'s Loan (£320k @ 8% / 36m)', () => {
+    it('has a monthly payment of approximately £10,028', () => {
+      const result = calculateAmortisation(320000, 0.08, 36, 1);
+      expect(result.payment).toBeCloseTo(10028, 0);
+    });
+  });
+
+  describe('Starter Loan (£30k @ 8% / 24m)', () => {
+    it('has a monthly payment of approximately £1,357', () => {
+      const result = calculateAmortisation(30000, 0.08, 24, 1);
+      expect(result.payment).toBeCloseTo(1357, 0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Loan timeline via calculateFounderIncome
+  // -------------------------------------------------------------------------
+  describe('Loan timeline', () => {
+    it('Month 1: both loan payments are zero (before both loans start)', () => {
+      const result = calculateFounderIncome(1);
+      expect(result.dirLoanPayment).toBe(0);
+      expect(result.starterLoanPayment).toBe(0);
+      expect(result.loanPayment).toBe(0);
+    });
+
+    it('Month 2: only starter loan active (dirLoan = 0, starter > 0)', () => {
+      const result = calculateFounderIncome(2);
+      expect(result.dirLoanPayment).toBe(0);
+      expect(result.starterLoanPayment).toBeGreaterThan(0);
+      expect(result.starterLoanPayment).toBeCloseTo(1357, 0);
+    });
+
+    it('Month 3: both loans active', () => {
+      const result = calculateFounderIncome(3);
+      expect(result.dirLoanPayment).toBeGreaterThan(0);
+      expect(result.starterLoanPayment).toBeGreaterThan(0);
+      expect(result.dirLoanPayment).toBeCloseTo(10028, 0);
+      expect(result.starterLoanPayment).toBeCloseTo(1357, 0);
+    });
+
+    it('Month 10: both loans active, interest decreasing over time', () => {
+      const resultM3 = calculateFounderIncome(3);
+      const resultM10 = calculateFounderIncome(10);
+
+      // Both still active
+      expect(resultM10.dirLoanPayment).toBeGreaterThan(0);
+      expect(resultM10.starterLoanPayment).toBeGreaterThan(0);
+
+      // Interest should decrease as principal is paid down
+      expect(resultM10.dirLoanInterest).toBeLessThan(resultM3.dirLoanInterest);
+      expect(resultM10.starterLoanInterest).toBeLessThan(resultM3.starterLoanInterest);
+    });
+
+    it('Month 25: starter loan last payment (24 payments from M2)', () => {
+      // Starter starts M2, so payment #24 = month 25
+      const result = calculateFounderIncome(25);
+      expect(result.starterLoanPayment).toBeGreaterThan(0);
+      expect(result.starterLoanBalance).toBeCloseTo(0, 0);
+      // Director's loan still active (payment #23 of 36)
+      expect(result.dirLoanPayment).toBeGreaterThan(0);
+      expect(result.dirLoanBalance).toBeGreaterThan(0);
+    });
+
+    it('Month 26: starter loan done (0), director\'s still active', () => {
+      const result = calculateFounderIncome(26);
+      expect(result.starterLoanPayment).toBe(0);
+      expect(result.starterLoanBalance).toBe(0);
+      expect(result.dirLoanPayment).toBeGreaterThan(0);
+      expect(result.dirLoanBalance).toBeGreaterThan(0);
+    });
+
+    it('Month 38: director\'s loan last payment (36 payments from M3)', () => {
+      // Director's starts M3, so payment #36 = month 38
+      const result = calculateFounderIncome(38);
+      expect(result.dirLoanPayment).toBeGreaterThan(0);
+      expect(result.dirLoanBalance).toBeCloseTo(0, 0);
+      expect(result.starterLoanPayment).toBe(0);
+    });
+
+    it('Month 39: both loans done', () => {
+      const result = calculateFounderIncome(39);
+      expect(result.dirLoanPayment).toBe(0);
+      expect(result.dirLoanBalance).toBe(0);
+      expect(result.starterLoanPayment).toBe(0);
+      expect(result.starterLoanBalance).toBe(0);
+      expect(result.loanPayment).toBe(0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Founder income integration
+  // -------------------------------------------------------------------------
+  describe('Founder income fields', () => {
+    it('returns salary + dividend fields correctly at M6', () => {
+      const result = calculateFounderIncome(6, 200000);
+      expect(result.salary).toBe(2500);
+      // M6 is quarter-end and >= 6, so dividend should be > 0
+      expect(result.dividend).toBeGreaterThan(0);
+      expect(result.savingsInterest).toBeGreaterThan(0);
+      expect(typeof result.total).toBe('number');
+    });
+
+    it('combined loanPayment equals dirLoanPayment + starterLoanPayment', () => {
+      // Test across several months to ensure the invariant holds
+      for (const month of [1, 2, 3, 10, 25, 26, 38, 39]) {
+        const result = calculateFounderIncome(month);
+        const sum = Math.round((result.dirLoanPayment + result.starterLoanPayment) * 100) / 100;
+        expect(result.loanPayment).toBeCloseTo(sum, 2);
+      }
+    });
+  });
+});

@@ -8,7 +8,7 @@ export default function DashboardPreview() {
     <section className="max-w-6xl mx-auto py-24 px-6">
       {/* Section header */}
       <div className="text-center">
-        <h2 className="font-display text-4xl font-bold text-white">See Resolvex in action</h2>
+        <h2 className="font-display text-4xl font-bold text-white">See Nexara in action</h2>
         <p className="text-gray-400 mt-4 max-w-xl mx-auto font-body">
           A single pane of glass across all your compliance programmes. Built for compliance teams,
           loved by boards.
@@ -27,7 +27,7 @@ export default function DashboardPreview() {
           </div>
           {/* URL bar */}
           <div className="flex-1 mx-4 bg-white/5 rounded-md px-3 py-1 text-white/35 font-mono text-xs">
-            app.resolvex.io/dashboard
+            app.nexara.io/dashboard
           </div>
         </div>
 
@@ -40,7 +40,7 @@ export default function DashboardPreview() {
               <div className="bg-teal w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 R
               </div>
-              <span className="text-white font-display text-sm font-semibold">Resolvex</span>
+              <span className="text-white font-display text-sm font-semibold">Nexara</span>
             </div>
 
             {/* Nav items */}

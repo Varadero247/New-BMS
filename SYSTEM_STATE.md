@@ -1,18 +1,18 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-13
+> Last updated: 2026-02-15
 
 ## Summary
 
 | Category | Count |
 |----------|-------|
-| API Services | 25 (+ 1 main API) |
-| Web Applications | 26 |
-| Shared Packages | 39 |
-| Prisma Schemas | 25 |
-| Database Models | 373 total |
+| API Services | 27 (+ 1 main API) |
+| Web Applications | 30 |
+| Shared Packages | 42 |
+| Prisma Schemas | 26 |
+| Database Models | 386 total |
 | Scripts | 20 |
-| Unit Tests | ~5,450+ across 200+ suites |
+| Unit Tests | ~8,037 across 325+ suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -47,10 +47,12 @@
 | Field Service | `apps/api-field-service/` | 4022 | Field operations | `field-service.prisma` |
 | ISO 42001 | `apps/api-iso42001/` | 4023 | AI Management System | `iso42001.prisma` |
 | ISO 37001 | `apps/api-iso37001/` | 4024 | Anti-Bribery | `iso37001.prisma` |
+| Marketing | `apps/api-marketing/` | 4025 | Sales & marketing automation | `marketing.prisma` |
+| Partners | `apps/api-partners/` | 4026 | Partner portal API | `marketing.prisma` |
 
 ---
 
-## Web Applications (26)
+## Web Applications (30)
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
@@ -80,10 +82,13 @@
 | Field Service | `apps/web-field-service/` | 3023 | Field operations |
 | ISO 42001 | `apps/web-iso42001/` | 3024 | AI Management |
 | ISO 37001 | `apps/web-iso37001/` | 3025 | Anti-Bribery |
+| Marketing | `apps/web-marketing/` | 3030 | Landing page, ROI calculator, chatbot |
+| Partners Portal | `apps/web-partners/` | 3026 | Partner referral portal |
+| Admin Dashboard | `apps/web-admin/` | 3027 | Founder growth dashboard |
 
 ---
 
-## Shared Packages (39)
+## Shared Packages (42)
 
 | Package | Directory | Description |
 |---------|-----------|-------------|
@@ -113,7 +118,7 @@
 | `@ims/rbac` | `packages/rbac/` | Role-based access control (39 roles, 17 modules) |
 | `@ims/regulatory-feed` | `packages/regulatory-feed/` | Live regulatory change feed |
 | `@ims/resilience` | `packages/resilience/` | Circuit breakers, retry logic |
-| `@ims/sdk` | `packages/sdk/` | @resolvex/sdk external SDK |
+| `@ims/sdk` | `packages/sdk/` | @nexara/sdk external SDK |
 | `@ims/secrets` | `packages/secrets/` | HashiCorp Vault integration |
 | `@ims/service-auth` | `packages/service-auth/` | Service-to-service JWT auth |
 | `@ims/shared` | `packages/shared/` | Shared utilities |
@@ -128,7 +133,7 @@
 
 ---
 
-## Prisma Schemas (25)
+## Prisma Schemas (26)
 
 | Schema | File | Models | Domain |
 |--------|------|--------|--------|
@@ -157,7 +162,8 @@
 | Field Service | `field-service.prisma` | 14 | Work orders, dispatch |
 | ISO 42001 | `iso42001.prisma` | 7 | AI Management System |
 | ISO 37001 | `iso37001.prisma` | 6 | Anti-Bribery |
-| **Total** | | **373** | |
+| Marketing | `marketing.prisma` | 13 | Leads, partners, deals, health scores |
+| **Total** | | **386** | |
 
 ---
 
@@ -206,6 +212,8 @@
 | `/api/field-service/*` | api-field-service | 4022 |
 | `/api/iso42001/*` | api-iso42001 | 4023 |
 | `/api/iso37001/*` | api-iso37001 | 4024 |
+| `/api/marketing/*` | api-marketing | 4025 |
+| `/api/partners/*` | api-partners | 4026 |
 
 All routes also available under `/api/v1/` prefix.
 
@@ -216,9 +224,9 @@ All routes also available under `/api/v1/` prefix.
 | Script | Description |
 |--------|-------------|
 | `scripts/startup.sh` | Full startup (kill ports, Docker up, seed DB, recreate tables) |
-| `scripts/start-all-services.sh` | Start all 52 services with staggered delays |
-| `scripts/stop-all-services.sh` | Stop all services (ports 4000-4024 + 3000-3025) |
-| `scripts/check-services.sh` | Health check all 52 services |
+| `scripts/start-all-services.sh` | Start all 56 services with staggered delays |
+| `scripts/stop-all-services.sh` | Stop all services (ports 4000-4026 + 3000-3030) |
+| `scripts/check-services.sh` | Health check all 56 services |
 | `scripts/create-databases.sh` | Create per-service databases |
 | `scripts/migrate-data.sh` | Migrate data between databases |
 | `scripts/daily-report.sh` | Generate daily status report |
@@ -246,31 +254,33 @@ All routes also available under `/api/v1/` prefix.
 |---------|-----------|----------------|
 | api-aerospace | 8 | ~338 |
 | api-ai-analysis | 5 | ~75 |
-| api-analytics | 9 | ~142 |
+| api-analytics | 13 | ~174 |
 | api-automotive | 13 | ~502 |
-| api-cmms | 12 | ~226 |
-| api-crm | 8 | ~160 |
+| api-cmms | 12 | ~213 |
+| api-crm | 8 | ~283 |
 | api-energy | 12 | ~196 |
 | api-environment | 14 | ~442 |
 | api-esg | 14 | ~207 |
 | api-field-service | 13 | ~189 |
 | api-finance | 7 | ~321 |
 | api-food-safety | 14 | ~241 |
-| api-gateway | 23 | ~454 |
+| api-gateway | 38 | ~725 |
 | api-health-safety | 10 | ~266 |
 | api-hr | 8 | ~305 |
-| api-infosec | 7 | ~140 |
+| api-infosec | 7 | ~227 |
 | api-inventory | 6 | ~160 |
-| api-iso37001 | 6 | ~60 |
-| api-iso42001 | 7 | ~70 |
+| api-iso37001 | 6 | ~156 |
+| api-iso42001 | 9 | ~221 |
 | api-medical | 14 | ~584 |
-| api-payroll | 8 | ~163 |
+| api-payroll | 8 | ~303 |
 | api-portal | 16 | ~168 |
 | api-project-management | 13 | ~230 |
-| api-quality | 24 | ~789 |
+| api-marketing | 13 | ~125 |
+| api-partners | 3 | ~35 |
+| api-quality | 29 | ~994 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~948 |
-| **Total** | **282+** | **~5,450+** |
+| **Total** | **325+** | **~8,037** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -305,6 +315,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 9 | Payroll Localisation | Jurisdictions, tax calculator routes |
 | Phase 10 | Field Service | api-field-service, web-field-service |
 | Phase 11 | Unique Differentiators | Evidence packs, headstart tool, MSP mode, regulatory feed, ISO 42001, ISO 37001 |
+| Phase 12 | Sales & Marketing Automation | api-marketing, api-partners, web-partners, web-admin, ROI calculator, chatbot, partner portal, growth dashboard |
 
 ---
 

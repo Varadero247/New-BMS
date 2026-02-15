@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsup --no-dts",
-    "dev": "tsup --watch",
+    "dev": "tsup --watch --no-dts",
     "clean": "rm -rf dist node_modules .turbo",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

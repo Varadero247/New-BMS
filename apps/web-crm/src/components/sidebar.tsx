@@ -7,10 +7,10 @@ import {
   Kanban,
   Users,
   Building2,
-  HandshakeIcon,
+  
   FileText,
   UserPlus,
-  Handshake,
+  Briefcase,
   Award,
   Megaphone,
   Mail,
@@ -28,7 +28,7 @@ const mainNavigation = [
 ];
 
 const salesNavigation = [
-  { name: 'Deals', href: '/deals', icon: HandshakeIcon },
+  { name: 'Deals', href: '/deals', icon: Briefcase },
   { name: 'Quotes', href: '/quotes', icon: FileText },
   { name: 'Leads', href: '/leads', icon: UserPlus },
 ];
@@ -39,7 +39,7 @@ const marketingNavigation = [
 ];
 
 const partnersNavigation = [
-  { name: 'Partner Portal', href: '/partners', icon: Handshake },
+  { name: 'Partner Portal', href: '/partners', icon: Briefcase },
   { name: 'Leaderboard', href: '/partners/leaderboard', icon: Award },
 ];
 

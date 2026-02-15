@@ -127,7 +127,7 @@ export const TOURS: Record<string, TourConfig> = {
 // useTour hook
 // ============================================
 
-const STORAGE_PREFIX = 'resolvex:tour:';
+const STORAGE_PREFIX = 'nexara:tour:';
 
 export function useTour(tourId: string) {
   const [isCompleted, setIsCompleted] = useState(false);

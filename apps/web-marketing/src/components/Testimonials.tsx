@@ -11,7 +11,7 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     quote:
-      'Resolvex replaced four separate tools and gave us a single source of truth for all 12 of our ISO certifications.',
+      'Nexara replaced four separate tools and gave us a single source of truth for all 12 of our ISO certifications.',
     name: 'Michael Torres',
     role: 'Head of Compliance, Meridian Aerospace',
     avatarFrom: 'from-navy',
@@ -62,7 +62,7 @@ export default function Testimonials() {
           Trusted by compliance leaders
         </h2>
         <p className="text-gray-400 mt-4 max-w-xl mx-auto font-body">
-          From aerospace to pharma, compliance teams worldwide rely on Resolvex to stay audit-ready
+          From aerospace to pharma, compliance teams worldwide rely on Nexara to stay audit-ready
           every day.
         </p>
       </div>

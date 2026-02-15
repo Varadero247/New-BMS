@@ -507,6 +507,8 @@ enum CsrComplianceStatus {
   PARTIAL
   NOT_ASSESSED
   NON_COMPLIANT
+  UNDER_REVIEW
+  NOT_APPLICABLE
 }
 
 // ============================================
@@ -811,10 +813,3 @@ enum CsrCategory {
   OTHER
 }
 
-enum CsrComplianceStatus {
-  COMPLIANT
-  NON_COMPLIANT
-  PARTIAL
-  UNDER_REVIEW
-  NOT_APPLICABLE
-}

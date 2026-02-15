@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsup --no-dts",
-    "dev": "tsup --watch",
+    "dev": "tsup --watch --no-dts",
     "clean": "rm -rf dist node_modules .turbo"
   },
   "dependencies": {

@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   Users,
   Building2,
-  HandshakeIcon,
+  
   DollarSign,
   TrendingUp,
   Target,
   BarChart3,
   UserPlus,
+  Briefcase,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -108,7 +109,7 @@ export default function CRMDashboard() {
       title: 'Open Deals',
       value: String(data?.openDeals || 0),
       subtitle: 'In pipeline',
-      icon: HandshakeIcon,
+      icon: DollarSign,
       iconColor: 'text-amber-500',
       bgColor: 'bg-amber-50',
       valueColor: 'text-amber-700',
@@ -198,7 +199,7 @@ export default function CRMDashboard() {
                 href="/deals"
                 className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
               >
-                <HandshakeIcon className="h-8 w-8 text-blue-600 mb-2" />
+                <Briefcase className="h-8 w-8 text-blue-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700">New Deal</span>
               </Link>
               <Link

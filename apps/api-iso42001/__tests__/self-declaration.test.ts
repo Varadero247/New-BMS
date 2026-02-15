@@ -44,9 +44,9 @@ const UUID2 = '00000000-0000-0000-0000-000000000002';
 const mockDeclaration = {
   id: UUID1,
   reference: 'AI42-DEC-2602-8888',
-  title: 'Resolvex ISO 42001 Self-Declaration of Conformance',
-  scope: 'All AI-based products and services offered by Resolvex Ltd',
-  conformanceStatement: 'Resolvex Ltd declares that its AI Management System conforms to the requirements of ISO 42001:2023...',
+  title: 'Nexara ISO 42001 Self-Declaration of Conformance',
+  scope: 'All AI-based products and services offered by Nexara Ltd',
+  conformanceStatement: 'Nexara Ltd declares that its AI Management System conforms to the requirements of ISO 42001:2023...',
   standard: 'ISO 42001:2023',
   status: 'DRAFT',
   declarationDate: new Date('2026-02-01'),
@@ -107,14 +107,14 @@ describe('GET /api/self-declaration', () => {
     (prisma as any).aiSelfDeclaration.findMany.mockResolvedValue([]);
     (prisma as any).aiSelfDeclaration.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/self-declaration?search=resolvex');
+    const res = await request(app).get('/api/self-declaration?search=nexara');
 
     expect(res.status).toBe(200);
     expect((prisma as any).aiSelfDeclaration.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
-            expect.objectContaining({ title: expect.objectContaining({ contains: 'resolvex' }) }),
+            expect.objectContaining({ title: expect.objectContaining({ contains: 'nexara' }) }),
           ]),
         }),
       })

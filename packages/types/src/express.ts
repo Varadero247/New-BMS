@@ -1,12 +1,19 @@
 import type { Request, Response, NextFunction } from 'express';
 
-export interface TypedRequest<TBody = unknown, TParams = Record<string, string>, TQuery = Record<string, string | undefined>> extends Request {
+export interface TypedRequest
+  TBody = unknown,
+  TParams extends Record<string, string> = Record<string, string>,
+  TQuery = Record<string, string | undefined>
+> extends Request<TParams> {
   body: TBody;
-  params: TParams;
   query: TQuery;
 }
 
-export interface AuthenticatedRequest<TBody = unknown, TParams = Record<string, string>, TQuery = Record<string, string | undefined>> extends TypedRequest<TBody, TParams, TQuery> {
+export interface AuthenticatedRequest
+  TBody = unknown,
+  TParams extends Record<string, string> = Record<string, string>,
+  TQuery = Record<string, string | undefined>
+> extends TypedRequest<TBody, TParams, TQuery> {
   user?: {
     id: string;
     email: string;

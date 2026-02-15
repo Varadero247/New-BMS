@@ -87,6 +87,44 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
   }
 });
 
+// GET /api/users/me - Get current user profile
+router.get('/me', async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        avatar: true,
+        role: true,
+        department: true,
+        jobTitle: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'User not found' },
+      });
+    }
+
+    res.json({ success: true, data: user });
+  } catch (error) {
+    logger.error('Get current user error', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get current user' },
+    });
+  }
+});
+
 // GET /api/users/:id - Get user by ID
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {

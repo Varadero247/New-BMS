@@ -325,7 +325,11 @@ router.post('/refresh', async (req, res) => {
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // Create new session
+    // Delete expired sessions for this user, then create new session
+    await prisma.session.deleteMany({
+      where: { userId: user.id, expiresAt: { lt: new Date() } },
+    });
+
     await prisma.session.create({
       data: {
         id: uuidv4(),

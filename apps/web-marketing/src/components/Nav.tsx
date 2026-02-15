@@ -36,13 +36,13 @@ export default function Nav() {
           <Link
             href="/"
             className="flex items-center gap-2.5 flex-shrink-0 group"
-            aria-label="Resolvex home"
+            aria-label="Nexara home"
           >
             <span className="bg-navy rounded-lg px-2 py-1 font-display font-bold text-white text-base leading-none group-hover:bg-navy/80 transition-colors">
               R
             </span>
             <span className="font-display font-bold text-white text-lg leading-none">
-              Resolvex
+              Nexara
             </span>
           </Link>
 

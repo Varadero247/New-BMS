@@ -140,7 +140,7 @@ VAULT_TIMEOUT=5000
 
 ## Vulnerability Reporting
 
-- Report security vulnerabilities to: **security@resolvex.io**
+- Report security vulnerabilities to: **security@nexara.io**
 - Do not create public GitHub issues for security vulnerabilities
 - We aim to respond within 48 hours
 

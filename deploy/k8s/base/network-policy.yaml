@@ -61,6 +61,38 @@ spec:
           port: 4007
         - protocol: TCP
           port: 4008
+        - protocol: TCP
+          port: 4009
+        - protocol: TCP
+          port: 4010
+        - protocol: TCP
+          port: 4011
+        - protocol: TCP
+          port: 4012
+        - protocol: TCP
+          port: 4013
+        - protocol: TCP
+          port: 4014
+        - protocol: TCP
+          port: 4015
+        - protocol: TCP
+          port: 4016
+        - protocol: TCP
+          port: 4017
+        - protocol: TCP
+          port: 4018
+        - protocol: TCP
+          port: 4019
+        - protocol: TCP
+          port: 4020
+        - protocol: TCP
+          port: 4021
+        - protocol: TCP
+          port: 4022
+        - protocol: TCP
+          port: 4023
+        - protocol: TCP
+          port: 4024
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -144,3 +176,35 @@ spec:
           port: 4007
         - protocol: TCP
           port: 4008
+        - protocol: TCP
+          port: 4009
+        - protocol: TCP
+          port: 4010
+        - protocol: TCP
+          port: 4011
+        - protocol: TCP
+          port: 4012
+        - protocol: TCP
+          port: 4013
+        - protocol: TCP
+          port: 4014
+        - protocol: TCP
+          port: 4015
+        - protocol: TCP
+          port: 4016
+        - protocol: TCP
+          port: 4017
+        - protocol: TCP
+          port: 4018
+        - protocol: TCP
+          port: 4019
+        - protocol: TCP
+          port: 4020
+        - protocol: TCP
+          port: 4021
+        - protocol: TCP
+          port: 4022
+        - protocol: TCP
+          port: 4023
+        - protocol: TCP
+          port: 4024

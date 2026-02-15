@@ -6,7 +6,7 @@ export class EventPublisher {
   private streamPrefix: string;
   private localHandlers = new Map<string, Set<(payload: EventPayload) => Promise<void>>>();
 
-  constructor(redisUrl?: string, streamPrefix = 'resolvex:events:') {
+  constructor(redisUrl?: string, streamPrefix = 'nexara:events:') {
     this.streamPrefix = streamPrefix;
     if (redisUrl) {
       this.redis = new Redis(redisUrl);

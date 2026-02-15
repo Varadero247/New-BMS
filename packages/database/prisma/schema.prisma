@@ -27,6 +27,7 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
   // Relations
   sessions              Session[]
@@ -7836,4 +7837,58 @@ model ApprovalResponse {
   @@index([requestId])
   @@index([approverId])
   @@map("approval_responses")
+}
+
+// ============================================
+// ELECTRONIC SIGNATURES (21 CFR Part 11)
+// ============================================
+
+model ESignature {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @db.Uuid
+  userEmail     String
+  userFullName  String
+  meaning       String    // e.g. "I approve this record"
+  method        String    @default("password") // password | biometric | token
+  ipAddress     String?
+  userAgent     String?
+  signedAt      DateTime  @default(now())
+
+  auditEntries  EnhancedAuditTrail[]
+
+  @@index([userId])
+  @@index([signedAt])
+  @@map("e_signatures")
+}
+
+// ============================================
+// ENHANCED AUDIT TRAIL (21 CFR Part 11)
+// ============================================
+
+model EnhancedAuditTrail {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String      @default("default")
+  userId        String
+  userEmail     String
+  userFullName  String
+  action        String
+  resourceType  String
+  resourceId    String
+  resourceRef   String
+  changes       Json
+  ipAddress     String
+  userAgent     String
+  sessionId     String      @default("")
+  esignatureId  String?     @db.Uuid
+  systemVersion String      @default("1.0.0")
+  checksum      String
+  createdAt     DateTime    @default(now())
+
+  esignature    ESignature? @relation(fields: [esignatureId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("enhanced_audit_trail")
 }

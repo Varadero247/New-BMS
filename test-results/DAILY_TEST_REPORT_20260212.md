@@ -1,7 +1,7 @@
 # IMS Platform - Daily Test Report
 
 **Date:** 2026-02-12 15:00:00
-**Platform:** Resolvex Integrated Management System (IMS)
+**Platform:** Nexara Integrated Management System (IMS)
 **Test Execution By:** Claude Code Automated Testing Suite (Opus 4.6)
 **Environment:** Ubuntu Linux 6.8.0-94-generic | Node v20 | pnpm v8
 

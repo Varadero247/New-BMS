@@ -499,3 +499,106 @@ enum OasisAlertType {
   CERT_REVOKED
   STATUS_CHANGED
 }
+
+// ============================================
+// AEROSPACE AUDITS (AS9100D Clause 9.2)
+// ============================================
+
+model AeroAudit {
+  id              String          @id @default(cuid())
+  tenantId        String          @default("default")
+  refNumber       String          @unique
+  title           String
+  auditType       AeroAuditType   @default(INTERNAL)
+  standard        String          @default("AS9100D")
+  scope           String
+  scheduledDate   DateTime
+  actualDate      DateTime?
+  leadAuditor     String
+  auditTeam       String[]
+  auditee         String?
+  location        String?
+  clauses         String[]
+  objectives      String?
+  status          AeroAuditStatus @default(SCHEDULED)
+  summary         String?
+  notes           String?
+  createdBy       String?
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  findings        AeroAuditFinding[]
+
+  @@index([status])
+  @@index([auditType])
+  @@index([scheduledDate])
+  @@map("aero_audits")
+}
+
+model AeroAuditFinding {
+  id                  String              @id @default(cuid())
+  refNumber           String              @unique
+  auditId             String
+  auditRefNumber      String
+  findingType         AeroFindingType
+  severity            AeroFindingSeverity?
+  clause              String?
+  description         String
+  evidence            String?
+  requirement         String?
+  responsiblePerson   String?
+  targetDate          DateTime?
+  status              AeroFindingStatus   @default(OPEN)
+  correctiveAction    String?
+  closedBy            String?
+  closedDate          DateTime?
+  verificationEvidence String?
+  createdBy           String?
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  audit               AeroAudit           @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@index([status])
+  @@index([findingType])
+  @@map("aero_audit_findings")
+}
+
+enum AeroAuditType {
+  INTERNAL
+  EXTERNAL
+  CUSTOMER
+  REGULATORY
+  CERTIFICATION
+  SURVEILLANCE
+}
+
+enum AeroAuditStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DEFERRED
+}
+
+enum AeroFindingType {
+  NONCONFORMITY
+  OBSERVATION
+  OPPORTUNITY_FOR_IMPROVEMENT
+  POSITIVE_FINDING
+}
+
+enum AeroFindingSeverity {
+  MAJOR
+  MINOR
+}
+
+enum AeroFindingStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  VERIFIED
+}
