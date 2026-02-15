@@ -105,7 +105,7 @@ export default function ExpensesPage() {
     new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         <div className="flex items-center justify-between mb-8">
@@ -244,7 +244,7 @@ export default function ExpensesPage() {
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     placeholder="Expense title"
                   />
                 </div>
@@ -254,7 +254,7 @@ export default function ExpensesPage() {
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
                     placeholder="Optional description"
                   />
                 </div>
@@ -266,7 +266,7 @@ export default function ExpensesPage() {
                       step="0.01"
                       value={form.amount}
                       onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                       placeholder="0.00"
                     />
                   </div>
@@ -275,7 +275,7 @@ export default function ExpensesPage() {
                     <select
                       value={form.category}
                       onChange={(e) => setForm({ ...form, category: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     >
                       {CATEGORIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
@@ -288,7 +288,7 @@ export default function ExpensesPage() {
                   <input
                     value={form.vendor}
                     onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     placeholder="Optional vendor name"
                   />
                 </div>
@@ -297,7 +297,7 @@ export default function ExpensesPage() {
                   <input
                     value={form.receiptUrl}
                     onChange={(e) => setForm({ ...form, receiptUrl: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     placeholder="https://..."
                   />
                 </div>

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap');
+@import './src/styles/tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -6,126 +7,50 @@
 
 @layer base {
   :root {
-    /* Nexara 2026 — Light mode */
-    --background: 210 40% 98%;       /* #F8FAFC */
-    --foreground: 222 47% 11%;       /* #0F172A */
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
-    --primary: 224 64% 33%;          /* #1E3A8A navy */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 160 84% 18%;        /* #065F46 sage */
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 40% 96%;            /* #F1F5F9 */
-    --muted-foreground: 215 16% 47%; /* #64748B */
-
-    --accent: 160 84% 30%;           /* #059669 teal */
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;        /* #DC2626 */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 214 32% 91%;           /* #E2E8F0 */
-    --input: 214 32% 91%;
-    --ring: 224 64% 33%;             /* navy */
-
+    /* HSL fallbacks for Tailwind border/input/ring utilities */
+    --border-hsl: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 217 78% 60%;
     --radius: 0.5rem;
-
-    /* Sidebar */
-    --sidebar-bg: 224 64% 33%;      /* navy */
-    --sidebar-fg: 210 40% 98%;
-    --sidebar-accent: 222 47% 11%;  /* navy-dark */
-
-    /* Surface tokens */
-    --surface: 210 40% 98%;          /* #F8FAFC */
-    --surface-card: 0 0% 100%;
-    --surface-nav: 222 47% 11%;      /* #0F172A */
-
-    /* Brand direct references */
-    --brand-600: #1E3A8A;
-    --brand-500: #2563EB;
-    --brand-100: #DBEAFE;
-    --brand-50: #EFF6FF;
-    --gold-500: #059669;
-    --gold-50: #D1FAE5;
-    --success: #10B981;
-    --success-bg: #ECFDF5;
-    --warning-color: #D97706;
-    --warning-bg: #FFFBEB;
-    --danger-color: #DC2626;
-    --danger-bg: #FEF2F2;
-
-    /* Semantic palette */
-    --color-primary: #1E3A8A;
-    --color-secondary: #065F46;
-    --color-secondary-mid: #047857;
-    --color-accent: #059669;
-    --color-accent-bright: #0EA5E9;
-    --color-success: #10B981;
-    --color-warning: #F59E0B;
-    --color-warning-deep: #D97706;
-    --color-critical: #DC2626;
-    --color-neutral: #9CA3AF;
-
-    /* Transition */
-    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark,
   [data-theme="dark"] {
-    /* Nexara 2026 — Dark mode (default) */
-    --background: 221 39% 11%;       /* #111827 */
-    --foreground: 213 31% 95%;       /* #F1F5F9 */
-
-    --card: 222 47% 11%;             /* #0F172A */
-    --card-foreground: 213 31% 95%;
-
-    --primary: 222 47% 11%;          /* #0F172A navy-dark */
-    --primary-foreground: 213 31% 95%;
-
-    --secondary: 160 84% 18%;        /* #065F46 sage */
-    --secondary-foreground: 213 31% 95%;
-
-    --muted: 217 33% 17%;            /* #1E293B */
-    --muted-foreground: 215 20% 65%; /* #94A3B8 */
-
-    --accent: 160 84% 30%;           /* #059669 teal */
-    --accent-foreground: 213 31% 95%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 213 31% 95%;
-
-    --border: 217 33% 17%;           /* #1E293B */
-    --input: 217 33% 17%;
-    --ring: 160 84% 30%;             /* teal */
-
-    --sidebar-bg: 222 47% 11%;      /* navy-dark */
-    --sidebar-fg: 213 31% 95%;
-    --sidebar-accent: 217 33% 17%;
-
-    --surface: 221 39% 11%;
-    --surface-card: 222 47% 11%;
-    --surface-nav: 222 47% 11%;
+    --border-hsl: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 217 78% 60%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border-default, #1E2E48);
   }
+
+  html {
+    background-color: var(--ink);
+  }
+
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    background-color: var(--ink);
+    color: var(--silver);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    font-family: 'Syne', sans-serif;
+    color: var(--white);
+  }
+
+  code, pre, kbd, samp {
+    font-family: 'DM Mono', monospace;
   }
 
   /* Focus visible */
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
+    outline: 2px solid var(--blue-hi);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -139,15 +64,88 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
+    background: var(--muted);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
+    background: var(--steel);
   }
 
   /* Skip nav link */
   .skip-nav {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-600 focus:text-white focus:rounded-md focus:text-sm focus:font-medium;
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-md focus:text-sm focus:font-medium;
+    background: var(--blue-mid);
+    color: var(--white);
+  }
+}
+
+/* ── Nexara Typography Classes ─────────────────────────────── */
+@layer utilities {
+  .display {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    line-height: 0.93;
+    letter-spacing: -0.025em;
+    color: var(--white);
+  }
+
+  .h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+
+  .h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--white);
+  }
+
+  .h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--white);
+  }
+
+  .label-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--teal-core);
+  }
+
+  .body-lg {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: var(--silver);
+    line-height: 1.75;
+  }
+
+  .body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 0.92rem;
+    color: var(--steel);
+    line-height: 1.7;
+  }
+
+  .mono {
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Gradient text utility */
+  .grad-text {
+    background: var(--g-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

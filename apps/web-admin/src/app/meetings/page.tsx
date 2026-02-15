@@ -87,7 +87,7 @@ export default function MeetingsPage() {
     new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         <div className="flex items-center justify-between mb-8">
@@ -210,7 +210,7 @@ export default function MeetingsPage() {
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     placeholder="Meeting title"
                   />
                 </div>
@@ -220,7 +220,7 @@ export default function MeetingsPage() {
                     <select
                       value={form.type}
                       onChange={(e) => setForm({ ...form, type: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     >
                       <option value="BOARD">Board</option>
                       <option value="TEAM">Team</option>
@@ -234,7 +234,7 @@ export default function MeetingsPage() {
                       type="date"
                       value={form.date}
                       onChange={(e) => setForm({ ...form, date: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -243,7 +243,7 @@ export default function MeetingsPage() {
                   <input
                     value={form.attendees}
                     onChange={(e) => setForm({ ...form, attendees: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                     placeholder="Alice, Bob, Charlie"
                   />
                 </div>
@@ -253,7 +253,7 @@ export default function MeetingsPage() {
                     value={form.summary}
                     onChange={(e) => setForm({ ...form, summary: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
                     placeholder="Meeting summary..."
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function MeetingsPage() {
                     value={form.actionItems}
                     onChange={(e) => setForm({ ...form, actionItems: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 bg-[#0A1929] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full px-3 py-2 bg-[#080B12] border border-[#1B3A6B]/40 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
                     placeholder="Follow up with client&#10;Send proposal&#10;Schedule next review"
                   />
                 </div>

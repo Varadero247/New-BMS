@@ -153,7 +153,7 @@ export default function LinkedInTrackerPage() {
   const conversionRate = totalFunnel > 0 ? ((funnelStats.closedWon / totalFunnel) * 100).toFixed(1) : '0.0';
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         <div className="mb-8">
@@ -175,7 +175,7 @@ export default function LinkedInTrackerPage() {
               {dailyCount} / {DAILY_LIMIT}
             </span>
           </div>
-          <div className="w-full bg-[#0A1929] rounded-full h-3">
+          <div className="w-full bg-[#080B12] rounded-full h-3">
             <div
               className={`h-3 rounded-full transition-all ${dailyCount >= DAILY_LIMIT ? 'bg-red-500' : 'bg-blue-500'}`}
               style={{ width: `${Math.min((dailyCount / DAILY_LIMIT) * 100, 100)}%` }}
@@ -210,7 +210,7 @@ export default function LinkedInTrackerPage() {
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="https://linkedin.com/in/john-doe"
               />
             </div>
@@ -221,7 +221,7 @@ export default function LinkedInTrackerPage() {
                 value={prospectName}
                 onChange={(e) => setProspectName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="John Doe"
               />
             </div>
@@ -232,7 +232,7 @@ export default function LinkedInTrackerPage() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="Acme Ltd"
               />
             </div>
@@ -241,7 +241,7 @@ export default function LinkedInTrackerPage() {
               <select
                 value={template}
                 onChange={(e) => setTemplate(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
               >
                 {TEMPLATES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -254,7 +254,7 @@ export default function LinkedInTrackerPage() {
                 value={customContext}
                 onChange={(e) => setCustomContext(e.target.value)}
                 rows={2}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                 placeholder="Any specific context for the message..."
               />
             </div>
@@ -288,7 +288,7 @@ export default function LinkedInTrackerPage() {
               value={generatedMessage}
               onChange={(e) => setGeneratedMessage(e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-gray-200 font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full px-4 py-3 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-gray-200 font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
             />
             <button
               onClick={() => { navigator.clipboard.writeText(generatedMessage); }}

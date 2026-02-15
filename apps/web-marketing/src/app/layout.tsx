@@ -1,26 +1,14 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Sora, JetBrains_Mono } from 'next/font/google';
+import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import ChatbotWidget from '@/components/ChatbotWidget';
 import './globals.css';
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-body',
-  weight: ['300', '400', '500', '600'],
-});
-const sora = Sora({
-  subsets: ['latin'],
-  variable: '--font-display',
-  weight: ['400', '600', '700'],
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  weight: ['400', '500'],
-});
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
+const syne = Syne({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700', '800'] });
+const dmMono = DM_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['300', '400', '500'] });
 
 export const metadata: Metadata = {
-  title: 'Nexara IMS — Unified Compliance Intelligence',
+  title: 'Nexara IMS',
   description:
     'Nexara unifies ISO 9001, 14001, 45001, 27001 and 26 more standards into a single AI-powered management system.',
   openGraph: {
@@ -31,6 +19,7 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     type: 'website',
   },
+  themeColor: '#080B12',
   twitter: {
     card: 'summary_large_image',
     title: 'Nexara IMS',
@@ -40,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning style={{ backgroundColor: '#080B12' }}>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -48,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${sora.variable} ${jetbrainsMono.variable} font-body antialiased bg-surface-dark text-gray-100 cursor-none`}>
+      <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased cursor-none`}>
         {children}
         <ChatbotWidget />
       </body>

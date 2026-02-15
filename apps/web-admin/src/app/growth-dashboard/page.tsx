@@ -162,7 +162,7 @@ export default function GrowthDashboardPage() {
   const totalCustomers = metrics.customerHealth.healthy + metrics.customerHealth.atRisk + metrics.customerHealth.critical;
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         {/* Header */}
@@ -278,7 +278,7 @@ export default function GrowthDashboardPage() {
                           {formatCurrency(stage.value)} ({stage.count})
                         </span>
                       </div>
-                      <div className="w-full bg-[#0A1929] rounded-full h-2.5">
+                      <div className="w-full bg-[#080B12] rounded-full h-2.5">
                         <div
                           className="h-2.5 rounded-full bg-gradient-to-r from-[#1B3A6B] to-blue-400 transition-all"
                           style={{ width: `${(stage.value / maxPipelineValue) * 100}%` }}
@@ -322,7 +322,7 @@ export default function GrowthDashboardPage() {
                       <div key={source.source} className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full ${colors[i % colors.length]}`} />
                         <span className="text-gray-300 text-sm flex-1">{source.source}</span>
-                        <div className="w-32 bg-[#0A1929] rounded-full h-2">
+                        <div className="w-32 bg-[#080B12] rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${colors[i % colors.length]}`}
                             style={{ width: `${source.percentage}%` }}
@@ -642,7 +642,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
             <h3 className="text-sm font-medium text-gray-400">Director&apos;s Loan (£320K / 8% / 36mo)</h3>
             <span className="text-white font-semibold text-sm">{dirLoanProgress.toFixed(1)}% repaid</span>
           </div>
-          <div className="w-full bg-[#0A1929] rounded-full h-3 mb-2">
+          <div className="w-full bg-[#080B12] rounded-full h-3 mb-2">
             <div className="h-3 rounded-full bg-gradient-to-r from-red-600 to-red-400 transition-all" style={{ width: `${Math.min(dirLoanProgress, 100)}%` }} />
           </div>
           <div className="flex justify-between text-xs text-gray-500">
@@ -655,7 +655,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
             <h3 className="text-sm font-medium text-gray-400">Starter Capital Loan (£30K / 8% / 24mo)</h3>
             <span className="text-white font-semibold text-sm">{starterLoanProgress.toFixed(1)}% repaid</span>
           </div>
-          <div className="w-full bg-[#0A1929] rounded-full h-3 mb-2">
+          <div className="w-full bg-[#080B12] rounded-full h-3 mb-2">
             <div className="h-3 rounded-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all" style={{ width: `${Math.min(starterLoanProgress, 100)}%` }} />
           </div>
           <div className="flex justify-between text-xs text-gray-500">

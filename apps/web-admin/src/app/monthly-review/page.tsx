@@ -54,7 +54,7 @@ export default function MonthlyReviewListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         <div className="flex items-center justify-between mb-8">

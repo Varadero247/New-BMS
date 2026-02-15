@@ -126,7 +126,7 @@ export default function SnapshotDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A1929]">
+      <div className="min-h-screen bg-[#080B12]">
         <Sidebar />
         <main className="ml-64 p-8">
           <div className="text-gray-400 text-center py-12">Loading snapshot...</div>
@@ -137,7 +137,7 @@ export default function SnapshotDetailPage() {
 
   if (!snapshot) {
     return (
-      <div className="min-h-screen bg-[#0A1929]">
+      <div className="min-h-screen bg-[#080B12]">
         <Sidebar />
         <main className="ml-64 p-8">
           <div className="text-gray-400 text-center py-12">Snapshot not found</div>
@@ -151,7 +151,7 @@ export default function SnapshotDetailPage() {
   const recommendations: any[] = Array.isArray(snapshot.aiRecommendations) ? snapshot.aiRecommendations : [];
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         {/* Header */}
@@ -290,7 +290,7 @@ export default function SnapshotDetailPage() {
                   value={overrideMrr}
                   onChange={(e) => setOverrideMrr(e.target.value)}
                   placeholder="Leave blank to use AI suggestion"
-                  className="w-full bg-[#0A1929] border border-[#1B3A6B]/30 rounded-lg px-3 py-2 text-white text-sm"
+                  className="w-full bg-[#080B12] border border-[#1B3A6B]/30 rounded-lg px-3 py-2 text-white text-sm"
                 />
               </div>
               <div>
@@ -300,7 +300,7 @@ export default function SnapshotDetailPage() {
                   value={overrideCustomers}
                   onChange={(e) => setOverrideCustomers(e.target.value)}
                   placeholder="Leave blank to use AI suggestion"
-                  className="w-full bg-[#0A1929] border border-[#1B3A6B]/30 rounded-lg px-3 py-2 text-white text-sm"
+                  className="w-full bg-[#080B12] border border-[#1B3A6B]/30 rounded-lg px-3 py-2 text-white text-sm"
                 />
               </div>
             </div>

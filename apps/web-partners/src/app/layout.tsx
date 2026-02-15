@@ -1,18 +1,21 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
+const syne = Syne({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700', '800'] });
+const dmMono = DM_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['300', '400', '500'] });
 
 export const metadata: Metadata = {
-  title: 'Nexara Partner Portal',
+  title: 'Partners — Nexara IMS',
   description: 'Partner portal for Nexara IMS - manage deals, referrals, and payouts',
+  themeColor: '#080B12',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-gray-950 text-gray-100 min-h-screen`}>
+    <html lang="en" data-theme="dark" className="dark" style={{ backgroundColor: '#080B12' }} suppressHydrationWarning>
+      <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased min-h-screen`}>
         {children}
       </body>
     </html>

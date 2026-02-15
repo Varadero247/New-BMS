@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss';
-import { colors, fontFamily, fontSize, borderRadius, boxShadow } from './src/tokens';
+import { nexara, moduleColors, sectorColors, colors, fontFamily, fontSize, borderRadius, boxShadow } from './src/tokens';
 
 const preset: Partial<Config> = {
   darkMode: ['class', '[data-theme="dark"]'],
@@ -7,55 +7,67 @@ const preset: Partial<Config> = {
     extend: {
       colors: {
         // CSS-variable-driven semantic tokens (light/dark mode)
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: 'hsl(var(--border-hsl, 217 33% 17%))',
+        input: 'hsl(var(--input, 217 33% 17%))',
+        ring: 'hsl(var(--ring, 217 78% 60%))',
+        background: 'var(--bg-page, #080B12)',
+        foreground: 'var(--text-primary, #EDF3FC)',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'var(--accent-primary, #3B78F5)',
+          foreground: 'var(--text-primary, #EDF3FC)',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: 'var(--accent-teal, #00C4A8)',
+          foreground: 'var(--text-primary, #EDF3FC)',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: '#F04B5A',
+          foreground: '#EDF3FC',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: 'var(--raised, #1C2940)',
+          foreground: 'var(--text-muted, #5A7099)',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: 'var(--accent-teal, #00C4A8)',
+          foreground: 'var(--text-primary, #EDF3FC)',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: 'var(--bg-card, #162032)',
+          foreground: 'var(--text-primary, #EDF3FC)',
         },
-        // Static brand palette
+        // Nexara foundation palette
+        nexara,
+        // Module colours
+        module: moduleColors,
+        // Sector colours
+        sector: sectorColors,
+        // Static brand palette (legacy compat)
         brand: colors.brand,
         gold: colors.gold,
         success: colors.success,
         warning: colors.warning,
         danger: colors.danger,
         info: colors.info,
+        gray: colors.gray,
         // Named palette tokens
         navy: colors.navy,
         sage: colors.sage,
         teal: colors.teal,
         surface: colors.surface,
         // Semantic aliases
-        critical: '#DC2626',
-        neutral: '#9CA3AF',
+        critical: '#F04B5A',
+        neutral: '#5A7099',
       },
       fontFamily,
       fontSize,
       borderRadius,
       boxShadow,
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%)',
+        'brand-gradient-r': 'linear-gradient(315deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%)',
+        'dark-gradient': 'linear-gradient(160deg, #0C1220 0%, #101828 100%)',
+      },
       animation: {
         'fade-in': 'fadeIn 200ms ease-out',
         'slide-up': 'slideUp 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',

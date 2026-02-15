@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Sora } from 'next/font/google';
+import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { I18nProvider } from '@ims/i18n';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
-const sora = Sora({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700'] });
+const syne = Syne({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700', '800'] });
+const dmMono = DM_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['300', '400', '500'] });
 
 export const metadata: Metadata = {
-  title: 'IMS Dashboard',
+  title: 'Dashboard — Nexara IMS',
   description: 'Integrated Management System - ISO 45001, 14001, 9001',
+  themeColor: '#080B12',
 };
 
 export default function RootLayout({
@@ -18,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning style={{ backgroundColor: '#080B12' }}>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -26,7 +28,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${sora.variable} font-body antialiased`}>
+      <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased`}>
         <I18nProvider><Providers>{children}</Providers></I18nProvider>
       </body>
     </html>

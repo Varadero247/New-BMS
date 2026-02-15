@@ -19,7 +19,9 @@
     "./tokens": {
       "import": "./src/tokens.ts",
       "require": "./src/tokens.ts"
-    }
+    },
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./globals.css": "./globals.css"
   },
   "scripts": {
     "build": "tsup --no-dts",

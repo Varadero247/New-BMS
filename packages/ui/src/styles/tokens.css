@@ -1,0 +1,75 @@
+/* ═══════════════════════════════════════════════════════════
+   Nexara Brand Identity v2.0 — Design Tokens
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Foundation (dark-first) ─────────────────────────────── */
+  --ink:        #080B12;
+  --deep:       #0C1220;
+  --midnight:   #101828;
+  --surface:    #162032;
+  --raised:     #1C2940;
+  --border:     #1E2E48;
+  --border-hi:  #263852;
+  --muted:      #344D72;
+  --steel:      #5A7099;
+  --silver:     #8EA8CC;
+  --light:      #C8D9EF;
+  --white:      #EDF3FC;
+
+  /* ── Brand Signal ────────────────────────────────────────── */
+  --blue-deep:  #1A4FBF;
+  --blue-core:  #2660D8;
+  --blue-mid:   #3B78F5;
+  --blue-hi:    #5B94FF;
+  --blue-glow:  #7AACFF;
+  --teal-deep:  #009E87;
+  --teal-core:  #00C4A8;
+  --teal-hi:    #00E0BF;
+
+  /* ── Gradients ───────────────────────────────────────────── */
+  --g-brand:    linear-gradient(135deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
+  --g-brand-r:  linear-gradient(315deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
+  --g-dark:     linear-gradient(160deg, #0C1220 0%, #101828 100%);
+  --g-glow:     radial-gradient(ellipse at center, rgba(59,120,245,0.2) 0%, transparent 70%);
+
+  /* ── Module Colours (one per ISO domain) ─────────────────── */
+  --m-quality:  #3B78F5;
+  --m-safety:   #F04B5A;
+  --m-env:      #00C4A8;
+  --m-hr:       #9B6FEA;
+  --m-payroll:  #F59E0B;
+  --m-projects: #4EB8FF;
+  --m-finance:  #34D399;
+  --m-crm:      #FB923C;
+  --m-infosec:  #818CF8;
+  --m-esg:      #6EE7B7;
+  --m-cmms:     #FCD34D;
+  --m-ai:       #E879F9;
+
+  /* ── Sector Vertical Colours ─────────────────────────────── */
+  --s-auto:     #DC2626;
+  --s-medical:  #0891B2;
+  --s-aero:     #1D4ED8;
+  --s-food:     #16A34A;
+  --s-energy:   #D97706;
+  --s-antibrib: #7C3AED;
+
+  /* ── Semantic Aliases ────────────────────────────────────── */
+  --bg-page:        var(--ink);
+  --bg-section:     var(--deep);
+  --bg-nav:         var(--midnight);
+  --bg-card:        var(--surface);
+  --bg-raised:      var(--raised);
+  --text-primary:   var(--white);
+  --text-body:      var(--silver);
+  --text-muted:     var(--steel);
+  --text-faint:     var(--muted);
+  --border-default: var(--border);
+  --border-strong:  var(--border-hi);
+  --accent-primary: var(--blue-mid);
+  --accent-teal:    var(--teal-core);
+
+  /* ── Transition ──────────────────────────────────────────── */
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}

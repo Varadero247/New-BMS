@@ -27,7 +27,7 @@ export default function Nav() {
       className={`fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] backdrop-blur-xl transition-shadow duration-300 ${
         scrolled ? 'shadow-lg' : ''
       }`}
-      style={{ background: 'var(--glass, rgba(10, 15, 30, 0.75))' }}
+      style={{ background: 'rgba(8, 11, 18, 0.75)' }}
       aria-label="Main navigation"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,11 +38,19 @@ export default function Nav() {
             className="flex items-center gap-2.5 flex-shrink-0 group"
             aria-label="Nexara home"
           >
-            <span className="bg-navy rounded-lg px-2 py-1 font-display font-bold text-white text-base leading-none group-hover:bg-navy/80 transition-colors">
-              R
-            </span>
-            <span className="font-display font-bold text-white text-lg leading-none">
-              Nexara
+            <svg width="28" height="28" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+              <path d="M 40 16 A 24 24 0 1 1 19.5 57.2" stroke="url(#navG)" strokeWidth="2" strokeDasharray="5 3.5" strokeLinecap="round" opacity="0.55"/>
+              <path d="M 40 26 A 14 14 0 1 1 26.9 50.9" stroke="url(#navG)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8"/>
+              <circle cx="40" cy="40" r="5.5" fill="url(#navG)"/>
+              <circle cx="40" cy="40" r="2.5" fill="white" opacity="0.92"/>
+              <defs>
+                <linearGradient id="navG" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#3B78F5"/><stop offset="60%" stopColor="#5B94FF"/><stop offset="100%" stopColor="#00C4A8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--white, #EDF3FC)' }} className="text-lg leading-none">
+              nexara
             </span>
           </Link>
 
@@ -69,9 +77,10 @@ export default function Nav() {
             </Link>
             <Link
               href="/auth/login"
-              className="px-4 py-2 text-sm font-body font-medium bg-teal text-white hover:bg-teal/90 rounded-lg transition-all duration-150"
+              className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-150"
+              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
             >
-              Sign in →
+              Sign in &rarr;
             </Link>
           </div>
 
@@ -122,7 +131,7 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/10 bg-navy/95 backdrop-blur-xl px-4 py-4 flex flex-col gap-2">
+        <div className="md:hidden border-t px-4 py-4 flex flex-col gap-2" style={{ borderColor: 'var(--border, #1E2E48)', background: 'rgba(8,11,18,0.95)', backdropFilter: 'blur(16px)' }}>
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
@@ -143,7 +152,8 @@ export default function Nav() {
             </Link>
             <Link
               href="/auth/login"
-              className="px-4 py-2.5 text-sm font-body font-medium text-center bg-teal text-white hover:bg-teal/90 rounded-lg transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-center text-white rounded-lg transition-colors"
+              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
               onClick={() => setMobileOpen(false)}
             >
               Sign in →

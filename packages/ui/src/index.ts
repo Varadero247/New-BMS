@@ -1,5 +1,6 @@
 // Design tokens
 export * as tokens from './tokens';
+export { nexara, moduleColors, sectorColors, chartColors } from './tokens';
 
 // Utility functions
 export { cn, formatDate, formatNumber, formatCurrency } from './utils';
@@ -194,3 +195,41 @@ export { NpsSurvey, type NpsSurveyProps } from './nps-survey';
 
 // Cookie Consent
 export { CookieConsent, type CookieConsentProps, type CookieChoices } from './cookie-consent';
+
+// ── Nexara Brand Identity v2.0 Components ─────────────────────
+
+// NexaraLogo
+export { NexaraLogo, type NexaraLogoProps } from './nexara-logo';
+
+// NexaraIcon
+export { NexaraIcon, type NexaraIconProps } from './nexara-icon';
+
+// AppNav
+export { AppNav, NavTab, type AppNavProps, type NavTabProps } from './app-nav';
+
+// AppSidebar
+export { AppSidebar, type AppSidebarProps, type SidebarItem as NexaraSidebarItem } from './app-sidebar';
+
+// KpiCard
+export { KpiCard, type KpiCardProps } from './kpi-card';
+
+// ModuleChip
+export { ModuleChip, type ModuleChipProps } from './module-chip';
+
+// SectorCard
+export { SectorCard, type SectorCardProps } from './sector-card';
+
+// NexaraTag
+export { NexaraTag, type NexaraTagProps } from './nexara-tag';
+
+// CodeBlock
+export { CodeBlock, type CodeBlockProps } from './code-block';
+
+// ChangelogBanner
+export { ChangelogBanner, type ChangelogBannerProps } from './changelog-banner';
+
+// PageShell
+export { PageShell, type PageShellProps } from './page-shell';
+
+// HeroSection
+export { HeroSection, HeroButton, type HeroSectionProps, type HeroButtonProps } from './hero-section';

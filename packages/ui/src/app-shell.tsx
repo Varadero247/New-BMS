@@ -65,15 +65,15 @@ function SidebarLink({ item, isActive, collapsed }: { item: NavItem; isActive: b
           'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
           collapsed ? 'justify-center p-2' : 'px-3 py-2',
           isActive
-            ? 'bg-brand-100 text-brand-900 dark:bg-brand-900/30 dark:text-brand-200'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+            ? 'bg-nexara-raised text-nexara-blue-hi'
+            : 'text-nexara-steel hover:bg-nexara-raised'
         )}
       >
         {Icon && (
           <Icon
             className={cn(
               'h-5 w-5 shrink-0',
-              isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'
+              isActive ? 'text-nexara-blue-hi' : 'text-nexara-muted'
             )}
           />
         )}
@@ -109,7 +109,7 @@ function SidebarSection({
   }
 
   return (
-    <div className={section.title ? 'mt-4 pt-4 border-t border-gray-200 dark:border-gray-700' : ''}>
+    <div className={section.title ? 'mt-4 pt-4 border-t border-nexara-border' : ''}>
       {section.title && (
         <button
           type="button"
@@ -119,7 +119,7 @@ function SidebarSection({
             section.collapsible && 'cursor-pointer hover:text-gray-600 dark:hover:text-gray-300'
           )}
         >
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-nexara-muted uppercase tracking-wider font-mono">
             {section.title}
           </span>
           {section.collapsible && (

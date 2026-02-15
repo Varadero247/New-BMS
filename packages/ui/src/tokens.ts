@@ -1,151 +1,197 @@
 /**
- * IMS Design Tokens — Nexara 2026 Enterprise Palette
+ * Nexara Brand Identity v2.0 — Design Tokens
  *
- * Brand colours, typography, spacing, radius, and shadows.
+ * Dark-first enterprise palette with blue/teal brand signal.
  * Source of truth consumed by tailwind preset and CSS variables.
- *
- * Primary:   #1E3A8A (navy) · #0F172A (navy-dark)
- * Secondary: #065F46 (sage) · #047857 (sage-mid)
- * Highlight:  #059669 (teal) · #0EA5E9 (teal-bright)
  */
 
-// ── Brand Palette ──────────────────────────────────────────
+// ── Foundation (dark-first backgrounds → text) ──────────────
+export const nexara = {
+  ink:        '#080B12',
+  deep:       '#0C1220',
+  midnight:   '#101828',
+  surface:    '#162032',
+  raised:     '#1C2940',
+  border:     '#1E2E48',
+  'border-hi':'#263852',
+  muted:      '#344D72',
+  steel:      '#5A7099',
+  silver:     '#8EA8CC',
+  light:      '#C8D9EF',
+  white:      '#EDF3FC',
+  // Brand signal
+  'blue-deep':  '#1A4FBF',
+  'blue-core':  '#2660D8',
+  'blue-mid':   '#3B78F5',
+  'blue-hi':    '#5B94FF',
+  'blue-glow':  '#7AACFF',
+  'teal-deep':  '#009E87',
+  'teal-core':  '#00C4A8',
+  'teal-hi':    '#00E0BF',
+} as const;
+
+// ── Module colours (one per ISO domain) ──────────────────────
+export const moduleColors = {
+  quality:  '#3B78F5',
+  safety:   '#F04B5A',
+  env:      '#00C4A8',
+  hr:       '#9B6FEA',
+  payroll:  '#F59E0B',
+  projects: '#4EB8FF',
+  finance:  '#34D399',
+  crm:      '#FB923C',
+  infosec:  '#818CF8',
+  esg:      '#6EE7B7',
+  cmms:     '#FCD34D',
+  ai:       '#E879F9',
+} as const;
+
+// ── Sector vertical colours ──────────────────────────────────
+export const sectorColors = {
+  auto:     '#DC2626',
+  medical:  '#0891B2',
+  aero:     '#1D4ED8',
+  food:     '#16A34A',
+  energy:   '#D97706',
+  antibrib: '#7C3AED',
+} as const;
+
+// ── Legacy compatibility palette (used by existing components) ──
 export const colors = {
   brand: {
-    900: '#0F172A', // ← navy-dark / dark mode primary
-    800: '#1E293B',
-    700: '#1E3A8A', // ← primary navy
-    600: '#1E3A8A', // ← primary navy (kept for backward compat)
-    500: '#2563EB',
-    400: '#3B82F6',
-    300: '#60A5FA',
-    200: '#93C5FD',
-    100: '#DBEAFE',
-    50: '#EFF6FF',
+    900: '#080B12',
+    800: '#0C1220',
+    700: '#1A4FBF',
+    600: '#2660D8',
+    500: '#3B78F5',
+    400: '#5B94FF',
+    300: '#7AACFF',
+    200: '#8EA8CC',
+    100: '#C8D9EF',
+    50:  '#EDF3FC',
   },
   gold: {
-    700: '#047857', // sage-mid (gold replaced by teal/sage)
-    600: '#059669', // teal
-    500: '#059669', // ← teal CTA (replaces gold accent)
-    400: '#10B981',
+    700: '#009E87',
+    600: '#00C4A8',
+    500: '#00C4A8',
+    400: '#00E0BF',
     300: '#34D399',
     200: '#6EE7B7',
     100: '#A7F3D0',
-    50: '#D1FAE5',
+    50:  '#D1FAE5',
   },
   success: {
     700: '#047857',
     600: '#059669',
-    500: '#10B981', // ← compliant / green metrics
+    500: '#10B981',
     400: '#34D399',
     300: '#6EE7B7',
     200: '#A7F3D0',
     100: '#D1FAE5',
-    50: '#ECFDF5',
+    50:  '#ECFDF5',
   },
   warning: {
     700: '#B45309',
-    600: '#D97706', // ← warning-deep
-    500: '#F59E0B', // ← at-risk / pending
+    600: '#D97706',
+    500: '#F59E0B',
     400: '#FBBF24',
     300: '#FCD34D',
     200: '#FDE68A',
     100: '#FEF3C7',
-    50: '#FFFBEB',
+    50:  '#FFFBEB',
   },
   danger: {
     700: '#B91C1C',
-    600: '#DC2626', // ← non-compliant / alert
+    600: '#DC2626',
     500: '#EF4444',
     400: '#F87171',
     300: '#FCA5A5',
     200: '#FECACA',
     100: '#FEE2E2',
-    50: '#FEF2F2',
+    50:  '#FEF2F2',
   },
   info: {
     700: '#0369A1',
     600: '#0284C7',
-    500: '#0EA5E9', // ← teal-bright
+    500: '#0EA5E9',
     400: '#38BDF8',
     300: '#7DD3FC',
     200: '#BAE6FD',
     100: '#E0F2FE',
-    50: '#F0F9FF',
+    50:  '#F0F9FF',
   },
   gray: {
-    950: '#030712',
-    900: '#111827', // ← dark mode bg
-    800: '#1F2937',
-    700: '#374151',
-    600: '#4B5563',
-    500: '#6B7280',
-    400: '#9CA3AF', // ← neutral
-    300: '#D1D5DB',
+    950: '#080B12',
+    900: '#0C1220',
+    800: '#101828',
+    700: '#162032',
+    600: '#344D72',
+    500: '#5A7099',
+    400: '#8EA8CC',
+    300: '#C8D9EF',
     200: '#E5E7EB',
-    100: '#F3F4F6',
-    50: '#F9FAFB',
+    100: '#EDF3FC',
+    50:  '#EDF3FC',
   },
-  // ── New named palette tokens ──
   navy: {
-    DEFAULT: '#1E3A8A',
-    dark: '#0F172A',
-    light: '#DBEAFE',
+    DEFAULT: '#1A4FBF',
+    dark: '#080B12',
+    light: '#C8D9EF',
   },
   sage: {
-    DEFAULT: '#065F46',
-    mid: '#047857',
+    DEFAULT: '#009E87',
+    mid: '#00C4A8',
     light: '#D1FAE5',
   },
   teal: {
-    DEFAULT: '#059669',
-    bright: '#0EA5E9',
+    DEFAULT: '#00C4A8',
+    bright: '#00E0BF',
     light: '#D1FAE5',
   },
   surface: {
-    light: '#F8FAFC',
-    'light-alt': '#F1F5F9',
-    dark: '#111827',
-    'dark-alt': '#0F172A',
+    light: '#EDF3FC',
+    'light-alt': '#C8D9EF',
+    dark: '#0C1220',
+    'dark-alt': '#080B12',
   },
 } as const;
 
-// ── Chart palette (for Recharts / data viz) ──────────────
+// ── Chart palette (for Recharts / data viz) ──────────────────
 export const chartColors = [
-  '#1E3A8A', // navy
-  '#059669', // teal
-  '#0EA5E9', // teal-bright
-  '#F59E0B', // warning
-  '#10B981', // success
-  '#DC2626', // critical
-  '#8B5CF6', // violet
-  '#EC4899', // pink
-  '#F97316', // orange
-  '#6366F1', // indigo
+  '#3B78F5', // blue-mid
+  '#00C4A8', // teal-core
+  '#F04B5A', // safety
+  '#F59E0B', // payroll/warning
+  '#9B6FEA', // hr
+  '#34D399', // finance
+  '#FB923C', // crm
+  '#818CF8', // infosec
+  '#E879F9', // ai
+  '#4EB8FF', // projects
 ] as const;
 
-// ── Typography ─────────────────────────────────────────────
+// ── Typography ───────────────────────────────────────────────
 export const fontFamily = {
-  display: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  body: ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+  display: ['Syne', 'sans-serif'],
+  body:    ['DM Sans', 'sans-serif'],
+  mono:    ['DM Mono', 'monospace'],
 } as const;
 
 export const fontSize = {
-  'display-xl': ['2.25rem', { lineHeight: '2.75rem', fontWeight: '700' }],
-  'display-lg': ['1.875rem', { lineHeight: '2.375rem', fontWeight: '700' }],
-  'display-md': ['1.5rem', { lineHeight: '2rem', fontWeight: '600' }],
-  'display-sm': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600' }],
-  'body-lg': ['1.125rem', { lineHeight: '1.75rem', fontWeight: '400' }],
-  'body-md': ['1rem', { lineHeight: '1.5rem', fontWeight: '400' }],
-  'body-sm': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }],
-  'body-xs': ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],
-  'label-lg': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '600' }],
-  'label-md': ['0.8125rem', { lineHeight: '1.125rem', fontWeight: '500' }],
-  'label-sm': ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],
+  'display-xl': ['2.25rem', { lineHeight: '2.75rem', fontWeight: '800' }],
+  'display-lg': ['1.875rem', { lineHeight: '2.375rem', fontWeight: '800' }],
+  'display-md': ['1.5rem', { lineHeight: '2rem', fontWeight: '700' }],
+  'display-sm': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '700' }],
+  'body-lg':    ['1.1rem', { lineHeight: '1.75', fontWeight: '300' }],
+  'body-md':    ['0.92rem', { lineHeight: '1.7', fontWeight: '400' }],
+  'body-sm':    ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }],
+  'body-xs':    ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],
+  'label-lg':   ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }],
+  'label-md':   ['0.8125rem', { lineHeight: '1.125rem', fontWeight: '500' }],
+  'label-sm':   ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],
 } as const;
 
-// ── Spacing (4px grid) ────────────────────────────────────
+// ── Spacing (4px grid) ───────────────────────────────────────
 export const spacing = {
   px: '1px',
   0: '0px',
@@ -179,7 +225,7 @@ export const spacing = {
   64: '16rem',
 } as const;
 
-// ── Border Radius ──────────────────────────────────────────
+// ── Border Radius ────────────────────────────────────────────
 export const borderRadius = {
   none: '0px',
   sm: '0.25rem',
@@ -191,10 +237,11 @@ export const borderRadius = {
   full: '9999px',
 } as const;
 
-// ── Shadows ────────────────────────────────────────────────
+// ── Shadows ──────────────────────────────────────────────────
 export const boxShadow = {
   card: '0 0 0 1px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.06)',
   nav: '0 1px 0 rgba(0, 0, 0, 0.08)',
   modal: '0 25px 50px rgba(0, 0, 0, 0.25)',
   'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
+  glow: '0 8px 32px rgba(38,96,216,0.35)',
 } as const;

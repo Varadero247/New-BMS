@@ -102,7 +102,7 @@ export default function ProspectResearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         <div className="mb-8">
@@ -130,7 +130,7 @@ export default function ProspectResearchPage() {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="Acme Ltd"
               />
             </div>
@@ -140,7 +140,7 @@ export default function ProspectResearchPage() {
                 type="url"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="https://acme.com"
               />
             </div>
@@ -150,7 +150,7 @@ export default function ProspectResearchPage() {
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 placeholder="https://linkedin.com/company/acme"
               />
             </div>
@@ -159,7 +159,7 @@ export default function ProspectResearchPage() {
               <select
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
               >
                 <option value="">Select industry...</option>
                 <option value="manufacturing">Manufacturing</option>
@@ -182,7 +182,7 @@ export default function ProspectResearchPage() {
                 value={sourceContext}
                 onChange={(e) => setSourceContext(e.target.value)}
                 rows={2}
-                className="w-full px-4 py-2.5 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                 placeholder="Where did you find this prospect? Any relevant context..."
               />
             </div>
@@ -251,7 +251,7 @@ export default function ProspectResearchPage() {
                 value={editedEmail}
                 onChange={(e) => setEditedEmail(e.target.value)}
                 rows={12}
-                className="w-full px-4 py-3 bg-[#0A1929] border border-[#1B3A6B]/50 rounded-lg text-gray-200 font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-3 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-gray-200 font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
               />
               <div className="flex gap-3 mt-4">
                 <button

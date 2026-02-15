@@ -88,7 +88,7 @@ export default function FeatureRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1929]">
+    <div className="min-h-screen bg-[#080B12]">
       <Sidebar />
       <main className="ml-64 p-8">
         {/* Header */}
@@ -190,7 +190,7 @@ export default function FeatureRequestsPage() {
                         <select
                           value={req.status}
                           onChange={(e) => handleStatusUpdate(req.id, e.target.value)}
-                          className="bg-[#0A1929] border border-[#1B3A6B]/30 text-gray-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-blue-500"
+                          className="bg-[#080B12] border border-[#1B3A6B]/30 text-gray-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-blue-500"
                         >
                           {STATUS_OPTIONS.map((s) => (
                             <option key={s} value={s}>{s.replace('_', ' ')}</option>
@@ -200,7 +200,7 @@ export default function FeatureRequestsPage() {
                     </tr>
                     {expandedId === req.id && (
                       <tr key={`${req.id}-desc`} className="border-b border-[#1B3A6B]/10">
-                        <td colSpan={6} className="py-4 px-8 bg-[#0A1929]/50">
+                        <td colSpan={6} className="py-4 px-8 bg-[#080B12]/50">
                           <p className="text-gray-400 text-sm whitespace-pre-wrap">
                             {req.description || 'No description provided.'}
                           </p>

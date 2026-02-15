@@ -191,6 +191,11 @@ export class NexaraClient {
       this.request<ApiResponse<any>>('POST', '/api/ai/analyze', { type, context }),
   };
 
+  // Fluent Compliance API
+  compliance(): ComplianceBuilder {
+    return new ComplianceBuilder(this.baseUrl, this.apiKey, this.timeout);
+  }
+
   // Verify webhook signature
   static verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
     const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
@@ -198,6 +203,69 @@ export class NexaraClient {
       return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
     } catch {
       return false;
+    }
+  }
+}
+
+// ── Fluent Compliance Builder ─────────────────────────────────
+
+export type ISOStandard =
+  | 'ISO_9001' | 'ISO_14001' | 'ISO_45001' | 'ISO_27001'
+  | 'ISO_22000' | 'ISO_50001' | 'ISO_42001' | 'ISO_37001'
+  | 'IATF_16949' | 'ISO_13485' | 'AS9100';
+
+export interface CompliancePosture {
+  overall: number;
+  standards: Record<string, {
+    score: number;
+    gaps: number;
+    lastAudit?: string;
+  }>;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  generatedAt: string;
+}
+
+export class ComplianceBuilder {
+  private _standards: ISOStandard[] = [];
+  private _baseUrl: string;
+  private _apiKey: string;
+  private _timeout: number;
+
+  constructor(baseUrl: string, apiKey: string, timeout: number) {
+    this._baseUrl = baseUrl;
+    this._apiKey = apiKey;
+    this._timeout = timeout;
+  }
+
+  standards(standards: ISOStandard[]): ComplianceBuilder {
+    this._standards = standards;
+    return this;
+  }
+
+  async posture(): Promise<CompliancePosture> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this._timeout);
+
+    try {
+      const response = await fetch(`${this._baseUrl}/api/compliance/posture`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this._apiKey}`,
+        },
+        body: JSON.stringify({ standards: this._standards }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(`Nexara API Error ${response.status}: ${error.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 }

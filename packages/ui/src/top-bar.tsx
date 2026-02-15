@@ -37,7 +37,7 @@ export function TopBar({
   return (
     <header
       className={cn(
-        'h-14 border-b border-border bg-card flex items-center justify-between px-6 shrink-0',
+        'h-[50px] border-b flex items-center justify-between px-6 shrink-0',
         className
       )}
     >
@@ -58,7 +58,7 @@ export function TopBar({
           {avatarUrl ? (
             <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
           ) : (
-            <div className="h-8 w-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-label-sm font-semibold">
+            <div className="h-7 w-7 rounded-full flex items-center justify-center text-label-sm font-semibold text-white bg-brand-gradient">
               {userInitials || '?'}
             </div>
           )}
