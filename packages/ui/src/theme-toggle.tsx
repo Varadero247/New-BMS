@@ -5,7 +5,7 @@ import { cn } from './utils';
 
 function getInitialTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem('theme');
+  const stored = localStorage.getItem('nexara-theme');
   if (stored === 'dark' || stored === 'light') return stored;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
@@ -73,7 +73,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('nexara-theme', theme);
   }, [theme, mounted]);
 
   const toggle = useCallback(() => {

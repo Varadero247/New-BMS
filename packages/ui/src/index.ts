@@ -150,6 +150,9 @@ export { SeverityChip, StatusChip, ISOStatusChip } from './chips';
 // Theme Toggle
 export { ThemeToggle, type ThemeToggleProps } from './theme-toggle';
 
+// Theme Switch (floating, Nexara-branded)
+export { ThemeSwitch, type ThemeSwitchProps } from './theme-switch';
+
 // Record Presence
 export { RecordPresence, type RecordPresenceProps } from './record-presence';
 

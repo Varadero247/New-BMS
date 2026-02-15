@@ -20,6 +20,12 @@
     --input: 217 33% 20%;
     --ring: 217 78% 60%;
   }
+
+  :root:not(.dark):not([data-theme="dark"]) {
+    --border-hsl: 214 32% 80%;
+    --input: 214 32% 80%;
+    --ring: 217 78% 60%;
+  }
 }
 
 @layer base {

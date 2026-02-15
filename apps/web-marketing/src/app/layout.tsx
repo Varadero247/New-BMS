@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import ChatbotWidget from '@/components/ChatbotWidget';
+import { ThemeSwitch } from '@ims/ui';
 import './globals.css';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased cursor-none`}>
         {children}
         <ChatbotWidget />
+        <ThemeSwitch />
       </body>
     </html>
   );
