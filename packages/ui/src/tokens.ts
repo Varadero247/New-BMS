@@ -1,5 +1,5 @@
 /**
- * Nexara Brand Identity v2.0 — Design Tokens
+ * Nexara Brand Identity v3.0 — Design Tokens
  *
  * Dark-first enterprise palette with blue/teal brand signal.
  * Source of truth consumed by tailwind preset and CSS variables.

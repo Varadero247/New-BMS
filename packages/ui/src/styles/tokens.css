@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════
-   Nexara Brand Identity v2.0 — Design Tokens
+   Nexara Brand Identity v3.0 — Design Tokens
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Foundation (dark-first) ─────────────────────────────── */
+  /* ── Foundation (12 neutrals, dark-first) ──────────────── */
   --ink:        #080B12;
   --deep:       #0C1220;
   --midnight:   #101828;
@@ -17,23 +17,21 @@
   --light:      #C8D9EF;
   --white:      #EDF3FC;
 
-  /* ── Brand Signal ────────────────────────────────────────── */
+  /* ── Brand Signal (6 hues) ─────────────────────────────── */
   --blue-deep:  #1A4FBF;
   --blue-core:  #2660D8;
   --blue-mid:   #3B78F5;
   --blue-hi:    #5B94FF;
-  --blue-glow:  #7AACFF;
   --teal-deep:  #009E87;
   --teal-core:  #00C4A8;
   --teal-hi:    #00E0BF;
 
-  /* ── Gradients ───────────────────────────────────────────── */
+  /* ── Gradients ─────────────────────────────────────────── */
   --g-brand:    linear-gradient(135deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
   --g-brand-r:  linear-gradient(315deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
   --g-dark:     linear-gradient(160deg, #0C1220 0%, #101828 100%);
-  --g-glow:     radial-gradient(ellipse at center, rgba(59,120,245,0.2) 0%, transparent 70%);
 
-  /* ── Module Colours (one per ISO domain) ─────────────────── */
+  /* ── Module Colours (12) ───────────────────────────────── */
   --m-quality:  #3B78F5;
   --m-safety:   #F04B5A;
   --m-env:      #00C4A8;
@@ -47,7 +45,7 @@
   --m-cmms:     #FCD34D;
   --m-ai:       #E879F9;
 
-  /* ── Sector Vertical Colours ─────────────────────────────── */
+  /* ── Sector Vertical Colours (6) ───────────────────────── */
   --s-auto:     #DC2626;
   --s-medical:  #0891B2;
   --s-aero:     #1D4ED8;
@@ -55,7 +53,12 @@
   --s-energy:   #D97706;
   --s-antibrib: #7C3AED;
 
-  /* ── Semantic Aliases ────────────────────────────────────── */
+  /* ── Fonts ─────────────────────────────────────────────── */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  /* ── Semantic Aliases ──────────────────────────────────── */
   --bg-page:        var(--ink);
   --bg-section:     var(--deep);
   --bg-nav:         var(--midnight);
@@ -70,11 +73,11 @@
   --accent-primary: var(--blue-mid);
   --accent-teal:    var(--teal-core);
 
-  /* ── Transition ──────────────────────────────────────────── */
+  /* ── Transition ────────────────────────────────────────── */
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Light Mode Overrides ───────────────────────────────── */
+/* ── Light Mode Overrides ─────────────────────────────── */
 :root:not(.dark):not([data-theme="dark"]) {
   --ink:        #F8FAFC;
   --deep:       #F1F5F9;

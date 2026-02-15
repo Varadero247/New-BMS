@@ -183,27 +183,301 @@ router.post('/resolve', (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/roles — List all platform roles with their permission matrices
-router.get('/', (_req: AuthRequest, res: Response) => {
-  const rbac = getRbac();
-  const roles = rbac.PLATFORM_ROLES.map((role: RoleDefinition) => ({
-    id: role.id,
-    name: role.name,
-    description: role.description,
-    isSystem: role.isSystem,
-    permissionCount: role.permissions.length,
-    permissions: role.permissions.map((p: ModulePermissions) => ({
-      module: p.module,
-      level: p.level,
-      levelName: PermissionLevel[p.level],
-    })),
-  }));
+// GET /api/roles — List all platform roles + custom roles with their permission matrices
+router.get('/', async (_req: AuthRequest, res: Response) => {
+  try {
+    const rbac = getRbac();
+    const systemRoles = rbac.PLATFORM_ROLES.map((role: RoleDefinition) => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      isSystem: true,
+      permissionCount: role.permissions.length,
+      permissions: role.permissions.map((p: ModulePermissions) => ({
+        module: p.module,
+        level: p.level,
+        levelName: PermissionLevel[p.level],
+      })),
+    }));
 
-  res.json({
-    success: true,
-    data: roles,
-    meta: { total: roles.length },
-  });
+    // Fetch custom roles from database
+    const customRolesDb = await prisma.customRole.findMany({ orderBy: { createdAt: 'desc' } });
+    const customRoles = customRolesDb.map((cr: { id: string; name: string; description: string; permissions: unknown }) => {
+      const perms = (cr.permissions as { module: string; level: number }[]) || [];
+      return {
+        id: cr.id,
+        name: cr.name,
+        description: cr.description,
+        isSystem: false,
+        permissionCount: perms.length,
+        permissions: perms.map((p: { module: string; level: number }) => ({
+          module: p.module,
+          level: p.level,
+          levelName: PermissionLevel[p.level],
+        })),
+      };
+    });
+
+    const allRoles = [...systemRoles, ...customRoles];
+
+    res.json({
+      success: true,
+      data: allRoles,
+      meta: { total: allRoles.length, system: systemRoles.length, custom: customRoles.length },
+    });
+  } catch (error) {
+    logger.error('List roles error', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list roles' },
+    });
+  }
+});
+
+// POST /api/roles — Create a custom role
+router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+      description: z.string().max(500).optional().default(''),
+      permissions: z.array(z.object({
+        module: z.string(),
+        level: z.number().min(0).max(6),
+      })).min(1, 'At least one permission is required'),
+    });
+
+    const data = schema.parse(req.body);
+
+    // Validate module names
+    const invalidModules = data.permissions.filter((p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule));
+    if (invalidModules.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}` },
+      });
+    }
+
+    // Check for duplicate name against system roles
+    const rbac = getRbac();
+    const systemNameConflict = rbac.PLATFORM_ROLES.find(
+      (r: RoleDefinition) => r.name.toLowerCase() === data.name.toLowerCase()
+    );
+    if (systemNameConflict) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'DUPLICATE_NAME', message: `A system role with name "${data.name}" already exists` },
+      });
+    }
+
+    const customRole = await prisma.customRole.create({
+      data: {
+        name: data.name,
+        description: data.description || '',
+        permissions: data.permissions,
+        createdBy: req.user!.id,
+      },
+    });
+
+    const perms = customRole.permissions as { module: string; level: number }[];
+
+    // Audit
+    accessLog.unshift({
+      id: uuidv4(),
+      userId: req.user!.id,
+      userEmail: req.user!.email || 'unknown',
+      module: 'rbac',
+      action: 'CREATE_ROLE',
+      resource: `role:${customRole.id}`,
+      details: `Created custom role "${customRole.name}"`,
+      ipAddress: req.ip,
+      timestamp: new Date().toISOString(),
+    });
+    if (accessLog.length > MAX_LOG_ENTRIES) accessLog.length = MAX_LOG_ENTRIES;
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: customRole.id,
+        name: customRole.name,
+        description: customRole.description,
+        isSystem: false,
+        permissionCount: perms.length,
+        permissions: perms.map((p: { module: string; level: number }) => ({
+          module: p.module,
+          level: p.level,
+          levelName: PermissionLevel[p.level],
+        })),
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors[0]?.message || 'Invalid input' },
+      });
+    }
+    if ((error as { code?: string }).code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'DUPLICATE_NAME', message: 'A role with this name already exists' },
+      });
+    }
+    logger.error('Create role error', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create role' },
+    });
+  }
+});
+
+// PUT /api/roles/:id — Update a custom role
+router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Cannot edit system roles
+    const rbac = getRbac();
+    if (rbac.getRoleById(id)) {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'System roles cannot be modified' },
+      });
+    }
+
+    const existing = await prisma.customRole.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Custom role not found' },
+      });
+    }
+
+    const schema = z.object({
+      name: z.string().min(2).max(100).optional(),
+      description: z.string().max(500).optional(),
+      permissions: z.array(z.object({
+        module: z.string(),
+        level: z.number().min(0).max(6),
+      })).min(1).optional(),
+    });
+
+    const data = schema.parse(req.body);
+
+    if (data.permissions) {
+      const invalidModules = data.permissions.filter((p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule));
+      if (invalidModules.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}` },
+        });
+      }
+    }
+
+    const updated = await prisma.customRole.update({
+      where: { id },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.permissions !== undefined && { permissions: data.permissions }),
+      },
+    });
+
+    const perms = updated.permissions as { module: string; level: number }[];
+
+    accessLog.unshift({
+      id: uuidv4(),
+      userId: req.user!.id,
+      userEmail: req.user!.email || 'unknown',
+      module: 'rbac',
+      action: 'UPDATE_ROLE',
+      resource: `role:${updated.id}`,
+      details: `Updated custom role "${updated.name}"`,
+      ipAddress: req.ip,
+      timestamp: new Date().toISOString(),
+    });
+    if (accessLog.length > MAX_LOG_ENTRIES) accessLog.length = MAX_LOG_ENTRIES;
+
+    res.json({
+      success: true,
+      data: {
+        id: updated.id,
+        name: updated.name,
+        description: updated.description,
+        isSystem: false,
+        permissionCount: perms.length,
+        permissions: perms.map((p: { module: string; level: number }) => ({
+          module: p.module,
+          level: p.level,
+          levelName: PermissionLevel[p.level],
+        })),
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: error.errors[0]?.message || 'Invalid input' },
+      });
+    }
+    if ((error as { code?: string }).code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'DUPLICATE_NAME', message: 'A role with this name already exists' },
+      });
+    }
+    logger.error('Update role error', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update role' },
+    });
+  }
+});
+
+// DELETE /api/roles/:id — Delete a custom role
+router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Cannot delete system roles
+    const rbac = getRbac();
+    if (rbac.getRoleById(id)) {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'System roles cannot be deleted' },
+      });
+    }
+
+    const existing = await prisma.customRole.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Custom role not found' },
+      });
+    }
+
+    await prisma.customRole.delete({ where: { id } });
+
+    accessLog.unshift({
+      id: uuidv4(),
+      userId: req.user!.id,
+      userEmail: req.user!.email || 'unknown',
+      module: 'rbac',
+      action: 'DELETE_ROLE',
+      resource: `role:${id}`,
+      details: `Deleted custom role "${existing.name}"`,
+      ipAddress: req.ip,
+      timestamp: new Date().toISOString(),
+    });
+    if (accessLog.length > MAX_LOG_ENTRIES) accessLog.length = MAX_LOG_ENTRIES;
+
+    res.json({ success: true, data: { id, deleted: true } });
+  } catch (error) {
+    logger.error('Delete role error', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete role' },
+    });
+  }
 });
 
 // ============================================

@@ -12,7 +12,7 @@
 [![Redis](https://img.shields.io/badge/Redis-6+-DC382D?logo=redis)](https://redis.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 27 API services, 30 web applications, and 59 shared packages, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
+Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 57 apps · 59 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
 
 ---
 

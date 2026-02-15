@@ -41,10 +41,10 @@ export interface TabsListProps {
 
 export function TabsList({ children, className }: TabsListProps) {
   return (
-    <div className={cn(
-      'inline-flex items-center gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-1',
-      className
-    )}>
+    <div
+      className={cn('inline-flex items-center gap-1 rounded-lg p-1', className)}
+      style={{ backgroundColor: 'var(--deep)' }}
+    >
       {children}
     </div>
   );
@@ -70,12 +70,14 @@ export function TabsTrigger({ value, children, className, disabled }: TabsTrigge
       onClick={() => ctx.onValueChange(value)}
       className={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all',
-        isActive
-          ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
+      style={{
+        backgroundColor: isActive ? 'var(--surface)' : 'transparent',
+        color: isActive ? 'var(--white)' : 'var(--steel)',
+        boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+      }}
     >
       {children}
     </button>

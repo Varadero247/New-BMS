@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { LoginModal } from '@ims/ui';
 import AnnouncementBar from '@/components/AnnouncementBar';
 import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
@@ -17,6 +19,7 @@ import CustomCursor from '@/components/CustomCursor';
 
 export default function Home() {
   useScrollReveal();
+  const [loginOpen, setLoginOpen] = useState(false);
 
   return (
     <>
@@ -24,7 +27,7 @@ export default function Home() {
       <AnnouncementBar />
       <Nav />
       <main>
-        <Hero />
+        <Hero onOpenLogin={() => setLoginOpen(true)} />
         <Ticker />
         <StandardsStrip />
         <Features />
@@ -35,6 +38,13 @@ export default function Home() {
         <CTASection />
       </main>
       <Footer />
+
+      {/* Login modal — triggered by hero CTAs */}
+      <LoginModal
+        isOpen={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        defaultEnv="local"
+      />
     </>
   );
 }

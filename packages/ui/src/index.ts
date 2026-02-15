@@ -199,7 +199,13 @@ export { NpsSurvey, type NpsSurveyProps } from './nps-survey';
 // Cookie Consent
 export { CookieConsent, type CookieConsentProps, type CookieChoices } from './cookie-consent';
 
-// ── Nexara Brand Identity v2.0 Components ─────────────────────
+// StatusBadge
+export { StatusBadge, type StatusBadgeProps, type ComplianceStatus } from './status-badge';
+
+// LoginModal
+export { LoginModal, type LoginModalProps, type LoginEnvironment } from './login-modal';
+
+// ── Nexara Brand Identity v3.0 Components ─────────────────────
 
 // NexaraLogo
 export { NexaraLogo, type NexaraLogoProps } from './nexara-logo';

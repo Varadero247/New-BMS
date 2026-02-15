@@ -5,6 +5,33 @@ All notable changes to the Nexara IMS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] — 2026-02-15
+
+### Brand Identity v3
+
+**Landing Page**
+- Production landing page with login modal and environment switcher (Local/Staging/Production)
+- Animated compliance dashboard mockup with real-time score visualization
+- Updated hero: "Every standard. One intelligent platform."
+- Stats: 29 ISO standards, 57 apps, 59 packages, 6 verticals
+- Two CTAs: "Start 21-day free trial" + "Sign in to app"
+
+**Design Tokens**
+- 12 foundation neutrals (dark-first palette)
+- 6 brand signal hues (blue + teal)
+- 3 gradients (brand, brand-reverse, dark)
+- 12 module colours, 6 sector vertical colours
+- Font CSS variables: --font-display (Syne), --font-body (DM Sans), --font-mono (DM Mono)
+
+**New Components**
+- `StatusBadge` — Compliance status indicator (5 statuses)
+- `LoginModal` — Branded login with environment switcher + SSO
+
+**Documentation**
+- docs/BRAND.md rewritten for v3 specification
+- All documentation updated with v3 branding
+- Legacy Resolvex references cleaned up
+
 ## [2.2.0] — 2026-02-13
 
 ### Added
