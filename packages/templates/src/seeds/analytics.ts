@@ -1,0 +1,101 @@
+import type { TemplateDefinition } from '../types';
+
+export const analyticsTemplates: TemplateDefinition[] = [
+  {
+    code: 'TPL-ANL-001',
+    name: 'KPI Dashboard Report',
+    description:
+      'Periodic KPI dashboard report template for presenting key performance indicators with targets, actuals, trends, and commentary.',
+    module: 'ANALYTICS',
+    category: 'REPORTING',
+    tags: ['kpi', 'dashboard', 'performance', 'metrics', 'reporting'],
+    fields: [
+      { id: 'section_header', label: 'Report Details', type: 'section' },
+      { id: 'report_title', label: 'Report Title', type: 'text', required: true, width: 'full', section: 'Report Details' },
+      { id: 'reporting_period', label: 'Reporting Period', type: 'text', required: true, placeholder: 'e.g. March 2026', width: 'half', section: 'Report Details' },
+      { id: 'prepared_by', label: 'Prepared By', type: 'text', required: true, width: 'half', section: 'Report Details' },
+      { id: 'section_kpis', label: 'KPI Performance', type: 'section' },
+      {
+        id: 'kpis',
+        label: 'KPIs',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'kpi', label: 'KPI', type: 'text', required: true, placeholder: 'e.g. Customer Satisfaction Score' },
+          { id: 'target', label: 'Target', type: 'text', required: true, placeholder: 'e.g. >= 90%' },
+          { id: 'actual', label: 'Actual', type: 'text', required: true },
+          { id: 'trend', label: 'Trend', type: 'select', required: true, options: [{ label: 'Improving', value: 'improving' }, { label: 'Stable', value: 'stable' }, { label: 'Declining', value: 'declining' }] },
+          { id: 'status', label: 'Status', type: 'select', required: true, options: [{ label: 'On Target', value: 'on_target' }, { label: 'Near Target', value: 'near' }, { label: 'Below Target', value: 'below' }] },
+          { id: 'commentary', label: 'Commentary', type: 'text', placeholder: 'Brief explanation' },
+        ],
+        section: 'KPI Performance',
+      },
+      { id: 'executive_summary', label: 'Executive Summary', type: 'textarea', required: true, validation: { minLength: 20, maxLength: 3000 }, width: 'full', section: 'KPI Performance' },
+    ],
+  },
+  {
+    code: 'TPL-ANL-002',
+    name: 'Data Quality Assessment',
+    description:
+      'Assessment template for evaluating data quality across key dimensions: completeness, accuracy, consistency, timeliness, and validity.',
+    module: 'ANALYTICS',
+    category: 'AUDIT',
+    tags: ['data-quality', 'assessment', 'completeness', 'accuracy', 'governance'],
+    fields: [
+      { id: 'section_header', label: 'Assessment Details', type: 'section' },
+      { id: 'dataset', label: 'Dataset / System', type: 'text', required: true, width: 'half', section: 'Assessment Details' },
+      { id: 'assessor', label: 'Assessor', type: 'text', required: true, width: 'half', section: 'Assessment Details' },
+      { id: 'date', label: 'Assessment Date', type: 'date', required: true, width: 'half', section: 'Assessment Details' },
+      { id: 'section_dimensions', label: 'Quality Dimensions', type: 'section' },
+      {
+        id: 'dimensions',
+        label: 'Quality Dimensions',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'dimension', label: 'Dimension', type: 'select', required: true, options: [{ label: 'Completeness', value: 'completeness' }, { label: 'Accuracy', value: 'accuracy' }, { label: 'Consistency', value: 'consistency' }, { label: 'Timeliness', value: 'timeliness' }, { label: 'Validity', value: 'validity' }, { label: 'Uniqueness', value: 'uniqueness' }] },
+          { id: 'score', label: 'Score (1-5)', type: 'rating', required: true, validation: { min: 1, max: 5 } },
+          { id: 'findings', label: 'Findings', type: 'text', required: true },
+          { id: 'action', label: 'Recommended Action', type: 'text', placeholder: 'Action to improve' },
+        ],
+        section: 'Quality Dimensions',
+      },
+      { id: 'overall_score', label: 'Overall Quality Score (1-5)', type: 'rating', required: true, validation: { min: 1, max: 5 }, section: 'Quality Dimensions' },
+      { id: 'summary', label: 'Assessment Summary', type: 'textarea', required: true, validation: { minLength: 20, maxLength: 3000 }, width: 'full', section: 'Quality Dimensions' },
+    ],
+  },
+  {
+    code: 'TPL-ANL-003',
+    name: 'Trend Analysis Report',
+    description:
+      'Trend analysis report for identifying patterns, anomalies, and insights from operational or business data over time.',
+    module: 'ANALYTICS',
+    category: 'REPORTING',
+    tags: ['trend-analysis', 'patterns', 'insights', 'time-series'],
+    fields: [
+      { id: 'section_header', label: 'Report Details', type: 'section' },
+      { id: 'analysis_title', label: 'Analysis Title', type: 'text', required: true, width: 'full', section: 'Report Details' },
+      { id: 'analyst', label: 'Analyst', type: 'text', required: true, width: 'half', section: 'Report Details' },
+      { id: 'date', label: 'Date', type: 'date', required: true, width: 'half', section: 'Report Details' },
+      { id: 'period_analysed', label: 'Period Analysed', type: 'text', required: true, placeholder: 'e.g. Jan 2025 – Dec 2025', width: 'half', section: 'Report Details' },
+      { id: 'data_source', label: 'Data Source', type: 'text', required: true, width: 'half', section: 'Report Details' },
+      { id: 'section_findings', label: 'Findings', type: 'section' },
+      {
+        id: 'trends',
+        label: 'Identified Trends',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'trend', label: 'Trend', type: 'text', required: true, placeholder: 'e.g. Increasing defect rate' },
+          { id: 'direction', label: 'Direction', type: 'select', required: true, options: [{ label: 'Increasing', value: 'increasing' }, { label: 'Decreasing', value: 'decreasing' }, { label: 'Stable', value: 'stable' }, { label: 'Cyclical', value: 'cyclical' }] },
+          { id: 'significance', label: 'Significance', type: 'select', required: true, options: [{ label: 'High', value: 'high' }, { label: 'Medium', value: 'medium' }, { label: 'Low', value: 'low' }] },
+          { id: 'possible_cause', label: 'Possible Cause', type: 'text', placeholder: 'Hypothesised cause' },
+          { id: 'recommendation', label: 'Recommendation', type: 'text', required: true },
+        ],
+        section: 'Findings',
+      },
+      { id: 'summary', label: 'Analysis Summary', type: 'textarea', required: true, validation: { minLength: 20, maxLength: 3000 }, width: 'full', section: 'Findings' },
+      { id: 'methodology', label: 'Methodology', type: 'textarea', placeholder: 'Describe the analytical methods used...', validation: { maxLength: 2000 }, width: 'full', section: 'Findings' },
+    ],
+  },
+];

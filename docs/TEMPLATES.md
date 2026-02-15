@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IMS Template Library provides 67 built-in templates across 11 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 25 API services, 26 web apps, and 39 shared packages — templates integrate with 12 of the 26 web frontends.
+The IMS Template Library provides 110 built-in templates across 22 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 25 API services, 26 web apps, and 39 shared packages — templates integrate with 12 of the 26 web frontends.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ Primary template definition with fields, metadata, and versioning.
 |-------|------|-------------|
 | code | String (unique) | `TPL-{MODULE}-{NNN}` format |
 | name | String | Template display name |
-| module | TemplateModule | One of 11 modules |
+| module | TemplateModule | One of 22 modules |
 | category | TemplateCategory | One of 17 categories |
 | status | TemplateStatus | DRAFT, ACTIVE, DEPRECATED, ARCHIVED |
 | version | Int | Auto-incremented on update |
@@ -129,9 +129,21 @@ All endpoints require Bearer token authentication.
 | Aerospace | TPL-AERO | 8 | 001-008 |
 | HR | TPL-HR | 5 | 001-005 |
 | Workflows | TPL-WF | 2 | 001-002 |
-| Project Management | TPL-PM | 3 | 001-003 |
+| Project Management | TPL-PM | 10 | 001-010 |
 | Inventory | TPL-INV | 2 | 001-002 |
-| **Total** | | **67** | |
+| Payroll | TPL-PAY | 3 | 001-003 |
+| CRM | TPL-CRM | 3 | 001-003 |
+| Finance | TPL-FIN | 3 | 001-003 |
+| InfoSec | TPL-SEC | 3 | 001-003 |
+| ISO 37001 | TPL-AB | 3 | 001-003 |
+| ISO 42001 | TPL-AI | 3 | 001-003 |
+| ESG | TPL-ESG | 3 | 001-003 |
+| CMMS | TPL-MNT | 3 | 001-003 |
+| Food Safety | TPL-FS | 3 | 001-003 |
+| Energy | TPL-ENR | 3 | 001-003 |
+| Field Service | TPL-FSV | 3 | 001-003 |
+| Analytics | TPL-ANL | 3 | 001-003 |
+| **Total** | | **110** | |
 
 ## Seeding
 

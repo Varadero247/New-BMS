@@ -1,0 +1,176 @@
+// Training Management Schema - M2
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/training"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TRAINING_DATABASE_URL")
+}
+
+enum TrainRecordStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+enum TrainCourseType {
+  MANDATORY
+  OPTIONAL
+  REFRESHER
+  INDUCTION
+  CERTIFICATION
+  COMPETENCY
+}
+enum TrainDelivery {
+  CLASSROOM
+  ONLINE
+  ON_THE_JOB
+  BLENDED
+  SELF_PACED
+  WORKSHOP
+}
+enum TrainCompStatus {
+  NOT_STARTED
+  DEVELOPING
+  COMPETENT
+  EXPERT
+  EXPIRED
+}
+enum TrainPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model TrainCourse {
+  id              String         @id @default(cuid())
+  orgId           String
+  code            String         @unique
+  title           String
+  description     String?
+  type            TrainCourseType
+  delivery        TrainDelivery  @default(CLASSROOM)
+  duration        Int?
+  validityMonths  Int?
+  provider        String?
+  cost            Float?
+  maxParticipants Int?
+  prerequisites   String?
+  objectives      String?
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  records         TrainRecord[]
+  @@map("train_courses")
+  @@index([orgId])
+}
+
+model TrainRecord {
+  id              String            @id @default(cuid())
+  orgId           String
+  referenceNumber String            @unique
+  courseId         String
+  employeeId      String
+  employeeName    String?
+  status          TrainRecordStatus @default(SCHEDULED)
+  scheduledDate   DateTime?
+  completedDate   DateTime?
+  expiryDate      DateTime?
+  score           Float?
+  passed          Boolean?
+  trainer         String?
+  trainerName     String?
+  location        String?
+  certificateUrl  String?
+  feedback        String?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  course          TrainCourse       @relation(fields: [courseId], references: [id])
+  @@map("train_records")
+  @@index([orgId])
+  @@index([employeeId])
+  @@index([courseId])
+}
+
+model TrainCompetency {
+  id              String          @id @default(cuid())
+  orgId           String
+  name            String
+  description     String?
+  department      String?
+  role            String?
+  requiredLevel   TrainCompStatus @default(COMPETENT)
+  assessmentMethod String?
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  matrixEntries   TrainMatrix[]
+  @@map("train_competencies")
+  @@index([orgId])
+}
+
+model TrainMatrix {
+  id              String          @id @default(cuid())
+  orgId           String
+  competencyId    String
+  employeeId      String
+  employeeName    String?
+  currentLevel    TrainCompStatus @default(NOT_STARTED)
+  targetLevel     TrainCompStatus @default(COMPETENT)
+  assessedDate    DateTime?
+  assessedBy      String?
+  nextReviewDate  DateTime?
+  gap             Boolean         @default(false)
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  competency      TrainCompetency @relation(fields: [competencyId], references: [id])
+  @@map("train_matrix")
+  @@index([orgId])
+  @@index([employeeId])
+}
+
+model TrainTNA {
+  id              String        @id @default(cuid())
+  orgId           String
+  referenceNumber String        @unique
+  title           String
+  department      String?
+  role            String?
+  priority        TrainPriority @default(MEDIUM)
+  identifiedGap   String?
+  recommendedTraining String?
+  targetDate      DateTime?
+  status          TrainRecordStatus @default(SCHEDULED)
+  assignee        String?
+  assigneeName    String?
+  budget          Float?
+  approvedBy      String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("train_tna")
+  @@index([orgId])
+}

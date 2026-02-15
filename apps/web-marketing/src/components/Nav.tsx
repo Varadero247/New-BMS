@@ -10,7 +10,11 @@ const NAV_LINKS = [
   { label: 'Pricing', href: '/pricing' },
 ];
 
-export default function Nav() {
+interface NavProps {
+  onOpenLogin?: () => void;
+}
+
+export default function Nav({ onOpenLogin }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -75,13 +79,14 @@ export default function Nav() {
             >
               Request demo
             </Link>
-            <Link
-              href="/auth/login"
+            <button
+              type="button"
+              onClick={onOpenLogin}
               className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-150"
-              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
+              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700, border: 'none', cursor: 'pointer' }}
             >
               Sign in &rarr;
-            </Link>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -150,14 +155,14 @@ export default function Nav() {
             >
               Request demo
             </Link>
-            <Link
-              href="/auth/login"
+            <button
+              type="button"
               className="px-4 py-2.5 text-sm font-medium text-center text-white rounded-lg transition-colors"
-              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
-              onClick={() => setMobileOpen(false)}
+              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700, border: 'none', cursor: 'pointer' }}
+              onClick={() => { setMobileOpen(false); onOpenLogin?.(); }}
             >
               Sign in →
-            </Link>
+            </button>
           </div>
         </div>
       )}

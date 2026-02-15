@@ -1262,6 +1262,294 @@ services:
       retries: 3
       start_period: 45s
 
+  api-risk:
+    build:
+      context: .
+      dockerfile: ./apps/api-risk/Dockerfile
+    container_name: ims-api-risk
+    restart: unless-stopped
+    expose:
+      - '4027'
+    environment:
+      NODE_ENV: production
+      PORT: 4027
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      RISK_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4027/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-training:
+    build:
+      context: .
+      dockerfile: ./apps/api-training/Dockerfile
+    container_name: ims-api-training
+    restart: unless-stopped
+    expose:
+      - '4028'
+    environment:
+      NODE_ENV: production
+      PORT: 4028
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      TRAINING_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4028/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-suppliers:
+    build:
+      context: .
+      dockerfile: ./apps/api-suppliers/Dockerfile
+    container_name: ims-api-suppliers
+    restart: unless-stopped
+    expose:
+      - '4029'
+    environment:
+      NODE_ENV: production
+      PORT: 4029
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      SUPPLIERS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4029/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-assets:
+    build:
+      context: .
+      dockerfile: ./apps/api-assets/Dockerfile
+    container_name: ims-api-assets
+    restart: unless-stopped
+    expose:
+      - '4030'
+    environment:
+      NODE_ENV: production
+      PORT: 4030
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ASSETS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-documents:
+    build:
+      context: .
+      dockerfile: ./apps/api-documents/Dockerfile
+    container_name: ims-api-documents
+    restart: unless-stopped
+    expose:
+      - '4031'
+    environment:
+      NODE_ENV: production
+      PORT: 4031
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      DOCUMENTS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4031/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-complaints:
+    build:
+      context: .
+      dockerfile: ./apps/api-complaints/Dockerfile
+    container_name: ims-api-complaints
+    restart: unless-stopped
+    expose:
+      - '4032'
+    environment:
+      NODE_ENV: production
+      PORT: 4032
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      COMPLAINTS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4032/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-contracts:
+    build:
+      context: .
+      dockerfile: ./apps/api-contracts/Dockerfile
+    container_name: ims-api-contracts
+    restart: unless-stopped
+    expose:
+      - '4033'
+    environment:
+      NODE_ENV: production
+      PORT: 4033
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      CONTRACTS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4033/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-ptw:
+    build:
+      context: .
+      dockerfile: ./apps/api-ptw/Dockerfile
+    container_name: ims-api-ptw
+    restart: unless-stopped
+    expose:
+      - '4034'
+    environment:
+      NODE_ENV: production
+      PORT: 4034
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      PTW_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4034/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-reg-monitor:
+    build:
+      context: .
+      dockerfile: ./apps/api-reg-monitor/Dockerfile
+    container_name: ims-api-reg-monitor
+    restart: unless-stopped
+    expose:
+      - '4035'
+    environment:
+      NODE_ENV: production
+      PORT: 4035
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      REG_MONITOR_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4035/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-incidents:
+    build:
+      context: .
+      dockerfile: ./apps/api-incidents/Dockerfile
+    container_name: ims-api-incidents
+    restart: unless-stopped
+    expose:
+      - '4036'
+    environment:
+      NODE_ENV: production
+      PORT: 4036
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      INCIDENTS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4036/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-audits:
+    build:
+      context: .
+      dockerfile: ./apps/api-audits/Dockerfile
+    container_name: ims-api-audits
+    restart: unless-stopped
+    expose:
+      - '4037'
+    environment:
+      NODE_ENV: production
+      PORT: 4037
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      AUDITS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4037/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  api-mgmt-review:
+    build:
+      context: .
+      dockerfile: ./apps/api-mgmt-review/Dockerfile
+    container_name: ims-api-mgmt-review
+    restart: unless-stopped
+    expose:
+      - '4038'
+    environment:
+      NODE_ENV: production
+      PORT: 4038
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      MGMT_REVIEW_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4038/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
 volumes:
   postgres_data:
   redis_data:

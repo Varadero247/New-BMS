@@ -1,0 +1,109 @@
+// Regulatory Monitor Schema - M11
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/reg-monitor"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("REG_MONITOR_DATABASE_URL")
+}
+
+enum RegChangeStatus {
+  NEW
+  UNDER_REVIEW
+  ASSESSED
+  IMPLEMENTED
+  NOT_APPLICABLE
+  MONITORING
+}
+enum RegImpact {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  NONE
+}
+enum RegSource {
+  GOVERNMENT
+  REGULATOR
+  STANDARDS_BODY
+  INDUSTRY
+  EU_UK
+  OTHER
+}
+
+model RegChange {
+  id              String          @id @default(cuid())
+  orgId           String
+  referenceNumber String          @unique
+  title           String
+  description     String?
+  source          RegSource       @default(OTHER)
+  sourceUrl       String?
+  publishedDate   DateTime?
+  effectiveDate   DateTime?
+  status          RegChangeStatus @default(NEW)
+  impact          RegImpact       @default(MEDIUM)
+  affectedAreas   String[]
+  assignee        String?
+  assigneeName    String?
+  assessment      String?
+  actionRequired  String?
+  completedDate   DateTime?
+  aiSummary       String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("reg_changes")
+  @@index([orgId])
+  @@index([status])
+}
+
+model RegLegalRegister {
+  id              String   @id @default(cuid())
+  orgId           String
+  referenceNumber String   @unique
+  title           String
+  legislation     String?
+  jurisdiction    String?
+  applicability   String?
+  requirements    String?
+  complianceStatus String?
+  responsiblePerson String?
+  reviewDate      DateTime?
+  lastReviewDate  DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("reg_legal_register")
+  @@index([orgId])
+}
+
+model RegObligation {
+  id           String   @id @default(cuid())
+  orgId        String
+  title        String
+  description  String?
+  source       String?
+  dueDate      DateTime?
+  frequency    String?
+  responsible  String?
+  status       String   @default("PENDING")
+  evidence     String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  @@map("reg_obligations")
+  @@index([orgId])
+}

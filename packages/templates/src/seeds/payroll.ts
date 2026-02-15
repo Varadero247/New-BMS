@@ -1,0 +1,286 @@
+import type { TemplateDefinition } from '../types';
+
+export const payrollTemplates: TemplateDefinition[] = [
+  // ───────────────────────────────────────────────
+  // TPL-PAY-001  Payroll Run Checklist
+  // ───────────────────────────────────────────────
+  {
+    code: 'TPL-PAY-001',
+    name: 'Payroll Run Checklist',
+    description:
+      'Pre-run and post-run checklist for payroll processing. Ensures all inputs are verified, calculations validated, and approvals obtained before disbursement.',
+    module: 'PAYROLL',
+    category: 'COMPLIANCE',
+    tags: ['payroll-run', 'checklist', 'processing', 'verification'],
+    fields: [
+      {
+        id: 'section_header',
+        label: 'Payroll Run Details',
+        type: 'section',
+      },
+      {
+        id: 'pay_period',
+        label: 'Pay Period',
+        type: 'text',
+        required: true,
+        placeholder: 'e.g. March 2026',
+        width: 'half',
+        section: 'Payroll Run Details',
+      },
+      {
+        id: 'run_date',
+        label: 'Run Date',
+        type: 'date',
+        required: true,
+        width: 'half',
+        section: 'Payroll Run Details',
+      },
+      {
+        id: 'processed_by',
+        label: 'Processed By',
+        type: 'text',
+        required: true,
+        width: 'half',
+        section: 'Payroll Run Details',
+      },
+      {
+        id: 'section_pre_run',
+        label: 'Pre-Run Checks',
+        type: 'section',
+        helpText: 'Verify all inputs before running payroll.',
+      },
+      {
+        id: 'pre_run_checks',
+        label: 'Pre-Run Checks',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'check', label: 'Check Item', type: 'text', required: true, placeholder: 'e.g. New starters added' },
+          { id: 'completed', label: 'Completed', type: 'select', required: true, options: [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }, { label: 'N/A', value: 'na' }] },
+          { id: 'notes', label: 'Notes', type: 'text', placeholder: 'Any issues or comments' },
+        ],
+        section: 'Pre-Run Checks',
+      },
+      {
+        id: 'section_post_run',
+        label: 'Post-Run Verification',
+        type: 'section',
+        helpText: 'Validate outputs after payroll processing.',
+      },
+      {
+        id: 'total_gross',
+        label: 'Total Gross Pay',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Post-Run Verification',
+      },
+      {
+        id: 'total_net',
+        label: 'Total Net Pay',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Post-Run Verification',
+      },
+      {
+        id: 'headcount',
+        label: 'Employee Headcount',
+        type: 'number',
+        required: true,
+        validation: { min: 1 },
+        width: 'half',
+        section: 'Post-Run Verification',
+      },
+      {
+        id: 'variance_notes',
+        label: 'Variance Notes',
+        type: 'textarea',
+        placeholder: 'Note any significant variances from prior period...',
+        validation: { maxLength: 2000 },
+        width: 'full',
+        section: 'Post-Run Verification',
+      },
+      {
+        id: 'approver_signature',
+        label: 'Approver Signature',
+        type: 'signature',
+        required: true,
+        section: 'Post-Run Verification',
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────
+  // TPL-PAY-002  Pay Variance Report
+  // ───────────────────────────────────────────────
+  {
+    code: 'TPL-PAY-002',
+    name: 'Pay Variance Report',
+    description:
+      'Period-over-period payroll variance analysis report. Highlights significant changes in gross pay, deductions, and headcount with explanations.',
+    module: 'PAYROLL',
+    category: 'REPORTING',
+    tags: ['variance', 'analysis', 'period-comparison', 'payroll-report'],
+    fields: [
+      {
+        id: 'section_header',
+        label: 'Report Details',
+        type: 'section',
+      },
+      {
+        id: 'current_period',
+        label: 'Current Period',
+        type: 'text',
+        required: true,
+        placeholder: 'e.g. March 2026',
+        width: 'half',
+        section: 'Report Details',
+      },
+      {
+        id: 'comparison_period',
+        label: 'Comparison Period',
+        type: 'text',
+        required: true,
+        placeholder: 'e.g. February 2026',
+        width: 'half',
+        section: 'Report Details',
+      },
+      {
+        id: 'section_variances',
+        label: 'Variance Items',
+        type: 'section',
+        helpText: 'Document each significant variance.',
+      },
+      {
+        id: 'variances',
+        label: 'Variances',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'category', label: 'Category', type: 'select', required: true, options: [{ label: 'Gross Pay', value: 'gross_pay' }, { label: 'Overtime', value: 'overtime' }, { label: 'Deductions', value: 'deductions' }, { label: 'Tax', value: 'tax' }, { label: 'Benefits', value: 'benefits' }, { label: 'Headcount', value: 'headcount' }] },
+          { id: 'prior_amount', label: 'Prior Period', type: 'number', required: true },
+          { id: 'current_amount', label: 'Current Period', type: 'number', required: true },
+          { id: 'variance', label: 'Variance', type: 'number' },
+          { id: 'explanation', label: 'Explanation', type: 'text', required: true, placeholder: 'Reason for variance' },
+        ],
+        section: 'Variance Items',
+      },
+      {
+        id: 'summary',
+        label: 'Summary',
+        type: 'textarea',
+        required: true,
+        placeholder: 'Overall summary of payroll variances and recommended actions...',
+        validation: { minLength: 20, maxLength: 3000 },
+        width: 'full',
+        section: 'Variance Items',
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────
+  // TPL-PAY-003  Year-End Tax Summary
+  // ───────────────────────────────────────────────
+  {
+    code: 'TPL-PAY-003',
+    name: 'Year-End Tax Summary',
+    description:
+      'Annual tax summary report for payroll year-end processing. Covers total earnings, tax deducted, pension contributions, and statutory filings.',
+    module: 'PAYROLL',
+    category: 'REPORTING',
+    tags: ['year-end', 'tax-summary', 'annual', 'statutory-filing'],
+    fields: [
+      {
+        id: 'section_header',
+        label: 'Year-End Details',
+        type: 'section',
+      },
+      {
+        id: 'tax_year',
+        label: 'Tax Year',
+        type: 'text',
+        required: true,
+        placeholder: 'e.g. 2025/26',
+        width: 'half',
+        section: 'Year-End Details',
+      },
+      {
+        id: 'prepared_by',
+        label: 'Prepared By',
+        type: 'text',
+        required: true,
+        width: 'half',
+        section: 'Year-End Details',
+      },
+      {
+        id: 'section_totals',
+        label: 'Annual Totals',
+        type: 'section',
+      },
+      {
+        id: 'total_gross',
+        label: 'Total Gross Pay',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Annual Totals',
+      },
+      {
+        id: 'total_tax',
+        label: 'Total Tax Deducted',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Annual Totals',
+      },
+      {
+        id: 'total_ni',
+        label: 'Total National Insurance / Social Security',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Annual Totals',
+      },
+      {
+        id: 'total_pension',
+        label: 'Total Pension Contributions',
+        type: 'number',
+        required: true,
+        validation: { min: 0 },
+        width: 'half',
+        section: 'Annual Totals',
+      },
+      {
+        id: 'section_filings',
+        label: 'Statutory Filings',
+        type: 'section',
+      },
+      {
+        id: 'filings',
+        label: 'Filing Checklist',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'filing', label: 'Filing', type: 'text', required: true, placeholder: 'e.g. P60 Distribution' },
+          { id: 'deadline', label: 'Deadline', type: 'date', required: true },
+          { id: 'status', label: 'Status', type: 'select', required: true, options: [{ label: 'Not Started', value: 'not_started' }, { label: 'In Progress', value: 'in_progress' }, { label: 'Complete', value: 'complete' }] },
+          { id: 'notes', label: 'Notes', type: 'text' },
+        ],
+        section: 'Statutory Filings',
+      },
+      {
+        id: 'sign_off',
+        label: 'Sign-Off',
+        type: 'signature',
+        required: true,
+        section: 'Statutory Filings',
+      },
+    ],
+  },
+];

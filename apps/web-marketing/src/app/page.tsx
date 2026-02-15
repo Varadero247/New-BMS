@@ -25,7 +25,7 @@ export default function Home() {
     <>
       <CustomCursor />
       <AnnouncementBar />
-      <Nav />
+      <Nav onOpenLogin={() => setLoginOpen(true)} />
       <main>
         <Hero onOpenLogin={() => setLoginOpen(true)} />
         <Ticker />

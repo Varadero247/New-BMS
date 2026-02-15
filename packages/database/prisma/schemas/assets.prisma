@@ -1,0 +1,165 @@
+// Asset Management Schema - M4
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/assets"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ASSETS_DATABASE_URL")
+}
+
+enum AssetStatus {
+  ACTIVE
+  IN_SERVICE
+  OUT_OF_SERVICE
+  MAINTENANCE
+  DECOMMISSIONED
+  DISPOSED
+}
+enum AssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  CRITICAL
+}
+enum AssetWoStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+enum AssetWoPriority {
+  EMERGENCY
+  HIGH
+  MEDIUM
+  LOW
+}
+enum AssetCalStatus {
+  SCHEDULED
+  IN_PROGRESS
+  PASSED
+  FAILED
+  OVERDUE
+}
+
+model AssetRegister {
+  id              String         @id @default(cuid())
+  orgId           String
+  referenceNumber String         @unique
+  name            String
+  description     String?
+  assetTag        String?
+  serialNumber    String?
+  category        String?
+  location        String?
+  department      String?
+  status          AssetStatus    @default(ACTIVE)
+  condition       AssetCondition @default(GOOD)
+  manufacturer    String?
+  model           String?
+  purchaseDate    DateTime?
+  purchaseCost    Float?
+  currentValue    Float?
+  warrantyExpiry  DateTime?
+  assignedTo      String?
+  parentAssetId   String?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  workOrders      AssetWorkOrder[]
+  calibrations    AssetCalibration[]
+  inspections     AssetInspection[]
+  @@map("asset_registers")
+  @@index([orgId])
+  @@index([status])
+}
+
+model AssetWorkOrder {
+  id              String          @id @default(cuid())
+  orgId           String
+  assetId         String
+  referenceNumber String          @unique
+  title           String
+  description     String?
+  type            String?
+  priority        AssetWoPriority @default(MEDIUM)
+  status          AssetWoStatus   @default(OPEN)
+  assignee        String?
+  assigneeName    String?
+  scheduledDate   DateTime?
+  completedDate   DateTime?
+  estimatedHours  Float?
+  actualHours     Float?
+  cost            Float?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  asset           AssetRegister   @relation(fields: [assetId], references: [id])
+  @@map("asset_work_orders")
+  @@index([orgId])
+  @@index([assetId])
+  @@index([status])
+}
+
+model AssetCalibration {
+  id              String          @id @default(cuid())
+  orgId           String
+  assetId         String
+  referenceNumber String          @unique
+  status          AssetCalStatus  @default(SCHEDULED)
+  scheduledDate   DateTime
+  completedDate   DateTime?
+  nextDueDate     DateTime?
+  technician      String?
+  standard        String?
+  result          String?
+  certificate     String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  asset           AssetRegister   @relation(fields: [assetId], references: [id])
+  @@map("asset_calibrations")
+  @@index([orgId])
+  @@index([assetId])
+}
+
+model AssetInspection {
+  id              String        @id @default(cuid())
+  orgId           String
+  assetId         String
+  referenceNumber String        @unique
+  inspector       String?
+  inspectorName   String?
+  scheduledDate   DateTime?
+  completedDate   DateTime?
+  condition       AssetCondition?
+  passed          Boolean?
+  findings        String?
+  recommendations String?
+  nextInspection  DateTime?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  asset           AssetRegister @relation(fields: [assetId], references: [id])
+  @@map("asset_inspections")
+  @@index([orgId])
+  @@index([assetId])
+}

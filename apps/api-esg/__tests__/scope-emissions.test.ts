@@ -1,0 +1,207 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    esgScopeEmission: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-001' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import scopeEmissionsRouter from '../src/routes/scope-emissions';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/scope-emissions', scopeEmissionsRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+const mockScopeEmission = {
+  id: '00000000-0000-0000-0000-000000000001',
+  orgId: 'org-001',
+  scope: 1,
+  category: 'Stationary Combustion',
+  activity: 'Natural Gas Boiler',
+  quantity: 5000,
+  unit: 'kWh',
+  emissionFactor: 0.185,
+  co2Equivalent: 925,
+  period: '2026-01',
+  referenceNumber: 'EMI-2026-0001',
+  createdBy: '00000000-0000-0000-0000-000000000001',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+describe('GET /api/scope-emissions', () => {
+  it('should return list of scope emissions', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('should return empty array when no scope emissions exist', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('should filter by scope query parameter', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+
+    const res = await request(app).get('/api/scope-emissions?scope=1');
+    expect(res.status).toBe(200);
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ scope: 1 }),
+      })
+    );
+  });
+
+  it('should not filter by scope when query param is absent', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+
+    await request(app).get('/api/scope-emissions');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: 'org-001', deletedAt: null }),
+      })
+    );
+    const callArgs = (prisma.esgScopeEmission.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArgs.where).not.toHaveProperty('scope');
+  });
+
+  it('should order results by period descending', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+
+    await request(app).get('/api/scope-emissions');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { period: 'desc' },
+      })
+    );
+  });
+
+  it('should return 500 when database query fails', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB connection lost'));
+
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('FETCH_ERROR');
+  });
+});
+
+describe('POST /api/scope-emissions', () => {
+  it('should create a scope emission entry', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Stationary Combustion',
+      activity: 'Natural Gas Boiler',
+      quantity: 5000,
+      unit: 'kWh',
+      emissionFactor: 0.185,
+      co2Equivalent: 925,
+      period: '2026-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('should generate a reference number using count', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(4);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({
+      ...mockScopeEmission,
+      referenceNumber: `EMI-${new Date().getFullYear()}-0005`,
+    });
+
+    await request(app).post('/api/scope-emissions').send({
+      scope: 2,
+      category: 'Purchased Electricity',
+      quantity: 10000,
+      unit: 'kWh',
+      period: '2026-02',
+    });
+
+    expect(prisma.esgScopeEmission.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-001' }) })
+    );
+    expect(prisma.esgScopeEmission.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^EMI-\d{4}-0005$/),
+        }),
+      })
+    );
+  });
+
+  it('should attach orgId and createdBy from authenticated user', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+
+    await request(app).post('/api/scope-emissions').send({
+      scope: 3,
+      category: 'Business Travel',
+      quantity: 1000,
+      unit: 'km',
+      period: '2026-03',
+    });
+
+    expect(prisma.esgScopeEmission.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          orgId: 'org-001',
+          createdBy: '00000000-0000-0000-0000-000000000001',
+        }),
+      })
+    );
+  });
+
+  it('should return 400 when database create fails', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockRejectedValue(new Error('Validation failed'));
+
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Test',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.message).toBe('Validation failed');
+  });
+});

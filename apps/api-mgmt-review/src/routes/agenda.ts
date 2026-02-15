@@ -1,0 +1,6 @@
+import { Router, Request, Response } from 'express';
+import { authenticate } from '@ims/auth';
+import { prisma } from '../prisma';
+const router = Router();
+router.post('/:id/generate', authenticate, async (req: Request, res: Response) => { try { const review = await prisma.mgmtReview.findFirst({ where: { id: req.params.id, deletedAt: null } }); if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } }); const agenda = { title: `Management Review Agenda - ${review.title}`, items: ['1. Previous review actions', '2. Audit results summary', '3. Risk register status', '4. Incident trends', '5. CAPA effectiveness', '6. Customer feedback', '7. Supplier performance', '8. Training compliance', '9. KPI review', '10. Improvement opportunities', '11. Resource needs', '12. Actions and next review date'], aiNote: 'AI-generated agenda placeholder' }; await prisma.mgmtReview.update({ where: { id: req.params.id }, data: { aiGeneratedAgenda: JSON.stringify(agenda) } }); res.json({ success: true, data: agenda }); } catch (error: any) { res.status(500).json({ success: false, error: { code: 'GENERATE_ERROR', message: error.message } }); } });
+export default router;

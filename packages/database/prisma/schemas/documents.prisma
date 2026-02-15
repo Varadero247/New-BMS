@@ -1,0 +1,110 @@
+// Document Management Schema - M5
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/documents"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DOCUMENTS_DATABASE_URL")
+}
+
+enum DocStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  OBSOLETE
+}
+enum DocApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum DocReadStatus {
+  UNREAD
+  READ
+  ACKNOWLEDGED
+}
+
+model DocDocument {
+  id              String     @id @default(cuid())
+  orgId           String
+  referenceNumber String     @unique
+  title           String
+  description     String?
+  category        String?
+  department      String?
+  status          DocStatus  @default(DRAFT)
+  currentVersion  Int        @default(1)
+  fileUrl         String?
+  fileSize        Int?
+  mimeType        String?
+  owner           String?
+  ownerName       String?
+  reviewDate      DateTime?
+  retentionDate   DateTime?
+  tags            String[]
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  versions        DocVersion[]
+  approvals       DocApproval[]
+  readReceipts    DocReadReceipt[]
+  @@map("doc_documents")
+  @@index([orgId])
+  @@index([status])
+}
+
+model DocVersion {
+  id           String   @id @default(cuid())
+  orgId        String
+  documentId   String
+  version      Int
+  fileUrl      String?
+  fileSize     Int?
+  changeNotes  String?
+  createdAt    DateTime @default(now())
+  createdBy    String?
+  document     DocDocument @relation(fields: [documentId], references: [id])
+  @@map("doc_versions")
+  @@index([documentId])
+}
+
+model DocApproval {
+  id           String            @id @default(cuid())
+  orgId        String
+  documentId   String
+  approver     String
+  approverName String?
+  status       DocApprovalStatus @default(PENDING)
+  comments     String?
+  decidedAt    DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  document     DocDocument       @relation(fields: [documentId], references: [id])
+  @@map("doc_approvals")
+  @@index([documentId])
+}
+
+model DocReadReceipt {
+  id           String        @id @default(cuid())
+  orgId        String
+  documentId   String
+  userId       String
+  userName     String?
+  status       DocReadStatus @default(UNREAD)
+  readAt       DateTime?
+  acknowledgedAt DateTime?
+  createdAt    DateTime      @default(now())
+  document     DocDocument   @relation(fields: [documentId], references: [id])
+  @@map("doc_read_receipts")
+  @@index([documentId])
+  @@index([userId])
+}

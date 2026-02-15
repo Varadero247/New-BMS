@@ -1,0 +1,59 @@
+// Management Review Schema - M14
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/mgmt-review"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MGMT_REVIEW_DATABASE_URL")
+}
+
+enum MgmtReviewStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model MgmtReview {
+  id              String            @id @default(cuid())
+  orgId           String
+  referenceNumber String            @unique
+  title           String
+  description     String?
+  status          MgmtReviewStatus  @default(DRAFT)
+  scheduledDate   DateTime?
+  conductedDate   DateTime?
+  chairperson     String?
+  chairpersonName String?
+  attendees       String[]
+  standards       String[]
+  agendaItems     String?
+  aiGeneratedAgenda String?
+  riskSummary     String?
+  auditSummary    String?
+  incidentSummary String?
+  capaSummary     String?
+  kpiSummary      String?
+  customerFeedback String?
+  supplierPerformance String?
+  trainingStatus  String?
+  complianceStatus String?
+  decisions       String?
+  actions         String?
+  nextReviewDate  DateTime?
+  minutesUrl      String?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("mgmt_reviews")
+  @@index([orgId])
+  @@index([status])
+}

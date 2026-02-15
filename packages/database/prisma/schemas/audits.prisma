@@ -1,0 +1,143 @@
+// Audit Management Schema - M13
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/audits"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AUDITS_DATABASE_URL")
+}
+
+enum AuditStatus {
+  PLANNED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+enum AuditType {
+  INTERNAL
+  EXTERNAL
+  SUPPLIER
+  CERTIFICATION
+  SURVEILLANCE
+  PROCESS
+}
+enum AuditFindingSeverity {
+  MAJOR_NC
+  MINOR_NC
+  OBSERVATION
+  OPPORTUNITY
+  POSITIVE
+}
+enum AuditFindingStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  VERIFIED
+  OVERDUE
+}
+
+model AudAudit {
+  id              String      @id @default(cuid())
+  orgId           String
+  referenceNumber String      @unique
+  title           String
+  description     String?
+  type            AuditType   @default(INTERNAL)
+  status          AuditStatus @default(PLANNED)
+  standard        String?
+  scope           String?
+  department      String?
+  leadAuditor     String?
+  leadAuditorName String?
+  auditTeam       String[]
+  scheduledDate   DateTime?
+  startDate       DateTime?
+  endDate         DateTime?
+  reportUrl       String?
+  conclusion      String?
+  aiPreAuditReport String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  findings        AudFinding[]
+  checklists      AudChecklist[]
+  @@map("aud_audits")
+  @@index([orgId])
+  @@index([status])
+}
+
+model AudFinding {
+  id              String               @id @default(cuid())
+  orgId           String
+  auditId         String
+  referenceNumber String               @unique
+  title           String
+  description     String?
+  severity        AuditFindingSeverity  @default(OBSERVATION)
+  status          AuditFindingStatus   @default(OPEN)
+  clauseRef       String?
+  evidence        String?
+  rootCause       String?
+  correctiveAction String?
+  assignee        String?
+  assigneeName    String?
+  dueDate         DateTime?
+  closedDate      DateTime?
+  verifiedBy      String?
+  verifiedDate    DateTime?
+  linkedCapaId    String?
+  notes           String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  audit           AudAudit             @relation(fields: [auditId], references: [id])
+  @@map("aud_findings")
+  @@index([orgId])
+  @@index([auditId])
+  @@index([status])
+}
+
+model AudChecklist {
+  id           String   @id @default(cuid())
+  orgId        String
+  auditId      String
+  title        String
+  standard     String?
+  items        String?
+  completedItems Int    @default(0)
+  totalItems   Int      @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  audit        AudAudit @relation(fields: [auditId], references: [id])
+  @@map("aud_checklists")
+  @@index([auditId])
+}
+
+model AudProgramme {
+  id           String   @id @default(cuid())
+  orgId        String
+  title        String
+  year         Int
+  description  String?
+  status       String   @default("ACTIVE")
+  auditIds     String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  @@map("aud_programmes")
+  @@index([orgId])
+}

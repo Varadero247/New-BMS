@@ -517,3 +517,81 @@ model EsgMateriality {
   @@index([category])
   @@map("esg_materiality")
 }
+
+// ============================================
+// M9: Extended ESG Reporting Models
+// ============================================
+
+enum EsgReportStatus { DRAFT IN_PROGRESS REVIEW PUBLISHED ARCHIVED }
+
+model EsgDefraFactor {
+  id           String   @id @default(cuid())
+  orgId        String
+  category     String
+  subcategory  String?
+  activity     String
+  unit         String
+  factor       Float
+  year         Int
+  source       String   @default("DEFRA")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  @@map("esg_defra_factors")
+  @@index([orgId])
+  @@index([category])
+}
+
+model EsgScopeEmission {
+  id              String   @id @default(cuid())
+  orgId           String
+  referenceNumber String   @unique
+  scope           Int
+  category        String?
+  source          String?
+  activity        String?
+  quantity        Float?
+  unit            String?
+  emissionFactor  Float?
+  co2e            Float?
+  period          String?
+  location        String?
+  verifiedBy      String?
+  verifiedDate    DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("esg_scope_emissions")
+  @@index([orgId])
+  @@index([scope])
+}
+
+model EsgReport {
+  id              String          @id @default(cuid())
+  orgId           String
+  referenceNumber String          @unique
+  title           String
+  framework       String?
+  period          String?
+  status          EsgReportStatus @default(DRAFT)
+  aiGenerated     Boolean         @default(false)
+  content         String?
+  summary         String?
+  publishedDate   DateTime?
+  publishedBy     String?
+  fileUrl         String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("esg_reports")
+  @@index([orgId])
+  @@index([status])
+}

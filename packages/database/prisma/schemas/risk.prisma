@@ -1,0 +1,195 @@
+// Risk & CAPA Management Schema - M1
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/risk"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("RISK_DATABASE_URL")
+}
+
+enum RiskLikelihood {
+  RARE
+  UNLIKELY
+  POSSIBLE
+  LIKELY
+  ALMOST_CERTAIN
+}
+enum RiskConsequence {
+  INSIGNIFICANT
+  MINOR
+  MODERATE
+  MAJOR
+  CATASTROPHIC
+}
+enum RiskStatus {
+  IDENTIFIED
+  ASSESSED
+  TREATING
+  MONITORING
+  CLOSED
+}
+enum RiskCategory {
+  STRATEGIC
+  OPERATIONAL
+  FINANCIAL
+  COMPLIANCE
+  REPUTATIONAL
+  ENVIRONMENTAL
+  HEALTH_SAFETY
+  INFORMATION_SECURITY
+  QUALITY
+  SUPPLY_CHAIN
+}
+enum RiskTreatment {
+  ACCEPT
+  MITIGATE
+  TRANSFER
+  AVOID
+  ESCALATE
+}
+enum CapaType {
+  CORRECTIVE
+  PREVENTIVE
+}
+enum CapaStatus {
+  OPEN
+  IN_PROGRESS
+  VERIFICATION
+  CLOSED
+  OVERDUE
+}
+enum CapaPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+enum CapaSource {
+  AUDIT
+  INCIDENT
+  COMPLAINT
+  RISK_ASSESSMENT
+  MANAGEMENT_REVIEW
+  REGULATORY
+  CUSTOMER_FEEDBACK
+  INTERNAL_REVIEW
+}
+enum ReviewStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model RiskRegister {
+  id              String          @id @default(cuid())
+  orgId           String
+  referenceNumber String          @unique
+  title           String
+  description     String?
+  category        RiskCategory
+  source          String?
+  owner           String?
+  ownerName       String?
+  department      String?
+  likelihood      RiskLikelihood  @default(POSSIBLE)
+  consequence     RiskConsequence @default(MODERATE)
+  inherentScore   Int             @default(0)
+  residualLikelihood  RiskLikelihood?
+  residualConsequence RiskConsequence?
+  residualScore   Int?
+  treatment       RiskTreatment   @default(MITIGATE)
+  treatmentPlan   String?
+  controls        String?
+  status          RiskStatus      @default(IDENTIFIED)
+  dueDate         DateTime?
+  reviewDate      DateTime?
+  closedDate      DateTime?
+  closedBy        String?
+  linkedIncident  String?
+  linkedAudit     String?
+  tags            String[]
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  reviews         RiskReview[]
+  capas           RiskCapa[]
+  @@map("risk_registers")
+  @@index([orgId])
+  @@index([status])
+  @@index([category])
+}
+
+model RiskReview {
+  id              String        @id @default(cuid())
+  orgId           String
+  riskId          String
+  referenceNumber String        @unique
+  reviewer        String?
+  reviewerName    String?
+  scheduledDate   DateTime
+  completedDate   DateTime?
+  status          ReviewStatus  @default(SCHEDULED)
+  previousScore   Int?
+  newLikelihood   RiskLikelihood?
+  newConsequence  RiskConsequence?
+  newScore        Int?
+  findings        String?
+  recommendations String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  risk            RiskRegister  @relation(fields: [riskId], references: [id])
+  @@map("risk_reviews")
+  @@index([orgId])
+  @@index([riskId])
+}
+
+model RiskCapa {
+  id              String      @id @default(cuid())
+  orgId           String
+  riskId          String?
+  referenceNumber String      @unique
+  title           String
+  description     String?
+  type            CapaType
+  source          CapaSource  @default(RISK_ASSESSMENT)
+  priority        CapaPriority @default(MEDIUM)
+  status          CapaStatus  @default(OPEN)
+  assignee        String?
+  assigneeName    String?
+  rootCause       String?
+  actionPlan      String?
+  verificationMethod String?
+  verificationResult String?
+  dueDate         DateTime?
+  completedDate   DateTime?
+  verifiedDate    DateTime?
+  verifiedBy      String?
+  effectivenessCheck Boolean   @default(false)
+  effectivenessDate  DateTime?
+  effectivenessResult String?
+  linkedIncident  String?
+  linkedAudit     String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  risk            RiskRegister? @relation(fields: [riskId], references: [id])
+  @@map("risk_capas")
+  @@index([orgId])
+  @@index([riskId])
+  @@index([status])
+}

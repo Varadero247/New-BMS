@@ -51,7 +51,18 @@ export type TemplateModule =
   | 'PAYROLL'
   | 'WORKFLOWS'
   | 'PROJECT_MANAGEMENT'
-  | 'INVENTORY';
+  | 'INVENTORY'
+  | 'CRM'
+  | 'FINANCE'
+  | 'INFOSEC'
+  | 'ISO37001'
+  | 'ISO42001'
+  | 'ESG'
+  | 'CMMS'
+  | 'FOOD_SAFETY'
+  | 'ENERGY'
+  | 'FIELD_SERVICE'
+  | 'ANALYTICS';
 
 export type TemplateCategory =
   | 'RISK_ASSESSMENT'

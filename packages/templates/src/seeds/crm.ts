@@ -1,0 +1,100 @@
+import type { TemplateDefinition } from '../types';
+
+export const crmTemplates: TemplateDefinition[] = [
+  {
+    code: 'TPL-CRM-001',
+    name: 'Customer Onboarding Checklist',
+    description:
+      'Step-by-step checklist for onboarding new customers. Covers account setup, introductions, training, and first-value milestones.',
+    module: 'CRM',
+    category: 'CUSTOMER',
+    tags: ['onboarding', 'customer', 'checklist', 'new-account'],
+    fields: [
+      { id: 'section_customer', label: 'Customer Details', type: 'section' },
+      { id: 'customer_name', label: 'Customer Name', type: 'text', required: true, width: 'half', section: 'Customer Details' },
+      { id: 'account_manager', label: 'Account Manager', type: 'text', required: true, width: 'half', section: 'Customer Details' },
+      { id: 'start_date', label: 'Onboarding Start Date', type: 'date', required: true, width: 'half', section: 'Customer Details' },
+      { id: 'section_steps', label: 'Onboarding Steps', type: 'section' },
+      {
+        id: 'steps',
+        label: 'Onboarding Steps',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'step', label: 'Step', type: 'text', required: true, placeholder: 'e.g. Send welcome pack' },
+          { id: 'owner', label: 'Owner', type: 'text', required: true },
+          { id: 'due_date', label: 'Due Date', type: 'date', required: true },
+          { id: 'status', label: 'Status', type: 'select', required: true, options: [{ label: 'Pending', value: 'pending' }, { label: 'Complete', value: 'complete' }, { label: 'Skipped', value: 'skipped' }] },
+        ],
+        section: 'Onboarding Steps',
+      },
+      { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Additional onboarding notes...', validation: { maxLength: 2000 }, width: 'full', section: 'Onboarding Steps' },
+    ],
+  },
+  {
+    code: 'TPL-CRM-002',
+    name: 'Account Review Report',
+    description:
+      'Quarterly or annual account review template covering relationship health, revenue, satisfaction, and growth opportunities.',
+    module: 'CRM',
+    category: 'REPORTING',
+    tags: ['account-review', 'customer-health', 'revenue', 'quarterly-review'],
+    fields: [
+      { id: 'section_header', label: 'Review Details', type: 'section' },
+      { id: 'customer_name', label: 'Customer Name', type: 'text', required: true, width: 'half', section: 'Review Details' },
+      { id: 'review_period', label: 'Review Period', type: 'text', required: true, placeholder: 'e.g. Q1 2026', width: 'half', section: 'Review Details' },
+      { id: 'account_manager', label: 'Account Manager', type: 'text', required: true, width: 'half', section: 'Review Details' },
+      { id: 'health_score', label: 'Account Health', type: 'select', required: true, options: [{ label: 'Healthy', value: 'healthy' }, { label: 'At Risk', value: 'at_risk' }, { label: 'Critical', value: 'critical' }], width: 'half', section: 'Review Details' },
+      { id: 'section_metrics', label: 'Key Metrics', type: 'section' },
+      { id: 'annual_revenue', label: 'Annual Revenue', type: 'number', required: true, validation: { min: 0 }, width: 'half', section: 'Key Metrics' },
+      { id: 'nps_score', label: 'NPS Score', type: 'number', validation: { min: -100, max: 100 }, width: 'half', section: 'Key Metrics' },
+      { id: 'section_opportunities', label: 'Opportunities & Actions', type: 'section' },
+      {
+        id: 'opportunities',
+        label: 'Growth Opportunities',
+        type: 'table',
+        columns: [
+          { id: 'opportunity', label: 'Opportunity', type: 'text', required: true },
+          { id: 'value', label: 'Estimated Value', type: 'number', validation: { min: 0 } },
+          { id: 'action', label: 'Next Action', type: 'text', required: true },
+          { id: 'owner', label: 'Owner', type: 'text', required: true },
+        ],
+        section: 'Opportunities & Actions',
+      },
+      { id: 'summary', label: 'Summary & Recommendations', type: 'textarea', required: true, validation: { minLength: 20, maxLength: 3000 }, width: 'full', section: 'Opportunities & Actions' },
+    ],
+  },
+  {
+    code: 'TPL-CRM-003',
+    name: 'Sales Pipeline Review',
+    description:
+      'Sales pipeline review template for tracking deals by stage, probability, and expected close date. Supports weekly pipeline meetings.',
+    module: 'CRM',
+    category: 'REPORTING',
+    tags: ['pipeline', 'sales', 'deals', 'forecast', 'pipeline-review'],
+    fields: [
+      { id: 'section_header', label: 'Pipeline Review', type: 'section' },
+      { id: 'review_date', label: 'Review Date', type: 'date', required: true, width: 'half', section: 'Pipeline Review' },
+      { id: 'sales_rep', label: 'Sales Representative', type: 'text', required: true, width: 'half', section: 'Pipeline Review' },
+      { id: 'section_deals', label: 'Active Deals', type: 'section' },
+      {
+        id: 'deals',
+        label: 'Deals',
+        type: 'table',
+        required: true,
+        columns: [
+          { id: 'deal_name', label: 'Deal Name', type: 'text', required: true },
+          { id: 'company', label: 'Company', type: 'text', required: true },
+          { id: 'value', label: 'Deal Value', type: 'number', required: true, validation: { min: 0 } },
+          { id: 'stage', label: 'Stage', type: 'select', required: true, options: [{ label: 'Prospecting', value: 'prospecting' }, { label: 'Qualification', value: 'qualification' }, { label: 'Proposal', value: 'proposal' }, { label: 'Negotiation', value: 'negotiation' }, { label: 'Closed Won', value: 'closed_won' }, { label: 'Closed Lost', value: 'closed_lost' }] },
+          { id: 'probability', label: 'Probability %', type: 'number', validation: { min: 0, max: 100 } },
+          { id: 'close_date', label: 'Expected Close', type: 'date', required: true },
+          { id: 'next_step', label: 'Next Step', type: 'text', placeholder: 'Next action to progress' },
+        ],
+        section: 'Active Deals',
+      },
+      { id: 'total_pipeline', label: 'Total Pipeline Value', type: 'number', validation: { min: 0 }, width: 'half', section: 'Active Deals' },
+      { id: 'weighted_pipeline', label: 'Weighted Pipeline Value', type: 'number', validation: { min: 0 }, width: 'half', section: 'Active Deals' },
+    ],
+  },
+];

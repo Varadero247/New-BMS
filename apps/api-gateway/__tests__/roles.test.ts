@@ -47,6 +47,18 @@ const mockPrisma = {
   user: {
     findUnique: jest.fn(),
   },
+  customRole: {
+    findMany: jest.fn().mockResolvedValue([]),
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  accessLog: {
+    findMany: jest.fn().mockResolvedValue([]),
+    create: jest.fn(),
+    count: jest.fn().mockResolvedValue(0),
+  },
 };
 
 jest.mock('@ims/database', () => ({

@@ -1,0 +1,101 @@
+// Incidents Schema - M12
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/incidents"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("INCIDENTS_DATABASE_URL")
+}
+
+enum IncStatus {
+  REPORTED
+  ACKNOWLEDGED
+  INVESTIGATING
+  ROOT_CAUSE_ANALYSIS
+  CORRECTIVE_ACTION
+  CLOSED
+  REOPENED
+}
+enum IncSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+enum IncType {
+  INJURY
+  NEAR_MISS
+  ENVIRONMENTAL
+  PROPERTY_DAMAGE
+  SECURITY
+  QUALITY
+  VEHICLE
+  OTHER
+}
+enum IncRiddor {
+  YES
+  NO
+  PENDING_ASSESSMENT
+}
+
+model IncIncident {
+  id              String      @id @default(cuid())
+  orgId           String
+  referenceNumber String      @unique
+  title           String
+  description     String?
+  type            IncType     @default(OTHER)
+  severity        IncSeverity @default(MODERATE)
+  status          IncStatus   @default(REPORTED)
+  dateOccurred    DateTime
+  timeOccurred    String?
+  location        String?
+  area            String?
+  department      String?
+  reportedBy      String?
+  reportedByName  String?
+  reportedDate    DateTime    @default(now())
+  injuredPerson   String?
+  injuredPersonRole String?
+  injuryType      String?
+  bodyPart        String?
+  treatmentGiven  String?
+  hospitalized    Boolean     @default(false)
+  daysLost        Int?
+  witnesses       String[]
+  immediateActions String?
+  rootCause       String?
+  contributingFactors String?
+  correctiveActions String?
+  preventiveActions String?
+  riddorReportable IncRiddor  @default(PENDING_ASSESSMENT)
+  riddorRef       String?
+  riddorReportedDate DateTime?
+  investigator    String?
+  investigatorName String?
+  investigationDate DateTime?
+  investigationReport String?
+  linkedRiskId    String?
+  linkedCapaId    String?
+  aiAnalysis      String?
+  photoUrls       String[]
+  tags            String[]
+  notes           String?
+  closedBy        String?
+  closedDate      DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("inc_incidents")
+  @@index([orgId])
+  @@index([status])
+  @@index([severity])
+  @@index([dateOccurred])
+}

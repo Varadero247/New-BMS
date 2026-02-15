@@ -6,18 +6,18 @@
 
 | Category | Count |
 |----------|-------|
-| API Services | 27 (+ 1 main API) |
-| Web Applications | 30 |
+| API Services | 39 (+ 1 main API) |
+| Web Applications | 43 |
 | Shared Packages | 42 |
-| Prisma Schemas | 26 |
-| Database Models | 386 total |
+| Prisma Schemas | 38 |
+| Database Tables | 595 total |
 | Scripts | 20 |
-| Unit Tests | ~8,037 across 325+ suites |
+| Unit Tests | ~8,169+ across 360+ suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
 
-## API Services (25 + 1)
+## API Services (39 + 1)
 
 | Service | Directory | Port | Standard/Domain | Prisma Schema |
 |---------|-----------|------|-----------------|---------------|
@@ -49,10 +49,22 @@
 | ISO 37001 | `apps/api-iso37001/` | 4024 | Anti-Bribery | `iso37001.prisma` |
 | Marketing | `apps/api-marketing/` | 4025 | Sales & marketing automation | `marketing.prisma` |
 | Partners | `apps/api-partners/` | 4026 | Partner portal API | `marketing.prisma` |
+| Risk & CAPA | `apps/api-risk/` | 4027 | ISO 31000 Risk Management | `risk.prisma` |
+| Training | `apps/api-training/` | 4028 | Competence management | `training.prisma` |
+| Suppliers | `apps/api-suppliers/` | 4029 | Supplier management | `suppliers.prisma` |
+| Assets | `apps/api-assets/` | 4030 | Asset management | `assets.prisma` |
+| Documents | `apps/api-documents/` | 4031 | Document control | `documents.prisma` |
+| Complaints | `apps/api-complaints/` | 4032 | Complaint management | `complaints.prisma` |
+| Contracts | `apps/api-contracts/` | 4033 | Contract lifecycle | `contracts.prisma` |
+| Permit to Work | `apps/api-ptw/` | 4034 | PTW management | `ptw.prisma` |
+| Regulatory Monitor | `apps/api-reg-monitor/` | 4035 | Regulatory change tracking | `reg-monitor.prisma` |
+| Incidents | `apps/api-incidents/` | 4036 | Incident management | `incidents.prisma` |
+| Audits | `apps/api-audits/` | 4037 | Audit programme | `audits.prisma` |
+| Mgmt Review | `apps/api-mgmt-review/` | 4038 | Management review | `mgmt-review.prisma` |
 
 ---
 
-## Web Applications (30)
+## Web Applications (43)
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
@@ -85,6 +97,19 @@
 | Marketing | `apps/web-marketing/` | 3030 | Landing page, ROI calculator, chatbot |
 | Partners Portal | `apps/web-partners/` | 3026 | Partner referral portal |
 | Admin Dashboard | `apps/web-admin/` | 3027 | Founder growth dashboard |
+| Risk & CAPA | `apps/web-risk/` | 3031 | Risk management |
+| Training | `apps/web-training/` | 3032 | Competence management |
+| Suppliers | `apps/web-suppliers/` | 3033 | Supplier management |
+| Assets | `apps/web-assets/` | 3034 | Asset management |
+| Documents | `apps/web-documents/` | 3035 | Document control |
+| Complaints | `apps/web-complaints/` | 3036 | Complaint management |
+| Contracts | `apps/web-contracts/` | 3037 | Contract lifecycle |
+| Fin. Compliance | `apps/web-finance-compliance/` | 3038 | Financial compliance |
+| Permit to Work | `apps/web-ptw/` | 3039 | PTW management |
+| Regulatory Monitor | `apps/web-reg-monitor/` | 3040 | Reg change tracking |
+| Incidents | `apps/web-incidents/` | 3041 | Incident management |
+| Audits | `apps/web-audits/` | 3042 | Audit programme |
+| Mgmt Review | `apps/web-mgmt-review/` | 3043 | Management review |
 
 ---
 
@@ -125,7 +150,7 @@
 | `@ims/spc-engine` | `packages/spc-engine/` | Statistical Process Control engine |
 | `@ims/standards-convergence` | `packages/standards-convergence/` | Cross-standard mapping engine |
 | `@ims/tax-engine` | `packages/tax-engine/` | Multi-jurisdiction tax calculation |
-| `@ims/templates` | `packages/templates/` | 67 built-in document/report templates |
+| `@ims/templates` | `packages/templates/` | 110 built-in document/report templates |
 | `@ims/testing` | `packages/testing/` | Shared test utilities |
 | `@ims/types` | `packages/types/` | Shared TypeScript types |
 | `@ims/ui` | `packages/ui/` | React component library |
@@ -133,7 +158,7 @@
 
 ---
 
-## Prisma Schemas (26)
+## Prisma Schemas (38)
 
 | Schema | File | Models | Domain |
 |--------|------|--------|--------|
@@ -163,11 +188,23 @@
 | ISO 42001 | `iso42001.prisma` | 7 | AI Management System |
 | ISO 37001 | `iso37001.prisma` | 6 | Anti-Bribery |
 | Marketing | `marketing.prisma` | 13 | Leads, partners, deals, health scores |
-| **Total** | | **386** | |
+| Risk | `risk.prisma` | 3 | Risk registers, reviews, CAPA |
+| Training | `training.prisma` | 5 | Courses, records, competencies, matrix, TNA |
+| Suppliers | `suppliers.prisma` | 4 | Suppliers, scorecards, documents, spend |
+| Assets | `assets.prisma` | 4 | Register, work orders, calibration, inspection |
+| Documents | `documents.prisma` | 4 | Documents, versions, approvals, read receipts |
+| Complaints | `complaints.prisma` | 3 | Complaints, actions, communications |
+| Contracts | `contracts.prisma` | 4 | Contracts, approvals, notices, clauses |
+| PTW | `ptw.prisma` | 3 | Permits, method statements, toolbox talks |
+| Reg Monitor | `reg-monitor.prisma` | 3 | Changes, legal register, obligations |
+| Incidents | `incidents.prisma` | 1 | Incidents (30+ fields, RIDDOR) |
+| Audits | `audits.prisma` | 4 | Audits, findings, checklists, programmes |
+| Mgmt Review | `mgmt-review.prisma` | 1 | Management reviews (AI agenda) |
+| **Total** | | **595 tables** | |
 
 ---
 
-## Gateway Routing (25 proxy targets + local routes)
+## Gateway Routing (37 proxy targets + local routes)
 
 ### Local Routes (handled by gateway)
 | Route | Description |
@@ -183,7 +220,7 @@
 | `/api/roles/*` | Role management |
 | `/api/access-log/*` | Access audit log |
 | `/api/csrf-token` | CSRF token |
-| `/api/v1/templates/*` | Template library (67 templates) |
+| `/api/v1/templates/*` | Template library (110 templates) |
 
 ### Proxy Routes (v1 + legacy)
 | Route Pattern | Target Service | Port |
@@ -214,6 +251,18 @@
 | `/api/iso37001/*` | api-iso37001 | 4024 |
 | `/api/marketing/*` | api-marketing | 4025 |
 | `/api/partners/*` | api-partners | 4026 |
+| `/api/risk/*` | api-risk | 4027 |
+| `/api/training/*` | api-training | 4028 |
+| `/api/suppliers/*` | api-suppliers | 4029 |
+| `/api/assets/*` | api-assets | 4030 |
+| `/api/documents/*` | api-documents | 4031 |
+| `/api/complaints/*` | api-complaints | 4032 |
+| `/api/contracts/*` | api-contracts | 4033 |
+| `/api/ptw/*` | api-ptw | 4034 |
+| `/api/reg-monitor/*` | api-reg-monitor | 4035 |
+| `/api/incidents/*` | api-incidents | 4036 |
+| `/api/audits/*` | api-audits | 4037 |
+| `/api/mgmt-review/*` | api-mgmt-review | 4038 |
 
 All routes also available under `/api/v1/` prefix.
 

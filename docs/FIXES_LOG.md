@@ -891,3 +891,90 @@ Built competitive differentiators: evidence packs, headstart tool, MSP mode, reg
 | 10 | 42-49 | Phase 11 | ISO 42001, ISO 37001, differentiators, templates |
 
 **Total across all sessions: 49 changes, 25 API services, 26 web apps, 39 packages, 25 Prisma schemas, ~5,450+ tests.**
+
+---
+
+## Session 13 — System Status Module Fixes
+
+**Date:** February 15, 2026
+
+Four bugs fixed in the System Status page (`apps/web-dashboard/src/app/system-status/page.tsx`).
+
+---
+
+### FIX 50 — Missing API services in System Status (Medium)
+
+**Problem:** The SERVICES array only listed 24 of 28 API services. AI Analysis (4004), Project Management (4009), Marketing (4025), and Partners (4026) were missing from the status dashboard.
+
+**Solution:** Added 4 missing entries to the SERVICES array:
+- AI Analysis API (port 4004, category: Core)
+- Project Management API (port 4009, category: Operations)
+- Marketing API (port 4025, category: Portals)
+- Partners API (port 4026, category: Portals)
+
+**Files Changed:** `apps/web-dashboard/src/app/system-status/page.tsx`
+
+---
+
+### FIX 51 — Health checks using `mode: 'no-cors'` (High)
+
+**Problem:** `checkService()` used `fetch(url, { mode: 'no-cors' })` for cross-port health checks. Opaque responses from `no-cors` mode always report `status: 0` and `ok: false` is inaccessible — meaning a 500 Internal Server Error was indistinguishable from a 200 OK. Every reachable service appeared "Healthy" regardless of actual HTTP status.
+
+**Solution:** Created a server-side Next.js API route at `/api/health-check` that proxies health check requests. The server-side fetch has no CORS restrictions and returns `{ ok, status, latency }`. The client `checkService()` now calls this proxy and can properly distinguish:
+- 200 → Healthy
+- 500/503 → Degraded
+- Unreachable → Down
+
+**Files Changed:**
+- `apps/web-dashboard/src/app/api/health-check/route.ts` (NEW)
+- `apps/web-dashboard/src/app/system-status/page.tsx`
+
+---
+
+### FIX 52 — Dynamic Tailwind classes purged at build time (Medium)
+
+**Problem:** Summary stat cards used dynamic class interpolation (`bg-${stat.color}-100`, `text-${stat.color}-600`). Tailwind's JIT compiler scans source for complete class strings at build time — dynamic interpolations are never found, so the classes are purged from the production CSS. All stat card icon backgrounds rendered with no color.
+
+**Solution:** Replaced dynamic interpolation with a static `statColorMap` lookup object containing literal class strings:
+```ts
+const statColorMap: Record<string, { bg: string; icon: string }> = {
+  green:  { bg: 'bg-green-100',  icon: 'text-green-600' },
+  yellow: { bg: 'bg-yellow-100', icon: 'text-yellow-600' },
+  red:    { bg: 'bg-red-100',    icon: 'text-red-600' },
+  blue:   { bg: 'bg-blue-100',   icon: 'text-blue-600' },
+};
+```
+
+**Files Changed:** `apps/web-dashboard/src/app/system-status/page.tsx`
+
+---
+
+### FIX 53 — Dead `client.tsx` file (Low)
+
+**Problem:** `apps/web-dashboard/src/app/system-status/client.tsx` (220 lines) was never imported by any file. It duplicated `page.tsx` functionality with its own bugs (sequential health checks instead of parallel, hardcoded `localhost` instead of env vars, fake uptime percentages).
+
+**Solution:** Deleted the file.
+
+**Files Deleted:** `apps/web-dashboard/src/app/system-status/client.tsx`
+
+---
+
+### Verification
+
+- `next build` — passed with all routes compiled (`/system-status` static, `/api/health-check` dynamic)
+- TypeScript type-check — no errors in changed files
+- 28 services visible in SERVICES array
+- Static Tailwind classes present in source for JIT scanning
+
+---
+
+### Session 13 Summary
+
+| Fix | Issue | Severity | Category |
+|-----|-------|----------|----------|
+| 50 | 4 missing API services in status dashboard | Medium | Completeness |
+| 51 | `no-cors` opaque responses hide HTTP errors | High | Correctness |
+| 52 | Dynamic Tailwind classes purged in production | Medium | Styling |
+| 53 | Dead `client.tsx` (220 lines) | Low | Cleanup |
+
+**Total across all sessions: 53 fixes, 27 API services, 30 web apps, 42 packages, 26 Prisma schemas, ~8,037 tests.**

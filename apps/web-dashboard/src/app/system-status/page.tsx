@@ -23,6 +23,7 @@ const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 
 const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
   { name: 'API Gateway', url: `${API_BASE}:4000`, port: 4000, category: 'Core' },
+  { name: 'AI Analysis API', url: `${API_BASE}:4004`, port: 4004, category: 'Core' },
   { name: 'Dashboard', url: `${APP_BASE}:3000`, port: 3000, category: 'Web' },
   { name: 'Health & Safety API', url: `${API_BASE}:4001`, port: 4001, category: 'ISO Compliance' },
   { name: 'Environment API', url: `${API_BASE}:4002`, port: 4002, category: 'ISO Compliance' },
@@ -34,6 +35,7 @@ const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
   { name: 'HR API', url: `${API_BASE}:4006`, port: 4006, category: 'Operations' },
   { name: 'Payroll API', url: `${API_BASE}:4007`, port: 4007, category: 'Operations' },
   { name: 'Workflows API', url: `${API_BASE}:4008`, port: 4008, category: 'Operations' },
+  { name: 'Project Management API', url: `${API_BASE}:4009`, port: 4009, category: 'Operations' },
   { name: 'Finance API', url: `${API_BASE}:4013`, port: 4013, category: 'Operations' },
   { name: 'CRM API', url: `${API_BASE}:4014`, port: 4014, category: 'Operations' },
   { name: 'CMMS API', url: `${API_BASE}:4017`, port: 4017, category: 'Operations' },
@@ -46,7 +48,28 @@ const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
   { name: 'Automotive API', url: `${API_BASE}:4010`, port: 4010, category: 'Specialist' },
   { name: 'Aerospace API', url: `${API_BASE}:4012`, port: 4012, category: 'Specialist' },
   { name: 'Customer Portal API', url: `${API_BASE}:4018`, port: 4018, category: 'Portals' },
+  { name: 'Marketing API', url: `${API_BASE}:4025`, port: 4025, category: 'Portals' },
+  { name: 'Partners API', url: `${API_BASE}:4026`, port: 4026, category: 'Portals' },
+  { name: 'Risk & CAPA API', url: `${API_BASE}:4027`, port: 4027, category: 'Risk & Governance' },
+  { name: 'Training API', url: `${API_BASE}:4028`, port: 4028, category: 'Resources' },
+  { name: 'Suppliers API', url: `${API_BASE}:4029`, port: 4029, category: 'Resources' },
+  { name: 'Assets API', url: `${API_BASE}:4030`, port: 4030, category: 'Resources' },
+  { name: 'Documents API', url: `${API_BASE}:4031`, port: 4031, category: 'Resources' },
+  { name: 'Complaints API', url: `${API_BASE}:4032`, port: 4032, category: 'Risk & Governance' },
+  { name: 'Contracts API', url: `${API_BASE}:4033`, port: 4033, category: 'Resources' },
+  { name: 'Permit to Work API', url: `${API_BASE}:4034`, port: 4034, category: 'Risk & Governance' },
+  { name: 'Regulatory Monitor API', url: `${API_BASE}:4035`, port: 4035, category: 'Risk & Governance' },
+  { name: 'Incidents API', url: `${API_BASE}:4036`, port: 4036, category: 'Risk & Governance' },
+  { name: 'Audits API', url: `${API_BASE}:4037`, port: 4037, category: 'Risk & Governance' },
+  { name: 'Management Review API', url: `${API_BASE}:4038`, port: 4038, category: 'Risk & Governance' },
 ];
+
+const statColorMap: Record<string, { bg: string; icon: string }> = {
+  green:  { bg: 'bg-green-100',  icon: 'text-green-600' },
+  yellow: { bg: 'bg-yellow-100', icon: 'text-yellow-600' },
+  red:    { bg: 'bg-red-100',    icon: 'text-red-600' },
+  blue:   { bg: 'bg-blue-100',   icon: 'text-blue-600' },
+};
 
 function StatusBadge({ status }: { status: ServiceStatus['status'] }) {
   if (status === 'healthy') return (
@@ -79,14 +102,19 @@ export default function SystemStatusPage() {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   async function checkService(svc: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>): Promise<ServiceStatus> {
-    const start = Date.now();
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000);
-      await fetch(`${svc.url}/health`, { signal: controller.signal, mode: 'no-cors' });
-      clearTimeout(timeout);
-      const latency = Date.now() - start;
-      return { ...svc, status: latency > 1000 ? 'degraded' : 'healthy', latency, lastChecked: new Date() };
+      const res = await fetch(`/api/health-check?url=${encodeURIComponent(`${svc.url}/health`)}`);
+      const data = await res.json();
+      const latency: number | null = data.latency ?? null;
+      let status: ServiceStatus['status'];
+      if (data.ok) {
+        status = latency !== null && latency > 1000 ? 'degraded' : 'healthy';
+      } else if (data.status >= 500) {
+        status = 'degraded';
+      } else {
+        status = 'down';
+      }
+      return { ...svc, status, latency, lastChecked: new Date() };
     } catch {
       return { ...svc, status: 'down', latency: null, lastChecked: new Date() };
     }
@@ -172,6 +200,7 @@ export default function SystemStatusPage() {
               { label: 'Total Services', count: services.length, icon: Server, color: 'blue' },
             ].map(stat => {
               const Icon = stat.icon;
+              const colors = statColorMap[stat.color];
               return (
                 <Card key={stat.label}>
                   <CardContent className="pt-6">
@@ -180,8 +209,8 @@ export default function SystemStatusPage() {
                         <p className="text-sm text-gray-500">{stat.label}</p>
                         <p className="text-2xl font-bold text-gray-900">{stat.count}</p>
                       </div>
-                      <div className={`p-2 rounded-full bg-${stat.color}-100`}>
-                        <Icon className={`h-5 w-5 text-${stat.color}-600`} />
+                      <div className={`p-2 rounded-full ${colors.bg}`}>
+                        <Icon className={`h-5 w-5 ${colors.icon}`} />
                       </div>
                     </div>
                   </CardContent>

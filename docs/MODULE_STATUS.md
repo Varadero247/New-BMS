@@ -1,6 +1,6 @@
 # Module Status
 
-Last updated: 2026-02-14
+Last updated: 2026-02-15
 
 ## API Services
 
@@ -32,8 +32,22 @@ Last updated: 2026-02-14
 | Field Service | Field Operations | api-field-service | 4022 | Active | 65 | 189 | 2026-02-13 |
 | ISO 42001 | AI Management | api-iso42001 | 4023 | Active | 35 | 120 | 2026-02-13 |
 | ISO 37001 | Anti-Bribery | api-iso37001 | 4024 | Active | 30 | 105 | 2026-02-13 |
+| Marketing | Sales Automation | api-marketing | 4025 | Active | 65 | 125 | 2026-02-15 |
+| Partners | Partner Portal | api-partners | 4026 | Active | 20 | 35 | 2026-02-15 |
+| Risk & CAPA | ISO 31000 | api-risk | 4027 | Active | 15 | 18 | 2026-02-15 |
+| Training | Competence Mgmt | api-training | 4028 | Active | 14 | 12 | 2026-02-15 |
+| Suppliers | Supplier Mgmt | api-suppliers | 4029 | Active | 16 | 12 | 2026-02-15 |
+| Assets | Asset Mgmt | api-assets | 4030 | Active | 14 | 12 | 2026-02-15 |
+| Documents | Document Control | api-documents | 4031 | Active | 12 | 12 | 2026-02-15 |
+| Complaints | Complaint Mgmt | api-complaints | 4032 | Active | 14 | 12 | 2026-02-15 |
+| Contracts | Contract Lifecycle | api-contracts | 4033 | Active | 14 | 12 | 2026-02-15 |
+| Permit to Work | PTW Management | api-ptw | 4034 | Active | 10 | 12 | 2026-02-15 |
+| Regulatory Monitor | Reg Change Tracking | api-reg-monitor | 4035 | Active | 6 | 6 | 2026-02-15 |
+| Incidents | Incident Mgmt | api-incidents | 4036 | Active | 10 | 6 | 2026-02-15 |
+| Audits | Audit Programme | api-audits | 4037 | Active | 12 | 12 | 2026-02-15 |
+| Mgmt Review | Management Review | api-mgmt-review | 4038 | Active | 6 | 6 | 2026-02-15 |
 
-**Total: 25 services | ~1,469 endpoints | ~7,877 tests**
+**Total: 39 services | ~1,626 endpoints | ~8,169+ tests**
 
 ## Shared Packages
 
@@ -46,7 +60,7 @@ Last updated: 2026-02-14
 | @ims/validation | Zod validation schemas | 104 |
 | @ims/monitoring | Winston logging, Prometheus metrics, health checks | 44 |
 | @ims/audit | Activity audit trail | 51 |
-| @ims/templates | Template library (67 templates, renderer, exporter) | - |
+| @ims/templates | Template library (110 templates, renderer, exporter) | - |
 | @ims/iso-checklists | ISO audit checklists engine | 101 |
 | @ims/esig | Electronic signatures (21 CFR Part 11) | 103 |
 | @ims/spc-engine | Statistical Process Control (X-bar R, P-chart, IMR) | 177 |

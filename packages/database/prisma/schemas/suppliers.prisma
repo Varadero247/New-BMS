@@ -1,0 +1,144 @@
+// Supplier Management Schema - M3
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/suppliers"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SUPPLIERS_DATABASE_URL")
+}
+
+enum SuppStatus {
+  PROSPECTIVE
+  APPROVED
+  CONDITIONAL
+  SUSPENDED
+  BLACKLISTED
+  INACTIVE
+}
+enum SuppTier {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+enum SuppScoreStatus {
+  DRAFT
+  IN_REVIEW
+  COMPLETED
+}
+enum SuppDocType {
+  CERTIFICATE
+  LICENSE
+  INSURANCE
+  AUDIT_REPORT
+  QUALITY_MANUAL
+  OTHER
+}
+
+model SuppSupplier {
+  id              String     @id @default(cuid())
+  orgId           String
+  referenceNumber String     @unique
+  name            String
+  tradingName     String?
+  registrationNo  String?
+  vatNumber       String?
+  status          SuppStatus @default(PROSPECTIVE)
+  tier            SuppTier   @default(MEDIUM)
+  category        String?
+  primaryContact  String?
+  email           String?
+  phone           String?
+  website         String?
+  addressLine1    String?
+  city            String?
+  postcode        String?
+  country         String?
+  notes           String?
+  approvedDate    DateTime?
+  reviewDate      DateTime?
+  annualSpend     Float?
+  paymentTerms    String?
+  tags            String[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  scorecards      SuppScorecard[]
+  documents       SuppDocument[]
+  @@map("supp_suppliers")
+  @@index([orgId])
+  @@index([status])
+}
+
+model SuppScorecard {
+  id              String          @id @default(cuid())
+  orgId           String
+  supplierId      String
+  referenceNumber String          @unique
+  period          String?
+  quality         Int             @default(0)
+  delivery        Int             @default(0)
+  cost            Int             @default(0)
+  responsiveness  Int             @default(0)
+  compliance      Int             @default(0)
+  overallScore    Float?
+  status          SuppScoreStatus @default(DRAFT)
+  assessor        String?
+  comments        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  supplier        SuppSupplier    @relation(fields: [supplierId], references: [id])
+  @@map("supp_scorecards")
+  @@index([orgId])
+  @@index([supplierId])
+}
+
+model SuppDocument {
+  id              String       @id @default(cuid())
+  orgId           String
+  supplierId      String
+  type            SuppDocType  @default(OTHER)
+  title           String
+  fileUrl         String?
+  expiryDate      DateTime?
+  isVerified      Boolean      @default(false)
+  verifiedBy      String?
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  supplier        SuppSupplier @relation(fields: [supplierId], references: [id])
+  @@map("supp_documents")
+  @@index([orgId])
+  @@index([supplierId])
+}
+
+model SuppSpend {
+  id           String   @id @default(cuid())
+  orgId        String
+  supplierId   String
+  period       String
+  amount       Float
+  currency     String   @default("GBP")
+  category     String?
+  poNumber     String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  @@map("supp_spend")
+  @@index([orgId])
+  @@index([supplierId])
+}

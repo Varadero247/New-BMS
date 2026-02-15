@@ -1,0 +1,121 @@
+// Permit to Work Schema - M10
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/ptw"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PTW_DATABASE_URL")
+}
+
+enum PtwPermitStatus {
+  DRAFT
+  REQUESTED
+  APPROVED
+  ACTIVE
+  SUSPENDED
+  CLOSED
+  CANCELLED
+}
+enum PtwPermitType {
+  HOT_WORK
+  CONFINED_SPACE
+  WORKING_AT_HEIGHT
+  ELECTRICAL
+  EXCAVATION
+  GENERAL
+}
+enum PtwPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model PtwPermit {
+  id              String          @id @default(cuid())
+  orgId           String
+  referenceNumber String          @unique
+  title           String
+  description     String?
+  type            PtwPermitType   @default(GENERAL)
+  status          PtwPermitStatus @default(DRAFT)
+  priority        PtwPriority     @default(MEDIUM)
+  location        String?
+  area            String?
+  requestedBy     String?
+  requestedByName String?
+  approvedBy      String?
+  approvedByName  String?
+  startDate       DateTime?
+  endDate         DateTime?
+  hazards         String?
+  precautions     String?
+  ppe             String?
+  emergencyProcedure String?
+  isolations      String?
+  gasTestRequired Boolean         @default(false)
+  gasTestResult   String?
+  closedBy        String?
+  closedAt        DateTime?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  methodStatements PtwMethodStatement[]
+  toolboxTalks    PtwToolboxTalk[]
+  @@map("ptw_permits")
+  @@index([orgId])
+  @@index([status])
+}
+
+model PtwMethodStatement {
+  id           String   @id @default(cuid())
+  orgId        String
+  permitId     String?
+  referenceNumber String @unique
+  title        String
+  steps        String?
+  hazards      String?
+  controls     String?
+  ppe          String?
+  approvedBy   String?
+  approvedAt   DateTime?
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  updatedBy    String?
+  deletedAt    DateTime?
+  permit       PtwPermit? @relation(fields: [permitId], references: [id])
+  @@map("ptw_method_statements")
+  @@index([orgId])
+}
+
+model PtwToolboxTalk {
+  id           String   @id @default(cuid())
+  orgId        String
+  permitId     String?
+  referenceNumber String @unique
+  topic        String
+  content      String?
+  presenter    String?
+  presenterName String?
+  scheduledDate DateTime?
+  conductedDate DateTime?
+  attendees    String[]
+  attendeeCount Int?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  permit       PtwPermit? @relation(fields: [permitId], references: [id])
+  @@map("ptw_toolbox_talks")
+  @@index([orgId])
+}

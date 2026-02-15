@@ -369,7 +369,7 @@ Total services running: 52 / 52
 | `@ims/regulatory-feed` | Regulatory update feed ingestion |
 | `@ims/standards-convergence` | Cross-standard mapping & convergence |
 | `@ims/tax-engine` | Multi-jurisdiction tax calculations |
-| `@ims/templates` | Template library (67 built-in templates) |
+| `@ims/templates` | Template library (110 built-in templates) |
 
 ## API Endpoints
 

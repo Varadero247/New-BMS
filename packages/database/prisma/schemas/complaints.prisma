@@ -1,0 +1,123 @@
+// Complaints Management Schema - M6
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/complaints"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("COMPLAINTS_DATABASE_URL")
+}
+
+enum CompStatus {
+  NEW
+  ACKNOWLEDGED
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+enum CompPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+enum CompChannel {
+  EMAIL
+  PHONE
+  WEB_FORM
+  SOCIAL_MEDIA
+  IN_PERSON
+  LETTER
+}
+enum CompCategory {
+  PRODUCT
+  SERVICE
+  DELIVERY
+  BILLING
+  SAFETY
+  ENVIRONMENTAL
+  REGULATORY
+  OTHER
+}
+
+model CompComplaint {
+  id              String       @id @default(cuid())
+  orgId           String
+  referenceNumber String       @unique
+  title           String
+  description     String?
+  channel         CompChannel  @default(WEB_FORM)
+  category        CompCategory @default(OTHER)
+  priority        CompPriority @default(MEDIUM)
+  status          CompStatus   @default(NEW)
+  complainantName String?
+  complainantEmail String?
+  complainantPhone String?
+  assignee        String?
+  assigneeName    String?
+  department      String?
+  productRef      String?
+  orderRef        String?
+  isRegulatory    Boolean      @default(false)
+  regulatoryBody  String?
+  slaDeadline     DateTime?
+  acknowledgedAt  DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  rootCause       String?
+  resolution      String?
+  preventiveAction String?
+  customerSatisfied Boolean?
+  linkedCapaId    String?
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  actions         CompAction[]
+  communications  CompCommunication[]
+  @@map("comp_complaints")
+  @@index([orgId])
+  @@index([status])
+}
+
+model CompAction {
+  id           String   @id @default(cuid())
+  orgId        String
+  complaintId  String
+  action       String
+  assignee     String?
+  dueDate      DateTime?
+  completedAt  DateTime?
+  status       String   @default("OPEN")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  complaint    CompComplaint @relation(fields: [complaintId], references: [id])
+  @@map("comp_actions")
+  @@index([complaintId])
+}
+
+model CompCommunication {
+  id           String   @id @default(cuid())
+  orgId        String
+  complaintId  String
+  direction    String   @default("OUTBOUND")
+  channel      String?
+  subject      String?
+  content      String?
+  sentAt       DateTime?
+  sentBy       String?
+  createdAt    DateTime @default(now())
+  deletedAt    DateTime?
+  complaint    CompComplaint @relation(fields: [complaintId], references: [id])
+  @@map("comp_communications")
+  @@index([complaintId])
+}

@@ -39,6 +39,9 @@ import energyRouter from './routes/energy';
 import auditsRouter from './routes/audits';
 import stakeholdersRouter from './routes/stakeholders';
 import materialityRouter from './routes/materiality';
+import defraFactorsRouter from './routes/defra-factors';
+import scopeEmissionsRouter from './routes/scope-emissions';
+import esgReportsRouter from './routes/esg-reports';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4016;
@@ -80,6 +83,9 @@ app.use('/api/water', waterRouter);
 app.use('/api/energy', energyRouter);
 app.use('/api/audits', auditsRouter);
 app.use('/api/stakeholders', stakeholdersRouter);
+app.use('/api/defra-factors', defraFactorsRouter);
+app.use('/api/scope-emissions', scopeEmissionsRouter);
+app.use('/api/esg-reports', esgReportsRouter);
 app.use('/api/materiality', materialityRouter);
 
 // 404 handler

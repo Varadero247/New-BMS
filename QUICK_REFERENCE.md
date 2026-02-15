@@ -37,7 +37,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 
 ## Service Ports
 
-### API Services (ports 4000-4024)
+### API Services (ports 4000-4038)
 | Service | Port | Standard/Domain |
 |---------|------|-----------------|
 | Gateway | 4000 | Auth, routing, templates, RBAC |
@@ -65,8 +65,22 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Field Service | 4022 | Field operations |
 | ISO 42001 | 4023 | AI Management |
 | ISO 37001 | 4024 | Anti-Bribery |
+| Marketing | 4025 | Sales automation |
+| Partners | 4026 | Partner portal |
+| Risk & CAPA | 4027 | ISO 31000 |
+| Training | 4028 | Competence management |
+| Suppliers | 4029 | Supplier management |
+| Assets | 4030 | Asset management |
+| Documents | 4031 | Document control |
+| Complaints | 4032 | Complaint management |
+| Contracts | 4033 | Contract lifecycle |
+| Permit to Work | 4034 | PTW management |
+| Regulatory Monitor | 4035 | Reg change tracking |
+| Incidents | 4036 | Incident management |
+| Audits | 4037 | Audit programme |
+| Mgmt Review | 4038 | Management review |
 
-### Web Applications (ports 3000-3025)
+### Web Applications (ports 3000-3043)
 | Application | Port | Domain |
 |-------------|------|--------|
 | Dashboard | 3000 | Main dashboard |
@@ -95,6 +109,22 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Field Service | 3023 | Field operations |
 | ISO 42001 | 3024 | AI Management |
 | ISO 37001 | 3025 | Anti-Bribery |
+| Partners Portal | 3026 | Partner portal |
+| Admin Dashboard | 3027 | Admin dashboard |
+| Marketing | 3030 | Marketing site |
+| Risk & CAPA | 3031 | ISO 31000 |
+| Training | 3032 | Competence management |
+| Suppliers | 3033 | Supplier management |
+| Assets | 3034 | Asset management |
+| Documents | 3035 | Document control |
+| Complaints | 3036 | Complaint management |
+| Contracts | 3037 | Contract lifecycle |
+| Fin. Compliance | 3038 | Financial compliance |
+| Permit to Work | 3039 | PTW management |
+| Regulatory Monitor | 3040 | Reg change tracking |
+| Incidents | 3041 | Incident management |
+| Audits | 3042 | Audit programme |
+| Mgmt Review | 3043 | Management review |
 
 ## H&S API Endpoints (via Gateway)
 ```bash
@@ -267,4 +297,4 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 26 web apps
-- 67 built-in templates across 11 modules
+- 110 built-in templates across 22 modules

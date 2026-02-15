@@ -91,6 +91,18 @@ const SERVICES = {
   iso37001: process.env.SERVICE_ISO37001_URL || process.env.ISO37001_URL || 'http://localhost:4024',
   marketing: process.env.SERVICE_MARKETING_URL || process.env.MARKETING_URL || 'http://localhost:4025',
   partners: process.env.SERVICE_PARTNERS_URL || process.env.PARTNERS_URL || 'http://localhost:4026',
+  risk: process.env.SERVICE_RISK_URL || process.env.RISK_URL || 'http://localhost:4027',
+  training: process.env.SERVICE_TRAINING_URL || process.env.TRAINING_URL || 'http://localhost:4028',
+  suppliers: process.env.SERVICE_SUPPLIERS_URL || process.env.SUPPLIERS_URL || 'http://localhost:4029',
+  assets: process.env.SERVICE_ASSETS_URL || process.env.ASSETS_URL || 'http://localhost:4030',
+  documents: process.env.SERVICE_DOCUMENTS_URL || process.env.DOCUMENTS_URL || 'http://localhost:4031',
+  complaints: process.env.SERVICE_COMPLAINTS_URL || process.env.COMPLAINTS_URL || 'http://localhost:4032',
+  contracts: process.env.SERVICE_CONTRACTS_URL || process.env.CONTRACTS_URL || 'http://localhost:4033',
+  ptw: process.env.SERVICE_PTW_URL || process.env.PTW_URL || 'http://localhost:4034',
+  regMonitor: process.env.SERVICE_REG_MONITOR_URL || process.env.REG_MONITOR_URL || 'http://localhost:4035',
+  incidents: process.env.SERVICE_INCIDENTS_URL || process.env.INCIDENTS_URL || 'http://localhost:4036',
+  audits: process.env.SERVICE_AUDITS_URL || process.env.AUDITS_URL || 'http://localhost:4037',
+  mgmtReview: process.env.SERVICE_MGMT_REVIEW_URL || process.env.MGMT_REVIEW_URL || 'http://localhost:4038',
 };
 
 // Generate service token for inter-service authentication
@@ -372,6 +384,18 @@ app.use('/api/v1/iso42001', addVersionHeader('v1'), createServiceProxy('ISO 4200
 app.use('/api/v1/iso37001', addVersionHeader('v1'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/v1/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
 app.use('/api/v1/marketing', addVersionHeader('v1'), createServiceProxy('Marketing', SERVICES.marketing, '/api/v1/marketing', 'Marketing service unavailable'));
 app.use('/api/v1/partners', addVersionHeader('v1'), createServiceProxy('Partners', SERVICES.partners, '/api/v1/partners', 'Partners service unavailable'));
+app.use('/api/v1/risk', addVersionHeader('v1'), createServiceProxy('Risk', SERVICES.risk, '/api/v1/risk', 'Risk service unavailable'));
+app.use('/api/v1/training', addVersionHeader('v1'), createServiceProxy('Training', SERVICES.training, '/api/v1/training', 'Training service unavailable'));
+app.use('/api/v1/suppliers', addVersionHeader('v1'), createServiceProxy('Suppliers', SERVICES.suppliers, '/api/v1/suppliers', 'Suppliers service unavailable'));
+app.use('/api/v1/assets', addVersionHeader('v1'), createServiceProxy('Assets', SERVICES.assets, '/api/v1/assets', 'Assets service unavailable'));
+app.use('/api/v1/documents', addVersionHeader('v1'), createServiceProxy('Documents', SERVICES.documents, '/api/v1/documents', 'Documents service unavailable'));
+app.use('/api/v1/complaints', addVersionHeader('v1'), createServiceProxy('Complaints', SERVICES.complaints, '/api/v1/complaints', 'Complaints service unavailable'));
+app.use('/api/v1/contracts', addVersionHeader('v1'), createServiceProxy('Contracts', SERVICES.contracts, '/api/v1/contracts', 'Contracts service unavailable'));
+app.use('/api/v1/ptw', addVersionHeader('v1'), createServiceProxy('PTW', SERVICES.ptw, '/api/v1/ptw', 'PTW service unavailable'));
+app.use('/api/v1/reg-monitor', addVersionHeader('v1'), createServiceProxy('Reg Monitor', SERVICES.regMonitor, '/api/v1/reg-monitor', 'Regulatory Monitor service unavailable'));
+app.use('/api/v1/incidents', addVersionHeader('v1'), createServiceProxy('Incidents', SERVICES.incidents, '/api/v1/incidents', 'Incidents service unavailable'));
+app.use('/api/v1/audits', addVersionHeader('v1'), createServiceProxy('Audits', SERVICES.audits, '/api/v1/audits', 'Audits service unavailable'));
+app.use('/api/v1/mgmt-review', addVersionHeader('v1'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/v1/mgmt-review', 'Management Review service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -402,6 +426,18 @@ app.use('/api/iso42001', deprecatedRoute('/api/v1/iso42001'), createServiceProxy
 app.use('/api/iso37001', deprecatedRoute('/api/v1/iso37001'), createServiceProxy('ISO 37001', SERVICES.iso37001, '/api/iso37001', 'ISO 37001 Anti-Bribery service unavailable'));
 app.use('/api/marketing', deprecatedRoute('/api/v1/marketing'), createServiceProxy('Marketing', SERVICES.marketing, '/api/marketing', 'Marketing service unavailable'));
 app.use('/api/partners', deprecatedRoute('/api/v1/partners'), createServiceProxy('Partners', SERVICES.partners, '/api/partners', 'Partners service unavailable'));
+app.use('/api/risk', deprecatedRoute('/api/v1/risk'), createServiceProxy('Risk', SERVICES.risk, '/api/risk', 'Risk service unavailable'));
+app.use('/api/training', deprecatedRoute('/api/v1/training'), createServiceProxy('Training', SERVICES.training, '/api/training', 'Training service unavailable'));
+app.use('/api/suppliers', deprecatedRoute('/api/v1/suppliers'), createServiceProxy('Suppliers', SERVICES.suppliers, '/api/suppliers', 'Suppliers service unavailable'));
+app.use('/api/assets', deprecatedRoute('/api/v1/assets'), createServiceProxy('Assets', SERVICES.assets, '/api/assets', 'Assets service unavailable'));
+app.use('/api/documents', deprecatedRoute('/api/v1/documents'), createServiceProxy('Documents', SERVICES.documents, '/api/documents', 'Documents service unavailable'));
+app.use('/api/complaints', deprecatedRoute('/api/v1/complaints'), createServiceProxy('Complaints', SERVICES.complaints, '/api/complaints', 'Complaints service unavailable'));
+app.use('/api/contracts', deprecatedRoute('/api/v1/contracts'), createServiceProxy('Contracts', SERVICES.contracts, '/api/contracts', 'Contracts service unavailable'));
+app.use('/api/ptw', deprecatedRoute('/api/v1/ptw'), createServiceProxy('PTW', SERVICES.ptw, '/api/ptw', 'PTW service unavailable'));
+app.use('/api/reg-monitor', deprecatedRoute('/api/v1/reg-monitor'), createServiceProxy('Reg Monitor', SERVICES.regMonitor, '/api/reg-monitor', 'Regulatory Monitor service unavailable'));
+app.use('/api/incidents', deprecatedRoute('/api/v1/incidents'), createServiceProxy('Incidents', SERVICES.incidents, '/api/incidents', 'Incidents service unavailable'));
+app.use('/api/audits', deprecatedRoute('/api/v1/audits'), createServiceProxy('Audits', SERVICES.audits, '/api/audits', 'Audits service unavailable'));
+app.use('/api/mgmt-review', deprecatedRoute('/api/v1/mgmt-review'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/mgmt-review', 'Management Review service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

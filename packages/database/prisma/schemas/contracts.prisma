@@ -1,0 +1,133 @@
+// Contract Management Schema - M7
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/contracts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CONTRACTS_DATABASE_URL")
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  RENEWED
+}
+enum ContractType {
+  SUPPLIER
+  CUSTOMER
+  SERVICE
+  NDA
+  LEASE
+  EMPLOYMENT
+  PARTNERSHIP
+  OTHER
+}
+enum ContractApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum ContractNoticePriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model ContContract {
+  id              String         @id @default(cuid())
+  orgId           String
+  referenceNumber String         @unique
+  title           String
+  description     String?
+  type            ContractType   @default(OTHER)
+  status          ContractStatus @default(DRAFT)
+  counterparty    String?
+  counterpartyContact String?
+  value           Float?
+  currency        String         @default("GBP")
+  startDate       DateTime?
+  endDate         DateTime?
+  renewalDate     DateTime?
+  autoRenew       Boolean        @default(false)
+  noticePeriodDays Int?
+  paymentTerms    String?
+  fileUrl         String?
+  owner           String?
+  ownerName       String?
+  department      String?
+  tags            String[]
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  approvals       ContApproval[]
+  notices         ContNotice[]
+  clauses         ContClause[]
+  @@map("cont_contracts")
+  @@index([orgId])
+  @@index([status])
+}
+
+model ContApproval {
+  id           String                 @id @default(cuid())
+  orgId        String
+  contractId   String
+  approver     String
+  approverName String?
+  status       ContractApprovalStatus @default(PENDING)
+  comments     String?
+  decidedAt    DateTime?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  contract     ContContract           @relation(fields: [contractId], references: [id])
+  @@map("cont_approvals")
+  @@index([contractId])
+}
+
+model ContNotice {
+  id           String                  @id @default(cuid())
+  orgId        String
+  contractId   String
+  title        String
+  description  String?
+  priority     ContractNoticePriority  @default(MEDIUM)
+  dueDate      DateTime
+  acknowledged Boolean                 @default(false)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  contract     ContContract            @relation(fields: [contractId], references: [id])
+  @@map("cont_notices")
+  @@index([contractId])
+}
+
+model ContClause {
+  id           String   @id @default(cuid())
+  orgId        String
+  contractId   String
+  title        String
+  content      String?
+  clauseNumber String?
+  category     String?
+  isKey        Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  contract     ContContract @relation(fields: [contractId], references: [id])
+  @@map("cont_clauses")
+  @@index([contractId])
+}

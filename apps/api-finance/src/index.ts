@@ -36,6 +36,10 @@ import suppliersRouter from './routes/suppliers';
 import purchaseOrdersRouter from './routes/purchase-orders';
 import journalRouter from './routes/journal';
 import budgetsRouter from './routes/budgets';
+import controlsRouter from './routes/controls';
+import sodMatrixRouter from './routes/sod-matrix';
+import hmrcCalendarRouter from './routes/hmrc-calendar';
+import ir35Router from './routes/ir35';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4013;
@@ -74,6 +78,10 @@ app.use('/api/banking', bankingRouter);
 app.use('/api/tax', taxRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/integrations', integrationsRouter);
+app.use('/api/controls', controlsRouter);
+app.use('/api/sod-matrix', sodMatrixRouter);
+app.use('/api/hmrc-calendar', hmrcCalendarRouter);
+app.use('/api/ir35', ir35Router);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

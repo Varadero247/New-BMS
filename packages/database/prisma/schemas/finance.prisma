@@ -760,3 +760,99 @@ model FinSyncLog {
   @@index([integrationId])
   @@index([status])
 }
+
+// ============================================
+// M8: Financial Compliance Models
+// ============================================
+
+enum FinControlStatus { ACTIVE INACTIVE UNDER_REVIEW REMEDIATION }
+enum FinIr35Determination { INSIDE OUTSIDE PENDING }
+
+model FinControl {
+  id              String           @id @default(cuid())
+  orgId           String
+  referenceNumber String           @unique
+  title           String
+  description     String?
+  controlType     String?
+  riskArea        String?
+  owner           String?
+  ownerName       String?
+  status          FinControlStatus @default(ACTIVE)
+  frequency       String?
+  lastTestedDate  DateTime?
+  nextTestDate    DateTime?
+  testResult      String?
+  evidence        String?
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("fin_controls")
+  @@index([orgId])
+  @@index([status])
+}
+
+model FinSodRule {
+  id              String   @id @default(cuid())
+  orgId           String
+  role1           String
+  role2           String
+  conflictType    String?
+  description     String?
+  mitigatingControl String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  deletedAt       DateTime?
+  @@map("fin_sod_rules")
+  @@index([orgId])
+}
+
+model FinHmrcDeadline {
+  id           String    @id @default(cuid())
+  orgId        String
+  title        String
+  description  String?
+  type         String?
+  dueDate      DateTime
+  filingRef    String?
+  status       String    @default("PENDING")
+  submittedDate DateTime?
+  submittedBy  String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdBy    String?
+  deletedAt    DateTime?
+  @@map("fin_hmrc_deadlines")
+  @@index([orgId])
+  @@index([dueDate])
+}
+
+model FinIr35Assessment {
+  id              String              @id @default(cuid())
+  orgId           String
+  referenceNumber String              @unique
+  contractorName  String
+  contractorEmail String?
+  engagementDesc  String?
+  clientName      String?
+  determination   FinIr35Determination @default(PENDING)
+  assessmentDate  DateTime?
+  assessedBy      String?
+  reasoning       String?
+  evidenceUrl     String?
+  reviewDate      DateTime?
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  @@map("fin_ir35_assessments")
+  @@index([orgId])
+}

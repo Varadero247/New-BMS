@@ -114,13 +114,61 @@
     "./marketing": {
       "import": "./generated/marketing/index.js",
       "require": "./generated/marketing/index.js"
+    },
+    "./risk": {
+      "import": "./generated/risk/index.js",
+      "require": "./generated/risk/index.js"
+    },
+    "./training": {
+      "import": "./generated/training/index.js",
+      "require": "./generated/training/index.js"
+    },
+    "./suppliers": {
+      "import": "./generated/suppliers/index.js",
+      "require": "./generated/suppliers/index.js"
+    },
+    "./assets": {
+      "import": "./generated/assets/index.js",
+      "require": "./generated/assets/index.js"
+    },
+    "./documents": {
+      "import": "./generated/documents/index.js",
+      "require": "./generated/documents/index.js"
+    },
+    "./complaints": {
+      "import": "./generated/complaints/index.js",
+      "require": "./generated/complaints/index.js"
+    },
+    "./contracts": {
+      "import": "./generated/contracts/index.js",
+      "require": "./generated/contracts/index.js"
+    },
+    "./ptw": {
+      "import": "./generated/ptw/index.js",
+      "require": "./generated/ptw/index.js"
+    },
+    "./reg-monitor": {
+      "import": "./generated/reg-monitor/index.js",
+      "require": "./generated/reg-monitor/index.js"
+    },
+    "./incidents": {
+      "import": "./generated/incidents/index.js",
+      "require": "./generated/incidents/index.js"
+    },
+    "./audits": {
+      "import": "./generated/audits/index.js",
+      "require": "./generated/audits/index.js"
+    },
+    "./mgmt-review": {
+      "import": "./generated/mgmt-review/index.js",
+      "require": "./generated/mgmt-review/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -179,7 +227,19 @@
     "push:iso42001": "prisma db push --schema=prisma/schemas/iso42001.prisma",
     "push:iso37001": "prisma db push --schema=prisma/schemas/iso37001.prisma",
     "generate:marketing": "prisma generate --schema=prisma/schemas/marketing.prisma",
-    "push:marketing": "prisma db push --schema=prisma/schemas/marketing.prisma"
+    "push:marketing": "prisma db push --schema=prisma/schemas/marketing.prisma",
+    "generate:risk": "prisma generate --schema=prisma/schemas/risk.prisma",
+    "generate:training": "prisma generate --schema=prisma/schemas/training.prisma",
+    "generate:suppliers": "prisma generate --schema=prisma/schemas/suppliers.prisma",
+    "generate:assets": "prisma generate --schema=prisma/schemas/assets.prisma",
+    "generate:documents": "prisma generate --schema=prisma/schemas/documents.prisma",
+    "generate:complaints": "prisma generate --schema=prisma/schemas/complaints.prisma",
+    "generate:contracts": "prisma generate --schema=prisma/schemas/contracts.prisma",
+    "generate:ptw": "prisma generate --schema=prisma/schemas/ptw.prisma",
+    "generate:reg-monitor": "prisma generate --schema=prisma/schemas/reg-monitor.prisma",
+    "generate:incidents": "prisma generate --schema=prisma/schemas/incidents.prisma",
+    "generate:audits": "prisma generate --schema=prisma/schemas/audits.prisma",
+    "generate:mgmt-review": "prisma generate --schema=prisma/schemas/mgmt-review.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",
