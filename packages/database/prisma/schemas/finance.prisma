@@ -765,8 +765,18 @@ model FinSyncLog {
 // M8: Financial Compliance Models
 // ============================================
 
-enum FinControlStatus { ACTIVE INACTIVE UNDER_REVIEW REMEDIATION }
-enum FinIr35Determination { INSIDE OUTSIDE PENDING }
+enum FinControlStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_REVIEW
+  REMEDIATION
+}
+
+enum FinIr35Determination {
+  INSIDE
+  OUTSIDE
+  PENDING
+}
 
 model FinControl {
   id              String           @id @default(cuid())

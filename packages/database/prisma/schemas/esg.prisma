@@ -522,8 +522,6 @@ model EsgMateriality {
 // M9: Extended ESG Reporting Models
 // ============================================
 
-enum EsgReportStatus { DRAFT IN_PROGRESS REVIEW PUBLISHED ARCHIVED }
-
 model EsgDefraFactor {
   id           String   @id @default(cuid())
   orgId        String
@@ -569,29 +567,4 @@ model EsgScopeEmission {
   @@map("esg_scope_emissions")
   @@index([orgId])
   @@index([scope])
-}
-
-model EsgReport {
-  id              String          @id @default(cuid())
-  orgId           String
-  referenceNumber String          @unique
-  title           String
-  framework       String?
-  period          String?
-  status          EsgReportStatus @default(DRAFT)
-  aiGenerated     Boolean         @default(false)
-  content         String?
-  summary         String?
-  publishedDate   DateTime?
-  publishedBy     String?
-  fileUrl         String?
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  createdBy       String?
-  updatedBy       String?
-  deletedAt       DateTime?
-  @@map("esg_reports")
-  @@index([orgId])
-  @@index([status])
 }
