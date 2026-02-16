@@ -2,19 +2,56 @@
  * OfflineCache tests — mock Cache API
  */
 
+// ─── Mock Response class (jsdom does not provide a usable Response constructor) ───
+
+class MockResponse {
+  private _body: string | null;
+  private _bodyUsed = false;
+  status: number;
+  headers: Map<string, string>;
+
+  constructor(body: string | null, init?: { status?: number; headers?: Record<string, string> }) {
+    this._body = body;
+    this.status = init?.status ?? 200;
+    this.headers = new Map(Object.entries(init?.headers ?? {}));
+  }
+
+  clone(): MockResponse {
+    return new MockResponse(this._body, {
+      status: this.status,
+      headers: Object.fromEntries(this.headers),
+    });
+  }
+
+  async json(): Promise<any> {
+    if (this._bodyUsed) throw new Error('Body already consumed');
+    this._bodyUsed = true;
+    return JSON.parse(this._body ?? 'null');
+  }
+
+  async text(): Promise<string> {
+    if (this._bodyUsed) throw new Error('Body already consumed');
+    this._bodyUsed = true;
+    return this._body ?? '';
+  }
+}
+
+// Install MockResponse as global Response before any imports that use it
+(globalThis as any).Response = MockResponse;
+
 import { OfflineCache } from '../src/offline-cache';
 
 // ─── Mock Cache API ───
 
 class MockCache {
-  private store = new Map<string, Response>();
+  private store = new Map<string, any>();
 
-  async match(request: string | Request): Promise<Response | undefined> {
+  async match(request: string | Request): Promise<any | undefined> {
     const key = typeof request === 'string' ? request : request.url;
     return this.store.get(key);
   }
 
-  async put(request: string | Request, response: Response): Promise<void> {
+  async put(request: string | Request, response: any): Promise<void> {
     const key = typeof request === 'string' ? request : request.url;
     this.store.set(key, response);
   }
@@ -60,13 +97,10 @@ const mockCaches = {
 
 (globalThis as any).caches = mockCaches;
 
-// Ensure Response.clone and Response.json work in Node/Jest
-const OriginalResponse = globalThis.Response;
-
 // ─── Helpers ───
 
-function makeResponse(data: any): Response {
-  return new OriginalResponse(JSON.stringify(data), {
+function makeResponse(data: any): any {
+  return new MockResponse(JSON.stringify(data), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
@@ -204,7 +238,7 @@ describe('OfflineCache', () => {
   });
 
   test('cacheResponse handles null-body responses', async () => {
-    const response = new OriginalResponse(null, { status: 204 });
+    const response = new MockResponse(null, { status: 204 }) as any;
     await cache.cacheResponse('https://app.example.com/api/empty', response);
 
     const cached = await cache.getCachedResponse('https://app.example.com/api/empty');

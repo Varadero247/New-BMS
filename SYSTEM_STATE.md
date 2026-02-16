@@ -7,17 +7,17 @@
 | Category | Count |
 |----------|-------|
 | API Services | 42 (+ 1 main API) |
-| Web Applications | 45 |
-| Shared Packages | 59 |
-| Prisma Schemas | 43 |
-| Database Tables (models) | 585 |
+| Web Applications | 44 |
+| Shared Packages | 60 |
+| Prisma Schemas | 44 |
+| Database Tables (models) | ~590 |
 | Scripts | 20 |
-| Unit Tests | ~11,977 across 563 suites |
+| Unit Tests | 11,808 across 556 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
 
-## API Services (41 + 1)
+## API Services (42 + 1)
 
 | Service | Directory | Port | Standard/Domain | Prisma Schema |
 |---------|-----------|------|-----------------|---------------|
@@ -67,7 +67,7 @@
 
 ---
 
-## Web Applications (45)
+## Web Applications (44)
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
@@ -118,7 +118,7 @@
 
 ---
 
-## Shared Packages (59)
+## Shared Packages (60)
 
 | Package | Directory | Description |
 |---------|-----------|-------------|
@@ -145,7 +145,7 @@
 | `@ims/file-upload` | `packages/file-upload/` | Multi-format file handling |
 | `@ims/finance-calculations` | `packages/finance-calculations/` | Financial calculation engine |
 | `@ims/hubspot-client` | `packages/hubspot-client/` | HubSpot CRM integration |
-| `@ims/i18n` | `packages/i18n/` | Internationalisation |
+| `@ims/i18n` | `packages/i18n/` | Internationalisation (4 locales, 9 namespaces, locale switcher) |
 | `@ims/intercom-client` | `packages/intercom-client/` | Intercom integration |
 | `@ims/iso-checklists` | `packages/iso-checklists/` | ISO audit checklist engine |
 | `@ims/monitoring` | `packages/monitoring/` | Winston logging, Prometheus metrics, health checks |
@@ -159,7 +159,7 @@
 | `@ims/plan-guard` | `packages/plan-guard/` | Subscription plan enforcement |
 | `@ims/portal-auth` | `packages/portal-auth/` | Portal authentication (customer/supplier) |
 | `@ims/presence` | `packages/presence/` | User presence/online status |
-| `@ims/pwa` | `packages/pwa/` | Progressive Web App (service worker, offline sync) |
+| `@ims/pwa` | `packages/pwa/` | PWA (offline sync, push notifications, camera, geolocation, install) |
 | `@ims/rbac` | `packages/rbac/` | Role-based access control (39 roles, 17 modules) |
 | `@ims/readiness` | `packages/readiness/` | Service readiness checks |
 | `@ims/regulatory-feed` | `packages/regulatory-feed/` | Live regulatory change feed |
@@ -177,6 +177,7 @@
 | `@ims/tax-engine` | `packages/tax-engine/` | Multi-jurisdiction tax calculation |
 | `@ims/templates` | `packages/templates/` | 192 built-in document/report templates |
 | `@ims/testing` | `packages/testing/` | Shared test utilities |
+| `@ims/theming` | `packages/theming/` | White-label theming (CSS var overrides, MSP branding) |
 | `@ims/types` | `packages/types/` | Shared TypeScript types |
 | `@ims/ui` | `packages/ui/` | React component library |
 | `@ims/validation` | `packages/validation/` | Zod validation schemas |
@@ -184,7 +185,7 @@
 
 ---
 
-## Prisma Schemas (43)
+## Prisma Schemas (44)
 
 | Schema | File | Models | Domain |
 |--------|------|--------|--------|
@@ -231,7 +232,8 @@
 | Partner Portal | `partner-portal.prisma` | 4 | Support tickets, messages, collateral, referrals |
 | Chemicals | `chemicals.prisma` | 10 | Chemical register, SDS, COSHH, inventory, monitoring, disposal, incidents |
 | Emergency | `emergency.prisma` | 16 | Premises, FRA, incidents, BCP, wardens, PEEP, equipment, drills |
-| **Total** | | **585 models** | |
+| Marketplace | `marketplace.prisma` | 4 | Plugins, versions, installs, webhook subscriptions |
+| **Total** | | **589 models** | |
 
 ---
 
@@ -252,6 +254,7 @@
 | `/api/access-log/*` | Access audit log |
 | `/api/csrf-token` | CSRF token |
 | `/api/v1/templates/*` | Template library (192 templates) |
+| `/api/marketplace/*` | Plugin marketplace (10 endpoints) |
 
 ### Proxy Routes (v1 + legacy)
 | Route Pattern | Target Service | Port |
@@ -307,9 +310,9 @@ All routes also available under `/api/v1/` prefix.
 | Script | Description |
 |--------|-------------|
 | `scripts/startup.sh` | Full startup (kill ports, Docker up, seed DB, recreate tables) |
-| `scripts/start-all-services.sh` | Start all 56 services with staggered delays |
-| `scripts/stop-all-services.sh` | Stop all services (ports 4000-4026 + 3000-3030) |
-| `scripts/check-services.sh` | Health check all 56 services |
+| `scripts/start-all-services.sh` | Start all 86 services with staggered delays |
+| `scripts/stop-all-services.sh` | Stop all services (ports 4000-4041 + 3000-3045) |
+| `scripts/check-services.sh` | Health check all 86 services |
 | `scripts/create-databases.sh` | Create per-service databases |
 | `scripts/migrate-data.sh` | Migrate data between databases |
 | `scripts/daily-report.sh` | Generate daily status report |
@@ -377,8 +380,8 @@ All routes also available under `/api/v1/` prefix.
 | api-suppliers | 8 | ~130 |
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
-| **Shared packages** | — | ~948 |
-| **Total** | **563** | **~11,977** |
+| **Shared packages** | — | ~1,109 |
+| **Total** | **556** | **11,808** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 

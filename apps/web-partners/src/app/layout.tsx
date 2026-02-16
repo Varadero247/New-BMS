@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeSwitch } from '@ims/ui';
+import { ThemingProvider } from '@ims/theming';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
 const syne = Syne({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700', '800'] });
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased min-h-screen`}>
-        {children}
+        <ThemingProvider apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}>{children}</ThemingProvider>
         <ThemeSwitch />
       </body>
     </html>

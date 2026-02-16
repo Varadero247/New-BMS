@@ -32,10 +32,10 @@ VAULT_TOKEN=<token>           # For HashiCorp Vault secrets management
 
 ### 2. Verify Docker Compose
 
-Ensure `docker-compose.yml` has all 54 services:
+Ensure `docker-compose.yml` has all services:
 - **Infrastructure**: `postgres`, `redis`
-- **APIs** (25): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`, `api-automotive`, `api-medical`, `api-aerospace`, `api-finance`, `api-crm`, `api-infosec`, `api-esg`, `api-cmms`, `api-portal`, `api-food-safety`, `api-energy`, `api-analytics`, `api-field-service`, `api-iso42001`, `api-iso37001`
-- **Web Apps** (26): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`, `web-automotive`, `web-medical`, `web-aerospace`, `web-finance`, `web-crm`, `web-infosec`, `web-esg`, `web-cmms`, `web-customer-portal`, `web-supplier-portal`, `web-food-safety`, `web-energy`, `web-analytics`, `web-field-service`, `web-iso42001`, `web-iso37001`
+- **APIs** (42): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`, `api-automotive`, `api-medical`, `api-aerospace`, `api-finance`, `api-crm`, `api-infosec`, `api-esg`, `api-cmms`, `api-portal`, `api-food-safety`, `api-energy`, `api-analytics`, `api-field-service`, `api-iso42001`, `api-iso37001`, `api-marketing`, `api-partners`, `api-risk`, `api-training`, `api-suppliers`, `api-assets`, `api-documents`, `api-complaints`, `api-contracts`, `api-ptw`, `api-reg-monitor`, `api-incidents`, `api-audits`, `api-mgmt-review`, `api-setup-wizard`, `api-chemicals`, `api-emergency`
+- **Web Apps** (44): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`, `web-automotive`, `web-medical`, `web-aerospace`, `web-finance`, `web-crm`, `web-infosec`, `web-esg`, `web-cmms`, `web-customer-portal`, `web-supplier-portal`, `web-food-safety`, `web-energy`, `web-analytics`, `web-field-service`, `web-iso42001`, `web-iso37001`, `web-partners`, `web-admin`, `web-marketing`, `web-risk`, `web-training`, `web-suppliers`, `web-assets`, `web-documents`, `web-complaints`, `web-contracts`, `web-finance-compliance`, `web-ptw`, `web-reg-monitor`, `web-incidents`, `web-audits`, `web-mgmt-review`, `web-chemicals`, `web-emergency`
 
 ---
 
@@ -134,6 +134,63 @@ npx prisma db push --schema=prisma/schemas/iso42001.prisma
 
 # ISO 37001 schema
 npx prisma db push --schema=prisma/schemas/iso37001.prisma
+
+# Marketing schema
+npx prisma db push --schema=prisma/schemas/marketing.prisma
+
+# Risk schema
+npx prisma db push --schema=prisma/schemas/risk.prisma
+
+# Training schema
+npx prisma db push --schema=prisma/schemas/training.prisma
+
+# Suppliers schema
+npx prisma db push --schema=prisma/schemas/suppliers.prisma
+
+# Assets schema
+npx prisma db push --schema=prisma/schemas/assets.prisma
+
+# Documents schema
+npx prisma db push --schema=prisma/schemas/documents.prisma
+
+# Complaints schema
+npx prisma db push --schema=prisma/schemas/complaints.prisma
+
+# Contracts schema
+npx prisma db push --schema=prisma/schemas/contracts.prisma
+
+# PTW schema
+npx prisma db push --schema=prisma/schemas/ptw.prisma
+
+# Reg Monitor schema
+npx prisma db push --schema=prisma/schemas/reg-monitor.prisma
+
+# Incidents schema
+npx prisma db push --schema=prisma/schemas/incidents.prisma
+
+# Audits schema
+npx prisma db push --schema=prisma/schemas/audits.prisma
+
+# Mgmt Review schema
+npx prisma db push --schema=prisma/schemas/mgmt-review.prisma
+
+# Platform schema
+npx prisma db push --schema=prisma/schemas/platform.prisma
+
+# Wizard schema
+npx prisma db push --schema=prisma/schemas/wizard.prisma
+
+# Partner Portal schema
+npx prisma db push --schema=prisma/schemas/partner-portal.prisma
+
+# Chemicals schema
+npx prisma db push --schema=prisma/schemas/chemicals.prisma
+
+# Emergency schema
+npx prisma db push --schema=prisma/schemas/emergency.prisma
+
+# Marketplace schema
+npx prisma db push --schema=prisma/schemas/marketplace.prisma
 ```
 
 ### Step 3: Generate Prisma Clients
@@ -163,6 +220,25 @@ npx prisma generate --schema=prisma/schemas/analytics.prisma
 npx prisma generate --schema=prisma/schemas/field-service.prisma
 npx prisma generate --schema=prisma/schemas/iso42001.prisma
 npx prisma generate --schema=prisma/schemas/iso37001.prisma
+npx prisma generate --schema=prisma/schemas/marketing.prisma
+npx prisma generate --schema=prisma/schemas/risk.prisma
+npx prisma generate --schema=prisma/schemas/training.prisma
+npx prisma generate --schema=prisma/schemas/suppliers.prisma
+npx prisma generate --schema=prisma/schemas/assets.prisma
+npx prisma generate --schema=prisma/schemas/documents.prisma
+npx prisma generate --schema=prisma/schemas/complaints.prisma
+npx prisma generate --schema=prisma/schemas/contracts.prisma
+npx prisma generate --schema=prisma/schemas/ptw.prisma
+npx prisma generate --schema=prisma/schemas/reg-monitor.prisma
+npx prisma generate --schema=prisma/schemas/incidents.prisma
+npx prisma generate --schema=prisma/schemas/audits.prisma
+npx prisma generate --schema=prisma/schemas/mgmt-review.prisma
+npx prisma generate --schema=prisma/schemas/platform.prisma
+npx prisma generate --schema=prisma/schemas/wizard.prisma
+npx prisma generate --schema=prisma/schemas/partner-portal.prisma
+npx prisma generate --schema=prisma/schemas/chemicals.prisma
+npx prisma generate --schema=prisma/schemas/emergency.prisma
+npx prisma generate --schema=prisma/schemas/marketplace.prisma
 ```
 
 ### Step 4: Seed Database (First Deploy Only)
@@ -196,7 +272,7 @@ docker compose up -d
 docker compose ps
 
 # Check health endpoints
-for port in $(seq 4000 4024); do
+for port in $(seq 4000 4041); do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health)
   echo "Port $port: $CODE"
 done
@@ -300,7 +376,7 @@ curl -s -I http://localhost:4000/api/health-safety/incidents \
 
 ### Web App Verification
 ```bash
-for port in $(seq 3000 3025); do
+for port in $(seq 3000 3045); do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port)
   echo "Web port $port: $CODE"
 done
@@ -405,7 +481,7 @@ export DOCKER_API_VERSION=1.41
 # 1. Kill conflicting ports
 sudo systemctl stop postgresql 2>/dev/null || true
 sudo systemctl stop redis 2>/dev/null || true
-for port in 5432 6379 $(seq 4000 4024) $(seq 3000 3025); do
+for port in 5432 6379 $(seq 4000 4041) $(seq 3000 3045); do
   sudo fuser -k ${port}/tcp 2>/dev/null || true
 done
 sleep 3
@@ -473,6 +549,23 @@ export DOCKER_API_VERSION=1.41
 | API Field Service | 4022 | 4022 |
 | API ISO 42001 | 4023 | 4023 |
 | API ISO 37001 | 4024 | 4024 |
+| API Marketing | 4025 | 4025 |
+| API Partners | 4026 | 4026 |
+| API Risk (ERM) | 4027 | 4027 |
+| API Training | 4028 | 4028 |
+| API Suppliers | 4029 | 4029 |
+| API Assets | 4030 | 4030 |
+| API Documents | 4031 | 4031 |
+| API Complaints | 4032 | 4032 |
+| API Contracts | 4033 | 4033 |
+| API Permit to Work | 4034 | 4034 |
+| API Regulatory Monitor | 4035 | 4035 |
+| API Incidents | 4036 | 4036 |
+| API Audits | 4037 | 4037 |
+| API Mgmt Review | 4038 | 4038 |
+| API Setup Wizard | 4039 | 4039 |
+| API Chemicals | 4040 | 4040 |
+| API Emergency | 4041 | 4041 |
 | **Web Apps** | | |
 | Web Dashboard | 3000 | 3000 |
 | Web Health & Safety | 3001 | 3001 |
@@ -500,6 +593,24 @@ export DOCKER_API_VERSION=1.41
 | Web Field Service | 3023 | 3023 |
 | Web ISO 42001 | 3024 | 3024 |
 | Web ISO 37001 | 3025 | 3025 |
+| Web Partners Portal | 3026 | 3026 |
+| Web Admin Dashboard | 3027 | 3027 |
+| Web Marketing | 3030 | 3030 |
+| Web Risk (ERM) | 3031 | 3031 |
+| Web Training | 3032 | 3032 |
+| Web Suppliers | 3033 | 3033 |
+| Web Assets | 3034 | 3034 |
+| Web Documents | 3035 | 3035 |
+| Web Complaints | 3036 | 3036 |
+| Web Contracts | 3037 | 3037 |
+| Web Fin. Compliance | 3038 | 3038 |
+| Web Permit to Work | 3039 | 3039 |
+| Web Reg Monitor | 3040 | 3040 |
+| Web Incidents | 3041 | 3041 |
+| Web Audits | 3042 | 3042 |
+| Web Mgmt Review | 3043 | 3043 |
+| Web Chemicals | 3044 | 3044 |
+| Web Emergency | 3045 | 3045 |
 
 ---
 

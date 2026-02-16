@@ -473,14 +473,14 @@ router.get('/data-map', async (_req: AuthRequest, res: Response) => {
     });
 
     const policyMap = new Map(
-      policies.map((p) => [`${p.module}:${p.dataCategory}`, p])
+      policies.map((p: any) => [`${p.module}:${p.dataCategory}`, p])
     );
 
     const enrichedMap = DATA_MAP.map((entry) => ({
       ...entry,
       retentionPolicies: policies
-        .filter((p) => p.module === entry.module)
-        .map((p) => ({
+        .filter((p: any) => p.module === entry.module)
+        .map((p: any) => ({
           dataCategory: p.dataCategory,
           retentionDays: p.retentionDays,
           action: p.action,

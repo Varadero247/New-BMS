@@ -47,6 +47,7 @@ import openapiRouter from './routes/openapi';
 import scheduledReportsRouter from './routes/scheduled-reports';
 import dsarRouter from './routes/dsar';
 import dpaRouter from './routes/dpa';
+import marketplaceRouter from './routes/marketplace';
 import { errorHandler } from './middleware/error-handler';
 import { apiKeyAuth } from './middleware/apiKeyAuth';
 import { notFoundHandler } from './middleware/not-found';
@@ -320,6 +321,8 @@ app.use('/api/admin/privacy/dsar', dsarRouter);
 app.use('/api/v1/admin/privacy/dsar', addVersionHeader('v1'), dsarRouter);
 app.use('/api/admin/dpa', dpaRouter);
 app.use('/api/v1/admin/dpa', addVersionHeader('v1'), dpaRouter);
+app.use('/api/marketplace', marketplaceRouter);
+app.use('/api/v1/marketplace', addVersionHeader('v1'), marketplaceRouter);
 
 // ============================================
 // API v1 Proxy Routes (current version)
@@ -407,6 +410,7 @@ app.use('/api/v1/audits', addVersionHeader('v1'), createServiceProxy('Audits', S
 app.use('/api/v1/mgmt-review', addVersionHeader('v1'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/v1/mgmt-review', 'Management Review service unavailable'));
 app.use('/api/v1/wizard', addVersionHeader('v1'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/v1/wizard', 'Setup Wizard service unavailable'));
 app.use('/api/v1/chemicals', addVersionHeader('v1'), createServiceProxy('Chemicals', SERVICES.chemicals, '/api/v1/chemicals', 'Chemical Management service unavailable'));
+app.use('/api/v1/emergency', addVersionHeader('v1'), createServiceProxy('Emergency', SERVICES.emergency, '/api/v1/emergency', 'Fire, Emergency & Disaster Management service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)

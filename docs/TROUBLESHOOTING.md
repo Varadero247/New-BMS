@@ -103,7 +103,7 @@ npx prisma@5.22.0 migrate diff \
   --from-empty \
   --to-schema-datamodel=packages/database/prisma/schemas/<domain>.prisma \
   --script | \
-  PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
+  PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
 ---
@@ -292,7 +292,7 @@ Each Prisma domain schema references a named env var, not the generic `DATABASE_
 Add to both root `.env` and service `.env`:
 
 ```bash
-INVENTORY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public"
+INVENTORY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public"
 ```
 
 Common service-specific env vars:
@@ -517,7 +517,7 @@ npm uninstall -g prisma
 ss -tlnp | grep -E ':(3[0-9]{3}|4[0-9]{3})\b'
 
 # Check database connectivity
-PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d ims -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';"
+PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -d ims -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';"
 
 # Check Redis connectivity
 DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli PING

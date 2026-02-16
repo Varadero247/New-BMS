@@ -3,7 +3,7 @@
 ## Start All Services (Docker)
 ```bash
 cd /home/dyl/New-BMS
-docker compose up -d                    # Start all 54 services
+docker compose up -d                    # Start all containers
 docker compose logs -f web-health-safety  # Follow specific service logs
 docker compose down                     # Stop all services
 ```
@@ -37,7 +37,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 
 ## Service Ports
 
-### API Services (ports 4000-4040)
+### API Services (ports 4000-4041)
 | Service | Port | Standard/Domain |
 |---------|------|-----------------|
 | Gateway | 4000 | Auth, routing, templates, RBAC |
@@ -79,9 +79,11 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Incidents | 4036 | Incident management |
 | Audits | 4037 | Audit programme |
 | Mgmt Review | 4038 | Management review |
+| Setup Wizard | 4039 | Guided setup wizard |
 | Chemical Management | 4040 | COSHH / chemical safety |
+| Emergency | 4041 | ISO 22320 / ISO 22301 |
 
-### Web Applications (ports 3000-3044)
+### Web Applications (ports 3000-3045)
 | Application | Port | Domain |
 |-------------|------|--------|
 | Dashboard | 3000 | Main dashboard, ROI calculator |
@@ -127,6 +129,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Audits | 3042 | Audit programme |
 | Mgmt Review | 3043 | Management review |
 | Chemical Management | 3044 | Chemical safety management |
+| Emergency | 3045 | Fire, emergency & disaster management |
 
 ## H&S API Endpoints (via Gateway)
 ```bash
@@ -255,7 +258,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (~11,761 across 553 suites)
+pnpm test                                # All Jest tests (~11,808 across 556 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -266,7 +269,7 @@ pnpm test                                # All Jest tests (~11,761 across 553 su
 ./scripts/test-workflows-modules.sh      # Workflows integration tests (~40)
 ./scripts/test-pm-modules.sh             # PM integration tests (~45)
 ./scripts/test-finance-modules.sh        # Finance integration tests (~40)
-./scripts/check-services.sh              # Service health checks (52 services)
+./scripts/check-services.sh              # Service health checks (86 services)
 ```
 
 ## Database
@@ -286,17 +289,19 @@ npx prisma generate --schema=prisma/schemas/<domain>.prisma
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
-## Current Status (Feb 13, 2026)
-- 54 Docker containers (25 APIs + 26 web apps + PostgreSQL + Redis + main API)
-- **All 25 modules fully implemented** across Phases 0-11:
-  - **Core 10**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
+## Current Status (Feb 16, 2026)
+- 42 API services + 44 web apps + PostgreSQL + Redis + main API
+- **All 42 modules fully implemented** across Phases 0-13:
+  - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
   - **Phase 2-11**: Finance, CRM, InfoSec, ESG, CMMS, Portals (Customer + Supplier), Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001
-  - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline
+  - **Phase 12**: Marketing, Partners, Admin Dashboard, Setup Wizard
+  - **Phase 13**: Risk (ERM), Training, Suppliers, Assets, Documents, Complaints, Contracts, PTW, Reg Monitor, Incidents, Audits, Mgmt Review, Chemicals, Emergency
+  - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
-- 25 Prisma schemas, 373 database models
-- 59 shared packages
-- Tests: ~11,761 Jest tests (553 suites) + 9 integration test scripts (~465+ assertions) -- all passing
+- 44 Prisma schemas, ~589 database models
+- 60 shared packages
+- Tests: ~11,808 Jest tests (556 suites) + 9 integration test scripts (~465+ assertions) -- all passing
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
-- Login pages built for all 26 web apps
+- Login pages built for all 44 web apps
 - 192 built-in templates across 34 modules

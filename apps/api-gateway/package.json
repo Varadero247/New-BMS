@@ -46,7 +46,17 @@
     "@ims/openapi": "workspace:*",
     "@ims/scheduled-reports": "workspace:*",
     "@ims/dsar": "workspace:*",
-    "@ims/dpa": "workspace:*"
+    "@ims/dpa": "workspace:*",
+    "@ims/automation-rules": "workspace:*",
+    "@ims/changelog": "workspace:*",
+    "@ims/comments": "workspace:*",
+    "@ims/feature-flags": "workspace:*",
+    "@ims/nps": "workspace:*",
+    "@ims/presence": "workspace:*",
+    "@ims/readiness": "workspace:*",
+    "@ims/status": "workspace:*",
+    "@ims/tasks": "workspace:*",
+    "@ims/webhooks": "workspace:*"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

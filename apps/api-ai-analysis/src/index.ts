@@ -32,6 +32,8 @@ import analyseRouter from './routes/analyse';
 import analysesRouter from './routes/analyses';
 import settingsRouter from './routes/settings';
 import analyzeRouter from './routes/analyze';
+import documentsRouter from './routes/documents';
+import complianceRouter from './routes/compliance';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4004;
@@ -64,6 +66,8 @@ app.use('/api/analyse', analyseRouter);
 app.use('/api/analyses', analysesRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/analyze', analyzeRouter);
+app.use('/api/documents', documentsRouter);
+app.use('/api/compliance', complianceRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

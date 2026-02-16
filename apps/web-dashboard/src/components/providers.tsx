@@ -2,7 +2,10 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RBACProvider } from '@ims/rbac/react';
+import { ThemingProvider } from '@ims/theming';
 import { useState } from 'react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,9 +22,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RBACProvider>
-        {children}
-      </RBACProvider>
+      <ThemingProvider apiUrl={API_URL}>
+        <RBACProvider>
+          {children}
+        </RBACProvider>
+      </ThemingProvider>
     </QueryClientProvider>
   );
 }

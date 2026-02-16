@@ -72,6 +72,8 @@ start_service "@ims/api-incidents" "api-incidents" "Incidents API"
 start_service "@ims/api-audits" "api-audits" "Audits API"
 start_service "@ims/api-mgmt-review" "api-mgmt-review" "Management Review API"
 start_service "@ims/api-setup-wizard" "api-setup-wizard" "Setup Wizard API"
+start_service "@ims/api-chemicals" "api-chemicals" "Chemicals API"
+start_service "@ims/api-emergency" "api-emergency" "Emergency API"
 
 sleep 3  # Give APIs time to start
 
@@ -159,6 +161,12 @@ sleep 2
 start_service "@ims/web-audits" "web-audits" "Audits Web"
 sleep 2
 start_service "@ims/web-mgmt-review" "web-mgmt-review" "Management Review Web"
+sleep 2
+start_service "@ims/web-chemicals" "web-chemicals" "Chemicals Web"
+sleep 2
+start_service "@ims/web-emergency" "web-emergency" "Emergency Web"
+sleep 2
+start_service "@ims/web-marketing" "web-marketing" "Marketing Web"
 
 echo ""
 echo "All services starting..."

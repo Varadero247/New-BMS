@@ -1,6 +1,6 @@
 # IMS API Reference
 
-> **Note:** This reference covers all 25 API services. See SYSTEM_STATE.md for the complete inventory.
+> **Note:** This reference covers all 42 API services. See SYSTEM_STATE.md for the complete inventory.
 
 ## Base URL
 
@@ -2148,3 +2148,113 @@ curl -s -I http://localhost:4000/api/health-safety/incidents \
   -H "Origin: http://localhost:3001" | grep "Access-Control-Allow-Origin"
 # Expected: Access-Control-Allow-Origin: http://localhost:3001
 ```
+
+## New AI Endpoints (via gateway → api-ai-analysis:4004)
+
+### Document Analysis
+```http
+POST /api/ai/documents/analyze
+Content-Type: application/json
+
+{
+  "content": "string (up to 50,000 chars)",
+  "analysisType": "SUMMARIZE | EXTRACT_KEY_TERMS | CLASSIFY | FULL_ANALYSIS"
+}
+```
+Returns summary, key terms, classification, ISO standard relevance, and recommendations.
+
+### Compliance Gap Analysis
+```http
+POST /api/ai/compliance/gap-analysis
+Content-Type: application/json
+
+{
+  "standards": ["ISO 9001", "ISO 14001", "ISO 45001"],
+  "currentEvidence": [
+    { "clause": "4.1", "evidence": "Context analysis document exists", "status": "COMPLIANT" }
+  ],
+  "organisationContext": "Manufacturing company, 200 employees"
+}
+```
+Returns per-standard scores, gaps with severity/recommendations, cross-standard synergies, and prioritized actions.
+
+### Predictive Risk Scoring
+```http
+POST /api/ai/compliance/predictive-risk
+Content-Type: application/json
+
+{
+  "historicalIncidents": [
+    { "type": "Near miss", "severity": "MINOR", "date": "2025-12-01", "department": "Production", "rootCause": "Inadequate training" }
+  ],
+  "currentRisks": [{ "title": "Chemical exposure", "category": "HEALTH", "currentScore": 15 }],
+  "timeframeMonths": 6
+}
+```
+Returns predicted risks with probability/trend, seasonal patterns, and recommendations.
+
+### Semantic Search
+```http
+POST /api/ai/compliance/search
+Content-Type: application/json
+
+{
+  "query": "show me all overdue CAPA items related to chemical handling",
+  "modules": ["quality", "chemicals"],
+  "limit": 10
+}
+```
+Returns interpreted search terms, relevant modules with endpoints, suggested filters, and related ISO clauses.
+
+## Marketplace Plugin API (gateway local routes)
+
+### List Plugins
+```http
+GET /api/marketplace/plugins?category=INTEGRATION&search=slack&page=1&limit=20
+```
+
+### Register Plugin (admin only)
+```http
+POST /api/marketplace/plugins
+Content-Type: application/json
+
+{
+  "name": "Slack Integration",
+  "slug": "slack-integration",
+  "description": "Send IMS notifications to Slack channels",
+  "author": "IMS Team",
+  "category": "COMMUNICATION",
+  "permissions": ["notifications.read"],
+  "webhookEvents": ["ncr.created", "audit.complete"]
+}
+```
+
+### Install / Uninstall
+```http
+POST /api/marketplace/plugins/:id/install
+DELETE /api/marketplace/plugins/:id/install
+```
+
+### Publish Version
+```http
+POST /api/marketplace/plugins/:id/versions
+Content-Type: application/json
+
+{
+  "version": "1.0.0",
+  "changelog": "Initial release",
+  "manifest": { "name": "slack-integration", "entry": "index.js" }
+}
+```
+
+### Register Webhook
+```http
+POST /api/marketplace/plugins/:id/webhooks
+Content-Type: application/json
+
+{
+  "event": "ncr.created",
+  "targetUrl": "https://hooks.slack.com/..."
+}
+```
+Returns subscription with HMAC secret for payload verification.

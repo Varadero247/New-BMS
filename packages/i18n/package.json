@@ -7,6 +7,11 @@
   "exports": {
     ".": "./src/index.ts",
     "./messages/*": "./messages/*",
-    "./provider": "./src/provider.tsx"
+    "./provider": "./src/provider.tsx",
+    "./locale-switcher": "./src/locale-switcher.tsx",
+    "./use-t": "./src/use-t.ts"
+  },
+  "devDependencies": {
+    "jest-environment-jsdom": "^30.2.0"
   }
 }

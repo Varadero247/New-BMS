@@ -1,6 +1,6 @@
 /**
  * Fire, Emergency & Disaster Management — Seed Data
- * Run: EMERGENCY_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" npx tsx packages/database/prisma/seed-emergency.ts
+ * Run: EMERGENCY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" npx tsx packages/database/prisma/seed-emergency.ts
  */
 
 import { PrismaClient } from '../generated/emergency';

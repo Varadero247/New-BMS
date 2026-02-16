@@ -855,7 +855,100 @@ Derive comprehensive design inputs. Respond with ONLY valid JSON:
 }`;
     }
 
-    if (data.type === 'AUTOMOTIVE_APQP_RISK_ASSESSMENT') {
+    if (data.type === 'AEROSPACE_COUNTERFEIT_RISK_ASSESSMENT') {
+      prompt = `You are an AS9100D / SAE AS6174 counterfeit parts prevention expert specializing in aerospace supply chain integrity.
+
+Assess the counterfeit risk for the following component/supplier:
+
+Part Number: ${data.context.partNumber || 'Not specified'}
+Part Description: ${data.context.partDescription || 'Not specified'}
+Manufacturer: ${data.context.manufacturer || 'Not specified'}
+Supplier: ${data.context.supplier || 'Not specified'}
+Procurement Source: ${data.context.procurementSource || 'Not specified'}
+Criticality Level: ${data.context.criticalityLevel || 'Not specified'}
+Historical Issues: ${data.context.historicalIssues || 'None'}
+Test/Inspection Results: ${JSON.stringify(data.context.testResults || [])}
+
+Provide a comprehensive counterfeit risk assessment. Respond with ONLY valid JSON:
+{
+  "overallRiskLevel": "LOW|MEDIUM|HIGH|CRITICAL",
+  "overallRiskScore": <0-100>,
+  "riskFactors": [
+    {
+      "factor": "...",
+      "riskLevel": "LOW|MEDIUM|HIGH|CRITICAL",
+      "score": <0-100>,
+      "evidence": "...",
+      "mitigation": "..."
+    }
+  ],
+  "supplyChainVulnerabilities": [
+    {
+      "vulnerability": "...",
+      "likelihood": "LOW|MEDIUM|HIGH",
+      "impact": "...",
+      "recommendation": "..."
+    }
+  ],
+  "recommendedActions": [
+    {
+      "action": "...",
+      "priority": "IMMEDIATE|HIGH|MEDIUM|LOW",
+      "standard": "...",
+      "estimatedCost": "..."
+    }
+  ],
+  "testingRecommendations": ["..."],
+  "documentationRequirements": ["..."],
+  "applicableStandards": ["SAE AS6174", "SAE AS6081", "SAE AS6171", "..."]
+}`;
+    } else if (data.type === 'AEROSPACE_AIRWORTHINESS_DIRECTIVE_IMPACT') {
+      prompt = `You are an EASA/FAA airworthiness directive compliance expert specializing in aerospace regulatory compliance.
+
+Assess the impact of the following airworthiness directive:
+
+AD Number: ${data.context.adNumber || 'Not specified'}
+AD Title: ${data.context.adTitle || 'Not specified'}
+Issuing Authority: ${data.context.issuingAuthority || 'EASA'}
+Affected Aircraft/Component: ${data.context.affectedComponent || 'Not specified'}
+Effective Date: ${data.context.effectiveDate || 'Not specified'}
+Compliance Deadline: ${data.context.complianceDeadline || 'Not specified'}
+Current Fleet Status: ${JSON.stringify(data.context.fleetStatus || {})}
+Existing Maintenance Program: ${data.context.maintenanceProgram || 'Not specified'}
+
+Provide a comprehensive AD impact assessment. Respond with ONLY valid JSON:
+{
+  "impactLevel": "MINIMAL|MODERATE|SIGNIFICANT|CRITICAL",
+  "complianceUrgency": "IMMEDIATE|WITHIN_30_DAYS|WITHIN_90_DAYS|SCHEDULED",
+  "affectedSystems": [
+    {
+      "system": "...",
+      "ataChapter": "...",
+      "impactDescription": "...",
+      "complianceAction": "..."
+    }
+  ],
+  "compliancePlan": [
+    {
+      "step": <number>,
+      "action": "...",
+      "responsible": "...",
+      "estimatedHours": <number>,
+      "partsRequired": ["..."],
+      "deadline": "..."
+    }
+  ],
+  "costEstimate": {
+    "laborHours": <number>,
+    "partsEstimate": "...",
+    "downtime": "...",
+    "totalEstimate": "..."
+  },
+  "riskIfNonCompliant": ["..."],
+  "relatedADs": ["..."],
+  "documentationRequired": ["..."]
+}`;
+    } else if (data.type === 'AUTOMOTIVE_APQP_RISK_ASSESSMENT') {
       prompt = `You are an IATF 16949 / AIAG APQP (Advanced Product Quality Planning) expert specializing in automotive quality management.
 
 Assess the APQP risks for the following product program:

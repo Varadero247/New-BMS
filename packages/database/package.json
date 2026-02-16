@@ -12,183 +12,231 @@
       "types": "./dist/index.d.ts"
     },
     "./core": {
+      "types": "./generated/core/index.d.ts",
       "import": "./generated/core/index.js",
       "require": "./generated/core/index.js"
     },
     "./hr": {
+      "types": "./generated/hr/index.d.ts",
       "import": "./generated/hr/index.js",
       "require": "./generated/hr/index.js"
     },
     "./payroll": {
+      "types": "./generated/payroll/index.d.ts",
       "import": "./generated/payroll/index.js",
       "require": "./generated/payroll/index.js"
     },
     "./quality": {
+      "types": "./generated/quality/index.d.ts",
       "import": "./generated/quality/index.js",
       "require": "./generated/quality/index.js"
     },
     "./health-safety": {
+      "types": "./generated/health-safety/index.d.ts",
       "import": "./generated/health-safety/index.js",
       "require": "./generated/health-safety/index.js"
     },
     "./environment": {
+      "types": "./generated/environment/index.d.ts",
       "import": "./generated/environment/index.js",
       "require": "./generated/environment/index.js"
     },
     "./inventory": {
+      "types": "./generated/inventory/index.d.ts",
       "import": "./generated/inventory/index.js",
       "require": "./generated/inventory/index.js"
     },
     "./workflows": {
+      "types": "./generated/workflows/index.d.ts",
       "import": "./generated/workflows/index.js",
       "require": "./generated/workflows/index.js"
     },
     "./ai": {
+      "types": "./generated/ai/index.d.ts",
       "import": "./generated/ai/index.js",
       "require": "./generated/ai/index.js"
     },
     "./project-management": {
+      "types": "./generated/project-management/index.d.ts",
       "import": "./generated/project-management/index.js",
       "require": "./generated/project-management/index.js"
     },
     "./automotive": {
+      "types": "./generated/automotive/index.d.ts",
       "import": "./generated/automotive/index.js",
       "require": "./generated/automotive/index.js"
     },
     "./medical": {
+      "types": "./generated/medical/index.d.ts",
       "import": "./generated/medical/index.js",
       "require": "./generated/medical/index.js"
     },
     "./aerospace": {
+      "types": "./generated/aerospace/index.d.ts",
       "import": "./generated/aerospace/index.js",
       "require": "./generated/aerospace/index.js"
     },
     "./finance": {
+      "types": "./generated/finance/index.d.ts",
       "import": "./generated/finance/index.js",
       "require": "./generated/finance/index.js"
     },
     "./crm": {
+      "types": "./generated/crm/index.d.ts",
       "import": "./generated/crm/index.js",
       "require": "./generated/crm/index.js"
     },
     "./infosec": {
+      "types": "./generated/infosec/index.d.ts",
       "import": "./generated/infosec/index.js",
       "require": "./generated/infosec/index.js"
     },
     "./esg": {
+      "types": "./generated/esg/index.d.ts",
       "import": "./generated/esg/index.js",
       "require": "./generated/esg/index.js"
     },
     "./cmms": {
+      "types": "./generated/cmms/index.d.ts",
       "import": "./generated/cmms/index.js",
       "require": "./generated/cmms/index.js"
     },
     "./portal": {
+      "types": "./generated/portal/index.d.ts",
       "import": "./generated/portal/index.js",
       "require": "./generated/portal/index.js"
     },
     "./food-safety": {
+      "types": "./generated/food-safety/index.d.ts",
       "import": "./generated/food-safety/index.js",
       "require": "./generated/food-safety/index.js"
     },
     "./energy": {
+      "types": "./generated/energy/index.d.ts",
       "import": "./generated/energy/index.js",
       "require": "./generated/energy/index.js"
     },
     "./analytics": {
+      "types": "./generated/analytics/index.d.ts",
       "import": "./generated/analytics/index.js",
       "require": "./generated/analytics/index.js"
     },
     "./field-service": {
+      "types": "./generated/field-service/index.d.ts",
       "import": "./generated/field-service/index.js",
       "require": "./generated/field-service/index.js"
     },
     "./iso42001": {
+      "types": "./generated/iso42001/index.d.ts",
       "import": "./generated/iso42001/index.js",
       "require": "./generated/iso42001/index.js"
     },
     "./iso37001": {
+      "types": "./generated/iso37001/index.d.ts",
       "import": "./generated/iso37001/index.js",
       "require": "./generated/iso37001/index.js"
     },
     "./marketing": {
+      "types": "./generated/marketing/index.d.ts",
       "import": "./generated/marketing/index.js",
       "require": "./generated/marketing/index.js"
     },
     "./risk": {
+      "types": "./generated/risk/index.d.ts",
       "import": "./generated/risk/index.js",
       "require": "./generated/risk/index.js"
     },
     "./training": {
+      "types": "./generated/training/index.d.ts",
       "import": "./generated/training/index.js",
       "require": "./generated/training/index.js"
     },
     "./suppliers": {
+      "types": "./generated/suppliers/index.d.ts",
       "import": "./generated/suppliers/index.js",
       "require": "./generated/suppliers/index.js"
     },
     "./assets": {
+      "types": "./generated/assets/index.d.ts",
       "import": "./generated/assets/index.js",
       "require": "./generated/assets/index.js"
     },
     "./documents": {
+      "types": "./generated/documents/index.d.ts",
       "import": "./generated/documents/index.js",
       "require": "./generated/documents/index.js"
     },
     "./complaints": {
+      "types": "./generated/complaints/index.d.ts",
       "import": "./generated/complaints/index.js",
       "require": "./generated/complaints/index.js"
     },
     "./contracts": {
+      "types": "./generated/contracts/index.d.ts",
       "import": "./generated/contracts/index.js",
       "require": "./generated/contracts/index.js"
     },
     "./ptw": {
+      "types": "./generated/ptw/index.d.ts",
       "import": "./generated/ptw/index.js",
       "require": "./generated/ptw/index.js"
     },
     "./reg-monitor": {
+      "types": "./generated/reg-monitor/index.d.ts",
       "import": "./generated/reg-monitor/index.js",
       "require": "./generated/reg-monitor/index.js"
     },
     "./incidents": {
+      "types": "./generated/incidents/index.d.ts",
       "import": "./generated/incidents/index.js",
       "require": "./generated/incidents/index.js"
     },
     "./audits": {
+      "types": "./generated/audits/index.d.ts",
       "import": "./generated/audits/index.js",
       "require": "./generated/audits/index.js"
     },
     "./mgmt-review": {
+      "types": "./generated/mgmt-review/index.d.ts",
       "import": "./generated/mgmt-review/index.js",
       "require": "./generated/mgmt-review/index.js"
     },
     "./wizard": {
+      "types": "./generated/wizard/index.d.ts",
       "import": "./generated/wizard/index.js",
       "require": "./generated/wizard/index.js"
     },
     "./partner-portal": {
+      "types": "./generated/partner-portal/index.d.ts",
       "import": "./generated/partner-portal/index.js",
       "require": "./generated/partner-portal/index.js"
     },
     "./platform": {
+      "types": "./generated/platform/index.d.ts",
       "import": "./generated/platform/index.js",
       "require": "./generated/platform/index.js"
     },
     "./chemicals": {
+      "types": "./generated/chemicals/index.d.ts",
       "import": "./generated/chemicals/index.js",
       "require": "./generated/chemicals/index.js"
     },
     "./emergency": {
+      "types": "./generated/emergency/index.d.ts",
       "import": "./generated/emergency/index.js",
       "require": "./generated/emergency/index.js"
+    },
+    "./marketplace": {
+      "types": "./generated/marketplace/index.d.ts",
+      "import": "./generated/marketplace/index.js",
+      "require": "./generated/marketplace/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal generate:marketing generate:platform generate:chemicals",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal generate:marketing generate:platform generate:chemicals generate:emergency generate:marketplace",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -213,7 +261,7 @@
     "generate:analytics": "prisma generate --schema=prisma/schemas/analytics.prisma",
     "generate:field-service": "prisma generate --schema=prisma/schemas/field-service.prisma",
     "push": "prisma db push",
-    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace push:finance push:crm push:infosec push:esg push:cmms push:portal push:food-safety push:energy push:analytics push:field-service push:iso42001 push:iso37001 push:marketing push:risk push:training push:suppliers push:assets push:documents push:complaints push:contracts push:ptw push:reg-monitor push:incidents push:audits push:mgmt-review push:wizard push:partner-portal push:platform",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace push:finance push:crm push:infosec push:esg push:cmms push:portal push:food-safety push:energy push:analytics push:field-service push:iso42001 push:iso37001 push:marketing push:risk push:training push:suppliers push:assets push:documents push:complaints push:contracts push:ptw push:reg-monitor push:incidents push:audits push:mgmt-review push:wizard push:partner-portal push:platform push:chemicals push:emergency push:marketplace",
     "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
     "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
     "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
@@ -281,7 +329,9 @@
     "generate:chemicals": "prisma generate --schema=prisma/schemas/chemicals.prisma",
     "push:chemicals": "prisma db push --schema=prisma/schemas/chemicals.prisma",
     "generate:emergency": "prisma generate --schema=prisma/schemas/emergency.prisma",
-    "push:emergency": "prisma db push --schema=prisma/schemas/emergency.prisma"
+    "push:emergency": "prisma db push --schema=prisma/schemas/emergency.prisma",
+    "generate:marketplace": "prisma generate --schema=prisma/schemas/marketplace.prisma",
+    "push:marketplace": "prisma db push --schema=prisma/schemas/marketplace.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

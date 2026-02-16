@@ -66,6 +66,8 @@ check_service 4036 "Incidents API"
 check_service 4037 "Audits API"
 check_service 4038 "Management Review API"
 check_service 4039 "Setup Wizard API"
+check_service 4040 "Chemicals API"
+check_service 4041 "Emergency API"
 
 echo ""
 echo "Web Applications:"
@@ -111,8 +113,10 @@ check_service 3040 "Regulatory Monitor Web"
 check_service 3041 "Incidents Web"
 check_service 3042 "Audits Web"
 check_service 3043 "Management Review Web"
+check_service 3044 "Chemicals Web"
+check_service 3045 "Emergency Web"
 
 echo ""
 # Count running services using ss
-RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-3][0-9]|40[0-2][0-9]) ")
-echo "Total services running: $RUNNING / 82"
+RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-4][0-9]|40[0-4][0-9]) ")
+echo "Total services running: $RUNNING / 86"

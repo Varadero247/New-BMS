@@ -74,6 +74,7 @@ module.exports = {
     '<rootDir>/packages/status',
     '<rootDir>/packages/tax-engine',
     '<rootDir>/packages/validation',
+    '<rootDir>/packages/pwa',
     '<rootDir>/packages/webhooks',
   ],
 

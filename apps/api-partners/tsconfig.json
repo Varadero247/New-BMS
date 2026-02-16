@@ -4,11 +4,16 @@
     "strict": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "declaration": true,
-    "noEmit": false,
-    "module": "CommonJS",
-    "moduleResolution": "node"
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "__tests__"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "__tests__"
+  ]
 }

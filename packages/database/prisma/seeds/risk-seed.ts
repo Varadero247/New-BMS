@@ -1,5 +1,5 @@
 // Enterprise Risk Management Seed Data — ISO 31000:2018
-// Run: RISK_DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" npx tsx packages/database/prisma/seeds/risk-seed.ts
+// Run: RISK_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" npx tsx packages/database/prisma/seeds/risk-seed.ts
 
 import { PrismaClient } from '../../generated/risk';
 

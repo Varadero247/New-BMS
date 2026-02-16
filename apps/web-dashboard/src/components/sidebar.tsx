@@ -45,7 +45,13 @@ import {
   BookCheck,
   Activity,
   ClipboardList,
+  Globe,
+  FlaskConical,
+  Flame,
+  Handshake,
+  Store,
 } from 'lucide-react';
+import { LocaleSwitcher } from '@ims/i18n';
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 function moduleUrl(port: number): string { return `${APP_BASE}:${port}`; }
@@ -107,6 +113,13 @@ const internalLinks: NavItem[] = [
     color: 'text-green-600',
     bgColor: 'bg-green-100',
   },
+  {
+    name: 'Marketplace',
+    href: '/marketplace',
+    icon: Store,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-100',
+  },
 ];
 
 const sections: NavSection[] = [
@@ -123,6 +136,7 @@ const sections: NavSection[] = [
       { name: 'ISO 37001 (Anti-Bribery)', href: moduleUrl(3025), icon: Scale, color: 'text-rose-600', bgColor: 'bg-rose-100', external: true },
       { name: 'InfoSec', href: moduleUrl(3015), icon: ShieldCheck, color: 'text-cyan-600', bgColor: 'bg-cyan-100', external: true },
       { name: 'Aerospace', href: moduleUrl(3012), icon: Plane, color: 'text-slate-600', bgColor: 'bg-slate-100', external: true },
+      { name: 'Chemicals', href: moduleUrl(3044), icon: FlaskConical, color: 'text-orange-600', bgColor: 'bg-orange-100', external: true },
     ],
   },
   {
@@ -147,6 +161,7 @@ const sections: NavSection[] = [
       { name: 'Supplier Portal', href: moduleUrl(3019), icon: Briefcase, color: 'text-amber-600', bgColor: 'bg-amber-100', external: true },
       { name: 'Medical Devices', href: moduleUrl(3011), icon: Stethoscope, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
       { name: 'Automotive', href: moduleUrl(3010), icon: Car, color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800', external: true },
+      { name: 'Partners Portal', href: moduleUrl(3026), icon: Handshake, color: 'text-emerald-600', bgColor: 'bg-emerald-100', external: true },
     ],
   },
   {
@@ -159,6 +174,7 @@ const sections: NavSection[] = [
       { name: 'Regulatory Monitor', href: moduleUrl(3040), icon: Eye, color: 'text-cyan-600', bgColor: 'bg-cyan-100', external: true },
       { name: 'Mgmt Review', href: moduleUrl(3043), icon: ClipboardCheck, color: 'text-purple-600', bgColor: 'bg-purple-100', external: true },
       { name: 'Permit to Work', href: moduleUrl(3039), icon: HardHat, color: 'text-rose-600', bgColor: 'bg-rose-100', external: true },
+      { name: 'Emergency', href: moduleUrl(3045), icon: Flame, color: 'text-red-600', bgColor: 'bg-red-100', external: true },
     ],
   },
   {
@@ -246,7 +262,10 @@ export function Sidebar() {
         </div>
       </nav>
       {/* User section */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border space-y-2">
+        <div className="px-3">
+          <LocaleSwitcher />
+        </div>
         <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400">
           <LogOut className="h-5 w-5" />
           <span className="text-sm font-medium">Logout</span>

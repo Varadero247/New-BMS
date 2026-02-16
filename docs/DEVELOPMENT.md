@@ -63,15 +63,15 @@ docker compose up -d postgres redis
 sudo systemctl start postgresql redis
 
 # 6. Push database schema
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
   npx prisma@5.22.0 db push --schema=packages/database/prisma/schema.prisma
 
 # 7. Generate Prisma client
 npx prisma@5.22.0 generate --schema=packages/database/prisma/schema.prisma
 
 # 8. Seed the database
-PGPASSWORD=ims_secure_password_2026 \
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+PGPASSWORD=${POSTGRES_PASSWORD} \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
 npx tsx packages/database/prisma/seed.ts
 ```
 

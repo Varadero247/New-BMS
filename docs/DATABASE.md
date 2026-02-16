@@ -6,10 +6,10 @@
 - **Port**: 5432
 - **Database**: ims
 - **User**: postgres
-- **Password**: ims_secure_password_2026
+- **Password**: ${POSTGRES_PASSWORD}
 - **Connection string**:
   ```
-  postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public
+  postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public
   ```
 
 ---
@@ -56,7 +56,7 @@ All domain schemas live in `packages/database/prisma/schemas/`:
 ## Syncing Schema to Database
 
 ```bash
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
   npx prisma@5.22.0 db push --schema=packages/database/prisma/schema.prisma
 ```
 
@@ -73,7 +73,7 @@ Use `migrate diff --from-empty` to generate CREATE-only SQL:
 ```bash
 npx prisma@5.22.0 migrate diff --from-empty \
   --to-schema-datamodel=packages/database/prisma/schemas/environment.prisma \
-  --script | PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
+  --script | PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
 ### Adding columns to existing tables
@@ -110,8 +110,8 @@ Generated client locations:
 ## Seeding
 
 ```bash
-PGPASSWORD=ims_secure_password_2026 \
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+PGPASSWORD=${POSTGRES_PASSWORD} \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
 npx tsx packages/database/prisma/seed.ts
 ```
 
@@ -135,7 +135,7 @@ Default seed users:
 | api-iso42001 | `ISO42001_DATABASE_URL` |
 | api-iso37001 | `ISO37001_DATABASE_URL` |
 
-All point to: `postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public`
+All point to: `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public`
 
 Set in both the root `.env` and each service's `.env`.
 
@@ -144,15 +144,15 @@ Set in both the root `.env` and each service's `.env`.
 ## Database Reset
 
 ```bash
-PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS ims;"
-PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -c "CREATE DATABASE ims;"
+PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS ims;"
+PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -c "CREATE DATABASE ims;"
 
 # Then re-push and re-seed
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
   npx prisma@5.22.0 db push --schema=packages/database/prisma/schema.prisma
 
-PGPASSWORD=ims_secure_password_2026 \
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims?schema=public" \
+PGPASSWORD=${POSTGRES_PASSWORD} \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" \
 npx tsx packages/database/prisma/seed.ts
 ```
 
@@ -162,10 +162,10 @@ npx tsx packages/database/prisma/seed.ts
 
 ```bash
 # Backup
-PGPASSWORD=ims_secure_password_2026 pg_dump -h localhost -U postgres ims > backup.sql
+PGPASSWORD=${POSTGRES_PASSWORD} pg_dump -h localhost -U postgres ims > backup.sql
 
 # Restore
-PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres ims < backup.sql
+PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres ims < backup.sql
 ```
 
 ---
@@ -173,7 +173,7 @@ PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres ims < backup.s
 ## Prisma Studio
 
 ```bash
-DATABASE_URL="postgresql://postgres:ims_secure_password_2026@localhost:5432/ims" \
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
 npx prisma@5.22.0 studio --schema=packages/database/prisma/schema.prisma
 ```
 

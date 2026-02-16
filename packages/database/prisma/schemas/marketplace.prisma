@@ -1,0 +1,124 @@
+// Marketplace / Plugin Registry Schema
+// Provides a plugin marketplace for extending IMS with third-party or first-party add-ons
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../generated/marketplace"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MARKETPLACE_DATABASE_URL")
+}
+
+model MktPlugin {
+  id          String   @id @default(uuid()) @db.Uuid
+  orgId       String?  @db.Uuid
+  name        String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(200)
+  description String   @db.Text
+  author      String   @db.VarChar(200)
+  authorEmail String?  @db.VarChar(255)
+  category    PluginCategory
+  iconUrl     String?  @db.Text
+  repositoryUrl String? @db.Text
+  documentationUrl String? @db.Text
+  permissions String[] @default([])
+  webhookEvents String[] @default([])
+  configSchema  Json?
+  isPublic    Boolean  @default(false)
+  isVerified  Boolean  @default(false)
+  status      PluginStatus @default(DRAFT)
+  downloads   Int      @default(0)
+  rating      Float?
+  ratingCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  versions    MktPluginVersion[]
+  installs    MktPluginInstall[]
+
+  @@map("mkt_plugins")
+}
+
+model MktPluginVersion {
+  id          String   @id @default(uuid()) @db.Uuid
+  pluginId    String   @db.Uuid
+  version     String   @db.VarChar(50)
+  changelog   String?  @db.Text
+  manifest    Json
+  entryPoint  String?  @db.Text
+  minPlatformVersion String? @db.VarChar(20)
+  isLatest    Boolean  @default(false)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  plugin      MktPlugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@unique([pluginId, version])
+  @@map("mkt_plugin_versions")
+}
+
+model MktPluginInstall {
+  id          String   @id @default(uuid()) @db.Uuid
+  pluginId    String   @db.Uuid
+  orgId       String   @db.Uuid
+  versionId   String?  @db.Uuid
+  config      Json?
+  status      InstallStatus @default(ACTIVE)
+  installedBy String   @db.Uuid
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  uninstalledAt DateTime?
+
+  plugin      MktPlugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@unique([pluginId, orgId])
+  @@map("mkt_plugin_installs")
+}
+
+model MktWebhookSubscription {
+  id          String   @id @default(uuid()) @db.Uuid
+  pluginId    String   @db.Uuid
+  orgId       String   @db.Uuid
+  event       String   @db.VarChar(100)
+  targetUrl   String   @db.Text
+  secret      String   @db.VarChar(128)
+  isActive    Boolean  @default(true)
+  failureCount Int     @default(0)
+  lastTriggeredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mkt_webhook_subscriptions")
+}
+
+enum PluginCategory {
+  INTEGRATION
+  REPORTING
+  AUTOMATION
+  COMPLIANCE
+  ANALYTICS
+  COMMUNICATION
+  DOCUMENT_MANAGEMENT
+  FIELD_SERVICE
+  SAFETY
+  QUALITY
+  OTHER
+}
+
+enum PluginStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  SUSPENDED
+  DEPRECATED
+}
+
+enum InstallStatus {
+  ACTIVE
+  SUSPENDED
+  UNINSTALLED
+}

@@ -1620,6 +1620,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       CHEMICALS_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -1967,6 +1968,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       EMERGENCY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      CORE_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy

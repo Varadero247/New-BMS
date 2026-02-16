@@ -65,7 +65,10 @@ npx prisma@5.22.0 migrate diff --from-empty \
 # All domain schemas
 for schema in health-safety environment quality ai inventory hr payroll workflows \
   project-management automotive medical aerospace finance crm infosec esg cmms \
-  portal food-safety energy analytics field-service iso42001 iso37001 platform; do
+  portal food-safety energy analytics field-service iso42001 iso37001 platform \
+  risk training suppliers assets documents complaints contracts ptw reg-monitor \
+  incidents audits mgmt-review wizard partner-portal marketing chemicals emergency \
+  marketplace; do
   schema_file="packages/database/prisma/schemas/${schema}.prisma"
   if [ -f "$schema_file" ]; then
     npx prisma@5.22.0 migrate diff --from-empty \
@@ -121,7 +124,13 @@ else
     finance/budgets crm/contacts infosec/assets \
     esg/reports cmms/assets food-safety/allergens \
     energy/meters analytics/dashboards field-service/jobs \
-    iso42001/ai-systems iso37001/risk-assessments; do
+    iso42001/ai-systems iso37001/risk-assessments \
+    risk/risks training/courses suppliers/suppliers \
+    assets/assets documents/documents complaints/complaints \
+    contracts/contracts ptw/permits reg-monitor/regulations \
+    incidents/incidents audits/audits mgmt-review/reviews \
+    chemicals/chemicals emergency/premises \
+    marketplace/plugins; do
     CODE=$(curl -s -o /dev/null -w "%{http_code}" \
       "http://localhost:4000/api/$path" \
       -H "Authorization: Bearer $TOKEN")
@@ -132,7 +141,7 @@ else
       FAIL=$((FAIL+1))
     fi
   done
-  echo "Services: $OK OK, $FAIL failed (of 22 tested)"
+  echo "Services: $OK OK, $FAIL failed (of 35 tested)"
 fi
 
 echo ""

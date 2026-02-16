@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 42 API services, 45 web apps, and 59 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 43 Prisma schemas with 585 database tables. ~11,977 unit tests across 563 suites.
+Integrated Management System (IMS) monorepo with 42 API services, 44 web apps, and 60 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. 11,808 unit tests across 556 suites (all passing).
 
 ## Known Issues & Fixes
 
@@ -158,7 +158,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # ~11,761 Jest unit tests (553 suites)
+pnpm test                        # 11,808 Jest unit tests (556 suites)
 ./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)

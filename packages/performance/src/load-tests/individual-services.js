@@ -225,6 +225,164 @@ const services = new SharedArray('services', function () {
         { path: '/api/schedules', method: 'GET' },
       ],
     },
+    {
+      name: 'ISO 42001',
+      port: 4023,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/systems', method: 'GET' },
+        { path: '/api/risks', method: 'GET' },
+      ],
+    },
+    {
+      name: 'ISO 37001',
+      port: 4024,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/risks', method: 'GET' },
+        { path: '/api/controls', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Marketing',
+      port: 4025,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/leads', method: 'GET' },
+        { path: '/api/chatbot/sessions', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Partners',
+      port: 4026,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/deals', method: 'GET' },
+        { path: '/api/referrals', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Risk',
+      port: 4027,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/risks', method: 'GET' },
+        { path: '/api/controls', method: 'GET' },
+        { path: '/api/kri', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Training',
+      port: 4028,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/courses', method: 'GET' },
+        { path: '/api/enrollments', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Suppliers',
+      port: 4029,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/suppliers', method: 'GET' },
+        { path: '/api/evaluations', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Assets',
+      port: 4030,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/assets', method: 'GET' },
+        { path: '/api/categories', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Documents',
+      port: 4031,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/documents', method: 'GET' },
+        { path: '/api/categories', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Complaints',
+      port: 4032,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/complaints', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Contracts',
+      port: 4033,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/contracts', method: 'GET' },
+      ],
+    },
+    {
+      name: 'PTW',
+      port: 4034,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/permits', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Reg Monitor',
+      port: 4035,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/regulations', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Incidents',
+      port: 4036,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/incidents', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Audits',
+      port: 4037,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/audits', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Mgmt Review',
+      port: 4038,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/reviews', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Chemicals',
+      port: 4040,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/chemicals', method: 'GET' },
+        { path: '/api/sds', method: 'GET' },
+        { path: '/api/coshh', method: 'GET' },
+      ],
+    },
+    {
+      name: 'Emergency',
+      port: 4041,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/premises', method: 'GET' },
+        { path: '/api/equipment', method: 'GET' },
+        { path: '/api/drills', method: 'GET' },
+      ],
+    },
   ];
 });
 

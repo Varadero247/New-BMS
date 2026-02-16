@@ -1,6 +1,6 @@
 # Module Status
 
-Last updated: 2026-02-15
+Last updated: 2026-02-16
 
 ## API Services
 
@@ -47,8 +47,10 @@ Last updated: 2026-02-15
 | Audits | Audit Programme | api-audits | 4037 | Active | 12 | 12 | 2026-02-15 |
 | Mgmt Review | Management Review | api-mgmt-review | 4038 | Active | 6 | 6 | 2026-02-15 |
 | Chemical Management | COSHH / Chemical Safety | api-chemicals | 4040 | Active | 50 | 194 | 2026-02-16 |
+| Emergency | ISO 22320 / ISO 22301 | api-emergency | 4041 | Active | 45 | 216 | 2026-02-16 |
+| Setup Wizard | Guided Setup | api-setup-wizard | 4039 | Active | 5 | 15 | 2026-02-16 |
 
-**Total: 41 services | ~1,676 endpoints | ~11,761 tests**
+**Total: 43 services | ~1,726 endpoints | ~11,808 tests**
 
 ## Shared Packages
 
@@ -94,7 +96,7 @@ Last updated: 2026-02-15
 | @ims/regulatory-feed | Regulatory update feeds | - |
 | @ims/benchmarks | Performance benchmarking | - |
 
-**Total: 59 packages | ~1,109 package-level tests**
+**Total: 60 packages | ~1,109 package-level tests**
 
 ## Standards Compliance Matrix
 
