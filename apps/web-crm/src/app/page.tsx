@@ -44,6 +44,7 @@ function formatCurrency(amount: number): string {
 export default function CRMDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -55,6 +56,7 @@ export default function CRMDashboard() {
       setData(res.data.data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      setError('Unable to load data. Please check your connection and try again.');
       setData({
         totalContacts: 0,
         totalAccounts: 0,
@@ -73,10 +75,10 @@ export default function CRMDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -91,8 +93,8 @@ export default function CRMDashboard() {
       subtitle: 'All contacts',
       icon: Users,
       iconColor: 'text-violet-500',
-      bgColor: 'bg-violet-50',
-      valueColor: 'text-violet-700',
+      bgColor: 'bg-violet-50 dark:bg-violet-900',
+      valueColor: 'text-violet-700 dark:text-violet-300',
       href: '/contacts',
     },
     {
@@ -101,8 +103,8 @@ export default function CRMDashboard() {
       subtitle: 'Active accounts',
       icon: Building2,
       iconColor: 'text-blue-500',
-      bgColor: 'bg-blue-50',
-      valueColor: 'text-blue-700',
+      bgColor: 'bg-blue-50 dark:bg-blue-900',
+      valueColor: 'text-blue-700 dark:text-blue-300',
       href: '/accounts',
     },
     {
@@ -111,8 +113,8 @@ export default function CRMDashboard() {
       subtitle: 'In pipeline',
       icon: DollarSign,
       iconColor: 'text-amber-500',
-      bgColor: 'bg-amber-50',
-      valueColor: 'text-amber-700',
+      bgColor: 'bg-amber-50 dark:bg-amber-900',
+      valueColor: 'text-amber-700 dark:text-amber-300',
       href: '/deals',
     },
     {
@@ -121,8 +123,8 @@ export default function CRMDashboard() {
       subtitle: 'Total open value',
       icon: DollarSign,
       iconColor: 'text-green-500',
-      bgColor: 'bg-green-50',
-      valueColor: 'text-green-700',
+      bgColor: 'bg-green-50 dark:bg-green-900',
+      valueColor: 'text-green-700 dark:text-green-300',
       href: '/pipeline',
     },
     {
@@ -131,8 +133,8 @@ export default function CRMDashboard() {
       subtitle: 'Closed won',
       icon: TrendingUp,
       iconColor: 'text-emerald-500',
-      bgColor: 'bg-emerald-50',
-      valueColor: 'text-emerald-700',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900',
+      valueColor: 'text-emerald-700 dark:text-emerald-300',
       href: '/deals',
     },
     {
@@ -141,8 +143,8 @@ export default function CRMDashboard() {
       subtitle: 'Lead to deal',
       icon: Target,
       iconColor: 'text-purple-500',
-      bgColor: 'bg-purple-50',
-      valueColor: 'text-purple-700',
+      bgColor: 'bg-purple-50 dark:bg-purple-900',
+      valueColor: 'text-purple-700 dark:text-purple-300',
       href: '/reports',
     },
   ];
@@ -155,6 +157,13 @@ export default function CRMDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CRM Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Customer relationship overview and key metrics</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -190,28 +199,28 @@ export default function CRMDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link
                 href="/contacts"
-                className="flex flex-col items-center p-4 bg-violet-50 rounded-lg hover:bg-violet-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-violet-50 dark:bg-violet-900 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-800 transition-colors"
               >
                 <UserPlus className="h-8 w-8 text-violet-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Contact</span>
               </Link>
               <Link
                 href="/deals"
-                className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
               >
                 <Briefcase className="h-8 w-8 text-blue-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">New Deal</span>
               </Link>
               <Link
                 href="/pipeline"
-                className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
               >
                 <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View Pipeline</span>
               </Link>
               <Link
                 href="/reports"
-                className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
               >
                 <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sales Reports</span>
@@ -238,14 +247,14 @@ export default function CRMDashboard() {
                   </thead>
                   <tbody>
                     {data.recentActivities.map((activity) => (
-                      <tr key={activity.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <tr key={activity.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td className="py-3 px-4">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300">
                             {activity.type}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{activity.description}</td>
-                        <td className="py-3 px-4 text-gray-600">
+                        <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                           {new Date(activity.createdAt).toLocaleDateString()}
                         </td>
                       </tr>

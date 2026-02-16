@@ -142,9 +142,9 @@ export default function SocialPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-[200px] relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" placeholder="Search social metrics..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <input type="text" aria-label="Search social metrics..." placeholder="Search social metrics..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
-            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by category" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Categories</option>
               <option value="DIVERSITY">Diversity & Inclusion</option>
               <option value="HEALTH_SAFETY">Health & Safety</option>
@@ -153,7 +153,7 @@ export default function SocialPage() {
               <option value="LABOUR">Labour Practices</option>
               <option value="HUMAN_RIGHTS">Human Rights</option>
             </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Statuses</option>
               <option value="ON_TRACK">On Track</option>
               <option value="AT_RISK">At Risk</option>

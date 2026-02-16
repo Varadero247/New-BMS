@@ -474,7 +474,7 @@ export default function DeviceRecordsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by device name or reference..."
+                  aria-label="Search by device name or reference..." placeholder="Search by device name or reference..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -662,7 +662,7 @@ export default function DeviceRecordsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by batch number, reference, or DMR..."
+                  aria-label="Search by batch number, reference, or DMR..." placeholder="Search by batch number, reference, or DMR..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"

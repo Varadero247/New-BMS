@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 const requiredEnvVars = ['JWT_SECRET'];
-for (const envVar of requiredEnvVars) { if (!process.env[envVar]) { createLogger('startup').error(`FATAL: Missing required env var: ${envVar}`); process.exit(1); } }
+for (const envVar of requiredEnvVars) { if (!process.env[envVar]) { console.error(`FATAL: Missing required env var: ${envVar}`); process.exit(1); } }
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -17,7 +17,7 @@ import dashboardRouter from './routes/dashboard';
 import conflictsRouter from './routes/conflicts';
 const app: Express = express();
 const PORT = process.env.PORT || 4034;
-app.use(helmet()); app.use(cors({ origin: true, credentials: true })); app.use(correlationIdMiddleware()); app.use(metricsMiddleware('api-ptw')); app.use(express.json({ limit: '1mb' })); app.use(express.urlencoded({ extended: true })); app.use(sanitizeMiddleware()); app.use(sanitizeQueryMiddleware()); app.use(attachPermissions());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })); app.use(cors({ origin: true, credentials: true })); app.use(correlationIdMiddleware()); app.use(metricsMiddleware('api-ptw')); app.use(express.json({ limit: '1mb' })); app.use(express.urlencoded({ extended: true })); app.use(sanitizeMiddleware()); app.use(sanitizeQueryMiddleware()); app.use(attachPermissions());
 app.get('/health', createHealthCheck('api-ptw', prisma, '1.0.0'));
 app.get('/ready', async (_req, res) => { try { await prisma.$queryRaw`SELECT 1`; res.json({ status: 'ready' }); } catch { res.status(503).json({ status: 'not ready' }); } });
 app.get('/metrics', metricsHandler);

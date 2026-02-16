@@ -87,36 +87,36 @@ interface ModuleCard {
 }
 
 const isoModules: ModuleCard[] = [
-  { name: 'Health & Safety', subtitle: 'ISO 45001', port: 3001, icon: Shield, color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-200', hoverBg: 'hover:bg-red-100', textColor: 'text-red-900', subtitleColor: 'text-red-600', iconBg: 'bg-red-100' },
-  { name: 'Environmental', subtitle: 'ISO 14001', port: 3002, icon: Leaf, color: 'green', bgColor: 'bg-green-50', borderColor: 'border-green-200', hoverBg: 'hover:bg-green-100', textColor: 'text-green-900', subtitleColor: 'text-green-600', iconBg: 'bg-green-100' },
-  { name: 'Quality', subtitle: 'ISO 9001', port: 3003, icon: Award, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
-  { name: 'ESG', subtitle: 'Sustainability', port: 3016, icon: TreePine, color: 'teal', bgColor: 'bg-teal-50', borderColor: 'border-teal-200', hoverBg: 'hover:bg-teal-100', textColor: 'text-teal-900', subtitleColor: 'text-teal-600', iconBg: 'bg-teal-100' },
-  { name: 'Food Safety', subtitle: 'HACCP / ISO 22000', port: 3020, icon: UtensilsCrossed, color: 'amber', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', hoverBg: 'hover:bg-amber-100', textColor: 'text-amber-900', subtitleColor: 'text-amber-600', iconBg: 'bg-amber-100' },
-  { name: 'Energy', subtitle: 'ISO 50001', port: 3021, icon: Zap, color: 'yellow', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200', hoverBg: 'hover:bg-yellow-100', textColor: 'text-yellow-900', subtitleColor: 'text-yellow-600', iconBg: 'bg-yellow-100' },
-  { name: 'ISO 42001 (AI)', subtitle: 'AI Management', port: 3024, icon: Brain, color: 'fuchsia', bgColor: 'bg-fuchsia-50', borderColor: 'border-fuchsia-200', hoverBg: 'hover:bg-fuchsia-100', textColor: 'text-fuchsia-900', subtitleColor: 'text-fuchsia-600', iconBg: 'bg-fuchsia-100' },
-  { name: 'ISO 37001', subtitle: 'Anti-Bribery', port: 3025, icon: Scale, color: 'rose', bgColor: 'bg-rose-50', borderColor: 'border-rose-200', hoverBg: 'hover:bg-rose-100', textColor: 'text-rose-900', subtitleColor: 'text-rose-600', iconBg: 'bg-rose-100' },
-  { name: 'InfoSec', subtitle: 'ISO 27001', port: 3015, icon: ShieldCheck, color: 'cyan', bgColor: 'bg-cyan-50', borderColor: 'border-cyan-200', hoverBg: 'hover:bg-cyan-100', textColor: 'text-cyan-900', subtitleColor: 'text-cyan-600', iconBg: 'bg-cyan-100' },
-  { name: 'Aerospace', subtitle: 'AS9100', port: 3012, icon: Plane, color: 'slate', bgColor: 'bg-slate-50', borderColor: 'border-slate-200', hoverBg: 'hover:bg-slate-100', textColor: 'text-slate-900', subtitleColor: 'text-slate-600', iconBg: 'bg-slate-100' },
+  { name: 'Health & Safety', subtitle: 'ISO 45001', port: 3001, icon: Shield, color: 'red', bgColor: 'bg-red-50 dark:bg-red-950', borderColor: 'border-red-200 dark:border-red-800', hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900', textColor: 'text-red-900 dark:text-red-100', subtitleColor: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-100 dark:bg-red-900' },
+  { name: 'Environmental', subtitle: 'ISO 14001', port: 3002, icon: Leaf, color: 'green', bgColor: 'bg-green-50 dark:bg-green-950', borderColor: 'border-green-200 dark:border-green-800', hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900', textColor: 'text-green-900 dark:text-green-100', subtitleColor: 'text-green-600 dark:text-green-400', iconBg: 'bg-green-100 dark:bg-green-900' },
+  { name: 'Quality', subtitle: 'ISO 9001', port: 3003, icon: Award, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
+  { name: 'ESG', subtitle: 'Sustainability', port: 3016, icon: TreePine, color: 'teal', bgColor: 'bg-teal-50 dark:bg-teal-950', borderColor: 'border-teal-200 dark:border-teal-800', hoverBg: 'hover:bg-teal-100 dark:hover:bg-teal-900', textColor: 'text-teal-900 dark:text-teal-100', subtitleColor: 'text-teal-600 dark:text-teal-400', iconBg: 'bg-teal-100 dark:bg-teal-900' },
+  { name: 'Food Safety', subtitle: 'HACCP / ISO 22000', port: 3020, icon: UtensilsCrossed, color: 'amber', bgColor: 'bg-amber-50 dark:bg-amber-950', borderColor: 'border-amber-200 dark:border-amber-800', hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900', textColor: 'text-amber-900 dark:text-amber-100', subtitleColor: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-100 dark:bg-amber-900' },
+  { name: 'Energy', subtitle: 'ISO 50001', port: 3021, icon: Zap, color: 'yellow', bgColor: 'bg-yellow-50 dark:bg-yellow-950', borderColor: 'border-yellow-200 dark:border-yellow-800', hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900', textColor: 'text-yellow-900 dark:text-yellow-100', subtitleColor: 'text-yellow-600 dark:text-yellow-400', iconBg: 'bg-yellow-100 dark:bg-yellow-900' },
+  { name: 'ISO 42001 (AI)', subtitle: 'AI Management', port: 3024, icon: Brain, color: 'fuchsia', bgColor: 'bg-fuchsia-50 dark:bg-fuchsia-950', borderColor: 'border-fuchsia-200 dark:border-fuchsia-800', hoverBg: 'hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900', textColor: 'text-fuchsia-900 dark:text-fuchsia-100', subtitleColor: 'text-fuchsia-600 dark:text-fuchsia-400', iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-900' },
+  { name: 'ISO 37001', subtitle: 'Anti-Bribery', port: 3025, icon: Scale, color: 'rose', bgColor: 'bg-rose-50 dark:bg-rose-950', borderColor: 'border-rose-200 dark:border-rose-800', hoverBg: 'hover:bg-rose-100 dark:hover:bg-rose-900', textColor: 'text-rose-900 dark:text-rose-100', subtitleColor: 'text-rose-600 dark:text-rose-400', iconBg: 'bg-rose-100 dark:bg-rose-900' },
+  { name: 'InfoSec', subtitle: 'ISO 27001', port: 3015, icon: ShieldCheck, color: 'cyan', bgColor: 'bg-cyan-50 dark:bg-cyan-950', borderColor: 'border-cyan-200 dark:border-cyan-800', hoverBg: 'hover:bg-cyan-100 dark:hover:bg-cyan-900', textColor: 'text-cyan-900 dark:text-cyan-100', subtitleColor: 'text-cyan-600 dark:text-cyan-400', iconBg: 'bg-cyan-100 dark:bg-cyan-900' },
+  { name: 'Aerospace', subtitle: 'AS9100', port: 3012, icon: Plane, color: 'slate', bgColor: 'bg-slate-50 dark:bg-slate-950', borderColor: 'border-slate-200 dark:border-slate-800', hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-900', textColor: 'text-slate-900 dark:text-slate-100', subtitleColor: 'text-slate-600 dark:text-slate-400', iconBg: 'bg-slate-100 dark:bg-slate-900' },
 ];
 
 const operationsModules: ModuleCard[] = [
-  { name: 'Inventory', subtitle: 'Stock Control', port: 3005, icon: Package, color: 'sky', bgColor: 'bg-sky-50', borderColor: 'border-sky-200', hoverBg: 'hover:bg-sky-100', textColor: 'text-sky-900', subtitleColor: 'text-sky-600', iconBg: 'bg-sky-100' },
-  { name: 'HR Management', subtitle: 'Employee & Performance', port: 3006, icon: Users, color: 'orange', bgColor: 'bg-orange-50', borderColor: 'border-orange-200', hoverBg: 'hover:bg-orange-100', textColor: 'text-orange-900', subtitleColor: 'text-orange-600', iconBg: 'bg-orange-100' },
-  { name: 'Payroll', subtitle: 'Compensation & Benefits', port: 3007, icon: Wallet, color: 'emerald', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200', hoverBg: 'hover:bg-emerald-100', textColor: 'text-emerald-900', subtitleColor: 'text-emerald-600', iconBg: 'bg-emerald-100' },
-  { name: 'Workflows', subtitle: 'Process Automation', port: 3008, icon: GitBranch, color: 'indigo', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-200', hoverBg: 'hover:bg-indigo-100', textColor: 'text-indigo-900', subtitleColor: 'text-indigo-600', iconBg: 'bg-indigo-100' },
-  { name: 'Project Management', subtitle: 'Tasks & Milestones', port: 3009, icon: FolderKanban, color: 'violet', bgColor: 'bg-violet-50', borderColor: 'border-violet-200', hoverBg: 'hover:bg-violet-100', textColor: 'text-violet-900', subtitleColor: 'text-violet-600', iconBg: 'bg-violet-100' },
-  { name: 'Finance', subtitle: 'Accounts & Budgets', port: 3013, icon: PiggyBank, color: 'lime', bgColor: 'bg-lime-50', borderColor: 'border-lime-200', hoverBg: 'hover:bg-lime-100', textColor: 'text-lime-900', subtitleColor: 'text-lime-600', iconBg: 'bg-lime-100' },
-  { name: 'CRM', subtitle: 'Customer Relations', port: 3014, icon: UserCircle, color: 'pink', bgColor: 'bg-pink-50', borderColor: 'border-pink-200', hoverBg: 'hover:bg-pink-100', textColor: 'text-pink-900', subtitleColor: 'text-pink-600', iconBg: 'bg-pink-100' },
-  { name: 'CMMS', subtitle: 'Maintenance', port: 3017, icon: Wrench, color: 'stone', bgColor: 'bg-stone-50', borderColor: 'border-stone-200', hoverBg: 'hover:bg-stone-100', textColor: 'text-stone-900', subtitleColor: 'text-stone-600', iconBg: 'bg-stone-100' },
-  { name: 'Field Service', subtitle: 'Job Dispatch', port: 3023, icon: Truck, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
-  { name: 'Analytics', subtitle: 'Reports & Dashboards', port: 3022, icon: BarChart3, color: 'purple', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', hoverBg: 'hover:bg-purple-100', textColor: 'text-purple-900', subtitleColor: 'text-purple-600', iconBg: 'bg-purple-100' },
+  { name: 'Inventory', subtitle: 'Stock Control', port: 3005, icon: Package, color: 'sky', bgColor: 'bg-sky-50 dark:bg-sky-950', borderColor: 'border-sky-200 dark:border-sky-800', hoverBg: 'hover:bg-sky-100 dark:hover:bg-sky-900', textColor: 'text-sky-900 dark:text-sky-100', subtitleColor: 'text-sky-600 dark:text-sky-400', iconBg: 'bg-sky-100 dark:bg-sky-900' },
+  { name: 'HR Management', subtitle: 'Employee & Performance', port: 3006, icon: Users, color: 'orange', bgColor: 'bg-orange-50 dark:bg-orange-950', borderColor: 'border-orange-200 dark:border-orange-800', hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900', textColor: 'text-orange-900 dark:text-orange-100', subtitleColor: 'text-orange-600 dark:text-orange-400', iconBg: 'bg-orange-100 dark:bg-orange-900' },
+  { name: 'Payroll', subtitle: 'Compensation & Benefits', port: 3007, icon: Wallet, color: 'emerald', bgColor: 'bg-emerald-50 dark:bg-emerald-950', borderColor: 'border-emerald-200 dark:border-emerald-800', hoverBg: 'hover:bg-emerald-100 dark:hover:bg-emerald-900', textColor: 'text-emerald-900 dark:text-emerald-100', subtitleColor: 'text-emerald-600 dark:text-emerald-400', iconBg: 'bg-emerald-100 dark:bg-emerald-900' },
+  { name: 'Workflows', subtitle: 'Process Automation', port: 3008, icon: GitBranch, color: 'indigo', bgColor: 'bg-indigo-50 dark:bg-indigo-950', borderColor: 'border-indigo-200 dark:border-indigo-800', hoverBg: 'hover:bg-indigo-100 dark:hover:bg-indigo-900', textColor: 'text-indigo-900 dark:text-indigo-100', subtitleColor: 'text-indigo-600 dark:text-indigo-400', iconBg: 'bg-indigo-100 dark:bg-indigo-900' },
+  { name: 'Project Management', subtitle: 'Tasks & Milestones', port: 3009, icon: FolderKanban, color: 'violet', bgColor: 'bg-violet-50 dark:bg-violet-950', borderColor: 'border-violet-200 dark:border-violet-800', hoverBg: 'hover:bg-violet-100 dark:hover:bg-violet-900', textColor: 'text-violet-900 dark:text-violet-100', subtitleColor: 'text-violet-600 dark:text-violet-400', iconBg: 'bg-violet-100 dark:bg-violet-900' },
+  { name: 'Finance', subtitle: 'Accounts & Budgets', port: 3013, icon: PiggyBank, color: 'lime', bgColor: 'bg-lime-50 dark:bg-lime-950', borderColor: 'border-lime-200 dark:border-lime-800', hoverBg: 'hover:bg-lime-100 dark:hover:bg-lime-900', textColor: 'text-lime-900 dark:text-lime-100', subtitleColor: 'text-lime-600 dark:text-lime-400', iconBg: 'bg-lime-100 dark:bg-lime-900' },
+  { name: 'CRM', subtitle: 'Customer Relations', port: 3014, icon: UserCircle, color: 'pink', bgColor: 'bg-pink-50 dark:bg-pink-950', borderColor: 'border-pink-200 dark:border-pink-800', hoverBg: 'hover:bg-pink-100 dark:hover:bg-pink-900', textColor: 'text-pink-900 dark:text-pink-100', subtitleColor: 'text-pink-600 dark:text-pink-400', iconBg: 'bg-pink-100 dark:bg-pink-900' },
+  { name: 'CMMS', subtitle: 'Maintenance', port: 3017, icon: Wrench, color: 'stone', bgColor: 'bg-stone-50 dark:bg-stone-950', borderColor: 'border-stone-200 dark:border-stone-800', hoverBg: 'hover:bg-stone-100 dark:hover:bg-stone-900', textColor: 'text-stone-900 dark:text-stone-100', subtitleColor: 'text-stone-600 dark:text-stone-400', iconBg: 'bg-stone-100 dark:bg-stone-900' },
+  { name: 'Field Service', subtitle: 'Job Dispatch', port: 3023, icon: Truck, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
+  { name: 'Analytics', subtitle: 'Reports & Dashboards', port: 3022, icon: BarChart3, color: 'purple', bgColor: 'bg-purple-50 dark:bg-purple-950', borderColor: 'border-purple-200 dark:border-purple-800', hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900', textColor: 'text-purple-900 dark:text-purple-100', subtitleColor: 'text-purple-600 dark:text-purple-400', iconBg: 'bg-purple-100 dark:bg-purple-900' },
 ];
 
 const portalModules: ModuleCard[] = [
-  { name: 'Customer Portal', subtitle: 'Client Access', port: 3018, icon: Building2, color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-900', subtitleColor: 'text-blue-600', iconBg: 'bg-blue-100' },
-  { name: 'Supplier Portal', subtitle: 'Vendor Access', port: 3019, icon: Briefcase, color: 'amber', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', hoverBg: 'hover:bg-amber-100', textColor: 'text-amber-900', subtitleColor: 'text-amber-600', iconBg: 'bg-amber-100' },
-  { name: 'Medical Devices', subtitle: 'ISO 13485', port: 3011, icon: Stethoscope, color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-200', hoverBg: 'hover:bg-red-100', textColor: 'text-red-900', subtitleColor: 'text-red-600', iconBg: 'bg-red-100' },
-  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50 dark:bg-gray-800', borderColor: 'border-gray-200 dark:border-gray-700', hoverBg: 'hover:bg-gray-100', textColor: 'text-gray-900 dark:text-gray-100', subtitleColor: 'text-gray-600', iconBg: 'bg-gray-100 dark:bg-gray-800' },
+  { name: 'Customer Portal', subtitle: 'Client Access', port: 3018, icon: Building2, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
+  { name: 'Supplier Portal', subtitle: 'Vendor Access', port: 3019, icon: Briefcase, color: 'amber', bgColor: 'bg-amber-50 dark:bg-amber-950', borderColor: 'border-amber-200 dark:border-amber-800', hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900', textColor: 'text-amber-900 dark:text-amber-100', subtitleColor: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-100 dark:bg-amber-900' },
+  { name: 'Medical Devices', subtitle: 'ISO 13485', port: 3011, icon: Stethoscope, color: 'red', bgColor: 'bg-red-50 dark:bg-red-950', borderColor: 'border-red-200 dark:border-red-800', hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900', textColor: 'text-red-900 dark:text-red-100', subtitleColor: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-100 dark:bg-red-900' },
+  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50 dark:bg-gray-800', borderColor: 'border-gray-200 dark:border-gray-700', hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900', textColor: 'text-gray-900 dark:text-gray-100', subtitleColor: 'text-gray-600 dark:text-gray-400', iconBg: 'bg-gray-100 dark:bg-gray-800' },
 ];
 
 const SECTION_MODULE_MAP: Record<SectionId, ModuleCard[]> = {
@@ -131,11 +131,13 @@ const SECTION_LABELS: Record<SectionId, string> = {
   'portals-specialist': 'Portals & Specialist',
 };
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 function ModuleCardLink({ mod }: { mod: ModuleCard }) {
   const Icon = mod.icon;
   return (
     <a
-      href={`http://localhost:${mod.port}`}
+      href={`${APP_BASE}:${mod.port}`}
       className={`flex items-center justify-between p-5 ${mod.bgColor} rounded-lg border ${mod.borderColor} ${mod.hoverBg} transition-colors`}
     >
       <div className="flex items-center gap-3">
@@ -156,6 +158,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { config, openCustomize, hydrate, hydrated } = useDashboardStore();
   const { hasPermission, permissions } = useRBACContext();
 
@@ -182,8 +185,9 @@ export default function DashboardPage() {
     try {
       const response = await api.get('/dashboard/stats');
       setStats(response.data.data);
-    } catch (error) {
-      console.error('Failed to load dashboard stats:', error);
+    } catch (err) {
+      console.error('Failed to load dashboard stats:', err);
+      setError('Unable to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -236,10 +240,10 @@ export default function DashboardPage() {
         <Sidebar />
         <main className="flex-1 p-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4" />
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
             <div className="grid grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-48 bg-gray-200 rounded" />
+                <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded" />
               ))}
             </div>
           </div>
@@ -268,6 +272,15 @@ export default function DashboardPage() {
               Customize
             </button>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+              <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">
+                Retry
+              </button>
+            </div>
+          )}
 
           {!hasAnyContent && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -416,12 +429,12 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {[
-                      { label: 'Report Incident', href: 'http://localhost:3001/incidents', color: 'bg-red-50 text-red-700 hover:bg-red-100 border-red-200' },
-                      { label: 'Raise NCR', href: 'http://localhost:3003/nonconformances', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
-                      { label: 'New CAPA', href: 'http://localhost:3003/capa', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
-                      { label: 'Log Environmental Event', href: 'http://localhost:3002/events', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
-                      { label: 'Create Work Order', href: 'http://localhost:3017/work-orders', color: 'bg-stone-50 text-stone-700 hover:bg-stone-100 border-stone-200' },
-                      { label: 'New Risk Assessment', href: 'http://localhost:3001/risks', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200' },
+                      { label: 'Report Incident', href: `${APP_BASE}:3001/incidents`, color: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 border-red-200 dark:border-red-800' },
+                      { label: 'Raise NCR', href: `${APP_BASE}:3003/nonconformances`, color: 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border-blue-200 dark:border-blue-800' },
+                      { label: 'New CAPA', href: `${APP_BASE}:3003/capa`, color: 'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 border-orange-200 dark:border-orange-800' },
+                      { label: 'Log Environmental Event', href: `${APP_BASE}:3002/events`, color: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 border-green-200 dark:border-green-800' },
+                      { label: 'Create Work Order', href: `${APP_BASE}:3017/work-orders`, color: 'bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-900 border-stone-200 dark:border-stone-800' },
+                      { label: 'New Risk Assessment', href: `${APP_BASE}:3001/risks`, color: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900 border-yellow-200 dark:border-yellow-800' },
                     ].map(action => (
                       <a key={action.label} href={action.href} className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}>
                         {action.label}
@@ -455,7 +468,7 @@ export default function DashboardPage() {
                         <div key={i} className="flex items-start gap-3">
                           <div className="mt-1 flex flex-col items-center">
                             <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-                            {i < 7 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
+                            {i < 7 && <div className="w-0.5 h-full bg-gray-200 dark:bg-gray-700 mt-1" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -495,16 +508,16 @@ export default function DashboardPage() {
                               <p className="font-medium text-sm">{risk.title}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  risk.standard === 'ISO_45001' ? 'bg-red-100 text-red-700' :
-                                  risk.standard === 'ISO_14001' ? 'bg-green-100 text-green-700' :
-                                  'bg-blue-100 text-blue-700'
+                                  risk.standard === 'ISO_45001' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                                  risk.standard === 'ISO_14001' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                                  'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                                 }`}>
                                   {risk.standard.replace('_', ' ')}
                                 </span>
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  risk.riskLevel === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                                  risk.riskLevel === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                  'bg-yellow-100 text-yellow-700'
+                                  risk.riskLevel === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                                  risk.riskLevel === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                                  'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
                                 }`}>
                                   {risk.riskLevel}
                                 </span>
@@ -540,9 +553,9 @@ export default function DashboardPage() {
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-xs text-gray-500 dark:text-gray-400">{action.referenceNumber}</span>
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  action.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                                  action.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                  'bg-yellow-100 text-yellow-700'
+                                  action.priority === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                                  action.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                                  'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
                                 }`}>
                                   {action.priority}
                                 </span>
@@ -574,10 +587,10 @@ export default function DashboardPage() {
                     {stats?.recentAIInsights && stats.recentAIInsights.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {stats.recentAIInsights.slice(0, 4).map((insight: any) => (
-                          <div key={insight.id} className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                          <div key={insight.id} className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-100 dark:border-purple-800">
                             <div className="flex items-start justify-between">
                               <div>
-                                <p className="text-xs text-purple-600 font-medium">{insight.sourceType}</p>
+                                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{insight.sourceType}</p>
                                 <p className="text-sm mt-1">{insight.suggestedRootCause || 'Analysis available'}</p>
                               </div>
                               <span className="text-xs text-gray-400 dark:text-gray-500">

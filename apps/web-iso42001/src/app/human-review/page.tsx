@@ -122,7 +122,7 @@ export default function HumanReviewPage() {
       <div className="flex gap-3">
         <div className="relative flex-1">
           <input
-            placeholder="Search reviews..."
+            aria-label="Search reviews..." placeholder="Search reviews..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
             className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"

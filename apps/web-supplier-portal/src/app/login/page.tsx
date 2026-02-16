@@ -30,8 +30,8 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6">Supplier Login</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-2 border rounded mb-4" placeholder="Email" />
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-2 border rounded mb-4" placeholder="Password" />
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-2 border dark:border-gray-700 rounded mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="Email" />
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-2 border dark:border-gray-700 rounded mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="Password" />
         <button type="submit" className="w-full bg-cyan-600 text-white p-2 rounded hover:bg-cyan-700">Login</button>
       </form>
     </div>

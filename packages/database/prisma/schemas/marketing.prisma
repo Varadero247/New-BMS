@@ -147,6 +147,7 @@ model MktEmailLog {
   bounced    Boolean   @default(false)
   sequenceId String?
   createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@map("mkt_email_logs")
 }
@@ -159,6 +160,7 @@ model MktHealthScore {
   trend     MktHealthTrend
   breakdown Json
   createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@map("mkt_health_scores")
 }

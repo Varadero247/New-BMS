@@ -22,7 +22,7 @@ export default function TicketsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6"><div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Support Tickets</h1><p className="text-gray-500 dark:text-gray-400 mt-1">Submit and track support requests</p></div><button className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 flex items-center gap-2"><Plus className="h-5 w-5" /> New Ticket</button></div>
-        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search tickets..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
+        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" aria-label="Search tickets..." placeholder="Search tickets..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><Ticket className="h-5 w-5 text-cyan-600" />Tickets ({filtered.length})</CardTitle></CardHeader>
           <CardContent>

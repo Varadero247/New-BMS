@@ -76,7 +76,7 @@ export default function MonthlyReviewListPage() {
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Snapshots are generated on the 1st of each month, or triggered manually.</p>
           </div>
         ) : (
-          <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-hidden">
+          <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">

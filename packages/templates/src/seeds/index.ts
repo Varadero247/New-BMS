@@ -22,6 +22,17 @@ import { foodSafetyTemplates } from './food-safety';
 import { energyTemplates } from './energy';
 import { fieldServiceTemplates } from './field-service';
 import { analyticsTemplates } from './analytics';
+import { riskTemplates } from './risk';
+import { trainingTemplates } from './training';
+import { suppliersTemplates } from './suppliers';
+import { assetsTemplates } from './assets';
+import { complaintsTemplates } from './complaints';
+import { documentsTemplates } from './documents';
+import { contractsTemplates } from './contracts';
+import { ptwTemplates } from './ptw';
+import { incidentsTemplates } from './incidents';
+import { auditsTemplates } from './audits';
+import { managementReviewTemplates } from './management-review';
 
 export const allTemplates: TemplateDefinition[] = [
   ...healthSafetyTemplates,
@@ -46,4 +57,15 @@ export const allTemplates: TemplateDefinition[] = [
   ...energyTemplates,
   ...fieldServiceTemplates,
   ...analyticsTemplates,
+  ...riskTemplates,
+  ...trainingTemplates,
+  ...suppliersTemplates,
+  ...assetsTemplates,
+  ...complaintsTemplates,
+  ...documentsTemplates,
+  ...contractsTemplates,
+  ...ptwTemplates,
+  ...incidentsTemplates,
+  ...auditsTemplates,
+  ...managementReviewTemplates,
 ];

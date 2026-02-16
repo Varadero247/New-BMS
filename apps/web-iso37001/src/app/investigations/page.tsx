@@ -195,16 +195,16 @@ export default function InvestigationsPage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              placeholder="Search by title, reference or investigator..."
+              aria-label="Search by title, reference or investigator..." placeholder="Search by title, reference or investigator..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Types</option>
               {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
               {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>

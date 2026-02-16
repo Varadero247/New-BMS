@@ -210,16 +210,16 @@ export default function PoliciesPage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              placeholder="Search policies..."
+              aria-label="Search policies..." placeholder="Search policies..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by category" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Categories</option>
               {categoryOptions.map((c) => <option key={c} value={c}>{categoryLabels[c]}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
               {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>

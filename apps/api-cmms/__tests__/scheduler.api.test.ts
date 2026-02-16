@@ -1,0 +1,315 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    cmmsPreventivePlan: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    cmmsWorkOrder: {
+      findMany: jest.fn(),
+    },
+  },
+  Prisma: {},
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
+import { prisma } from '../src/prisma';
+import router from '../src/routes/scheduler';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+const app = express();
+app.use(express.json());
+app.use('/api/scheduler', router);
+
+const SCHEDULE_ID = '00000000-0000-4000-a000-000000000001';
+const ASSET_ID = '00000000-0000-4000-a000-000000000002';
+
+const mockSchedule = {
+  id: SCHEDULE_ID,
+  assetId: ASSET_ID,
+  name: 'Monthly Hydraulic System Check',
+  description: 'Check all hydraulic hoses and fluid levels',
+  frequency: 'MONTHLY',
+  tasks: ['Check pressure', 'Inspect hoses', 'Check fluid levels'],
+  assignedTo: 'Maintenance Team A',
+  isActive: true,
+  lastPerformed: null,
+  nextDue: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  deletedAt: null,
+  asset: { id: ASSET_ID, assetNumber: 'ASSET-001', name: 'Hydraulic Press', location: 'Plant Floor A' },
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/scheduler/upcoming', () => {
+  it('returns upcoming scheduled maintenance', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/scheduler/upcoming');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('accepts custom days parameter', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/scheduler/upcoming?days=7');
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/scheduler/upcoming');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/scheduler/overdue', () => {
+  it('returns overdue maintenance schedules', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/scheduler/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/scheduler/overdue');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/scheduler/calendar', () => {
+  it('returns calendar view for current month', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsWorkOrder.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/scheduler/calendar');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('year');
+    expect(res.body.data).toHaveProperty('month');
+    expect(res.body.data).toHaveProperty('scheduled');
+    expect(res.body.data).toHaveProperty('workOrders');
+  });
+
+  it('accepts year and month parameters', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsWorkOrder.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/scheduler/calendar?year=2026&month=3');
+    expect(res.status).toBe(200);
+    expect(res.body.data.year).toBe(2026);
+    expect(res.body.data.month).toBe(3);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/scheduler/calendar');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/scheduler', () => {
+  it('returns list of maintenance schedules', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/scheduler');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('filters by assetId and frequency', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get(`/api/scheduler?assetId=${ASSET_ID}&frequency=MONTHLY`);
+    expect(res.status).toBe(200);
+  });
+
+  it('filters by isActive', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/scheduler?isActive=true');
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/scheduler');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/scheduler', () => {
+  const validBody = {
+    assetId: ASSET_ID,
+    name: 'Monthly Hydraulic System Check',
+    frequency: 'MONTHLY',
+  };
+
+  it('creates maintenance schedule successfully', async () => {
+    (mockPrisma.cmmsPreventivePlan.create as jest.Mock).mockResolvedValue(mockSchedule);
+
+    const res = await request(app).post('/api/scheduler').send(validBody);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 400 on validation error', async () => {
+    const res = await request(app).post('/api/scheduler').send({ name: 'Missing assetId' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.create as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).post('/api/scheduler').send(validBody);
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('POST /api/scheduler/:id/complete', () => {
+  it('marks schedule as complete and advances next due date', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({
+      ...mockSchedule,
+      lastPerformed: new Date(),
+      nextDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    const res = await request(app).post(`/api/scheduler/${SCHEDULE_ID}/complete`).send({ completedDate: '2026-02-16' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 when schedule not found', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).post(`/api/scheduler/${SCHEDULE_ID}/complete`).send({});
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    const res = await request(app).post(`/api/scheduler/${SCHEDULE_ID}/complete`).send({});
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/scheduler/:id', () => {
+  it('returns a single schedule', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+
+    const res = await request(app).get(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(SCHEDULE_ID);
+  });
+
+  it('returns 404 when not found', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('PUT /api/scheduler/:id', () => {
+  it('updates schedule successfully', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({ ...mockSchedule, frequency: 'QUARTERLY' });
+
+    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 when not found', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 400 on validation error', async () => {
+    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'EVERY_HOUR' });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('DELETE /api/scheduler/:id', () => {
+  it('soft deletes schedule successfully', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({ ...mockSchedule, deletedAt: new Date() });
+
+    const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('returns 404 when not found', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(500);
+  });
+});

@@ -4,7 +4,7 @@ dotenv.config();
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    createLogger('startup').error(`FATAL: Missing required env var: ${envVar}`);
+    console.error(`FATAL: Missing required env var: ${envVar}`);
     process.exit(1);
   }
 }
@@ -20,6 +20,7 @@ import {
   createHealthCheck,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
+import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-finance');
@@ -45,12 +46,14 @@ const app: Express = express();
 const PORT = process.env.PORT || 4013;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-finance'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(sanitizeMiddleware());
+app.use(sanitizeQueryMiddleware());
 app.use(attachPermissions());
 
 // Health check, readiness, and metrics

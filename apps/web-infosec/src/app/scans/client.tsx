@@ -235,7 +235,7 @@ export default function VulnerabilityScansClient() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            placeholder="Search by name or target..."
+            aria-label="Search by name or target..." placeholder="Search by name or target..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -255,7 +255,7 @@ export default function VulnerabilityScansClient() {
       </div>
 
       {/* Scans Table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

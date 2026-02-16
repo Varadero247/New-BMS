@@ -128,7 +128,7 @@ export default function KPIsPage() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search KPIs..."
+              aria-label="Search KPIs..." placeholder="Search KPIs..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500"

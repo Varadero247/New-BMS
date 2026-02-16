@@ -34,6 +34,7 @@ export default function TicketDetailPage() {
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
@@ -56,23 +57,27 @@ export default function TicketDetailPage() {
     e.preventDefault();
     if (!newMessage.trim()) return;
     setSending(true);
+    setError('');
     try {
       await api.post(`/api/support/${ticketId}/messages`, { body: newMessage });
       setNewMessage('');
       fetchTicket();
     } catch (err) {
       console.error('Failed to send message', err);
+      setError('Failed to send message. Please try again.');
     } finally {
       setSending(false);
     }
   };
 
   const handleClose = async () => {
+    setError('');
     try {
       await api.patch(`/api/support/${ticketId}/close`);
       fetchTicket();
     } catch (err) {
       console.error('Failed to close ticket', err);
+      setError('Failed to close ticket. Please try again.');
     }
   };
 
@@ -124,6 +129,13 @@ export default function TicketDetailPage() {
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
+              <p className="text-sm text-red-400">{error}</p>
+              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+            </div>
+          )}
 
           {/* Messages */}
           <div className="space-y-4 mb-6">

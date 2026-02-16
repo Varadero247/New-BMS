@@ -59,10 +59,10 @@ export default function DashboardPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-5 gap-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg" />
             ))}
           </div>
         </div>
@@ -71,19 +71,19 @@ export default function DashboardPage() {
   }
 
   const kpiCards = [
-    { label: 'Active Policies', value: data.activePolicies, color: 'bg-rose-100', textColor: 'text-rose-600', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-    { label: 'Due Diligence', value: data.dueDiligenceCount, color: 'bg-blue-100', textColor: 'text-blue-600', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
-    { label: 'Gifts Pending', value: data.giftsPending, color: 'bg-amber-100', textColor: 'text-amber-600', icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7' },
-    { label: 'Training Completion', value: `${data.trainingCompletion}%`, color: 'bg-green-100', textColor: 'text-green-600', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
-    { label: 'Open Investigations', value: data.openInvestigations, color: 'bg-red-100', textColor: 'text-red-600', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z' },
+    { label: 'Active Policies', value: data.activePolicies, color: 'bg-rose-100 dark:bg-rose-900', textColor: 'text-rose-600', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+    { label: 'Due Diligence', value: data.dueDiligenceCount, color: 'bg-blue-100 dark:bg-blue-900', textColor: 'text-blue-600', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
+    { label: 'Gifts Pending', value: data.giftsPending, color: 'bg-amber-100 dark:bg-amber-900', textColor: 'text-amber-600', icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7' },
+    { label: 'Training Completion', value: `${data.trainingCompletion}%`, color: 'bg-green-100 dark:bg-green-900', textColor: 'text-green-600', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+    { label: 'Open Investigations', value: data.openInvestigations, color: 'bg-red-100 dark:bg-red-900', textColor: 'text-red-600', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z' },
   ];
 
   const activityTypeColors: Record<string, string> = {
-    POLICY: 'bg-rose-100 text-rose-700',
-    DUE_DILIGENCE: 'bg-blue-100 text-blue-700',
-    GIFT: 'bg-amber-100 text-amber-700',
-    TRAINING: 'bg-green-100 text-green-700',
-    INVESTIGATION: 'bg-red-100 text-red-700',
+    POLICY: 'bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300',
+    DUE_DILIGENCE: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+    GIFT: 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
+    TRAINING: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+    INVESTIGATION: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
   };
 
   return (

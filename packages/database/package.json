@@ -170,13 +170,17 @@
     "./partner-portal": {
       "import": "./generated/partner-portal/index.js",
       "require": "./generated/partner-portal/index.js"
+    },
+    "./platform": {
+      "import": "./generated/platform/index.js",
+      "require": "./generated/platform/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal generate:marketing generate:platform",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -201,7 +205,7 @@
     "generate:analytics": "prisma generate --schema=prisma/schemas/analytics.prisma",
     "generate:field-service": "prisma generate --schema=prisma/schemas/field-service.prisma",
     "push": "prisma db push",
-    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace push:finance",
+    "push:all": "npm-run-all push:core push:hr push:payroll push:quality push:health-safety push:environment push:inventory push:workflows push:ai push:project-management push:automotive push:medical push:aerospace push:finance push:crm push:infosec push:esg push:cmms push:portal push:food-safety push:energy push:analytics push:field-service push:iso42001 push:iso37001 push:marketing push:risk push:training push:suppliers push:assets push:documents push:complaints push:contracts push:ptw push:reg-monitor push:incidents push:audits push:mgmt-review push:wizard push:partner-portal push:platform",
     "push:core": "prisma db push --schema=prisma/schemas/core.prisma",
     "push:hr": "prisma db push --schema=prisma/schemas/hr.prisma",
     "push:payroll": "prisma db push --schema=prisma/schemas/payroll.prisma",
@@ -249,7 +253,23 @@
     "generate:audits": "prisma generate --schema=prisma/schemas/audits.prisma",
     "generate:mgmt-review": "prisma generate --schema=prisma/schemas/mgmt-review.prisma",
     "generate:wizard": "prisma generate --schema=prisma/schemas/wizard.prisma",
-    "generate:partner-portal": "prisma generate --schema=prisma/schemas/partner-portal.prisma"
+    "generate:partner-portal": "prisma generate --schema=prisma/schemas/partner-portal.prisma",
+    "generate:platform": "prisma generate --schema=prisma/schemas/platform.prisma",
+    "push:risk": "prisma db push --schema=prisma/schemas/risk.prisma",
+    "push:training": "prisma db push --schema=prisma/schemas/training.prisma",
+    "push:suppliers": "prisma db push --schema=prisma/schemas/suppliers.prisma",
+    "push:assets": "prisma db push --schema=prisma/schemas/assets.prisma",
+    "push:documents": "prisma db push --schema=prisma/schemas/documents.prisma",
+    "push:complaints": "prisma db push --schema=prisma/schemas/complaints.prisma",
+    "push:contracts": "prisma db push --schema=prisma/schemas/contracts.prisma",
+    "push:ptw": "prisma db push --schema=prisma/schemas/ptw.prisma",
+    "push:reg-monitor": "prisma db push --schema=prisma/schemas/reg-monitor.prisma",
+    "push:incidents": "prisma db push --schema=prisma/schemas/incidents.prisma",
+    "push:audits": "prisma db push --schema=prisma/schemas/audits.prisma",
+    "push:mgmt-review": "prisma db push --schema=prisma/schemas/mgmt-review.prisma",
+    "push:wizard": "prisma db push --schema=prisma/schemas/wizard.prisma",
+    "push:partner-portal": "prisma db push --schema=prisma/schemas/partner-portal.prisma",
+    "push:platform": "prisma db push --schema=prisma/schemas/platform.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

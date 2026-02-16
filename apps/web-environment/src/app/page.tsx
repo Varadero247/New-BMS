@@ -24,6 +24,7 @@ interface DashboardStats {
 export default function EnvironmentalDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadStats();
@@ -61,6 +62,7 @@ export default function EnvironmentalDashboard() {
       });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -70,10 +72,10 @@ export default function EnvironmentalDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -89,6 +91,13 @@ export default function EnvironmentalDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 14001 Environmental Management System</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* Compliance & Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
@@ -111,7 +120,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-2xl font-bold">{stats?.indicators.waterUsage.toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">kL / month</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
                   <Droplets className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
@@ -126,7 +135,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-2xl font-bold">{stats?.indicators.energyUsage.toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">kWh / month</p>
                 </div>
-                <div className="p-3 bg-yellow-100 rounded-full">
+                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
                   <Zap className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
@@ -141,7 +150,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-2xl font-bold">{stats?.indicators.wasteGenerated.toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">kg / month</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <Trash2 className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -173,7 +182,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Environmental Aspects</p>
                   <p className="text-2xl font-bold">{stats?.aspects.total || 0}</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                   <Leaf className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -190,7 +199,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Open Events</p>
                   <p className="text-2xl font-bold">{stats?.events.open || 0}</p>
                 </div>
-                <div className="p-3 bg-yellow-100 rounded-full">
+                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
                   <AlertCircle className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
@@ -207,7 +216,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -224,7 +233,7 @@ export default function EnvironmentalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Objectives</p>
                   <p className="text-2xl font-bold">5</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
                   <Target className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -279,10 +288,10 @@ export default function EnvironmentalDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">{event.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            event.status === 'REPORTED' ? 'bg-red-100 text-red-700' :
-                            event.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
-                            event.status === 'CLOSED' ? 'bg-green-100 text-green-700' :
-                            'bg-blue-100 text-blue-700'
+                            event.status === 'REPORTED' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            event.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+                            event.status === 'CLOSED' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                            'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                           }`}>
                             {event.status?.replace(/_/g, ' ')}
                           </span>

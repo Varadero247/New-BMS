@@ -159,25 +159,25 @@ export default function AlertsPage() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search alerts..."
+              aria-label="Search alerts..." placeholder="Search alerts..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by severity" value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Severities</option>
             <option value="CRITICAL">Critical</option>
             <option value="WARNING">Warning</option>
             <option value="INFO">Info</option>
           </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Status</option>
             <option value="FIRING">Firing</option>
             <option value="OK">OK</option>
             <option value="SILENCED">Silenced</option>
           </select>
-          <select value={moduleFilter} onChange={e => setModuleFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by module" value={moduleFilter} onChange={e => setModuleFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Modules</option>
             {modules.map(m => <option key={m} value={m}>{m}</option>)}
           </select>

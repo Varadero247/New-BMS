@@ -24,6 +24,7 @@ export default function ProjectManagementDashboard() {
   });
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -73,6 +74,7 @@ export default function ProjectManagementDashboard() {
       setRecentProjects(projects.slice(0, 5));
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -86,10 +88,10 @@ export default function ProjectManagementDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -107,12 +109,12 @@ export default function ProjectManagementDashboard() {
   ];
 
   const colorMap: Record<string, { bg: string; iconBg: string; iconText: string }> = {
-    blue: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-blue-100', iconText: 'text-blue-600' },
-    indigo: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-indigo-100', iconText: 'text-indigo-600' },
-    amber: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-amber-100', iconText: 'text-amber-600' },
-    red: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-red-100', iconText: 'text-red-600' },
-    purple: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-purple-100', iconText: 'text-purple-600' },
-    green: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-green-100', iconText: 'text-green-600' },
+    blue: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-blue-100 dark:bg-blue-900', iconText: 'text-blue-600' },
+    indigo: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconText: 'text-indigo-600' },
+    amber: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-amber-100 dark:bg-amber-900', iconText: 'text-amber-600' },
+    red: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-red-100 dark:bg-red-900', iconText: 'text-red-600' },
+    purple: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-purple-100 dark:bg-purple-900', iconText: 'text-purple-600' },
+    green: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-green-100 dark:bg-green-900', iconText: 'text-green-600' },
   };
 
   return (
@@ -123,6 +125,13 @@ export default function ProjectManagementDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Management Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">PMBOK / ISO 21500 Project Management</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -163,19 +172,19 @@ export default function ProjectManagementDashboard() {
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-gray-500 dark:text-gray-400">{project.projectCode}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          project.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                          project.status === 'PLANNING' ? 'bg-blue-100 text-blue-700' :
-                          project.status === 'ON_HOLD' ? 'bg-amber-100 text-amber-700' :
-                          project.status === 'COMPLETED' ? 'bg-purple-100 text-purple-700' :
-                          'bg-red-100 text-red-700'
+                          project.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                          project.status === 'PLANNING' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                          project.status === 'ON_HOLD' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
+                          project.status === 'COMPLETED' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
+                          'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
                         }`}>
                           {project.status}
                         </span>
                         {project.projectHealth && (
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            project.projectHealth === 'GREEN' ? 'bg-green-100 text-green-700' :
-                            project.projectHealth === 'AMBER' ? 'bg-amber-100 text-amber-700' :
-                            'bg-red-100 text-red-700'
+                            project.projectHealth === 'GREEN' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                            project.projectHealth === 'AMBER' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
+                            'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
                           }`}>
                             {project.projectHealth}
                           </span>
@@ -184,7 +193,7 @@ export default function ProjectManagementDashboard() {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-medium">{project.completionPercentage || 0}%</div>
-                      <div className="w-24 h-2 bg-gray-200 rounded-full mt-1">
+                      <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-1">
                         <div
                           className="h-2 bg-blue-600 rounded-full"
                           style={{ width: `${project.completionPercentage || 0}%` }}

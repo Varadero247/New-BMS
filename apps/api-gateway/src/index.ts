@@ -150,6 +150,11 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3020', 'http://localhost:3021', 'http://localhost:3022',
   'http://localhost:3023', 'http://localhost:3024', 'http://localhost:3025',
   'http://localhost:3026', 'http://localhost:3027', 'http://localhost:3030',
+  'http://localhost:3031', 'http://localhost:3032', 'http://localhost:3033',
+  'http://localhost:3034', 'http://localhost:3035', 'http://localhost:3036',
+  'http://localhost:3037', 'http://localhost:3038', 'http://localhost:3039',
+  'http://localhost:3040', 'http://localhost:3041', 'http://localhost:3042',
+  'http://localhost:3043',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS

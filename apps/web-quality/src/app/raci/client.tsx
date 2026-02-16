@@ -166,7 +166,7 @@ export default function RaciPage() {
           <div className="flex gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <Input placeholder="Search processes, activities, roles..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
+              <Input aria-label="Search processes, activities, roles..." placeholder="Search processes, activities, roles..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
             </div>
             <Button variant="outline" onClick={fetchItems}><RefreshCw className="h-4 w-4" /></Button>
           </div>

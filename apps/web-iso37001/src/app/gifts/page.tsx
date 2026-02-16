@@ -231,12 +231,12 @@ export default function GiftsPage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              placeholder="Search by description or counterparty..."
+              aria-label="Search by description or counterparty..." placeholder="Search by description or counterparty..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Types</option>
               {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -244,7 +244,7 @@ export default function GiftsPage() {
               <option value="">Given & Received</option>
               {directionOptions.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
               {approvalStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>

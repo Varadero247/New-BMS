@@ -164,7 +164,7 @@ export default function ExpensesPage() {
         ) : expenses.length === 0 ? (
           <div className="text-gray-400 dark:text-gray-500 text-center py-12">No expenses found.</div>
         ) : (
-          <div className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl overflow-hidden">
+          <div className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">

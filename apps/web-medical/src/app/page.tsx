@@ -26,6 +26,7 @@ const DESIGN_STAGES = [
 export default function MedicalDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadStats();
@@ -45,6 +46,7 @@ export default function MedicalDashboard() {
       });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
+      setError('Unable to load data. Please check your connection and try again.');
       setStats({
         activeDesignProjects: 0,
         openDhfRecords: 0,
@@ -61,10 +63,10 @@ export default function MedicalDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -87,6 +89,13 @@ export default function MedicalDashboard() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 Medical Device Quality Management System</p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
@@ -96,7 +105,7 @@ export default function MedicalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Design Projects</p>
                   <p className="text-2xl font-bold">{stats?.activeDesignProjects || 0}</p>
                 </div>
-                <div className="p-3 bg-teal-100 rounded-full">
+                <div className="p-3 bg-teal-100 dark:bg-teal-900 rounded-full">
                   <Pencil className="h-6 w-6 text-teal-600" />
                 </div>
               </div>
@@ -113,7 +122,7 @@ export default function MedicalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Open DHF Records</p>
                   <p className="text-2xl font-bold">{stats?.openDhfRecords || 0}</p>
                 </div>
-                <div className="p-3 bg-cyan-100 rounded-full">
+                <div className="p-3 bg-cyan-100 dark:bg-cyan-900 rounded-full">
                   <FolderOpen className="h-6 w-6 text-cyan-600" />
                 </div>
               </div>
@@ -130,7 +139,7 @@ export default function MedicalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Pending Verifications</p>
                   <p className="text-2xl font-bold text-amber-600">{stats?.pendingVerifications || 0}</p>
                 </div>
-                <div className="p-3 bg-amber-100 rounded-full">
+                <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <CheckSquare className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
@@ -147,7 +156,7 @@ export default function MedicalDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Risk Assessments</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.riskAssessments || 0}</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                   <AlertTriangle className="h-6 w-6 text-red-600" />
                 </div>
               </div>
@@ -174,7 +183,7 @@ export default function MedicalDashboard() {
                     <div
                       className={`rounded-lg p-4 text-center transition-colors ${
                         item.count > 0
-                          ? 'bg-teal-100 border-2 border-teal-300'
+                          ? 'bg-teal-100 dark:bg-teal-900 border-2 border-teal-300 dark:border-teal-700'
                           : 'bg-gray-50 dark:bg-gray-800 border-2 border-gray-200'
                       }`}
                     >
@@ -218,17 +227,17 @@ export default function MedicalDashboard() {
                           <span className="text-xs text-gray-500 dark:text-gray-400">{dc.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             dc.currentStage === 'Verification' || dc.currentStage === 'Validation'
-                              ? 'bg-amber-100 text-amber-700'
+                              ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
                               : dc.currentStage === 'Transfer'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-teal-100 text-teal-700'
+                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                              : 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300'
                           }`}>
                             {dc.currentStage}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            dc.deviceClass === 'III' ? 'bg-red-100 text-red-700' :
-                            dc.deviceClass === 'II' ? 'bg-orange-100 text-orange-700' :
-                            'bg-blue-100 text-blue-700'
+                            dc.deviceClass === 'III' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            dc.deviceClass === 'II' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                            'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                           }`}>
                             Class {dc.deviceClass}
                           </span>
@@ -256,31 +265,31 @@ export default function MedicalDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
+                <div className="p-3 bg-teal-50 dark:bg-teal-900/30 rounded-lg border border-teal-200 dark:border-teal-800">
                   <p className="font-medium text-sm text-teal-900">Clause 7.3 - Design and Development</p>
                   <p className="text-xs text-teal-600 mt-1">
                     Planning, inputs, outputs, review, verification, validation, transfer, changes, and DHF
                   </p>
                 </div>
-                <div className="p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                <div className="p-3 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg border border-cyan-200 dark:border-cyan-800">
                   <p className="font-medium text-sm text-cyan-900">Clause 7.4 - Purchasing</p>
                   <p className="text-xs text-cyan-600 mt-1">
                     Supplier evaluation, verification of purchased product, traceability
                   </p>
                 </div>
-                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
                   <p className="font-medium text-sm text-amber-900">Clause 8.2.2 - Complaint Handling</p>
                   <p className="text-xs text-amber-600 mt-1">
                     Customer feedback, complaint investigation, regulatory reporting
                   </p>
                 </div>
-                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800">
                   <p className="font-medium text-sm text-red-900">ISO 14971 - Risk Management</p>
                   <p className="text-xs text-red-600 mt-1">
                     Hazard identification, risk analysis, risk evaluation, risk control measures
                   </p>
                 </div>
-                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-800">
                   <p className="font-medium text-sm text-purple-900">Clause 8.5 - CAPA</p>
                   <p className="text-xs text-purple-600 mt-1">
                     Corrective and preventive action, root cause analysis, effectiveness verification

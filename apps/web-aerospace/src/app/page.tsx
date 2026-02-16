@@ -29,6 +29,7 @@ interface DashboardStats {
 export default function AerospaceDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [recentItems, setRecentItems] = useState<any[]>([]);
   const [recentChanges, setRecentChanges] = useState<any[]>([]);
 
@@ -69,6 +70,7 @@ export default function AerospaceDashboard() {
       });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -78,10 +80,10 @@ export default function AerospaceDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -98,6 +100,13 @@ export default function AerospaceDashboard() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D Aerospace Quality Management System</p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
+
         {/* Primary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
@@ -107,7 +116,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Configuration Items</p>
                   <p className="text-2xl font-bold">{stats?.configurationItems.total || 0}</p>
                 </div>
-                <div className="p-3 bg-indigo-100 rounded-full">
+                <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
                   <Settings className="h-6 w-6 text-indigo-600" />
                 </div>
               </div>
@@ -126,7 +135,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Open ECPs</p>
                   <p className="text-2xl font-bold text-amber-600">{stats?.engineeringChanges.open || 0}</p>
                 </div>
-                <div className="p-3 bg-amber-100 rounded-full">
+                <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <GitPullRequest className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
@@ -143,7 +152,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Baselines</p>
                   <p className="text-2xl font-bold">{stats?.baselines.active || 0}</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-full">
+                <div className="p-3 bg-slate-100 dark:bg-slate-900 rounded-full">
                   <Database className="h-6 w-6 text-slate-600" />
                 </div>
               </div>
@@ -160,7 +169,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Pending Audits</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.audits.pending || 0}</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                   <Search className="h-6 w-6 text-red-600" />
                 </div>
               </div>
@@ -180,7 +189,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Product Safety</p>
                   <p className="text-2xl font-bold">{stats?.productSafety.total || 0}</p>
                 </div>
-                <div className="p-3 bg-emerald-100 rounded-full">
+                <div className="p-3 bg-emerald-100 dark:bg-emerald-900 rounded-full">
                   <Shield className="h-6 w-6 text-emerald-600" />
                 </div>
               </div>
@@ -197,7 +206,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">First Article</p>
                   <p className="text-2xl font-bold">{stats?.firstArticle.total || 0}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
                   <FileCheck className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
@@ -214,7 +223,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Special Processes</p>
                   <p className="text-2xl font-bold">{stats?.specialProcesses.total || 0}</p>
                 </div>
-                <div className="p-3 bg-violet-100 rounded-full">
+                <div className="p-3 bg-violet-100 dark:bg-violet-900 rounded-full">
                   <Zap className="h-6 w-6 text-violet-600" />
                 </div>
               </div>
@@ -231,7 +240,7 @@ export default function AerospaceDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Counterfeit Alerts</p>
                   <p className="text-2xl font-bold text-orange-600">{stats?.counterfeitParts.alerts || 0}</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <AlertOctagon className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -262,18 +271,18 @@ export default function AerospaceDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.ciNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                            item.status === 'UNDER_REVIEW' ? 'bg-amber-100 text-amber-700' :
-                            item.status === 'DRAFT' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700' :
-                            'bg-blue-100 text-blue-700'
+                            item.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                            item.status === 'UNDER_REVIEW' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
+                            item.status === 'DRAFT' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' :
+                            'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                           }`}>
                             {item.status?.replace(/_/g, ' ')}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.type === 'HARDWARE' ? 'bg-indigo-100 text-indigo-700' :
-                            item.type === 'SOFTWARE' ? 'bg-purple-100 text-purple-700' :
-                            item.type === 'DOCUMENT' ? 'bg-slate-100 text-slate-700' :
-                            'bg-cyan-100 text-cyan-700'
+                            item.type === 'HARDWARE' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+                            item.type === 'SOFTWARE' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
+                            item.type === 'DOCUMENT' ? 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300' :
+                            'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300'
                           }`}>
                             {item.type}
                           </span>
@@ -309,19 +318,19 @@ export default function AerospaceDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{change.ecpNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            change.status === 'OPEN' ? 'bg-blue-100 text-blue-700' :
-                            change.status === 'IN_REVIEW' ? 'bg-amber-100 text-amber-700' :
-                            change.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                            change.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            change.status === 'OPEN' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                            change.status === 'IN_REVIEW' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
+                            change.status === 'APPROVED' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                            change.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                           }`}>
                             {change.status?.replace(/_/g, ' ')}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            change.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                            change.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                            change.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            change.priority === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            change.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                            change.priority === 'MEDIUM' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
+                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                           }`}>
                             {change.priority}
                           </span>

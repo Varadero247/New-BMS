@@ -242,7 +242,7 @@ export default function HeatMapClient() {
       </div>
 
       {/* Risk Register Table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-x-auto">
         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">All Risks</h2>
         </div>

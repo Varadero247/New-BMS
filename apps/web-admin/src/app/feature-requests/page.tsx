@@ -127,7 +127,7 @@ export default function FeatureRequestsPage() {
         )}
 
         {/* Table */}
-        <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-hidden">
+        <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1B3A6B]/30">

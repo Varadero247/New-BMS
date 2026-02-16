@@ -40,6 +40,7 @@ export default function SupportPage() {
   const [formDesc, setFormDesc] = useState('');
   const [formPriority, setFormPriority] = useState('MEDIUM');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
@@ -48,11 +49,13 @@ export default function SupportPage() {
   }, []);
 
   const fetchTickets = async () => {
+    setError('');
     try {
       const res = await api.get('/api/support');
       setTickets(res.data.data || []);
     } catch (err) {
       console.error('Failed to load tickets', err);
+      setError('Failed to load support tickets. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -61,6 +64,7 @@ export default function SupportPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError('');
     try {
       await api.post('/api/support', {
         subject: formSubject,
@@ -74,6 +78,7 @@ export default function SupportPage() {
       fetchTickets();
     } catch (err) {
       console.error('Failed to create ticket', err);
+      setError('Failed to create ticket. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -104,6 +109,13 @@ export default function SupportPage() {
               + New Ticket
             </button>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
+              <p className="text-sm text-red-400">{error}</p>
+              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+            </div>
+          )}
 
           {/* New Ticket Form */}
           {showForm && (

@@ -758,7 +758,7 @@ export default function RisksClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search parties..."
+                  aria-label="Search parties..." placeholder="Search parties..."
                   value={partySearch}
                   onChange={(e) => setPartySearch(e.target.value)}
                   className="pl-10"
@@ -840,7 +840,7 @@ export default function RisksClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search issues..."
+                  aria-label="Search issues..." placeholder="Search issues..."
                   value={issueSearch}
                   onChange={(e) => setIssueSearch(e.target.value)}
                   className="pl-10"
@@ -920,7 +920,7 @@ export default function RisksClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search risks..."
+                  aria-label="Search risks..." placeholder="Search risks..."
                   value={riskSearch}
                   onChange={(e) => setRiskSearch(e.target.value)}
                   className="pl-10"
@@ -1007,7 +1007,7 @@ export default function RisksClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search opportunities..."
+                  aria-label="Search opportunities..." placeholder="Search opportunities..."
                   value={opportunitySearch}
                   onChange={(e) => setOpportunitySearch(e.target.value)}
                   className="pl-10"

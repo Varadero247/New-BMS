@@ -117,10 +117,10 @@ export default function OrgChartPage() {
           <div className="flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" placeholder="Search by name or job title..." value={search} onChange={e => setSearch(e.target.value)}
+              <input type="text" aria-label="Search by name or job title..." placeholder="Search by name or job title..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-violet-500 focus:outline-none" />
             </div>
-            <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)}
+            <select aria-label="Filter by department" value={deptFilter} onChange={e => setDeptFilter(e.target.value)}
               className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:outline-none">
               <option value="">All Departments</option>
               {departments.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}

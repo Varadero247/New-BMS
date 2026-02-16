@@ -28,6 +28,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -46,6 +47,7 @@ export default function DashboardPage() {
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -75,6 +77,13 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <button onClick={() => { setError(''); setLoading(true); fetchDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
@@ -85,7 +94,7 @@ export default function DashboardPage() {
                 {getStatusCount(stats?.instances.byStatus || [], 'ACTIVE')}
               </p>
             </div>
-            <div className="rounded-full bg-indigo-100 p-3">
+            <div className="rounded-full bg-indigo-100 dark:bg-indigo-900 p-3">
               <Play className="h-6 w-6 text-indigo-600" />
             </div>
           </div>
@@ -99,7 +108,7 @@ export default function DashboardPage() {
                 {getStatusCount(stats?.tasks.byStatus || [], 'PENDING')}
               </p>
             </div>
-            <div className="rounded-full bg-yellow-100 p-3">
+            <div className="rounded-full bg-yellow-100 dark:bg-yellow-900 p-3">
               <CheckSquare className="h-6 w-6 text-yellow-600" />
             </div>
           </div>
@@ -113,7 +122,7 @@ export default function DashboardPage() {
                 {stats?.tasks.overdueCount || 0}
               </p>
             </div>
-            <div className="rounded-full bg-red-100 p-3">
+            <div className="rounded-full bg-red-100 dark:bg-red-900 p-3">
               <AlertTriangle className="h-6 w-6 text-red-600" />
             </div>
           </div>
@@ -127,7 +136,7 @@ export default function DashboardPage() {
                 {getStatusCount(stats?.instances.byStatus || [], 'COMPLETED')}
               </p>
             </div>
-            <div className="rounded-full bg-green-100 p-3">
+            <div className="rounded-full bg-green-100 dark:bg-green-900 p-3">
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
           </div>
@@ -197,9 +206,9 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`rounded-full p-2 ${
-                      instance.priority === 'URGENT' ? 'bg-red-100' :
-                      instance.priority === 'HIGH' ? 'bg-orange-100' :
-                      'bg-blue-100'
+                      instance.priority === 'URGENT' ? 'bg-red-100 dark:bg-red-900' :
+                      instance.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900' :
+                      'bg-blue-100 dark:bg-blue-900'
                     }`}>
                       <Play className={`h-4 w-4 ${
                         instance.priority === 'URGENT' ? 'text-red-600' :
@@ -213,9 +222,9 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    instance.priority === 'URGENT' ? 'bg-red-100 text-red-800' :
-                    instance.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                    'bg-blue-100 text-blue-800'
+                    instance.priority === 'URGENT' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' :
+                    instance.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300' :
+                    'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300'
                   }`}>
                     {instance.priority}
                   </span>
@@ -231,15 +240,15 @@ export default function DashboardPage() {
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Workflow Status Summary</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {[
-            { status: 'ACTIVE', label: 'Active', color: 'blue', icon: Play },
-            { status: 'COMPLETED', label: 'Completed', color: 'green', icon: CheckCircle },
-            { status: 'CANCELLED', label: 'Cancelled', color: 'gray', icon: XCircle },
-            { status: 'SUSPENDED', label: 'Suspended', color: 'yellow', icon: Clock },
-            { status: 'FAILED', label: 'Failed', color: 'red', icon: AlertTriangle },
-          ].map(({ status, label, color, icon: Icon }) => (
+            { status: 'ACTIVE', label: 'Active', bgColor: 'bg-blue-100 dark:bg-blue-900', textColor: 'text-blue-600', icon: Play },
+            { status: 'COMPLETED', label: 'Completed', bgColor: 'bg-green-100 dark:bg-green-900', textColor: 'text-green-600', icon: CheckCircle },
+            { status: 'CANCELLED', label: 'Cancelled', bgColor: 'bg-gray-100 dark:bg-gray-800', textColor: 'text-gray-600', icon: XCircle },
+            { status: 'SUSPENDED', label: 'Suspended', bgColor: 'bg-yellow-100 dark:bg-yellow-900', textColor: 'text-yellow-600', icon: Clock },
+            { status: 'FAILED', label: 'Failed', bgColor: 'bg-red-100 dark:bg-red-900', textColor: 'text-red-600', icon: AlertTriangle },
+          ].map(({ status, label, bgColor, textColor, icon: Icon }) => (
             <div key={status} className="rounded-lg border p-4 text-center">
-              <div className={`mx-auto mb-2 w-fit rounded-full bg-${color}-100 p-2`}>
-                <Icon className={`h-5 w-5 text-${color}-600`} />
+              <div className={`mx-auto mb-2 w-fit rounded-full ${bgColor} p-2`}>
+                <Icon className={`h-5 w-5 ${textColor}`} />
               </div>
               <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], status)}

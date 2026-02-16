@@ -168,9 +168,9 @@ export default function EmissionsPage() {
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px] relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" placeholder="Search emissions..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+                <input type="text" aria-label="Search emissions..." placeholder="Search emissions..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
               </div>
-              <select value={scopeFilter} onChange={e => setScopeFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              <select aria-label="Filter by scope" value={scopeFilter} onChange={e => setScopeFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">All Scopes</option>
                 <option value="SCOPE_1">Scope 1</option>
                 <option value="SCOPE_2">Scope 2</option>

@@ -9,7 +9,7 @@ dotenv.config();
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    createLogger('startup').error(`FATAL: Missing required env var: ${envVar}`);
+    console.error(`FATAL: Missing required env var: ${envVar}`);
     process.exit(1);
   }
 }
@@ -37,7 +37,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 4004;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-ai-analysis'));
@@ -65,8 +65,13 @@ app.use('/api/analyses', analysesRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/analyze', analyzeRouter);
 
+// 404 handler
+app.use((_req: express.Request, res: express.Response) => {
+  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
+});
+
 // Error handling
-app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error & { statusCode?: number; code?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(err.statusCode || 500).json({
     success: false,

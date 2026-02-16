@@ -107,13 +107,13 @@ export default function AuditLogClient() {
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-          <input type="text" placeholder="Search users, details, resources..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input type="text" aria-label="Search users, details, resources..." placeholder="Search users, details, resources..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
-        <select value={moduleFilter} onChange={(e) => setModuleFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <select aria-label="Filter by module" value={moduleFilter} onChange={(e) => setModuleFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
           <option value="all">All Modules</option>
           {modules.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
-        <select value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <select aria-label="Filter by action" value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
           <option value="all">All Actions</option>
           {Object.entries(actionConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>

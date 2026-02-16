@@ -121,20 +121,20 @@ export default function SpecialProcessesClient() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search process, supplier, accreditation #..."
+              aria-label="Search process, supplier, accreditation #..." placeholder="Search process, supplier, accreditation #..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
             <option value="expiring-soon">Expiring Soon</option>
             <option value="expired">Expired</option>
             <option value="pending">Pending</option>
           </select>
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select aria-label="Filter by type" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="all">All Types</option>
             <option value="welding">Welding</option>
             <option value="NDT">NDT</option>
@@ -143,7 +143,7 @@ export default function SpecialProcessesClient() {
             <option value="composites">Composites</option>
             <option value="chemical-processing">Chemical Processing</option>
           </select>
-          <select value={certFilter} onChange={e => setCertFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select aria-label="Filter by certification" value={certFilter} onChange={e => setCertFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="all">All Certifications</option>
             <option value="NADCAP">NADCAP</option>
             <option value="customer-approved">Customer Approved</option>

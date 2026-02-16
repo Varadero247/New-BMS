@@ -170,16 +170,16 @@ export default function DealsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" placeholder="Search deals..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  <input type="text" aria-label="Search deals..." placeholder="Search deals..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
                 </div>
               </div>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
                 <option value="">All Status</option>
                 <option value="OPEN">Open</option>
                 <option value="WON">Won</option>
                 <option value="LOST">Lost</option>
               </select>
-              <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by stage" value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
                 <option value="">All Stages</option>
                 <option value="PROSPECTING">Prospecting</option>
                 <option value="QUALIFICATION">Qualification</option>

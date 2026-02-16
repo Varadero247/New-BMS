@@ -24,12 +24,14 @@ interface DashboardStats {
 export default function QualityDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadStats();
   }, []);
 
   async function loadStats() {
+    setError('');
     try {
       const [processesRes, ncsRes, metricsRes] = await Promise.all([
         api.get('/processes'),
@@ -63,8 +65,9 @@ export default function QualityDashboard() {
         topNCs: ncs.slice(0, 5),
         recentComplaints: ncs.filter((nc: any) => nc.ncType === 'CUSTOMER_COMPLAINT').slice(0, 5),
       });
-    } catch (error) {
-      console.error('Failed to load dashboard stats:', error);
+    } catch (err) {
+      console.error('Failed to load dashboard stats:', err);
+      setError('Unable to load quality data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -74,10 +77,10 @@ export default function QualityDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -93,6 +96,15 @@ export default function QualityDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 9001 Quality Management System</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Compliance & Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
@@ -115,7 +127,7 @@ export default function QualityDashboard() {
                   <p className="text-2xl font-bold">${(stats?.metrics?.copq ?? 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Cost of Poor Quality</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                   <DollarSign className="h-6 w-6 text-red-600" />
                 </div>
               </div>
@@ -130,7 +142,7 @@ export default function QualityDashboard() {
                   <p className="text-2xl font-bold">{(stats?.metrics?.dpmo ?? 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Defects per Million</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <AlertOctagon className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -145,7 +157,7 @@ export default function QualityDashboard() {
                   <p className="text-2xl font-bold">{(stats?.metrics?.sigma ?? 0).toFixed(1)}σ</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Process Capability</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
                   <TrendingUp className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -160,7 +172,7 @@ export default function QualityDashboard() {
                   <p className="text-2xl font-bold">{(stats?.metrics?.fpy ?? 0).toFixed(1)}%</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Right First Time</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                   <Award className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -177,7 +189,7 @@ export default function QualityDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Processes</p>
                   <p className="text-2xl font-bold">{stats?.processes.total || 0}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
                   <Award className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
@@ -211,7 +223,7 @@ export default function QualityDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
                   <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -228,7 +240,7 @@ export default function QualityDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Objectives</p>
                   <p className="text-2xl font-bold">6</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
                   <Target className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -256,15 +268,15 @@ export default function QualityDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">{nc.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            nc.status === 'OPEN' ? 'bg-red-100 text-red-700' :
-                            nc.status === 'INVESTIGATING' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
+                            nc.status === 'OPEN' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            nc.status === 'INVESTIGATING' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+                            'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                           }`}>
                             {nc.status}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            nc.ncType === 'CUSTOMER_COMPLAINT' ? 'bg-purple-100 text-purple-700' :
-                            nc.ncType === 'INTERNAL_AUDIT' ? 'bg-blue-100 text-blue-700' :
+                            nc.ncType === 'CUSTOMER_COMPLAINT' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
+                            nc.ncType === 'INTERNAL_AUDIT' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
                             'bg-gray-100 dark:bg-gray-800 text-gray-700'
                           }`}>
                             {nc.ncType?.replace('_', ' ')}
@@ -301,9 +313,9 @@ export default function QualityDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">{complaint.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            complaint.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                            complaint.severity === 'MAJOR' ? 'bg-orange-100 text-orange-700' :
-                            'bg-yellow-100 text-yellow-700'
+                            complaint.severity === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            complaint.severity === 'MAJOR' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                            'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
                           }`}>
                             {complaint.severity}
                           </span>

@@ -201,7 +201,7 @@ export default function PenTestsPage() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            placeholder="Search by test name or vendor..."
+            aria-label="Search by test name or vendor..." placeholder="Search by test name or vendor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"

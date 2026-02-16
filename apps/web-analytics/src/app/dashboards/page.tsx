@@ -157,13 +157,13 @@ export default function DashboardsPage() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search dashboards..."
+              aria-label="Search dashboards..." placeholder="Search dashboards..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          <select value={visibilityFilter} onChange={e => setVisibilityFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by visibility" value={visibilityFilter} onChange={e => setVisibilityFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Visibility</option>
             <option value="PUBLIC">Public</option>
             <option value="RESTRICTED">Restricted</option>

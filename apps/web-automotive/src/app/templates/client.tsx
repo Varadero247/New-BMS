@@ -247,7 +247,7 @@ export default function TemplatesClient() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            placeholder="Search templates..."
+            aria-label="Search templates..." placeholder="Search templates..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

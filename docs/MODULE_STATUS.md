@@ -60,7 +60,7 @@ Last updated: 2026-02-15
 | @ims/validation | Zod validation schemas | 104 |
 | @ims/monitoring | Winston logging, Prometheus metrics, health checks | 44 |
 | @ims/audit | Activity audit trail | 51 |
-| @ims/templates | Template library (110 templates, renderer, exporter) | - |
+| @ims/templates | Template library (171 templates, renderer, exporter) | - |
 | @ims/iso-checklists | ISO audit checklists engine | 101 |
 | @ims/esig | Electronic signatures (21 CFR Part 11) | 103 |
 | @ims/spc-engine | Statistical Process Control (X-bar R, P-chart, IMR) | 177 |

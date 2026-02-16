@@ -42,6 +42,7 @@ export default function CollateralPage() {
   const [items, setItems] = useState<CollateralItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
@@ -50,11 +51,13 @@ export default function CollateralPage() {
   }, []);
 
   const fetchCollateral = async () => {
+    setError('');
     try {
       const res = await api.get('/api/collateral');
       setItems(res.data.data || []);
     } catch (err) {
       console.error('Failed to load collateral', err);
+      setError('Failed to load collateral. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -64,10 +67,10 @@ export default function CollateralPage() {
     try {
       const res = await api.get(`/api/collateral/${item.id}/download`);
       window.open(res.data.data.fileUrl, '_blank');
-      // Refresh to update download count
       fetchCollateral();
     } catch (err) {
       console.error('Failed to download collateral', err);
+      setError('Failed to download file. Please try again.');
     }
   };
 
@@ -91,6 +94,13 @@ export default function CollateralPage() {
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold text-white mb-8">Co-Marketing Collateral</h1>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
+              <p className="text-sm text-red-400">{error}</p>
+              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+            </div>
+          )}
 
           {/* Filter Bar */}
           <div className="flex items-center gap-2 mb-6">
@@ -126,7 +136,7 @@ export default function CollateralPage() {
                 <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-gray-800 rounded-lg shrink-0">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d={typeIcons[item.type] || typeIcons.CASE_STUDY} />
                       </svg>
                     </div>

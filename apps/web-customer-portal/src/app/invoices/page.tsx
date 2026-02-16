@@ -24,7 +24,7 @@ export default function InvoicesPage() {
         <div className="flex justify-between items-center mb-6">
           <div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Invoices</h1><p className="text-gray-500 dark:text-gray-400 mt-1">View and manage your invoices</p></div>
         </div>
-        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search invoices..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
+        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" aria-label="Search invoices..." placeholder="Search invoices..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><Receipt className="h-5 w-5 text-teal-600" />Invoices ({filtered.length})</CardTitle></CardHeader>
           <CardContent>

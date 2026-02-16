@@ -127,7 +127,7 @@ export default function ReleasesPage() {
       <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
-          <Input placeholder="Search products or batches..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
+          <Input aria-label="Search products or batches..." placeholder="Search products or batches..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
         </div>
         <Select value={filterDecision} onChange={e => { setFilterDecision(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
           <option value="">All Decisions</option>

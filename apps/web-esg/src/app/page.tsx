@@ -29,6 +29,7 @@ interface DashboardData {
 export default function ESGDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboard();
@@ -40,6 +41,7 @@ export default function ESGDashboard() {
       setData(res.data.data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      setError('Unable to load data. Please check your connection and try again.');
       setData({
         totalEmissions: 0,
         targetProgress: 0,
@@ -59,10 +61,10 @@ export default function ESGDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -87,7 +89,7 @@ export default function ESGDashboard() {
       subtitle: 'Reduction targets',
       icon: Target,
       iconColor: 'text-green-500',
-      bgColor: 'bg-green-50',
+      bgColor: 'bg-green-50 dark:bg-green-900',
       valueColor: 'text-green-700',
       href: '/targets',
     },
@@ -97,7 +99,7 @@ export default function ESGDashboard() {
       subtitle: 'Overall rating',
       icon: TrendingUp,
       iconColor: 'text-blue-500',
-      bgColor: 'bg-blue-50',
+      bgColor: 'bg-blue-50 dark:bg-blue-900',
       valueColor: 'text-blue-700',
       href: '/reports',
     },
@@ -107,7 +109,7 @@ export default function ESGDashboard() {
       subtitle: 'Direct emissions',
       icon: Leaf,
       iconColor: 'text-emerald-500',
-      bgColor: 'bg-emerald-50',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900',
       valueColor: 'text-emerald-700',
       href: '/emissions',
     },
@@ -117,7 +119,7 @@ export default function ESGDashboard() {
       subtitle: 'Indirect - energy',
       icon: Cloud,
       iconColor: 'text-amber-500',
-      bgColor: 'bg-amber-50',
+      bgColor: 'bg-amber-50 dark:bg-amber-900',
       valueColor: 'text-amber-700',
       href: '/emissions',
     },
@@ -127,7 +129,7 @@ export default function ESGDashboard() {
       subtitle: 'Value chain',
       icon: Cloud,
       iconColor: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      bgColor: 'bg-orange-50 dark:bg-orange-900',
       valueColor: 'text-orange-700',
       href: '/emissions',
     },
@@ -137,7 +139,7 @@ export default function ESGDashboard() {
       subtitle: 'In progress',
       icon: Users,
       iconColor: 'text-indigo-500',
-      bgColor: 'bg-indigo-50',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900',
       valueColor: 'text-indigo-700',
       href: '/targets',
     },
@@ -147,7 +149,7 @@ export default function ESGDashboard() {
       subtitle: 'Require attention',
       icon: AlertCircle,
       iconColor: 'text-red-500',
-      bgColor: 'bg-red-50',
+      bgColor: 'bg-red-50 dark:bg-red-900',
       valueColor: 'text-red-700',
       href: '/targets',
     },
@@ -160,6 +162,13 @@ export default function ESGDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ESG Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Environmental, Social & Governance overview</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadDashboard(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {kpiCards.map((card) => {
@@ -195,19 +204,19 @@ export default function ESGDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
-                <Link href="/emissions" className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                <Link href="/emissions" className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
                   <Cloud className="h-8 w-8 text-green-600 mb-2" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Log Emissions</span>
                 </Link>
-                <Link href="/targets" className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                <Link href="/targets" className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
                   <Target className="h-8 w-8 text-blue-600 mb-2" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Set Target</span>
                 </Link>
-                <Link href="/reports" className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                <Link href="/reports" className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors">
                   <BarChart3 className="h-8 w-8 text-purple-600 mb-2" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Generate Report</span>
                 </Link>
-                <Link href="/frameworks" className="flex flex-col items-center p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors">
+                <Link href="/frameworks" className="flex flex-col items-center p-4 bg-amber-50 dark:bg-amber-900 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-800 transition-colors">
                   <Shield className="h-8 w-8 text-amber-600 mb-2" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Frameworks</span>
                 </Link>
@@ -224,21 +233,21 @@ export default function ESGDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Leaf className="h-5 w-5 text-green-600" />
                     <span className="font-medium text-gray-900 dark:text-gray-100">Environmental</span>
                   </div>
                   <span className="text-sm text-green-700 font-medium">Active</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Users className="h-5 w-5 text-blue-600" />
                     <span className="font-medium text-gray-900 dark:text-gray-100">Social</span>
                   </div>
                   <span className="text-sm text-blue-700 font-medium">Active</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Shield className="h-5 w-5 text-purple-600" />
                     <span className="font-medium text-gray-900 dark:text-gray-100">Governance</span>

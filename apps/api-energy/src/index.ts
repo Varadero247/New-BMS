@@ -4,7 +4,7 @@ dotenv.config();
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    createLogger('startup').error(`FATAL: Missing required env var: ${envVar}`);
+    console.error(`FATAL: Missing required env var: ${envVar}`);
     process.exit(1);
   }
 }
@@ -42,7 +42,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 4020;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-energy'));

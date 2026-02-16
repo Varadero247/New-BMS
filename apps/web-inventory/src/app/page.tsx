@@ -29,6 +29,7 @@ interface DashboardStats {
 export default function InventoryDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -59,6 +60,7 @@ export default function InventoryDashboard() {
       });
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -68,10 +70,10 @@ export default function InventoryDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -88,6 +90,13 @@ export default function InventoryDashboard() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">Real-time inventory overview and stock management</p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
@@ -97,7 +106,7 @@ export default function InventoryDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
                   <p className="text-2xl font-bold">{stats?.totalProducts || 0}</p>
                 </div>
-                <div className="p-3 bg-sky-100 rounded-full">
+                <div className="p-3 bg-sky-100 dark:bg-sky-900 rounded-full">
                   <Package className="h-6 w-6 text-sky-600" />
                 </div>
               </div>
@@ -111,7 +120,7 @@ export default function InventoryDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Stock</p>
                   <p className="text-2xl font-bold">{(stats?.totalQuantityOnHand || 0).toLocaleString()}</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                   <BarChart className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -126,7 +135,7 @@ export default function InventoryDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Inventory Value</p>
                   <p className="text-2xl font-bold">${(stats?.totalInventoryValue || 0).toLocaleString()}</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
                   <DollarSign className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -140,7 +149,7 @@ export default function InventoryDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Low Stock Alerts</p>
                   <p className="text-2xl font-bold text-orange-600">{stats?.lowStockCount || 0}</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <AlertTriangle className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -163,7 +172,7 @@ export default function InventoryDashboard() {
                       +{(stats.transactionSummary.totals?.totalIn || 0).toLocaleString()}
                     </p>
                   </div>
-                  <div className="p-3 bg-green-100 rounded-full">
+                  <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                     <TrendingUp className="h-6 w-6 text-green-600" />
                   </div>
                 </div>
@@ -179,7 +188,7 @@ export default function InventoryDashboard() {
                       -{(stats.transactionSummary.totals?.totalOut || 0).toLocaleString()}
                     </p>
                   </div>
-                  <div className="p-3 bg-red-100 rounded-full">
+                  <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                     <TrendingDown className="h-6 w-6 text-red-600" />
                   </div>
                 </div>
@@ -193,7 +202,7 @@ export default function InventoryDashboard() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Transactions (30 days)</p>
                     <p className="text-2xl font-bold">{stats.transactionSummary.totals?.totalTransactions || 0}</p>
                   </div>
-                  <div className="p-3 bg-blue-100 rounded-full">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
                     <ArrowRightLeft className="h-6 w-6 text-blue-600" />
                   </div>
                 </div>
@@ -216,7 +225,7 @@ export default function InventoryDashboard() {
               {stats?.lowStockProducts && stats.lowStockProducts.length > 0 ? (
                 <div className="space-y-3">
                   {stats.lowStockProducts.map((product: any) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                    <div key={product.id} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border-l-4 border-orange-500">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{product.name}</p>
                         <div className="flex items-center gap-2 mt-1">

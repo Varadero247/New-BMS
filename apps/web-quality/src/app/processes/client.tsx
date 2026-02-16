@@ -306,7 +306,7 @@ export default function ProcessesClient() {
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <Input placeholder="Search processes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                <Input aria-label="Search processes..." placeholder="Search processes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
               </div>
             </div>
             <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>

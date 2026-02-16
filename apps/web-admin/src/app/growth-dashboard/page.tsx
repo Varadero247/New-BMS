@@ -341,6 +341,7 @@ export default function GrowthDashboardPage() {
               {metrics.leadSources.length === 0 ? (
                 <p className="text-gray-500 dark:text-gray-400 text-center py-8">No data</p>
               ) : (
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#1B3A6B]/30">
@@ -359,6 +360,7 @@ export default function GrowthDashboardPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>
@@ -374,6 +376,7 @@ export default function GrowthDashboardPage() {
             {metrics.partnerLeaderboard.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400 text-center py-8">No partner data available</p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
@@ -409,6 +412,7 @@ export default function GrowthDashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>
@@ -471,6 +475,7 @@ export default function GrowthDashboardPage() {
               {metrics.customerHealth.bottomTen.length === 0 ? (
                 <p className="text-gray-500 dark:text-gray-400 text-center py-8">No at-risk accounts</p>
               ) : (
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#1B3A6B]/30">
@@ -497,6 +502,7 @@ export default function GrowthDashboardPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>
@@ -512,6 +518,7 @@ export default function GrowthDashboardPage() {
             {metrics.renewals.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400 text-center py-8">No upcoming renewals</p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
@@ -542,6 +549,7 @@ export default function GrowthDashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 39 API services, 43 web apps, and 42 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 38 Prisma schemas with 595 database tables. ~8,169+ unit tests across 360+ suites.
+Integrated Management System (IMS) monorepo with 39 API services, 43 web apps, and 42 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 38 Prisma schemas with 595 database tables. ~11,567 unit tests across 544 suites.
 
 ## Known Issues & Fixes
 
@@ -200,7 +200,7 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/notifications` — WebSocket real-time notifications
 - `@ims/pwa` — Progressive Web App (service worker, offline sync)
 - `@ims/performance` — k6 load tests, Lighthouse CI, WCAG audit
-- `@ims/templates` — 110 built-in document/report templates
+- `@ims/templates` — 171 built-in document/report templates
 - `@ims/emission-factors` — GHG emission factor database
 - `@ims/finance-calculations` — Financial calculation engine
 - `@ims/tax-engine` — Multi-jurisdiction tax calculation

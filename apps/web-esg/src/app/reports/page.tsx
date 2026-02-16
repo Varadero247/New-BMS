@@ -142,9 +142,9 @@ export default function ReportsPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-[200px] relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" placeholder="Search reports..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <input type="text" aria-label="Search reports..." placeholder="Search reports..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
-            <select value={frameworkFilter} onChange={e => setFrameworkFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by framework" value={frameworkFilter} onChange={e => setFrameworkFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Frameworks</option>
               <option value="GRI">GRI</option>
               <option value="TCFD">TCFD</option>
@@ -153,7 +153,7 @@ export default function ReportsPage() {
               <option value="CSRD">CSRD</option>
               <option value="SFDR">SFDR</option>
             </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Statuses</option>
               <option value="DRAFT">Draft</option>
               <option value="UNDER_REVIEW">Under Review</option>
@@ -191,7 +191,7 @@ export default function ReportsPage() {
                         <td className="py-3 px-4"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${statusColors[r.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{r.status?.replace(/_/g, ' ')}</span></td>
                         <td className="py-3 px-4 text-gray-600">{r.generatedAt ? new Date(r.generatedAt).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-right"><div className="flex justify-end gap-2">
-                          <button className="text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors" title="Download"><Download className="h-4 w-4" /></button>
+                          <button className="text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors" title="Download" aria-label="Download"><Download className="h-4 w-4" /></button>
                           {r.status === 'DRAFT' && <button className="text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors" title="Publish"><Send className="h-4 w-4" /></button>}
                           <button onClick={() => openEdit(r)} className="text-gray-400 dark:text-gray-500 hover:text-green-600"><Pencil className="h-4 w-4" /></button>
                           <button onClick={() => setDeleteId(r.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>

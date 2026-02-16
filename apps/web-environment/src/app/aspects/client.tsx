@@ -578,7 +578,7 @@ export default function AspectsClient() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              placeholder="Search aspects..."
+              aria-label="Search aspects..." placeholder="Search aspects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

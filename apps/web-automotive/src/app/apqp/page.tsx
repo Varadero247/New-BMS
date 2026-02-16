@@ -96,8 +96,8 @@ export default function APQPPage() {
         </div>
 
         <div className="flex gap-3 mb-4">
-          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search APQP projects..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
-          <select value={phaseFilter} onChange={e => setPhaseFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
+          <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" aria-label="Search APQP projects..." placeholder="Search APQP projects..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" /></div>
+          <select aria-label="Filter by phase" value={phaseFilter} onChange={e => setPhaseFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
             <option value="">All Phases</option>{PHASES.map(p => <option key={p} value={p}>{phaseLabel(p)}</option>)}
           </select>
         </div>

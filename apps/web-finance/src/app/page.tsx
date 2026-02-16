@@ -76,10 +76,10 @@ export default function FinanceDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function FinanceDashboard() {
       subtitle: 'Current period',
       icon: TrendingUp,
       iconColor: 'text-green-500',
-      bgColor: 'bg-green-50',
+      bgColor: 'bg-green-50 dark:bg-green-900',
       valueColor: 'text-green-700',
       href: '/reports',
     },
@@ -104,7 +104,7 @@ export default function FinanceDashboard() {
       subtitle: 'Current period',
       icon: TrendingDown,
       iconColor: 'text-red-500',
-      bgColor: 'bg-red-50',
+      bgColor: 'bg-red-50 dark:bg-red-900',
       valueColor: 'text-red-700',
       href: '/reports',
     },
@@ -114,7 +114,7 @@ export default function FinanceDashboard() {
       subtitle: (data?.profit || 0) >= 0 ? 'Profit' : 'Loss',
       icon: DollarSign,
       iconColor: 'text-blue-500',
-      bgColor: 'bg-blue-50',
+      bgColor: 'bg-blue-50 dark:bg-blue-900',
       valueColor: (data?.profit || 0) >= 0 ? 'text-blue-700' : 'text-red-700',
       href: '/reports',
     },
@@ -124,7 +124,7 @@ export default function FinanceDashboard() {
       subtitle: 'All accounts',
       icon: Landmark,
       iconColor: 'text-indigo-500',
-      bgColor: 'bg-indigo-50',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900',
       valueColor: 'text-indigo-700',
       href: '/banking',
     },
@@ -134,7 +134,7 @@ export default function FinanceDashboard() {
       subtitle: 'Receivable',
       icon: Receipt,
       iconColor: 'text-amber-500',
-      bgColor: 'bg-amber-50',
+      bgColor: 'bg-amber-50 dark:bg-amber-900',
       valueColor: 'text-amber-700',
       href: '/invoices',
     },
@@ -144,7 +144,7 @@ export default function FinanceDashboard() {
       subtitle: 'Payable',
       icon: CreditCard,
       iconColor: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      bgColor: 'bg-orange-50 dark:bg-orange-900',
       valueColor: 'text-orange-700',
       href: '/payables',
     },
@@ -154,7 +154,7 @@ export default function FinanceDashboard() {
       subtitle: 'Require attention',
       icon: AlertCircle,
       iconColor: 'text-red-500',
-      bgColor: 'bg-red-50',
+      bgColor: 'bg-red-50 dark:bg-red-900',
       valueColor: 'text-red-700',
       href: '/invoices',
     },
@@ -164,7 +164,7 @@ export default function FinanceDashboard() {
       subtitle: 'Require attention',
       icon: AlertCircle,
       iconColor: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      bgColor: 'bg-orange-50 dark:bg-orange-900',
       valueColor: 'text-orange-700',
       href: '/payables',
     },
@@ -213,28 +213,28 @@ export default function FinanceDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link
                 href="/invoices"
-                className="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
               >
                 <Receipt className="h-8 w-8 text-indigo-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Invoice</span>
               </Link>
               <Link
                 href="/payables"
-                className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
               >
                 <CreditCard className="h-8 w-8 text-blue-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Record Bill</span>
               </Link>
               <Link
                 href="/journal"
-                className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
               >
                 <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Journal Entry</span>
               </Link>
               <Link
                 href="/reports"
-                className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
               >
                 <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View Reports</span>
@@ -262,14 +262,14 @@ export default function FinanceDashboard() {
                   </thead>
                   <tbody>
                     {data.recentTransactions.map((tx) => (
-                      <tr key={tx.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <tr key={tx.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td className="py-3 px-4 text-gray-600">
                           {new Date(tx.date).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{tx.description}</td>
                         <td className="py-3 px-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            tx.type === 'CREDIT' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            tx.type === 'CREDIT' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
                           }`}>
                             {tx.type}
                           </span>

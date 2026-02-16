@@ -25,7 +25,7 @@ export default function ComplaintsPage() {
           <div><h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Complaints</h1><p className="text-gray-500 dark:text-gray-400 mt-1">Submit and track complaints</p></div>
           <button className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 flex items-center gap-2"><Plus className="h-5 w-5" /> New Complaint</button>
         </div>
-        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" placeholder="Search complaints..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
+        <div className="mb-4"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" /><input type="text" aria-label="Search complaints..." placeholder="Search complaints..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full" /></div></div>
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-teal-600" />Complaints ({filtered.length})</CardTitle></CardHeader>
           <CardContent>

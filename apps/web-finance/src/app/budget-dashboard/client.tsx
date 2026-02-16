@@ -182,7 +182,7 @@ export default function BudgetDashboardClient() {
       )}
 
       {/* Budget lines table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

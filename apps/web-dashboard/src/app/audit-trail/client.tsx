@@ -168,7 +168,7 @@ export default function AuditTrailClient() {
       <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-900 rounded-lg border p-4">
         <input
           type="text"
-          placeholder="Search user, resource, details..."
+          aria-label="Search user, resource, details..." placeholder="Search user, resource, details..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 min-w-[200px] px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -206,7 +206,7 @@ export default function AuditTrailClient() {
       </div>
 
       {/* Audit Table */}
-      <div className="bg-white dark:bg-gray-900 rounded-lg border overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800 border-b">
             <tr>

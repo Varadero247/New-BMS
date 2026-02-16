@@ -141,13 +141,13 @@ export default function EngineeringChangesPage() {
         <div className="flex gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
-            <input type="text" placeholder="Search ECPs..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" />
+            <input type="text" aria-label="Search ECPs..." placeholder="Search ECPs..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg w-full text-sm" />
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
+          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
             <option value="">All Statuses</option>
             {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
           </select>
-          <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
+          <select aria-label="Filter by priority" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm">
             <option value="">All Priorities</option>
             {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
           </select>

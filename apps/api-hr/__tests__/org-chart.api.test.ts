@@ -1,0 +1,170 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    employee: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    hRDepartment: {
+      findMany: jest.fn(),
+    },
+  },
+  Prisma: {},
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
+import { prisma } from '../src/prisma';
+import router from '../src/routes/org-chart';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+const app = express();
+app.use(express.json());
+app.use('/api/org-chart', router);
+
+const EMP_ID_1 = '00000000-0000-4000-a000-000000000001';
+const EMP_ID_2 = '00000000-0000-4000-a000-000000000002';
+const DEPT_ID = '00000000-0000-4000-a000-000000000010';
+
+const mockEmployees = [
+  {
+    id: EMP_ID_1,
+    employeeNumber: 'EMP-001',
+    firstName: 'Alice',
+    lastName: 'Smith',
+    jobTitle: 'CEO',
+    departmentId: DEPT_ID,
+    managerId: null,
+    profilePhoto: null,
+    department: { id: DEPT_ID, name: 'Executive' },
+  },
+  {
+    id: EMP_ID_2,
+    employeeNumber: 'EMP-002',
+    firstName: 'Bob',
+    lastName: 'Jones',
+    jobTitle: 'Engineer',
+    departmentId: DEPT_ID,
+    managerId: EMP_ID_1,
+    profilePhoto: null,
+    department: { id: DEPT_ID, name: 'Executive' },
+  },
+];
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/org-chart', () => {
+  it('returns hierarchical org chart', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(mockEmployees);
+
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('totalEmployees');
+    expect(res.body.data).toHaveProperty('chart');
+    expect(res.body.data.totalEmployees).toBe(2);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('GET /api/org-chart/flat', () => {
+  it('returns flat list of employees with manager info', async () => {
+    const flatEmployees = mockEmployees.map(e => ({
+      ...e,
+      manager: e.managerId ? { id: EMP_ID_1, firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO' } : null,
+      _count: { subordinates: 1 },
+    }));
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(flatEmployees);
+
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/org-chart/by-department', () => {
+  it('returns employees grouped by department', async () => {
+    const deptWithEmployees = {
+      id: DEPT_ID,
+      name: 'Executive',
+      code: 'EXEC',
+      isActive: true,
+      employees: [
+        { id: EMP_ID_1, employeeNumber: 'EMP-001', firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO', managerId: null, profilePhoto: null },
+      ],
+      manager: null,
+    };
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([deptWithEmployees]);
+
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data[0]).toHaveProperty('headCount');
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/org-chart/reporting-chain/:employeeId', () => {
+  it('returns reporting chain for employee', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: EMP_ID_2, employeeNumber: 'EMP-002', firstName: 'Bob', lastName: 'Jones', jobTitle: 'Engineer', managerId: EMP_ID_1, department: { id: DEPT_ID, name: 'Executive' } })
+      .mockResolvedValueOnce({ id: EMP_ID_1, employeeNumber: 'EMP-001', firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO', managerId: null, department: { id: DEPT_ID, name: 'Executive' } });
+
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('returns empty chain when employee not found', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_1}`);
+    expect(res.status).toBe(500);
+  });
+});

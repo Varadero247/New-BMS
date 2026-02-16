@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("MARKETING_DATABASE_URL")
+  url      = env("PARTNER_PORTAL_DATABASE_URL")
 }
 
 enum MktTicketStatus {

@@ -33,6 +33,7 @@ export default function ReferralsPage() {
   const [formEmail, setFormEmail] = useState('');
   const [formName, setFormName] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
@@ -41,6 +42,7 @@ export default function ReferralsPage() {
   }, []);
 
   const fetchData = async () => {
+    setError('');
     try {
       const [refRes, statsRes] = await Promise.allSettled([
         api.get('/api/referrals'),
@@ -50,6 +52,7 @@ export default function ReferralsPage() {
       if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data);
     } catch (err) {
       console.error('Failed to load referrals', err);
+      setError('Failed to load referrals. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -58,6 +61,7 @@ export default function ReferralsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError('');
     try {
       await api.post('/api/referrals/track', { prospectEmail: formEmail, prospectName: formName || undefined });
       setFormEmail('');
@@ -66,6 +70,7 @@ export default function ReferralsPage() {
       fetchData();
     } catch (err) {
       console.error('Failed to track referral', err);
+      setError('Failed to submit referral. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -103,6 +108,13 @@ export default function ReferralsPage() {
               + Track Referral
             </button>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
+              <p className="text-sm text-red-400">{error}</p>
+              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+            </div>
+          )}
 
           {/* Stats */}
           {stats && (

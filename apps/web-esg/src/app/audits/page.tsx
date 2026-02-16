@@ -193,9 +193,9 @@ export default function AuditsPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-[200px] relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" placeholder="Search audits..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <input type="text" aria-label="Search audits..." placeholder="Search audits..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
-            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by type" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Types</option>
               <option value="INTERNAL">Internal</option>
               <option value="EXTERNAL">External</option>
@@ -203,7 +203,7 @@ export default function AuditsPage() {
               <option value="REGULATORY">Regulatory</option>
               <option value="CERTIFICATION">Certification</option>
             </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
               <option value="">All Statuses</option>
               <option value="PLANNED">Planned</option>
               <option value="IN_PROGRESS">In Progress</option>

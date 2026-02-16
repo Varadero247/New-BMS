@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IMS Template Library provides 110 built-in templates across 22 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 25 API services, 26 web apps, and 39 shared packages — templates integrate with 12 of the 26 web frontends.
+The IMS Template Library provides 184 built-in templates across 33 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 39 API services, 43 web apps, and 42 shared packages — templates integrate with 12 of the 43 web frontends.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ Primary template definition with fields, metadata, and versioning.
 |-------|------|-------------|
 | code | String (unique) | `TPL-{MODULE}-{NNN}` format |
 | name | String | Template display name |
-| module | TemplateModule | One of 22 modules |
+| module | TemplateModule | One of 33 modules |
 | category | TemplateCategory | One of 17 categories |
 | status | TemplateStatus | DRAFT, ACTIVE, DEPRECATED, ARCHIVED |
 | version | Int | Auto-incremented on update |
@@ -131,19 +131,30 @@ All endpoints require Bearer token authentication.
 | Workflows | TPL-WF | 2 | 001-002 |
 | Project Management | TPL-PM | 10 | 001-010 |
 | Inventory | TPL-INV | 2 | 001-002 |
-| Payroll | TPL-PAY | 3 | 001-003 |
-| CRM | TPL-CRM | 3 | 001-003 |
-| Finance | TPL-FIN | 3 | 001-003 |
-| InfoSec | TPL-SEC | 3 | 001-003 |
-| ISO 37001 | TPL-AB | 3 | 001-003 |
-| ISO 42001 | TPL-AI | 3 | 001-003 |
-| ESG | TPL-ESG | 3 | 001-003 |
-| CMMS | TPL-MNT | 3 | 001-003 |
-| Food Safety | TPL-FS | 3 | 001-003 |
-| Energy | TPL-ENR | 3 | 001-003 |
-| Field Service | TPL-FSV | 3 | 001-003 |
-| Analytics | TPL-ANL | 3 | 001-003 |
-| **Total** | | **110** | |
+| Payroll | TPL-PAY | 5 | 001-005 |
+| CRM | TPL-CRM | 5 | 001-005 |
+| Finance | TPL-FIN | 5 | 001-005 |
+| InfoSec | TPL-SEC | 5 | 001-005 |
+| ISO 37001 | TPL-AB | 5 | 001-005 |
+| ISO 42001 | TPL-AI | 5 | 001-005 |
+| ESG | TPL-ESG | 5 | 001-005 |
+| CMMS | TPL-MNT | 5 | 001-005 |
+| Food Safety | TPL-FS | 5 | 001-005 |
+| Energy | TPL-ENR | 5 | 001-005 |
+| Field Service | TPL-FSV | 5 | 001-005 |
+| Analytics | TPL-ANL | 5 | 001-005 |
+| Risk | TPL-RISK | 4 | 001-004 |
+| Training | TPL-TRN | 4 | 001-004 |
+| Suppliers | TPL-SUP | 3 | 001-003 |
+| Assets | TPL-AST | 3 | 001-003 |
+| Documents | TPL-DOC | 3 | 001-003 |
+| Complaints | TPL-CMP | 3 | 001-003 |
+| Contracts | TPL-CON | 3 | 001-003 |
+| PTW | TPL-PTW | 3 | 001-003 |
+| Incidents | TPL-INC | 3 | 001-003 |
+| Audits | TPL-AUD | 4 | 001-004 |
+| Management Review | TPL-MR | 3 | 001-003 |
+| **Total** | | **171** | |
 
 ## Seeding
 

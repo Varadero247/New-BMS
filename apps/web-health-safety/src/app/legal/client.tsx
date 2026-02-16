@@ -222,16 +222,16 @@ export default function LegalRegisterClient() {
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-            <input type="text" placeholder="Search requirements..." value={searchTerm}
+            <input type="text" aria-label="Search requirements..." placeholder="Search requirements..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
-          <select value={complianceFilter} onChange={e => setComplianceFilter(e.target.value)}
+          <select aria-label="Filter by compliance" value={complianceFilter} onChange={e => setComplianceFilter(e.target.value)}
             className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Compliance</option>
             {COMPLIANCE_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
-          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
+          <select aria-label="Filter by category" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
             className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
             <option value="all">All Categories</option>
             {LEGAL_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}

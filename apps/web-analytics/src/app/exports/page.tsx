@@ -141,19 +141,19 @@ export default function ExportsPage() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search exports..."
+              aria-label="Search exports..." placeholder="Search exports..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          <select value={formatFilter} onChange={e => setFormatFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by format" value={formatFilter} onChange={e => setFormatFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Formats</option>
             <option value="PDF">PDF</option>
             <option value="XLSX">XLSX</option>
             <option value="CSV">CSV</option>
           </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="">All Status</option>
             <option value="COMPLETED">Completed</option>
             <option value="PROCESSING">Processing</option>

@@ -141,10 +141,10 @@ export default function DocumentsPage() {
           <div className="flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" placeholder="Search documents..." value={search} onChange={e => setSearch(e.target.value)}
+              <input type="text" aria-label="Search documents..." placeholder="Search documents..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             </div>
-            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+            <select aria-label="Filter by type" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
               className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="">All Types</option>
               <option value="PLAN">Plan</option>
@@ -154,7 +154,7 @@ export default function DocumentsPage() {
               <option value="MINUTES">Minutes</option>
               <option value="RISK_LOG">Risk Log</option>
             </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+            <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
               className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="">All Status</option>
               <option value="DRAFT">Draft</option>

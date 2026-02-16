@@ -356,7 +356,7 @@ export default function HumanFactorsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by title, ref number, category..."
+                  aria-label="Search by title, ref number, category..." placeholder="Search by title, ref number, category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -453,7 +453,7 @@ export default function HumanFactorsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by personnel name..."
+                  aria-label="Search by personnel name..." placeholder="Search by personnel name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"

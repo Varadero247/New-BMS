@@ -35,28 +35,29 @@ const MOCK_TEMPLATES: TemplateItem[] = [
 ];
 
 const CATEGORY_STYLES: Record<string, string> = {
-  Audit: 'bg-blue-100 text-blue-700',
-  Quality: 'bg-indigo-100 text-indigo-700',
-  'H&S': 'bg-red-100 text-red-700',
-  Risk: 'bg-orange-100 text-orange-700',
-  Management: 'bg-purple-100 text-purple-700',
-  'Supply Chain': 'bg-amber-100 text-amber-700',
-  Environment: 'bg-green-100 text-green-700',
-  'AI Governance': 'bg-violet-100 text-violet-700',
-  ESG: 'bg-teal-100 text-teal-700',
-  HR: 'bg-pink-100 text-pink-700',
-  'Document Control': 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+  Audit: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+  Quality: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300',
+  'H&S': 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
+  Risk: 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300',
+  Management: 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300',
+  'Supply Chain': 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
+  Environment: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+  'AI Governance': 'bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300',
+  ESG: 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300',
+  HR: 'bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300',
+  'Document Control': 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
 };
 
 const FORMAT_STYLES: Record<string, string> = {
-  DOCX: 'bg-blue-50 text-blue-600',
-  XLSX: 'bg-green-50 text-green-600',
-  PDF: 'bg-red-50 text-red-600',
+  DOCX: 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300',
+  XLSX: 'bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300',
+  PDF: 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300',
 };
 
 export default function TemplatesPage() {
   const [items, setItems] = useState<TemplateItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [formatFilter, setFormatFilter] = useState('');
@@ -68,6 +69,7 @@ export default function TemplatesPage() {
         const r = await api.get('/templates');
         setItems(r.data.data || MOCK_TEMPLATES);
       } catch {
+        setError('Unable to load templates from server. Showing built-in defaults.');
         setItems(MOCK_TEMPLATES);
       } finally {
         setLoading(false);
@@ -95,12 +97,12 @@ export default function TemplatesPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4 max-w-7xl mx-auto">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1,2,3].map(i => <div key={i} className="h-24 bg-gray-200 rounded" />)}
+            {[1,2,3].map(i => <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded" />)}
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {[1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-gray-200 rounded" />)}
+            {[1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded" />)}
           </div>
         </div>
       </div>
@@ -124,9 +126,9 @@ export default function TemplatesPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { label: 'Total Templates', value: items.length, color: 'bg-blue-50 text-blue-700' },
-            { label: 'Built-in Templates', value: builtIn, color: 'bg-green-50 text-green-700' },
-            { label: 'Total Downloads', value: totalUsage.toLocaleString(), color: 'bg-purple-50 text-purple-700' },
+            { label: 'Total Templates', value: items.length, color: 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300' },
+            { label: 'Built-in Templates', value: builtIn, color: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300' },
+            { label: 'Total Downloads', value: totalUsage.toLocaleString(), color: 'bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300' },
           ].map(s => (
             <div key={s.label} className={`rounded-lg p-4 ${s.color}`}>
               <p className="text-2xl font-bold">{s.value}</p>
@@ -135,34 +137,49 @@ export default function TemplatesPage() {
           ))}
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-amber-700 dark:text-amber-300">{error}</p>
+            <button onClick={() => setError('')} className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 ml-4">
+              <XCircle className="h-4 w-4" />
+              <span className="sr-only">Dismiss</span>
+            </button>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6 items-center">
           <div className="relative flex-1 min-w-48">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
+            <label htmlFor="template-search" className="sr-only">Search templates</label>
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
             <input
+              id="template-search"
               type="text"
-              placeholder="Search templates, standards, tags..."
+              aria-label="Search templates, standards, tags..." placeholder="Search templates, standards, tags..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
-          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label htmlFor="category-filter" className="sr-only">Filter by category</label>
+          <select id="category-filter" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">All Categories</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={formatFilter} onChange={e => setFormatFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label htmlFor="format-filter" className="sr-only">Filter by format</label>
+          <select id="format-filter" value={formatFilter} onChange={e => setFormatFilter(e.target.value)} className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">All Formats</option>
             <option value="DOCX">DOCX</option>
             <option value="XLSX">XLSX</option>
             <option value="PDF">PDF</option>
           </select>
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
             <input
               type="checkbox"
               checked={showBuiltInOnly}
               onChange={e => setShowBuiltInOnly(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
             />
             Built-in only
           </label>
@@ -197,7 +214,7 @@ export default function TemplatesPage() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{tpl.description}</p>
 
                   <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
-                    <span className="font-medium text-gray-600">Standard:</span> {tpl.standard}
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Standard:</span> {tpl.standard}
                   </p>
 
                   <div className="flex flex-wrap gap-1 mb-3">
@@ -217,7 +234,7 @@ export default function TemplatesPage() {
                       <button className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400" title="Preview">
                         <Eye className="h-3.5 w-3.5" />
                       </button>
-                      <button className="p-1.5 rounded hover:bg-blue-100 text-blue-600" title="Download">
+                      <button className="p-1.5 rounded hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400" title="Download">
                         <Download className="h-3.5 w-3.5" />
                       </button>
                     </div>

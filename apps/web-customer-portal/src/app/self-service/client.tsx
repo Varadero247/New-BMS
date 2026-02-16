@@ -245,7 +245,7 @@ export default function SelfServiceClient() {
                   <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{d.size}</td>
                   <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{d.uploadDate}</td>
                   <td className="px-4 py-3 text-center">
-                    <button className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><Download className="h-4 w-4" /></button>
+                    <button className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100" aria-label="Download"><Download className="h-4 w-4" /></button>
                   </td>
                 </tr>
               ))}

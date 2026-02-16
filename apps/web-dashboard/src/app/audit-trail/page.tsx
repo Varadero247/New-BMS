@@ -163,7 +163,7 @@ export default function AuditTrailPage() {
                   <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    placeholder="Search events, users, IDs..."
+                    aria-label="Search events, users, IDs..." placeholder="Search events, users, IDs..."
                     value={search}
                     onChange={e => { setSearch(e.target.value); setPage(1); }}
                     className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"

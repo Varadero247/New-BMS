@@ -488,7 +488,7 @@ export default function ObjectivesClient() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by title, reference, owner or department..."
+                  aria-label="Search by title, reference, owner or department..." placeholder="Search by title, reference, owner or department..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -1053,7 +1053,7 @@ export default function ObjectivesClient() {
                 E -- Milestones
               </h3>
               {form.milestones.length > 0 ? (
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-green-50 text-left">
@@ -1158,7 +1158,7 @@ export default function ObjectivesClient() {
                 <div className="mt-4 space-y-4">
                   <AIDisclosure variant="inline" provider="claude" analysisType="Objective Analysis" confidence={0.85} />
                   {/* SMART Scorecard */}
-                  <div className="border border-green-200 rounded-lg overflow-hidden">
+                  <div className="border border-green-200 rounded-lg overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-green-50">

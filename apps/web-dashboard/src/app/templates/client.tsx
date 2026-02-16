@@ -218,7 +218,7 @@ export default function TemplatesClient() {
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
             <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              placeholder="Search templates..."
+              aria-label="Search templates..." placeholder="Search templates..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1"

@@ -297,4 +297,4 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 26 web apps
-- 110 built-in templates across 22 modules
+- 171 built-in templates across 33 modules

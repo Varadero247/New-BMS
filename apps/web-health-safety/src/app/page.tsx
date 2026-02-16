@@ -25,6 +25,7 @@ interface DashboardStats {
 export default function HealthSafetyDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadStats();
@@ -104,6 +105,7 @@ export default function HealthSafetyDashboard() {
       });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -113,10 +115,10 @@ export default function HealthSafetyDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -132,6 +134,13 @@ export default function HealthSafetyDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Health & Safety Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001 Occupational Health & Safety Management</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* Compliance & Metrics Row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -153,7 +162,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">LTIFR</p>
                   <p className="text-2xl font-bold">{stats?.metrics.ltifr.toFixed(2) || '0.00'}</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                   <Activity className="h-6 w-6 text-red-600" />
                 </div>
               </div>
@@ -168,7 +177,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">TRIR</p>
                   <p className="text-2xl font-bold">{stats?.metrics.trir.toFixed(2) || '0.00'}</p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <TrendingUp className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -183,7 +192,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Severity Rate</p>
                   <p className="text-2xl font-bold">{stats?.metrics.severityRate.toFixed(1) || '0.0'}</p>
                 </div>
-                <div className="p-3 bg-yellow-100 rounded-full">
+                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
                   <Users className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
@@ -201,7 +210,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Risks</p>
                   <p className="text-2xl font-bold">{stats?.risks.total || 0}</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
                   <AlertTriangle className="h-6 w-6 text-red-600" />
                 </div>
               </div>
@@ -220,7 +229,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
                   <p className="text-2xl font-bold">{stats?.incidents.open || 0}</p>
                 </div>
-                <div className="p-3 bg-yellow-100 rounded-full">
+                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
                   <FileWarning className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
@@ -239,7 +248,7 @@ export default function HealthSafetyDashboard() {
                     {stats?.actions.overdue || 0}
                   </p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -256,7 +265,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents (YTD)</p>
                   <p className="text-2xl font-bold">{stats?.incidents.total || 0}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
                   <FileWarning className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
@@ -273,7 +282,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Legal Compliance</p>
                   <p className="text-2xl font-bold">{stats?.legal.compliant || 0}<span className="text-sm text-gray-400 dark:text-gray-500 font-normal">/{stats?.legal.total || 0}</span></p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                   <Scale className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -292,7 +301,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">OHS Objectives</p>
                   <p className="text-2xl font-bold">{stats?.objectives.total || 0}</p>
                 </div>
-                <div className="p-3 bg-indigo-100 rounded-full">
+                <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
                   <Target className="h-6 w-6 text-indigo-600" />
                 </div>
               </div>
@@ -317,7 +326,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total CAPAs</p>
                   <p className="text-2xl font-bold">{stats?.actions.total || 0}</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
                   <Clock className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -331,7 +340,7 @@ export default function HealthSafetyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Legal Requirements</p>
                   <p className="text-2xl font-bold">{stats?.legal.total || 0}</p>
                 </div>
-                <div className="p-3 bg-teal-100 rounded-full">
+                <div className="p-3 bg-teal-100 dark:bg-teal-900 rounded-full">
                   <Scale className="h-6 w-6 text-teal-600" />
                 </div>
               </div>
@@ -357,9 +366,9 @@ export default function HealthSafetyDashboard() {
                       <div className="flex-1">
                         <p className="font-medium text-sm">{risk.title}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          risk.riskLevel === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                          risk.riskLevel === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                          'bg-yellow-100 text-yellow-700'
+                          risk.riskLevel === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                          risk.riskLevel === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                          'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
                         }`}>
                           {risk.riskLevel}
                         </span>
@@ -392,14 +401,14 @@ export default function HealthSafetyDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">{incident.referenceNumber}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            incident.status === 'OPEN' ? 'bg-red-100 text-red-700' :
-                            incident.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
+                            incident.status === 'OPEN' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            incident.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+                            'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                           }`}>
                             {incident.status}
                           </span>
                           {incident.riddorReportable && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
                               RIDDOR
                             </span>
                           )}

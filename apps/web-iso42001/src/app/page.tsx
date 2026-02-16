@@ -20,18 +20,18 @@ interface DashboardData {
 }
 
 const severityColors: Record<string, string> = {
-  CRITICAL: 'bg-red-100 text-red-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  LOW: 'bg-green-100 text-green-700',
+  CRITICAL: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
+  HIGH: 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300',
+  MEDIUM: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300',
+  LOW: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
 };
 
 const statusColors: Record<string, string> = {
-  OPEN: 'bg-red-100 text-red-700',
-  IN_PROGRESS: 'bg-blue-100 text-blue-700',
-  INVESTIGATING: 'bg-yellow-100 text-yellow-700',
-  RESOLVED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+  OPEN: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
+  IN_PROGRESS: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+  INVESTIGATING: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300',
+  RESOLVED: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
 };
 
 export default function DashboardPage() {
@@ -75,10 +75,10 @@ export default function DashboardPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg" />
             ))}
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{card.value}</p>
                 </div>
-                <div className={`p-3 rounded-lg bg-${card.color}-100`}>
+                <div className={`p-3 rounded-lg bg-${card.color}-100 dark:bg-${card.color}-900`}>
                   <svg className={`w-6 h-6 text-${card.color}-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={card.icon} />
                   </svg>
@@ -181,10 +181,10 @@ export default function DashboardPage() {
                 {Object.entries(data.riskDistribution).map(([category, count]) => (
                   <div key={category}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">{category}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{category}</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">{count}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div
                         className="bg-indigo-500 rounded-full h-2"
                         style={{ width: `${Math.min((count as number / Math.max(...Object.values(data.riskDistribution) as number[])) * 100, 100)}%` }}

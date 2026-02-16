@@ -117,7 +117,7 @@ export default function StockLevelsPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  placeholder="Search by SKU, name, or bin location..."
+                  aria-label="Search by SKU, name, or bin location..." placeholder="Search by SKU, name, or bin location..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"

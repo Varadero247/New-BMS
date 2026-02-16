@@ -36,6 +36,7 @@ interface DashboardStats {
 export default function HRDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -78,6 +79,7 @@ export default function HRDashboard() {
       });
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -87,10 +89,10 @@ export default function HRDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -106,6 +108,13 @@ export default function HRDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">HR Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Overview of your workforce</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* Employee Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -189,15 +198,15 @@ export default function HRDashboard() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600">Active Job Postings</span>
+                  <span className="text-gray-600 dark:text-gray-400">Active Job Postings</span>
                   <span className="font-bold text-lg">{stats?.recruitment.activeJobs || 0}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600">Total Applicants</span>
+                  <span className="text-gray-600 dark:text-gray-400">Total Applicants</span>
                   <span className="font-bold text-lg">{stats?.recruitment.totalApplicants || 0}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600">Interviews Today</span>
+                  <span className="text-gray-600 dark:text-gray-400">Interviews Today</span>
                   <span className="font-bold text-lg">{stats?.recruitment.interviewsToday || 0}</span>
                 </div>
                 <Link
@@ -221,13 +230,13 @@ export default function HRDashboard() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600">Upcoming Sessions</span>
+                  <span className="text-gray-600 dark:text-gray-400">Upcoming Sessions</span>
                   <span className="font-bold text-lg">{stats?.training.upcomingSessions || 0}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-yellow-600" />
-                    <span className="text-gray-600">Expiring Certifications</span>
+                    <span className="text-gray-600 dark:text-gray-400">Expiring Certifications</span>
                   </div>
                   <span className="font-bold text-lg text-yellow-600">
                     {stats?.training.expiringCertifications || 0}
@@ -253,28 +262,28 @@ export default function HRDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link
                 href="/employees/new"
-                className="flex flex-col items-center p-4 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-emerald-50 dark:bg-emerald-900 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-800 transition-colors"
               >
                 <Users className="h-8 w-8 text-emerald-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Employee</span>
               </Link>
               <Link
                 href="/recruitment/jobs/new"
-                className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
               >
                 <Briefcase className="h-8 w-8 text-blue-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Post Job</span>
               </Link>
               <Link
                 href="/leave"
-                className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
               >
                 <CalendarDays className="h-8 w-8 text-purple-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Leave Requests</span>
               </Link>
               <Link
                 href="/training"
-                className="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+                className="flex flex-col items-center p-4 bg-orange-50 dark:bg-orange-900 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors"
               >
                 <GraduationCap className="h-8 w-8 text-orange-600 mb-2" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Schedule Training</span>

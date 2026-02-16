@@ -213,10 +213,10 @@ export default function PurchaseOrdersPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" placeholder="Search purchase orders..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <input type="text" aria-label="Search purchase orders..." placeholder="Search purchase orders..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
                 <option value="">All Status</option>
                 <option value="DRAFT">Draft</option><option value="PENDING_APPROVAL">Pending Approval</option><option value="APPROVED">Approved</option><option value="SENT">Sent</option><option value="PARTIALLY_RECEIVED">Partially Received</option><option value="RECEIVED">Received</option><option value="CANCELLED">Cancelled</option>
               </select>

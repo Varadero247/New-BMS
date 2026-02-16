@@ -145,20 +145,20 @@ export default function SupplierDevClient() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search supplier name, category, location..."
+              aria-label="Search supplier name, category, location..." placeholder="Search supplier name, category, location..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
             <option value="all">All Statuses</option>
             <option value="approved">Approved</option>
             <option value="conditional">Conditional</option>
             <option value="development">Development</option>
             <option value="suspended">Suspended</option>
           </select>
-          <select value={tierFilter} onChange={e => setTierFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+          <select aria-label="Filter by tier" value={tierFilter} onChange={e => setTierFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
             <option value="all">All Tiers</option>
             <option value="1">Tier 1</option>
             <option value="2">Tier 2</option>

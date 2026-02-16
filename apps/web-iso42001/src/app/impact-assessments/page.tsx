@@ -414,11 +414,11 @@ export default function ImpactAssessmentsPage() {
         <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex flex-wrap gap-3 items-center">
             <Filter className="w-4 h-4 text-muted-foreground" />
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-1.5 text-sm border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-1.5 text-sm border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">All Statuses</option>
               {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
             </select>
-            <select value={filterImpact} onChange={(e) => setFilterImpact(e.target.value)} className="px-3 py-1.5 text-sm border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select aria-label="Filter by impact level" value={filterImpact} onChange={(e) => setFilterImpact(e.target.value)} className="px-3 py-1.5 text-sm border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">All Impact Levels</option>
               {impactLevelOptions.map((l) => <option key={l} value={l}>{l.replace(/_/g, ' ')}</option>)}
             </select>

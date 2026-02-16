@@ -129,7 +129,7 @@ export default function ContractsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-[#0F2440] rounded-xl border border-[#1B3A6B]/30 overflow-hidden">
+        <div className="bg-[#0F2440] rounded-xl border border-[#1B3A6B]/30 overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center text-gray-400 dark:text-gray-500">Loading contracts...</div>
           ) : contracts.length === 0 ? (

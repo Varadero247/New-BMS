@@ -85,6 +85,21 @@ services:
       SERVICE_FIELD_SERVICE_URL: http://host.docker.internal:4022
       SERVICE_ISO42001_URL: http://host.docker.internal:4023
       SERVICE_ISO37001_URL: http://host.docker.internal:4024
+      SERVICE_MARKETING_URL: http://host.docker.internal:4025
+      SERVICE_PARTNERS_URL: http://host.docker.internal:4026
+      SERVICE_RISK_URL: http://host.docker.internal:4027
+      SERVICE_TRAINING_URL: http://host.docker.internal:4028
+      SERVICE_SUPPLIERS_URL: http://host.docker.internal:4029
+      SERVICE_ASSETS_URL: http://host.docker.internal:4030
+      SERVICE_DOCUMENTS_URL: http://host.docker.internal:4031
+      SERVICE_COMPLAINTS_URL: http://host.docker.internal:4032
+      SERVICE_CONTRACTS_URL: http://host.docker.internal:4033
+      SERVICE_PTW_URL: http://host.docker.internal:4034
+      SERVICE_REG_MONITOR_URL: http://host.docker.internal:4035
+      SERVICE_INCIDENTS_URL: http://host.docker.internal:4036
+      SERVICE_AUDITS_URL: http://host.docker.internal:4037
+      SERVICE_MGMT_REVIEW_URL: http://host.docker.internal:4038
+      SERVICE_SETUP_WIZARD_URL: http://host.docker.internal:4039
       CSRF_ENABLED: "false"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -1252,6 +1267,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       MARKETING_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      PARTNER_PORTAL_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -1569,6 +1585,310 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4039/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-marketing:
+    build:
+      context: .
+      dockerfile: ./apps/web-marketing/Dockerfile
+    container_name: ims-web-marketing
+    restart: unless-stopped
+    ports:
+      - '3030:3030'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3030"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-partners:
+    build:
+      context: .
+      dockerfile: ./apps/web-partners/Dockerfile
+    container_name: ims-web-partners
+    restart: unless-stopped
+    ports:
+      - '3026:3026'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3026"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-admin:
+    build:
+      context: .
+      dockerfile: ./apps/web-admin/Dockerfile
+    container_name: ims-web-admin
+    restart: unless-stopped
+    ports:
+      - '3027:3027'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3027"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-risk:
+    build:
+      context: .
+      dockerfile: ./apps/web-risk/Dockerfile
+    container_name: ims-web-risk
+    restart: unless-stopped
+    ports:
+      - '3031:3031'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3031"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-training:
+    build:
+      context: .
+      dockerfile: ./apps/web-training/Dockerfile
+    container_name: ims-web-training
+    restart: unless-stopped
+    ports:
+      - '3032:3032'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3032"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-suppliers:
+    build:
+      context: .
+      dockerfile: ./apps/web-suppliers/Dockerfile
+    container_name: ims-web-suppliers
+    restart: unless-stopped
+    ports:
+      - '3033:3033'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3033"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-assets:
+    build:
+      context: .
+      dockerfile: ./apps/web-assets/Dockerfile
+    container_name: ims-web-assets
+    restart: unless-stopped
+    ports:
+      - '3034:3034'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3034"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-documents:
+    build:
+      context: .
+      dockerfile: ./apps/web-documents/Dockerfile
+    container_name: ims-web-documents
+    restart: unless-stopped
+    ports:
+      - '3035:3035'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3035"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-complaints:
+    build:
+      context: .
+      dockerfile: ./apps/web-complaints/Dockerfile
+    container_name: ims-web-complaints
+    restart: unless-stopped
+    ports:
+      - '3036:3036'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3036"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-contracts:
+    build:
+      context: .
+      dockerfile: ./apps/web-contracts/Dockerfile
+    container_name: ims-web-contracts
+    restart: unless-stopped
+    ports:
+      - '3037:3037'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3037"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-finance-compliance:
+    build:
+      context: .
+      dockerfile: ./apps/web-finance-compliance/Dockerfile
+    container_name: ims-web-finance-compliance
+    restart: unless-stopped
+    ports:
+      - '3038:3038'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3038"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-ptw:
+    build:
+      context: .
+      dockerfile: ./apps/web-ptw/Dockerfile
+    container_name: ims-web-ptw
+    restart: unless-stopped
+    ports:
+      - '3039:3039'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3039"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-reg-monitor:
+    build:
+      context: .
+      dockerfile: ./apps/web-reg-monitor/Dockerfile
+    container_name: ims-web-reg-monitor
+    restart: unless-stopped
+    ports:
+      - '3040:3040'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3040"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-incidents:
+    build:
+      context: .
+      dockerfile: ./apps/web-incidents/Dockerfile
+    container_name: ims-web-incidents
+    restart: unless-stopped
+    ports:
+      - '3041:3041'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3041"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-audits:
+    build:
+      context: .
+      dockerfile: ./apps/web-audits/Dockerfile
+    container_name: ims-web-audits
+    restart: unless-stopped
+    ports:
+      - '3042:3042'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3042"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+  web-mgmt-review:
+    build:
+      context: .
+      dockerfile: ./apps/web-mgmt-review/Dockerfile
+    container_name: ims-web-mgmt-review
+    restart: unless-stopped
+    ports:
+      - '3043:3043'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3043"]
       interval: 30s
       timeout: 10s
       retries: 3

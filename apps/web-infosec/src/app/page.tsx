@@ -34,10 +34,10 @@ interface DashboardData {
 }
 
 const severityColors: Record<string, string> = {
-  LOW: 'bg-green-100 text-green-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  CRITICAL: 'bg-red-100 text-red-700',
+  LOW: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+  MEDIUM: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300',
+  HIGH: 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300',
+  CRITICAL: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
 };
 
 const riskLevelColors: Record<string, string> = {
@@ -51,6 +51,7 @@ const riskLevelColors: Record<string, string> = {
 export default function InfoSecDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboard();
@@ -62,6 +63,7 @@ export default function InfoSecDashboard() {
       setData(res.data.data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      setError('Unable to load data. Please check your connection and try again.');
       setData({
         totalAssets: 0,
         controlsImplemented: 0,
@@ -82,10 +84,10 @@ export default function InfoSecDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded" />
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
         </div>
@@ -100,7 +102,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Registered assets',
       icon: Server,
       iconColor: 'text-teal-500',
-      bgColor: 'bg-teal-50',
+      bgColor: 'bg-teal-50 dark:bg-teal-900',
       valueColor: 'text-teal-700',
       href: '/assets',
     },
@@ -110,7 +112,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Annex A controls',
       icon: Shield,
       iconColor: 'text-cyan-500',
-      bgColor: 'bg-cyan-50',
+      bgColor: 'bg-cyan-50 dark:bg-cyan-900',
       valueColor: 'text-cyan-700',
       href: '/controls',
     },
@@ -120,7 +122,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Requiring treatment',
       icon: AlertTriangle,
       iconColor: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      bgColor: 'bg-orange-50 dark:bg-orange-900',
       valueColor: 'text-orange-700',
       href: '/risks',
     },
@@ -130,7 +132,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Open incidents',
       icon: AlertOctagon,
       iconColor: 'text-red-500',
-      bgColor: 'bg-red-50',
+      bgColor: 'bg-red-50 dark:bg-red-900',
       valueColor: 'text-red-700',
       href: '/incidents',
     },
@@ -140,7 +142,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Awaiting response',
       icon: UserCheck,
       iconColor: 'text-purple-500',
-      bgColor: 'bg-purple-50',
+      bgColor: 'bg-purple-50 dark:bg-purple-900',
       valueColor: 'text-purple-700',
       href: '/privacy/dsar',
     },
@@ -150,7 +152,7 @@ export default function InfoSecDashboard() {
       subtitle: 'Scheduled',
       icon: ClipboardCheck,
       iconColor: 'text-blue-500',
-      bgColor: 'bg-blue-50',
+      bgColor: 'bg-blue-50 dark:bg-blue-900',
       valueColor: 'text-blue-700',
       href: '/audits',
     },
@@ -163,6 +165,13 @@ export default function InfoSecDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">InfoSec Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">ISMS overview and key metrics</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button onClick={() => { setError(''); setLoading(true); loadDashboard(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          </div>
+        )}
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -244,7 +253,7 @@ export default function InfoSecDashboard() {
                   </thead>
                   <tbody>
                     {data.recentIncidents.map((incident) => (
-                      <tr key={incident.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <tr key={incident.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td className="py-3 px-4 font-mono text-xs text-gray-600">{incident.referenceNumber}</td>
                         <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{incident.title}</td>
                         <td className="py-3 px-4 text-gray-600">{incident.type}</td>

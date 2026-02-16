@@ -12,7 +12,7 @@
 | Prisma Schemas | 40 |
 | Database Tables | 601 total |
 | Scripts | 20 |
-| Unit Tests | ~8,169+ across 360+ suites |
+| Unit Tests | ~11,567 across 544 suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -151,7 +151,7 @@
 | `@ims/spc-engine` | `packages/spc-engine/` | Statistical Process Control engine |
 | `@ims/standards-convergence` | `packages/standards-convergence/` | Cross-standard mapping engine |
 | `@ims/tax-engine` | `packages/tax-engine/` | Multi-jurisdiction tax calculation |
-| `@ims/templates` | `packages/templates/` | 110 built-in document/report templates |
+| `@ims/templates` | `packages/templates/` | 184 built-in document/report templates |
 | `@ims/testing` | `packages/testing/` | Shared test utilities |
 | `@ims/types` | `packages/types/` | Shared TypeScript types |
 | `@ims/ui` | `packages/ui/` | React component library |
@@ -223,7 +223,7 @@
 | `/api/roles/*` | Role management |
 | `/api/access-log/*` | Access audit log |
 | `/api/csrf-token` | CSRF token |
-| `/api/v1/templates/*` | Template library (110 templates) |
+| `/api/v1/templates/*` | Template library (184 templates) |
 
 ### Proxy Routes (v1 + legacy)
 | Route Pattern | Target Service | Port |
@@ -305,35 +305,48 @@ All routes also available under `/api/v1/` prefix.
 
 | Service | Test Files | Tests (approx) |
 |---------|-----------|----------------|
-| api-aerospace | 8 | ~338 |
+| api-aerospace | 16 | ~553 |
 | api-ai-analysis | 5 | ~75 |
-| api-analytics | 13 | ~174 |
-| api-automotive | 13 | ~502 |
-| api-cmms | 12 | ~213 |
+| api-analytics | 45 | ~262 |
+| api-assets | 7 | ~120 |
+| api-audits | 6 | ~115 |
+| api-automotive | 16 | ~502 |
+| api-cmms | 13 | ~213 |
+| api-complaints | 7 | ~120 |
+| api-contracts | 7 | ~115 |
 | api-crm | 8 | ~283 |
+| api-documents | 6 | ~100 |
 | api-energy | 12 | ~196 |
-| api-environment | 14 | ~442 |
-| api-esg | 14 | ~207 |
+| api-environment | 15 | ~442 |
+| api-esg | 17 | ~207 |
 | api-field-service | 13 | ~189 |
-| api-finance | 7 | ~321 |
+| api-finance | 16 | ~456 |
 | api-food-safety | 14 | ~241 |
-| api-gateway | 38 | ~725 |
-| api-health-safety | 10 | ~266 |
-| api-hr | 8 | ~305 |
+| api-gateway | 48 | ~861 |
+| api-health-safety | 11 | ~266 |
+| api-hr | 11 | ~355 |
+| api-incidents | 5 | ~95 |
 | api-infosec | 7 | ~227 |
-| api-inventory | 6 | ~160 |
-| api-iso37001 | 6 | ~156 |
-| api-iso42001 | 9 | ~221 |
-| api-medical | 14 | ~584 |
+| api-inventory | 9 | ~210 |
+| api-iso37001 | 7 | ~156 |
+| api-iso42001 | 10 | ~221 |
+| api-marketing | 14 | ~125 |
+| api-medical | 18 | ~871 |
+| api-mgmt-review | 3 | ~55 |
+| api-partners | 8 | ~71 |
 | api-payroll | 8 | ~303 |
 | api-portal | 16 | ~168 |
 | api-project-management | 13 | ~230 |
-| api-marketing | 13 | ~125 |
-| api-partners | 3 | ~35 |
-| api-quality | 29 | ~994 |
+| api-ptw | 5 | ~95 |
+| api-quality | 39 | ~994 |
+| api-reg-monitor | 4 | ~75 |
+| api-risk | 7 | ~135 |
+| api-setup-wizard | 1 | ~15 |
+| api-suppliers | 8 | ~130 |
+| api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~948 |
-| **Total** | **325+** | **~8,037** |
+| **Total** | **544** | **~11,567** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 

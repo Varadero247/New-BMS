@@ -90,9 +90,9 @@ export default function AnalyticsDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4 max-w-7xl mx-auto">
-          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="h-28 bg-gray-200 rounded" />)}
+            {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="h-28 bg-gray-200 dark:bg-gray-700 rounded" />)}
           </div>
         </div>
       </div>
@@ -102,14 +102,14 @@ export default function AnalyticsDashboard() {
   const d = data || MOCK_DATA;
 
   const statCards = [
-    { title: 'Active Dashboards', value: d.activeDashboards, icon: PieChart, iconColor: 'text-purple-500', bgColor: 'bg-purple-50', href: '/dashboards', change: '+2 this month' },
-    { title: 'Total Reports', value: d.totalReports, icon: FileText, iconColor: 'text-blue-500', bgColor: 'bg-blue-50', href: '/reports', change: '+5 this month' },
-    { title: 'Datasets', value: d.datasets, icon: Database, iconColor: 'text-green-500', bgColor: 'bg-green-50', href: '/datasets', change: 'All connected' },
-    { title: 'KPIs Tracked', value: d.kpis, icon: BarChart3, iconColor: 'text-amber-500', bgColor: 'bg-amber-50', href: '/kpis', change: `${Math.round(d.avgScore)}% avg` },
-    { title: 'Active Alerts', value: d.activeAlerts, icon: Bell, iconColor: 'text-red-500', bgColor: 'bg-red-50', href: '/alerts', change: `${d.activeAlerts} firing` },
-    { title: 'Scheduled Exports', value: d.scheduledExports, icon: Download, iconColor: 'text-indigo-500', bgColor: 'bg-indigo-50', href: '/exports', change: 'Auto-running' },
-    { title: 'Avg Performance', value: `${d.avgScore}%`, icon: TrendingUp, iconColor: 'text-emerald-500', bgColor: 'bg-emerald-50', href: '/kpis', change: '+3% vs last month' },
-    { title: 'Active Users', value: d.activeUsers, icon: Users, iconColor: 'text-cyan-500', bgColor: 'bg-cyan-50', href: '/dashboards', change: 'Last 30 days' },
+    { title: 'Active Dashboards', value: d.activeDashboards, icon: PieChart, iconColor: 'text-purple-500', bgColor: 'bg-purple-50 dark:bg-purple-900', href: '/dashboards', change: '+2 this month' },
+    { title: 'Total Reports', value: d.totalReports, icon: FileText, iconColor: 'text-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-900', href: '/reports', change: '+5 this month' },
+    { title: 'Datasets', value: d.datasets, icon: Database, iconColor: 'text-green-500', bgColor: 'bg-green-50 dark:bg-green-900', href: '/datasets', change: 'All connected' },
+    { title: 'KPIs Tracked', value: d.kpis, icon: BarChart3, iconColor: 'text-amber-500', bgColor: 'bg-amber-50 dark:bg-amber-900', href: '/kpis', change: `${Math.round(d.avgScore)}% avg` },
+    { title: 'Active Alerts', value: d.activeAlerts, icon: Bell, iconColor: 'text-red-500', bgColor: 'bg-red-50 dark:bg-red-900', href: '/alerts', change: `${d.activeAlerts} firing` },
+    { title: 'Scheduled Exports', value: d.scheduledExports, icon: Download, iconColor: 'text-indigo-500', bgColor: 'bg-indigo-50 dark:bg-indigo-900', href: '/exports', change: 'Auto-running' },
+    { title: 'Avg Performance', value: `${d.avgScore}%`, icon: TrendingUp, iconColor: 'text-emerald-500', bgColor: 'bg-emerald-50 dark:bg-emerald-900', href: '/kpis', change: '+3% vs last month' },
+    { title: 'Active Users', value: d.activeUsers, icon: Users, iconColor: 'text-cyan-500', bgColor: 'bg-cyan-50 dark:bg-cyan-900', href: '/dashboards', change: 'Last 30 days' },
   ];
 
   return (
@@ -178,7 +178,7 @@ export default function AnalyticsDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-sm font-medium text-gray-800 truncate">{kpi.name}</span>
+                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{kpi.name}</span>
                             <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded flex-shrink-0">{kpi.category}</span>
                           </div>
                           <div className="flex items-center gap-2 ml-2 flex-shrink-0">
@@ -217,7 +217,7 @@ export default function AnalyticsDashboard() {
                   <div key={item.id} className="flex items-start gap-3">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${item.color}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-800 font-medium truncate">{item.name}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-200 font-medium truncate">{item.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs text-gray-400 dark:text-gray-500">{item.type}</span>
                         <span className="text-xs text-gray-300 dark:text-gray-600">·</span>
@@ -236,10 +236,10 @@ export default function AnalyticsDashboard() {
         {/* Quick access links */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Create Report', href: '/reports', icon: FileText, color: 'text-blue-600 bg-blue-50 border-blue-100' },
-            { label: 'Build Dashboard', href: '/dashboards', icon: PieChart, color: 'text-purple-600 bg-purple-50 border-purple-100' },
-            { label: 'Set Up Alert', href: '/alerts', icon: Bell, color: 'text-red-600 bg-red-50 border-red-100' },
-            { label: 'Natural Language Query', href: '/nlq', icon: Sparkles, color: 'text-fuchsia-600 bg-fuchsia-50 border-fuchsia-100' },
+            { label: 'Create Report', href: '/reports', icon: FileText, color: 'text-blue-600 bg-blue-50 dark:bg-blue-900 border-blue-100 dark:border-blue-800' },
+            { label: 'Build Dashboard', href: '/dashboards', icon: PieChart, color: 'text-purple-600 bg-purple-50 dark:bg-purple-900 border-purple-100 dark:border-purple-800' },
+            { label: 'Set Up Alert', href: '/alerts', icon: Bell, color: 'text-red-600 bg-red-50 dark:bg-red-900 border-red-100 dark:border-red-800' },
+            { label: 'Natural Language Query', href: '/nlq', icon: Sparkles, color: 'text-fuchsia-600 bg-fuchsia-50 dark:bg-fuchsia-900 border-fuchsia-100 dark:border-fuchsia-800' },
           ].map(action => {
             const Icon = action.icon;
             return (

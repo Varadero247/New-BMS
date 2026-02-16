@@ -362,7 +362,7 @@ export default function RisksPage() {
                 <Label htmlFor="search" className="text-xs text-gray-500 dark:text-gray-400">Search</Label>
                 <div className="relative mt-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <Input id="search" placeholder="Search by reference, hazard, owner..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+                  <Input id="search" aria-label="Search by reference, hazard, owner..." placeholder="Search by reference, hazard, owner..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
               </div>
               <div>

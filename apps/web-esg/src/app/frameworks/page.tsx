@@ -132,7 +132,7 @@ export default function FrameworksPage() {
         <Card className="mb-6"><CardContent className="pt-4 pb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-            <input type="text" placeholder="Search frameworks..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            <input type="text" aria-label="Search frameworks..." placeholder="Search frameworks..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
           </div>
         </CardContent></Card>
 

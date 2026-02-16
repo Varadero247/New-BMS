@@ -461,7 +461,7 @@ export default function DocumentsClient() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
-                  placeholder="Search by title, document number, author, ISO clause..."
+                  aria-label="Search by title, document number, author, ISO clause..." placeholder="Search by title, document number, author, ISO clause..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -10,28 +10,28 @@ const settingsCategories = [
     description: 'Manage users, invite new members, and control access',
     href: '/users',
     icon: Users,
-    color: 'bg-blue-100 text-blue-600',
+    color: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300',
   },
   {
     name: 'Roles & Permissions',
     description: 'Define roles and configure permission levels',
     href: '/roles',
     icon: Shield,
-    color: 'bg-green-100 text-green-600',
+    color: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300',
   },
   {
     name: 'AI Configuration',
     description: 'Configure AI providers and analysis settings',
     href: '/ai-config',
     icon: Sparkles,
-    color: 'bg-purple-100 text-purple-600',
+    color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300',
   },
   {
     name: 'System Settings',
     description: 'General system configuration and preferences',
     href: '/system',
     icon: Settings,
-    color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300',
   },
 ];
 
@@ -54,8 +54,8 @@ export default function SettingsOverview() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
                   <p className="text-2xl font-bold">24</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                 </div>
               </div>
             </CardContent>
@@ -68,8 +68,8 @@ export default function SettingsOverview() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Sessions</p>
                   <p className="text-2xl font-bold">8</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Activity className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
+                  <Activity className="h-6 w-6 text-green-600 dark:text-green-300" />
                 </div>
               </div>
             </CardContent>
@@ -82,8 +82,8 @@ export default function SettingsOverview() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">AI Analyses</p>
                   <p className="text-2xl font-bold">156</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-full">
-                  <Sparkles className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
+                  <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-300" />
                 </div>
               </div>
             </CardContent>
@@ -96,8 +96,8 @@ export default function SettingsOverview() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">System Status</p>
                   <p className="text-2xl font-bold text-green-600">Healthy</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Server className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
+                  <Server className="h-6 w-6 text-green-600 dark:text-green-300" />
                 </div>
               </div>
             </CardContent>

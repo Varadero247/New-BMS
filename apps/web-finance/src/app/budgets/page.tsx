@@ -182,13 +182,13 @@ export default function BudgetsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" placeholder="Search accounts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <input type="text" aria-label="Search accounts..." placeholder="Search accounts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
               </div>
-              <select value={yearFilter} onChange={(e) => setYearFilter(parseInt(e.target.value))} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by month" value={yearFilter} onChange={(e) => setYearFilter(parseInt(e.target.value))} className="border rounded-md px-3 py-2 text-sm">
                 {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
               </select>
-              <select value={monthFilter} onChange={(e) => setMonthFilter(parseInt(e.target.value))} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by month" value={monthFilter} onChange={(e) => setMonthFilter(parseInt(e.target.value))} className="border rounded-md px-3 py-2 text-sm">
                 <option value={0}>All Months</option>
                 {months.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>

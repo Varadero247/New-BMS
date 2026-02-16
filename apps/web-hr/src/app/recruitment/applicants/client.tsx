@@ -106,13 +106,13 @@ export default function ApplicantsClient() {
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-          <input type="text" placeholder="Search applicants..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
+          <input type="text" aria-label="Search applicants..." placeholder="Search applicants..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
-        <select value={filterPosition} onChange={(e) => setFilterPosition(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <select aria-label="Filter by position" value={filterPosition} onChange={(e) => setFilterPosition(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
           <option value="all">All Positions</option>
           {positions.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
-        <select value={filterStage} onChange={(e) => setFilterStage(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <select aria-label="Filter by stage" value={filterStage} onChange={(e) => setFilterStage(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
           <option value="all">All Stages</option>
           {Object.entries(stageConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>

@@ -19,6 +19,7 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
+import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 import { authenticatePartner } from './middleware/partner-auth';
 
@@ -37,12 +38,14 @@ const app: Express = express();
 const PORT = process.env.PORT || 4026;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-partners'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(sanitizeMiddleware());
+app.use(sanitizeQueryMiddleware());
 
 // Health check
 app.get('/health', createHealthCheck('api-partners', prisma, '1.0.0'));

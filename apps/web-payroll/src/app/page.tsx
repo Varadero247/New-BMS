@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentRuns, setRecentRuns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -62,6 +63,7 @@ export default function DashboardPage() {
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setError('Unable to load data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -94,6 +96,13 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <button onClick={() => { setError(''); setLoading(true); fetchDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
@@ -104,7 +113,7 @@ export default function DashboardPage() {
                 {recentRuns.length}
               </p>
             </div>
-            <div className="rounded-full bg-green-100 p-3">
+            <div className="rounded-full bg-green-100 dark:bg-green-900 p-3">
               <Wallet className="h-6 w-6 text-green-600" />
             </div>
           </div>
@@ -118,7 +127,7 @@ export default function DashboardPage() {
                 {formatCurrency(stats?.currentPayroll?.totalGross || 0)}
               </p>
             </div>
-            <div className="rounded-full bg-blue-100 p-3">
+            <div className="rounded-full bg-blue-100 dark:bg-blue-900 p-3">
               <DollarSign className="h-6 w-6 text-blue-600" />
             </div>
           </div>
@@ -132,7 +141,7 @@ export default function DashboardPage() {
                 {formatCurrency(stats?.currentPayroll?.totalNet || 0)}
               </p>
             </div>
-            <div className="rounded-full bg-purple-100 p-3">
+            <div className="rounded-full bg-purple-100 dark:bg-purple-900 p-3">
               <TrendingUp className="h-6 w-6 text-purple-600" />
             </div>
           </div>
@@ -146,7 +155,7 @@ export default function DashboardPage() {
                 {stats?.totalEmployees || 0}
               </p>
             </div>
-            <div className="rounded-full bg-orange-100 p-3">
+            <div className="rounded-full bg-orange-100 dark:bg-orange-900 p-3">
               <Users className="h-6 w-6 text-orange-600" />
             </div>
           </div>
@@ -216,8 +225,8 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`rounded-full p-2 ${
-                      run.status === 'COMPLETED' ? 'bg-green-100' :
-                      run.status === 'PROCESSING' ? 'bg-yellow-100' :
+                      run.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900' :
+                      run.status === 'PROCESSING' ? 'bg-yellow-100 dark:bg-yellow-900' :
                       'bg-gray-100 dark:bg-gray-800'
                     }`}>
                       {run.status === 'COMPLETED' ? (
@@ -238,10 +247,10 @@ export default function DashboardPage() {
                   <div className="text-right">
                     <p className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(run.totalNet)}</p>
                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      run.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                      run.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
-                      run.status === 'APPROVED' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                      run.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' :
+                      run.status === 'PROCESSING' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' :
+                      run.status === 'APPROVED' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300' :
+                      'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
                     }`}>
                       {run.status}
                     </span>

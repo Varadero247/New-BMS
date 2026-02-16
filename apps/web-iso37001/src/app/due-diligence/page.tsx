@@ -197,20 +197,20 @@ export default function DueDiligencePage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              placeholder="Search by name or reviewer..."
+              aria-label="Search by name or reviewer..." placeholder="Search by name or reviewer..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Types</option>
               {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
-            <select value={filterRisk} onChange={(e) => setFilterRisk(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by risk level" value={filterRisk} onChange={(e) => setFilterRisk(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Risk Levels</option>
               {riskLevelOptions.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="">All Statuses</option>
               {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
             </select>

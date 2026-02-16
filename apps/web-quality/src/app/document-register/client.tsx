@@ -209,24 +209,24 @@ export default function DocumentRegisterClient() {
           <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            placeholder="Search documents..."
+            aria-label="Search documents..." placeholder="Search documents..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-8 pr-3 py-1.5 text-xs border rounded-md w-full"
           />
         </div>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-xs border rounded px-2 py-1.5">
+        <select aria-label="Filter by status" value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-xs border rounded px-2 py-1.5">
           <option value="">All Statuses</option>
           <option value="Draft">Draft</option>
           <option value="Under Review">Under Review</option>
           <option value="Approved">Approved</option>
           <option value="Obsolete">Obsolete</option>
         </select>
-        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="text-xs border rounded px-2 py-1.5">
+        <select aria-label="Filter by category" value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="text-xs border rounded px-2 py-1.5">
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select value={filterDept} onChange={e => setFilterDept(e.target.value)} className="text-xs border rounded px-2 py-1.5">
+        <select aria-label="Filter by department" value={filterDept} onChange={e => setFilterDept(e.target.value)} className="text-xs border rounded px-2 py-1.5">
           <option value="">All Departments</option>
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
@@ -234,7 +234,7 @@ export default function DocumentRegisterClient() {
       </div>
 
       {/* Document table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -317,7 +317,7 @@ export default function DocumentRegisterClient() {
 
           {/* Revision History */}
           <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Revision History</h4>
-          <div className="border border-gray-100 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="border border-gray-100 dark:border-gray-700 rounded-lg overflow-x-auto">
             <table className="w-full text-[11px]">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800">

@@ -62,7 +62,18 @@ export type TemplateModule =
   | 'FOOD_SAFETY'
   | 'ENERGY'
   | 'FIELD_SERVICE'
-  | 'ANALYTICS';
+  | 'ANALYTICS'
+  | 'RISK'
+  | 'TRAINING'
+  | 'SUPPLIERS'
+  | 'ASSETS'
+  | 'DOCUMENTS'
+  | 'COMPLAINTS'
+  | 'CONTRACTS'
+  | 'PTW'
+  | 'INCIDENTS'
+  | 'AUDITS'
+  | 'MANAGEMENT_REVIEW';
 
 export type TemplateCategory =
   | 'RISK_ASSESSMENT'

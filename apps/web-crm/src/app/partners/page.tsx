@@ -138,13 +138,13 @@ export default function PartnersPage() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
-              <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by tier" value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
                 <option value="">All Tiers</option>
                 <option value="TIER_1_REFERRAL">Tier 1 - Referral</option>
                 <option value="TIER_2_COSELL">Tier 2 - Co-Sell</option>
                 <option value="TIER_3_RESELLER">Tier 3 - Reseller</option>
               </select>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
                 <option value="">All Status</option>
                 <option value="ACTIVE">Active</option>
                 <option value="PENDING">Pending</option>
