@@ -1,7 +1,21 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createCompetitorSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  website: z.string().nullable().optional(),
+  category: z.string().optional(),
+});
+
+const updateCompetitorSchema = createCompetitorSchema.partial();
+
+const createIntelSchema = z.object({
+  type: z.string().min(1, 'Type is required'),
+  detail: z.string().min(1, 'Detail is required'),
+});
 
 const logger = createLogger('competitors');
 const router: Router = Router();
@@ -63,11 +77,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, website, category } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Name is required' } });
+    const parsed = createCompetitorSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { name, website, category } = parsed.data;
 
     const competitor = await prisma.competitorMonitor.create({
       data: {
@@ -100,7 +115,12 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
     }
 
-    const { name, website, category } = req.body;
+    const parsed = updateCompetitorSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { name, website, category } = parsed.data;
     const competitor = await prisma.competitorMonitor.update({
       where: { id: req.params.id },
       data: {
@@ -131,11 +151,12 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
     }
 
-    const { type, detail } = req.body;
-
-    if (!type || !detail) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Type and detail are required' } });
+    const parsed = createIntelSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { type, detail } = parsed.data;
 
     const currentIntel = (existing.intel as any[]) || [];
     const newEntry = { date: new Date().toISOString(), type, detail };

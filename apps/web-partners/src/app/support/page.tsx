@@ -51,7 +51,9 @@ export default function SupportPage() {
     try {
       const res = await api.get('/api/support');
       setTickets(res.data.data || []);
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to load tickets', err);
+    } finally {
       setLoading(false);
     }
   };
@@ -70,7 +72,9 @@ export default function SupportPage() {
       setFormPriority('MEDIUM');
       setShowForm(false);
       fetchTickets();
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to create ticket', err);
+    } finally {
       setSubmitting(false);
     }
   };

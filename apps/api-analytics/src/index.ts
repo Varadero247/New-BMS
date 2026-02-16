@@ -38,6 +38,7 @@ import executiveRouter from './routes/executive';
 import unifiedRisksRouter from './routes/unified-risks';
 import predictionsRouter from './routes/predictions';
 import anomaliesRouter from './routes/anomalies';
+import nlqRouter from './routes/nlq';
 import monthlyReviewRouter from './routes/monthly-review';
 // Session A — Finance
 import stripeDunningRouter from './routes/webhooks/stripe-dunning';
@@ -92,6 +93,7 @@ app.use('/api/executive-summary', executiveRouter);
 app.use('/api/unified-risks', unifiedRisksRouter);
 app.use('/api/predictions', predictionsRouter);
 app.use('/api/anomalies', anomaliesRouter);
+app.use('/api/nlq', nlqRouter);
 app.use('/api/dashboards', dashboardsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/datasets', datasetsRouter);

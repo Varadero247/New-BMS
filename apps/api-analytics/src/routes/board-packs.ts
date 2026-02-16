@@ -1,7 +1,12 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const updateBoardPackSchema = z.object({
+  status: z.enum(['DRAFT', 'FINAL', 'DISTRIBUTED']),
+});
 
 const logger = createLogger('board-packs');
 const router: Router = Router();
@@ -71,14 +76,19 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Board pack not found' } });
     }
 
-    const { status } = req.body;
+    const parsed = updateBoardPackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { status } = parsed.data;
     const validTransitions: Record<string, string[]> = {
       DRAFT: ['FINAL'],
       FINAL: ['DISTRIBUTED'],
       DISTRIBUTED: [],
     };
 
-    if (status && !validTransitions[existing.status]?.includes(status)) {
+    if (!validTransitions[existing.status]?.includes(status)) {
       return res.status(400).json({
         success: false,
         error: { code: 'INVALID_TRANSITION', message: `Cannot transition from ${existing.status} to ${status}` },
@@ -88,7 +98,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const boardPack = await prisma.boardPack.update({
       where: { id: req.params.id },
       data: {
-        ...(status && { status }),
+        status,
       },
     });
 

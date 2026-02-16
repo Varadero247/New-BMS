@@ -1,6 +1,13 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+
+const sendReminderSchema = z.object({
+  type: z.enum(['day90', 'day60', 'day30', 'day7'], {
+    errorMap: () => ({ message: 'Invalid reminder type' }),
+  }),
+});
 
 const logger = createLogger('api-marketing:renewal');
 const router = Router();
@@ -34,7 +41,12 @@ router.get('/upcoming', async (req: Request, res: Response) => {
 router.post('/:orgId/send-reminder', async (req: Request, res: Response) => {
   try {
     const { orgId } = req.params;
-    const { type } = req.body; // day90, day60, day30, day7
+    const parsed = sendReminderSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { type } = parsed.data;
 
     const sequence = await prisma.mktRenewalSequence.findUnique({
       where: { orgId },
@@ -50,15 +62,7 @@ router.post('/:orgId/send-reminder', async (req: Request, res: Response) => {
     const updateField = type === 'day90' ? 'day90Sent'
       : type === 'day60' ? 'day60Sent'
       : type === 'day30' ? 'day30Sent'
-      : type === 'day7' ? 'day7Sent'
-      : null;
-
-    if (!updateField) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid reminder type' },
-      });
-    }
+      : 'day7Sent';
 
     await prisma.mktRenewalSequence.update({
       where: { orgId },

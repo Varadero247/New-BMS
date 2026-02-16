@@ -136,9 +136,9 @@ describe('GET /api/controls/:id', () => {
 // ===================================================================
 describe('POST /api/controls', () => {
   const validControl = {
-    name: 'Segregation of Duties',
+    title: 'Segregation of Duties',
     description: 'Ensures no single person controls all financial processes',
-    type: 'PREVENTIVE',
+    controlType: 'PREVENTIVE',
     status: 'ACTIVE',
   };
 

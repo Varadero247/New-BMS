@@ -41,7 +41,7 @@ describe('POST /api/work-orders', () => {
   it('should create', async () => {
     (prisma as any).assetWorkOrder.count.mockResolvedValue(0);
     (prisma as any).assetWorkOrder.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/work-orders').send({ title: 'New' });
+    const res = await request(app).post('/api/work-orders').send({ assetId: 'asset-1', title: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

@@ -8,9 +8,11 @@ const logger = createLogger('rate-limiter');
 
 // Redis client singleton
 let redis: Redis | null = null;
+let redisReady = false;
 
 /**
- * Get or create Redis client for rate limiting
+ * Get or create Redis client for rate limiting.
+ * Returns null if REDIS_URL is not set.
  */
 export function getRedisClient(): Redis | null {
   if (redis) return redis;
@@ -23,23 +25,31 @@ export function getRedisClient(): Redis | null {
 
   try {
     redis = new Redis(redisUrl, {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 1,
       retryStrategy: (times) => {
         if (times > 3) {
-          logger.error('Redis connection failed after retries, falling back to in-memory store');
+          logger.warn('Redis connection failed after retries, using in-memory rate limiting');
           return null;
         }
         return Math.min(times * 100, 3000);
       },
       lazyConnect: true,
+      enableOfflineQueue: false,
     });
 
-    redis.on('error', (err) => {
-      logger.error('Redis error', { error: err.message });
+    redis.on('error', () => {
+      // Suppress repeated ioredis error logs — just mark unavailable
+      redisReady = false;
     });
 
-    redis.on('connect', () => {
+    redis.on('ready', () => {
+      redisReady = true;
       logger.info('Redis connected for rate limiting');
+    });
+
+    // Attempt connection — don't block startup if it fails
+    redis.connect().catch(() => {
+      redisReady = false;
     });
 
     return redis;
@@ -50,17 +60,30 @@ export function getRedisClient(): Redis | null {
 }
 
 /**
- * Create a Redis store for rate limiting, or fall back to in-memory
+ * Try to create a Redis store for rate limiting.
+ * Falls back to in-memory (undefined) if Redis is unreachable.
  */
 function createStore(): RedisStore | undefined {
   const client = getRedisClient();
   if (!client) return undefined;
 
-  return new RedisStore({
-    // @ts-expect-error - ioredis is compatible
-    sendCommand: (...args: string[]) => client.call(...args),
-    prefix: 'rl:',
-  });
+  // If Redis isn't ready after initial connect attempt, skip RedisStore entirely
+  // to avoid rate-limit-redis crashing on its Lua script load
+  if (!redisReady) {
+    logger.warn('Redis not ready at store creation time - using in-memory rate limiting');
+    return undefined;
+  }
+
+  try {
+    return new RedisStore({
+      // @ts-expect-error - ioredis is compatible
+      sendCommand: (...args: string[]) => client.call(...args),
+      prefix: 'rl:',
+    });
+  } catch {
+    logger.warn('Failed to create RedisStore - using in-memory rate limiting');
+    return undefined;
+  }
 }
 
 /**

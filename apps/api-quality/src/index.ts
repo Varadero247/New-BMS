@@ -64,6 +64,7 @@ import riskRegisterRouter from './routes/risk-register';
 import contextFactorsRouter from './routes/context-factors';
 import scopeRouter from './routes/scope';
 import policyRouter from './routes/policy';
+import templateGeneratorRouter from './routes/template-generator';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
@@ -127,6 +128,7 @@ app.use('/api/risk-register', riskRegisterRouter);
 app.use('/api/context-factors', contextFactorsRouter);
 app.use('/api/scope', scopeRouter);
 app.use('/api/policy', policyRouter);
+app.use('/api/template-generator', templateGeneratorRouter);
 
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {

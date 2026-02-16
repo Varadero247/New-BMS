@@ -53,7 +53,9 @@ export default function CollateralPage() {
     try {
       const res = await api.get('/api/collateral');
       setItems(res.data.data || []);
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to load collateral', err);
+    } finally {
       setLoading(false);
     }
   };
@@ -64,7 +66,9 @@ export default function CollateralPage() {
       window.open(res.data.data.fileUrl, '_blank');
       // Refresh to update download count
       fetchCollateral();
-    } catch {}
+    } catch (err) {
+      console.error('Failed to download collateral', err);
+    }
   };
 
   const filteredItems = filter ? items.filter((i) => i.type === filter) : items;

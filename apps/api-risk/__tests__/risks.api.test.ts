@@ -41,7 +41,7 @@ describe('POST /api/risks', () => {
   it('should create', async () => {
     (prisma as any).riskRegister.count.mockResolvedValue(0);
     (prisma as any).riskRegister.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/risks').send({ title: 'New' });
+    const res = await request(app).post('/api/risks').send({ title: 'New', category: 'OPERATIONAL' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

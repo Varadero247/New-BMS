@@ -3,6 +3,7 @@ import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { NotificationBellState, WSNotification, WSNotificationType, WSNotificationSeverity } from '@ims/notifications';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 
 const logger = createLogger('api-gateway:notifications');
 const router = Router();
@@ -116,8 +117,14 @@ router.put('/:id/read', authenticate, (req: Request, res: Response) => {
 // ============================================
 // POST /api/notifications/test — send a test notification (admin only)
 // ============================================
-const VALID_TYPES: WSNotificationType[] = ['ALERT', 'WARNING', 'INFO', 'SUCCESS', 'OVERDUE', 'DUE_SOON', 'ESCALATION'];
-const VALID_SEVERITIES: WSNotificationSeverity[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+const testNotificationSchema = z.object({
+  title: z.string({ required_error: 'title is required' }).trim().min(1, 'title is required'),
+  message: z.string({ required_error: 'message is required' }).trim().min(1, 'message is required'),
+  type: z.enum(['ALERT', 'WARNING', 'INFO', 'SUCCESS', 'OVERDUE', 'DUE_SOON', 'ESCALATION']).default('INFO'),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('LOW'),
+  module: z.string().optional(),
+  targetUserId: z.string().optional(),
+});
 
 router.post('/test', authenticate, (req: Request, res: Response) => {
   try {
@@ -132,42 +139,15 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       });
     }
 
-    const {
-      title,
-      message,
-      type = 'INFO',
-      severity = 'LOW',
-      module,
-      targetUserId,
-    } = req.body;
-
-    if (!title || typeof title !== 'string' || title.trim() === '') {
+    const parsed = testNotificationSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'title is required' },
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
 
-    if (!message || typeof message !== 'string' || message.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'message is required' },
-      });
-    }
-
-    if (!VALID_TYPES.includes(type)) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: `Invalid type. Must be one of: ${VALID_TYPES.join(', ')}` },
-      });
-    }
-
-    if (!VALID_SEVERITIES.includes(severity)) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: `Invalid severity. Must be one of: ${VALID_SEVERITIES.join(', ')}` },
-      });
-    }
+    const { title, message, type, severity, module, targetUserId } = parsed.data;
 
     const recipientId = targetUserId || user.id;
 
@@ -176,7 +156,7 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       type,
       title: title.trim(),
       message: message.trim(),
-      module: module || 'system',
+      module: module ?? 'system',
       severity,
       userId: recipientId,
       orgId: user.organisationId,

@@ -95,7 +95,8 @@ describe('POST /api/defra-factors', () => {
 
     const res = await request(app).post('/api/defra-factors').send({
       category: 'Electricity',
-      subCategory: 'UK Grid',
+      subcategory: 'UK Grid',
+      activity: 'Grid electricity consumption',
       factor: 0.233,
       unit: 'kgCO2e/kWh',
       year: 2026,
@@ -112,6 +113,7 @@ describe('POST /api/defra-factors', () => {
 
     await request(app).post('/api/defra-factors').send({
       category: 'Fuel',
+      activity: 'Diesel combustion',
       factor: 2.5,
       unit: 'kgCO2e/litre',
       year: 2026,
@@ -133,6 +135,7 @@ describe('POST /api/defra-factors', () => {
 
     const res = await request(app).post('/api/defra-factors').send({
       category: 'Electricity',
+      activity: 'Grid electricity consumption',
       factor: 0.233,
       unit: 'kgCO2e/kWh',
       year: 2026,

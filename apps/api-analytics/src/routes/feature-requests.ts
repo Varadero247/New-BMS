@@ -1,7 +1,19 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createFeatureRequestSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  requestedBy: z.string().optional(),
+});
+
+const updateFeatureRequestSchema = z.object({
+  status: z.string().optional(),
+  priority: z.union([z.number(), z.string().transform((v) => parseInt(v, 10))]).optional(),
+});
 
 const logger = createLogger('feature-requests');
 const router: Router = Router();
@@ -92,11 +104,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, requestedBy } = req.body;
-
-    if (!title) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Title is required' } });
+    const parsed = createFeatureRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { title, description, requestedBy } = parsed.data;
 
     const featureRequest = await prisma.featureRequest.create({
       data: {
@@ -123,16 +136,20 @@ router.post('/', async (req: Request, res: Response) => {
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status, priority } = req.body;
-
     const existing = await prisma.featureRequest.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Feature request not found' } });
     }
 
+    const parsed = updateFeatureRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { status, priority } = parsed.data;
     const updateData: Record<string, any> = {};
     if (status) updateData.status = status;
-    if (priority !== undefined) updateData.priority = typeof priority === 'string' ? parseInt(priority, 10) : priority;
+    if (priority !== undefined) updateData.priority = priority;
 
     const featureRequest = await prisma.featureRequest.update({
       where: { id },

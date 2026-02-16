@@ -41,7 +41,7 @@ describe('POST /api/assets', () => {
   it('should create', async () => {
     (prisma as any).assetRegister.count.mockResolvedValue(0);
     (prisma as any).assetRegister.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/assets').send({ title: 'New' });
+    const res = await request(app).post('/api/assets').send({ name: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

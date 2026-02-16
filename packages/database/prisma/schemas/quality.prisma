@@ -2544,3 +2544,31 @@ model QualRiskRegister {
   @@index([status])
   @@index([riskScore])
 }
+
+// ============================================
+// AI-GENERATED TEMPLATES
+// ============================================
+
+model QualGeneratedTemplate {
+  id              String   @id @default(cuid())
+  docNumber       String   @unique
+  title           String
+  category        String   // POLICY, PROCEDURE, FORM, REGISTER, PLAN, REPORT, AUDIT, SWP
+  isoStandard     String?  // e.g. "ISO 9001:2015"
+  isoClause       String?  // e.g. "Clause 7.5"
+  description     String?
+  configJson      String   // Full JSON config for DOCX regeneration
+  fileUrl         String?  // Path to generated DOCX file
+  fileSizeBytes   Int?
+  generatedBy     String   // userId who requested generation
+  prompt          String?  // Original user prompt/request
+
+  organisationId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("qual_generated_templates")
+  @@index([organisationId])
+  @@index([category])
+  @@index([isoStandard])
+}

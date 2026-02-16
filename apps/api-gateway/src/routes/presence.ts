@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { z } from 'zod';
 import {
   acquireLock,
   releaseLock,
@@ -10,6 +11,17 @@ import {
 
 const logger = createLogger('api-gateway:presence');
 const router = Router();
+
+const lockSchema = z.object({
+  recordType: z.string().min(1, 'recordType is required'),
+  recordId: z.string().min(1, 'recordId is required'),
+  force: z.boolean().optional(),
+});
+
+const recordRefSchema = z.object({
+  recordType: z.string().min(1, 'recordType is required'),
+  recordId: z.string().min(1, 'recordId is required'),
+});
 
 // ============================================
 // GET /api/presence?recordType&recordId — get current viewers
@@ -46,14 +58,15 @@ router.get('/', authenticate, (req: Request, res: Response) => {
 router.post('/lock', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { recordType, recordId, force } = req.body;
-
-    if (!recordType || !recordId || typeof recordType !== 'string' || typeof recordId !== 'string') {
+    const parsed = lockSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'recordType and recordId are required in the request body' },
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
+
+    const { recordType, recordId, force } = parsed.data;
 
     const result = acquireLock(
       recordType,
@@ -91,15 +104,15 @@ router.post('/lock', authenticate, (req: Request, res: Response) => {
 router.delete('/lock', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { recordType, recordId } = req.body;
-
-    if (!recordType || !recordId || typeof recordType !== 'string' || typeof recordId !== 'string') {
+    const parsed = recordRefSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'recordType and recordId are required in the request body' },
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
 
+    const { recordType, recordId } = parsed.data;
     releaseLock(recordType, recordId, user.id);
 
     logger.info('Lock released', { recordType, recordId, userId: user.id });
@@ -123,15 +136,15 @@ router.delete('/lock', authenticate, (req: Request, res: Response) => {
 router.put('/refresh', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { recordType, recordId } = req.body;
-
-    if (!recordType || !recordId || typeof recordType !== 'string' || typeof recordId !== 'string') {
+    const parsed = recordRefSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'recordType and recordId are required in the request body' },
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
 
+    const { recordType, recordId } = parsed.data;
     refreshLock(recordType, recordId, user.id);
 
     res.json({

@@ -101,11 +101,11 @@ describe('GET /api/sod-matrix', () => {
 // ===================================================================
 describe('POST /api/sod-matrix', () => {
   const validRule = {
-    roleA: 'Accounts Payable',
-    roleB: 'Payment Approval',
-    conflictLevel: 'HIGH',
+    role1: 'Accounts Payable',
+    role2: 'Payment Approval',
+    conflictType: 'HIGH',
     description: 'Prevents single person from creating and approving payments',
-    mitigatingControls: 'Dual approval required for payments above £1,000',
+    mitigatingControl: 'Dual approval required for payments above £1,000',
   };
 
   it('should create a SoD rule successfully', async () => {
@@ -120,7 +120,7 @@ describe('POST /api/sod-matrix', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.roleA).toBe('Accounts Payable');
+    expect(res.body.data.role1).toBe('Accounts Payable');
   });
 
   it('should set orgId and createdBy from authenticated user', async () => {
@@ -165,9 +165,9 @@ describe('POST /api/sod-matrix', () => {
     expect((prisma as any).finSodRule.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          roleA: 'Accounts Payable',
-          roleB: 'Payment Approval',
-          conflictLevel: 'HIGH',
+          role1: 'Accounts Payable',
+          role2: 'Payment Approval',
+          conflictType: 'HIGH',
         }),
       })
     );

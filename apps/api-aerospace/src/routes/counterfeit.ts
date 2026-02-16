@@ -30,9 +30,9 @@ async function generateSuspectPartRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
   const count = await (prisma as any).aeroSuspectPart.count({
-    where: { refNumber: { startsWith: `AERO-SP-${yyyy}` } },
+    where: { refNumber: { startsWith: `AERO-SPT-${yyyy}` } },
   });
-  return `AERO-SP-${yyyy}-${String(count + 1).padStart(3, '0')}`;
+  return `AERO-SPT-${yyyy}-${String(count + 1).padStart(3, '0')}`;
 }
 
 // ============================================

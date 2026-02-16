@@ -60,12 +60,13 @@ export function Modal({
       {/* Modal */}
       <div
         className={cn(
-          'relative z-50 w-full rounded-lg bg-white p-6 shadow-lg',
+          'relative z-50 w-full rounded-lg bg-white dark:bg-gray-900 p-6 shadow-lg',
           sizeClasses[size],
           className
         )}
         role="dialog"
         aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
         aria-labelledby={title ? 'modal-title' : undefined}
         aria-describedby={description ? 'modal-description' : undefined}
       >
@@ -73,12 +74,12 @@ export function Modal({
         {(title || description) && (
           <div className="mb-4">
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-gray-900">
+              <h2 id="modal-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {title}
               </h2>
             )}
             {description && (
-              <p id="modal-description" className="mt-1 text-sm text-gray-500">
+              <p id="modal-description" className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {description}
               </p>
             )}
@@ -88,7 +89,7 @@ export function Modal({
         {/* Close button */}
         <button
           type="button"
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="absolute right-4 top-4 rounded-sm text-gray-500 dark:text-gray-400 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           onClick={onClose}
         >
           <svg

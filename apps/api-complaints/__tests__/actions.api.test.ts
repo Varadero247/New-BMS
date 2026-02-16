@@ -41,7 +41,7 @@ describe('POST /api/actions', () => {
   it('should create', async () => {
     (prisma as any).compAction.count.mockResolvedValue(0);
     (prisma as any).compAction.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/actions').send({ title: 'New' });
+    const res = await request(app).post('/api/actions').send({ complaintId: 'comp-1', action: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

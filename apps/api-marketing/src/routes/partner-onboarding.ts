@@ -1,6 +1,12 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+
+const enqueuePartnerSchema = z.object({
+  email: z.string().min(1, 'Email is required'),
+  name: z.string().optional(),
+});
 
 const logger = createLogger('api-marketing:partner-onboarding');
 const router = Router();
@@ -9,14 +15,12 @@ const router = Router();
 router.post('/enqueue/:partnerId', async (req: Request, res: Response) => {
   try {
     const { partnerId } = req.params;
-    const { email, name } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Email is required' },
-      });
+    const parsed = enqueuePartnerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { email, name } = parsed.data;
 
     const sequenceId = `partner-onboarding-${partnerId}`;
     const now = Date.now();

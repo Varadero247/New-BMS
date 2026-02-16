@@ -1,7 +1,25 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createCategorySchema = z.object({
+  category: z.string().min(1, 'category is required'),
+  legalBasis: z.string().min(1, 'legalBasis is required'),
+  retentionDays: z.number().optional(),
+  systems: z.string().nullable().optional(),
+  complianceStatus: z.string().optional(),
+});
+
+const createDpaSchema = z.object({
+  processorName: z.string().min(1, 'processorName is required'),
+  purpose: z.string().min(1, 'purpose is required'),
+  dataTypes: z.array(z.string()).optional(),
+  signedDate: z.string().nullable().optional(),
+  expiryDate: z.string().nullable().optional(),
+  documentUrl: z.string().nullable().optional(),
+});
 
 const logger = createLogger('gdpr');
 const router: Router = Router();
@@ -87,10 +105,12 @@ router.get('/report', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/categories', async (req: Request, res: Response) => {
   try {
-    const { category: categoryName, legalBasis, retentionDays, systems, complianceStatus } = req.body;
-    if (!categoryName || !legalBasis) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'category and legalBasis are required' } });
+    const parsed = createCategorySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { category: categoryName, legalBasis, retentionDays, systems, complianceStatus } = parsed.data;
 
     const created = await prisma.gdprDataCategory.create({
       data: {
@@ -115,10 +135,12 @@ router.post('/categories', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/dpas', async (req: Request, res: Response) => {
   try {
-    const { processorName, purpose, dataTypes, signedDate, expiryDate, documentUrl } = req.body;
-    if (!processorName || !purpose) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'processorName and purpose are required' } });
+    const parsed = createDpaSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { processorName, purpose, dataTypes, signedDate, expiryDate, documentUrl } = parsed.data;
 
     const dpa = await prisma.dataProcessingAgreement.create({
       data: {

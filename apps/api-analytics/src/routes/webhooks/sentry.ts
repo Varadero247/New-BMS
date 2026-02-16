@@ -1,6 +1,25 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
+
+const sentryEventSchema = z.object({
+  event_id: z.string().optional(),
+  id: z.string().optional(),
+  title: z.string().optional(),
+  message: z.string().optional(),
+  level: z.string().optional(),
+  platform: z.string().optional(),
+  environment: z.string().optional(),
+  tags: z.record(z.string()).optional(),
+});
+
+const sentryWebhookSchema = z.object({
+  event: sentryEventSchema.optional(),
+  data: z.object({
+    event: sentryEventSchema.optional(),
+  }).optional(),
+});
 
 const logger = createLogger('webhook-sentry');
 const router: Router = Router();
@@ -19,9 +38,14 @@ function generateAiSummary(message: string): string {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { event, data } = req.body || {};
+    const parsed = sentryWebhookSchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
 
-    const sentryEvent = data?.event || event || data || {};
+    const { event, data } = parsed.data;
+
+    const sentryEvent: any = data?.event || event || {};
     const sentryEventId = sentryEvent.event_id || sentryEvent.id || null;
     const title = sentryEvent.title || sentryEvent.message || 'Unknown error';
     const level = sentryEvent.level || 'error';

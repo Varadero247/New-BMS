@@ -8,7 +8,7 @@ import { prisma } from '../prisma';
 const logger = createLogger('api-partners:auth');
 const router = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'partner-secret';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 const registerSchema = z.object({
   email: z.string().email(),

@@ -201,7 +201,7 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
     }));
 
     // Fetch custom roles from database
-    const customRolesDb = await prisma.customRole.findMany({ orderBy: { createdAt: 'desc' } });
+    const customRolesDb = await prisma.customRole.findMany({ orderBy: { createdAt: 'desc' }, take: 200 });
     const customRoles = customRolesDb.map((cr: { id: string; name: string; description: string; permissions: unknown }) => {
       const perms = (cr.permissions as { module: string; level: number }[]) || [];
       return {

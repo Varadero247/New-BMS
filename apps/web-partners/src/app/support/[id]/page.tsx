@@ -60,7 +60,9 @@ export default function TicketDetailPage() {
       await api.post(`/api/support/${ticketId}/messages`, { body: newMessage });
       setNewMessage('');
       fetchTicket();
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to send message', err);
+    } finally {
       setSending(false);
     }
   };
@@ -69,7 +71,9 @@ export default function TicketDetailPage() {
     try {
       await api.patch(`/api/support/${ticketId}/close`);
       fetchTicket();
-    } catch {}
+    } catch (err) {
+      console.error('Failed to close ticket', err);
+    }
   };
 
   if (loading) {

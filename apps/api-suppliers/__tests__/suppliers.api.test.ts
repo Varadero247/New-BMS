@@ -41,7 +41,7 @@ describe('POST /api/suppliers', () => {
   it('should create', async () => {
     (prisma as any).suppSupplier.count.mockResolvedValue(0);
     (prisma as any).suppSupplier.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/suppliers').send({ title: 'New' });
+    const res = await request(app).post('/api/suppliers').send({ name: 'New Supplier' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

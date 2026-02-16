@@ -1,7 +1,19 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
+
+const stripeWebhookSchema = z.object({
+  type: z.string().min(1, 'Invalid event'),
+  data: z.object({
+    object: z.object({
+      id: z.string().optional(),
+      metadata: z.record(z.string()).optional(),
+      status: z.string().optional(),
+    }).optional(),
+  }).optional(),
+});
 
 const logger = createLogger('api-marketing:stripe-webhooks');
 const router = Router();
@@ -10,11 +22,12 @@ const router = Router();
 // Note: In production, this needs raw body for signature verification
 router.post('/stripe', async (req: Request, res: Response) => {
   try {
-    const event = req.body;
-
-    if (!event || !event.type) {
-      return res.status(400).json({ error: 'Invalid event' });
+    const parsed = stripeWebhookSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const event = parsed.data;
 
     logger.info('Stripe webhook received', { type: event.type });
 

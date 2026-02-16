@@ -189,7 +189,7 @@ export default function TemplatesPage() {
                       </span>
                     </div>
                     {tpl.isBuiltIn && (
-                      <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" title="Built-in template" />
+                      <span title="Built-in template"><Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" /></span>
                     )}
                   </div>
 

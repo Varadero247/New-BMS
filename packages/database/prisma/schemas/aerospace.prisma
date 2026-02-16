@@ -602,3 +602,588 @@ enum AeroFindingStatus {
   CLOSED
   VERIFIED
 }
+
+// ============================================
+// CONFIGURATION BASELINES (AS9100D 8.1.2)
+// Route: baselines.ts → prisma.aeroConfigBaseline
+// ============================================
+
+model AeroConfigBaseline {
+  id                  String              @id @default(cuid())
+  tenantId            String              @default("default")
+  refNumber           String              @unique
+  title               String
+  description         String?
+  program             String?
+  version             String?
+  baselineType        AeroBaselineType    @default(PRODUCT)
+  program_phase       String?
+  configuration_items String?             // JSON array
+  documents           String?             // JSON array
+  status              AeroBaselineStatus  @default(DRAFT)
+  effectiveDate       DateTime?
+  approvedBy          String?
+  approvedDate        DateTime?
+  notes               String?
+  createdBy           String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?
+
+  @@index([tenantId, status])
+  @@index([effectiveDate])
+  @@index([createdAt])
+  @@map("aero_config_baselines")
+}
+
+enum AeroBaselineType {
+  FUNCTIONAL
+  ALLOCATED
+  PRODUCT
+  DESIGN
+}
+
+enum AeroBaselineStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ACTIVE
+  SUPERSEDED
+  ARCHIVED
+}
+
+// ============================================
+// CHANGE REQUESTS (AS9100D 8.5.6)
+// Route: changes.ts → prisma.aeroChangeRequest
+// ============================================
+
+model AeroChangeRequest {
+  id                    String              @id @default(cuid())
+  tenantId              String              @default("default")
+  refNumber             String              @unique
+  title                 String
+  description           String
+  changeType            AeroChangeType      @default(DESIGN)
+  priority              AeroChangePriority  @default(MEDIUM)
+  reason                String?
+  affectedDocuments     String?             // JSON array
+  affectedProcesses     String?             // JSON array
+  affectedParts         String?             // JSON array
+  customerImpact        String?
+  regulatoryImpact      String?
+  safetyImpact          String?
+  costEstimate          Float?
+  proposedBy            String?
+  requestedDate         DateTime?
+  status                AeroChangeStatus    @default(DRAFT)
+  notes                 String?
+  createdBy             String?
+  submittedDate         DateTime?
+  submittedBy           String?
+  reviewDecision        AeroReviewDecision?
+  reviewNotes           String?
+  reviewedBy            String?
+  reviewedDate          DateTime?
+  conditions            String?
+  implementationNotes   String?
+  implementedBy         String?
+  implementedDate       DateTime?
+  verificationRequired  Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+
+  @@index([tenantId, status])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("aero_change_requests")
+}
+
+enum AeroChangeType {
+  DESIGN
+  PROCESS
+  MATERIAL
+  SUPPLIER
+  DOCUMENT
+  SOFTWARE
+  TOOLING
+  OTHER
+}
+
+enum AeroChangePriority {
+  EMERGENCY
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum AeroChangeStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IMPLEMENTING
+  IMPLEMENTED
+  VERIFIED
+  CLOSED
+  CANCELLED
+}
+
+enum AeroReviewDecision {
+  APPROVE
+  REJECT
+  DEFER
+  REQUEST_MORE_INFO
+}
+
+// ============================================
+// COMPLIANCE TRACKER (AS9100D / DO-178C)
+// Route: compliance-tracker.ts → prisma.aeroComplianceItem
+// ============================================
+
+model AeroComplianceItem {
+  id                  String                  @id @default(cuid())
+  tenantId            String                  @default("default")
+  refNumber           String                  @unique
+  clause              String
+  title               String
+  description         String?
+  standard            String                  @default("AS9100D")
+  complianceStatus    AeroComplianceStatus    @default(UNDER_REVIEW)
+  evidenceDocuments   String?                 // JSON array
+  responsiblePerson   String?
+  targetDate          DateTime?
+  lastReviewDate      DateTime?
+  nextReviewDate      DateTime?
+  notes               String?
+  createdBy           String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  deletedAt           DateTime?
+
+  @@index([tenantId, complianceStatus])
+  @@index([standard])
+  @@index([createdAt])
+  @@map("aero_compliance_items")
+}
+
+enum AeroComplianceStatus {
+  COMPLIANT
+  PARTIALLY_COMPLIANT
+  NON_COMPLIANT
+  NOT_APPLICABLE
+  UNDER_REVIEW
+}
+
+// ============================================
+// COUNTERFEIT PARTS (AS9100D 8.1.4 / AS6174)
+// Route: counterfeit.ts → prisma.aeroCounterfeitReport, prisma.aeroSuspectPart
+// ============================================
+
+model AeroCounterfeitReport {
+  id                      String                      @id @default(cuid())
+  tenantId                String                      @default("default")
+  refNumber               String                      @unique
+  title                   String
+  partNumber              String
+  partDescription         String?
+  manufacturer            String?
+  supplier                String?
+  poNumber                String?
+  quantity                Int?
+  dateDiscovered          DateTime?
+  discoveredBy            String?
+  discrepancyDescription  String?
+  suspicionIndicators     String?                     // JSON array
+  disposition             AeroCounterfeitDisposition  @default(QUARANTINE)
+  status                  AeroCounterfeitStatus       @default(OPEN)
+  investigationFindings   String?
+  correctiveAction        String?
+  reportedToGidep         Boolean                     @default(false)
+  gidepReportRef          String?
+  safetyImpact            String?
+  notes                   String?
+  createdBy               String?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  deletedAt               DateTime?
+
+  @@index([tenantId, status])
+  @@index([partNumber])
+  @@index([createdAt])
+  @@map("aero_counterfeit_reports")
+}
+
+model AeroSuspectPart {
+  id              String                  @id @default(cuid())
+  tenantId        String                  @default("default")
+  refNumber       String                  @unique
+  partNumber      String
+  nomenclature    String?
+  manufacturer    String?
+  nsn             String?
+  riskLevel       AeroSuspectRiskLevel    @default(MEDIUM)
+  indicators      String?                 // JSON array
+  sources         String?                 // JSON array
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, riskLevel])
+  @@index([partNumber])
+  @@index([createdAt])
+  @@map("aero_suspect_parts")
+}
+
+enum AeroCounterfeitDisposition {
+  QUARANTINE
+  RETURN_TO_SUPPLIER
+  DESTROY
+  PENDING_INVESTIGATION
+}
+
+enum AeroCounterfeitStatus {
+  OPEN
+  INVESTIGATING
+  CONFIRMED
+  CLEARED
+  CLOSED
+}
+
+enum AeroSuspectRiskLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============================================
+// FOD PREVENTION (NAS412 / AS9146)
+// Route: fod.ts → prisma.aeroFodIncident, prisma.aeroFodInspection
+// ============================================
+
+model AeroFodIncident {
+  id                  String          @id @default(cuid())
+  tenantId            String          @default("default")
+  refNumber           String          @unique
+  title               String
+  description         String?
+  location            String?
+  area                String?
+  workCenter          String?
+  fodType             AeroFodType     @default(UNKNOWN)
+  severity            AeroFodSeverity @default(MINOR)
+  foundBy             String?
+  dateFound           DateTime?
+  affectedEquipment   String?
+  partNumberAffected  String?
+  immediateAction     String?
+  rootCause           String?
+  preventiveAction    String?
+  safetyImpact        String?
+  status              AeroFodStatus   @default(OPEN)
+  closedDate          DateTime?
+  closedBy            String?
+  notes               String?
+  createdBy           String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
+
+  @@index([tenantId, status])
+  @@index([fodType])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("aero_fod_incidents")
+}
+
+model AeroFodInspection {
+  id              String                  @id @default(cuid())
+  tenantId        String                  @default("default")
+  refNumber       String                  @unique
+  title           String
+  area            String?
+  inspectionType  AeroFodInspectionType   @default(SCHEDULED)
+  scheduledDate   DateTime?
+  inspector       String?
+  checklistItems  String?                 // JSON array
+  result          AeroFodInspectionResult?
+  findings        String?
+  fodFound        Boolean                 @default(false)
+  fodDescription  String?
+  completedBy     String?
+  completedDate   DateTime?
+  status          AeroFodInspectionStatus @default(SCHEDULED)
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  deletedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([inspectionType])
+  @@index([scheduledDate])
+  @@index([createdAt])
+  @@map("aero_fod_inspections")
+}
+
+enum AeroFodType {
+  METALLIC
+  NON_METALLIC
+  HARDWARE
+  TOOLING
+  UNKNOWN
+}
+
+enum AeroFodSeverity {
+  CRITICAL
+  MAJOR
+  MINOR
+}
+
+enum AeroFodStatus {
+  OPEN
+  INVESTIGATING
+  CORRECTIVE_ACTION
+  CLOSED
+  CANCELLED
+}
+
+enum AeroFodInspectionType {
+  SCHEDULED
+  POST_MAINTENANCE
+  SHIFT_CHANGE
+  SPECIAL
+}
+
+enum AeroFodInspectionResult {
+  PASS
+  PASS_WITH_FINDINGS
+  FAIL
+}
+
+enum AeroFodInspectionStatus {
+  SCHEDULED
+  COMPLETED
+}
+
+// ============================================
+// PRODUCT SAFETY (AS9100D 8.1.1)
+// Route: product-safety.ts → prisma.aeroProductSafetyItem, prisma.aeroSafetyReview
+// ============================================
+
+model AeroProductSafetyItem {
+  id                    String                      @id @default(cuid())
+  tenantId              String                      @default("default")
+  refNumber             String                      @unique
+  title                 String
+  description           String?
+  partNumber            String?
+  category              AeroPsiCategory             @default(OTHER)
+  regulatoryBasis       String?
+  hazardDescription     String?
+  riskLevel             AeroPsiRiskLevel            @default(NEGLIGIBLE)
+  mitigations           String?                     // JSON array
+  verificationMethod    String?
+  complianceStatus      AeroPsiComplianceStatus     @default(NOT_ASSESSED)
+  status                AeroPsiStatus               @default(ACTIVE)
+  responsibleEngineer   String?
+  lastReviewDate        DateTime?
+  nextReviewDate        DateTime?
+  notes                 String?
+  createdBy             String?
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+  deletedAt             DateTime?
+
+  @@index([tenantId, status])
+  @@index([category])
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("aero_product_safety_items")
+}
+
+model AeroSafetyReview {
+  id                      String                      @id @default(cuid())
+  tenantId                String                      @default("default")
+  refNumber               String                      @unique
+  title                   String
+  reviewType              AeroSafetyReviewType        @default(SYSTEM_SAFETY)
+  productSafetyItemIds    String?                     // JSON array
+  scope                   String?
+  scheduledDate           DateTime?
+  reviewTeam              String?                     // JSON array
+  leadReviewer            String?
+  status                  AeroSafetyReviewStatus      @default(PLANNED)
+  findings                String?
+  recommendations         String?
+  result                  AeroSafetyReviewResult?
+  completedBy             String?
+  completedDate           DateTime?
+  approvedBy              String?
+  notes                   String?
+  createdBy               String?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  deletedAt               DateTime?
+
+  @@index([tenantId, status])
+  @@index([reviewType])
+  @@index([scheduledDate])
+  @@index([createdAt])
+  @@map("aero_safety_reviews")
+}
+
+enum AeroPsiCategory {
+  CRITICAL_SAFETY_ITEM
+  FLIGHT_SAFETY_PART
+  SAFETY_OF_FLIGHT
+  FRACTURE_CRITICAL
+  LIFE_LIMITED
+  OTHER
+}
+
+enum AeroPsiRiskLevel {
+  CATASTROPHIC
+  CRITICAL
+  MARGINAL
+  NEGLIGIBLE
+}
+
+enum AeroPsiComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  PARTIALLY_COMPLIANT
+  NOT_ASSESSED
+}
+
+enum AeroPsiStatus {
+  ACTIVE
+  UNDER_REVIEW
+  CLOSED
+  SUPERSEDED
+}
+
+enum AeroSafetyReviewType {
+  PRELIMINARY_HAZARD
+  SYSTEM_SAFETY
+  FAILURE_MODE
+  FAULT_TREE
+  FUNCTIONAL_HAZARD
+  COMMON_CAUSE
+  DESIGN_REVIEW
+}
+
+enum AeroSafetyReviewStatus {
+  PLANNED
+  COMPLETED
+}
+
+enum AeroSafetyReviewResult {
+  APPROVED
+  APPROVED_WITH_CONDITIONS
+  REQUIRES_REWORK
+  REJECTED
+}
+
+// ============================================
+// SPECIAL PROCESSES (AS9100D 8.5.1.2 / NADCAP)
+// Route: special-processes.ts → prisma.aeroSpecialProcess, prisma.aeroNadcapApproval
+// ============================================
+
+model AeroSpecialProcess {
+  id                        String                      @id @default(cuid())
+  tenantId                  String                      @default("default")
+  refNumber                 String                      @unique
+  title                     String
+  description               String?
+  processType               AeroProcessType             @default(OTHER)
+  specification             String?
+  approvalBody              AeroApprovalBody            @default(INTERNAL)
+  applicableParts           String?                     // JSON array
+  qualityRequirements       String?
+  equipmentRequired         String?
+  personnelQualifications   String?
+  controlPlan               String?
+  responsibleEngineer       String?
+  status                    AeroSpecialProcessStatus    @default(ACTIVE)
+  notes                     String?
+  createdBy                 String?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  deletedAt                 DateTime?
+
+  nadcapApprovals           AeroNadcapApproval[]
+
+  @@index([tenantId, status])
+  @@index([processType])
+  @@index([createdAt])
+  @@map("aero_special_processes")
+}
+
+model AeroNadcapApproval {
+  id                  String                      @id @default(cuid())
+  tenantId            String                      @default("default")
+  refNumber           String                      @unique
+  specialProcessId    String
+  supplier            String?
+  commodity           String?
+  accreditationBody   String?
+  certificateNumber   String?
+  auditDate           DateTime?
+  approvalDate        DateTime?
+  expiryDate          DateTime?
+  scope               String?
+  limitations         String?
+  approvalStatus      AeroNadcapApprovalStatus    @default(ACTIVE)
+  notes               String?
+  createdBy           String?
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
+  deletedAt           DateTime?
+
+  specialProcess      AeroSpecialProcess          @relation(fields: [specialProcessId], references: [id], onDelete: Cascade)
+
+  @@index([specialProcessId])
+  @@index([approvalStatus])
+  @@index([expiryDate])
+  @@map("aero_nadcap_approvals")
+}
+
+enum AeroProcessType {
+  CHEMICAL_PROCESSING
+  COATINGS
+  COMPOSITES
+  ELASTOMERS
+  HEAT_TREATING
+  MATERIALS_TESTING
+  NONDESTRUCTIVE_TESTING
+  SHOT_PEENING
+  WELDING
+  BRAZING
+  OTHER
+}
+
+enum AeroApprovalBody {
+  NADCAP
+  CUSTOMER
+  INTERNAL
+  OTHER
+}
+
+enum AeroSpecialProcessStatus {
+  ACTIVE
+  UNDER_REVIEW
+  SUSPENDED
+  OBSOLETE
+}
+
+enum AeroNadcapApprovalStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  SUSPENDED
+  REVOKED
+}

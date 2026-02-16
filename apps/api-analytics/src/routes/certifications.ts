@@ -1,7 +1,22 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createDeadlineSchema = z.object({
+  name: z.string().min(1, 'name is required'),
+  category: z.string().min(1, 'category is required'),
+  dueDate: z.string().min(1, 'dueDate is required'),
+  renewalFrequency: z.string().nullable().optional(),
+  ownerEmail: z.string().nullable().optional(),
+  status: z.string().optional(),
+  notes: z.string().nullable().optional(),
+});
+
+const updateDeadlineSchema = createDeadlineSchema.partial().extend({
+  lastCompletedAt: z.string().nullable().optional(),
+});
 
 const logger = createLogger('certifications');
 const router: Router = Router();
@@ -92,10 +107,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes } = req.body;
-    if (!name || !category || !dueDate) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'name, category, and dueDate are required' } });
+    const parsed = createDeadlineSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes } = parsed.data;
 
     const deadline = await prisma.complianceDeadline.create({
       data: {
@@ -127,7 +144,12 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deadline not found' } });
     }
 
-    const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes, lastCompletedAt } = req.body;
+    const parsed = updateDeadlineSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes, lastCompletedAt } = parsed.data;
     const data: any = {};
     if (name !== undefined) data.name = name;
     if (category !== undefined) data.category = category;
@@ -136,7 +158,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     if (ownerEmail !== undefined) data.ownerEmail = ownerEmail;
     if (status !== undefined) data.status = status;
     if (notes !== undefined) data.notes = notes;
-    if (lastCompletedAt !== undefined) data.lastCompletedAt = new Date(lastCompletedAt);
+    if (lastCompletedAt !== undefined) data.lastCompletedAt = lastCompletedAt ? new Date(lastCompletedAt) : null;
 
     const deadline = await prisma.complianceDeadline.update({
       where: { id: req.params.id },

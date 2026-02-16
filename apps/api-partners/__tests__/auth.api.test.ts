@@ -1,3 +1,5 @@
+process.env.JWT_SECRET = 'test-secret';
+
 import express from 'express';
 import request from 'supertest';
 

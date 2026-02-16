@@ -37,8 +37,10 @@ export default function QualityDashboard() {
         api.get('/metrics').catch(() => ({ data: { data: null } })),
       ]);
 
-      const processes = processesRes.data.data || [];
-      const ncs = ncsRes.data.data || [];
+      const processesData = processesRes.data.data;
+      const processes = Array.isArray(processesData) ? processesData : processesData?.items || [];
+      const ncsData = ncsRes.data.data;
+      const ncs = Array.isArray(ncsData) ? ncsData : ncsData?.items || [];
       const metrics = metricsRes.data?.data;
 
       setStats({
@@ -110,7 +112,7 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">COPQ</p>
-                  <p className="text-2xl font-bold">${(stats?.metrics.copq || 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">${(stats?.metrics?.copq ?? 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Cost of Poor Quality</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
@@ -125,7 +127,7 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">DPMO</p>
-                  <p className="text-2xl font-bold">{stats?.metrics.dpmo.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">{(stats?.metrics?.dpmo ?? 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Defects per Million</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
@@ -140,7 +142,7 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Sigma Level</p>
-                  <p className="text-2xl font-bold">{stats?.metrics.sigma.toFixed(1)}σ</p>
+                  <p className="text-2xl font-bold">{(stats?.metrics?.sigma ?? 0).toFixed(1)}σ</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Process Capability</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -155,7 +157,7 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">First Pass Yield</p>
-                  <p className="text-2xl font-bold">{stats?.metrics.fpy.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold">{(stats?.metrics?.fpy ?? 0).toFixed(1)}%</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Right First Time</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">

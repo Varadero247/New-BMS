@@ -1,6 +1,23 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
+
+const stripeEventSchema = z.object({
+  id: z.string().optional(),
+  type: z.string().min(1, 'Missing or invalid Stripe event'),
+  data: z.object({
+    object: z.object({
+      id: z.string().optional(),
+      customer: z.string().optional(),
+      customer_email: z.string().optional(),
+      customer_name: z.string().optional(),
+      amount_due: z.number().optional(),
+      currency: z.string().optional(),
+      number: z.string().optional(),
+    }).optional(),
+  }).optional(),
+});
 
 const logger = createLogger('stripe-dunning-webhook');
 const router: Router = Router();
@@ -10,14 +27,12 @@ const router: Router = Router();
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const event = req.body;
-
-    if (!event || !event.type) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'INVALID_EVENT', message: 'Missing or invalid Stripe event' },
-      });
+    const parsed = stripeEventSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const event = parsed.data;
 
     if (event.type !== 'invoice.payment_failed') {
       return res.json({ success: true, data: { message: 'Event type ignored', type: event.type } });

@@ -1,7 +1,21 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createDataRequestSchema = z.object({
+  type: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'PORTABILITY', 'RESTRICTION', 'OBJECTION'], {
+    errorMap: () => ({ message: 'type must be one of: ACCESS, RECTIFICATION, ERASURE, PORTABILITY, RESTRICTION, OBJECTION' }),
+  }),
+  requesterEmail: z.string().min(1, 'requesterEmail is required'),
+  requesterName: z.string().min(1, 'requesterName is required'),
+  description: z.string().nullable().optional(),
+});
+
+const updateDataRequestStatusSchema = z.object({
+  status: z.string().min(1, 'status is required'),
+});
 
 const logger = createLogger('dsars');
 const router: Router = Router();
@@ -72,15 +86,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { type, requesterEmail, requesterName, description } = req.body;
-    if (!type || !requesterEmail || !requesterName) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'type, requesterEmail, and requesterName are required' } });
+    const parsed = createDataRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
 
-    const validTypes = ['ACCESS', 'RECTIFICATION', 'ERASURE', 'PORTABILITY', 'RESTRICTION', 'OBJECTION'];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `type must be one of: ${validTypes.join(', ')}` } });
-    }
+    const { type, requesterEmail, requesterName, description } = parsed.data;
 
     const now = new Date();
     const deadlineAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -114,10 +125,12 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Data request not found' } });
     }
 
-    const { status } = req.body;
-    if (!status) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'status is required' } });
+    const parsed = updateDataRequestStatusSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { status } = parsed.data;
 
     const allowedTransitions = VALID_STATUS_TRANSITIONS[existing.status];
     if (!allowedTransitions || !allowedTransitions.includes(status)) {

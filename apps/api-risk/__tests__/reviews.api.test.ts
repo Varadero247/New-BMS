@@ -41,7 +41,7 @@ describe('POST /api/reviews', () => {
   it('should create', async () => {
     (prisma as any).riskReview.count.mockResolvedValue(0);
     (prisma as any).riskReview.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/reviews').send({ title: 'New' });
+    const res = await request(app).post('/api/reviews').send({ riskId: 'risk-1', scheduledDate: '2026-03-01T00:00:00.000Z' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

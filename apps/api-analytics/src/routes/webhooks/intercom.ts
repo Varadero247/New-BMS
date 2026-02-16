@@ -1,6 +1,27 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
+
+const intercomWebhookSchema = z.object({
+  topic: z.string().optional(),
+  data: z.object({
+    id: z.string().optional(),
+    subject: z.string().optional(),
+    body: z.string().optional(),
+    item: z.object({
+      id: z.string().optional(),
+      subject: z.string().optional(),
+      body: z.string().optional(),
+      customer: z.object({
+        email: z.string().optional(),
+      }).optional(),
+    }).optional(),
+    customer: z.object({
+      email: z.string().optional(),
+    }).optional(),
+  }),
+});
 
 const logger = createLogger('webhook-intercom');
 const router: Router = Router();
@@ -37,11 +58,12 @@ function classifyTicket(text: string): { category: 'BUG' | 'FEATURE_REQUEST' | '
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { topic, data } = req.body || {};
-
-    if (!data) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Missing data payload' } });
+    const parsed = intercomWebhookSchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { topic, data } = parsed.data;
 
     const conversationId = data.item?.id || data.id || `ic-${Date.now()}`;
     const subject = data.item?.subject || data.subject || 'No subject';

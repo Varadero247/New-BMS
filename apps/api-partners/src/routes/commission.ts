@@ -18,6 +18,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 
     const deals = await prisma.mktPartnerDeal.findMany({
       where: { partnerId },
+      take: 500,
     });
 
     const totalEarned = deals
@@ -77,6 +78,7 @@ router.get('/history', async (req: Request, res: Response) => {
         commissionValue: { not: null },
       },
       orderBy: { closedAt: 'desc' },
+      take: 500,
       select: {
         id: true,
         companyName: true,
@@ -117,6 +119,7 @@ router.get('/pending', async (req: Request, res: Response) => {
         commissionValue: { not: null },
       },
       orderBy: { closedAt: 'desc' },
+      take: 500,
     });
 
     const totalPending = deals.reduce((sum, d) => sum + (d.commissionValue || 0), 0);

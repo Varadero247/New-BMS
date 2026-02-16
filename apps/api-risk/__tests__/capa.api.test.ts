@@ -41,7 +41,7 @@ describe('POST /api/capa', () => {
   it('should create', async () => {
     (prisma as any).riskCapa.count.mockResolvedValue(0);
     (prisma as any).riskCapa.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/capa').send({ title: 'New' });
+    const res = await request(app).post('/api/capa').send({ title: 'New', type: 'CORRECTIVE' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

@@ -1,9 +1,31 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 const router = Router();
 const logger = createLogger('risk-reviews');
+
+const likelihoodEnum = z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']);
+const consequenceEnum = z.enum(['INSIGNIFICANT', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']);
+
+const createReviewSchema = z.object({
+  riskId: z.string().min(1, 'riskId is required'),
+  reviewer: z.string().optional(),
+  reviewerName: z.string().optional(),
+  scheduledDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  completedDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
+  previousScore: z.number().optional(),
+  newLikelihood: likelihoodEnum.optional(),
+  newConsequence: consequenceEnum.optional(),
+  newScore: z.number().optional(),
+  findings: z.string().optional(),
+  recommendations: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const updateReviewSchema = createReviewSchema.partial();
 
 async function generateRef(orgId: string): Promise<string> {
   const year = new Date().getFullYear();
@@ -37,18 +59,24 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
+    const parsed = createReviewSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const orgId = (req as any).user?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
-    const data = await (prisma as any).riskReview.create({ data: { ...req.body, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id } });
+    const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
+    const data = await (prisma as any).riskReview.create({ data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id } });
     res.status(201).json({ success: true, data });
   } catch (error: any) { logger.error('Failed to create review', { error: error.message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
+    const parsed = updateReviewSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const existing = await (prisma as any).riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
-    const data = await (prisma as any).riskReview.update({ where: { id: req.params.id }, data: { ...req.body, updatedBy: (req as any).user?.id } });
+    const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
+    const data = await (prisma as any).riskReview.update({ where: { id: req.params.id }, data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, updatedBy: (req as any).user?.id } });
     res.json({ success: true, data });
   } catch (error: any) { logger.error('Failed to update review', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
 });

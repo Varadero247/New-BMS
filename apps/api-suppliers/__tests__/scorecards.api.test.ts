@@ -41,7 +41,7 @@ describe('POST /api/scorecards', () => {
   it('should create', async () => {
     (prisma as any).suppScorecard.count.mockResolvedValue(0);
     (prisma as any).suppScorecard.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/scorecards').send({ title: 'New' });
+    const res = await request(app).post('/api/scorecards').send({ supplierId: 'supplier-1' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

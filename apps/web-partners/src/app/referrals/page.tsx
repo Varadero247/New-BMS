@@ -48,7 +48,9 @@ export default function ReferralsPage() {
       ]);
       if (refRes.status === 'fulfilled') setReferrals(refRes.value.data.data || []);
       if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data);
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to load referrals', err);
+    } finally {
       setLoading(false);
     }
   };
@@ -62,7 +64,9 @@ export default function ReferralsPage() {
       setFormName('');
       setShowForm(false);
       fetchData();
-    } catch {} finally {
+    } catch (err) {
+      console.error('Failed to track referral', err);
+    } finally {
       setSubmitting(false);
     }
   };

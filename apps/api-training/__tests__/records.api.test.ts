@@ -41,7 +41,7 @@ describe('POST /api/records', () => {
   it('should create', async () => {
     (prisma as any).trainRecord.count.mockResolvedValue(0);
     (prisma as any).trainRecord.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/records').send({ title: 'New' });
+    const res = await request(app).post('/api/records').send({ courseId: 'course-1', employeeId: 'emp-1' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

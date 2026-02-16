@@ -117,7 +117,7 @@ describe('POST /api/hmrc-calendar', () => {
   const validDeadline = {
     title: 'VAT Return Q1 2026',
     dueDate: '2026-04-07',
-    deadlineType: 'VAT',
+    type: 'VAT',
     description: 'Submit and pay VAT return for Q1 2026',
     status: 'PENDING',
   };
@@ -180,7 +180,7 @@ describe('POST /api/hmrc-calendar', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           title: 'VAT Return Q1 2026',
-          deadlineType: 'VAT',
+          type: 'VAT',
         }),
       })
     );

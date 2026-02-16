@@ -41,7 +41,7 @@ describe('POST /api/approvals', () => {
   it('should create', async () => {
     (prisma as any).contApproval.count.mockResolvedValue(0);
     (prisma as any).contApproval.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/approvals').send({ title: 'New' });
+    const res = await request(app).post('/api/approvals').send({ contractId: 'contract-1', approver: 'user-1' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

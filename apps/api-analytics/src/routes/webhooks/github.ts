@@ -1,6 +1,24 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
+
+const githubPushSchema = z.object({
+  ref: z.string().optional(),
+  commits: z.array(z.object({
+    id: z.string().optional(),
+    sha: z.string().optional(),
+    message: z.string().optional(),
+    title: z.string().optional(),
+  })).optional(),
+  head_commit: z.object({
+    message: z.string().optional(),
+  }).nullable().optional(),
+  repository: z.object({
+    full_name: z.string().optional(),
+    name: z.string().optional(),
+  }).optional(),
+});
 
 const logger = createLogger('webhook-github');
 const router: Router = Router();
@@ -18,7 +36,12 @@ function generateChangeSummary(commits: any[]): string {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { ref, commits, head_commit, repository } = req.body || {};
+    const parsed = githubPushSchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { ref, commits, head_commit, repository } = parsed.data;
 
     // Only process pushes to main
     if (!ref || (!ref.endsWith('/main') && !ref.endsWith('/master'))) {

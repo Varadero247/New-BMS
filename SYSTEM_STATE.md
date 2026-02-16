@@ -1,23 +1,23 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-15
+> Last updated: 2026-02-16
 
 ## Summary
 
 | Category | Count |
 |----------|-------|
-| API Services | 39 (+ 1 main API) |
+| API Services | 40 (+ 1 main API) |
 | Web Applications | 43 |
 | Shared Packages | 42 |
-| Prisma Schemas | 38 |
-| Database Tables | 595 total |
+| Prisma Schemas | 40 |
+| Database Tables | 601 total |
 | Scripts | 20 |
 | Unit Tests | ~8,169+ across 360+ suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
 
-## API Services (39 + 1)
+## API Services (40 + 1)
 
 | Service | Directory | Port | Standard/Domain | Prisma Schema |
 |---------|-----------|------|-----------------|---------------|
@@ -61,6 +61,7 @@
 | Incidents | `apps/api-incidents/` | 4036 | Incident management | `incidents.prisma` |
 | Audits | `apps/api-audits/` | 4037 | Audit programme | `audits.prisma` |
 | Mgmt Review | `apps/api-mgmt-review/` | 4038 | Management review | `mgmt-review.prisma` |
+| Setup Wizard | `apps/api-setup-wizard/` | 4039 | Guided setup wizard | `wizard.prisma` |
 
 ---
 
@@ -200,11 +201,13 @@
 | Incidents | `incidents.prisma` | 1 | Incidents (30+ fields, RIDDOR) |
 | Audits | `audits.prisma` | 4 | Audits, findings, checklists, programmes |
 | Mgmt Review | `mgmt-review.prisma` | 1 | Management reviews (AI agenda) |
-| **Total** | | **595 tables** | |
+| Wizard | `wizard.prisma` | 2 | Setup wizard state + steps |
+| Partner Portal | `partner-portal.prisma` | 4 | Support tickets, messages, collateral, referrals |
+| **Total** | | **601 tables** | |
 
 ---
 
-## Gateway Routing (37 proxy targets + local routes)
+## Gateway Routing (38 proxy targets + local routes)
 
 ### Local Routes (handled by gateway)
 | Route | Description |
@@ -263,6 +266,7 @@
 | `/api/incidents/*` | api-incidents | 4036 |
 | `/api/audits/*` | api-audits | 4037 |
 | `/api/mgmt-review/*` | api-mgmt-review | 4038 |
+| `/api/wizard/*` | api-setup-wizard | 4039 |
 
 All routes also available under `/api/v1/` prefix.
 

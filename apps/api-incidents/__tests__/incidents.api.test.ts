@@ -41,7 +41,7 @@ describe('POST /api/incidents', () => {
   it('should create', async () => {
     (prisma as any).incIncident.count.mockResolvedValue(0);
     (prisma as any).incIncident.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/incidents').send({ title: 'New' });
+    const res = await request(app).post('/api/incidents').send({ title: 'New', dateOccurred: '2026-01-15T10:00:00Z' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

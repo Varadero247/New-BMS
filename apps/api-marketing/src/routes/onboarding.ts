@@ -1,7 +1,14 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
+
+const enqueueOnboardingSchema = z.object({
+  email: z.string().min(1, 'Email is required'),
+  firstName: z.string().optional(),
+  companyName: z.string().optional(),
+});
 
 const logger = createLogger('api-marketing:onboarding');
 const router = Router();
@@ -21,14 +28,12 @@ const SEQUENCE_DELAYS = [
 router.post('/enqueue/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { email, firstName, companyName } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Email is required' },
-      });
+    const parsed = enqueueOnboardingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { email, firstName, companyName } = parsed.data;
 
     const sequenceId = `onboarding-${userId}-${Date.now()}`;
     const now = Date.now();

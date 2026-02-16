@@ -165,8 +165,9 @@ export { CommentThread, type CommentThreadProps } from './comment-thread';
 // Quick Add Task
 export { QuickAddTask, type QuickAddTaskProps } from './quick-add-task';
 
-// Photo Capture
+// Photo Capture & Annotation
 export { PhotoCapture, type PhotoCaptureProps } from './photo-capture';
+export { PhotoAnnotation, type PhotoAnnotationProps, type AnnotationTool, type AnnotationColor } from './photo-annotation';
 
 // QR Code
 export { QRCodeDisplay, QRScanner, type QRCodeDisplayProps, type QRScannerProps } from './qr-code';

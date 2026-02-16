@@ -1,7 +1,21 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createContractSchema = z.object({
+  name: z.string().min(1, 'name is required'),
+  vendor: z.string().min(1, 'vendor is required'),
+  category: z.string().min(1, 'category is required'),
+  startDate: z.string().min(1, 'startDate is required'),
+  endDate: z.string().min(1, 'endDate is required'),
+  annualCost: z.number().optional(),
+  status: z.string().optional(),
+  notes: z.string().nullable().optional(),
+});
+
+const updateContractSchema = createContractSchema.partial();
 
 const logger = createLogger('contracts');
 const router: Router = Router();
@@ -95,10 +109,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, vendor, category, startDate, endDate, annualCost, status, notes } = req.body;
-    if (!name || !vendor || !category || !startDate || !endDate) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'name, vendor, category, startDate, and endDate are required' } });
+    const parsed = createContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { name, vendor, category, startDate, endDate, annualCost, status, notes } = parsed.data;
 
     const contract = await prisma.contract.create({
       data: {
@@ -131,7 +147,12 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
 
-    const { name, vendor, category, startDate, endDate, annualCost, status, notes } = req.body;
+    const parsed = updateContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { name, vendor, category, startDate, endDate, annualCost, status, notes } = parsed.data;
     const data: any = {};
     if (name !== undefined) data.name = name;
     if (vendor !== undefined) data.vendor = vendor;

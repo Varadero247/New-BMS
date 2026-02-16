@@ -1,7 +1,19 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createExpenseSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  amount: z.union([z.number(), z.string().transform(Number)]),
+  category: z.string().min(1, 'category is required'),
+  vendor: z.string().nullable().optional(),
+  receiptUrl: z.string().nullable().optional(),
+});
+
+const updateExpenseSchema = createExpenseSchema.partial();
 
 const logger = createLogger('expenses');
 const router: Router = Router();
@@ -120,21 +132,19 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, amount, category, vendor, receiptUrl } = req.body;
-
-    if (!title || amount === undefined || !category) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Title, amount, and category are required' },
-      });
+    const parsed = createExpenseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { title, description, amount, category, vendor, receiptUrl } = parsed.data;
 
     const authReq = req as AuthRequest;
     const expense = await prisma.expense.create({
       data: {
         title,
         description: description || '',
-        amount: parseFloat(amount),
+        amount: typeof amount === 'number' ? amount : parseFloat(String(amount)),
         category,
         vendor: vendor || null,
         receiptUrl: receiptUrl || null,
@@ -165,13 +175,18 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
-    const { title, description, amount, category, vendor, receiptUrl } = req.body;
+    const parsed = updateExpenseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { title, description, amount, category, vendor, receiptUrl } = parsed.data;
     const expense = await prisma.expense.update({
       where: { id: req.params.id },
       data: {
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
-        ...(amount !== undefined && { amount: parseFloat(amount) }),
+        ...(amount !== undefined && { amount: typeof amount === 'number' ? amount : parseFloat(String(amount)) }),
         ...(category !== undefined && { category }),
         ...(vendor !== undefined && { vendor }),
         ...(receiptUrl !== undefined && { receiptUrl }),

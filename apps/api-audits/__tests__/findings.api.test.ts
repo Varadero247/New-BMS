@@ -41,7 +41,7 @@ describe('POST /api/findings', () => {
   it('should create', async () => {
     (prisma as any).audFinding.count.mockResolvedValue(0);
     (prisma as any).audFinding.create.mockResolvedValue({ id: '1', title: 'New' });
-    const res = await request(app).post('/api/findings').send({ title: 'New' });
+    const res = await request(app).post('/api/findings').send({ title: 'New', auditId: '00000000-0000-0000-0000-000000000001' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });

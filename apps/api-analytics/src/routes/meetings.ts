@@ -1,7 +1,19 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+
+const createMeetingSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  type: z.string().min(1, 'type is required'),
+  date: z.string().min(1, 'date is required'),
+  attendees: z.array(z.string()).optional(),
+  summary: z.string().optional(),
+  actionItems: z.array(z.any()).optional(),
+});
+
+const updateMeetingSchema = createMeetingSchema.partial();
 
 const logger = createLogger('meetings');
 const router: Router = Router();
@@ -68,14 +80,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, type, date, attendees, summary, actionItems } = req.body;
-
-    if (!title || !type || !date) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Title, type, and date are required' },
-      });
+    const parsed = createMeetingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
+
+    const { title, type, date, attendees, summary, actionItems } = parsed.data;
 
     const meeting = await prisma.meetingNote.create({
       data: {
@@ -109,7 +119,12 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
-    const { title, type, date, attendees, summary, actionItems } = req.body;
+    const parsed = updateMeetingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    }
+
+    const { title, type, date, attendees, summary, actionItems } = parsed.data;
     const meeting = await prisma.meetingNote.update({
       where: { id: req.params.id },
       data: {
