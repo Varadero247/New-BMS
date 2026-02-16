@@ -26,6 +26,12 @@ import dashboardRouter from './routes/dashboard';
 import heatMapRouter from './routes/heat-map';
 import categoriesRouter from './routes/categories';
 import treatmentsRouter from './routes/treatments';
+import controlsRouter from './routes/controls';
+import kriRouter from './routes/kri';
+import actionsRouter from './routes/actions';
+import bowtieRouter from './routes/bowtie';
+import appetiteRouter from './routes/appetite';
+import analyticsRouter from './routes/analytics';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4027;
@@ -42,7 +48,7 @@ app.use(sanitizeQueryMiddleware());
 app.use(attachPermissions());
 
 // Health check, readiness, and metrics
-app.get('/health', createHealthCheck('api-risk', prisma, '1.0.0'));
+app.get('/health', createHealthCheck('api-risk', prisma, '2.0.0'));
 app.get('/ready', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -53,8 +59,23 @@ app.get('/ready', async (_req, res) => {
 });
 app.get('/metrics', metricsHandler);
 
-// API Routes
+// API Routes — named routes before parameterized
+// Appetite & framework (must be before /api/risks to avoid /:id capture)
+app.use('/api/risks', appetiteRouter);
+// Analytics
+app.use('/api/risks', analyticsRouter);
+// KRI aggregate routes (breaches, due) — before /:id routes
+app.use('/api/risks', kriRouter);
+// Actions aggregate routes (overdue, due-soon) — before /:id routes
+app.use('/api/risks', actionsRouter);
+// Bowtie aggregate route
+app.use('/api/risks', bowtieRouter);
+// Main risk routes (register, heatmap, overdue-review, exceeds-appetite, by-category, aggregate, from-*, CRUD)
 app.use('/api/risks', risksRouter);
+// Controls (nested under /api/risks/:id/controls)
+app.use('/api/risks', controlsRouter);
+
+// Other top-level routes
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/capa', capaRouter);
 app.use('/api/dashboard', dashboardRouter);
@@ -74,7 +95,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const server = app.listen(PORT, () => {
-  logger.info(`Risk & CAPA API server running on port ${PORT}`);
+  logger.info(`Enterprise Risk Management API (ISO 31000:2018) running on port ${PORT}`);
 });
 
 const gracefulShutdown = async (signal: string) => {

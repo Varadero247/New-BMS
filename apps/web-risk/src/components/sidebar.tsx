@@ -13,6 +13,12 @@ import {
   Settings,
   ChevronDown,
   LogOut,
+  Shield,
+  Activity,
+  Target,
+  GitBranch,
+  BarChart3,
+  ListChecks,
 } from 'lucide-react';
 
 interface NavItem {
@@ -37,16 +43,36 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: 'Risk Management (Cl. 5-6)',
-    clause: '5',
+    title: 'Risk Register (Cl. 6.4)',
+    clause: '6',
     collapsible: true,
     items: [
       { name: 'Risk Register', href: '/risks', icon: AlertTriangle },
+      { name: 'New Risk', href: '/risks/new', icon: AlertTriangle },
       { name: 'Heat Map', href: '/heat-map', icon: Grid3X3 },
     ],
   },
   {
-    title: 'Review & Actions (Cl. 7-8)',
+    title: 'Controls & KRIs (Cl. 6.5-6.6)',
+    clause: '6.5',
+    collapsible: true,
+    items: [
+      { name: 'Bow-Tie Analysis', href: '/bowtie', icon: GitBranch },
+      { name: 'KRI Dashboard', href: '/kri', icon: Activity },
+      { name: 'Risk Actions', href: '/actions', icon: ListChecks },
+    ],
+  },
+  {
+    title: 'Appetite & Framework',
+    clause: '5',
+    collapsible: true,
+    items: [
+      { name: 'Risk Appetite', href: '/appetite', icon: Target },
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Review & CAPA (Cl. 7-8)',
     clause: '7',
     collapsible: true,
     items: [
@@ -121,8 +147,11 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col h-full min-h-screen">
       <div className="p-4 border-b border-border bg-red-50 dark:bg-red-900/10">
-        <h1 className="text-lg font-bold font-display text-red-900 dark:text-red-100">Risk & CAPA</h1>
-        <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">ISO 31000 Risk Management</p>
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+          <h1 className="text-lg font-bold font-display text-red-900 dark:text-red-100">Enterprise Risk</h1>
+        </div>
+        <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">ISO 31000:2018 Risk Management</p>
       </div>
       <nav className="flex-1 p-3 overflow-y-auto" aria-label="Risk module navigation">
         {navGroups.map((group) => (

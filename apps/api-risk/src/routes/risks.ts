@@ -3,28 +3,77 @@ import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import {
+  getRiskLevel, calculateScore, likelihoodToNum, consequenceToNum,
+  mapCoshhToRisk, mapFraToRisk, mapIncidentToRisk, getAppetiteStatus,
+} from '../services/riskScoring';
+
 const router = Router();
 const logger = createLogger('risk-risks');
 
 const likelihoodEnum = z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']);
 const consequenceEnum = z.enum(['INSIGNIFICANT', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']);
+const categoryEnum = z.enum([
+  'STRATEGIC', 'OPERATIONAL', 'FINANCIAL', 'COMPLIANCE', 'REPUTATIONAL', 'ENVIRONMENTAL',
+  'HEALTH_SAFETY', 'INFORMATION_SECURITY', 'QUALITY', 'SUPPLY_CHAIN', 'TECHNOLOGY_CYBER',
+  'PEOPLE_HR', 'EXTERNAL_GEOPOLITICAL', 'PROJECT_PROGRAMME', 'OTHER',
+]);
 
 const createRiskSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().optional(),
-  category: z.enum(['STRATEGIC', 'OPERATIONAL', 'FINANCIAL', 'COMPLIANCE', 'REPUTATIONAL', 'ENVIRONMENTAL', 'HEALTH_SAFETY', 'INFORMATION_SECURITY', 'QUALITY', 'SUPPLY_CHAIN']),
+  category: categoryEnum,
+  subcategory: z.string().optional(),
   source: z.string().optional(),
   owner: z.string().optional(),
   ownerName: z.string().optional(),
+  ownerJobTitle: z.string().optional(),
   department: z.string().optional(),
+  causes: z.array(z.string()).optional(),
+  riskEvent: z.string().optional(),
+  consequences: z.array(z.string()).optional(),
+  affectedObjectives: z.array(z.string()).optional(),
+  internalContext: z.string().optional(),
+  externalContext: z.string().optional(),
+  regulatoryRef: z.string().optional(),
+  sourceModule: z.enum(['MANUAL', 'HEALTH_SAFETY', 'CHEMICAL_COSHH', 'FIRE_EMERGENCY', 'QUALITY_MOD', 'INFORMATION_SECURITY', 'ENVIRONMENTAL', 'SUPPLIER_MOD', 'PROJECT_MOD', 'FINANCIAL_MOD', 'HR_MOD', 'AUDIT_MOD']).optional(),
+  sourceCoshhId: z.string().optional(),
+  sourceFireRiskId: z.string().optional(),
+  sourceChemicalId: z.string().optional(),
+  sourceIncidentId: z.string().optional(),
+  sourceAuditFindingId: z.string().optional(),
+  sourceEmergencyId: z.string().optional(),
   likelihood: likelihoodEnum.optional(),
   consequence: consequenceEnum.optional(),
   inherentScore: z.number().optional(),
+  inherentLikelihood: z.number().min(1).max(5).optional(),
+  inherentConsequence: z.number().min(1).max(5).optional(),
+  inherentRiskLevel: z.string().optional(),
+  inherentVelocity: z.enum(['IMMEDIATE', 'SHORT_TERM', 'MEDIUM_TERM', 'LONG_TERM']).optional(),
+  controlEffectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),
   residualLikelihood: likelihoodEnum.optional(),
   residualConsequence: consequenceEnum.optional(),
   residualScore: z.number().optional(),
-  treatment: z.enum(['ACCEPT', 'MITIGATE', 'TRANSFER', 'AVOID', 'ESCALATE']).optional(),
+  residualLikelihoodNum: z.number().min(1).max(5).optional(),
+  residualConsequenceNum: z.number().min(1).max(5).optional(),
+  residualRiskLevel: z.string().optional(),
+  appetiteStatus: z.string().optional(),
+  alarpStatus: z.string().optional(),
+  acceptedByManagement: z.boolean().optional(),
+  acceptedBy: z.string().optional(),
+  acceptanceJustification: z.string().optional(),
+  treatment: z.enum(['ACCEPT', 'MITIGATE', 'TRANSFER', 'AVOID', 'ESCALATE', 'REDUCE_LIKELIHOOD', 'REDUCE_CONSEQUENCE', 'SHARE', 'EXPLOIT']).optional(),
   treatmentPlan: z.string().optional(),
+  treatmentDescription: z.string().optional(),
+  treatmentTargetScore: z.number().optional(),
+  treatmentTargetDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  treatmentCost: z.number().optional(),
+  treatmentBenefit: z.string().optional(),
+  earlyWarningSigns: z.array(z.string()).optional(),
+  reviewFrequency: z.string().optional(),
+  nextReviewDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  relatedRiskIds: z.array(z.string()).optional(),
+  aggregationGroup: z.string().optional(),
   controls: z.string().optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'TREATING', 'MONITORING', 'CLOSED']).optional(),
   dueDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
@@ -43,54 +92,316 @@ async function generateRef(orgId: string): Promise<string> {
   return `RISK-${year}-${String(count + 1).padStart(4, '0')}`;
 }
 
+function autoCalculateFields(data: any): any {
+  const result = { ...data };
+  // Auto-calculate inherent score from numeric or enum values
+  if (result.inherentLikelihood && result.inherentConsequence) {
+    result.inherentScore = calculateScore(result.inherentLikelihood, result.inherentConsequence);
+    result.inherentRiskLevel = getRiskLevel(result.inherentScore);
+  } else if (result.likelihood && result.consequence) {
+    const l = likelihoodToNum(result.likelihood);
+    const c = consequenceToNum(result.consequence);
+    if (!result.inherentLikelihood) result.inherentLikelihood = l;
+    if (!result.inherentConsequence) result.inherentConsequence = c;
+    result.inherentScore = calculateScore(l, c);
+    result.inherentRiskLevel = getRiskLevel(result.inherentScore);
+  }
+  // Auto-calculate residual score
+  if (result.residualLikelihoodNum && result.residualConsequenceNum) {
+    result.residualScore = calculateScore(result.residualLikelihoodNum, result.residualConsequenceNum);
+    result.residualRiskLevel = getRiskLevel(result.residualScore);
+  } else if (result.residualLikelihood && result.residualConsequence) {
+    const rl = likelihoodToNum(result.residualLikelihood);
+    const rc = consequenceToNum(result.residualConsequence);
+    if (!result.residualLikelihoodNum) result.residualLikelihoodNum = rl;
+    if (!result.residualConsequenceNum) result.residualConsequenceNum = rc;
+    result.residualScore = calculateScore(rl, rc);
+    result.residualRiskLevel = getRiskLevel(result.residualScore);
+  }
+  // Default next review date if not set
+  if (!result.nextReviewDate) {
+    const next = new Date();
+    next.setMonth(next.getMonth() + 3);
+    result.nextReviewDate = next.toISOString();
+  }
+  return result;
+}
+
+// Named routes BEFORE /:id
+// GET /api/risks/register — full register export
+router.get('/register', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const { page = '1', limit = '50' } = req.query as Record<string, string>;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const where = { orgId, deletedAt: null };
+    const [data, total] = await Promise.all([
+      (prisma as any).riskRegister.findMany({
+        where, skip, take: parseInt(limit),
+        include: { riskControls: { where: { isActive: true } }, keyRiskIndicators: { where: { isActive: true } }, treatmentActions: true },
+        orderBy: { residualScore: 'desc' },
+      }),
+      (prisma as any).riskRegister.count({ where }),
+    ]);
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+  } catch (error: any) { logger.error('Failed to fetch register', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch register' } }); }
+});
+
+// GET /api/risks/heatmap
+router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const { category, owner, sourceModule: sm } = req.query as Record<string, string>;
+    const where: any = { orgId, deletedAt: null, status: { not: 'CLOSED' } };
+    if (category) where.category = category;
+    if (owner) where.owner = owner;
+    if (sm) where.sourceModule = sm;
+    const risks = await (prisma as any).riskRegister.findMany({
+      where,
+      select: { id: true, title: true, referenceNumber: true, residualLikelihoodNum: true, residualConsequenceNum: true, residualRiskLevel: true, category: true, ownerName: true },
+    });
+    const matrix: Record<string, any[]> = {};
+    for (const r of risks) {
+      const l = r.residualLikelihoodNum || 3;
+      const c = r.residualConsequenceNum || 3;
+      const key = `${l}-${c}`;
+      if (!matrix[key]) matrix[key] = [];
+      matrix[key].push(r);
+    }
+    const heatmapData = [];
+    for (let l = 1; l <= 5; l++) {
+      for (let c = 1; c <= 5; c++) {
+        const key = `${l}-${c}`;
+        heatmapData.push({ likelihood: l, consequence: c, count: (matrix[key] || []).length, risks: matrix[key] || [] });
+      }
+    }
+    res.json({ success: true, data: { heatmapData, total: risks.length } });
+  } catch (error: any) { logger.error('Failed to generate heatmap', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to generate heatmap' } }); }
+});
+
+// GET /api/risks/overdue-review
+router.get('/overdue-review', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const risks = await (prisma as any).riskRegister.findMany({
+      where: { orgId, deletedAt: null, status: { not: 'CLOSED' }, nextReviewDate: { lt: new Date() } },
+      orderBy: { nextReviewDate: 'asc' },
+      select: { id: true, referenceNumber: true, title: true, ownerName: true, nextReviewDate: true, residualRiskLevel: true, category: true },
+    });
+    res.json({ success: true, data: risks });
+  } catch (error: any) { logger.error('Failed to fetch overdue reviews', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue reviews' } }); }
+});
+
+// GET /api/risks/exceeds-appetite
+router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const risks = await (prisma as any).riskRegister.findMany({
+      where: { orgId, deletedAt: null, appetiteStatus: 'EXCEEDS', status: { not: 'CLOSED' } },
+      orderBy: { residualScore: 'desc' },
+      select: { id: true, referenceNumber: true, title: true, category: true, residualRiskLevel: true, residualScore: true, ownerName: true },
+    });
+    res.json({ success: true, data: risks });
+  } catch (error: any) { logger.error('Failed to fetch exceeds-appetite', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risks exceeding appetite' } }); }
+});
+
+// GET /api/risks/by-category
+router.get('/by-category', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const raw = await (prisma as any).riskRegister.groupBy({
+      by: ['category'], where: { orgId, deletedAt: null }, _count: true,
+    });
+    res.json({ success: true, data: raw.map((r: any) => ({ category: r.category, count: r._count })) });
+  } catch (error: any) { logger.error('Failed to fetch by-category', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch category breakdown' } }); }
+});
+
+// GET /api/risks/aggregate
+router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const { groupBy = 'category' } = req.query as Record<string, string>;
+    const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
+    const field = validFields.includes(groupBy) ? groupBy : 'category';
+    const raw = await (prisma as any).riskRegister.groupBy({
+      by: [field], where: { orgId, deletedAt: null }, _count: true,
+    });
+    res.json({ success: true, data: raw.map((r: any) => ({ group: r[field], count: r._count })) });
+  } catch (error: any) { logger.error('Failed to aggregate', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to aggregate risks' } }); }
+});
+
+// POST /api/risks/from-coshh/:coshhId
+router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const coshhData = req.body;
+    if (!coshhData || !coshhData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'COSHH assessment data required in body' } });
+    const mapped = mapCoshhToRisk(coshhData);
+    const referenceNumber = await generateRef(orgId);
+    const data = await (prisma as any).riskRegister.create({
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) { logger.error('Failed to create risk from COSHH', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+});
+
+// POST /api/risks/from-fra/:fraId
+router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const fraData = req.body;
+    if (!fraData || !fraData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'FRA data required in body' } });
+    const mapped = mapFraToRisk(fraData);
+    const referenceNumber = await generateRef(orgId);
+    const data = await (prisma as any).riskRegister.create({
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) { logger.error('Failed to create risk from FRA', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+});
+
+// POST /api/risks/from-incident/:id
+router.post('/from-incident/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const incidentData = req.body;
+    if (!incidentData || !incidentData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Incident data required in body' } });
+    const mapped = mapIncidentToRisk(incidentData);
+    const referenceNumber = await generateRef(orgId);
+    const data = await (prisma as any).riskRegister.create({
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) { logger.error('Failed to create risk from incident', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+});
+
+// POST /api/risks/from-audit/:id
+router.post('/from-audit/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const auditData = req.body;
+    if (!auditData) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Audit finding data required in body' } });
+    const referenceNumber = await generateRef(orgId);
+    const data = await (prisma as any).riskRegister.create({
+      data: {
+        title: `${auditData.title || 'Audit finding'} — compliance risk`,
+        category: 'COMPLIANCE',
+        sourceModule: 'AUDIT_MOD',
+        sourceAuditFindingId: auditData.id || req.params.id,
+        inherentLikelihood: 3, inherentConsequence: 3, inherentScore: 9,
+        inherentRiskLevel: 'HIGH', likelihood: 'POSSIBLE', consequence: 'MODERATE',
+        orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id,
+      },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) { logger.error('Failed to create risk from audit', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+});
+
+// GET /api/risks — list all with filters
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
+    const { status, search, category, level, owner: ownerFilter, sourceModule: smFilter, page = '1', limit = '20', sort = 'createdAt', order = 'desc' } = req.query as Record<string, string>;
     const where: any = { orgId, deletedAt: null };
     if (status) where.status = status;
-    if (search) where.title = { contains: search, mode: 'insensitive' };
+    if (category) where.category = category;
+    if (level) where.residualRiskLevel = level;
+    if (ownerFilter) where.owner = ownerFilter;
+    if (smFilter) where.sourceModule = smFilter;
+    if (search) where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { referenceNumber: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+    ];
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const validSorts = ['createdAt', 'residualScore', 'category', 'nextReviewDate', 'title'];
+    const orderField = validSorts.includes(sort) ? sort : 'createdAt';
     const [data, total] = await Promise.all([
-      (prisma as any).riskRegister.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
+      (prisma as any).riskRegister.findMany({ where, skip, take: parseInt(limit), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
       (prisma as any).riskRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: any) { logger.error('Failed to fetch risks', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risks' } }); }
 });
 
+// GET /api/risks/:id — get risk with all relations
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await (prisma as any).riskRegister.findFirst({
+      where: { id: req.params.id, deletedAt: null },
+      include: {
+        riskControls: { where: { isActive: true } },
+        keyRiskIndicators: { where: { isActive: true }, include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } } },
+        treatmentActions: { orderBy: { targetDate: 'asc' } },
+        reviews: { orderBy: { scheduledDate: 'desc' }, take: 10 },
+        bowtie: true,
+      },
+    });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     res.json({ success: true, data: item });
   } catch (error: any) { logger.error('Failed to fetch risk', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risk' } }); }
 });
 
+// POST /api/risks — create risk (manual entry)
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createRiskSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const orgId = (req as any).user?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
-    const { title, description, category, source, owner, ownerName, department, likelihood, consequence, inherentScore, residualLikelihood, residualConsequence, residualScore, treatment, treatmentPlan, controls, status, dueDate, reviewDate, linkedIncident, linkedAudit, tags, notes } = parsed.data;
-    const data = await (prisma as any).riskRegister.create({ data: { title, description, category, source, owner, ownerName, department, likelihood, consequence, inherentScore, residualLikelihood, residualConsequence, residualScore, treatment, treatmentPlan, controls, status, dueDate, reviewDate, linkedIncident, linkedAudit, tags, notes, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id } });
+    const calculated = autoCalculateFields(parsed.data);
+    // Auto-check appetite status if we have residual score and appetite statements
+    if (calculated.residualScore && calculated.category) {
+      try {
+        const appetite = await (prisma as any).riskAppetiteStatement.findFirst({
+          where: { category: calculated.category, isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
+        });
+        if (appetite) {
+          calculated.appetiteStatus = getAppetiteStatus(calculated.residualScore, appetite);
+        }
+      } catch { /* appetite check optional */ }
+    }
+    const data = await (prisma as any).riskRegister.create({
+      data: { ...calculated, orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id },
+    });
     res.status(201).json({ success: true, data });
   } catch (error: any) { logger.error('Failed to create risk', { error: error.message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
 });
 
+// PUT /api/risks/:id — update risk
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateRiskSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const existing = await (prisma as any).riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
-    const { title, description, category, source, owner, ownerName, department, likelihood, consequence, inherentScore, residualLikelihood, residualConsequence, residualScore, treatment, treatmentPlan, controls, status, dueDate, reviewDate, linkedIncident, linkedAudit, tags, notes } = parsed.data;
-    const data = await (prisma as any).riskRegister.update({ where: { id: req.params.id }, data: { title, description, category, source, owner, ownerName, department, likelihood, consequence, inherentScore, residualLikelihood, residualConsequence, residualScore, treatment, treatmentPlan, controls, status, dueDate, reviewDate, linkedIncident, linkedAudit, tags, notes, updatedBy: (req as any).user?.id } });
+    const calculated = autoCalculateFields(parsed.data);
+    // Re-check appetite status
+    const orgId = (req as any).user?.orgId || 'default';
+    const resScore = calculated.residualScore ?? existing.residualScore;
+    const cat = calculated.category ?? existing.category;
+    if (resScore && cat) {
+      try {
+        const appetite = await (prisma as any).riskAppetiteStatement.findFirst({
+          where: { category: cat, isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
+        });
+        if (appetite) {
+          calculated.appetiteStatus = getAppetiteStatus(resScore, appetite);
+        }
+      } catch { /* optional */ }
+    }
+    if (calculated.acceptedByManagement && !existing.acceptedByManagement) {
+      calculated.acceptedAt = new Date();
+    }
+    const data = await (prisma as any).riskRegister.update({
+      where: { id: req.params.id },
+      data: { ...calculated, updatedBy: (req as any).user?.id },
+    });
     res.json({ success: true, data });
   } catch (error: any) { logger.error('Failed to update risk', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
 });
 
+// DELETE /api/risks/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const existing = await (prisma as any).riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });

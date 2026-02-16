@@ -1,4 +1,5 @@
-// Risk & CAPA Management Schema - M1
+// Enterprise Risk Management Schema
+// ISO 31000:2018 | ISO Guide 73 | ISO 31010:2019
 
 generator client {
   provider      = "prisma-client-js"
@@ -11,6 +12,8 @@ datasource db {
   url      = env("RISK_DATABASE_URL")
 }
 
+// ── Existing Enums (preserved) ────────────────────────────────
+
 enum RiskLikelihood {
   RARE
   UNLIKELY
@@ -18,6 +21,7 @@ enum RiskLikelihood {
   LIKELY
   ALMOST_CERTAIN
 }
+
 enum RiskConsequence {
   INSIGNIFICANT
   MINOR
@@ -25,6 +29,7 @@ enum RiskConsequence {
   MAJOR
   CATASTROPHIC
 }
+
 enum RiskStatus {
   IDENTIFIED
   ASSESSED
@@ -32,6 +37,7 @@ enum RiskStatus {
   MONITORING
   CLOSED
 }
+
 enum RiskCategory {
   STRATEGIC
   OPERATIONAL
@@ -43,18 +49,30 @@ enum RiskCategory {
   INFORMATION_SECURITY
   QUALITY
   SUPPLY_CHAIN
+  TECHNOLOGY_CYBER
+  PEOPLE_HR
+  EXTERNAL_GEOPOLITICAL
+  PROJECT_PROGRAMME
+  OTHER
 }
+
 enum RiskTreatment {
   ACCEPT
   MITIGATE
   TRANSFER
   AVOID
   ESCALATE
+  REDUCE_LIKELIHOOD
+  REDUCE_CONSEQUENCE
+  SHARE
+  EXPLOIT
 }
+
 enum CapaType {
   CORRECTIVE
   PREVENTIVE
 }
+
 enum CapaStatus {
   OPEN
   IN_PROGRESS
@@ -62,12 +80,14 @@ enum CapaStatus {
   CLOSED
   OVERDUE
 }
+
 enum CapaPriority {
   CRITICAL
   HIGH
   MEDIUM
   LOW
 }
+
 enum CapaSource {
   AUDIT
   INCIDENT
@@ -78,6 +98,7 @@ enum CapaSource {
   CUSTOMER_FEEDBACK
   INTERNAL_REVIEW
 }
+
 enum ReviewStatus {
   SCHEDULED
   IN_PROGRESS
@@ -85,111 +106,431 @@ enum ReviewStatus {
   CANCELLED
 }
 
+// ── New Enums (ISO 31000:2018) ────────────────────────────────
+
+enum RiskAppetiteLevel {
+  VERY_LOW
+  LOW
+  MODERATE_APPETITE
+  HIGH_APPETITE
+  VERY_HIGH
+}
+
+enum ControlType {
+  PREVENTIVE
+  DETECTIVE
+  REACTIVE
+  DIRECTIVE
+}
+
+enum ControlEffectiveness {
+  STRONG
+  ADEQUATE
+  WEAK
+  NONE_EFFECTIVE
+}
+
+enum RiskVelocity {
+  IMMEDIATE
+  SHORT_TERM
+  MEDIUM_TERM
+  LONG_TERM
+}
+
+enum KriStatus {
+  GREEN
+  AMBER
+  RED
+}
+
+enum SourceModule {
+  MANUAL
+  HEALTH_SAFETY
+  CHEMICAL_COSHH
+  FIRE_EMERGENCY
+  QUALITY_MOD
+  INFORMATION_SECURITY
+  ENVIRONMENTAL
+  SUPPLIER_MOD
+  PROJECT_MOD
+  FINANCIAL_MOD
+  HR_MOD
+  AUDIT_MOD
+}
+
+// ── Risk Register (extended ISO 31000) ───────────────────────
+
 model RiskRegister {
-  id              String          @id @default(cuid())
-  orgId           String
-  referenceNumber String          @unique
-  title           String
-  description     String?
-  category        RiskCategory
-  source          String?
-  owner           String?
-  ownerName       String?
-  department      String?
-  likelihood      RiskLikelihood  @default(POSSIBLE)
-  consequence     RiskConsequence @default(MODERATE)
-  inherentScore   Int             @default(0)
-  residualLikelihood  RiskLikelihood?
-  residualConsequence RiskConsequence?
-  residualScore   Int?
-  treatment       RiskTreatment   @default(MITIGATE)
-  treatmentPlan   String?
-  controls        String?
-  status          RiskStatus      @default(IDENTIFIED)
-  dueDate         DateTime?
-  reviewDate      DateTime?
-  closedDate      DateTime?
-  closedBy        String?
-  linkedIncident  String?
-  linkedAudit     String?
-  tags            String[]
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  createdBy       String?
-  updatedBy       String?
-  deletedAt       DateTime?
-  reviews         RiskReview[]
-  capas           RiskCapa[]
+  id                    String            @id @default(cuid())
+  orgId                 String
+  referenceNumber       String            @unique
+  title                 String
+  description           String?
+  category              RiskCategory
+  subcategory           String?
+  source                String?
+  owner                 String?
+  ownerName             String?
+  ownerJobTitle         String?
+  department            String?
+
+  // Cause-Event-Consequence (ISO 31000 cl.6.4.2)
+  causes                String[]
+  riskEvent             String?
+  consequences          String[]
+  affectedObjectives    String[]
+
+  // Context
+  internalContext       String?
+  externalContext       String?
+  regulatoryRef         String?
+
+  // Source linkage
+  sourceModule          SourceModule      @default(MANUAL)
+  sourceCoshhId         String?
+  sourceFireRiskId      String?
+  sourceChemicalId      String?
+  sourceIncidentId      String?
+  sourceAuditFindingId  String?
+  sourceEmergencyId     String?
+
+  // Inherent risk (pre-controls)
+  likelihood            RiskLikelihood    @default(POSSIBLE)
+  consequence           RiskConsequence   @default(MODERATE)
+  inherentScore         Int               @default(0)
+  inherentLikelihood    Int?              // 1-5 numeric
+  inherentConsequence   Int?              // 1-5 numeric
+  inherentRiskLevel     String?           // LOW/MEDIUM/HIGH/VERY_HIGH/CRITICAL
+  inherentVelocity      RiskVelocity?
+
+  // Controls summary
+  controls              String?
+  controlEffectiveness  ControlEffectiveness?
+
+  // Residual risk (post-controls)
+  residualLikelihood    RiskLikelihood?
+  residualConsequence   RiskConsequence?
+  residualScore         Int?
+  residualLikelihoodNum Int?              // 1-5 numeric
+  residualConsequenceNum Int?             // 1-5 numeric
+  residualRiskLevel     String?           // LOW/MEDIUM/HIGH/VERY_HIGH/CRITICAL
+
+  // Risk appetite comparison
+  appetiteStatus        String?           // WITHIN/AT_LIMIT/EXCEEDS
+  alarpStatus           String?           // ALARP/NOT_ALARP/BROADLY_ACCEPTABLE
+  acceptedByManagement  Boolean           @default(false)
+  acceptedBy            String?
+  acceptedAt            DateTime?
+  acceptanceJustification String?
+
+  // Treatment (ISO 31000 cl.6.5)
+  treatment             RiskTreatment     @default(MITIGATE)
+  treatmentPlan         String?
+  treatmentDescription  String?
+  treatmentTargetScore  Int?
+  treatmentTargetDate   DateTime?
+  treatmentCost         Float?
+  treatmentBenefit      String?
+
+  // Early warning / KRIs
+  earlyWarningSigns     String[]
+
+  // Review
+  reviewFrequency       String            @default("QUARTERLY")
+  lastReviewedAt        DateTime?
+  lastReviewedBy        String?
+  nextReviewDate        DateTime?
+  reviewNotes           String?
+
+  // Linkages (ISO 31000 risk interdependencies)
+  relatedRiskIds        String[]
+  aggregationGroup      String?
+
+  // Status & Lifecycle
+  status                RiskStatus        @default(IDENTIFIED)
+  dueDate               DateTime?
+  reviewDate            DateTime?
+  closedDate            DateTime?
+  closedBy              String?
+  closureReason         String?
+  raisedDate            DateTime          @default(now())
+
+  // Existing links
+  linkedIncident        String?
+  linkedAudit           String?
+  tags                  String[]
+  notes                 String?
+
+  // Metadata
+  isActive              Boolean           @default(true)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
+
+  // Relations
+  reviews               RiskReview[]
+  capas                 RiskCapa[]
+  riskControls          RiskControl[]
+  keyRiskIndicators     RiskKri[]
+  treatmentActions      RiskAction[]
+  bowtie                RiskBowtie?
+
   @@map("risk_registers")
   @@index([orgId])
   @@index([status])
   @@index([category])
+  @@index([residualRiskLevel])
+  @@index([nextReviewDate])
+  @@index([sourceModule])
 }
 
+// ── Risk Review (extended) ───────────────────────────────────
+
 model RiskReview {
-  id              String        @id @default(cuid())
-  orgId           String
-  riskId          String
-  referenceNumber String        @unique
-  reviewer        String?
-  reviewerName    String?
-  scheduledDate   DateTime
-  completedDate   DateTime?
-  status          ReviewStatus  @default(SCHEDULED)
-  previousScore   Int?
-  newLikelihood   RiskLikelihood?
-  newConsequence  RiskConsequence?
-  newScore        Int?
-  findings        String?
-  recommendations String?
-  notes           String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  createdBy       String?
-  updatedBy       String?
-  deletedAt       DateTime?
-  risk            RiskRegister  @relation(fields: [riskId], references: [id])
+  id                        String        @id @default(cuid())
+  orgId                     String
+  riskId                    String
+  referenceNumber           String        @unique
+  reviewer                  String?
+  reviewerName              String?
+  scheduledDate             DateTime
+  completedDate             DateTime?
+  status                    ReviewStatus  @default(SCHEDULED)
+  reviewType                String?       // SCHEDULED/TRIGGERED/ESCALATION/ANNUAL
+  previousScore             Int?
+  newLikelihood             RiskLikelihood?
+  newConsequence            RiskConsequence?
+  newScore                  Int?
+  residualLikelihoodAtReview  Int?
+  residualConsequenceAtReview Int?
+  residualScoreAtReview      Int?
+  riskLevelAtReview          String?
+  controlsChanged           Boolean       @default(false)
+  scoresChanged             Boolean       @default(false)
+  ownerChanged              Boolean       @default(false)
+  treatmentChanged          Boolean       @default(false)
+  findings                  String?
+  recommendations           String?
+  reviewSummary             String?
+  notes                     String?
+  nextReviewDate            DateTime?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  createdBy                 String?
+  updatedBy                 String?
+  deletedAt                 DateTime?
+  risk                      RiskRegister  @relation(fields: [riskId], references: [id])
   @@map("risk_reviews")
   @@index([orgId])
   @@index([riskId])
+  @@index([scheduledDate])
 }
 
+// ── Risk CAPA (preserved) ─────────────────────────────────────
+
 model RiskCapa {
-  id              String      @id @default(cuid())
-  orgId           String
-  riskId          String?
-  referenceNumber String      @unique
-  title           String
-  description     String?
-  type            CapaType
-  source          CapaSource  @default(RISK_ASSESSMENT)
-  priority        CapaPriority @default(MEDIUM)
-  status          CapaStatus  @default(OPEN)
-  assignee        String?
-  assigneeName    String?
-  rootCause       String?
-  actionPlan      String?
-  verificationMethod String?
-  verificationResult String?
-  dueDate         DateTime?
-  completedDate   DateTime?
-  verifiedDate    DateTime?
-  verifiedBy      String?
-  effectivenessCheck Boolean   @default(false)
-  effectivenessDate  DateTime?
-  effectivenessResult String?
-  linkedIncident  String?
-  linkedAudit     String?
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  createdBy       String?
-  updatedBy       String?
-  deletedAt       DateTime?
-  risk            RiskRegister? @relation(fields: [riskId], references: [id])
+  id                    String      @id @default(cuid())
+  orgId                 String
+  riskId                String?
+  referenceNumber       String      @unique
+  title                 String
+  description           String?
+  type                  CapaType
+  source                CapaSource  @default(RISK_ASSESSMENT)
+  priority              CapaPriority @default(MEDIUM)
+  status                CapaStatus  @default(OPEN)
+  assignee              String?
+  assigneeName          String?
+  rootCause             String?
+  actionPlan            String?
+  verificationMethod    String?
+  verificationResult    String?
+  dueDate               DateTime?
+  completedDate         DateTime?
+  verifiedDate          DateTime?
+  verifiedBy            String?
+  effectivenessCheck    Boolean     @default(false)
+  effectivenessDate     DateTime?
+  effectivenessResult   String?
+  linkedIncident        String?
+  linkedAudit           String?
+  notes                 String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
+  risk                  RiskRegister? @relation(fields: [riskId], references: [id])
   @@map("risk_capas")
   @@index([orgId])
   @@index([riskId])
   @@index([status])
+}
+
+// ── Risk Controls (NEW) ──────────────────────────────────────
+
+model RiskControl {
+  id                  String              @id @default(cuid())
+  riskId              String
+  risk                RiskRegister        @relation(fields: [riskId], references: [id])
+  controlType         ControlType
+  description         String
+  owner               String?
+  effectiveness       ControlEffectiveness @default(ADEQUATE)
+  lastTestedDate      DateTime?
+  testingFrequency    String?
+  testingMethod       String?
+  nextTestDate        DateTime?
+  testingNotes        String?
+  linkedProcedureRef  String?
+  linkedTrainingRef   String?
+  isActive            Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  @@map("risk_controls")
+  @@index([riskId])
+}
+
+// ── Key Risk Indicators (NEW) ────────────────────────────────
+
+model RiskKri {
+  id                    String      @id @default(cuid())
+  riskId                String
+  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  name                  String
+  description           String?
+  unit                  String?
+  greenThreshold        Float?
+  amberThreshold        Float?
+  redThreshold          Float?
+  thresholdDirection    String      @default("INCREASING_IS_WORSE")
+  currentValue          Float?
+  currentStatus         KriStatus?
+  lastMeasuredAt        DateTime?
+  measuredBy            String?
+  measurementFrequency  String?
+  dataSource            String?
+  nextMeasurementDue    DateTime?
+  isActive              Boolean     @default(true)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  readings              RiskKriReading[]
+  @@map("risk_kris")
+  @@index([riskId])
+}
+
+// ── KRI Historical Readings (NEW) ────────────────────────────
+
+model RiskKriReading {
+  id            String    @id @default(cuid())
+  kriId         String
+  kri           RiskKri   @relation(fields: [kriId], references: [id])
+  value         Float
+  status        KriStatus
+  recordedAt    DateTime  @default(now())
+  recordedBy    String?
+  notes         String?
+  @@map("risk_kri_readings")
+  @@index([kriId])
+  @@index([recordedAt])
+}
+
+// ── Risk Treatment Actions (NEW) ─────────────────────────────
+
+model RiskAction {
+  id                    String    @id @default(cuid())
+  riskId                String
+  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  actionTitle           String
+  description           String
+  actionType            String    // PREVENTIVE/MITIGATIVE/TRANSFER/ACCEPT
+  owner                 String?
+  ownerEmail            String?
+  targetDate            DateTime
+  completedDate         DateTime?
+  priority              String    @default("MEDIUM")
+  status                String    @default("OPEN")
+  evidenceOfCompletion  String?
+  effectiveness         String?
+  linkedCapaId          String?
+  estimatedCost         Float?
+  actualCost            Float?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  @@map("risk_actions")
+  @@index([riskId])
+  @@index([targetDate])
+  @@index([status])
+}
+
+// ── Risk Bow-Tie Analysis (NEW — ISO 31010) ──────────────────
+
+model RiskBowtie {
+  id                    String    @id @default(cuid())
+  riskId                String    @unique
+  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  topEvent              String
+  threats               Json      // [{id, description, likelihood}]
+  preventionBarriers    Json      // [{id, description, type, effectiveness, owner, degradationFactors, linkedThreatIds}]
+  consequences          Json      // [{id, description, severity}]
+  mitigationBarriers    Json      // [{id, description, type, effectiveness, owner, degradationFactors, linkedConsequenceIds}]
+  escalationFactors     String[]
+  criticalPath          String?
+  keyGaps               String?
+  priorityActions       String?
+  version               String    @default("1.0")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  lastReviewedAt        DateTime?
+  @@map("risk_bowties")
+}
+
+// ── Risk Appetite Statement (NEW — ISO Guide 73) ─────────────
+
+model RiskAppetiteStatement {
+  id                      String            @id @default(cuid())
+  category                RiskCategory
+  appetiteLevel           RiskAppetiteLevel
+  statement               String
+  maximumTolerableScore   Int
+  acceptableResidualScore Int
+  escalationThreshold     Int
+  reviewDate              DateTime
+  approvedBy              String?
+  approvedAt              DateTime?
+  isActive                Boolean           @default(true)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  organisationId          String?
+  @@unique([category, organisationId])
+  @@map("risk_appetite_statements")
+  @@index([organisationId])
+}
+
+// ── Risk Management Framework Config (NEW) ────────────────────
+
+model RiskFramework {
+  id                      String            @id @default(cuid())
+  organisationId          String            @unique
+  frameworkVersion         String            @default("ISO 31000:2018")
+  policyRef               String?
+  policyApprovedDate      DateTime?
+  policyReviewDate        DateTime?
+  likelihoodScale         Json
+  consequenceScale        Json
+  riskLevelBands          Json
+  overallRiskAppetite     RiskAppetiteLevel @default(MODERATE_APPETITE)
+  riskCommitteeExists     Boolean           @default(false)
+  riskCommitteeName       String?
+  riskCommitteeMeetingFreq String?
+  boardReportingFreq      String?
+  maturityLevel           String?
+  maturityAssessedDate    DateTime?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  @@map("risk_frameworks")
 }

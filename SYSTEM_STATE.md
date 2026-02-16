@@ -49,7 +49,7 @@
 | ISO 37001 | `apps/api-iso37001/` | 4024 | Anti-Bribery | `iso37001.prisma` |
 | Marketing | `apps/api-marketing/` | 4025 | Sales & marketing automation | `marketing.prisma` |
 | Partners | `apps/api-partners/` | 4026 | Partner portal API | `marketing.prisma` |
-| Risk & CAPA | `apps/api-risk/` | 4027 | ISO 31000 Risk Management | `risk.prisma` |
+| Risk (ERM) | `apps/api-risk/` | 4027 | ISO 31000:2018 Enterprise Risk Management | `risk.prisma` (10 models) |
 | Training | `apps/api-training/` | 4028 | Competence management | `training.prisma` |
 | Suppliers | `apps/api-suppliers/` | 4029 | Supplier management | `suppliers.prisma` |
 | Assets | `apps/api-assets/` | 4030 | Asset management | `assets.prisma` |
@@ -100,7 +100,7 @@
 | Marketing | `apps/web-marketing/` | 3030 | Landing page, ROI calculator, chatbot |
 | Partners Portal | `apps/web-partners/` | 3026 | Partner referral portal |
 | Admin Dashboard | `apps/web-admin/` | 3027 | Founder growth dashboard |
-| Risk & CAPA | `apps/web-risk/` | 3031 | Risk management (7 pages: dashboard, risks, reviews, CAPA, heat map, login) |
+| Risk (ERM) | `apps/web-risk/` | 3031 | ISO 31000 Enterprise Risk Management (15 pages: dashboard, risks, risks/new, risks/[id], reviews, CAPA, heat-map, appetite, bowtie, kri, actions, analytics, categories, login) |
 | Training | `apps/web-training/` | 3032 | Competence management (8 pages: dashboard, records, courses, competencies, matrix, TNA, inductions, login) |
 | Suppliers | `apps/web-suppliers/` | 3033 | Supplier management (8 pages: dashboard, suppliers, scorecards, documents, spend, approval, categories, login) |
 | Assets | `apps/web-assets/` | 3034 | Asset management (8 pages: dashboard, assets, work-orders, calibrations, inspections, locations, depreciation, login) |
@@ -370,7 +370,7 @@ All routes also available under `/api/v1/` prefix.
 | api-ptw | 5 | ~95 |
 | api-quality | 39 | ~994 |
 | api-reg-monitor | 4 | ~75 |
-| api-risk | 7 | ~135 |
+| api-risk | 13 | ~91 |
 | api-setup-wizard | 1 | ~15 |
 | api-chemicals | 9 | ~194 |
 | api-emergency | 10 | ~216 |
