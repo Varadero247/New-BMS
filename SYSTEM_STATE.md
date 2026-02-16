@@ -68,7 +68,7 @@
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
-| Dashboard | `apps/web-dashboard/` | 3000 | Main dashboard |
+| Dashboard | `apps/web-dashboard/` | 3000 | Main dashboard, ROI calculator |
 | Health & Safety | `apps/web-health-safety/` | 3001 | ISO 45001 |
 | Environment | `apps/web-environment/` | 3002 | ISO 14001 |
 | Quality | `apps/web-quality/` | 3003 | ISO 9001 |

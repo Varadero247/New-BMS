@@ -83,7 +83,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 ### Web Applications (ports 3000-3043)
 | Application | Port | Domain |
 |-------------|------|--------|
-| Dashboard | 3000 | Main dashboard |
+| Dashboard | 3000 | Main dashboard, ROI calculator |
 | Health & Safety | 3001 | ISO 45001 |
 | Environment | 3002 | ISO 14001 |
 | Quality | 3003 | ISO 9001 |

@@ -126,7 +126,7 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 
 | Application | Port | Description |
 |-------------|------|-------------|
-| **Dashboard** | 3000 | Main dashboard & analytics |
+| **Dashboard** | 3000 | Main dashboard, ROI calculator, analytics |
 | **Health & Safety** | 3001 | Safety management interface |
 | **Environment** | 3002 | Environmental management |
 | **Quality** | 3003 | Quality management system |

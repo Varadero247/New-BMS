@@ -42,6 +42,8 @@ module.exports = {
     '<rootDir>/apps/api-suppliers',
     '<rootDir>/apps/api-training',
     '<rootDir>/apps/api-workflows',
+    // Web apps
+    '<rootDir>/apps/web-dashboard',
     // Shared packages
     '<rootDir>/packages/audit',
     '<rootDir>/packages/auth',
