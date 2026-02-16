@@ -105,6 +105,7 @@ const SERVICES = {
   mgmtReview: process.env.SERVICE_MGMT_REVIEW_URL || process.env.MGMT_REVIEW_URL || 'http://localhost:4038',
   setupWizard: process.env.SERVICE_SETUP_WIZARD_URL || process.env.SETUP_WIZARD_URL || 'http://localhost:4039',
   chemicals: process.env.SERVICE_CHEMICALS_URL || process.env.CHEMICALS_URL || 'http://localhost:4040',
+  emergency: process.env.SERVICE_EMERGENCY_URL || process.env.EMERGENCY_URL || 'http://localhost:4041',
 };
 
 // Generate service token for inter-service authentication
@@ -450,6 +451,7 @@ app.use('/api/audits', deprecatedRoute('/api/v1/audits'), createServiceProxy('Au
 app.use('/api/mgmt-review', deprecatedRoute('/api/v1/mgmt-review'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/mgmt-review', 'Management Review service unavailable'));
 app.use('/api/wizard', deprecatedRoute('/api/v1/wizard'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/wizard', 'Setup Wizard service unavailable'));
 app.use('/api/chemicals', deprecatedRoute('/api/v1/chemicals'), createServiceProxy('Chemicals', SERVICES.chemicals, '/api/chemicals', 'Chemical Management service unavailable'));
+app.use('/api/emergency', deprecatedRoute('/api/v1/emergency'), createServiceProxy('Emergency', SERVICES.emergency, '/api/emergency', 'Fire, Emergency & Disaster Management service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

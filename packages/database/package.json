@@ -178,6 +178,10 @@
     "./chemicals": {
       "import": "./generated/chemicals/index.js",
       "require": "./generated/chemicals/index.js"
+    },
+    "./emergency": {
+      "import": "./generated/emergency/index.js",
+      "require": "./generated/emergency/index.js"
     }
   },
   "scripts": {
@@ -275,7 +279,9 @@
     "push:partner-portal": "prisma db push --schema=prisma/schemas/partner-portal.prisma",
     "push:platform": "prisma db push --schema=prisma/schemas/platform.prisma",
     "generate:chemicals": "prisma generate --schema=prisma/schemas/chemicals.prisma",
-    "push:chemicals": "prisma db push --schema=prisma/schemas/chemicals.prisma"
+    "push:chemicals": "prisma db push --schema=prisma/schemas/chemicals.prisma",
+    "generate:emergency": "prisma generate --schema=prisma/schemas/emergency.prisma",
+    "push:emergency": "prisma db push --schema=prisma/schemas/emergency.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

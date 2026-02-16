@@ -1,0 +1,702 @@
+// Fire, Emergency & Disaster Management Schema
+// ISO 22320:2018 | ISO 22301:2019 | FSO 2005 | ISO 45001 cl.8.2
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/emergency"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("EMERGENCY_DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────────
+
+enum FemEmergencyType {
+  FIRE
+  EXPLOSION
+  CHEMICAL_SPILL
+  GAS_LEAK
+  FLOOD
+  STRUCTURAL_FAILURE
+  POWER_FAILURE
+  CYBER_ATTACK
+  BOMB_THREAT
+  CIVIL_UNREST
+  PANDEMIC
+  SEVERE_WEATHER
+  UTILITY_FAILURE
+  MEDICAL_MASS_CASUALTY
+  TERRORISM
+  ENVIRONMENTAL_RELEASE
+  SUPPLY_CHAIN_DISRUPTION
+  OTHER
+}
+
+enum FemEmergencyStatus {
+  STANDBY
+  ELEVATED
+  ACTIVE
+  CONTAINED
+  CLOSED
+}
+
+enum FemIncidentSeverity {
+  MINOR
+  SIGNIFICANT
+  MAJOR
+  CRITICAL
+  CATASTROPHIC
+}
+
+enum FemFireRiskLevel {
+  TRIVIAL
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+  INTOLERABLE
+}
+
+enum FemEvacuationType {
+  FULL_EVACUATION
+  PARTIAL_EVACUATION
+  HORIZONTAL_EVACUATION
+  PHASED_EVACUATION
+  STAY_PUT
+  SHELTER_IN_PLACE
+}
+
+enum FemPeepMobilityLevel {
+  INDEPENDENT
+  ASSISTED
+  DEPENDENT
+  WHEELCHAIR_USER
+  VISUAL_IMPAIRMENT
+  HEARING_IMPAIRMENT
+  COGNITIVE_IMPAIRMENT
+}
+
+enum FemBcpStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  UNDER_REVIEW
+  SUPERSEDED
+}
+
+enum FemExerciseType {
+  TABLETOP
+  FUNCTIONAL
+  FULL_SCALE
+  DRILL
+  WALK_THROUGH
+}
+
+enum FemExerciseOutcome {
+  PASSED
+  PASSED_WITH_ACTIONS
+  FAILED
+  CANCELLED
+}
+
+enum FemIcsRole {
+  INCIDENT_COMMANDER
+  DEPUTY_INCIDENT_COMMANDER
+  SAFETY_OFFICER
+  LIAISON_OFFICER
+  PUBLIC_INFORMATION_OFFICER
+  OPERATIONS_SECTION_CHIEF
+  PLANNING_SECTION_CHIEF
+  LOGISTICS_SECTION_CHIEF
+  FINANCE_ADMIN_SECTION_CHIEF
+  FIRE_WARDEN
+  FIRST_AIDER
+  ASSEMBLY_POINT_WARDEN
+}
+
+// ── Premises / Building Register ─────────────────────────────
+
+model FemPremises {
+  id                    String    @id @default(cuid())
+  name                  String
+  address               String
+  postcode              String?
+  buildingType          String?
+  constructionType      String?
+  numberOfFloors        Int?
+  totalFloorAreaM2      Float?
+  maxOccupancy          Int?
+  normalOccupancy       Int?
+
+  responsiblePersonName  String?
+  responsiblePersonRole  String?
+  responsiblePersonEmail String?
+  responsiblePersonPhone String?
+
+  fireAuthorityName     String?
+  localFireStationName  String?
+  fireStationPhone      String?
+  distanceToFireStation Float?
+
+  buildingSafetyActApplicable Boolean @default(false)
+  principalAccountablePerson  String?
+
+  hasAutomaticFDS       Boolean   @default(false)
+  hasSprinklers         Boolean   @default(false)
+  hasEmergencyLighting  Boolean   @default(false)
+  hasFireAlarm          Boolean   @default(false)
+  hasPa                 Boolean   @default(false)
+  hasRisers             Boolean   @default(false)
+  alarmSystem           String?
+
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  organisationId        String?
+
+  fireRiskAssessments   FemFireRiskAssessment[]
+  assemblyPoints        FemAssemblyPoint[]
+  evacuationRoutes      FemEvacuationRoute[]
+  peeps                 FemPeep[]
+  wardens               FemFireWarden[]
+  emergencyContacts     FemEmergencyContact[]
+  emergencyEquipment    FemEmergencyEquipment[]
+  activeIncidents       FemEmergencyIncident[]
+  drillRecords          FemEvacuationDrill[]
+
+  @@map("fem_premises")
+  @@index([organisationId])
+}
+
+// ── Fire Risk Assessment (FSO mandatory) ─────────────────────
+
+model FemFireRiskAssessment {
+  id                    String    @id @default(cuid())
+  referenceNumber       String    @unique
+  premisesId            String
+  premises              FemPremises @relation(fields: [premisesId], references: [id])
+
+  assessmentDate        DateTime
+  nextReviewDate        DateTime
+  assessorName          String
+  assessorCompany       String?
+  assessorQualification String?
+  assessorIsCompetent   Boolean   @default(true)
+
+  ignitionSources       String[]
+  fuelSources           String[]
+  oxygenSources         String[]
+
+  totalPersonsAtRisk    Int?
+  employeesAtRisk       Int?
+  visitorsAtRisk        Int?
+  contractorsAtRisk     Int?
+  vulnerablePersonsPresent Boolean @default(false)
+  outOfHoursRisk        Boolean   @default(false)
+
+  existingPrecautions   Json?
+  likelihoodRating      Int
+  consequenceRating     Int
+  overallRiskScore      Int
+  overallRiskLevel      FemFireRiskLevel
+
+  significantFindings   String?
+  actionPlan            Json?
+  staffInformedDate     DateTime?
+  emergencyPlanInPlace  Boolean   @default(false)
+  trainingConducted     Boolean   @default(false)
+
+  reviewTriggered       String[]
+  reviewNotes           String?
+
+  writtenRecordComplete Boolean   @default(false)
+  fireArrangementsDocumented Boolean @default(false)
+  sharedWithIncomingRP  Boolean   @default(false)
+
+  assessmentStatus      String    @default("CURRENT")
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  approvedBy            String?
+  approvedAt            DateTime?
+  deletedAt             DateTime?
+  createdBy             String?
+  organisationId        String?
+
+  linkedRiskId          String?
+  linkedActionIds       String[]
+
+  @@map("fem_fire_risk_assessments")
+  @@index([premisesId])
+  @@index([nextReviewDate])
+  @@index([organisationId])
+}
+
+// ── Assembly Points & Evacuation Routes ──────────────────────
+
+model FemAssemblyPoint {
+  id                String    @id @default(cuid())
+  premisesId        String
+  premises          FemPremises @relation(fields: [premisesId], references: [id])
+  name              String
+  description       String?
+  latitude          Float?
+  longitude         Float?
+  capacity          Int?
+  isPrimary         Boolean   @default(false)
+  isAccessible      Boolean   @default(true)
+  notes             String?
+  wardenAssigned    String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("fem_assembly_points")
+}
+
+model FemEvacuationRoute {
+  id                String    @id @default(cuid())
+  premisesId        String
+  premises          FemPremises @relation(fields: [premisesId], references: [id])
+  name              String
+  floor             String?
+  description       String?
+  evacuationType    FemEvacuationType
+  distanceToExit    Float?
+  isAccessible      Boolean   @default(true)
+  refugeAreaPresent Boolean   @default(false)
+  refugeLocation    String?
+  notes             String?
+  lastInspectedAt   DateTime?
+  inspectedBy       String?
+  issues            String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("fem_evacuation_routes")
+}
+
+// ── Personal Emergency Evacuation Plans (PEEP) ───────────────
+
+model FemPeep {
+  id                    String    @id @default(cuid())
+  premisesId            String
+  premises              FemPremises @relation(fields: [premisesId], references: [id])
+
+  personName            String
+  jobTitle              String?
+  department            String?
+  normalLocation        String?
+
+  mobilityLevel         FemPeepMobilityLevel
+  mobilityNotes         String?
+  requiresAssistance    Boolean   @default(false)
+
+  evacuationMethod      String?
+  assistantsRequired    Int       @default(0)
+  namedAssistants       String[]
+  refugeAreaRequired    Boolean   @default(false)
+  refugeLocation        String?
+  specialEquipment      String?
+  communicationNeeds    String?
+
+  medicalConditionSummary String?
+  medicationOnPerson    Boolean   @default(false)
+
+  personAgreement       Boolean   @default(false)
+  personAgreedAt        DateTime?
+  reviewDate            DateTime
+  lastReviewedAt        DateTime?
+
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+
+  @@map("fem_peeps")
+  @@index([premisesId])
+  @@index([reviewDate])
+}
+
+// ── Fire Wardens & ICS Roles ──────────────────────────────────
+
+model FemFireWarden {
+  id                String    @id @default(cuid())
+  premisesId        String
+  premises          FemPremises @relation(fields: [premisesId], references: [id])
+
+  name              String
+  email             String?
+  phone             String?
+  jobTitle          String?
+  icsRole           FemIcsRole
+  areaResponsible   String?
+
+  trainingProvider  String?
+  trainingDate      DateTime?
+  trainingExpiryDate DateTime?
+  certificateRef    String?
+  trainingCurrent   Boolean   @default(false)
+
+  isActive          Boolean   @default(true)
+  deputyName        String?
+  deputyPhone       String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("fem_fire_wardens")
+  @@index([premisesId])
+  @@index([trainingExpiryDate])
+}
+
+// ── Emergency Contacts ────────────────────────────────────────
+
+model FemEmergencyContact {
+  id                String    @id @default(cuid())
+  premisesId        String
+  premises          FemPremises @relation(fields: [premisesId], references: [id])
+
+  category          String
+  name              String
+  organisation      String?
+  role              String?
+  phone24hr         String?
+  phoneDaytime      String?
+  email             String?
+  notes             String?
+  priority          Int       @default(1)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("fem_emergency_contacts")
+}
+
+// ── Emergency Equipment Register ─────────────────────────────
+
+model FemEmergencyEquipment {
+  id                    String    @id @default(cuid())
+  premisesId            String
+  premises              FemPremises @relation(fields: [premisesId], references: [id])
+
+  equipmentType         String
+  description           String?
+  location              String
+  serialNumber          String?
+  manufacturer          String?
+
+  extinguisherClass     String?
+  capacityKg            Float?
+
+  installDate           DateTime?
+  lastServiceDate       DateTime?
+  nextServiceDue        DateTime
+  serviceProvider       String?
+
+  lastInspectedAt       DateTime?
+  inspectedBy           String?
+  inspectionResult      String?
+
+  isOperational         Boolean   @default(true)
+  defects               String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("fem_emergency_equipment")
+  @@index([premisesId])
+  @@index([nextServiceDue])
+}
+
+// ── Emergency Incident (ISO 22320 — Live Response) ────────────
+
+model FemEmergencyIncident {
+  id                    String    @id @default(cuid())
+  incidentNumber        String    @unique
+  premisesId            String?
+  premises              FemPremises? @relation(fields: [premisesId], references: [id])
+
+  emergencyType         FemEmergencyType
+  severity              FemIncidentSeverity
+  status                FemEmergencyStatus @default(ACTIVE)
+
+  title                 String
+  description           String
+
+  reportedAt            DateTime  @default(now())
+  activatedAt           DateTime?
+  containedAt           DateTime?
+  closedAt              DateTime?
+
+  locationDescription   String?
+  affectedAreas         String[]
+  evacuationOrdered     Boolean   @default(false)
+  evacuationType        FemEvacuationType?
+  assemblyPointUsed     String?
+
+  estimatedPersonsAffected Int?
+  injuriesReported      Boolean   @default(false)
+  fatalitiesReported    Boolean   @default(false)
+
+  incidentCommanderName String?
+  commandCentreLocation String?
+  commandCentreActivated Boolean  @default(false)
+
+  fireServiceNotified   Boolean   @default(false)
+  fireServiceNotifiedAt DateTime?
+  policeNotified        Boolean   @default(false)
+  ambulanceNotified     Boolean   @default(false)
+  utilityNotified       Boolean   @default(false)
+  regulatorNotified     Boolean   @default(false)
+  regulatorNotifiedAt   DateTime?
+  mediaStatementIssued  Boolean   @default(false)
+
+  riddorReportable      Boolean   @default(false)
+  riddorCategory        String?
+  riddorReportedAt      DateTime?
+  riddorReference       String?
+
+  bcpActivated          Boolean   @default(false)
+  bcpReference          String?
+  continuityImpact      String?
+  estimatedRecoveryHrs  Int?
+
+  immediateActions      String?
+  rootCauseCategory     String?
+  lessonsLearned        String?
+  reviewCompletedAt     DateTime?
+  reviewedBy            String?
+
+  linkedChemicalIncidentId String?
+  linkedHsIncidentId    String?
+  linkedRiskId          String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  organisationId        String?
+
+  decisions             FemIncidentDecisionLog[]
+  resourceDeployments   FemIncidentResourceLog[]
+  communications        FemIncidentCommunicationLog[]
+  timeline              FemIncidentTimelineEvent[]
+
+  @@map("fem_emergency_incidents")
+  @@index([premisesId])
+  @@index([status])
+  @@index([emergencyType])
+  @@index([reportedAt])
+  @@index([organisationId])
+}
+
+// ── Incident Decision Log (ISO 22320 — traceability) ─────────
+
+model FemIncidentDecisionLog {
+  id                  String    @id @default(cuid())
+  incidentId          String
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+
+  timestamp           DateTime  @default(now())
+  decisionMaker       String
+  decisionMakerRole   String?
+  situationSummary    String
+  decisionMade        String
+  rationaleForDecision String?
+  resourcesAllocated  String?
+
+  @@map("fem_incident_decision_log")
+  @@index([incidentId])
+}
+
+// ── Resource Deployment Log ───────────────────────────────────
+
+model FemIncidentResourceLog {
+  id                  String    @id @default(cuid())
+  incidentId          String
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+
+  resourceType        String
+  resourceName        String
+  deployedAt          DateTime  @default(now())
+  deployedBy          String?
+  location            String?
+  releasedAt          DateTime?
+  notes               String?
+
+  @@map("fem_incident_resource_log")
+  @@index([incidentId])
+}
+
+// ── Communication Log ─────────────────────────────────────────
+
+model FemIncidentCommunicationLog {
+  id                  String    @id @default(cuid())
+  incidentId          String
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+
+  timestamp           DateTime  @default(now())
+  communicationType   String
+  recipient           String
+  method              String
+  messageContent      String
+  acknowledgement     Boolean   @default(false)
+  acknowledgedAt      DateTime?
+  sentBy              String?
+
+  @@map("fem_incident_communication_log")
+  @@index([incidentId])
+}
+
+// ── Incident Timeline ─────────────────────────────────────────
+
+model FemIncidentTimelineEvent {
+  id                  String    @id @default(cuid())
+  incidentId          String
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+
+  timestamp           DateTime  @default(now())
+  eventType           String
+  description         String
+  recordedBy          String?
+
+  @@map("fem_incident_timeline_events")
+  @@index([incidentId])
+  @@index([timestamp])
+}
+
+// ── Evacuation Drill Records ──────────────────────────────────
+
+model FemEvacuationDrill {
+  id                    String    @id @default(cuid())
+  premisesId            String
+  premises              FemPremises @relation(fields: [premisesId], references: [id])
+
+  drillDate             DateTime
+  drillType             String
+  evacuationType        FemEvacuationType
+  alarmedOrSilent       String
+  totalPersonsEvacuated Int?
+  evacuationTimeMinutes Float?
+  targetTimeMinutes     Float?
+  targetAchieved        Boolean?
+
+  issuesIdentified      String[]
+
+  assemblyPointReached  Boolean   @default(true)
+  rollCallCompleted     Boolean   @default(false)
+  rollCallTimeMinutes   Float?
+
+  peepEvacuationTested  Boolean   @default(false)
+  peepIssues            String?
+
+  correctiveActions     String?
+  completedBy           String?
+  witnesses             String[]
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+
+  @@map("fem_evacuation_drills")
+  @@index([premisesId])
+  @@index([drillDate])
+}
+
+// ── Business Continuity Plan (ISO 22301) ─────────────────────
+
+model FemBusinessContinuityPlan {
+  id                    String    @id @default(cuid())
+  planReference         String    @unique
+  title                 String
+  version               String    @default("1.0")
+  status                FemBcpStatus @default(DRAFT)
+  emergencyTypes        FemEmergencyType[]
+
+  scopeDescription      String?
+  businessFunctions     String[]
+
+  crisisTeamLead        String?
+  crisisTeamLeadPhone   String?
+  crisisTeamMembers     Json?
+  crisisTeamMeetingPoint String?
+  crisisTeamVirtualLink String?
+
+  biaCompletedDate      DateTime?
+  criticalFunctions     Json?
+
+  recoveryStrategies    Json?
+  alternativeSites      Json?
+  itRecoveryApproach    String?
+  communicationsBackup  String?
+
+  activationCriteria    String?
+  activationProcess     String?
+  deactivationProcess   String?
+
+  staffCommunicationPlan String?
+  customerCommPlan      String?
+  supplierCommPlan      String?
+  mediaCommPlan         String?
+  regulatoryCommPlan    String?
+
+  approvedBy            String?
+  approvedAt            DateTime?
+  reviewDate            DateTime
+  lastTestedDate        DateTime?
+  lastTestOutcome       FemExerciseOutcome?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  organisationId        String?
+
+  exercises             FemBcpExercise[]
+
+  @@map("fem_business_continuity_plans")
+  @@index([organisationId])
+  @@index([reviewDate])
+}
+
+// ── BCP Exercises & Testing ───────────────────────────────────
+
+model FemBcpExercise {
+  id                  String    @id @default(cuid())
+  bcpId               String
+  bcp                 FemBusinessContinuityPlan @relation(fields: [bcpId], references: [id])
+
+  exerciseType        FemExerciseType
+  title               String
+  scheduledDate       DateTime
+  actualDate          DateTime?
+  durationHours       Float?
+
+  scope               String?
+  participantsCount   Int?
+  externalPartiesInvolved Boolean @default(false)
+
+  outcome             FemExerciseOutcome?
+  objectivesMet       Boolean?
+
+  findings            String?
+  strengthsIdentified String[]
+  weaknessesIdentified String[]
+  actionsRequired     Json?
+
+  reportUrl           String?
+  facilitatorName     String?
+
+  nextExerciseDate    DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  createdBy           String?
+
+  @@map("fem_bcp_exercises")
+  @@index([bcpId])
+  @@index([scheduledDate])
+}

@@ -6,18 +6,18 @@
 
 | Category | Count |
 |----------|-------|
-| API Services | 41 (+ 1 main API) |
-| Web Applications | 44 |
+| API Services | 42 (+ 1 main API) |
+| Web Applications | 45 |
 | Shared Packages | 59 |
-| Prisma Schemas | 42 |
-| Database Tables (models) | 569 |
+| Prisma Schemas | 43 |
+| Database Tables (models) | 585 |
 | Scripts | 20 |
-| Unit Tests | ~11,761 across 553 suites |
+| Unit Tests | ~11,977 across 563 suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
 
-## API Services (40 + 1)
+## API Services (41 + 1)
 
 | Service | Directory | Port | Standard/Domain | Prisma Schema |
 |---------|-----------|------|-----------------|---------------|
@@ -63,10 +63,11 @@
 | Mgmt Review | `apps/api-mgmt-review/` | 4038 | Management review | `mgmt-review.prisma` |
 | Setup Wizard | `apps/api-setup-wizard/` | 4039 | Guided setup wizard | `wizard.prisma` |
 | Chemicals | `apps/api-chemicals/` | 4040 | ISO 11014, COSHH, GHS/CLP, REACH | `chemicals.prisma` |
+| Emergency | `apps/api-emergency/` | 4041 | ISO 22320, ISO 22301, FSO 2005, BSA 2022 | `emergency.prisma` |
 
 ---
 
-## Web Applications (44)
+## Web Applications (45)
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
@@ -113,6 +114,7 @@
 | Audits | `apps/web-audits/` | 3042 | Audit programme (7 pages: dashboard, audits, findings, checklists, programmes, pre-audit, login) |
 | Mgmt Review | `apps/web-mgmt-review/` | 3043 | Management review (5 pages: dashboard, reviews, actions, agenda, login) |
 | Chemicals | `apps/web-chemicals/` | 3044 | Chemical management (12 pages: dashboard, register, register/[id], coshh, coshh/new, coshh/[id], sds, inventory, monitoring, incidents, disposal, login) |
+| Emergency | `apps/web-emergency/` | 3045 | Fire, Emergency & Disaster Management (13 pages: dashboard, premises, premises/[id], fra, fra/new, incidents, incidents/declare, incidents/[id], bcp, bcp/new, peep, drills, equipment, login) |
 
 ---
 
@@ -182,7 +184,7 @@
 
 ---
 
-## Prisma Schemas (41)
+## Prisma Schemas (43)
 
 | Schema | File | Models | Domain |
 |--------|------|--------|--------|
@@ -228,7 +230,8 @@
 | Platform | `platform.prisma` | 23 | Feature flags, webhooks, automation, NPS, status |
 | Partner Portal | `partner-portal.prisma` | 4 | Support tickets, messages, collateral, referrals |
 | Chemicals | `chemicals.prisma` | 10 | Chemical register, SDS, COSHH, inventory, monitoring, disposal, incidents |
-| **Total** | | **569 models** | |
+| Emergency | `emergency.prisma` | 16 | Premises, FRA, incidents, BCP, wardens, PEEP, equipment, drills |
+| **Total** | | **585 models** | |
 
 ---
 
@@ -293,6 +296,7 @@
 | `/api/mgmt-review/*` | api-mgmt-review | 4038 |
 | `/api/wizard/*` | api-setup-wizard | 4039 |
 | `/api/chemicals/*` | api-chemicals | 4040 |
+| `/api/emergency/*` | api-emergency | 4041 |
 
 All routes also available under `/api/v1/` prefix.
 
@@ -369,11 +373,12 @@ All routes also available under `/api/v1/` prefix.
 | api-risk | 7 | ~135 |
 | api-setup-wizard | 1 | ~15 |
 | api-chemicals | 9 | ~194 |
+| api-emergency | 10 | ~216 |
 | api-suppliers | 8 | ~130 |
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~948 |
-| **Total** | **553** | **~11,761** |
+| **Total** | **563** | **~11,977** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -409,6 +414,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 10 | Field Service | api-field-service, web-field-service |
 | Phase 11 | Unique Differentiators | Evidence packs, headstart tool, MSP mode, regulatory feed, ISO 42001, ISO 37001 |
 | Phase 12 | Sales & Marketing Automation | api-marketing, api-partners, web-partners, web-admin, ROI calculator, chatbot, partner portal, growth dashboard |
+| Phase 13 | Fire, Emergency & Disaster Management | api-emergency, web-emergency, emergency.prisma (16 models), 9 route files, 216 tests, 26 DOCX templates, FSO 2005 FRA wizard |
 
 ---
 
