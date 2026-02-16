@@ -50,6 +50,9 @@ apps/mobile/.capacitor
 # Claude settings (may contain tokens)
 .claude/settings.local.json
 
+# Next.js auto-generated
+next-env.d.ts
+
 # Misc
 *.tsbuildinfo
 .cache
