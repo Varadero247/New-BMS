@@ -37,7 +37,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 
 ## Service Ports
 
-### API Services (ports 4000-4038)
+### API Services (ports 4000-4040)
 | Service | Port | Standard/Domain |
 |---------|------|-----------------|
 | Gateway | 4000 | Auth, routing, templates, RBAC |
@@ -79,8 +79,9 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Incidents | 4036 | Incident management |
 | Audits | 4037 | Audit programme |
 | Mgmt Review | 4038 | Management review |
+| Chemical Management | 4040 | COSHH / chemical safety |
 
-### Web Applications (ports 3000-3043)
+### Web Applications (ports 3000-3044)
 | Application | Port | Domain |
 |-------------|------|--------|
 | Dashboard | 3000 | Main dashboard, ROI calculator |
@@ -125,6 +126,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Incidents | 3041 | Incident management |
 | Audits | 3042 | Audit programme |
 | Mgmt Review | 3043 | Management review |
+| Chemical Management | 3044 | Chemical safety management |
 
 ## H&S API Endpoints (via Gateway)
 ```bash
@@ -253,7 +255,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (~11,567 across 544 suites)
+pnpm test                                # All Jest tests (~11,761 across 553 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -292,9 +294,9 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 25 Prisma schemas, 373 database models
-- 39 shared packages
-- Tests: ~11,567 Jest tests (544 suites) + 9 integration test scripts (~465+ assertions) -- all passing
+- 59 shared packages
+- Tests: ~11,761 Jest tests (553 suites) + 9 integration test scripts (~465+ assertions) -- all passing
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 26 web apps
-- 184 built-in templates across 33 modules
+- 192 built-in templates across 34 modules

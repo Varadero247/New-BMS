@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IMS Template Library provides 184 built-in templates across 33 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 39 API services, 43 web apps, and 42 shared packages — templates integrate with 12 of the 43 web frontends.
+The IMS Template Library provides 192 built-in templates across 34 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 41 API services, 44 web apps, and 59 shared packages — templates integrate with 12 of the 44 web frontends.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ Primary template definition with fields, metadata, and versioning.
 |-------|------|-------------|
 | code | String (unique) | `TPL-{MODULE}-{NNN}` format |
 | name | String | Template display name |
-| module | TemplateModule | One of 33 modules |
+| module | TemplateModule | One of 34 modules |
 | category | TemplateCategory | One of 17 categories |
 | status | TemplateStatus | DRAFT, ACTIVE, DEPRECATED, ARCHIVED |
 | version | Int | Auto-incremented on update |
@@ -154,7 +154,8 @@ All endpoints require Bearer token authentication.
 | Incidents | TPL-INC | 3 | 001-003 |
 | Audits | TPL-AUD | 4 | 001-004 |
 | Management Review | TPL-MR | 3 | 001-003 |
-| **Total** | | **171** | |
+| Chemical Management | TPL-CHEM | 8 | 001-008 |
+| **Total** | | **192** | |
 
 ## Seeding
 
@@ -171,6 +172,6 @@ The seeder uses upsert logic — it creates new templates and updates existing b
 ## Testing
 
 ```bash
-# Run gateway template tests (33 tests)
+# Run gateway template tests (34 tests)
 pnpm test --filter=api-gateway -- --testPathPattern=templates
 ```

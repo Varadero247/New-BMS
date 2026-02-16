@@ -46,8 +46,9 @@ Last updated: 2026-02-15
 | Incidents | Incident Mgmt | api-incidents | 4036 | Active | 10 | 6 | 2026-02-15 |
 | Audits | Audit Programme | api-audits | 4037 | Active | 12 | 12 | 2026-02-15 |
 | Mgmt Review | Management Review | api-mgmt-review | 4038 | Active | 6 | 6 | 2026-02-15 |
+| Chemical Management | COSHH / Chemical Safety | api-chemicals | 4040 | Active | 50 | 194 | 2026-02-16 |
 
-**Total: 39 services | ~1,626 endpoints | ~11,567 tests**
+**Total: 41 services | ~1,676 endpoints | ~11,761 tests**
 
 ## Shared Packages
 
@@ -60,7 +61,7 @@ Last updated: 2026-02-15
 | @ims/validation | Zod validation schemas | 104 |
 | @ims/monitoring | Winston logging, Prometheus metrics, health checks | 44 |
 | @ims/audit | Activity audit trail | 51 |
-| @ims/templates | Template library (184 templates, renderer, exporter) | - |
+| @ims/templates | Template library (192 templates, renderer, exporter) | - |
 | @ims/iso-checklists | ISO audit checklists engine | 101 |
 | @ims/esig | Electronic signatures (21 CFR Part 11) | 103 |
 | @ims/spc-engine | Statistical Process Control (X-bar R, P-chart, IMR) | 177 |
@@ -93,7 +94,7 @@ Last updated: 2026-02-15
 | @ims/regulatory-feed | Regulatory update feeds | - |
 | @ims/benchmarks | Performance benchmarking | - |
 
-**Total: 39 packages | ~1,109 package-level tests**
+**Total: 59 packages | ~1,109 package-level tests**
 
 ## Standards Compliance Matrix
 
