@@ -338,7 +338,7 @@ Total services running: 52 / 52
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (5,450+ tests across 200+ suites), 9 integration test scripts (~465+ assertions), CI via GitHub Actions
+- **Testing**: Jest (11,567 tests across 544 suites), 9 integration test scripts (~465+ assertions), CI via GitHub Actions
 - **Containerization**: Docker Compose (54 containers: 25 APIs + 26 web apps + PostgreSQL + Redis + main API)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)
@@ -369,7 +369,7 @@ Total services running: 52 / 52
 | `@ims/regulatory-feed` | Regulatory update feed ingestion |
 | `@ims/standards-convergence` | Cross-standard mapping & convergence |
 | `@ims/tax-engine` | Multi-jurisdiction tax calculations |
-| `@ims/templates` | Template library (171 built-in templates) |
+| `@ims/templates` | Template library (184 built-in templates) |
 
 ## API Endpoints
 

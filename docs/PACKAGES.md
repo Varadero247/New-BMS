@@ -68,7 +68,7 @@
 | `@ims/iso-checklists` | ISO clause checklists | Checklist data |
 | `@ims/standards-convergence` | Cross-standard mapping (Annex SL) | Convergence engine |
 | `@ims/regulatory-feed` | Live regulatory change feed | Feed processor |
-| `@ims/templates` | 171 built-in document/report templates | Template renderer |
+| `@ims/templates` | 184 built-in document/report templates | Template renderer |
 
 ### Data and Integration
 

@@ -156,7 +156,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # ~8,169+ Jest unit tests (360+ suites)
+pnpm test                        # ~11,567 Jest unit tests (544 suites)
 ./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)
@@ -200,7 +200,7 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/notifications` — WebSocket real-time notifications
 - `@ims/pwa` — Progressive Web App (service worker, offline sync)
 - `@ims/performance` — k6 load tests, Lighthouse CI, WCAG audit
-- `@ims/templates` — 171 built-in document/report templates
+- `@ims/templates` — 184 built-in document/report templates
 - `@ims/emission-factors` — GHG emission factor database
 - `@ims/finance-calculations` — Financial calculation engine
 - `@ims/tax-engine` — Multi-jurisdiction tax calculation

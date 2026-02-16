@@ -47,7 +47,7 @@ Last updated: 2026-02-15
 | Audits | Audit Programme | api-audits | 4037 | Active | 12 | 12 | 2026-02-15 |
 | Mgmt Review | Management Review | api-mgmt-review | 4038 | Active | 6 | 6 | 2026-02-15 |
 
-**Total: 39 services | ~1,626 endpoints | ~8,169+ tests**
+**Total: 39 services | ~1,626 endpoints | ~11,567 tests**
 
 ## Shared Packages
 
@@ -60,7 +60,7 @@ Last updated: 2026-02-15
 | @ims/validation | Zod validation schemas | 104 |
 | @ims/monitoring | Winston logging, Prometheus metrics, health checks | 44 |
 | @ims/audit | Activity audit trail | 51 |
-| @ims/templates | Template library (171 templates, renderer, exporter) | - |
+| @ims/templates | Template library (184 templates, renderer, exporter) | - |
 | @ims/iso-checklists | ISO audit checklists engine | 101 |
 | @ims/esig | Electronic signatures (21 CFR Part 11) | 103 |
 | @ims/spc-engine | Statistical Process Control (X-bar R, P-chart, IMR) | 177 |
