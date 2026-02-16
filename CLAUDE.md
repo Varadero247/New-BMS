@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 39 API services, 43 web apps, and 42 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 38 Prisma schemas with 595 database tables. ~11,567 unit tests across 544 suites.
+Integrated Management System (IMS) monorepo with 41 API services, 44 web apps, and 59 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 42 Prisma schemas with 569 database tables. ~11,761 unit tests across 553 suites.
 
 ## Known Issues & Fixes
 
@@ -97,8 +97,8 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ## Architecture Quick Reference
 
 ### Service Ports
-- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review)
-- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (PM), 3010 (Automotive), 3011 (Medical), 3012 (Aerospace), 3013 (Finance), 3014 (CRM), 3015 (InfoSec), 3016 (ESG), 3017 (CMMS), 3018 (Customer Portal), 3019 (Supplier Portal), 3020 (Food Safety), 3021 (Energy), 3022 (Analytics), 3023 (Field Service), 3024 (ISO 42001), 3025 (ISO 37001), 3026 (Partners Portal), 3027 (Admin Dashboard), 3030 (Marketing), 3031 (Risk), 3032 (Training), 3033 (Suppliers), 3034 (Assets), 3035 (Documents), 3036 (Complaints), 3037 (Contracts), 3038 (Fin Compliance), 3039 (PTW), 3040 (Reg Monitor), 3041 (Incidents), 3042 (Audits), 3043 (Mgmt Review)
+- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review), 4040 (Chemicals)
+- Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (PM), 3010 (Automotive), 3011 (Medical), 3012 (Aerospace), 3013 (Finance), 3014 (CRM), 3015 (InfoSec), 3016 (ESG), 3017 (CMMS), 3018 (Customer Portal), 3019 (Supplier Portal), 3020 (Food Safety), 3021 (Energy), 3022 (Analytics), 3023 (Field Service), 3024 (ISO 42001), 3025 (ISO 37001), 3026 (Partners Portal), 3027 (Admin Dashboard), 3030 (Marketing), 3031 (Risk), 3032 (Training), 3033 (Suppliers), 3034 (Assets), 3035 (Documents), 3036 (Complaints), 3037 (Contracts), 3038 (Fin Compliance), 3039 (PTW), 3040 (Reg Monitor), 3041 (Incidents), 3042 (Audits), 3043 (Mgmt Review), 3044 (Chemicals)
 
 ### Gateway Routing
 - `/api/auth/*`, `/api/users/*`, `/api/dashboard/*` → handled locally by gateway
@@ -141,6 +141,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 - `/api/incidents/*` → api-incidents:4036
 - `/api/audits/*` → api-audits:4037
 - `/api/mgmt-review/*` → api-mgmt-review:4038
+- `/api/chemicals/*` → api-chemicals:4040
 - All routes also available under `/api/v1/` prefix
 
 ### Database
@@ -156,7 +157,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Testing
 ```bash
-pnpm test                        # ~11,567 Jest unit tests (544 suites)
+pnpm test                        # ~11,761 Jest unit tests (553 suites)
 ./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)

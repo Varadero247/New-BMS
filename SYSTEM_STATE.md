@@ -6,13 +6,13 @@
 
 | Category | Count |
 |----------|-------|
-| API Services | 40 (+ 1 main API) |
-| Web Applications | 43 |
-| Shared Packages | 42 |
-| Prisma Schemas | 40 |
-| Database Tables | 601 total |
+| API Services | 41 (+ 1 main API) |
+| Web Applications | 44 |
+| Shared Packages | 59 |
+| Prisma Schemas | 42 |
+| Database Tables (models) | 569 |
 | Scripts | 20 |
-| Unit Tests | ~11,567 across 544 suites |
+| Unit Tests | ~11,761 across 553 suites |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -62,10 +62,11 @@
 | Audits | `apps/api-audits/` | 4037 | Audit programme | `audits.prisma` |
 | Mgmt Review | `apps/api-mgmt-review/` | 4038 | Management review | `mgmt-review.prisma` |
 | Setup Wizard | `apps/api-setup-wizard/` | 4039 | Guided setup wizard | `wizard.prisma` |
+| Chemicals | `apps/api-chemicals/` | 4040 | ISO 11014, COSHH, GHS/CLP, REACH | `chemicals.prisma` |
 
 ---
 
-## Web Applications (43)
+## Web Applications (44)
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
@@ -98,68 +99,90 @@
 | Marketing | `apps/web-marketing/` | 3030 | Landing page, ROI calculator, chatbot |
 | Partners Portal | `apps/web-partners/` | 3026 | Partner referral portal |
 | Admin Dashboard | `apps/web-admin/` | 3027 | Founder growth dashboard |
-| Risk & CAPA | `apps/web-risk/` | 3031 | Risk management |
-| Training | `apps/web-training/` | 3032 | Competence management |
-| Suppliers | `apps/web-suppliers/` | 3033 | Supplier management |
-| Assets | `apps/web-assets/` | 3034 | Asset management |
-| Documents | `apps/web-documents/` | 3035 | Document control |
-| Complaints | `apps/web-complaints/` | 3036 | Complaint management |
-| Contracts | `apps/web-contracts/` | 3037 | Contract lifecycle |
-| Fin. Compliance | `apps/web-finance-compliance/` | 3038 | Financial compliance |
-| Permit to Work | `apps/web-ptw/` | 3039 | PTW management |
-| Regulatory Monitor | `apps/web-reg-monitor/` | 3040 | Reg change tracking |
-| Incidents | `apps/web-incidents/` | 3041 | Incident management |
-| Audits | `apps/web-audits/` | 3042 | Audit programme |
-| Mgmt Review | `apps/web-mgmt-review/` | 3043 | Management review |
+| Risk & CAPA | `apps/web-risk/` | 3031 | Risk management (7 pages: dashboard, risks, reviews, CAPA, heat map, login) |
+| Training | `apps/web-training/` | 3032 | Competence management (8 pages: dashboard, records, courses, competencies, matrix, TNA, inductions, login) |
+| Suppliers | `apps/web-suppliers/` | 3033 | Supplier management (8 pages: dashboard, suppliers, scorecards, documents, spend, approval, categories, login) |
+| Assets | `apps/web-assets/` | 3034 | Asset management (8 pages: dashboard, assets, work-orders, calibrations, inspections, locations, depreciation, login) |
+| Documents | `apps/web-documents/` | 3035 | Document control (7 pages: dashboard, documents, versions, approvals, read-receipts, search, login) |
+| Complaints | `apps/web-complaints/` | 3036 | Complaint management (7 pages: dashboard, complaints, actions, communications, SLA, regulatory, login) |
+| Contracts | `apps/web-contracts/` | 3037 | Contract lifecycle (8 pages: dashboard, contracts, approvals, notices, clauses, renewals, AI extraction, login) |
+| Fin. Compliance | `apps/web-finance-compliance/` | 3038 | Financial compliance (6 pages: dashboard, controls, HMRC calendar, IR35, SoD matrix, login) |
+| Permit to Work | `apps/web-ptw/` | 3039 | PTW management (6 pages: dashboard, permits, method-statements, toolbox-talks, conflicts, login) |
+| Regulatory Monitor | `apps/web-reg-monitor/` | 3040 | Reg change tracking (5 pages: dashboard, regulations, alerts, impact-assessments, compliance-calendar) |
+| Incidents | `apps/web-incidents/` | 3041 | Incident management (6 pages: dashboard, incidents, investigation, RIDDOR, timeline, login) |
+| Audits | `apps/web-audits/` | 3042 | Audit programme (7 pages: dashboard, audits, findings, checklists, programmes, pre-audit, login) |
+| Mgmt Review | `apps/web-mgmt-review/` | 3043 | Management review (5 pages: dashboard, reviews, actions, agenda, login) |
+| Chemicals | `apps/web-chemicals/` | 3044 | Chemical management (12 pages: dashboard, register, register/[id], coshh, coshh/new, coshh/[id], sds, inventory, monitoring, incidents, disposal, login) |
 
 ---
 
-## Shared Packages (42)
+## Shared Packages (59)
 
 | Package | Directory | Description |
 |---------|-----------|-------------|
 | `@ims/a11y` | `packages/a11y/` | WCAG 2.2 AA accessibility utilities |
+| `@ims/activity` | `packages/activity/` | Activity feed & timeline |
 | `@ims/audit` | `packages/audit/` | Activity audit trail |
 | `@ims/auth` | `packages/auth/` | JWT authentication middleware |
+| `@ims/automation-rules` | `packages/automation-rules/` | Automation rule engine |
 | `@ims/benchmarks` | `packages/benchmarks/` | Performance benchmarks |
 | `@ims/cache` | `packages/cache/` | Redis caching layer |
 | `@ims/calculations` | `packages/calculations/` | ISO calculation formulas |
+| `@ims/changelog` | `packages/changelog/` | Change log tracking |
 | `@ims/charts` | `packages/charts/` | Chart components |
+| `@ims/comments` | `packages/comments/` | Threaded comments |
+| `@ims/csv-import` | `packages/csv-import/` | CSV data import |
 | `@ims/database` | `packages/database/` | Prisma schemas and clients (multi-domain) |
+| `@ims/dpa` | `packages/dpa/` | Data processing agreements |
+| `@ims/dsar` | `packages/dsar/` | Data subject access requests |
 | `@ims/email` | `packages/email/` | Email templates and sending |
 | `@ims/emission-factors` | `packages/emission-factors/` | GHG emission factor database |
 | `@ims/esig` | `packages/esig/` | Electronic signature workflows |
 | `@ims/event-bus` | `packages/event-bus/` | Cross-service event bus |
+| `@ims/feature-flags` | `packages/feature-flags/` | Feature flag management |
 | `@ims/file-upload` | `packages/file-upload/` | Multi-format file handling |
 | `@ims/finance-calculations` | `packages/finance-calculations/` | Financial calculation engine |
+| `@ims/hubspot-client` | `packages/hubspot-client/` | HubSpot CRM integration |
+| `@ims/i18n` | `packages/i18n/` | Internationalisation |
+| `@ims/intercom-client` | `packages/intercom-client/` | Intercom integration |
 | `@ims/iso-checklists` | `packages/iso-checklists/` | ISO audit checklist engine |
 | `@ims/monitoring` | `packages/monitoring/` | Winston logging, Prometheus metrics, health checks |
 | `@ims/nlq` | `packages/nlq/` | Natural language query engine |
 | `@ims/notifications` | `packages/notifications/` | WebSocket real-time notifications |
+| `@ims/nps` | `packages/nps/` | Net Promoter Score surveys |
 | `@ims/oee-engine` | `packages/oee-engine/` | Overall Equipment Effectiveness engine |
+| `@ims/openapi` | `packages/openapi/` | OpenAPI spec generation |
 | `@ims/pdf-generator` | `packages/pdf-generator/` | PDF report generation |
 | `@ims/performance` | `packages/performance/` | k6 load tests, Lighthouse CI, WCAG audit |
+| `@ims/plan-guard` | `packages/plan-guard/` | Subscription plan enforcement |
 | `@ims/portal-auth` | `packages/portal-auth/` | Portal authentication (customer/supplier) |
+| `@ims/presence` | `packages/presence/` | User presence/online status |
 | `@ims/pwa` | `packages/pwa/` | Progressive Web App (service worker, offline sync) |
 | `@ims/rbac` | `packages/rbac/` | Role-based access control (39 roles, 17 modules) |
+| `@ims/readiness` | `packages/readiness/` | Service readiness checks |
 | `@ims/regulatory-feed` | `packages/regulatory-feed/` | Live regulatory change feed |
 | `@ims/resilience` | `packages/resilience/` | Circuit breakers, retry logic |
+| `@ims/scheduled-reports` | `packages/scheduled-reports/` | Scheduled report generation |
 | `@ims/sdk` | `packages/sdk/` | @nexara/sdk external SDK |
 | `@ims/secrets` | `packages/secrets/` | HashiCorp Vault integration |
 | `@ims/service-auth` | `packages/service-auth/` | Service-to-service JWT auth |
 | `@ims/shared` | `packages/shared/` | Shared utilities |
 | `@ims/spc-engine` | `packages/spc-engine/` | Statistical Process Control engine |
 | `@ims/standards-convergence` | `packages/standards-convergence/` | Cross-standard mapping engine |
+| `@ims/status` | `packages/status/` | System status page |
+| `@ims/stripe-client` | `packages/stripe-client/` | Stripe payment integration |
+| `@ims/tasks` | `packages/tasks/` | Background task queue |
 | `@ims/tax-engine` | `packages/tax-engine/` | Multi-jurisdiction tax calculation |
-| `@ims/templates` | `packages/templates/` | 184 built-in document/report templates |
+| `@ims/templates` | `packages/templates/` | 192 built-in document/report templates |
 | `@ims/testing` | `packages/testing/` | Shared test utilities |
 | `@ims/types` | `packages/types/` | Shared TypeScript types |
 | `@ims/ui` | `packages/ui/` | React component library |
 | `@ims/validation` | `packages/validation/` | Zod validation schemas |
+| `@ims/webhooks` | `packages/webhooks/` | Webhook delivery & management |
 
 ---
 
-## Prisma Schemas (38)
+## Prisma Schemas (41)
 
 | Schema | File | Models | Domain |
 |--------|------|--------|--------|
@@ -202,12 +225,14 @@
 | Audits | `audits.prisma` | 4 | Audits, findings, checklists, programmes |
 | Mgmt Review | `mgmt-review.prisma` | 1 | Management reviews (AI agenda) |
 | Wizard | `wizard.prisma` | 2 | Setup wizard state + steps |
+| Platform | `platform.prisma` | 23 | Feature flags, webhooks, automation, NPS, status |
 | Partner Portal | `partner-portal.prisma` | 4 | Support tickets, messages, collateral, referrals |
-| **Total** | | **601 tables** | |
+| Chemicals | `chemicals.prisma` | 10 | Chemical register, SDS, COSHH, inventory, monitoring, disposal, incidents |
+| **Total** | | **569 models** | |
 
 ---
 
-## Gateway Routing (38 proxy targets + local routes)
+## Gateway Routing (39 proxy targets + local routes)
 
 ### Local Routes (handled by gateway)
 | Route | Description |
@@ -223,7 +248,7 @@
 | `/api/roles/*` | Role management |
 | `/api/access-log/*` | Access audit log |
 | `/api/csrf-token` | CSRF token |
-| `/api/v1/templates/*` | Template library (184 templates) |
+| `/api/v1/templates/*` | Template library (192 templates) |
 
 ### Proxy Routes (v1 + legacy)
 | Route Pattern | Target Service | Port |
@@ -267,6 +292,7 @@
 | `/api/audits/*` | api-audits | 4037 |
 | `/api/mgmt-review/*` | api-mgmt-review | 4038 |
 | `/api/wizard/*` | api-setup-wizard | 4039 |
+| `/api/chemicals/*` | api-chemicals | 4040 |
 
 All routes also available under `/api/v1/` prefix.
 
@@ -342,11 +368,12 @@ All routes also available under `/api/v1/` prefix.
 | api-reg-monitor | 4 | ~75 |
 | api-risk | 7 | ~135 |
 | api-setup-wizard | 1 | ~15 |
+| api-chemicals | 9 | ~194 |
 | api-suppliers | 8 | ~130 |
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~948 |
-| **Total** | **544** | **~11,567** |
+| **Total** | **553** | **~11,761** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
