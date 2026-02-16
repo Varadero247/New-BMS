@@ -1,0 +1,113 @@
+// Partner Portal Schema
+// Support tickets, co-marketing collateral, and referral tracking
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/partner-portal"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MARKETING_DATABASE_URL")
+}
+
+enum MktTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_PARTNER
+  RESOLVED
+  CLOSED
+}
+
+enum MktTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MktSenderType {
+  PARTNER
+  SUPPORT
+}
+
+enum MktCollateralType {
+  CASE_STUDY
+  WHITEPAPER
+  BROCHURE
+  PRESENTATION
+  VIDEO
+  EMAIL_TEMPLATE
+  SOCIAL_KIT
+}
+
+enum MktCollateralTier {
+  ALL
+  CO_SELL
+  RESELLER
+  GCC_SPECIALIST
+}
+
+model MktPartnerSupportTicket {
+  id          String            @id @default(cuid())
+  partnerId   String
+  subject     String
+  description String
+  status      MktTicketStatus   @default(OPEN)
+  priority    MktTicketPriority @default(MEDIUM)
+  slaTarget   DateTime?
+  resolvedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  messages    MktTicketMessage[]
+
+  @@index([partnerId])
+  @@index([status])
+  @@map("mkt_partner_support_tickets")
+}
+
+model MktTicketMessage {
+  id         String     @id @default(cuid())
+  ticketId   String
+  senderId   String
+  senderType MktSenderType
+  body       String
+  createdAt  DateTime   @default(now())
+  ticket     MktPartnerSupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("mkt_ticket_messages")
+}
+
+model MktPartnerCollateral {
+  id            String              @id @default(cuid())
+  title         String
+  description   String?
+  type          MktCollateralType
+  accessTier    MktCollateralTier   @default(ALL)
+  fileUrl       String
+  thumbnailUrl  String?
+  downloadCount Int                 @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@map("mkt_partner_collateral")
+}
+
+model MktPartnerReferral {
+  id            String    @id @default(cuid())
+  partnerId     String
+  referralCode  String
+  prospectEmail String
+  prospectName  String?
+  clickedAt     DateTime?
+  signedUpAt    DateTime?
+  convertedAt   DateTime?
+  commissionPct Float     @default(0.25)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([partnerId])
+  @@index([referralCode])
+  @@map("mkt_partner_referrals")
+}

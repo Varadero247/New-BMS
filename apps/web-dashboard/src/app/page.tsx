@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import { ComplianceGauge, RiskMatrix } from '@ims/charts';
+import { useRBACContext } from '@ims/rbac/react';
+import { PermissionLevel } from '@ims/rbac';
 import {
   Shield,
   Leaf,
@@ -32,10 +35,14 @@ import {
   Brain,
   Scale,
   Briefcase,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 import { QuickAddMenu } from '@/components/quick-add-menu';
+import { CustomizeModal } from '@/components/customize-modal';
+import { useDashboardStore } from '@/lib/dashboard-store';
+import { MODULE_RBAC_MAP, SECTION_IDS, type SectionId } from '@/lib/dashboard-config';
 
 interface DashboardStats {
   compliance: {
@@ -112,6 +119,18 @@ const portalModules: ModuleCard[] = [
   { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50 dark:bg-gray-800', borderColor: 'border-gray-200 dark:border-gray-700', hoverBg: 'hover:bg-gray-100', textColor: 'text-gray-900 dark:text-gray-100', subtitleColor: 'text-gray-600', iconBg: 'bg-gray-100 dark:bg-gray-800' },
 ];
 
+const SECTION_MODULE_MAP: Record<SectionId, ModuleCard[]> = {
+  'iso-compliance': isoModules,
+  'operations': operationsModules,
+  'portals-specialist': portalModules,
+};
+
+const SECTION_LABELS: Record<SectionId, string> = {
+  'iso-compliance': 'ISO Compliance',
+  'operations': 'Operations',
+  'portals-specialist': 'Portals & Specialist',
+};
+
 function ModuleCardLink({ mod }: { mod: ModuleCard }) {
   const Icon = mod.icon;
   return (
@@ -134,10 +153,28 @@ function ModuleCardLink({ mod }: { mod: ModuleCard }) {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { config, openCustomize, hydrate, hydrated } = useDashboardStore();
+  const { hasPermission, permissions } = useRBACContext();
 
   useEffect(() => {
+    // Check if setup wizard needs to be shown
+    api.get('/wizard/status')
+      .then((res) => {
+        const data = res.data.data;
+        if (!data.exists || (data.status !== 'COMPLETED' && data.status !== 'SKIPPED')) {
+          router.replace('/setup');
+        }
+      })
+      .catch(() => {
+        // If wizard service unavailable, continue to dashboard
+      });
+  }, []);
+
+  useEffect(() => {
+    hydrate();
     loadStats();
   }, []);
 
@@ -151,6 +188,47 @@ export default function DashboardPage() {
       setLoading(false);
     }
   }
+
+  const isModuleAllowed = (moduleName: string): boolean => {
+    const rbacModule = MODULE_RBAC_MAP[moduleName];
+    if (!rbacModule) return true;
+    // If no permissions resolved (no token/roles), show everything
+    if (permissions && !hasPermission(rbacModule, PermissionLevel.VIEW)) return false;
+    if (config.hiddenModules.includes(moduleName)) return false;
+    return true;
+  };
+
+  const isWidgetVisible = (widgetId: keyof typeof config.widgets): boolean => {
+    return config.widgets[widgetId]?.visible ?? true;
+  };
+
+  const sortedSections = useMemo(
+    () =>
+      [...SECTION_IDS].sort(
+        (a, b) => (config.sections[a]?.order ?? 0) - (config.sections[b]?.order ?? 0)
+      ),
+    [config.sections]
+  );
+
+  const visibleSections = useMemo(
+    () =>
+      sortedSections.filter((id) => {
+        if (!config.sections[id]?.visible) return false;
+        const modules = SECTION_MODULE_MAP[id];
+        return modules.some((m) => isModuleAllowed(m.name));
+      }),
+    [sortedSections, config, hasPermission]
+  );
+
+  const hasAnyContent =
+    isWidgetVisible('compliance-gauges') ||
+    isWidgetVisible('stat-cards') ||
+    isWidgetVisible('quick-actions') ||
+    isWidgetVisible('activity-feed') ||
+    isWidgetVisible('top-risks') ||
+    isWidgetVisible('overdue-capa') ||
+    isWidgetVisible('ai-insights') ||
+    visibleSections.length > 0;
 
   if (loading) {
     return (
@@ -177,339 +255,372 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">IMS Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Integrated Management System Overview</p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">IMS Dashboard</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Integrated Management System Overview</p>
+            </div>
+            <button
+              onClick={openCustomize}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Customize
+            </button>
           </div>
+
+          {!hasAnyContent && (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <SlidersHorizontal className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Your dashboard is empty</h2>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">All widgets and sections are hidden. Customize your dashboard to show the content you need.</p>
+              <button
+                onClick={openCustomize}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Customize Dashboard
+              </button>
+            </div>
+          )}
 
           {/* Compliance Gauges */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceGauge
-                  value={stats?.compliance.iso45001 || 0}
-                  label="Health & Safety"
-                  color="#DC2626"
-                  size="md"
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceGauge
-                  value={stats?.compliance.iso14001 || 0}
-                  label="Environmental"
-                  color="#10B981"
-                  size="md"
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceGauge
-                  value={stats?.compliance.iso9001 || 0}
-                  label="Quality"
-                  color="#1E3A8A"
-                  size="md"
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceGauge
-                  value={stats?.compliance.overall || 0}
-                  label="Overall IMS"
-                  color="#8B5CF6"
-                  size="md"
-                />
-              </CardContent>
-            </Card>
-          </div>
+          {isWidgetVisible('compliance-gauges') && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <Card>
+                <CardContent className="pt-6 flex justify-center">
+                  <ComplianceGauge
+                    value={stats?.compliance.iso45001 || 0}
+                    label="Health & Safety"
+                    color="#DC2626"
+                    size="md"
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6 flex justify-center">
+                  <ComplianceGauge
+                    value={stats?.compliance.iso14001 || 0}
+                    label="Environmental"
+                    color="#10B981"
+                    size="md"
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6 flex justify-center">
+                  <ComplianceGauge
+                    value={stats?.compliance.iso9001 || 0}
+                    label="Quality"
+                    color="#1E3A8A"
+                    size="md"
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6 flex justify-center">
+                  <ComplianceGauge
+                    value={stats?.compliance.overall || 0}
+                    label="Overall IMS"
+                    color="#8B5CF6"
+                    size="md"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Active Risks</p>
-                    <p className="text-2xl font-bold">{stats?.risks.total || 0}</p>
+          {isWidgetVisible('stat-cards') && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Active Risks</p>
+                      <p className="text-2xl font-bold">{stats?.risks.total || 0}</p>
+                    </div>
+                    <div className="p-3 bg-red-100 rounded-full">
+                      <AlertTriangle className="h-6 w-6 text-red-600" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-red-100 rounded-full">
-                    <AlertTriangle className="h-6 w-6 text-red-600" />
+                  <div className="mt-2 text-sm">
+                    <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
+                    <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
+                    <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
                   </div>
-                </div>
-                <div className="mt-2 text-sm">
-                  <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
-                  <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                  <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
-                    <p className="text-2xl font-bold">{stats?.incidents.open || 0}</p>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Open Incidents</p>
+                      <p className="text-2xl font-bold">{stats?.incidents.open || 0}</p>
+                    </div>
+                    <div className="p-3 bg-yellow-100 rounded-full">
+                      <Shield className="h-6 w-6 text-yellow-600" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-yellow-100 rounded-full">
-                    <Shield className="h-6 w-6 text-yellow-600" />
+                  <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {stats?.incidents.thisMonth || 0} this month
                   </div>
-                </div>
-                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {stats?.incidents.thisMonth || 0} this month
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
-                    <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
+                      <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
+                    </div>
+                    <div className="p-3 bg-orange-100 rounded-full">
+                      <Clock className="h-6 w-6 text-orange-600" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-orange-100 rounded-full">
-                    <Clock className="h-6 w-6 text-orange-600" />
+                  <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {stats?.actions.dueThisWeek || 0} due this week
                   </div>
-                </div>
-                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {stats?.actions.dueThisWeek || 0} due this week
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">AI Insights</p>
-                    <p className="text-2xl font-bold">{stats?.recentAIInsights?.length || 0}</p>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">AI Insights</p>
+                      <p className="text-2xl font-bold">{stats?.recentAIInsights?.length || 0}</p>
+                    </div>
+                    <div className="p-3 bg-purple-100 rounded-full">
+                      <Sparkles className="h-6 w-6 text-purple-600" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-purple-100 rounded-full">
-                    <Sparkles className="h-6 w-6 text-purple-600" />
+                  <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Latest analyses
                   </div>
-                </div>
-                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Latest analyses
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Quick Actions + Activity Feed */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {[
-                  { label: 'Report Incident', href: 'http://localhost:3001/incidents', color: 'bg-red-50 text-red-700 hover:bg-red-100 border-red-200' },
-                  { label: 'Raise NCR', href: 'http://localhost:3003/nonconformances', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
-                  { label: 'New CAPA', href: 'http://localhost:3003/capa', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
-                  { label: 'Log Environmental Event', href: 'http://localhost:3002/events', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
-                  { label: 'Create Work Order', href: 'http://localhost:3017/work-orders', color: 'bg-stone-50 text-stone-700 hover:bg-stone-100 border-stone-200' },
-                  { label: 'New Risk Assessment', href: 'http://localhost:3001/risks', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200' },
-                ].map(action => (
-                  <a key={action.label} href={action.href} className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}>
-                    {action.label}
-                  </a>
-                ))}
-              </CardContent>
-            </Card>
+          {(isWidgetVisible('quick-actions') || isWidgetVisible('activity-feed')) && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Quick Actions */}
+              {isWidgetVisible('quick-actions') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {[
+                      { label: 'Report Incident', href: 'http://localhost:3001/incidents', color: 'bg-red-50 text-red-700 hover:bg-red-100 border-red-200' },
+                      { label: 'Raise NCR', href: 'http://localhost:3003/nonconformances', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
+                      { label: 'New CAPA', href: 'http://localhost:3003/capa', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
+                      { label: 'Log Environmental Event', href: 'http://localhost:3002/events', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
+                      { label: 'Create Work Order', href: 'http://localhost:3017/work-orders', color: 'bg-stone-50 text-stone-700 hover:bg-stone-100 border-stone-200' },
+                      { label: 'New Risk Assessment', href: 'http://localhost:3001/risks', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200' },
+                    ].map(action => (
+                      <a key={action.label} href={action.href} className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}>
+                        {action.label}
+                      </a>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Cross-Module Activity Feed */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { module: 'Quality', action: 'NCR created', detail: 'NCR-2026-0042 — Supplier material out of spec', time: '5m ago', color: 'bg-blue-500' },
-                    { module: 'H&S', action: 'Incident resolved', detail: 'INC-2026-0118 — Slip hazard in warehouse', time: '22m ago', color: 'bg-red-500' },
-                    { module: 'CMMS', action: 'PM completed', detail: 'WO-2026-0315 — HVAC quarterly maintenance', time: '45m ago', color: 'bg-stone-500' },
-                    { module: 'Environment', action: 'Aspect reviewed', detail: 'ENV-ASP-2026-012 — Water discharge monitoring', time: '1h ago', color: 'bg-green-500' },
-                    { module: 'CRM', action: 'Deal closed', detail: 'Enterprise license — Acme Corp ($48,000)', time: '2h ago', color: 'bg-pink-500' },
-                    { module: 'InfoSec', action: 'Risk mitigated', detail: 'ISR-2026-008 — Endpoint encryption deployed', time: '3h ago', color: 'bg-cyan-500' },
-                    { module: 'Field Service', action: 'Job dispatched', detail: 'FSJ-2026-0089 — Emergency repair at Site 7', time: '4h ago', color: 'bg-blue-500' },
-                    { module: 'Finance', action: 'Invoice approved', detail: 'INV-2026-0401 — Q1 supplier payment batch', time: '5h ago', color: 'bg-lime-500' },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="mt-1 flex flex-col items-center">
-                        <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-                        {i < 7 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">{item.module}</span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{item.action}</span>
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto shrink-0">{item.time}</span>
+              {/* Cross-Module Activity Feed */}
+              {isWidgetVisible('activity-feed') && (
+                <Card className={isWidgetVisible('quick-actions') ? 'lg:col-span-2' : 'lg:col-span-3'}>
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      Recent Activity
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {[
+                        { module: 'Quality', action: 'NCR created', detail: 'NCR-2026-0042 — Supplier material out of spec', time: '5m ago', color: 'bg-blue-500' },
+                        { module: 'H&S', action: 'Incident resolved', detail: 'INC-2026-0118 — Slip hazard in warehouse', time: '22m ago', color: 'bg-red-500' },
+                        { module: 'CMMS', action: 'PM completed', detail: 'WO-2026-0315 — HVAC quarterly maintenance', time: '45m ago', color: 'bg-stone-500' },
+                        { module: 'Environment', action: 'Aspect reviewed', detail: 'ENV-ASP-2026-012 — Water discharge monitoring', time: '1h ago', color: 'bg-green-500' },
+                        { module: 'CRM', action: 'Deal closed', detail: 'Enterprise license — Acme Corp ($48,000)', time: '2h ago', color: 'bg-pink-500' },
+                        { module: 'InfoSec', action: 'Risk mitigated', detail: 'ISR-2026-008 — Endpoint encryption deployed', time: '3h ago', color: 'bg-cyan-500' },
+                        { module: 'Field Service', action: 'Job dispatched', detail: 'FSJ-2026-0089 — Emergency repair at Site 7', time: '4h ago', color: 'bg-blue-500' },
+                        { module: 'Finance', action: 'Invoice approved', detail: 'INV-2026-0401 — Q1 supplier payment batch', time: '5h ago', color: 'bg-lime-500' },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <div className="mt-1 flex flex-col items-center">
+                            <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+                            {i < 7 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">{item.module}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{item.action}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto shrink-0">{item.time}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.detail}</p>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.detail}</p>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Top Risks */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  Top 5 Risks
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats?.topRisks && stats.topRisks.length > 0 ? (
-                  <div className="space-y-3">
-                    {stats.topRisks.map((risk: any) => (
-                      <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{risk.title}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              risk.standard === 'ISO_45001' ? 'bg-red-100 text-red-700' :
-                              risk.standard === 'ISO_14001' ? 'bg-green-100 text-green-700' :
-                              'bg-blue-100 text-blue-700'
-                            }`}>
-                              {risk.standard.replace('_', ' ')}
-                            </span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              risk.riskLevel === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                              risk.riskLevel === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {risk.riskLevel}
-                            </span>
+          {(isWidgetVisible('top-risks') || isWidgetVisible('overdue-capa') || isWidgetVisible('ai-insights')) && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Risks */}
+              {isWidgetVisible('top-risks') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-500" />
+                      Top 5 Risks
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {stats?.topRisks && stats.topRisks.length > 0 ? (
+                      <div className="space-y-3">
+                        {stats.topRisks.map((risk: any) => (
+                          <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{risk.title}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  risk.standard === 'ISO_45001' ? 'bg-red-100 text-red-700' :
+                                  risk.standard === 'ISO_14001' ? 'bg-green-100 text-green-700' :
+                                  'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {risk.standard.replace('_', ' ')}
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  risk.riskLevel === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                                  risk.riskLevel === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                                  'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {risk.riskLevel}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
                           </div>
-                        </div>
-                        <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active risks</p>
-                )}
-              </CardContent>
-            </Card>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active risks</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Overdue Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-orange-500" />
-                  Overdue CAPA
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats?.overdueActions && stats.overdueActions.length > 0 ? (
-                  <div className="space-y-3">
-                    {stats.overdueActions.map((action: any) => (
-                      <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{action.title}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{action.referenceNumber}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              action.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                              action.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {action.priority}
-                            </span>
+              {/* Overdue Actions */}
+              {isWidgetVisible('overdue-capa') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-orange-500" />
+                      Overdue CAPA
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {stats?.overdueActions && stats.overdueActions.length > 0 ? (
+                      <div className="space-y-3">
+                        {stats.overdueActions.map((action: any) => (
+                          <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{action.title}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">{action.referenceNumber}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  action.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                                  action.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                                  'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {action.priority}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-sm text-red-600">
+                              {new Date(action.dueDate).toLocaleDateString()}
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-sm text-red-600">
-                          {new Date(action.dueDate).toLocaleDateString()}
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-green-600 text-center py-8">No overdue actions</p>
-                )}
-              </CardContent>
-            </Card>
+                    ) : (
+                      <p className="text-green-600 text-center py-8">No overdue actions</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* AI Insights */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  Latest AI Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats?.recentAIInsights && stats.recentAIInsights.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {stats.recentAIInsights.slice(0, 4).map((insight: any) => (
-                      <div key={insight.id} className="p-4 bg-purple-50 rounded-lg border border-purple-100">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="text-xs text-purple-600 font-medium">{insight.sourceType}</p>
-                            <p className="text-sm mt-1">{insight.suggestedRootCause || 'Analysis available'}</p>
+              {/* AI Insights */}
+              {isWidgetVisible('ai-insights') && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-purple-500" />
+                      Latest AI Insights
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {stats?.recentAIInsights && stats.recentAIInsights.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {stats.recentAIInsights.slice(0, 4).map((insight: any) => (
+                          <div key={insight.id} className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className="text-xs text-purple-600 font-medium">{insight.sourceType}</p>
+                                <p className="text-sm mt-1">{insight.suggestedRootCause || 'Analysis available'}</p>
+                              </div>
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
+                                {new Date(insight.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
                           </div>
-                          <span className="text-xs text-gray-400 dark:text-gray-500">
-                            {new Date(insight.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">No AI insights yet</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* ISO Compliance Modules */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">ISO Compliance</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {isoModules.map((mod) => (
-                <ModuleCardLink key={mod.port} mod={mod} />
-              ))}
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">No AI insights yet</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* Operations Modules */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Operations</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {operationsModules.map((mod) => (
-                <ModuleCardLink key={mod.port} mod={mod} />
-              ))}
-            </div>
-          </div>
+          {/* Module Sections (ordered by user preference) */}
+          {visibleSections.map((sectionId) => {
+            const modules = SECTION_MODULE_MAP[sectionId];
+            const filteredModules = modules.filter((m) => isModuleAllowed(m.name));
+            if (filteredModules.length === 0) return null;
 
-          {/* Portals & Specialist Modules */}
-          <div className="mt-8 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Portals & Specialist</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {portalModules.map((mod) => (
-                <ModuleCardLink key={mod.port} mod={mod} />
-              ))}
-            </div>
-          </div>
+            return (
+              <div key={sectionId} className={sectionId === visibleSections[visibleSections.length - 1] ? 'mt-8 mb-8' : 'mt-8'}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{SECTION_LABELS[sectionId]}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {filteredModules.map((mod) => (
+                    <ModuleCardLink key={mod.port} mod={mod} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </main>
 
       {/* Quick Add FAB */}
       <QuickAddMenu />
+
+      {/* Customize Modal */}
+      <CustomizeModal />
     </div>
   );
 }

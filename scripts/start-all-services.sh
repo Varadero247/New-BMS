@@ -71,6 +71,7 @@ start_service "@ims/api-reg-monitor" "api-reg-monitor" "Regulatory Monitor API"
 start_service "@ims/api-incidents" "api-incidents" "Incidents API"
 start_service "@ims/api-audits" "api-audits" "Audits API"
 start_service "@ims/api-mgmt-review" "api-mgmt-review" "Management Review API"
+start_service "@ims/api-setup-wizard" "api-setup-wizard" "Setup Wizard API"
 
 sleep 3  # Give APIs time to start
 
@@ -206,6 +207,7 @@ echo "  Reg Monitor:        http://localhost:3040 (API: 4035)"
 echo "  Incidents:          http://localhost:3041 (API: 4036)"
 echo "  Audits:             http://localhost:3042 (API: 4037)"
 echo "  Mgmt Review:        http://localhost:3043 (API: 4038)"
+echo "  Setup Wizard:       API: 4039"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"

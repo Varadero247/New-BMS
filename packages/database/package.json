@@ -162,13 +162,21 @@
     "./mgmt-review": {
       "import": "./generated/mgmt-review/index.js",
       "require": "./generated/mgmt-review/index.js"
+    },
+    "./wizard": {
+      "import": "./generated/wizard/index.js",
+      "require": "./generated/wizard/index.js"
+    },
+    "./partner-portal": {
+      "import": "./generated/partner-portal/index.js",
+      "require": "./generated/partner-portal/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -239,7 +247,9 @@
     "generate:reg-monitor": "prisma generate --schema=prisma/schemas/reg-monitor.prisma",
     "generate:incidents": "prisma generate --schema=prisma/schemas/incidents.prisma",
     "generate:audits": "prisma generate --schema=prisma/schemas/audits.prisma",
-    "generate:mgmt-review": "prisma generate --schema=prisma/schemas/mgmt-review.prisma"
+    "generate:mgmt-review": "prisma generate --schema=prisma/schemas/mgmt-review.prisma",
+    "generate:wizard": "prisma generate --schema=prisma/schemas/wizard.prisma",
+    "generate:partner-portal": "prisma generate --schema=prisma/schemas/partner-portal.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

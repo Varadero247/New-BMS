@@ -1,0 +1,56 @@
+// Setup Wizard Schema
+// Tracks guided setup wizard progress for new organisations
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/wizard"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("WIZARD_DATABASE_URL")
+}
+
+enum WizardStatus {
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum WizardStepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+model SetupWizard {
+  id             String         @id @default(cuid())
+  organisationId String         @unique
+  userId         String
+  status         WizardStatus   @default(IN_PROGRESS)
+  currentStep    Int            @default(0)
+  completedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  steps          SetupWizardStep[]
+
+  @@map("setup_wizards")
+}
+
+model SetupWizardStep {
+  id        String           @id @default(cuid())
+  wizardId  String
+  stepIndex Int
+  title     String
+  status    WizardStepStatus @default(PENDING)
+  data      Json             @default("{}")
+  completedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  wizard    SetupWizard      @relation(fields: [wizardId], references: [id], onDelete: Cascade)
+
+  @@unique([wizardId, stepIndex])
+  @@map("setup_wizard_steps")
+}

@@ -103,6 +103,7 @@ const SERVICES = {
   incidents: process.env.SERVICE_INCIDENTS_URL || process.env.INCIDENTS_URL || 'http://localhost:4036',
   audits: process.env.SERVICE_AUDITS_URL || process.env.AUDITS_URL || 'http://localhost:4037',
   mgmtReview: process.env.SERVICE_MGMT_REVIEW_URL || process.env.MGMT_REVIEW_URL || 'http://localhost:4038',
+  setupWizard: process.env.SERVICE_SETUP_WIZARD_URL || process.env.SETUP_WIZARD_URL || 'http://localhost:4039',
 };
 
 // Generate service token for inter-service authentication
@@ -396,6 +397,7 @@ app.use('/api/v1/reg-monitor', addVersionHeader('v1'), createServiceProxy('Reg M
 app.use('/api/v1/incidents', addVersionHeader('v1'), createServiceProxy('Incidents', SERVICES.incidents, '/api/v1/incidents', 'Incidents service unavailable'));
 app.use('/api/v1/audits', addVersionHeader('v1'), createServiceProxy('Audits', SERVICES.audits, '/api/v1/audits', 'Audits service unavailable'));
 app.use('/api/v1/mgmt-review', addVersionHeader('v1'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/v1/mgmt-review', 'Management Review service unavailable'));
+app.use('/api/v1/wizard', addVersionHeader('v1'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/v1/wizard', 'Setup Wizard service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -438,6 +440,7 @@ app.use('/api/reg-monitor', deprecatedRoute('/api/v1/reg-monitor'), createServic
 app.use('/api/incidents', deprecatedRoute('/api/v1/incidents'), createServiceProxy('Incidents', SERVICES.incidents, '/api/incidents', 'Incidents service unavailable'));
 app.use('/api/audits', deprecatedRoute('/api/v1/audits'), createServiceProxy('Audits', SERVICES.audits, '/api/audits', 'Audits service unavailable'));
 app.use('/api/mgmt-review', deprecatedRoute('/api/v1/mgmt-review'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/mgmt-review', 'Management Review service unavailable'));
+app.use('/api/wizard', deprecatedRoute('/api/v1/wizard'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/wizard', 'Setup Wizard service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);

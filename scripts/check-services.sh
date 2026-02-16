@@ -65,6 +65,7 @@ check_service 4035 "Regulatory Monitor API"
 check_service 4036 "Incidents API"
 check_service 4037 "Audits API"
 check_service 4038 "Management Review API"
+check_service 4039 "Setup Wizard API"
 
 echo ""
 echo "Web Applications:"

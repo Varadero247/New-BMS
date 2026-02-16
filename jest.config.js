@@ -33,6 +33,7 @@ module.exports = {
     '<rootDir>/apps/api-mgmt-review',
     '<rootDir>/apps/api-partners',
     '<rootDir>/apps/api-payroll',
+    '<rootDir>/apps/api-setup-wizard',
     '<rootDir>/apps/api-portal',
     '<rootDir>/apps/api-project-management',
     '<rootDir>/apps/api-ptw',

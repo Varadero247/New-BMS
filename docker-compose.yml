@@ -1550,6 +1550,30 @@ services:
       retries: 3
       start_period: 45s
 
+  api-setup-wizard:
+    build:
+      context: .
+      dockerfile: ./apps/api-setup-wizard/Dockerfile
+    container_name: ims-api-setup-wizard
+    restart: unless-stopped
+    expose:
+      - '4039'
+    environment:
+      NODE_ENV: production
+      PORT: 4039
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      WIZARD_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ims}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4039/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
 volumes:
   postgres_data:
   redis_data:

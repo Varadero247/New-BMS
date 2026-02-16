@@ -11,33 +11,26 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
+import { authenticate } from '@ims/auth';
 import { prisma } from './prisma';
-import { authenticatePartner } from './middleware/partner-auth';
 
-const logger = createLogger('api-partners');
+const logger = createLogger('api-setup-wizard');
 
-import authRouter from './routes/auth';
-import profileRouter from './routes/profile';
-import dealsRouter from './routes/deals';
-import payoutsRouter from './routes/payouts';
-import referralsRouter from './routes/referrals';
-import commissionRouter from './routes/commission';
-import supportRouter from './routes/support';
-import collateralRouter from './routes/collateral';
+import wizardRouter from './routes/wizard';
 
 const app: Express = express();
-const PORT = process.env.PORT || 4026;
+const PORT = process.env.PORT || 4039;
 
 // Middleware
 app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
-app.use(metricsMiddleware('api-partners'));
+app.use(metricsMiddleware('api-setup-wizard'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/health', createHealthCheck('api-partners', prisma, '1.0.0'));
+app.get('/health', createHealthCheck('api-setup-wizard', prisma, '1.0.0'));
 app.get('/ready', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -48,17 +41,9 @@ app.get('/ready', async (_req, res) => {
 });
 app.get('/metrics', metricsHandler);
 
-// Public routes
-app.use('/api/auth', authRouter);
-
-// Protected routes
-app.use('/api/profile', authenticatePartner, profileRouter);
-app.use('/api/deals', authenticatePartner, dealsRouter);
-app.use('/api/payouts', authenticatePartner, payoutsRouter);
-app.use('/api/referrals', authenticatePartner, referralsRouter);
-app.use('/api/commission', authenticatePartner, commissionRouter);
-app.use('/api/support', authenticatePartner, supportRouter);
-app.use('/api/collateral', authenticatePartner, collateralRouter);
+// All wizard routes require authentication
+// Gateway rewrites /api/wizard/* → /api/*, so mount at /api
+app.use('/api', authenticate as any, wizardRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
@@ -75,7 +60,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const server = app.listen(PORT, () => {
-  logger.info(`Partners API server running on port ${PORT}`);
+  logger.info(`Setup Wizard API server running on port ${PORT}`);
 });
 
 const gracefulShutdown = async (signal: string) => {
