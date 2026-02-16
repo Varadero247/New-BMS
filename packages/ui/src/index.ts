@@ -243,3 +243,6 @@ export { PageShell, type PageShellProps } from './page-shell';
 
 // HeroSection
 export { HeroSection, HeroButton, type HeroSectionProps, type HeroButtonProps } from './hero-section';
+
+// GHS Pictograms (Chemical Management)
+export { GhsPictogram, GhsPictogramGroup, type GhsPictogramProps, type GhsPictogramGroupProps, type GhsPictogramType } from './ghs-pictogram';

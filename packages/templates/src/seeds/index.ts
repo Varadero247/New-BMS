@@ -33,6 +33,7 @@ import { ptwTemplates } from './ptw';
 import { incidentsTemplates } from './incidents';
 import { auditsTemplates } from './audits';
 import { managementReviewTemplates } from './management-review';
+import { chemicalsTemplates } from './chemicals';
 
 export const allTemplates: TemplateDefinition[] = [
   ...healthSafetyTemplates,
@@ -68,4 +69,5 @@ export const allTemplates: TemplateDefinition[] = [
   ...incidentsTemplates,
   ...auditsTemplates,
   ...managementReviewTemplates,
+  ...chemicalsTemplates,
 ];

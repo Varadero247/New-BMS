@@ -73,7 +73,8 @@ export type TemplateModule =
   | 'PTW'
   | 'INCIDENTS'
   | 'AUDITS'
-  | 'MANAGEMENT_REVIEW';
+  | 'MANAGEMENT_REVIEW'
+  | 'CHEMICALS';
 
 export type TemplateCategory =
   | 'RISK_ASSESSMENT'

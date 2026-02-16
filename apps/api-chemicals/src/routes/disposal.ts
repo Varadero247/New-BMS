@@ -1,0 +1,83 @@
+import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+import { prisma } from '../prisma';
+
+const router = Router();
+const logger = createLogger('chem-disposal');
+
+const createDisposalSchema = z.object({
+  chemicalId: z.string().min(1),
+  quantityDisposed: z.number().min(0),
+  unit: z.string().min(1),
+  disposalDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  disposalMethod: z.string().min(1, 'disposalMethod is required'),
+  wasteContractorName: z.string().optional(),
+  consignmentNoteRef: z.string().optional(),
+  ewcCode: z.string().optional(),
+  collectionSite: z.string().optional(),
+  disposalFacility: z.string().optional(),
+  certificateRef: z.string().optional(),
+  approvedBy: z.string().optional(),
+});
+
+const updateDisposalSchema = createDisposalSchema.partial();
+
+// GET /api/disposal — all disposal records
+router.get('/', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
+    const where: any = { chemical: { orgId, deletedAt: null } };
+    if (chemicalId) where.chemicalId = chemicalId;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [data, total] = await Promise.all([
+      (prisma as any).chemDisposal.findMany({
+        where, skip, take: parseInt(limit),
+        orderBy: { disposalDate: 'desc' },
+        include: { chemical: { select: { id: true, productName: true, casNumber: true, wasteClassification: true } } },
+      }),
+      (prisma as any).chemDisposal.count({ where }),
+    ]);
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+  } catch (error: any) {
+    logger.error('Failed to fetch disposal records', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch disposal records' } });
+  }
+});
+
+// POST /api/disposal — create disposal record
+router.post('/', authenticate, async (req: Request, res: Response) => {
+  try {
+    const parsed = createDisposalSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const d = parsed.data;
+    const chemical = await (prisma as any).chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+    const data = await (prisma as any).chemDisposal.create({
+      data: { ...d, disposedBy: (req as any).user?.id, createdBy: (req as any).user?.id },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Failed to create disposal record', { error: error.message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  }
+});
+
+// PUT /api/disposal/:id — update disposal record
+router.put('/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const parsed = updateDisposalSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const existing = await (prisma as any).chemDisposal.findFirst({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Disposal record not found' } });
+    const data = await (prisma as any).chemDisposal.update({ where: { id: req.params.id }, data: parsed.data });
+    res.json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Failed to update disposal record', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  }
+});
+
+export default router;

@@ -1,0 +1,371 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    chemRegister: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemSds: { findMany: jest.fn() },
+    chemInventory: { findMany: jest.fn() },
+    chemIncompatAlert: { findMany: jest.fn() },
+  },
+  Prisma: {},
+}));
+jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
+jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+
+import router from '../src/routes/chemicals';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/chemicals', router);
+
+beforeEach(() => { jest.clearAllMocks(); });
+
+const mockChemical = {
+  id: '00000000-0000-0000-0000-000000000001',
+  productName: 'Acetone',
+  chemicalName: 'Propan-2-one',
+  casNumber: '67-64-1',
+  orgId: 'org-1',
+  isActive: true,
+  deletedAt: null,
+  isCmr: false,
+  healthSurveillanceReq: false,
+  isCarcinogen: false,
+  isMutagen: false,
+  isReprotoxic: false,
+  createdAt: new Date().toISOString(),
+  _count: { safetyDataSheets: 1, coshhAssessments: 2, inventoryLocations: 3 },
+};
+
+describe('GET /api/chemicals', () => {
+  it('should return a list of chemicals with pagination', async () => {
+    (prisma as any).chemRegister.findMany.mockResolvedValue([mockChemical]);
+    (prisma as any).chemRegister.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].productName).toBe('Acetone');
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('should support search query parameter', async () => {
+    (prisma as any).chemRegister.findMany.mockResolvedValue([]);
+    (prisma as any).chemRegister.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/chemicals?search=acetone');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect((prisma as any).chemRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('should support CMR filter', async () => {
+    (prisma as any).chemRegister.findMany.mockResolvedValue([]);
+    (prisma as any).chemRegister.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/chemicals?cmr=true');
+    expect(res.status).toBe(200);
+    expect((prisma as any).chemRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isCmr: true }) })
+    );
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).chemRegister.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('FETCH_ERROR');
+  });
+});
+
+describe('GET /api/chemicals/:id', () => {
+  it('should return a single chemical by ID', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+
+    const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.productName).toBe('Acetone');
+  });
+
+  it('should return 404 when chemical not found', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).chemRegister.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('FETCH_ERROR');
+  });
+});
+
+describe('POST /api/chemicals', () => {
+  it('should create a new chemical', async () => {
+    const created = { ...mockChemical, id: '00000000-0000-0000-0000-000000000002' };
+    (prisma as any).chemRegister.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Acetone',
+      chemicalName: 'Propan-2-one',
+      casNumber: '67-64-1',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.productName).toBe('Acetone');
+    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }) })
+    );
+  });
+
+  it('should return 400 when productName is missing', async () => {
+    const res = await request(app).post('/api/chemicals').send({
+      chemicalName: 'Propan-2-one',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should return 400 when chemicalName is missing', async () => {
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Acetone',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should auto-set isCmr and healthSurveillanceReq when isCarcinogen is true', async () => {
+    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Benzene',
+      chemicalName: 'Benzene',
+      isCarcinogen: true,
+    });
+    expect(res.status).toBe(201);
+    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+    );
+  });
+
+  it('should auto-set isCmr when isMutagen is true', async () => {
+    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Mutagen X',
+      chemicalName: 'Mutagen X',
+      isMutagen: true,
+    });
+    expect(res.status).toBe(201);
+    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+    );
+  });
+
+  it('should auto-set isCmr when isReprotoxic is true', async () => {
+    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Reprotoxic Y',
+      chemicalName: 'Reprotoxic Y',
+      isReprotoxic: true,
+    });
+    expect(res.status).toBe(201);
+    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+    );
+  });
+
+  it('should set isCmr=false when no CMR flags are set', async () => {
+    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical });
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Safe Chem',
+      chemicalName: 'Safe Chemical',
+    });
+    expect(res.status).toBe(201);
+    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isCmr: false, healthSurveillanceReq: false }) })
+    );
+  });
+
+  it('should return 400 on database create error', async () => {
+    (prisma as any).chemRegister.create.mockRejectedValue(new Error('Unique constraint'));
+
+    const res = await request(app).post('/api/chemicals').send({
+      productName: 'Duplicate',
+      chemicalName: 'Duplicate',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('CREATE_ERROR');
+  });
+});
+
+describe('PUT /api/chemicals/:id', () => {
+  it('should update an existing chemical', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, productName: 'Updated Acetone' });
+
+    const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
+      productName: 'Updated Acetone',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.productName).toBe('Updated Acetone');
+  });
+
+  it('should return 404 when chemical not found', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000099').send({
+      productName: 'Nonexistent',
+    });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should recalculate isCmr on update when isCarcinogen changes', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue({ ...mockChemical, isCarcinogen: false, isMutagen: false, isReprotoxic: false });
+    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true, isCarcinogen: true });
+
+    const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
+      isCarcinogen: true,
+    });
+    expect(res.status).toBe(200);
+    expect((prisma as any).chemRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+    );
+  });
+
+  it('should return 500 on database update error', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+    (prisma as any).chemRegister.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
+      productName: 'Fail',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UPDATE_ERROR');
+  });
+});
+
+describe('DELETE /api/chemicals/:id', () => {
+  it('should soft delete a chemical', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, deletedAt: new Date().toISOString(), isActive: false });
+
+    const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.message).toBe('Chemical deleted successfully');
+    expect((prisma as any).chemRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('should return 404 when chemical not found', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+    (prisma as any).chemRegister.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('DELETE_ERROR');
+  });
+});
+
+describe('GET /api/chemicals/alerts/expiry', () => {
+  it('should return SDS and stock expiry alerts', async () => {
+    const sdsExpiring = [{ id: 'sds-1', nextReviewDate: '2026-03-01', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } }];
+    const stockExpiring = [{ id: 'inv-1', expiryDate: '2026-03-15', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } }];
+    (prisma as any).chemSds.findMany.mockResolvedValue(sdsExpiring);
+    (prisma as any).chemInventory.findMany.mockResolvedValue(stockExpiring);
+
+    const res = await request(app).get('/api/chemicals/alerts/expiry');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.sdsExpiring).toHaveLength(1);
+    expect(res.body.data.stockExpiring).toHaveLength(1);
+  });
+
+  it('should support days query parameter', async () => {
+    (prisma as any).chemSds.findMany.mockResolvedValue([]);
+    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/chemicals/alerts/expiry?days=30');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 500 on error', async () => {
+    (prisma as any).chemSds.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/chemicals/alerts/expiry');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('FETCH_ERROR');
+  });
+});
+
+describe('GET /api/chemicals/alerts/incompatible', () => {
+  it('should return incompatibility alerts', async () => {
+    const alerts = [
+      { id: 'alert-1', chemicalId: 'c-1', incompatibleWithName: 'Sodium Hydroxide', severityLevel: 'CRITICAL', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } },
+    ];
+    (prisma as any).chemIncompatAlert.findMany.mockResolvedValue(alerts);
+
+    const res = await request(app).get('/api/chemicals/alerts/incompatible');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].severityLevel).toBe('CRITICAL');
+  });
+
+  it('should return empty array when no alerts', async () => {
+    (prisma as any).chemIncompatAlert.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/chemicals/alerts/incompatible');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('should return 500 on error', async () => {
+    (prisma as any).chemIncompatAlert.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/chemicals/alerts/incompatible');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('FETCH_ERROR');
+  });
+});

@@ -174,13 +174,17 @@
     "./platform": {
       "import": "./generated/platform/index.js",
       "require": "./generated/platform/index.js"
+    },
+    "./chemicals": {
+      "import": "./generated/chemicals/index.js",
+      "require": "./generated/chemicals/index.js"
     }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --no-dts",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "generate": "prisma generate",
-    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal generate:marketing generate:platform",
+    "generate:all": "npm-run-all generate:core generate:hr generate:payroll generate:quality generate:health-safety generate:environment generate:inventory generate:workflows generate:ai generate:project-management generate:automotive generate:medical generate:aerospace generate:finance generate:crm generate:infosec generate:esg generate:cmms generate:portal generate:food-safety generate:energy generate:analytics generate:field-service generate:iso42001 generate:iso37001 generate:risk generate:training generate:suppliers generate:assets generate:documents generate:complaints generate:contracts generate:ptw generate:reg-monitor generate:incidents generate:audits generate:mgmt-review generate:wizard generate:partner-portal generate:marketing generate:platform generate:chemicals",
     "generate:core": "prisma generate --schema=prisma/schemas/core.prisma",
     "generate:hr": "prisma generate --schema=prisma/schemas/hr.prisma",
     "generate:payroll": "prisma generate --schema=prisma/schemas/payroll.prisma",
@@ -269,7 +273,9 @@
     "push:mgmt-review": "prisma db push --schema=prisma/schemas/mgmt-review.prisma",
     "push:wizard": "prisma db push --schema=prisma/schemas/wizard.prisma",
     "push:partner-portal": "prisma db push --schema=prisma/schemas/partner-portal.prisma",
-    "push:platform": "prisma db push --schema=prisma/schemas/platform.prisma"
+    "push:platform": "prisma db push --schema=prisma/schemas/platform.prisma",
+    "generate:chemicals": "prisma generate --schema=prisma/schemas/chemicals.prisma",
+    "push:chemicals": "prisma db push --schema=prisma/schemas/chemicals.prisma"
   },
   "dependencies": {
     "@ims/monitoring": "workspace:*",

@@ -1,0 +1,671 @@
+// Chemical Management Schema
+// Regulatory basis: ISO 11014, COSHH 2002, GHS/CLP, REACH, UK EH40
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/chemicals"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CHEMICALS_DATABASE_URL")
+}
+
+// ── GHS Hazard Classification Enums ─────────────────────
+
+enum ChemSignalWord {
+  DANGER
+  WARNING
+  NONE
+}
+
+enum ChemPictogram {
+  GHS01_EXPLOSIVE
+  GHS02_FLAMMABLE
+  GHS03_OXIDISING
+  GHS04_GAS_UNDER_PRESSURE
+  GHS05_CORROSIVE
+  GHS06_TOXIC
+  GHS07_IRRITANT_HARMFUL
+  GHS08_HEALTH_HAZARD
+  GHS09_ENVIRONMENTAL
+}
+
+enum ChemPhysicalState {
+  GAS
+  LIQUID
+  SOLID_FINE_POWDER
+  SOLID_COARSE_POWDER
+  SOLID_GRANULES
+  SOLID_BULK
+  AEROSOL
+  PASTE
+}
+
+enum ChemExposureRoute {
+  INHALATION
+  SKIN_ABSORPTION
+  INGESTION
+  INJECTION
+  EYE_CONTACT
+}
+
+enum ChemControlLevel {
+  ELIMINATION
+  SUBSTITUTION
+  ENGINEERING
+  ADMINISTRATIVE
+  PPE
+}
+
+enum ChemRpeClass {
+  FFP1
+  FFP2
+  FFP3
+  HALF_MASK
+  FULL_FACE
+  SUPPLIED_AIR
+  NONE_REQUIRED
+}
+
+enum ChemRiskLevel {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+  UNACCEPTABLE
+}
+
+enum ChemSdsStatus {
+  CURRENT
+  UNDER_REVIEW
+  SUPERSEDED
+  MISSING
+}
+
+enum ChemWasteClass {
+  NON_HAZARDOUS
+  HAZARDOUS
+  SPECIAL
+  CLINICAL
+  RADIOACTIVE
+}
+
+enum ChemStorageClass {
+  CLASS_1_EXPLOSIVES
+  CLASS_2_FLAMMABLE_GAS
+  CLASS_3_FLAMMABLE_LIQUID
+  CLASS_4_FLAMMABLE_SOLID
+  CLASS_5_OXIDISING
+  CLASS_6_TOXIC
+  CLASS_7_RADIOACTIVE
+  CLASS_8_CORROSIVE
+  CLASS_9_OTHER_HAZARDOUS
+  NON_HAZARDOUS
+}
+
+enum ChemCoshhStatus {
+  ACTIVE
+  UNDER_REVIEW
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum ChemIncidentType {
+  SPILL
+  EXPOSURE
+  FIRE
+  RELEASE
+  NEAR_MISS
+}
+
+enum ChemIncidentSeverity {
+  MINOR
+  SIGNIFICANT
+  MAJOR
+  CATASTROPHIC
+}
+
+enum ChemUsageType {
+  USE
+  TRANSFER
+  DISPOSED
+  RETURNED
+  RECEIVED
+}
+
+enum ChemMonitoringType {
+  AIR_SAMPLE
+  BIOLOGICAL
+  WIPE_SAMPLE
+}
+
+enum ChemWelResult {
+  BELOW_WEL
+  AT_WEL
+  ABOVE_WEL
+}
+
+enum ChemAlertSeverity {
+  WARNING
+  DANGER
+  CRITICAL
+}
+
+// ── Core Chemical Register ───────────────────────────────
+
+model ChemRegister {
+  id                    String    @id @default(cuid())
+
+  // Identity
+  productName           String
+  chemicalName          String
+  casNumber             String?
+  ecNumber              String?
+  reachRegistrationNo   String?
+  unNumber              String?
+
+  // Classification (GHS/CLP)
+  signalWord            ChemSignalWord @default(NONE)
+  pictograms            ChemPictogram[]
+  hazardStatements      String[]
+  precautionaryStmts    String[]
+  hazardCategory        String?
+
+  // Physical properties
+  physicalState         ChemPhysicalState?
+  colour                String?
+  odour                 String?
+  flashPoint            Float?
+  boilingPoint          Float?
+  meltingPoint          Float?
+  vapourPressure        Float?
+  density               Float?
+  solubilityWater       String?
+  ph                    String?
+
+  // Workplace Exposure Limits (UK EH40)
+  welTwa8hr             Float?
+  welTwaPpm             Float?
+  welStel15min          Float?
+  welStelPpm            Float?
+  biologicalMonitoring  Boolean   @default(false)
+
+  // Storage
+  storageClass          ChemStorageClass?
+  storageTemperatureMin Float?
+  storageTemperatureMax Float?
+  requiresVentilation   Boolean   @default(false)
+  requiresFireproof     Boolean   @default(false)
+  requiresSecondaryContainment Boolean @default(false)
+  incompatibleWith      String[]
+  maxQuantityOnsite     Float?
+  maxQuantityUnit       String?
+
+  // Waste
+  wasteClassification   ChemWasteClass?
+  ewcCode               String?
+  disposalRoute         String?
+
+  // Supplier
+  supplier              String?
+  supplierId            String?
+  manufacturerName      String?
+  manufacturerContact   String?
+  emergencyContact      String?
+
+  // Regulatory flags
+  isCarcinogen          Boolean   @default(false)
+  isMutagen             Boolean   @default(false)
+  isReprotoxic          Boolean   @default(false)
+  isCmr                 Boolean   @default(false)
+  isSvhc                Boolean   @default(false)
+  isDsear               Boolean   @default(false)
+  healthSurveillanceReq Boolean   @default(false)
+
+  // Metadata
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+  createdBy             String?
+  orgId                 String?
+
+  // Relations
+  safetyDataSheets      ChemSds[]
+  coshhAssessments      ChemCoshh[]
+  inventoryLocations    ChemInventory[]
+  usageRecords          ChemUsage[]
+  exposureMonitoring    ChemMonitoring[]
+  disposalRecords       ChemDisposal[]
+  incidents             ChemIncident[]
+  incompatibilityAlerts ChemIncompatAlert[]
+
+  @@map("chem_registers")
+  @@index([casNumber])
+  @@index([orgId])
+  @@index([isActive])
+}
+
+// ── Safety Data Sheet (ISO 11014 — 16 sections) ──────────
+
+model ChemSds {
+  id                    String    @id @default(cuid())
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  // Version control
+  version               String
+  issueDate             DateTime
+  revisionDate          DateTime?
+  nextReviewDate        DateTime
+  status                ChemSdsStatus @default(CURRENT)
+  documentRef           String?
+
+  // S1: Identification
+  productUseDescription String?
+  restrictedUses        String?
+
+  // S2: Hazard identification
+  otherHazards          String?
+
+  // S3: Composition / ingredients
+  ingredients           Json?
+
+  // S4: First aid measures
+  firstAidInhalation    String?
+  firstAidSkinContact   String?
+  firstAidEyeContact    String?
+  firstAidIngestion     String?
+  firstAidSymptoms      String?
+  firstAidMedicalNote   String?
+
+  // S5: Fire-fighting measures
+  suitableExtinguishers String?
+  unsuitableExtinguish  String?
+  fireHazards           String?
+  fireFightingPPE       String?
+
+  // S6: Accidental release measures
+  personalPrecautions   String?
+  envPrecautions        String?
+  containmentCleanup    String?
+
+  // S7: Handling and storage
+  handlingPrecautions   String?
+  storageConditions     String?
+  specificEndUse        String?
+
+  // S8: Exposure controls / PPE
+  engineeringControls   String?
+  respiratoryProtection String?
+  handProtection        String?
+  eyeProtection         String?
+  skinProtection        String?
+  environmentalExposure String?
+
+  // S10: Stability and reactivity
+  reactivity            String?
+  chemicalStability     String?
+  hazardousReactions    String?
+  conditionsToAvoid     String?
+  incompatibleMaterials String?
+  hazardousDecomposition String?
+
+  // S11: Toxicological information
+  acuteToxicity         String?
+  skinIrritationCorros  String?
+  eyeIrritationCorros   String?
+  respiratorySensitiz   String?
+  skinSensitization     String?
+  germCellMutagenicity  String?
+  carcinogenicity       String?
+  reproductiveToxicity  String?
+  stocsTargetOrgan      String?
+  aspirationHazard      String?
+
+  // S12: Ecological information
+  aquaticToxicity       String?
+  persistenceDegradabil String?
+  bioaccumulation       String?
+  soilMobility          String?
+  pbtAssessment         String?
+  otherAdverseEffects   String?
+
+  // S13: Disposal considerations
+  wasteDisposalMethod   String?
+
+  // S14: Transport information
+  unNumber              String?
+  properShippingName    String?
+  transportHazardClass  String?
+  packingGroup          String?
+  envHazardTransport    Boolean   @default(false)
+  specialTransportPrecautions String?
+
+  // S15: Regulatory information
+  safetyHealthEnvRegs   String?
+  chemicalSafetyAssessment Boolean @default(false)
+
+  // S16: Other information
+  preparationDate       DateTime?
+  revisionsDescription  String?
+  abbreviations         String?
+  dataSourcesUsed       String?
+
+  // File storage
+  fileUrl               String?
+  fileHash              String?
+
+  // Metadata
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+
+  @@map("chem_sds")
+  @@index([chemicalId])
+  @@index([status])
+  @@index([nextReviewDate])
+}
+
+// ── COSHH Risk Assessment ─────────────────────────────────
+
+model ChemCoshh {
+  id                    String    @id @default(cuid())
+  referenceNumber       String    @unique
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  // Activity being assessed
+  activityDescription   String
+  locationBuilding      String?
+  locationRoom          String?
+  locationSite          String?
+
+  // Who is affected
+  personsExposed        String[]
+  estimatedPersonsNum   Int?
+  includesContractors   Boolean   @default(false)
+  includesVisitors      Boolean   @default(false)
+  includesVulnerable    Boolean   @default(false)
+
+  // Exposure detail
+  exposureRoutes        ChemExposureRoute[]
+  quantityUsed          Float?
+  quantityUnit          String?
+  frequencyOfUse        String?
+  durationPerUseMinutes Int?
+  exposureDurationHrDay Float?
+
+  // WEL comparison
+  welComparisonResult   String?
+  airMonitoringRequired Boolean   @default(false)
+  airMonitoringFreq     String?
+
+  // Risk evaluation (pre-controls)
+  inherentLikelihood    Int
+  inherentSeverity      Int
+  inherentRiskScore     Int
+  inherentRiskLevel     ChemRiskLevel
+
+  // Hierarchy of controls applied (ISO 45001 order)
+  controlMeasures       Json
+
+  // PPE specification
+  respiratoryProtection String?
+  rpeClass              ChemRpeClass @default(NONE_REQUIRED)
+  handProtectionGlove   String?
+  gloveBreakthroughTime String?
+  eyeProtection         String?
+  bodyProtection        String?
+  footProtection        String?
+
+  // Residual risk (post-controls)
+  residualLikelihood    Int
+  residualSeverity      Int
+  residualRiskScore     Int
+  residualRiskLevel     ChemRiskLevel
+  residualRiskAccepted  Boolean   @default(false)
+
+  // Emergency procedures
+  spillMinorProcedure   String?
+  spillMajorProcedure   String?
+  fireEmergencyProc     String?
+  injuryProc            String?
+  emergencyPPERequired  String?
+
+  // Health surveillance
+  healthSurveillanceReq Boolean   @default(false)
+  healthSurvDetails     String?
+  recordRetentionYears  Int?
+
+  // Waste and disposal
+  wasteDisposalMethod   String?
+
+  // Substitution considered
+  substitutionConsidered Boolean  @default(false)
+  substitutionOutcome   String?
+
+  // Sign-off
+  assessorName          String?
+  assessorJobTitle      String?
+  assessorSignedAt      DateTime?
+  supervisorName        String?
+  supervisorSignedAt    DateTime?
+  workersInformed       Boolean   @default(false)
+  workersInformedDate   DateTime?
+
+  // Review
+  assessmentDate        DateTime
+  reviewDate            DateTime
+  reviewTriggers        String[]
+  nextReviewDate        DateTime?
+  status                ChemCoshhStatus @default(ACTIVE)
+
+  // Links
+  linkedRiskId          String?
+  linkedIncidentId      String?
+
+  // Metadata
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+  createdBy             String?
+  orgId                 String?
+
+  exposureMonitoring    ChemMonitoring[]
+
+  @@map("chem_coshh")
+  @@index([chemicalId])
+  @@index([referenceNumber])
+  @@index([reviewDate])
+  @@index([orgId])
+}
+
+// ── Chemical Inventory Location ───────────────────────────
+
+model ChemInventory {
+  id              String    @id @default(cuid())
+  chemicalId      String
+  chemical        ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  location        String
+  storageArea     String?
+  containerRef    String?
+  quantityOnhand  Float
+  unit            String
+  minStockLevel   Float?
+  maxStockLevel   Float?
+  expiryDate      DateTime?
+  openedDate      DateTime?
+
+  meetsStorageReqs  Boolean @default(true)
+  storageIssues     String?
+  lastInspectedAt   DateTime?
+  inspectedBy       String?
+
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  usageRecords      ChemUsage[]
+
+  @@map("chem_inventory")
+  @@index([chemicalId])
+  @@index([location])
+  @@index([expiryDate])
+}
+
+// ── Usage / Movement Record ───────────────────────────────
+
+model ChemUsage {
+  id                    String    @id @default(cuid())
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  locationId            String?
+  location              ChemInventory? @relation(fields: [locationId], references: [id])
+
+  usageType             ChemUsageType
+  quantityUsed          Float
+  unit                  String
+  usedBy                String?
+  usedForActivity       String?
+  coshhAssessmentRef    String?
+  usedAt                DateTime  @default(now())
+  notes                 String?
+
+  createdAt             DateTime  @default(now())
+  createdBy             String?
+
+  @@map("chem_usage")
+  @@index([chemicalId])
+  @@index([usedAt])
+}
+
+// ── Air / Biological Monitoring ───────────────────────────
+
+model ChemMonitoring {
+  id                    String    @id @default(cuid())
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  coshhAssessmentId     String?
+  coshhAssessment       ChemCoshh? @relation(fields: [coshhAssessmentId], references: [id])
+
+  monitoringType        ChemMonitoringType
+  location              String?
+  sampledBy             String?
+  sampledAt             DateTime
+
+  resultValue           Float?
+  resultUnit            String?
+  welTwaLimit           Float?
+  welStelLimit          Float?
+  percentageOfWel       Float?
+  resultVsWel           ChemWelResult?
+
+  reportUrl             String?
+  nextMonitoringDue     DateTime?
+
+  actionRequired        Boolean   @default(false)
+  actionTaken           String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("chem_monitoring")
+  @@index([chemicalId])
+  @@index([sampledAt])
+  @@index([nextMonitoringDue])
+}
+
+// ── Disposal Record ───────────────────────────────────────
+
+model ChemDisposal {
+  id                    String    @id @default(cuid())
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  quantityDisposed      Float
+  unit                  String
+  disposalDate          DateTime
+  disposalMethod        String
+  wasteContractorName   String?
+  consignmentNoteRef    String?
+  ewcCode               String?
+  collectionSite        String?
+  disposalFacility      String?
+  certificateRef        String?
+
+  disposedBy            String?
+  approvedBy            String?
+
+  createdAt             DateTime  @default(now())
+  createdBy             String?
+
+  @@map("chem_disposal")
+  @@index([chemicalId])
+  @@index([disposalDate])
+}
+
+// ── Chemical Incident ─────────────────────────────────────
+
+model ChemIncident {
+  id                    String    @id @default(cuid())
+  chemicalId            String
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  incidentType          ChemIncidentType
+  severity              ChemIncidentSeverity
+  dateTime              DateTime
+  location              String
+  description           String    @db.Text
+  personsInvolved       String[]
+
+  immediateActions      String?   @db.Text
+  exposureRoutes        ChemExposureRoute[]
+  medicalAttentionGiven Boolean   @default(false)
+
+  riddorReportable      Boolean   @default(false)
+  riddorReportedAt      DateTime?
+
+  linkedIncidentId      String?
+
+  rootCauseAnalysis     String?   @db.Text
+  correctiveActions     String?   @db.Text
+  coshhReviewTriggered  Boolean   @default(false)
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  orgId                 String?
+
+  @@map("chem_incidents")
+  @@index([chemicalId])
+  @@index([dateTime])
+}
+
+// ── Incompatibility Alert ─────────────────────────────────
+
+model ChemIncompatAlert {
+  id              String    @id @default(cuid())
+  chemicalId      String
+  chemical        ChemRegister @relation(fields: [chemicalId], references: [id])
+
+  incompatibleWithCas   String
+  incompatibleWithName  String
+  hazardDescription     String
+  severityLevel         ChemAlertSeverity
+  storageLocationA      String?
+  storageLocationB      String?
+
+  isActive          Boolean  @default(true)
+  resolvedAt        DateTime?
+  resolvedBy        String?
+
+  createdAt         DateTime @default(now())
+
+  @@map("chem_incompat_alerts")
+  @@index([chemicalId])
+}

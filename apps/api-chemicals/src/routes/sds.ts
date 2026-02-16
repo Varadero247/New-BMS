@@ -1,0 +1,184 @@
+import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+import { authenticate } from '@ims/auth';
+import { createLogger } from '@ims/monitoring';
+import { prisma } from '../prisma';
+
+const router = Router();
+const logger = createLogger('chem-sds');
+
+const sdsStatusEnum = z.enum(['CURRENT', 'UNDER_REVIEW', 'SUPERSEDED', 'MISSING']);
+
+const createSdsSchema = z.object({
+  version: z.string().min(1),
+  issueDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  revisionDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  nextReviewDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  status: sdsStatusEnum.optional(),
+  documentRef: z.string().optional(),
+  productUseDescription: z.string().optional(),
+  restrictedUses: z.string().optional(),
+  otherHazards: z.string().optional(),
+  ingredients: z.any().optional(),
+  firstAidInhalation: z.string().optional(),
+  firstAidSkinContact: z.string().optional(),
+  firstAidEyeContact: z.string().optional(),
+  firstAidIngestion: z.string().optional(),
+  firstAidSymptoms: z.string().optional(),
+  firstAidMedicalNote: z.string().optional(),
+  suitableExtinguishers: z.string().optional(),
+  unsuitableExtinguish: z.string().optional(),
+  fireHazards: z.string().optional(),
+  fireFightingPPE: z.string().optional(),
+  personalPrecautions: z.string().optional(),
+  envPrecautions: z.string().optional(),
+  containmentCleanup: z.string().optional(),
+  handlingPrecautions: z.string().optional(),
+  storageConditions: z.string().optional(),
+  specificEndUse: z.string().optional(),
+  engineeringControls: z.string().optional(),
+  respiratoryProtection: z.string().optional(),
+  handProtection: z.string().optional(),
+  eyeProtection: z.string().optional(),
+  skinProtection: z.string().optional(),
+  environmentalExposure: z.string().optional(),
+  reactivity: z.string().optional(),
+  chemicalStability: z.string().optional(),
+  hazardousReactions: z.string().optional(),
+  conditionsToAvoid: z.string().optional(),
+  incompatibleMaterials: z.string().optional(),
+  hazardousDecomposition: z.string().optional(),
+  acuteToxicity: z.string().optional(),
+  skinIrritationCorros: z.string().optional(),
+  eyeIrritationCorros: z.string().optional(),
+  respiratorySensitiz: z.string().optional(),
+  skinSensitization: z.string().optional(),
+  germCellMutagenicity: z.string().optional(),
+  carcinogenicity: z.string().optional(),
+  reproductiveToxicity: z.string().optional(),
+  stocsTargetOrgan: z.string().optional(),
+  aspirationHazard: z.string().optional(),
+  aquaticToxicity: z.string().optional(),
+  persistenceDegradabil: z.string().optional(),
+  bioaccumulation: z.string().optional(),
+  soilMobility: z.string().optional(),
+  pbtAssessment: z.string().optional(),
+  otherAdverseEffects: z.string().optional(),
+  wasteDisposalMethod: z.string().optional(),
+  unNumber: z.string().optional(),
+  properShippingName: z.string().optional(),
+  transportHazardClass: z.string().optional(),
+  packingGroup: z.string().optional(),
+  envHazardTransport: z.boolean().optional(),
+  specialTransportPrecautions: z.string().optional(),
+  safetyHealthEnvRegs: z.string().optional(),
+  chemicalSafetyAssessment: z.boolean().optional(),
+  revisionsDescription: z.string().optional(),
+  abbreviations: z.string().optional(),
+  dataSourcesUsed: z.string().optional(),
+  fileUrl: z.string().optional(),
+  fileHash: z.string().optional(),
+});
+
+const updateSdsSchema = createSdsSchema.partial();
+
+// GET /api/sds — all SDS records (org-wide)
+router.get('/', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
+    const where: any = { chemical: { orgId, deletedAt: null } };
+    if (status) where.status = status;
+    if (search) {
+      where.chemical = { ...where.chemical, OR: [
+        { productName: { contains: search, mode: 'insensitive' } },
+        { casNumber: { contains: search, mode: 'insensitive' } },
+      ]};
+    }
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [data, total] = await Promise.all([
+      (prisma as any).chemSds.findMany({
+        where, skip, take: parseInt(limit),
+        orderBy: { issueDate: 'desc' },
+        include: { chemical: { select: { id: true, productName: true, casNumber: true, signalWord: true, pictograms: true } } },
+      }),
+      (prisma as any).chemSds.count({ where }),
+    ]);
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+  } catch (error: any) {
+    logger.error('Failed to fetch SDS records', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS records' } });
+  }
+});
+
+// GET /api/sds/overdue — SDS past review date
+router.get('/overdue', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).user?.orgId || 'default';
+    const data = await (prisma as any).chemSds.findMany({
+      where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
+      include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
+      orderBy: { nextReviewDate: 'asc' },
+    });
+    res.json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Failed to fetch overdue SDS', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue SDS' } });
+  }
+});
+
+// GET /api/sds/:id — get single SDS
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const item = await (prisma as any).chemSds.findFirst({
+      where: { id: req.params.id },
+      include: { chemical: true },
+    });
+    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
+    res.json({ success: true, data: item });
+  } catch (error: any) {
+    logger.error('Failed to fetch SDS', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS' } });
+  }
+});
+
+// POST /api/sds — create SDS for a chemical
+router.post('/', authenticate, async (req: Request, res: Response) => {
+  try {
+    const { chemicalId, ...rest } = req.body;
+    if (!chemicalId) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'chemicalId is required' } });
+    const parsed = createSdsSchema.safeParse(rest);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+
+    const chemical = await (prisma as any).chemRegister.findFirst({ where: { id: chemicalId, deletedAt: null } });
+    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+
+    // Supersede existing current SDS
+    await (prisma as any).chemSds.updateMany({ where: { chemicalId, status: 'CURRENT' }, data: { status: 'SUPERSEDED' } });
+
+    const data = await (prisma as any).chemSds.create({
+      data: { ...parsed.data, chemicalId, createdBy: (req as any).user?.id },
+    });
+    res.status(201).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Failed to create SDS', { error: error.message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  }
+});
+
+// PUT /api/sds/:id — update SDS
+router.put('/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const parsed = updateSdsSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const existing = await (prisma as any).chemSds.findFirst({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
+    const data = await (prisma as any).chemSds.update({ where: { id: req.params.id }, data: parsed.data });
+    res.json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Failed to update SDS', { error: error.message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  }
+});
+
+export default router;

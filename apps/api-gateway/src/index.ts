@@ -104,6 +104,7 @@ const SERVICES = {
   audits: process.env.SERVICE_AUDITS_URL || process.env.AUDITS_URL || 'http://localhost:4037',
   mgmtReview: process.env.SERVICE_MGMT_REVIEW_URL || process.env.MGMT_REVIEW_URL || 'http://localhost:4038',
   setupWizard: process.env.SERVICE_SETUP_WIZARD_URL || process.env.SETUP_WIZARD_URL || 'http://localhost:4039',
+  chemicals: process.env.SERVICE_CHEMICALS_URL || process.env.CHEMICALS_URL || 'http://localhost:4040',
 };
 
 // Generate service token for inter-service authentication
@@ -155,6 +156,7 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3037', 'http://localhost:3038', 'http://localhost:3039',
   'http://localhost:3040', 'http://localhost:3041', 'http://localhost:3042',
   'http://localhost:3043',
+  'http://localhost:3044',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -403,6 +405,7 @@ app.use('/api/v1/incidents', addVersionHeader('v1'), createServiceProxy('Inciden
 app.use('/api/v1/audits', addVersionHeader('v1'), createServiceProxy('Audits', SERVICES.audits, '/api/v1/audits', 'Audits service unavailable'));
 app.use('/api/v1/mgmt-review', addVersionHeader('v1'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/v1/mgmt-review', 'Management Review service unavailable'));
 app.use('/api/v1/wizard', addVersionHeader('v1'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/v1/wizard', 'Setup Wizard service unavailable'));
+app.use('/api/v1/chemicals', addVersionHeader('v1'), createServiceProxy('Chemicals', SERVICES.chemicals, '/api/v1/chemicals', 'Chemical Management service unavailable'));
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -446,6 +449,7 @@ app.use('/api/incidents', deprecatedRoute('/api/v1/incidents'), createServicePro
 app.use('/api/audits', deprecatedRoute('/api/v1/audits'), createServiceProxy('Audits', SERVICES.audits, '/api/audits', 'Audits service unavailable'));
 app.use('/api/mgmt-review', deprecatedRoute('/api/v1/mgmt-review'), createServiceProxy('Mgmt Review', SERVICES.mgmtReview, '/api/mgmt-review', 'Management Review service unavailable'));
 app.use('/api/wizard', deprecatedRoute('/api/v1/wizard'), createServiceProxy('Setup Wizard', SERVICES.setupWizard, '/api/wizard', 'Setup Wizard service unavailable'));
+app.use('/api/chemicals', deprecatedRoute('/api/v1/chemicals'), createServiceProxy('Chemicals', SERVICES.chemicals, '/api/chemicals', 'Chemical Management service unavailable'));
 
 // Error handling
 app.use(notFoundHandler);
