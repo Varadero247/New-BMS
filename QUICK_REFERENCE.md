@@ -67,7 +67,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 | ISO 37001 | 4024 | Anti-Bribery |
 | Marketing | 4025 | Sales automation |
 | Partners | 4026 | Partner portal |
-| Risk & CAPA | 4027 | ISO 31000 |
+| Risk (ERM) | 4027 | ISO 31000:2018 Enterprise Risk Mgmt |
 | Training | 4028 | Competence management |
 | Suppliers | 4029 | Supplier management |
 | Assets | 4030 | Asset management |
@@ -113,7 +113,7 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Partners Portal | 3026 | Partner portal |
 | Admin Dashboard | 3027 | Admin dashboard |
 | Marketing | 3030 | Marketing site |
-| Risk & CAPA | 3031 | ISO 31000 |
+| Risk (ERM) | 3031 | ISO 31000:2018 (15 pages) |
 | Training | 3032 | Competence management |
 | Suppliers | 3033 | Supplier management |
 | Assets | 3034 | Asset management |

@@ -121,6 +121,23 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 | **Field Service** | 4022 | Field operations | Work orders, scheduling, mobile dispatch |
 | **ISO 42001** | 4023 | AI Management System | AI risk assessment, algorithm registry, compliance |
 | **ISO 37001** | 4024 | Anti-Bribery Management | Due diligence, gift registry, whistleblowing |
+| **Marketing** | 4025 | Sales & marketing automation | ROI calculator, chatbot, leads, onboarding, health-score |
+| **Partners** | 4026 | Partner portal API | Auth, profile, deals, payouts, referrals, commission |
+| **Risk (ERM)** | 4027 | ISO 31000:2018 Enterprise Risk Mgmt | 10 models, 13 routes: risks, controls, KRIs, actions, bow-tie, appetite, analytics, dashboard |
+| **Training** | 4028 | Competence management | Courses, records, competencies, matrix, TNA |
+| **Suppliers** | 4029 | Supplier management | Suppliers, scorecards, documents, spend |
+| **Assets** | 4030 | Asset management | Register, work orders, calibration, inspection |
+| **Documents** | 4031 | Document control | Documents, versions, approvals, read receipts |
+| **Complaints** | 4032 | Complaint management | Complaints, actions, communications |
+| **Contracts** | 4033 | Contract lifecycle | Contracts, approvals, notices, clauses |
+| **PTW** | 4034 | Permit to Work | Permits, method statements, toolbox talks |
+| **Reg Monitor** | 4035 | Regulatory monitoring | Changes, legal register, obligations |
+| **Incidents** | 4036 | Incident management | Incidents, RIDDOR reporting |
+| **Audits** | 4037 | Audit management | Audits, findings, checklists, programmes |
+| **Mgmt Review** | 4038 | Management review | Reviews with AI-generated agenda |
+| **Setup Wizard** | 4039 | Setup wizard | Status, init, steps, complete, skip |
+| **Chemicals** | 4040 | Chemical management | COSHH, SDS, GHS, inventory, monitoring |
+| **Emergency** | 4041 | Fire & emergency | FRA, BCP, PEEP, wardens, drills, equipment |
 
 ### Web Applications
 
@@ -152,6 +169,24 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 | **Field Service** | 3023 | Field service management |
 | **ISO 42001** | 3024 | AI management system |
 | **ISO 37001** | 3025 | Anti-bribery management |
+| **Partners Portal** | 3026 | Partner referral portal |
+| **Admin Dashboard** | 3027 | Founder growth dashboard |
+| **Marketing** | 3030 | Landing pages, ROI calculator, chatbot |
+| **Risk (ERM)** | 3031 | ISO 31000 Enterprise Risk Management (15 pages) |
+| **Training** | 3032 | Competence management |
+| **Suppliers** | 3033 | Supplier management |
+| **Assets** | 3034 | Asset management |
+| **Documents** | 3035 | Document control |
+| **Complaints** | 3036 | Complaint management |
+| **Contracts** | 3037 | Contract lifecycle |
+| **Fin Compliance** | 3038 | Financial compliance |
+| **PTW** | 3039 | Permit to Work |
+| **Reg Monitor** | 3040 | Regulatory monitoring |
+| **Incidents** | 3041 | Incident management |
+| **Audits** | 3042 | Audit management |
+| **Mgmt Review** | 3043 | Management review |
+| **Chemicals** | 3044 | Chemical management |
+| **Emergency** | 3045 | Fire & emergency management |
 
 ## Monitoring System
 

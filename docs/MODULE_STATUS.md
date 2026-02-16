@@ -34,7 +34,7 @@ Last updated: 2026-02-15
 | ISO 37001 | Anti-Bribery | api-iso37001 | 4024 | Active | 30 | 105 | 2026-02-13 |
 | Marketing | Sales Automation | api-marketing | 4025 | Active | 65 | 125 | 2026-02-15 |
 | Partners | Partner Portal | api-partners | 4026 | Active | 20 | 35 | 2026-02-15 |
-| Risk & CAPA | ISO 31000 | api-risk | 4027 | Active | 15 | 18 | 2026-02-15 |
+| Risk (ERM) | ISO 31000:2018 | api-risk | 4027 | Active | 91 | 91 | 2026-02-16 |
 | Training | Competence Mgmt | api-training | 4028 | Active | 14 | 12 | 2026-02-15 |
 | Suppliers | Supplier Mgmt | api-suppliers | 4029 | Active | 16 | 12 | 2026-02-15 |
 | Assets | Asset Mgmt | api-assets | 4030 | Active | 14 | 12 | 2026-02-15 |

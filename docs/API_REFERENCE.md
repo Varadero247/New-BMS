@@ -1706,6 +1706,104 @@ GET|PUT|DELETE  /api/iso37001/whistleblowing/:id
 
 ---
 
+## Risk Management API (ISO 31000:2018)
+
+Enterprise Risk Management service on port 4027. Gateway prefix: `/api/risk/*`
+
+### Risks (Register)
+```http
+GET    /api/risk/risks                    # List risks (filter: ?category=, ?search=, ?status=, ?level=)
+POST   /api/risk/risks                    # Create risk (auto-calculates scores, checks appetite)
+GET    /api/risk/risks/register            # Full register with pagination & relations
+GET    /api/risk/risks/heatmap             # 5×5 heatmap data (25 cells with risk counts)
+GET    /api/risk/risks/overdue-review      # Risks with overdue reviews
+GET    /api/risk/risks/exceeds-appetite    # Risks exceeding appetite thresholds
+GET    /api/risk/risks/by-category         # Category breakdown with counts
+GET    /api/risk/risks/aggregate           # Aggregate by category/status/level (?groupBy=)
+GET    /api/risk/risks/:id                 # Get risk with controls, KRIs, actions, reviews, bowtie
+PUT    /api/risk/risks/:id                 # Update risk (auto-recalculates scores)
+DELETE /api/risk/risks/:id                 # Soft delete
+
+POST   /api/risk/risks/from-coshh/:coshhId     # Create risk from COSHH assessment
+POST   /api/risk/risks/from-fra/:fraId         # Create risk from Fire Risk Assessment
+POST   /api/risk/risks/from-incident/:id       # Create risk from H&S incident
+POST   /api/risk/risks/from-audit/:id          # Create risk from audit finding
+```
+
+### Controls
+```http
+GET    /api/risk/risks/:riskId/controls          # List controls for a risk
+POST   /api/risk/risks/:riskId/controls          # Add control (auto-updates overall effectiveness)
+PUT    /api/risk/risks/:riskId/controls/:id      # Update control
+DELETE /api/risk/risks/:riskId/controls/:id      # Remove control
+POST   /api/risk/risks/:riskId/controls/:id/test # Record control test result
+```
+
+### Key Risk Indicators (KRIs)
+```http
+GET    /api/risk/risks/:riskId/kri               # List KRIs for a risk
+POST   /api/risk/risks/:riskId/kri               # Create KRI with thresholds
+PUT    /api/risk/risks/:riskId/kri/:id           # Update KRI
+DELETE /api/risk/risks/:riskId/kri/:id           # Remove KRI
+POST   /api/risk/risks/:riskId/kri/:id/reading   # Record KRI reading (auto-evaluates status)
+GET    /api/risk/risks/kri/breaches              # All KRIs in AMBER/RED status
+GET    /api/risk/risks/kri/due                   # KRIs due for reading (next 7 days)
+```
+
+### Treatment Actions
+```http
+GET    /api/risk/risks/:riskId/actions           # List actions for a risk
+POST   /api/risk/risks/:riskId/actions           # Create treatment action
+PUT    /api/risk/risks/:riskId/actions/:id       # Update action
+POST   /api/risk/risks/:riskId/actions/:id/complete  # Complete with evidence
+GET    /api/risk/risks/actions/overdue           # All overdue actions
+GET    /api/risk/risks/actions/due-soon          # Actions due within 14 days
+```
+
+### Bow-Tie Analysis
+```http
+GET    /api/risk/risks/:riskId/bowtie            # Get bow-tie for a risk
+POST   /api/risk/risks/:riskId/bowtie            # Create/update bow-tie (HIGH+ risks only)
+GET    /api/risk/risks/bowtie/all                # Library of all bow-ties
+```
+
+### Risk Appetite & Framework
+```http
+GET    /api/risk/risks/appetite                  # List appetite statements (all categories)
+POST   /api/risk/risks/appetite                  # Upsert appetite for category
+GET    /api/risk/risks/framework                 # Get organisation risk framework
+PUT    /api/risk/risks/framework                 # Create/update framework config
+```
+
+### Analytics
+```http
+GET    /api/risk/risks/analytics/dashboard       # Full analytics (heatmap, KPIs, by-category, by-level, top risks, module breakdown)
+GET    /api/risk/risks/analytics/by-module       # Risk count per source module
+```
+
+### Dashboard
+```http
+GET    /api/risk/dashboard/stats                 # 12 KPI metrics (totalRisks, criticalRisks, exceedsAppetite, overdueReviews, overdueActions, kriBreaches, kriWarnings, newThisMonth, openCapas, pendingReviews, avgRiskScore, totalCapas)
+```
+
+### Risk Scoring (5×5 Matrix)
+| Score Range | Level | Colour |
+|-------------|-------|--------|
+| 1-3 | LOW | Green |
+| 4-6 | MEDIUM | Yellow |
+| 8-12 | HIGH | Amber |
+| 15-19 | VERY_HIGH | Orange |
+| 20-25 | CRITICAL | Red |
+
+### Appetite Status
+| Status | Meaning |
+|--------|---------|
+| WITHIN | Residual score ≤ acceptable residual score |
+| AT_LIMIT | Residual score > acceptable but ≤ maximum tolerable |
+| EXCEEDS | Residual score > maximum tolerable — mandatory escalation |
+
+---
+
 ## AI Analysis Endpoints
 
 AI analysis is provided by the central AI Analysis service (port 4004). Supports Claude, OpenAI, and Grok providers.

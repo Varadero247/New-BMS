@@ -214,7 +214,7 @@
 | ISO 42001 | `iso42001.prisma` | 7 | AI Management System |
 | ISO 37001 | `iso37001.prisma` | 6 | Anti-Bribery |
 | Marketing | `marketing.prisma` | 13 | Leads, partners, deals, health scores |
-| Risk | `risk.prisma` | 3 | Risk registers, reviews, CAPA |
+| Risk (ERM) | `risk.prisma` | 10 | ISO 31000:2018 — RiskRegister, RiskReview, RiskCapa, RiskControl, RiskKri, RiskKriReading, RiskAction, RiskBowtie, RiskAppetiteStatement, RiskFramework |
 | Training | `training.prisma` | 5 | Courses, records, competencies, matrix, TNA |
 | Suppliers | `suppliers.prisma` | 4 | Suppliers, scorecards, documents, spend |
 | Assets | `assets.prisma` | 4 | Register, work orders, calibration, inspection |

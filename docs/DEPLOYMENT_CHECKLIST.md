@@ -567,3 +567,12 @@ export DOCKER_API_VERSION=1.41
 
 ### ISO 37001 (Anti-Bribery)
 `ab_risk_assessments`, `ab_risk_items`, `ab_due_diligences`, `ab_due_diligence_checks`, `ab_controls`, `ab_control_reviews`, `ab_incidents`, `ab_incident_actions`, `ab_trainings`, `ab_training_records`, `ab_gifts`, `ab_policies`
+
+### Risk Management (ISO 31000:2018)
+`risk_registers`, `risk_reviews`, `risk_capas`, `risk_controls`, `risk_kris`, `risk_kri_readings`, `risk_actions`, `risk_bowties`, `risk_appetite_statements`, `risk_frameworks`
+
+### Chemical Management (ISO 11014 / COSHH)
+`chem_registers`, `chem_sds`, `chem_coshh`, `chem_inventory`, `chem_usage`, `chem_monitoring`, `chem_disposal`, `chem_incidents`, `chem_incompat_alerts`
+
+### Emergency Management (ISO 22320 / ISO 22301)
+`fem_premises`, `fem_fire_risk_assessments`, `fem_assembly_points`, `fem_evacuation_routes`, `fem_peeps`, `fem_fire_wardens`, `fem_emergency_contacts`, `fem_emergency_equipment`, `fem_emergency_incidents`, `fem_incident_decision_logs`, `fem_incident_resource_logs`, `fem_incident_communication_logs`, `fem_incident_timeline_events`, `fem_evacuation_drills`, `fem_business_continuity_plans`, `fem_bcp_exercises`

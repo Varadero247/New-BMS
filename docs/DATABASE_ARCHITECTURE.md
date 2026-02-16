@@ -151,8 +151,25 @@ Each microservice has its own schema file:
 | Field Service | `field-service.prisma` | `ims_field_service` | Work orders, Dispatch (14 models) |
 | ISO 42001 | `iso42001.prisma` | `ims_iso42001` | AI Management System (7 models) |
 | ISO 37001 | `iso37001.prisma` | `ims_iso37001` | Anti-Bribery (6 models) |
+| Marketing | `marketing.prisma` | `ims_marketing` | Leads, partners, campaigns (13 models) |
+| Risk (ERM) | `risk.prisma` | `ims_risk` | ISO 31000:2018 — registers, controls, KRIs, bow-tie, appetite (10 models) |
+| Training | `training.prisma` | `ims_training` | Courses, records, competencies (5 models) |
+| Suppliers | `suppliers.prisma` | `ims_suppliers` | Suppliers, scorecards (4 models) |
+| Assets | `assets.prisma` | `ims_assets` | Register, work orders, calibration (4 models) |
+| Documents | `documents.prisma` | `ims_documents` | Documents, versions, approvals (4 models) |
+| Complaints | `complaints.prisma` | `ims_complaints` | Complaints, actions (3 models) |
+| Contracts | `contracts.prisma` | `ims_contracts` | Contracts, approvals, clauses (4 models) |
+| PTW | `ptw.prisma` | `ims_ptw` | Permits, method statements (3 models) |
+| Reg Monitor | `reg-monitor.prisma` | `ims_reg_monitor` | Regulatory changes, obligations (3 models) |
+| Incidents | `incidents.prisma` | `ims_incidents` | Incident management (1 model, 30+ fields) |
+| Audits | `audits.prisma` | `ims_audits` | Audits, findings, checklists (4 models) |
+| Mgmt Review | `mgmt-review.prisma` | `ims_mgmt_review` | Management reviews (1 model) |
+| Wizard | `wizard.prisma` | `ims_wizard` | Setup wizard state (2 models) |
+| Partner Portal | `partner-portal.prisma` | `ims_partner_portal` | Referrals, commission, support (4 models) |
+| Chemicals | `chemicals.prisma` | `ims_chemicals` | COSHH, SDS, GHS, inventory (10 models) |
+| Emergency | `emergency.prisma` | `ims_emergency` | FRA, BCP, PEEP, wardens, drills (16 models) |
 
-**Total: 25 schemas, 373 models across all domains.**
+**Total: 43 schemas, 585+ models across all domains.**
 
 ## Migration Strategy
 

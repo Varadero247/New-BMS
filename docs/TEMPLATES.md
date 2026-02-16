@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IMS Template Library provides 192 built-in templates across 34 modules. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 41 API services, 44 web apps, and 59 shared packages — templates integrate with 12 of the 44 web frontends.
+The IMS Template Library provides 192 built-in templates across 34 modules, plus 18 Risk Management DOCX compliance templates. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 42 API services, 45 web apps, and 59 shared packages — templates integrate with 12 of the 45 web frontends.
 
 ## Architecture
 
@@ -156,6 +156,35 @@ All endpoints require Bearer token authentication.
 | Management Review | TPL-MR | 3 | 001-003 |
 | Chemical Management | TPL-CHEM | 8 | 001-008 |
 | **Total** | | **192** | |
+
+### DOCX Compliance Templates (docs/compliance-templates/)
+
+In addition to the UI template forms above, the following DOCX compliance document templates are provided:
+
+#### Risk Management (docs/compliance-templates/risk-management/) — 18 files
+
+| Code | Type | Title |
+|------|------|-------|
+| RM-POL-001 | Policy | Risk Management Policy |
+| RM-POL-002 | Policy | Risk Appetite Statement |
+| RM-PRO-001 | Procedure | Risk Assessment Procedure |
+| RM-PRO-002 | Procedure | Risk Treatment Procedure |
+| RM-PRO-003 | Procedure | KRI Monitoring Procedure |
+| RM-PRO-004 | Procedure | Bow-Tie Analysis Procedure |
+| RM-PRO-005 | Procedure | Risk Review & Reporting Procedure |
+| RM-FRM-001 | Form | Risk Register Entry Form |
+| RM-FRM-002 | Form | Risk Assessment Workshop Record |
+| RM-FRM-003 | Form | Control Assessment Form |
+| RM-FRM-004 | Form | Bow-Tie Analysis Diagram Form |
+| RM-FRM-005 | Form | KRI Record Form |
+| RM-FRM-006 | Form | Risk Review Record Form |
+| RM-FRM-007 | Form | Risk Treatment Action Form |
+| RM-REP-001 | Report | Enterprise Risk Report |
+| RM-REP-002 | Report | Risk Heat Map Report |
+| RM-REP-003 | Report | KRI Monitoring Report |
+| RM-PLN-001 | Plan | Risk Treatment Plan |
+
+Generate with: `node scripts/generate-risk-templates.mjs`
 
 ## Seeding
 
