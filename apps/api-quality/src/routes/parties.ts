@@ -167,7 +167,7 @@ router.delete('/:id', checkOwnership(prisma.qualInterestedParty), async (req: Au
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Interested party not found' } });
     }
 
-    await prisma.qualInterestedParty.delete({ where: { id: req.params.id } });
+    await prisma.qualInterestedParty.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

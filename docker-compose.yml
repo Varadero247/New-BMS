@@ -13,6 +13,14 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.00'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
@@ -37,11 +45,44 @@ services:
       '
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.05'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
+
+  backup:
+    image: prodrigestivill/postgres-backup-local:16-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ims
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      SCHEDULE: "@daily"
+      BACKUP_NUM_KEEP: 7
+      BACKUP_DIR: /backups
+    volumes:
+      - ./backups:/backups
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.05'
 
   # API Services
   api-gateway:
@@ -66,45 +107,43 @@ services:
       SERVICE_AI_ANALYSIS_URL: http://api-ai-analysis:4004
       SERVICE_AI_URL: http://api-ai-analysis:4004
       SERVICE_INVENTORY_URL: http://api-inventory:4005
-      SERVICE_HR_URL: http://host.docker.internal:4006
-      SERVICE_PAYROLL_URL: http://host.docker.internal:4007
-      SERVICE_WORKFLOWS_URL: http://host.docker.internal:4008
-      SERVICE_PROJECT_MANAGEMENT_URL: http://host.docker.internal:4009
-      SERVICE_AUTOMOTIVE_URL: http://host.docker.internal:4010
-      SERVICE_MEDICAL_URL: http://host.docker.internal:4011
-      SERVICE_AEROSPACE_URL: http://host.docker.internal:4012
-      SERVICE_FINANCE_URL: http://host.docker.internal:4013
-      SERVICE_CRM_URL: http://host.docker.internal:4014
-      SERVICE_INFOSEC_URL: http://host.docker.internal:4015
-      SERVICE_ESG_URL: http://host.docker.internal:4016
-      SERVICE_CMMS_URL: http://host.docker.internal:4017
-      SERVICE_PORTAL_URL: http://host.docker.internal:4018
-      SERVICE_FOOD_SAFETY_URL: http://host.docker.internal:4019
-      SERVICE_ENERGY_URL: http://host.docker.internal:4020
-      SERVICE_ANALYTICS_URL: http://host.docker.internal:4021
-      SERVICE_FIELD_SERVICE_URL: http://host.docker.internal:4022
-      SERVICE_ISO42001_URL: http://host.docker.internal:4023
-      SERVICE_ISO37001_URL: http://host.docker.internal:4024
-      SERVICE_MARKETING_URL: http://host.docker.internal:4025
-      SERVICE_PARTNERS_URL: http://host.docker.internal:4026
-      SERVICE_RISK_URL: http://host.docker.internal:4027
-      SERVICE_TRAINING_URL: http://host.docker.internal:4028
-      SERVICE_SUPPLIERS_URL: http://host.docker.internal:4029
-      SERVICE_ASSETS_URL: http://host.docker.internal:4030
-      SERVICE_DOCUMENTS_URL: http://host.docker.internal:4031
-      SERVICE_COMPLAINTS_URL: http://host.docker.internal:4032
-      SERVICE_CONTRACTS_URL: http://host.docker.internal:4033
-      SERVICE_PTW_URL: http://host.docker.internal:4034
-      SERVICE_REG_MONITOR_URL: http://host.docker.internal:4035
-      SERVICE_INCIDENTS_URL: http://host.docker.internal:4036
-      SERVICE_AUDITS_URL: http://host.docker.internal:4037
-      SERVICE_MGMT_REVIEW_URL: http://host.docker.internal:4038
-      SERVICE_SETUP_WIZARD_URL: http://host.docker.internal:4039
-      SERVICE_CHEMICALS_URL: http://host.docker.internal:4040
-      SERVICE_EMERGENCY_URL: http://host.docker.internal:4041
+      SERVICE_HR_URL: http://api-hr:4006
+      SERVICE_PAYROLL_URL: http://api-payroll:4007
+      SERVICE_WORKFLOWS_URL: http://api-workflows:4008
+      SERVICE_PROJECT_MANAGEMENT_URL: http://api-project-management:4009
+      SERVICE_AUTOMOTIVE_URL: http://api-automotive:4010
+      SERVICE_MEDICAL_URL: http://api-medical:4011
+      SERVICE_AEROSPACE_URL: http://api-aerospace:4012
+      SERVICE_FINANCE_URL: http://api-finance:4013
+      SERVICE_CRM_URL: http://api-crm:4014
+      SERVICE_INFOSEC_URL: http://api-infosec:4015
+      SERVICE_ESG_URL: http://api-esg:4016
+      SERVICE_CMMS_URL: http://api-cmms:4017
+      SERVICE_PORTAL_URL: http://api-portal:4018
+      SERVICE_FOOD_SAFETY_URL: http://api-food-safety:4019
+      SERVICE_ENERGY_URL: http://api-energy:4020
+      SERVICE_ANALYTICS_URL: http://api-analytics:4021
+      SERVICE_FIELD_SERVICE_URL: http://api-field-service:4022
+      SERVICE_ISO42001_URL: http://api-iso42001:4023
+      SERVICE_ISO37001_URL: http://api-iso37001:4024
+      SERVICE_MARKETING_URL: http://api-marketing:4025
+      SERVICE_PARTNERS_URL: http://api-partners:4026
+      SERVICE_RISK_URL: http://api-risk:4027
+      SERVICE_TRAINING_URL: http://api-training:4028
+      SERVICE_SUPPLIERS_URL: http://api-suppliers:4029
+      SERVICE_ASSETS_URL: http://api-assets:4030
+      SERVICE_DOCUMENTS_URL: http://api-documents:4031
+      SERVICE_COMPLAINTS_URL: http://api-complaints:4032
+      SERVICE_CONTRACTS_URL: http://api-contracts:4033
+      SERVICE_PTW_URL: http://api-ptw:4034
+      SERVICE_REG_MONITOR_URL: http://api-reg-monitor:4035
+      SERVICE_INCIDENTS_URL: http://api-incidents:4036
+      SERVICE_AUDITS_URL: http://api-audits:4037
+      SERVICE_MGMT_REVIEW_URL: http://api-mgmt-review:4038
+      SERVICE_SETUP_WIZARD_URL: http://api-setup-wizard:4039
+      SERVICE_CHEMICALS_URL: http://api-chemicals:4040
+      SERVICE_EMERGENCY_URL: http://api-emergency:4041
       CSRF_ENABLED: "false"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -120,6 +159,86 @@ services:
         condition: service_healthy
       api-inventory:
         condition: service_healthy
+      api-hr:
+        condition: service_healthy
+      api-payroll:
+        condition: service_healthy
+      api-workflows:
+        condition: service_healthy
+      api-project-management:
+        condition: service_healthy
+      api-automotive:
+        condition: service_healthy
+      api-medical:
+        condition: service_healthy
+      api-aerospace:
+        condition: service_healthy
+      api-finance:
+        condition: service_healthy
+      api-crm:
+        condition: service_healthy
+      api-infosec:
+        condition: service_healthy
+      api-esg:
+        condition: service_healthy
+      api-cmms:
+        condition: service_healthy
+      api-portal:
+        condition: service_healthy
+      api-food-safety:
+        condition: service_healthy
+      api-energy:
+        condition: service_healthy
+      api-analytics:
+        condition: service_healthy
+      api-field-service:
+        condition: service_healthy
+      api-iso42001:
+        condition: service_healthy
+      api-iso37001:
+        condition: service_healthy
+      api-marketing:
+        condition: service_healthy
+      api-partners:
+        condition: service_healthy
+      api-risk:
+        condition: service_healthy
+      api-training:
+        condition: service_healthy
+      api-suppliers:
+        condition: service_healthy
+      api-assets:
+        condition: service_healthy
+      api-documents:
+        condition: service_healthy
+      api-complaints:
+        condition: service_healthy
+      api-contracts:
+        condition: service_healthy
+      api-ptw:
+        condition: service_healthy
+      api-reg-monitor:
+        condition: service_healthy
+      api-incidents:
+        condition: service_healthy
+      api-audits:
+        condition: service_healthy
+      api-mgmt-review:
+        condition: service_healthy
+      api-setup-wizard:
+        condition: service_healthy
+      api-chemicals:
+        condition: service_healthy
+      api-emergency:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
@@ -145,6 +264,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4001/health"]
       interval: 30s
@@ -170,6 +297,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4002/health"]
       interval: 30s
@@ -195,6 +330,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4003/health"]
       interval: 30s
@@ -222,6 +365,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4004/health"]
       interval: 30s
@@ -248,6 +399,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4005/health"]
       interval: 30s
@@ -273,6 +432,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4006/health"]
       interval: 30s
@@ -298,6 +465,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4007/health"]
       interval: 30s
@@ -323,6 +498,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4008/health"]
       interval: 30s
@@ -348,6 +531,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4009/health"]
       interval: 30s
@@ -368,6 +559,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -388,6 +587,14 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
       interval: 30s
@@ -407,6 +614,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002"]
       interval: 30s
@@ -426,6 +641,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003"]
       interval: 30s
@@ -445,6 +668,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004"]
       interval: 30s
@@ -464,6 +695,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006"]
       interval: 30s
@@ -483,6 +722,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3007"]
       interval: 30s
@@ -502,6 +749,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005"]
       interval: 30s
@@ -521,6 +776,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3008"]
       interval: 30s
@@ -540,6 +803,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3009"]
       interval: 30s
@@ -567,6 +838,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4010/health"]
       interval: 30s
@@ -592,6 +871,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4011/health"]
       interval: 30s
@@ -617,6 +904,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4012/health"]
       interval: 30s
@@ -642,6 +937,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4013/health"]
       interval: 30s
@@ -667,6 +970,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4014/health"]
       interval: 30s
@@ -692,6 +1003,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4015/health"]
       interval: 30s
@@ -717,6 +1036,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4016/health"]
       interval: 30s
@@ -742,6 +1069,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4017/health"]
       interval: 30s
@@ -767,6 +1102,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4018/health"]
       interval: 30s
@@ -792,6 +1135,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4019/health"]
       interval: 30s
@@ -817,6 +1168,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4020/health"]
       interval: 30s
@@ -842,6 +1201,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4021/health"]
       interval: 30s
@@ -867,6 +1234,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4022/health"]
       interval: 30s
@@ -892,6 +1267,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4023/health"]
       interval: 30s
@@ -917,6 +1300,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4024/health"]
       interval: 30s
@@ -936,6 +1327,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010"]
       interval: 30s
@@ -955,6 +1354,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3011"]
       interval: 30s
@@ -974,6 +1381,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3012"]
       interval: 30s
@@ -993,6 +1408,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3013"]
       interval: 30s
@@ -1012,6 +1435,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3014"]
       interval: 30s
@@ -1031,6 +1462,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015"]
       interval: 30s
@@ -1050,6 +1489,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3016"]
       interval: 30s
@@ -1069,6 +1516,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3017"]
       interval: 30s
@@ -1088,6 +1543,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3018"]
       interval: 30s
@@ -1107,6 +1570,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3019"]
       interval: 30s
@@ -1126,6 +1597,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3020"]
       interval: 30s
@@ -1145,6 +1624,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3021"]
       interval: 30s
@@ -1164,6 +1651,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3022"]
       interval: 30s
@@ -1183,6 +1678,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3023"]
       interval: 30s
@@ -1202,6 +1705,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3024"]
       interval: 30s
@@ -1221,6 +1732,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3025"]
       interval: 30s
@@ -1249,6 +1768,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4025/health"]
       interval: 30s
@@ -1275,6 +1802,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4026/health"]
       interval: 30s
@@ -1300,6 +1835,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4027/health"]
       interval: 30s
@@ -1325,6 +1868,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4028/health"]
       interval: 30s
@@ -1350,6 +1901,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4029/health"]
       interval: 30s
@@ -1375,6 +1934,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4030/health"]
       interval: 30s
@@ -1400,6 +1967,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4031/health"]
       interval: 30s
@@ -1425,6 +2000,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4032/health"]
       interval: 30s
@@ -1450,6 +2033,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4033/health"]
       interval: 30s
@@ -1475,6 +2066,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4034/health"]
       interval: 30s
@@ -1500,6 +2099,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4035/health"]
       interval: 30s
@@ -1525,6 +2132,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4036/health"]
       interval: 30s
@@ -1550,6 +2165,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4037/health"]
       interval: 30s
@@ -1575,6 +2198,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4038/health"]
       interval: 30s
@@ -1600,6 +2231,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4039/health"]
       interval: 30s
@@ -1625,6 +2264,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4040/health"]
       interval: 30s
@@ -1644,6 +2291,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3044"]
       interval: 30s
@@ -1663,6 +2318,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3030"]
       interval: 30s
@@ -1682,6 +2345,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3026"]
       interval: 30s
@@ -1701,6 +2372,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3027"]
       interval: 30s
@@ -1720,6 +2399,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3031"]
       interval: 30s
@@ -1739,6 +2426,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3032"]
       interval: 30s
@@ -1758,6 +2453,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3033"]
       interval: 30s
@@ -1777,6 +2480,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3034"]
       interval: 30s
@@ -1796,6 +2507,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3035"]
       interval: 30s
@@ -1815,6 +2534,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3036"]
       interval: 30s
@@ -1834,6 +2561,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3037"]
       interval: 30s
@@ -1853,6 +2588,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3038"]
       interval: 30s
@@ -1872,6 +2615,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3039"]
       interval: 30s
@@ -1891,6 +2642,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3040"]
       interval: 30s
@@ -1910,6 +2669,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3041"]
       interval: 30s
@@ -1929,6 +2696,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3042"]
       interval: 30s
@@ -1948,6 +2723,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3043"]
       interval: 30s
@@ -1973,6 +2756,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4041/health"]
       interval: 30s
@@ -1992,6 +2783,14 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       - api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.50'
+        reservations:
+          memory: 128M
+          cpus: '0.10'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3045"]
       interval: 30s

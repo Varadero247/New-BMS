@@ -280,7 +280,7 @@ router.delete('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
-    await prisma.incident.delete({ where: { id: req.params.id } });
+    await prisma.incident.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete incident error', { error: (error as Error).message });

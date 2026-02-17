@@ -610,7 +610,7 @@ describe('PUT /api/deals/:id/stage', () => {
     const res = await request(app).put('/api/deals/deal-1/stage').send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('stageId is required');
+    expect(res.body.error.message).toBe('stageId is required');
   });
 
   it('should return 404 when deal not found', async () => {
@@ -721,7 +721,7 @@ describe('PUT /api/deals/:id/lost', () => {
     const res = await request(app).put('/api/deals/deal-1/lost').send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('lostReason is required');
+    expect(res.body.error.message).toBe('lostReason is required');
   });
 
   it('should return 404 when deal not found', async () => {

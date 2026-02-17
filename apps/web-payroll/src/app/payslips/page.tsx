@@ -41,7 +41,7 @@ export default function PayslipsPage() {
       if (statusFilter) params.status = statusFilter;
       if (employeeIdFilter) params.employeeId = employeeIdFilter;
 
-      const response = await api.get('/payroll/payslips', { params });
+      const response = await api.get('/payslips', { params });
       setPayslips(response.data.data || []);
     } catch (error) {
       console.error('Error fetching payslips:', error);

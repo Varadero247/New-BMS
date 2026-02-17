@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: 'Partners — Nexara IMS',
   description: 'Partner portal for Nexara IMS - manage deals, referrals, and payouts',
   themeColor: '#080B12',
+  openGraph: {
+    title: 'Partners — Nexara IMS',
+    description: 'Partner portal for Nexara IMS - manage deals, referrals, and payouts',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

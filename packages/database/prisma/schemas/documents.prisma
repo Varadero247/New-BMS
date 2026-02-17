@@ -60,6 +60,7 @@ model DocDocument {
   @@map("doc_documents")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model DocVersion {

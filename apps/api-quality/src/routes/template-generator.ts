@@ -403,7 +403,7 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
 // DELETE /api/template-generator/:id — Delete a generated template
 router.delete('/:id', authenticate as any, requirePermission('quality', PermissionLevel.MANAGE) as any, async (req: Request, res: Response) => {
   try {
-    await (prisma as any).qualGeneratedTemplate.delete({ where: { id: req.params.id } });
+    await (prisma as any).qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: any) {
     res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } });

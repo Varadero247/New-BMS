@@ -335,7 +335,7 @@ describe('Environment CAPA API Routes', () => {
         ...createPayload,
         capaActions: [
           { id: '1a000000-0000-4000-a000-000000000001', description: 'Replace filter', assignedTo: 'Tech A', priority: 'MEDIUM' },
-          { id: 'ca-2', description: 'Update SOP', assignedTo: 'Tech B', priority: 'HIGH' },
+          { id: 'env20000-0000-4000-a000-000000000002', description: 'Update SOP', assignedTo: 'Tech B', priority: 'HIGH' },
         ],
       });
 
@@ -512,15 +512,16 @@ describe('Environment CAPA API Routes', () => {
   describe('DELETE /api/capa/:id', () => {
     it('should delete CAPA successfully', async () => {
       (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
-      (mockPrisma.envCapa.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.envCapa.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.envCapa.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.envCapa.update).toHaveBeenCalledWith({
         where: { id: '12000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

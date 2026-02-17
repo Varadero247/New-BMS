@@ -300,7 +300,7 @@ describe('Milestones API Routes', () => {
   describe('DELETE /api/milestones/:id', () => {
     it('should delete a milestone successfully', async () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
-      (mockPrisma.projectMilestone.delete as jest.Mock).mockResolvedValueOnce(mockMilestone);
+      (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce(mockMilestone);
 
       const res = await request(app).delete('/api/milestones/1b000000-0000-4000-a000-000000000001');
 
@@ -319,7 +319,7 @@ describe('Milestones API Routes', () => {
 
     it('should return 500 on database error during delete', async () => {
       (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
-      (mockPrisma.projectMilestone.delete as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
+      (mockPrisma.projectMilestone.update as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
       const res = await request(app).delete('/api/milestones/1b000000-0000-4000-a000-000000000001');
 

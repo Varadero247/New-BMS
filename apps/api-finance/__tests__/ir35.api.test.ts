@@ -13,7 +13,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-1' };
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
     next();
   }),
 }));
@@ -45,7 +45,7 @@ describe('GET /api/ir35', () => {
         contractorName: 'John Smith',
         determination: 'INSIDE',
         status: 'COMPLETED',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
       {
         id: '00000000-0000-0000-0000-000000000002',
@@ -53,7 +53,7 @@ describe('GET /api/ir35', () => {
         contractorName: 'Jane Doe',
         determination: 'OUTSIDE',
         status: 'DRAFT',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
     (prisma as any).finIr35Assessment.findMany.mockResolvedValue(assessments);
@@ -85,7 +85,7 @@ describe('GET /api/ir35', () => {
 
     expect((prisma as any).finIr35Assessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ orgId: 'org-1', deletedAt: null }),
+        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100', deletedAt: null }),
       })
     );
   });
@@ -131,7 +131,7 @@ describe('POST /api/ir35', () => {
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
       createdBy: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -148,7 +148,7 @@ describe('POST /api/ir35', () => {
       id: '00000000-0000-0000-0000-000000000004',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0004',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/ir35').send(validAssessment);
@@ -163,7 +163,7 @@ describe('POST /api/ir35', () => {
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     await request(app).post('/api/ir35').send(validAssessment);
@@ -171,7 +171,7 @@ describe('POST /api/ir35', () => {
     expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          orgId: 'org-1',
+          orgId: '00000000-0000-4000-a000-000000000100',
           createdBy: '00000000-0000-0000-0000-000000000001',
         }),
       })
@@ -184,13 +184,13 @@ describe('POST /api/ir35', () => {
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     await request(app).post('/api/ir35').send(validAssessment);
 
     expect((prisma as any).finIr35Assessment.count).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+      expect.objectContaining({ where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }) })
     );
     expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -218,7 +218,7 @@ describe('POST /api/ir35', () => {
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/ir35').send(validAssessment);

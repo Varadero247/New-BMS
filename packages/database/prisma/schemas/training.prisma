@@ -72,6 +72,7 @@ model TrainCourse {
   records         TrainRecord[]
   @@map("train_courses")
   @@index([orgId])
+  @@index([deletedAt])
 }
 
 model TrainRecord {
@@ -103,6 +104,7 @@ model TrainRecord {
   @@index([orgId])
   @@index([employeeId])
   @@index([courseId])
+  @@index([deletedAt])
 }
 
 model TrainCompetency {
@@ -123,6 +125,7 @@ model TrainCompetency {
   matrixEntries   TrainMatrix[]
   @@map("train_competencies")
   @@index([orgId])
+  @@index([deletedAt])
 }
 
 model TrainMatrix {
@@ -147,6 +150,7 @@ model TrainMatrix {
   @@map("train_matrix")
   @@index([orgId])
   @@index([employeeId])
+  @@index([deletedAt])
 }
 
 model TrainTNA {
@@ -173,4 +177,5 @@ model TrainTNA {
   deletedAt       DateTime?
   @@map("train_tna")
   @@index([orgId])
+  @@index([deletedAt])
 }

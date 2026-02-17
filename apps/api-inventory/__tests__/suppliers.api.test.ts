@@ -420,15 +420,16 @@ describe('Inventory Suppliers API Routes', () => {
         id: '25000000-0000-4000-a000-000000000001',
         products: [],
       });
-      (mockPrisma.supplier.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.supplier.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.supplier.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.supplier.update).toHaveBeenCalledWith({
         where: { id: '25000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

@@ -461,15 +461,16 @@ describe('Inventory Warehouses API Routes', () => {
         id: '28000000-0000-4000-a000-000000000001',
         inventoryItems: [],
       });
-      (mockPrisma.warehouse.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.warehouse.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/warehouses/28000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.warehouse.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.warehouse.update).toHaveBeenCalledWith({
         where: { id: '28000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

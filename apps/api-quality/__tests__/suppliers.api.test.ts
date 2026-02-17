@@ -467,15 +467,16 @@ describe('Quality Suppliers API Routes', () => {
   describe('DELETE /api/suppliers/:id', () => {
     it('should delete supplier successfully', async () => {
       (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: '25000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualSupplier.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualSupplier.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualSupplier.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualSupplier.update).toHaveBeenCalledWith({
         where: { id: '25000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

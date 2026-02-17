@@ -98,4 +98,5 @@ model IncIncident {
   @@index([status])
   @@index([severity])
   @@index([dateOccurred])
+  @@index([deletedAt])
 }

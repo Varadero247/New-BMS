@@ -160,11 +160,11 @@ export const passwordResetLimiter: RateLimitRequestHandler = rateLimit({
 
 /**
  * General API rate limiter - more relaxed
- * 100 requests per 15 minutes per IP
+ * 300 requests per 15 minutes per IP
  */
 export const apiLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req: Request) => {

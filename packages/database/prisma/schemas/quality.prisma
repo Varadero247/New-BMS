@@ -46,6 +46,7 @@ model QualInterestedParty {
   @@index([status])
   @@index([createdAt])
   @@map("qual_interested_parties")
+  @@index([deletedAt])
 }
 
 enum PartyType {
@@ -102,6 +103,7 @@ model QualIssue {
   @@index([priority])
   @@index([status])
   @@map("qual_issues")
+  @@index([deletedAt])
 }
 
 enum IssueBias {
@@ -183,6 +185,7 @@ model QualRisk {
   @@index([process])
   @@index([dueDate])
   @@map("qual_risks")
+  @@index([deletedAt])
 }
 
 enum QualRiskProcess {
@@ -271,6 +274,7 @@ model QualOpportunity {
   @@index([priorityLevel])
   @@index([status])
   @@map("qual_opportunities")
+  @@index([deletedAt])
 }
 
 enum OpportunityStatus {
@@ -346,6 +350,7 @@ model QualProcess {
   @@index([processType])
   @@index([status])
   @@map("qual_processes")
+  @@index([deletedAt])
 }
 
 enum ProcessType {
@@ -452,6 +457,7 @@ model QualNonConformance {
   @@index([department])
   @@index([createdAt])
   @@map("qual_nonconformances")
+  @@index([deletedAt])
 }
 
 enum NCType {
@@ -570,6 +576,7 @@ model QualAction {
   @@index([assignedTo])
   @@index([dueDate])
   @@map("qual_actions")
+  @@index([deletedAt])
 }
 
 enum QualActionType {
@@ -678,6 +685,7 @@ model QualDocument {
   @@index([documentType])
   @@index([status])
   @@map("qual_documents")
+  @@index([deletedAt])
 }
 
 enum DocumentType {
@@ -812,6 +820,7 @@ model QualCapa {
   @@index([targetClosureDate])
   @@index([createdAt])
   @@map("qual_capas")
+  @@index([deletedAt])
 }
 
 model QualCapaAction {
@@ -920,6 +929,7 @@ model QualLegal {
   @@index([complianceStatus])
   @@index([status])
   @@map("qual_legal")
+  @@index([deletedAt])
 }
 
 enum LegalObligationType {
@@ -993,6 +1003,7 @@ model QualFmea {
   @@index([status])
   @@index([createdAt])
   @@map("qual_fmeas")
+  @@index([deletedAt])
 }
 
 model QualFmeaRow {
@@ -1149,6 +1160,7 @@ model QualImprovement {
   @@index([status])
   @@index([pdcaStage])
   @@map("qual_improvements")
+  @@index([deletedAt])
 }
 
 enum ImprovementCategory {
@@ -1280,6 +1292,7 @@ model QualSupplier {
   @@index([category])
   @@index([overallRating])
   @@map("qual_suppliers")
+  @@index([deletedAt])
 }
 
 enum SupplierCategory {
@@ -1416,6 +1429,7 @@ model QualChange {
   @@index([targetDate])
   @@index([createdAt])
   @@map("qual_changes")
+  @@index([deletedAt])
 }
 
 enum ChangeType {
@@ -1509,6 +1523,7 @@ model QualObjective {
   @@index([category])
   @@index([status])
   @@map("qual_objectives")
+  @@index([deletedAt])
 }
 
 model QualMilestone {
@@ -1588,6 +1603,7 @@ model CustomerSurvey {
   @@index([tenantId, isActive])
   @@index([publicToken])
   @@map("customer_surveys")
+  @@index([deletedAt])
 }
 
 model SurveyQuestion {
@@ -1706,6 +1722,7 @@ model CounterfeitReport {
   @@index([tenantId, status])
   @@index([partNumber])
   @@map("counterfeit_reports")
+  @@index([deletedAt])
 }
 
 model ApprovedSource {
@@ -1816,6 +1833,7 @@ model QualDesignProject {
   @@index([tenantId, status])
   @@index([currentStage])
   @@map("qual_design_projects")
+  @@index([deletedAt])
 }
 
 model QualDesignStageDoc {
@@ -1888,6 +1906,7 @@ model SafetyCharacteristic {
   @@index([tenantId, characteristicType])
   @@index([partNumber])
   @@map("safety_characteristics")
+  @@index([deletedAt])
 }
 
 model ProductSafetyIncident {
@@ -1911,6 +1930,7 @@ model ProductSafetyIncident {
   @@index([tenantId, status])
   @@index([severity])
   @@map("product_safety_incidents")
+  @@index([deletedAt])
 }
 
 model ProductRecall {
@@ -1935,6 +1955,7 @@ model ProductRecall {
 
   @@index([tenantId, status])
   @@map("product_recalls")
+  @@index([deletedAt])
 }
 
 enum SafetyCharType {
@@ -2017,6 +2038,7 @@ model QualCalibration {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([nextCalibrationDate])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2062,6 +2084,7 @@ model QualCompetence {
   @@index([status])
   @@index([nextReviewDate])
   @@index([employeeId])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2096,6 +2119,7 @@ model QualRaci {
   @@index([organisationId, deletedAt])
   @@index([processId])
   @@index([raciType])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2136,6 +2160,7 @@ model QualRelease {
   @@index([organisationId, deletedAt])
   @@index([decision])
   @@index([productId])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2190,6 +2215,7 @@ model QualManagementReview {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([meetingDate])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2244,6 +2270,7 @@ model QualAudit {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([scheduledDate])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2304,6 +2331,7 @@ model QualTraining {
   @@index([status])
   @@index([dueDate])
   @@index([employeeId])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2360,6 +2388,7 @@ model QualMetric {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([category])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2416,6 +2445,7 @@ model QualInvestigation {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([severity])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2477,6 +2507,7 @@ model QualContinuousImprovement {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([priority])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -2543,6 +2574,7 @@ model QualRiskRegister {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([riskScore])
+  @@index([deletedAt])
 }
 
 // ============================================

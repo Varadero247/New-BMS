@@ -81,6 +81,7 @@ model AssetRegister {
   @@map("asset_registers")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model AssetWorkOrder {
@@ -111,6 +112,7 @@ model AssetWorkOrder {
   @@index([orgId])
   @@index([assetId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model AssetCalibration {
@@ -136,6 +138,7 @@ model AssetCalibration {
   @@map("asset_calibrations")
   @@index([orgId])
   @@index([assetId])
+  @@index([deletedAt])
 }
 
 model AssetInspection {
@@ -162,4 +165,5 @@ model AssetInspection {
   @@map("asset_inspections")
   @@index([orgId])
   @@index([assetId])
+  @@index([deletedAt])
 }

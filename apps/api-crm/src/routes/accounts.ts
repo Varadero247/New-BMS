@@ -40,7 +40,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -57,7 +57,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: account });
   } catch (error: unknown) {
     logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create account' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' } });
   }
 });
 
@@ -109,7 +109,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list accounts' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list accounts' } });
   }
 });
 
@@ -121,13 +121,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     return res.json({ success: true, data: account });
   } catch (error: unknown) {
     logger.error('Failed to get account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get account' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get account' } });
   }
 });
 
@@ -138,7 +138,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -147,7 +147,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const account = await prisma.crmAccount.update({
@@ -162,7 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: account });
   } catch (error: unknown) {
     logger.error('Failed to update account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update account' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update account' } });
   }
 });
 
@@ -174,7 +174,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     await prisma.crmAccount.update({
@@ -186,7 +186,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: { message: 'Account deleted' } });
   } catch (error: unknown) {
     logger.error('Failed to delete account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to delete account' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete account' } });
   }
 });
 
@@ -198,7 +198,7 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const contacts = await prisma.crmContact.findMany({
@@ -209,7 +209,7 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     return res.json({ success: true, data: contacts });
   } catch (error: unknown) {
     logger.error('Failed to list account contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list account contacts' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list account contacts' } });
   }
 });
 
@@ -221,7 +221,7 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const deals = await prisma.crmDeal.findMany({
@@ -232,7 +232,7 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     return res.json({ success: true, data: deals });
   } catch (error: unknown) {
     logger.error('Failed to list account deals', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list account deals' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list account deals' } });
   }
 });
 
@@ -251,7 +251,7 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     return res.json({
@@ -268,7 +268,7 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get compliance data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get compliance data' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance data' } });
   }
 });
 
@@ -280,7 +280,7 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: 'Account not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Placeholder: Finance module integration point
@@ -291,7 +291,7 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get invoices' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoices' } });
   }
 });
 

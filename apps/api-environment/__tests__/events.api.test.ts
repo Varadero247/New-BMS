@@ -61,7 +61,7 @@ describe('Environment Events API Routes', () => {
         dateOfEvent: '2026-01-15T00:00:00.000Z',
       },
       {
-        id: 'event-2',
+        id: 'env40000-0000-4000-a000-000000000002',
         referenceNumber: 'ENV-EVT-2026-002',
         eventType: 'EMISSION',
         severity: 'MINOR',
@@ -420,15 +420,16 @@ describe('Environment Events API Routes', () => {
   describe('DELETE /api/events/:id', () => {
     it('should delete event successfully', async () => {
       (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({ id: '17000000-0000-4000-a000-000000000001' });
-      (mockPrisma.envEvent.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.envEvent.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/events/17000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.envEvent.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.envEvent.update).toHaveBeenCalledWith({
         where: { id: '17000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

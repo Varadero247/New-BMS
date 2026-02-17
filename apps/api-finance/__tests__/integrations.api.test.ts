@@ -21,7 +21,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -49,15 +49,15 @@ describe('GET /api/integrations', () => {
   it('should return a list of integrations', async () => {
     const integrations = [
       {
-        id: 'int-1',
+        id: 'f5000000-0000-4000-a000-000000000001',
         name: 'Xero Sync',
         provider: 'XERO',
         isActive: true,
         _count: { syncLogs: 15 },
-        syncLogs: [{ id: 'log-1', status: 'SUCCESS', startedAt: new Date() }],
+        syncLogs: [{ id: 'f5100000-0000-4000-a000-000000000001', status: 'SUCCESS', startedAt: new Date() }],
       },
       {
-        id: 'int-2',
+        id: 'f5000000-0000-4000-a000-000000000002',
         name: 'Stripe Payments',
         provider: 'STRIPE',
         isActive: false,
@@ -90,21 +90,21 @@ describe('GET /api/integrations', () => {
 describe('GET /api/integrations/:id', () => {
   it('should return integration with recent sync logs', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue({
-      id: 'int-1',
+      id: 'f5000000-0000-4000-a000-000000000001',
       name: 'Xero Sync',
       provider: 'XERO',
       isActive: true,
       direction: 'BIDIRECTIONAL',
       syncLogs: [
-        { id: 'log-1', status: 'SUCCESS', startedAt: new Date(), recordsProcessed: 50 },
-        { id: 'log-2', status: 'FAILED', startedAt: new Date(), errorMessage: 'Timeout' },
+        { id: 'f5100000-0000-4000-a000-000000000001', status: 'SUCCESS', startedAt: new Date(), recordsProcessed: 50 },
+        { id: 'f5100000-0000-4000-a000-000000000002', status: 'FAILED', startedAt: new Date(), errorMessage: 'Timeout' },
       ],
     });
 
-    const res = await request(app).get('/api/integrations/int-1');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('int-1');
+    expect(res.body.data.id).toBe('f5000000-0000-4000-a000-000000000001');
     expect(res.body.data.syncLogs).toHaveLength(2);
   });
 
@@ -119,7 +119,7 @@ describe('GET /api/integrations/:id', () => {
   it('should return 500 on error', async () => {
     (prisma as any).finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/integrations/int-1');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -192,10 +192,10 @@ describe('POST /api/integrations', () => {
 
 describe('PUT /api/integrations/:id', () => {
   it('should update an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'int-1', name: 'Old Name' });
-    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'int-1', name: 'Updated Xero Sync' });
+    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', name: 'Old Name' });
+    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', name: 'Updated Xero Sync' });
 
-    const res = await request(app).put('/api/integrations/int-1').send({ name: 'Updated Xero Sync' });
+    const res = await request(app).put('/api/integrations/f5000000-0000-4000-a000-000000000001').send({ name: 'Updated Xero Sync' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated Xero Sync');
@@ -210,9 +210,9 @@ describe('PUT /api/integrations/:id', () => {
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'int-1' });
+    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).put('/api/integrations/int-1').send({ provider: 'INVALID_PROVIDER' });
+    const res = await request(app).put('/api/integrations/f5000000-0000-4000-a000-000000000001').send({ provider: 'INVALID_PROVIDER' });
 
     expect(res.status).toBe(400);
   });
@@ -224,10 +224,10 @@ describe('PUT /api/integrations/:id', () => {
 
 describe('POST /api/integrations/:id/activate', () => {
   it('should activate an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'int-1', isActive: false });
-    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'int-1', isActive: true });
+    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', isActive: false });
+    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', isActive: true });
 
-    const res = await request(app).post('/api/integrations/int-1/activate');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/activate');
 
     expect(res.status).toBe(200);
     expect(res.body.data.isActive).toBe(true);
@@ -244,7 +244,7 @@ describe('POST /api/integrations/:id/activate', () => {
   it('should return 500 on error', async () => {
     (prisma as any).finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/integrations/int-1/activate');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/activate');
 
     expect(res.status).toBe(500);
   });
@@ -252,10 +252,10 @@ describe('POST /api/integrations/:id/activate', () => {
 
 describe('POST /api/integrations/:id/deactivate', () => {
   it('should deactivate an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'int-1', isActive: true });
-    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'int-1', isActive: false });
+    (prisma as any).finIntegration.findUnique.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', isActive: true });
+    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001', isActive: false });
 
-    const res = await request(app).post('/api/integrations/int-1/deactivate');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/deactivate');
 
     expect(res.status).toBe(200);
     expect(res.body.data.isActive).toBe(false);
@@ -277,15 +277,15 @@ describe('POST /api/integrations/:id/deactivate', () => {
 describe('POST /api/integrations/:id/sync', () => {
   it('should trigger sync for an active integration', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue({
-      id: 'int-1',
+      id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
       direction: 'BIDIRECTIONAL',
     });
     (prisma as any).finSyncLog.create.mockResolvedValue({ id: 'log-new', status: 'PENDING' });
     (prisma as any).finSyncLog.update.mockResolvedValue({ id: 'log-new', status: 'SUCCESS' });
-    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'int-1' });
+    (prisma as any).finIntegration.update.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).post('/api/integrations/int-1/sync');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/sync');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toContain('Sync triggered');
@@ -302,11 +302,11 @@ describe('POST /api/integrations/:id/sync', () => {
 
   it('should return 400 when integration is inactive', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue({
-      id: 'int-1',
+      id: 'f5000000-0000-4000-a000-000000000001',
       isActive: false,
     });
 
-    const res = await request(app).post('/api/integrations/int-1/sync');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/sync');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INACTIVE');
@@ -314,13 +314,13 @@ describe('POST /api/integrations/:id/sync', () => {
 
   it('should return 500 on error during sync', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue({
-      id: 'int-1',
+      id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
       direction: 'BIDIRECTIONAL',
     });
     (prisma as any).finSyncLog.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/integrations/int-1/sync');
+    const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/sync');
 
     expect(res.status).toBe(500);
   });
@@ -333,13 +333,13 @@ describe('POST /api/integrations/:id/sync', () => {
 describe('GET /api/integrations/:id/logs', () => {
   it('should return sync logs for an integration', async () => {
     const logs = [
-      { id: 'log-1', status: 'SUCCESS', startedAt: new Date(), recordsProcessed: 50, completedAt: new Date() },
-      { id: 'log-2', status: 'FAILED', startedAt: new Date(), errorMessage: 'Connection timeout' },
+      { id: 'f5100000-0000-4000-a000-000000000001', status: 'SUCCESS', startedAt: new Date(), recordsProcessed: 50, completedAt: new Date() },
+      { id: 'f5100000-0000-4000-a000-000000000002', status: 'FAILED', startedAt: new Date(), errorMessage: 'Connection timeout' },
     ];
     (prisma as any).finSyncLog.findMany.mockResolvedValue(logs);
     (prisma as any).finSyncLog.count.mockResolvedValue(2);
 
-    const res = await request(app).get('/api/integrations/int-1/logs');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(2);
@@ -351,7 +351,7 @@ describe('GET /api/integrations/:id/logs', () => {
     (prisma as any).finSyncLog.findMany.mockResolvedValue([]);
     (prisma as any).finSyncLog.count.mockResolvedValue(50);
 
-    const res = await request(app).get('/api/integrations/int-1/logs?page=3&limit=10');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs?page=3&limit=10');
 
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(3);
@@ -362,7 +362,7 @@ describe('GET /api/integrations/:id/logs', () => {
     (prisma as any).finSyncLog.findMany.mockResolvedValue([]);
     (prisma as any).finSyncLog.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/integrations/int-1/logs');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -372,7 +372,7 @@ describe('GET /api/integrations/:id/logs', () => {
   it('should return 500 on error', async () => {
     (prisma as any).finSyncLog.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/integrations/int-1/logs');
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs');
 
     expect(res.status).toBe(500);
   });

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
@@ -16,7 +17,7 @@ const researchSchema = z.object({
 });
 
 // POST /api/prospects/research
-router.post('/research', async (req: Request, res: Response) => {
+router.post('/research', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = researchSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -121,7 +122,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
 });
 
 // GET /api/prospects
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const prospects = await prisma.mktProspectResearch.findMany({
       orderBy: { createdAt: 'desc' },
@@ -138,7 +139,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/prospects/:id/save-to-hubspot
-router.post('/:id/save-to-hubspot', async (req: Request, res: Response) => {
+router.post('/:id/save-to-hubspot', authenticate, async (req: Request, res: Response) => {
   try {
     const prospect = await prisma.mktProspectResearch.findUnique({
       where: { id: req.params.id },

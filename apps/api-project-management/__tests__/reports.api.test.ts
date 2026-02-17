@@ -7,6 +7,7 @@ jest.mock('../src/prisma', () => ({
       findMany: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
       count: jest.fn(),
     },
@@ -266,12 +267,12 @@ describe('Reports API Routes', () => {
   describe('DELETE /api/reports/:id', () => {
     it('should delete an existing report', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
-      (mockPrisma.projectStatusReport.delete as jest.Mock).mockResolvedValue(mockReport);
+      (mockPrisma.projectStatusReport.update as jest.Mock).mockResolvedValue(mockReport);
 
       const res = await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectStatusReport.delete).toHaveBeenCalledWith({ where: { id: '49000000-0000-4000-a000-000000000001' } });
+      expect(mockPrisma.projectStatusReport.update).toHaveBeenCalledWith({ where: { id: '49000000-0000-4000-a000-000000000001' }, data: { deletedAt: expect.any(Date) } });
     });
 
     it('should return 404 when report does not exist', async () => {
@@ -282,12 +283,12 @@ describe('Reports API Routes', () => {
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(res.body.error.code).toBe('NOT_FOUND');
-      expect(mockPrisma.projectStatusReport.delete).not.toHaveBeenCalled();
+      expect(mockPrisma.projectStatusReport.update).not.toHaveBeenCalled();
     });
 
     it('should return 500 on internal error', async () => {
       (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
-      (mockPrisma.projectStatusReport.delete as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.projectStatusReport.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
 

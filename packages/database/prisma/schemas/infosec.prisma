@@ -203,6 +203,7 @@ enum IsRetentionUnit {
 
 model IsScope {
   id             String        @id @default(cuid())
+  orgId           String?
   title          String
   description    String
   boundaries     String?
@@ -217,6 +218,9 @@ model IsScope {
   updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_scopes")
 }
 
@@ -226,6 +230,7 @@ model IsScope {
 
 model IsAsset {
   id                  String              @id @default(cuid())
+  orgId           String?
   refNumber           String              @unique
   name                String
   type                IsAssetType
@@ -243,6 +248,9 @@ model IsAsset {
   updatedAt           DateTime            @updatedAt
   deletedAt           DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_assets")
 }
 
@@ -252,6 +260,7 @@ model IsAsset {
 
 model IsControl {
   id                   String                        @id @default(cuid())
+  orgId           String?
   controlId            String                        @unique
   domain               IsControlDomain
   title                String
@@ -269,6 +278,9 @@ model IsControl {
   updatedAt            DateTime                      @updatedAt
   deletedAt            DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_controls")
   @@index([domain])
   @@index([implementationStatus])
@@ -280,6 +292,7 @@ model IsControl {
 
 model IsRisk {
   id                  String          @id @default(cuid())
+  orgId           String?
   refNumber           String          @unique
   title               String
   description         String
@@ -304,6 +317,9 @@ model IsRisk {
   updatedAt           DateTime        @updatedAt
   deletedAt           DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_risks")
   @@index([riskLevel])
   @@index([status])
@@ -315,6 +331,7 @@ model IsRisk {
 
 model IsIncident {
   id                       String            @id @default(cuid())
+  orgId           String?
   refNumber                String            @unique
   title                    String
   description              String
@@ -337,6 +354,9 @@ model IsIncident {
   updatedAt                DateTime          @updatedAt
   deletedAt                DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_incidents")
   @@index([type])
   @@index([status])
@@ -349,6 +369,7 @@ model IsIncident {
 
 model IsAudit {
   id            String        @id @default(cuid())
+  orgId           String?
   refNumber     String        @unique
   title         String
   auditDate     DateTime
@@ -365,6 +386,9 @@ model IsAudit {
 
   findings      IsAuditFinding[]
 
+  @@index([orgId])
+
+
   @@map("is_audits")
   @@index([status])
   @@index([auditDate])
@@ -376,6 +400,7 @@ model IsAudit {
 
 model IsAuditFinding {
   id          String          @id @default(cuid())
+  orgId           String?
   auditId     String
   audit       IsAudit         @relation(fields: [auditId], references: [id], onDelete: Cascade)
   clause      String?
@@ -391,6 +416,9 @@ model IsAuditFinding {
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_audit_findings")
   @@index([auditId])
 }
@@ -401,6 +429,7 @@ model IsAuditFinding {
 
 model IsVulnerabilityScan {
   id               String       @id @default(cuid())
+  orgId           String?
   refNumber        String       @unique
   scanDate         DateTime
   scanner          String?
@@ -417,6 +446,9 @@ model IsVulnerabilityScan {
   updatedAt        DateTime     @updatedAt
   deletedAt        DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_vulnerability_scans")
 }
 
@@ -426,6 +458,7 @@ model IsVulnerabilityScan {
 
 model IsPenetrationTest {
   id               String         @id @default(cuid())
+  orgId           String?
   refNumber        String         @unique
   testDate         DateTime
   tester           String
@@ -441,6 +474,9 @@ model IsPenetrationTest {
   updatedAt        DateTime       @updatedAt
   deletedAt        DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_penetration_tests")
 }
 
@@ -450,6 +486,7 @@ model IsPenetrationTest {
 
 model IsRopa {
   id                     String          @id @default(cuid())
+  orgId           String?
   refNumber              String          @unique
   name                   String
   purpose                String
@@ -469,6 +506,9 @@ model IsRopa {
   updatedAt              DateTime        @updatedAt
   deletedAt              DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_ropa")
 }
 
@@ -478,6 +518,7 @@ model IsRopa {
 
 model IsDpia {
   id                    String       @id @default(cuid())
+  orgId           String?
   refNumber             String       @unique
   title                 String
   description           String
@@ -494,6 +535,9 @@ model IsDpia {
   updatedAt             DateTime     @updatedAt
   deletedAt             DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_dpia")
   @@index([status])
 }
@@ -504,6 +548,7 @@ model IsDpia {
 
 model IsDsar {
   id              String           @id @default(cuid())
+  orgId           String?
   refNumber       String           @unique
   subjectName     String
   subjectEmail    String
@@ -520,6 +565,9 @@ model IsDsar {
   updatedAt       DateTime         @updatedAt
   deletedAt       DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_dsar")
   @@index([status])
   @@index([deadline])
@@ -531,6 +579,7 @@ model IsDsar {
 
 model IsConsent {
   id            String           @id @default(cuid())
+  orgId           String?
   subjectEmail  String
   purpose       String
   consentGiven  Boolean
@@ -542,6 +591,9 @@ model IsConsent {
   updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
 
+  @@index([orgId])
+
+
   @@map("is_consents")
   @@index([subjectEmail])
 }
@@ -552,6 +604,7 @@ model IsConsent {
 
 model IsRetentionSchedule {
   id              String          @id @default(cuid())
+  orgId           String?
   dataCategory    String
   retentionPeriod String
   unit            IsRetentionUnit
@@ -563,6 +616,9 @@ model IsRetentionSchedule {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   deletedAt       DateTime?
+
+  @@index([orgId])
+
 
   @@map("is_retention_schedules")
 }

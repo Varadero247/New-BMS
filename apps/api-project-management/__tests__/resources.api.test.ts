@@ -282,15 +282,16 @@ describe('Resources API Routes', () => {
   describe('DELETE /api/resources/:id', () => {
     it('should delete a resource successfully', async () => {
       (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
-      (mockPrisma.projectResource.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.projectResource.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/resources/47000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.projectResource.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.projectResource.update).toHaveBeenCalledWith({
         where: { id: '47000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

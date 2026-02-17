@@ -362,7 +362,7 @@ export default function DashboardPage() {
 
           {/* Stats Cards */}
           {isWidgetVisible('stat-cards') && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div aria-live="polite" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">

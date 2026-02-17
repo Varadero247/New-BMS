@@ -480,15 +480,16 @@ describe('Environment Objectives API Routes', () => {
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
       (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
-      (mockPrisma.envObjective.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.envObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.envObjective.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.envObjective.update).toHaveBeenCalledWith({
         where: { id: '15000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

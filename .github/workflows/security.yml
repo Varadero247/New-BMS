@@ -98,9 +98,57 @@ jobs:
           extra_args: --only-verified
 
   container-scan:
-    name: Container Security Scan
+    name: Container Security Scan (${{ matrix.service }})
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - api-health-safety
+          - api-environment
+          - api-quality
+          - api-ai-analysis
+          - api-inventory
+          - api-hr
+          - api-payroll
+          - api-workflows
+          - api-project-management
+          - api-automotive
+          - api-medical
+          - api-aerospace
+          - api-finance
+          - api-crm
+          - api-infosec
+          - api-esg
+          - api-cmms
+          - api-portal
+          - api-food-safety
+          - api-energy
+          - api-analytics
+          - api-field-service
+          - api-iso42001
+          - api-iso37001
+          - api-marketing
+          - api-partners
+          - api-risk
+          - api-training
+          - api-suppliers
+          - api-assets
+          - api-documents
+          - api-complaints
+          - api-contracts
+          - api-ptw
+          - api-reg-monitor
+          - api-incidents
+          - api-audits
+          - api-mgmt-review
+          - api-setup-wizard
+          - api-chemicals
+          - api-emergency
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -115,23 +163,24 @@ jobs:
           file: deploy/docker/Dockerfile.api
           push: false
           load: true
-          tags: ims/api-gateway:scan
+          tags: ims/${{ matrix.service }}:scan
           build-args: |
-            SERVICE=api-gateway
+            SERVICE=${{ matrix.service }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ims/api-gateway:scan'
+          image-ref: 'ims/${{ matrix.service }}:scan'
           format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: 'trivy-results-${{ matrix.service }}.sarif'
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: 'trivy-results-${{ matrix.service }}.sarif'
+          category: 'trivy-${{ matrix.service }}'
 
   license-check:
     name: License Compliance

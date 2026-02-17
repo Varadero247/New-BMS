@@ -40,6 +40,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -80,7 +90,7 @@ describe('HR Training API Routes', () => {
         _count: { sessions: 3, enrollments: 25 },
       },
       {
-        id: 'course-2',
+        id: '2d000000-0000-4000-a000-000000000002',
         code: 'DEV-201',
         name: 'Advanced Development',
         category: 'TECHNICAL',
@@ -184,7 +194,7 @@ describe('HR Training API Routes', () => {
       code: 'SAF-101',
       name: 'Safety Fundamentals',
       sessions: [
-        { id: 'sess-1', sessionCode: 'S001', startDate: new Date(), _count: { enrollments: 5 } },
+        { id: '2d100000-0000-4000-a000-000000000001', sessionCode: 'S001', startDate: new Date(), _count: { enrollments: 5 } },
       ],
       _count: { enrollments: 25 },
     };
@@ -287,7 +297,7 @@ describe('HR Training API Routes', () => {
   describe('GET /api/training/sessions', () => {
     const mockSessions = [
       {
-        id: 'sess-1',
+        id: '2d100000-0000-4000-a000-000000000001',
         sessionCode: 'S001',
         courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'SCHEDULED',
@@ -520,7 +530,7 @@ describe('HR Training API Routes', () => {
 
     it('should enroll employee successfully', async () => {
       (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'sess-1',
+        id: '2d100000-0000-4000-a000-000000000001',
         enrolledCount: 5,
         maxParticipants: 20,
       });
@@ -544,7 +554,7 @@ describe('HR Training API Routes', () => {
 
     it('should return 400 when session is full', async () => {
       (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'sess-1',
+        id: '2d100000-0000-4000-a000-000000000001',
         enrolledCount: 20,
         maxParticipants: 20,
       });
@@ -570,7 +580,7 @@ describe('HR Training API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.hRTrainingSession.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'sess-1',
+        id: '2d100000-0000-4000-a000-000000000001',
         enrolledCount: 5,
         maxParticipants: 20,
       });
@@ -629,7 +639,7 @@ describe('HR Training API Routes', () => {
   describe('GET /api/training/certifications', () => {
     const mockCerts = [
       {
-        id: 'cert-1',
+        id: '2d200000-0000-4000-a000-000000000001',
         name: 'AWS Solutions Architect',
         issuingOrganization: 'Amazon',
         status: 'ACTIVE',

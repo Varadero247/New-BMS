@@ -61,7 +61,6 @@ jobs:
 
       - name: Type check
         run: pnpm tsc --noEmit
-        continue-on-error: true
 
   test:
     name: Test
@@ -215,6 +214,33 @@ jobs:
             apps/*/dist
             apps/*/.next
             packages/*/dist
+          retention-days: 7
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: pnpm --filter @ims/database generate:all
+      - run: pnpm build --filter='./packages/*'
+      - run: npx playwright test --reporter=github
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7
 
   accessibility:

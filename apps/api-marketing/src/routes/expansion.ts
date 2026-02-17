@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -6,7 +7,7 @@ const logger = createLogger('api-marketing:expansion');
 const router = Router();
 
 // GET /api/expansion/triggers
-router.get('/triggers', async (req: Request, res: Response) => {
+router.get('/triggers', authenticate, async (req: Request, res: Response) => {
   try {
     // Return recent expansion trigger events from email logs
     const triggers = await prisma.mktEmailLog.findMany({
@@ -28,7 +29,7 @@ router.get('/triggers', async (req: Request, res: Response) => {
 });
 
 // POST /api/expansion/check
-router.post('/check', async (req: Request, res: Response) => {
+router.post('/check', authenticate, async (req: Request, res: Response) => {
   try {
     // Manual expansion trigger check
     // In production, this queries actual usage data against thresholds

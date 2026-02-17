@@ -35,6 +35,7 @@ model AISettings {
   deletedAt DateTime?
 
   @@map("ai_settings")
+  @@index([deletedAt])
 }
 
 enum AIProvider {

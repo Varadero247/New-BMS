@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
@@ -22,7 +23,7 @@ const statusUpdateSchema = z.object({
 });
 
 // POST /api/linkedin/outreach
-router.post('/outreach', async (req: Request, res: Response) => {
+router.post('/outreach', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = outreachSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -122,7 +123,7 @@ Return only the message text, nothing else.`;
 });
 
 // GET /api/linkedin/outreach
-router.get('/outreach', async (req: Request, res: Response) => {
+router.get('/outreach', authenticate, async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
     const where: any = {};
@@ -161,7 +162,7 @@ router.get('/outreach', async (req: Request, res: Response) => {
 });
 
 // PATCH /api/linkedin/outreach/:id
-router.patch('/outreach/:id', async (req: Request, res: Response) => {
+router.patch('/outreach/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = statusUpdateSchema.safeParse(req.body);
     if (!parsed.success) {

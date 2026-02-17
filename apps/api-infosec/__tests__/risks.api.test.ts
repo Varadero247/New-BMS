@@ -18,7 +18,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -42,7 +42,7 @@ beforeEach(() => {
 
 describe('InfoSec Risks API', () => {
   const mockRisk = {
-    id: 'risk-1',
+    id: 'a6000000-0000-4000-a000-000000000001',
     refNumber: 'ISR-2602-1234',
     title: 'Unauthorized access to production database',
     description: 'Risk of unauthorized access via compromised credentials',
@@ -63,7 +63,7 @@ describe('InfoSec Risks API', () => {
     residualRiskScore: null,
     residualRiskLevel: null,
     status: 'IDENTIFIED',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
@@ -394,7 +394,7 @@ describe('InfoSec Risks API', () => {
     it('should return risk detail', async () => {
       (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      const res = await request(app).get('/api/risks/risk-1');
+      const res = await request(app).get('/api/risks/a6000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -419,7 +419,7 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce({ ...mockRisk, likelihood: 2, impact: 3, riskScore: 6, riskLevel: 'LOW' });
 
       const res = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001')
         .send({ likelihood: 2, impact: 3 });
 
       expect(res.status).toBe(200);
@@ -434,7 +434,7 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce(mockRisk);
 
       await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001')
         .send({ likelihood: 2 });
 
       const updateCall = (mockPrisma.isRisk.update as jest.Mock).mock.calls[0][0];
@@ -455,7 +455,7 @@ describe('InfoSec Risks API', () => {
 
     it('should return 400 for invalid data', async () => {
       const res = await request(app)
-        .put('/api/risks/risk-1')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001')
         .send({ likelihood: 10 });
 
       expect(res.status).toBe(400);
@@ -476,7 +476,7 @@ describe('InfoSec Risks API', () => {
       });
 
       const res = await request(app)
-        .put('/api/risks/risk-1/treatment')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
         .send({ treatment: 'MITIGATE', treatmentPlan: 'Implement MFA' });
 
       expect(res.status).toBe(200);
@@ -490,7 +490,7 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce(mockRisk);
 
       await request(app)
-        .put('/api/risks/risk-1/treatment')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
         .send({
           treatment: 'MITIGATE',
           treatmentPlan: 'Implement MFA',
@@ -517,7 +517,7 @@ describe('InfoSec Risks API', () => {
 
     it('should return 400 for missing treatmentPlan', async () => {
       const res = await request(app)
-        .put('/api/risks/risk-1/treatment')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
         .send({ treatment: 'MITIGATE' });
 
       expect(res.status).toBe(400);
@@ -526,7 +526,7 @@ describe('InfoSec Risks API', () => {
 
     it('should return 400 for invalid treatment value', async () => {
       const res = await request(app)
-        .put('/api/risks/risk-1/treatment')
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
         .send({ treatment: 'IGNORE', treatmentPlan: 'Ignore it' });
 
       expect(res.status).toBe(400);

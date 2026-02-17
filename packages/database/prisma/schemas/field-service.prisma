@@ -114,6 +114,7 @@ enum FsSvcKpiType {
 
 model FsSvcTechnician {
   id              String           @id @default(uuid())
+  orgId           String?
   name            String
   email           String           @unique
   phone           String?
@@ -138,6 +139,8 @@ model FsSvcTechnician {
   @@index([status])
   @@index([zone])
   @@index([email])
+  @@index([orgId])
+
   @@map("fs_svc_technicians")
 }
 
@@ -147,6 +150,7 @@ model FsSvcTechnician {
 
 model FsSvcCustomer {
   id             String    @id @default(uuid())
+  orgId           String?
   name           String
   code           String    @unique
   contactName    String?
@@ -169,6 +173,8 @@ model FsSvcCustomer {
 
   @@index([code])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("fs_svc_customers")
 }
 
@@ -178,6 +184,7 @@ model FsSvcCustomer {
 
 model FsSvcSite {
   id                  String        @id @default(uuid())
+  orgId           String?
   customerId          String
   customer            FsSvcCustomer @relation(fields: [customerId], references: [id])
   name                String
@@ -196,6 +203,8 @@ model FsSvcSite {
   jobs                FsSvcJob[]
 
   @@index([customerId])
+  @@index([orgId])
+
   @@map("fs_svc_sites")
 }
 
@@ -205,6 +214,7 @@ model FsSvcSite {
 
 model FsSvcContract {
   id                String             @id @default(uuid())
+  orgId           String?
   customerId        String
   customer          FsSvcCustomer      @relation(fields: [customerId], references: [id])
   number            String             @unique
@@ -228,6 +238,8 @@ model FsSvcContract {
   @@index([customerId])
   @@index([status])
   @@index([number])
+  @@index([orgId])
+
   @@map("fs_svc_contracts")
 }
 
@@ -237,6 +249,7 @@ model FsSvcContract {
 
 model FsSvcJob {
   id                String         @id @default(uuid())
+  orgId           String?
   number            String         @unique
   title             String
   description       String?
@@ -277,6 +290,8 @@ model FsSvcJob {
   @@index([priority])
   @@index([scheduledStart])
   @@index([number])
+  @@index([orgId])
+
   @@map("fs_svc_jobs")
 }
 
@@ -286,6 +301,7 @@ model FsSvcJob {
 
 model FsSvcTimeEntry {
   id           String          @id @default(uuid())
+  orgId           String?
   jobId        String
   job          FsSvcJob        @relation(fields: [jobId], references: [id])
   technicianId String
@@ -303,6 +319,8 @@ model FsSvcTimeEntry {
 
   @@index([jobId])
   @@index([technicianId])
+  @@index([orgId])
+
   @@map("fs_svc_time_entries")
 }
 
@@ -312,6 +330,7 @@ model FsSvcTimeEntry {
 
 model FsSvcPartUsed {
   id            String   @id @default(uuid())
+  orgId           String?
   jobId         String
   job           FsSvcJob @relation(fields: [jobId], references: [id])
   partName      String
@@ -327,6 +346,8 @@ model FsSvcPartUsed {
   deletedAt     DateTime?
 
   @@index([jobId])
+  @@index([orgId])
+
   @@map("fs_svc_parts_used")
 }
 
@@ -336,6 +357,7 @@ model FsSvcPartUsed {
 
 model FsSvcJobNote {
   id          String       @id @default(uuid())
+  orgId           String?
   jobId       String
   job         FsSvcJob     @relation(fields: [jobId], references: [id])
   authorId    String
@@ -349,6 +371,8 @@ model FsSvcJobNote {
   deletedAt   DateTime?
 
   @@index([jobId])
+  @@index([orgId])
+
   @@map("fs_svc_job_notes")
 }
 
@@ -358,6 +382,7 @@ model FsSvcJobNote {
 
 model FsSvcRoute {
   id             String          @id @default(uuid())
+  orgId           String?
   technicianId   String
   technician     FsSvcTechnician @relation(fields: [technicianId], references: [id])
   date           DateTime
@@ -374,6 +399,8 @@ model FsSvcRoute {
   @@index([technicianId])
   @@index([date])
   @@index([status])
+  @@index([orgId])
+
   @@map("fs_svc_routes")
 }
 
@@ -383,6 +410,7 @@ model FsSvcRoute {
 
 model FsSvcInvoice {
   id         String             @id @default(uuid())
+  orgId           String?
   jobId      String
   job        FsSvcJob           @relation(fields: [jobId], references: [id])
   customerId String
@@ -406,6 +434,8 @@ model FsSvcInvoice {
   @@index([customerId])
   @@index([status])
   @@index([number])
+  @@index([orgId])
+
   @@map("fs_svc_invoices")
 }
 
@@ -415,6 +445,7 @@ model FsSvcInvoice {
 
 model FsSvcChecklist {
   id        String    @id @default(uuid())
+  orgId           String?
   name      String
   category  String
   items     Json
@@ -428,6 +459,8 @@ model FsSvcChecklist {
 
   @@index([category])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("fs_svc_checklists")
 }
 
@@ -437,6 +470,7 @@ model FsSvcChecklist {
 
 model FsSvcChecklistResult {
   id            String          @id @default(uuid())
+  orgId           String?
   jobId         String
   job           FsSvcJob        @relation(fields: [jobId], references: [id])
   checklistId   String
@@ -454,6 +488,8 @@ model FsSvcChecklistResult {
 
   @@index([jobId])
   @@index([checklistId])
+  @@index([orgId])
+
   @@map("fs_svc_checklist_results")
 }
 
@@ -463,6 +499,7 @@ model FsSvcChecklistResult {
 
 model FsSvcSchedule {
   id           String          @id @default(uuid())
+  orgId           String?
   technicianId String
   technician   FsSvcTechnician @relation(fields: [technicianId], references: [id])
   date         DateTime
@@ -477,6 +514,8 @@ model FsSvcSchedule {
   @@index([technicianId])
   @@index([date])
   @@index([isAvailable])
+  @@index([orgId])
+
   @@map("fs_svc_schedules")
 }
 
@@ -486,6 +525,7 @@ model FsSvcSchedule {
 
 model FsSvcKpi {
   id           String           @id @default(uuid())
+  orgId           String?
   technicianId String?
   technician   FsSvcTechnician? @relation(fields: [technicianId], references: [id])
   metricType   FsSvcKpiType
@@ -503,5 +543,7 @@ model FsSvcKpi {
   @@index([metricType])
   @@index([periodStart])
   @@index([periodEnd])
+  @@index([orgId])
+
   @@map("fs_svc_kpis")
 }

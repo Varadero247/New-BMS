@@ -17,7 +17,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -41,7 +41,7 @@ beforeEach(() => {
 
 describe('InfoSec Assets API', () => {
   const mockAsset = {
-    id: 'asset-1',
+    id: 'a1000000-0000-4000-a000-000000000001',
     refNumber: 'IA-0001',
     name: 'Production Database',
     type: 'SOFTWARE',
@@ -53,7 +53,7 @@ describe('InfoSec Assets API', () => {
     value: 50000,
     riskLevel: 'HIGH',
     status: 'ACTIVE',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
@@ -173,7 +173,7 @@ describe('InfoSec Assets API', () => {
         .send(validCreatePayload);
 
       const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
-      expect(createCall.data.createdBy).toBe('user-123');
+      expect(createCall.data.createdBy).toBe('00000000-0000-4000-a000-000000000123');
     });
 
     it('should return 500 on database error', async () => {
@@ -368,7 +368,7 @@ describe('InfoSec Assets API', () => {
       await request(app).delete('/api/assets/asset-1');
 
       const updateCall = (mockPrisma.isAsset.update as jest.Mock).mock.calls[0][0];
-      expect(updateCall.data.deletedBy).toBe('user-123');
+      expect(updateCall.data.deletedBy).toBe('00000000-0000-4000-a000-000000000123');
     });
   });
 });

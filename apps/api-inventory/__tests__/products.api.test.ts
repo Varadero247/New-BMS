@@ -595,7 +595,7 @@ describe('Inventory Products API Routes', () => {
         id: '27000000-0000-4000-a000-000000000001',
         inventoryItems: [],
       } as any);
-      mockPrisma.product.delete.mockResolvedValueOnce({} as any);
+      mockPrisma.product.update.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
         .delete('/api/products/27000000-0000-4000-a000-000000000001')
@@ -634,7 +634,7 @@ describe('Inventory Products API Routes', () => {
         id: '27000000-0000-4000-a000-000000000001',
         inventoryItems: [{ quantityOnHand: 0 }],
       } as any);
-      mockPrisma.product.delete.mockResolvedValueOnce({} as any);
+      mockPrisma.product.update.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
         .delete('/api/products/27000000-0000-4000-a000-000000000001')

@@ -178,6 +178,7 @@ model FinAccount {
   @@index([type])
   @@index([parentId])
   @@index([code])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -212,6 +213,7 @@ model FinJournalEntry {
   @@index([status])
   @@index([periodId])
   @@index([reference])
+  @@index([deletedAt])
 }
 
 model FinJournalLine {
@@ -294,6 +296,7 @@ model FinCustomer {
   @@map("fin_customers")
   @@index([code])
   @@index([name])
+  @@index([deletedAt])
 }
 
 model FinInvoice {
@@ -330,6 +333,7 @@ model FinInvoice {
   @@index([status])
   @@index([dueDate])
   @@index([reference])
+  @@index([deletedAt])
 }
 
 model FinInvoiceLine {
@@ -374,6 +378,7 @@ model FinPaymentReceived {
   @@index([customerId])
   @@index([invoiceId])
   @@index([date])
+  @@index([deletedAt])
 }
 
 model FinCreditNote {
@@ -395,6 +400,7 @@ model FinCreditNote {
   @@map("fin_credit_notes")
   @@index([customerId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -431,6 +437,7 @@ model FinSupplier {
   @@map("fin_suppliers")
   @@index([code])
   @@index([name])
+  @@index([deletedAt])
 }
 
 model FinPurchaseOrder {
@@ -461,6 +468,7 @@ model FinPurchaseOrder {
   @@index([supplierId])
   @@index([status])
   @@index([reference])
+  @@index([deletedAt])
 }
 
 model FinPOLine {
@@ -515,6 +523,7 @@ model FinBill {
   @@index([purchaseOrderId])
   @@index([status])
   @@index([dueDate])
+  @@index([deletedAt])
 }
 
 model FinBillLine {
@@ -559,6 +568,7 @@ model FinPaymentMade {
   @@index([supplierId])
   @@index([billId])
   @@index([date])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -591,6 +601,7 @@ model FinBankAccount {
 
   @@map("fin_bank_accounts")
   @@index([type])
+  @@index([deletedAt])
 }
 
 model FinBankTransaction {
@@ -667,6 +678,7 @@ model FinTaxRate {
   @@map("fin_tax_rates")
   @@index([jurisdiction])
   @@index([code])
+  @@index([deletedAt])
 }
 
 model FinTaxReturn {
@@ -692,6 +704,7 @@ model FinTaxReturn {
   @@index([taxRateId])
   @@index([status])
   @@index([periodStart, periodEnd])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -719,6 +732,7 @@ model FinBudget {
   @@index([accountId])
   @@index([fiscalYear])
   @@unique([accountId, fiscalYear, month])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -803,6 +817,7 @@ model FinControl {
   @@map("fin_controls")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model FinSodRule {
@@ -820,6 +835,7 @@ model FinSodRule {
   deletedAt       DateTime?
   @@map("fin_sod_rules")
   @@index([orgId])
+  @@index([deletedAt])
 }
 
 model FinHmrcDeadline {
@@ -841,6 +857,7 @@ model FinHmrcDeadline {
   @@map("fin_hmrc_deadlines")
   @@index([orgId])
   @@index([dueDate])
+  @@index([deletedAt])
 }
 
 model FinIr35Assessment {
@@ -865,4 +882,5 @@ model FinIr35Assessment {
   deletedAt       DateTime?
   @@map("fin_ir35_assessments")
   @@index([orgId])
+  @@index([deletedAt])
 }

@@ -47,7 +47,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: contact });
   } catch (error: unknown) {
     logger.error('Failed to create contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create contact' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contact' } });
   }
 });
 
@@ -123,7 +123,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list contacts' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list contacts' } });
   }
 });
 
@@ -135,13 +135,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: 'Contact not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     return res.json({ success: true, data: contact });
   } catch (error: unknown) {
     logger.error('Failed to get contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get contact' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get contact' } });
   }
 });
 
@@ -152,7 +152,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -161,7 +161,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Contact not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const contact = await prisma.crmContact.update({
@@ -176,7 +176,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: contact });
   } catch (error: unknown) {
     logger.error('Failed to update contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update contact' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contact' } });
   }
 });
 
@@ -188,7 +188,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Contact not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     await prisma.crmContact.update({
@@ -200,7 +200,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: { message: 'Contact deleted' } });
   } catch (error: unknown) {
     logger.error('Failed to delete contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to delete contact' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contact' } });
   }
 });
 
@@ -211,7 +211,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -220,7 +220,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: 'Contact not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const activity = await prisma.crmActivity.create({
@@ -237,7 +237,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: activity });
   } catch (error: unknown) {
     logger.error('Failed to log activity', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to log activity' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log activity' } });
   }
 });
 
@@ -249,7 +249,7 @@ router.get('/:id/activities', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: 'Contact not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
@@ -278,7 +278,7 @@ router.get('/:id/activities', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list activities', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list activities' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list activities' } });
   }
 });
 

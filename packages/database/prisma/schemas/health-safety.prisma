@@ -19,6 +19,7 @@ datasource db {
 
 model Incident {
   id              String   @id @default(cuid())
+  orgId           String?
   referenceNumber String   @unique
   title           String
   description     String
@@ -100,6 +101,8 @@ model Incident {
   @@index([investigatorId])
   @@index([riskId])
   @@index([dateOccurred])
+  @@index([orgId])
+
   @@map("hs_incidents")
 }
 
@@ -142,6 +145,7 @@ enum IncidentStatus {
 
 model Risk {
   id              String   @id @default(cuid())
+  orgId           String?
   referenceNumber String?  @unique
   title           String
   description     String
@@ -199,6 +203,8 @@ model Risk {
   @@index([status])
   @@index([riskLevel])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("hs_risks")
 }
 
@@ -223,6 +229,7 @@ enum RiskStatus {
 
 model Hazard {
   id          String   @id @default(cuid())
+  orgId           String?
   riskId      String?
   title       String
   description String
@@ -255,6 +262,8 @@ model Hazard {
   @@index([riskId])
   @@index([category])
   @@index([status])
+  @@index([orgId])
+
   @@map("hs_hazards")
 }
 
@@ -292,6 +301,7 @@ enum ControlHierarchy {
 
 model HSAction {
   id              String   @id @default(cuid())
+  orgId           String?
   referenceNumber String   @unique
   title           String
   description     String
@@ -339,6 +349,8 @@ model HSAction {
   @@index([ownerId])
   @@index([type])
   @@index([priority])
+  @@index([orgId])
+
   @@map("hs_actions")
 }
 
@@ -372,6 +384,7 @@ enum ActionStatus {
 
 model FiveWhyAnalysis {
   id         String   @id @default(cuid())
+  orgId           String?
   incidentId String
 
   why1       String?
@@ -389,11 +402,14 @@ model FiveWhyAnalysis {
   incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@index([incidentId])
+  @@index([orgId])
+
   @@map("hs_five_why_analyses")
 }
 
 model FishboneAnalysis {
   id               String   @id @default(cuid())
+  orgId           String?
   incidentId       String
 
   problemStatement String
@@ -414,11 +430,14 @@ model FishboneAnalysis {
   incident         Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@index([incidentId])
+  @@index([orgId])
+
   @@map("hs_fishbone_analyses")
 }
 
 model BowTieAnalysis {
   id     String @id @default(cuid())
+  orgId           String?
   riskId String
 
   // Top Event
@@ -445,6 +464,8 @@ model BowTieAnalysis {
   risk               Risk @relation(fields: [riskId], references: [id], onDelete: Cascade)
 
   @@index([riskId])
+  @@index([orgId])
+
   @@map("hs_bow_tie_analyses")
 }
 
@@ -454,6 +475,7 @@ model BowTieAnalysis {
 
 model SafetyMetric {
   id    String @id @default(cuid())
+  orgId           String?
   year  Int
   month Int
 
@@ -474,6 +496,8 @@ model SafetyMetric {
   updatedAt DateTime @updatedAt
 
   @@unique([year, month])
+  @@index([orgId])
+
   @@map("hs_safety_metrics")
 }
 
@@ -483,6 +507,7 @@ model SafetyMetric {
 
 model SafetyPermit {
   id            String   @id @default(cuid())
+  orgId           String?
   permitNumber  String   @unique
   permitType    PermitType
   title         String
@@ -524,6 +549,8 @@ model SafetyPermit {
   @@index([requestedById])
   @@index([validFrom])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("hs_safety_permits")
 }
 
@@ -549,6 +576,7 @@ enum PermitStatus {
 
 model SafetyInspection {
   id              String   @id @default(cuid())
+  orgId           String?
   inspectionNumber String  @unique
   inspectionType  InspectionType
   title           String
@@ -591,6 +619,8 @@ model SafetyInspection {
   @@index([inspectorId])
   @@index([scheduledDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("hs_safety_inspections")
 }
 
@@ -619,6 +649,7 @@ enum InspectionStatus {
 
 model LegalRequirement {
   id                String   @id @default(cuid())
+  orgId           String?
   referenceNumber   String   @unique
   title             String
   description       String
@@ -661,6 +692,8 @@ model LegalRequirement {
   @@index([category])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("hs_legal_requirements")
 }
 
@@ -696,6 +729,7 @@ enum LegalStatus {
 
 model OhsObjective {
   id                String   @id @default(cuid())
+  orgId           String?
   referenceNumber   String   @unique
   title             String
   objectiveStatement String?
@@ -742,11 +776,14 @@ model OhsObjective {
 
   @@index([status])
   @@index([category])
+  @@index([orgId])
+
   @@map("hs_ohs_objectives")
 }
 
 model ObjectiveMilestone {
   id            String   @id @default(cuid())
+  orgId           String?
   objectiveId   String
   title         String
   dueDate       DateTime
@@ -761,6 +798,8 @@ model ObjectiveMilestone {
 
   @@index([objectiveId])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("hs_objective_milestones")
 }
 
@@ -791,6 +830,7 @@ enum ObjectiveStatus {
 
 model Capa {
   id                    String   @id @default(cuid())
+  orgId           String?
   referenceNumber       String   @unique
   title                 String
 
@@ -846,11 +886,14 @@ model Capa {
   @@index([incidentId])
   @@index([riskId])
   @@index([targetCompletionDate])
+  @@index([orgId])
+
   @@map("hs_capas")
 }
 
 model CapaAction {
   id              String   @id @default(cuid())
+  orgId           String?
   capaId          String
   title           String
   description     String?
@@ -869,6 +912,8 @@ model CapaAction {
   @@index([capaId])
   @@index([status])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("hs_capa_actions")
 }
 
@@ -925,6 +970,7 @@ enum CapaActionStatus {
 
 model HSManagementReview {
   id                    String    @id @default(cuid())
+  orgId           String?
   tenantId              String    @default("default")
   refNumber             String    @unique  // HS-MR-YYYY-NN
   reviewDate            DateTime
@@ -953,11 +999,14 @@ model HSManagementReview {
 
   @@index([tenantId, status])
   @@index([reviewDate])
+  @@index([orgId])
+
   @@map("hs_management_reviews")
 }
 
 model HSMRAction {
   id          String              @id @default(cuid())
+  orgId           String?
   reviewId    String
   action      String
   owner       String
@@ -972,6 +1021,8 @@ model HSMRAction {
   @@index([reviewId])
   @@index([status])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("hs_mr_actions")
 }
 
@@ -994,6 +1045,7 @@ enum HSMRActionStatus {
 
 model HSCommunication {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique
   direction       HSCommDirection
@@ -1014,6 +1066,8 @@ model HSCommunication {
   @@index([tenantId, direction])
   @@index([status])
   @@index([date])
+  @@index([orgId])
+
   @@map("hs_communications")
 }
 

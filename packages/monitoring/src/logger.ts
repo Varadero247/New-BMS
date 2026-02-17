@@ -42,8 +42,8 @@ export const createLogger = (serviceName: string) => {
     }),
   ];
 
-  // Only add file transports if logs directory exists
-  if (fs.existsSync(logsDir)) {
+  // Only add file transports in non-production (containers should use stdout/stderr only)
+  if (process.env.NODE_ENV !== 'production' && fs.existsSync(logsDir)) {
     transports.push(
       new winston.transports.File({
         filename: path.join(logsDir, `${serviceName}-error.log`),

@@ -248,7 +248,7 @@ router.delete('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
-    await prisma.qualObjective.delete({ where: { id: req.params.id } });
+    await prisma.qualObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {
@@ -349,7 +349,7 @@ router.delete('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Resp
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
     }
 
-    await prisma.qualMilestone.delete({ where: { id: req.params.milestoneId } });
+    await prisma.qualMilestone.update({ where: { id: req.params.milestoneId }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

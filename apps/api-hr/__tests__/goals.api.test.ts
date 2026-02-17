@@ -29,7 +29,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
     next();
   }),
 }));
@@ -267,7 +267,7 @@ describe('DELETE /api/goals/:id', () => {
 describe('POST /api/goals/:id/updates', () => {
   it('adds progress update successfully', async () => {
     (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
-    const mockUpdate = { id: 'update-1', goalId: GOAL_ID, progressBefore: 0, progressAfter: 50 };
+    const mockUpdate = { id: '00000000-0000-4000-a000-000000000010', goalId: GOAL_ID, progressBefore: 0, progressAfter: 50 };
     (mockPrisma.$transaction as jest.Mock).mockResolvedValue(mockUpdate);
 
     const res = await request(app).post(`/api/goals/${GOAL_ID}/updates`).send({

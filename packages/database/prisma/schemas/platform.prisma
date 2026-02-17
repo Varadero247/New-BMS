@@ -97,6 +97,7 @@ model Comment {
   @@index([recordType, recordId, createdAt])
   @@index([orgId])
   @@map("comments")
+  @@index([deletedAt])
 }
 
 model CommentReaction {

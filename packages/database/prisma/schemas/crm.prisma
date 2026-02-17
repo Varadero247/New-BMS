@@ -135,6 +135,7 @@ enum CrmCommissionStatus {
 
 model CrmContact {
   id            String          @id @default(cuid())
+  orgId           String?
   firstName     String
   lastName      String
   email         String          @unique
@@ -157,6 +158,9 @@ model CrmContact {
   campaignMembers   CrmCampaignMember[]
   emailEnrollments  CrmEmailEnrollment[]
 
+  @@index([orgId])
+
+
   @@map("crm_contacts")
   @@index([accountId])
   @@index([email])
@@ -168,6 +172,7 @@ model CrmContact {
 
 model CrmAccount {
   id                  String          @id @default(cuid())
+  orgId           String?
   name                String
   type                CrmAccountType
   industry            String?
@@ -195,6 +200,9 @@ model CrmAccount {
   quotes      CrmQuote[]
   partner     CrmPartner?
 
+  @@index([orgId])
+
+
   @@map("crm_accounts")
 }
 
@@ -204,6 +212,7 @@ model CrmAccount {
 
 model CrmPipeline {
   id            String              @id @default(cuid())
+  orgId           String?
   name          String
   isDefault     Boolean             @default(false)
   createdBy     String
@@ -214,11 +223,15 @@ model CrmPipeline {
   stages        CrmPipelineStage[]
   deals         CrmDeal[]
 
+  @@index([orgId])
+
+
   @@map("crm_pipelines")
 }
 
 model CrmPipelineStage {
   id            String       @id @default(cuid())
+  orgId           String?
   pipelineId    String
   pipeline      CrmPipeline  @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
   name          String
@@ -232,6 +245,9 @@ model CrmPipelineStage {
 
   deals         CrmDeal[]
 
+  @@index([orgId])
+
+
   @@map("crm_pipeline_stages")
   @@index([pipelineId])
 }
@@ -242,6 +258,7 @@ model CrmPipelineStage {
 
 model CrmDeal {
   id                String         @id @default(cuid())
+  orgId           String?
   refNumber         String         @unique
   title             String
   value             Decimal        @db.Decimal(14, 2)
@@ -269,6 +286,9 @@ model CrmDeal {
   activities        CrmActivity[]
   quotes            CrmQuote[]
   referrals         CrmReferral[]
+
+  @@index([orgId])
+
 
   @@map("crm_deals")
   @@index([accountId])
@@ -303,6 +323,7 @@ model CrmDealContact {
 
 model CrmActivity {
   id            String          @id @default(cuid())
+  orgId           String?
   type          CrmActivityType
   subject       String
   description   String?
@@ -320,6 +341,9 @@ model CrmActivity {
   updatedAt     DateTime        @updatedAt
   deletedAt     DateTime?
 
+  @@index([orgId])
+
+
   @@map("crm_activities")
   @@index([contactId])
   @@index([dealId])
@@ -332,6 +356,7 @@ model CrmActivity {
 
 model CrmQuote {
   id            String          @id @default(cuid())
+  orgId           String?
   refNumber     String          @unique
   dealId        String?
   deal          CrmDeal?        @relation(fields: [dealId], references: [id])
@@ -357,6 +382,9 @@ model CrmQuote {
 
   lines         CrmQuoteLine[]
 
+  @@index([orgId])
+
+
   @@map("crm_quotes")
   @@index([dealId])
   @@index([accountId])
@@ -365,6 +393,7 @@ model CrmQuote {
 
 model CrmQuoteLine {
   id            String    @id @default(cuid())
+  orgId           String?
   quoteId       String
   quote         CrmQuote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
   description   String
@@ -381,6 +410,9 @@ model CrmQuoteLine {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
+  @@index([orgId])
+
+
   @@map("crm_quote_lines")
   @@index([quoteId])
 }
@@ -391,6 +423,7 @@ model CrmQuoteLine {
 
 model CrmLead {
   id                  String        @id @default(cuid())
+  orgId           String?
   refNumber           String        @unique
   firstName           String
   lastName            String
@@ -412,6 +445,9 @@ model CrmLead {
   updatedAt           DateTime      @updatedAt
   deletedAt           DateTime?
 
+  @@index([orgId])
+
+
   @@map("crm_leads")
   @@index([status])
   @@index([email])
@@ -423,6 +459,7 @@ model CrmLead {
 
 model CrmCampaign {
   id              String             @id @default(cuid())
+  orgId           String?
   name            String
   type            CrmCampaignType
   status          CrmCampaignStatus  @default(DRAFT)
@@ -439,11 +476,15 @@ model CrmCampaign {
 
   members         CrmCampaignMember[]
 
+  @@index([orgId])
+
+
   @@map("crm_campaigns")
 }
 
 model CrmCampaignMember {
   id            String                   @id @default(cuid())
+  orgId           String?
   campaignId    String
   campaign      CrmCampaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   contactId     String
@@ -456,6 +497,9 @@ model CrmCampaignMember {
   updatedAt     DateTime                 @updatedAt
   deletedAt     DateTime?
 
+  @@index([orgId])
+
+
   @@map("crm_campaign_members")
   @@unique([campaignId, contactId])
 }
@@ -466,6 +510,7 @@ model CrmCampaignMember {
 
 model CrmEmailSequence {
   id            String             @id @default(cuid())
+  orgId           String?
   name          String
   description   String?
   steps         Json               @default("[]")
@@ -477,11 +522,15 @@ model CrmEmailSequence {
 
   enrollments   CrmEmailEnrollment[]
 
+  @@index([orgId])
+
+
   @@map("crm_email_sequences")
 }
 
 model CrmEmailEnrollment {
   id            String                @id @default(cuid())
+  orgId           String?
   sequenceId    String
   sequence      CrmEmailSequence      @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
   contactId     String
@@ -495,6 +544,9 @@ model CrmEmailEnrollment {
   updatedAt     DateTime              @updatedAt
   deletedAt     DateTime?
 
+  @@index([orgId])
+
+
   @@map("crm_email_enrollments")
   @@unique([sequenceId, contactId])
 }
@@ -505,6 +557,7 @@ model CrmEmailEnrollment {
 
 model CrmPartner {
   id                  String           @id @default(cuid())
+  orgId           String?
   accountId           String           @unique
   account             CrmAccount       @relation(fields: [accountId], references: [id])
   tier                CrmPartnerTier
@@ -523,6 +576,9 @@ model CrmPartner {
   referrals           CrmReferral[]
   commissions         CrmCommission[]
 
+  @@index([orgId])
+
+
   @@map("crm_partners")
 }
 
@@ -532,6 +588,7 @@ model CrmPartner {
 
 model CrmReferral {
   id               String            @id @default(cuid())
+  orgId           String?
   partnerId        String
   partner          CrmPartner        @relation(fields: [partnerId], references: [id])
   dealId           String
@@ -546,6 +603,9 @@ model CrmReferral {
 
   commissions      CrmCommission[]
 
+  @@index([orgId])
+
+
   @@map("crm_referrals")
   @@index([partnerId])
   @@index([dealId])
@@ -557,6 +617,7 @@ model CrmReferral {
 
 model CrmCommission {
   id            String              @id @default(cuid())
+  orgId           String?
   partnerId     String
   partner       CrmPartner          @relation(fields: [partnerId], references: [id])
   referralId    String?
@@ -570,6 +631,9 @@ model CrmCommission {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   deletedAt     DateTime?
+
+  @@index([orgId])
+
 
   @@map("crm_commissions")
   @@index([partnerId])

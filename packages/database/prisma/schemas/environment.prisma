@@ -18,6 +18,7 @@ datasource db {
 
 model EnvAspect {
   id                  String   @id @default(cuid())
+  orgId           String?
   referenceNumber     String   @unique
   activityProcess     String
   activityCategory    EnvActivityCategory
@@ -76,6 +77,8 @@ model EnvAspect {
   @@index([activityCategory])
   @@index([department])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("env_aspects")
 }
 
@@ -85,6 +88,7 @@ model EnvAspect {
 
 model EnvEvent {
   id                       String   @id @default(cuid())
+  orgId           String?
   referenceNumber          String   @unique
   eventType                EnvEventType
   severity                 EnvEventSeverity
@@ -159,6 +163,8 @@ model EnvEvent {
   @@index([linkedAspectId])
   @@index([department])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("env_events")
 }
 
@@ -168,6 +174,7 @@ model EnvEvent {
 
 model EnvLegal {
   id                      String   @id @default(cuid())
+  orgId           String?
   referenceNumber         String   @unique
   obligationType          EnvObligationType
   title                   String
@@ -220,6 +227,8 @@ model EnvLegal {
   @@index([obligationType])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("env_legal")
 }
 
@@ -229,6 +238,7 @@ model EnvLegal {
 
 model EnvObjective {
   id                     String   @id @default(cuid())
+  orgId           String?
   referenceNumber        String   @unique
   title                  String
   objectiveStatement     String
@@ -279,11 +289,14 @@ model EnvObjective {
   @@index([category])
   @@index([targetDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("env_objectives")
 }
 
 model EnvMilestone {
   id            String       @id @default(cuid())
+  orgId           String?
   objectiveId   String
   title         String
   dueDate       DateTime
@@ -298,6 +311,8 @@ model EnvMilestone {
 
   @@index([objectiveId])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("env_milestones")
 }
 
@@ -307,6 +322,7 @@ model EnvMilestone {
 
 model EnvAction {
   id               String    @id @default(cuid())
+  orgId           String?
   referenceNumber  String    @unique
   title            String
   actionType       EnvActionType
@@ -356,6 +372,8 @@ model EnvAction {
   @@index([linkedEventId])
   @@index([linkedLegalId])
   @@index([linkedObjectiveId])
+  @@index([orgId])
+
   @@map("env_actions")
 }
 
@@ -365,6 +383,7 @@ model EnvAction {
 
 model EnvCapa {
   id                     String    @id @default(cuid())
+  orgId           String?
   referenceNumber        String    @unique
   capaType               EnvCapaType
   title                  String
@@ -444,11 +463,14 @@ model EnvCapa {
   @@index([severity])
   @@index([triggerSource])
   @@index([targetClosureDate])
+  @@index([orgId])
+
   @@map("env_capas")
 }
 
 model EnvCapaAction {
   id          String   @id @default(cuid())
+  orgId           String?
   capaId      String
   description String
   assignedTo  String
@@ -465,6 +487,8 @@ model EnvCapaAction {
   @@index([capaId])
   @@index([status])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("env_capa_actions")
 }
 
@@ -474,6 +498,7 @@ model EnvCapaAction {
 
 model EnvAudit {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // ENV-AUD-YYMM-XXXX
   title           String
@@ -495,11 +520,14 @@ model EnvAudit {
   @@index([tenantId, status])
   @@index([tenantId, auditDate])
   @@index([status])
+  @@index([orgId])
+
   @@map("env_audits")
 }
 
 model EnvAuditFinding {
   id          String              @id @default(cuid())
+  orgId           String?
   auditId     String
   clause      String              // ISO 14001 clause reference e.g. "6.1.1"
   type        EnvFindingType
@@ -516,11 +544,14 @@ model EnvAuditFinding {
 
   @@index([auditId])
   @@index([status])
+  @@index([orgId])
+
   @@map("env_audit_findings")
 }
 
 model EnvAuditSchedule {
   id            String    @id @default(cuid())
+  orgId           String?
   tenantId      String    @default("default")
   title         String
   type          EnvAuditType
@@ -535,6 +566,8 @@ model EnvAuditSchedule {
 
   @@index([tenantId, nextDueDate])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("env_audit_schedules")
 }
 
@@ -544,6 +577,7 @@ model EnvAuditSchedule {
 
 model EnvManagementReview {
   id                    String    @id @default(cuid())
+  orgId           String?
   tenantId              String    @default("default")
   refNumber             String    @unique  // ENV-MR-YYYY-NN
   reviewDate            DateTime
@@ -571,11 +605,14 @@ model EnvManagementReview {
 
   @@index([tenantId, status])
   @@index([reviewDate])
+  @@index([orgId])
+
   @@map("env_management_reviews")
 }
 
 model EnvMRAction {
   id          String              @id @default(cuid())
+  orgId           String?
   reviewId    String
   action      String
   owner       String
@@ -590,6 +627,8 @@ model EnvMRAction {
   @@index([reviewId])
   @@index([status])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("env_mr_actions")
 }
 
@@ -599,6 +638,7 @@ model EnvMRAction {
 
 model MonitoringData {
   id                     String   @id @default(cuid())
+  orgId           String?
   monitoringPoint        String
   parameter              String
   unit                   String
@@ -617,6 +657,8 @@ model MonitoringData {
   @@index([monitoringPoint])
   @@index([parameter])
   @@index([measurementDate])
+  @@index([orgId])
+
   @@map("env_monitoring_data")
 }
 
@@ -626,6 +668,7 @@ model MonitoringData {
 
 model WasteRecord {
   id              String   @id @default(cuid())
+  orgId           String?
   wasteType       WasteType
   wasteCategory   WasteCategory
   description     String?
@@ -650,6 +693,8 @@ model WasteRecord {
   @@index([wasteType])
   @@index([status])
   @@index([generatedDate])
+  @@index([orgId])
+
   @@map("env_waste_records")
 }
 
@@ -659,6 +704,7 @@ model WasteRecord {
 
 model EnvironmentalMetric {
   id    String @id @default(cuid())
+  orgId           String?
   year  Int
   month Int
   electricityKwh      Decimal @default(0) @db.Decimal(14, 2)
@@ -684,6 +730,8 @@ model EnvironmentalMetric {
   updatedAt           DateTime @updatedAt
 
   @@unique([year, month])
+  @@index([orgId])
+
   @@map("env_metrics")
 }
 
@@ -1058,6 +1106,7 @@ enum WasteStatus {
 
 model EnvEmergencyPlan {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // EEP-YYMM-XXXX
   title           String
@@ -1079,11 +1128,14 @@ model EnvEmergencyPlan {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("env_emergency_plans")
 }
 
 model EnvEmergencyDrill {
   id              String    @id @default(cuid())
+  orgId           String?
   planId          String
   drillDate       DateTime
   drillType       String    // TABLETOP, FUNCTIONAL, FULL_SCALE
@@ -1099,11 +1151,14 @@ model EnvEmergencyDrill {
   plan            EnvEmergencyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
+  @@index([orgId])
+
   @@map("env_emergency_drills")
 }
 
 model EnvEmergencyIncident {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String?
   title           String
@@ -1120,6 +1175,8 @@ model EnvEmergencyIncident {
   updatedAt       DateTime  @updatedAt
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("env_emergency_incidents")
 }
 
@@ -1149,6 +1206,7 @@ enum EmergencyIncidentStatus {
 
 model LifeCycleAssessment {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // LCA-YYMM-XXXX
   title           String
@@ -1162,11 +1220,14 @@ model LifeCycleAssessment {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("life_cycle_assessments")
 }
 
 model LifeCycleStage {
   id              String    @id @default(cuid())
+  orgId           String?
   assessmentId    String
   stageName       LcaStageName
   aspects         String?   // Environmental aspects at this stage
@@ -1182,6 +1243,8 @@ model LifeCycleStage {
 
   @@unique([assessmentId, stageName])
   @@index([assessmentId])
+  @@index([orgId])
+
   @@map("life_cycle_stages")
 }
 
@@ -1206,6 +1269,7 @@ enum LcaStageName {
 
 model EsgMetric {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   category        EsgCategory
   subcategory     String    // e.g. "Scope 1", "Water Consumption"
@@ -1222,11 +1286,14 @@ model EsgMetric {
 
   @@index([tenantId, category])
   @@index([period])
+  @@index([orgId])
+
   @@map("esg_metrics")
 }
 
 model EsgTarget {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique
   category        EsgCategory
@@ -1247,6 +1314,8 @@ model EsgTarget {
 
   @@index([tenantId, category])
   @@index([status])
+  @@index([orgId])
+
   @@map("esg_targets")
 }
 
@@ -1276,6 +1345,7 @@ enum EsgTargetStatus {
 
 model EnvCommunication {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique
   direction       CommDirection
@@ -1296,6 +1366,8 @@ model EnvCommunication {
   @@index([tenantId, direction])
   @@index([status])
   @@index([date])
+  @@index([orgId])
+
   @@map("env_communications")
 }
 
@@ -1347,6 +1419,7 @@ enum EnvTrainingType {
 
 model EnvTraining {
   id              String           @id @default(cuid())
+  orgId           String?
   tenantId        String           @default("default")
   refNumber       String           @unique
   employeeId      String
@@ -1379,5 +1452,7 @@ model EnvTraining {
   @@index([status])
   @@index([dueDate])
   @@index([employeeId])
+  @@index([orgId])
+
   @@map("env_training")
 }

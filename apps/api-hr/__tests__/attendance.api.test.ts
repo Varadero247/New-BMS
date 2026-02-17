@@ -30,6 +30,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -67,14 +77,14 @@ describe('HR Attendance API Routes', () => {
         shift: null,
       },
       {
-        id: 'att-2',
-        employeeId: 'emp-2',
+        id: '2c000000-0000-4000-a000-000000000002',
+        employeeId: '2a000000-0000-4000-a000-000000000002',
         date: new Date('2025-01-15'),
         status: 'LATE',
         clockIn: new Date('2025-01-15T09:30:00'),
         clockOut: null,
         workedHours: 0,
-        employee: { id: 'emp-2', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002', departmentId: '2b000000-0000-4000-a000-000000000001' },
+        employee: { id: '2a000000-0000-4000-a000-000000000002', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002', departmentId: '2b000000-0000-4000-a000-000000000001' },
         shift: null,
       },
     ];
@@ -387,7 +397,7 @@ describe('HR Attendance API Routes', () => {
   describe('GET /api/attendance/shifts/all', () => {
     const mockShifts = [
       {
-        id: 'shift-1',
+        id: '2e000000-0000-4000-a000-000000000001',
         name: 'Morning Shift',
         code: 'MS',
         startTime: '08:00',

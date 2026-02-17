@@ -63,6 +63,7 @@ model RegChange {
   @@map("reg_changes")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model RegLegalRegister {
@@ -86,6 +87,7 @@ model RegLegalRegister {
   deletedAt       DateTime?
   @@map("reg_legal_register")
   @@index([orgId])
+  @@index([deletedAt])
 }
 
 model RegObligation {
@@ -106,4 +108,5 @@ model RegObligation {
   deletedAt    DateTime?
   @@map("reg_obligations")
   @@index([orgId])
+  @@index([deletedAt])
 }

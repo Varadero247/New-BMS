@@ -57,7 +57,7 @@ export default function PayrollPage() {
       const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
 
-      const response = await api.get(`/payroll/runs?${params.toString()}`);
+      const response = await api.get(`/runs?${params.toString()}`);
       setRuns(response.data.data || []);
     } catch (error) {
       console.error('Error fetching payroll runs:', error);
@@ -69,7 +69,7 @@ export default function PayrollPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/payroll/runs', formData);
+      await api.post('/runs', formData);
       setShowModal(false);
       setFormData({
         periodStart: '',

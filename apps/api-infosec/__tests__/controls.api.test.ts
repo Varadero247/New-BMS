@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -40,7 +40,7 @@ beforeEach(() => {
 
 describe('InfoSec Controls API', () => {
   const mockControl = {
-    id: 'ctrl-1',
+    id: 'a3000000-0000-4000-a000-000000000001',
     controlId: 'A.5.1',
     domain: 'ORGANISATIONAL',
     title: 'Policies for information security',
@@ -61,7 +61,7 @@ describe('InfoSec Controls API', () => {
 
   const mockControl2 = {
     ...mockControl,
-    id: 'ctrl-2',
+    id: 'a3000000-0000-4000-a000-000000000002',
     controlId: 'A.5.2',
     title: 'Information security roles and responsibilities',
     implementationStatus: 'PARTIALLY_IMPLEMENTED',
@@ -160,7 +160,7 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should calculate summary counts correctly', async () => {
-      const notApplicable = { ...mockControl, id: 'ctrl-3', applicability: 'NOT_APPLICABLE', implementationStatus: 'NOT_APPLICABLE' };
+      const notApplicable = { ...mockControl, id: 'a3000000-0000-4000-a000-000000000003', applicability: 'NOT_APPLICABLE', implementationStatus: 'NOT_APPLICABLE' };
       (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, notApplicable]);
 
       const res = await request(app).get('/api/controls/soa');
@@ -208,7 +208,7 @@ describe('InfoSec Controls API', () => {
     it('should return control detail', async () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
 
-      const res = await request(app).get('/api/controls/ctrl-1');
+      const res = await request(app).get('/api/controls/a3000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -227,7 +227,7 @@ describe('InfoSec Controls API', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).get('/api/controls/ctrl-1');
+      const res = await request(app).get('/api/controls/a3000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -242,7 +242,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({ ...mockControl, applicability: 'APPLICABLE' });
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/status')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
         .send({ applicability: 'APPLICABLE', justification: 'Required' });
 
       expect(res.status).toBe(200);
@@ -258,7 +258,7 @@ describe('InfoSec Controls API', () => {
       });
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/status')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
         .send({ applicability: 'NOT_APPLICABLE', justification: 'Not relevant to scope' });
 
       expect(res.status).toBe(200);
@@ -267,7 +267,7 @@ describe('InfoSec Controls API', () => {
 
     it('should return 400 for invalid applicability value', async () => {
       const res = await request(app)
-        .put('/api/controls/ctrl-1/status')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
         .send({ applicability: 'MAYBE', justification: 'test' });
 
       expect(res.status).toBe(400);
@@ -276,7 +276,7 @@ describe('InfoSec Controls API', () => {
 
     it('should return 400 when justification is missing', async () => {
       const res = await request(app)
-        .put('/api/controls/ctrl-1/status')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
         .send({ applicability: 'APPLICABLE' });
 
       expect(res.status).toBe(400);
@@ -299,7 +299,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/status')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
         .send({ applicability: 'APPLICABLE', justification: 'Required' });
 
       expect(res.status).toBe(500);
@@ -318,7 +318,7 @@ describe('InfoSec Controls API', () => {
       });
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/implementation')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
         .send({ implementationStatus: 'FULLY_IMPLEMENTED', evidence: 'Evidence.pdf' });
 
       expect(res.status).toBe(200);
@@ -338,7 +338,7 @@ describe('InfoSec Controls API', () => {
 
     it('should return 400 for invalid implementationStatus', async () => {
       const res = await request(app)
-        .put('/api/controls/ctrl-1/implementation')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
         .send({ implementationStatus: 'SORT_OF_DONE' });
 
       expect(res.status).toBe(400);
@@ -350,7 +350,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/implementation')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
         .send({
           implementationStatus: 'PARTIALLY_IMPLEMENTED',
           implementationNotes: 'In progress',
@@ -368,11 +368,11 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce(mockControl);
 
       await request(app)
-        .put('/api/controls/ctrl-1/implementation')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
         .send({ implementationStatus: 'FULLY_IMPLEMENTED' });
 
       const updateCall = (mockPrisma.isControl.update as jest.Mock).mock.calls[0][0];
-      expect(updateCall.data.updatedBy).toBe('user-123');
+      expect(updateCall.data.updatedBy).toBe('00000000-0000-4000-a000-000000000123');
     });
 
     it('should return 500 on database error', async () => {
@@ -380,7 +380,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/controls/ctrl-1/implementation')
+        .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
         .send({ implementationStatus: 'FULLY_IMPLEMENTED' });
 
       expect(res.status).toBe(500);

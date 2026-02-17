@@ -15,7 +15,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-1' };
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
     next();
   }),
 }));
@@ -148,7 +148,7 @@ describe('POST /api/controls', () => {
       id: '00000000-0000-0000-0000-000000000001',
       ...validControl,
       referenceNumber: 'FCR-2026-0001',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/controls').send(validControl);
@@ -164,7 +164,7 @@ describe('POST /api/controls', () => {
       id: '00000000-0000-0000-0000-000000000006',
       ...validControl,
       referenceNumber: 'FCR-2026-0006',
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/controls').send(validControl);

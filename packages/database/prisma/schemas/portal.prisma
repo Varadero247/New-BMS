@@ -142,6 +142,7 @@ enum PortalQualityStatus {
 
 model PortalUser {
   id           String           @id @default(uuid())
+  orgId           String?
   email        String           @unique
   name         String
   company      String
@@ -156,6 +157,9 @@ model PortalUser {
   deletedAt    DateTime?
   createdBy    String
 
+  @@index([orgId])
+
+
   @@map("portal_users")
   @@index([portalType])
   @@index([status])
@@ -169,6 +173,7 @@ model PortalUser {
 
 model PortalInvitation {
   id         String         @id @default(uuid())
+  orgId           String?
   email      String
   name       String
   company    String
@@ -183,6 +188,9 @@ model PortalInvitation {
   deletedAt  DateTime?
   createdBy  String
 
+  @@index([orgId])
+
+
   @@map("portal_invitations")
   @@index([email])
   @@index([token])
@@ -195,6 +203,7 @@ model PortalInvitation {
 
 model PortalDocument {
   id          String            @id @default(uuid())
+  orgId           String?
   title       String
   description String?
   fileName    String
@@ -211,6 +220,9 @@ model PortalDocument {
   deletedAt   DateTime?
   createdBy   String
 
+  @@index([orgId])
+
+
   @@map("portal_documents")
   @@index([portalType])
   @@index([category])
@@ -224,6 +236,7 @@ model PortalDocument {
 
 model PortalTicket {
   id          String               @id @default(uuid())
+  orgId           String?
   number      String               @unique
   subject     String
   description String
@@ -242,6 +255,9 @@ model PortalTicket {
 
   messages    PortalTicketMessage[]
 
+  @@index([orgId])
+
+
   @@map("portal_tickets")
   @@index([status])
   @@index([portalType])
@@ -255,6 +271,7 @@ model PortalTicket {
 
 model PortalTicketMessage {
   id          String          @id @default(uuid())
+  orgId           String?
   ticketId    String
   authorId    String
   authorType  PortalAuthorType
@@ -267,6 +284,9 @@ model PortalTicketMessage {
 
   ticket      PortalTicket    @relation(fields: [ticketId], references: [id])
 
+  @@index([orgId])
+
+
   @@map("portal_ticket_messages")
   @@index([ticketId])
   @@index([authorId])
@@ -278,6 +298,7 @@ model PortalTicketMessage {
 
 model PortalOrder {
   id               String            @id @default(uuid())
+  orgId           String?
   orderNumber      String            @unique
   portalUserId     String
   type             PortalOrderType
@@ -293,6 +314,9 @@ model PortalOrder {
   deletedAt        DateTime?
   createdBy        String
 
+  @@index([orgId])
+
+
   @@map("portal_orders")
   @@index([portalUserId])
   @@index([status])
@@ -306,6 +330,7 @@ model PortalOrder {
 
 model PortalNotification {
   id           String                  @id @default(uuid())
+  orgId           String?
   portalUserId String
   title        String
   message      String
@@ -317,6 +342,9 @@ model PortalNotification {
   updatedAt    DateTime                @updatedAt
   deletedAt    DateTime?
   createdBy    String
+
+  @@index([orgId])
+
 
   @@map("portal_notifications")
   @@index([portalUserId])
@@ -330,6 +358,7 @@ model PortalNotification {
 
 model PortalAnnouncement {
   id          String         @id @default(uuid())
+  orgId           String?
   title       String
   content     String
   portalType  PortalType
@@ -342,6 +371,9 @@ model PortalAnnouncement {
   deletedAt   DateTime?
   createdBy   String
 
+  @@index([orgId])
+
+
   @@map("portal_announcements")
   @@index([portalType])
   @@index([isActive])
@@ -353,6 +385,7 @@ model PortalAnnouncement {
 
 model PortalApproval {
   id          String               @id @default(uuid())
+  orgId           String?
   type        PortalApprovalType
   referenceId String
   requestedBy String
@@ -364,6 +397,9 @@ model PortalApproval {
   updatedAt   DateTime             @updatedAt
   deletedAt   DateTime?
   createdBy   String
+
+  @@index([orgId])
+
 
   @@map("portal_approvals")
   @@index([status])
@@ -378,6 +414,7 @@ model PortalApproval {
 
 model PortalQualityReport {
   id              String              @id @default(uuid())
+  orgId           String?
   portalUserId    String
   reportType      PortalQualityType
   referenceNumber String              @unique
@@ -390,6 +427,9 @@ model PortalQualityReport {
   updatedAt       DateTime            @updatedAt
   deletedAt       DateTime?
   createdBy       String
+
+  @@index([orgId])
+
 
   @@map("portal_quality_reports")
   @@index([portalUserId])
@@ -404,6 +444,7 @@ model PortalQualityReport {
 
 model PortalScorecard {
   id              String   @id @default(uuid())
+  orgId           String?
   portalUserId    String
   period          String
   overallScore    Decimal
@@ -416,6 +457,9 @@ model PortalScorecard {
   updatedAt       DateTime @updatedAt
   deletedAt       DateTime?
   createdBy       String
+
+  @@index([orgId])
+
 
   @@map("portal_scorecards")
   @@index([portalUserId])

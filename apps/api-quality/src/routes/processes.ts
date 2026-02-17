@@ -259,7 +259,7 @@ router.delete('/:id', checkOwnership(prisma.qualProcess), async (req: AuthReques
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
     }
 
-    await prisma.qualProcess.delete({ where: { id: req.params.id } });
+    await prisma.qualProcess.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

@@ -334,15 +334,16 @@ describe('Project Issues API Routes', () => {
   describe('DELETE /api/issues/:id', () => {
     it('should delete issue successfully', async () => {
       (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: '22000000-0000-4000-a000-000000000001' });
-      (mockPrisma.projectIssue.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/issues/22000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.projectIssue.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.projectIssue.update).toHaveBeenCalledWith({
         where: { id: '22000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

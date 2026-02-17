@@ -18,6 +18,7 @@ datasource db {
 
 model ConfigBaseline {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // CB-NNN
   title           String
@@ -36,11 +37,14 @@ model ConfigBaseline {
   @@index([tenantId, status])
   @@index([effectiveDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("config_baselines")
 }
 
 model ConfigItem {
   id              String    @id @default(cuid())
+  orgId           String?
   baselineId      String
   partNumber      String
   nomenclature    String
@@ -61,11 +65,14 @@ model ConfigItem {
   @@index([baselineId])
   @@index([partNumber])
   @@index([status])
+  @@index([orgId])
+
   @@map("config_items")
 }
 
 model EngineeringChangeProposal {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // ECP-YYMM-XXXX
   title           String
@@ -90,11 +97,14 @@ model EngineeringChangeProposal {
 
   @@index([tenantId, status])
   @@index([urgency])
+  @@index([orgId])
+
   @@map("engineering_change_proposals")
 }
 
 model ConfigAudit {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // FCA-YYMM-XXXX or PCA-YYMM-XXXX
   type            ConfigAuditType
@@ -114,6 +124,8 @@ model ConfigAudit {
 
   @@index([tenantId, type])
   @@index([status])
+  @@index([orgId])
+
   @@map("config_audits")
 }
 
@@ -195,6 +207,7 @@ enum AuditResult {
 
 model FirstArticleInspection {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // FAI-YYMM-XXXX
   title           String
@@ -227,6 +240,8 @@ model FirstArticleInspection {
   @@index([tenantId, status])
   @@index([partNumber])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("first_article_inspections")
 }
 
@@ -262,6 +277,7 @@ enum FAIPartStatus {
 
 model WorkOrder {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // WO-YYMM-XXXX
   title           String
@@ -294,11 +310,14 @@ model WorkOrder {
   @@index([priority])
   @@index([dueDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("work_orders")
 }
 
 model TaskCard {
   id              String    @id @default(cuid())
+  orgId           String?
   workOrderId     String
   taskNumber      String
   description     String
@@ -318,6 +337,8 @@ model TaskCard {
 
   @@index([workOrderId])
   @@index([status])
+  @@index([orgId])
+
   @@map("task_cards")
 }
 
@@ -356,6 +377,7 @@ enum ReleaseCertType {
 
 model HumanFactorIncident {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // HF-YYMM-XXXX
   title           String
@@ -380,11 +402,14 @@ model HumanFactorIncident {
   @@index([status])
   @@index([severity])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("human_factor_incidents")
 }
 
 model FatigueAssessment {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   personnelId     String
   personnelName   String
@@ -400,6 +425,8 @@ model FatigueAssessment {
   createdAt       DateTime  @default(now())
 
   @@index([tenantId, personnelId])
+  @@index([orgId])
+
   @@map("fatigue_assessments")
 }
 
@@ -445,6 +472,7 @@ enum FatigueRisk {
 
 model OasisMonitoredSupplier {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   cageCode        String
   companyName     String
@@ -462,11 +490,14 @@ model OasisMonitoredSupplier {
   @@unique([tenantId, cageCode])
   @@index([tenantId])
   @@index([certStatus])
+  @@index([orgId])
+
   @@map("oasis_monitored_suppliers")
 }
 
 model OasisAlert {
   id              String    @id @default(cuid())
+  orgId           String?
   supplierId      String
   alertType       OasisAlertType
   message         String
@@ -481,6 +512,8 @@ model OasisAlert {
 
   @@index([supplierId])
   @@index([acknowledged])
+  @@index([orgId])
+
   @@map("oasis_alerts")
 }
 
@@ -506,6 +539,7 @@ enum OasisAlertType {
 
 model AeroAudit {
   id              String          @id @default(cuid())
+  orgId           String?
   tenantId        String          @default("default")
   refNumber       String          @unique
   title           String
@@ -533,11 +567,14 @@ model AeroAudit {
   @@index([status])
   @@index([auditType])
   @@index([scheduledDate])
+  @@index([orgId])
+
   @@map("aero_audits")
 }
 
 model AeroAuditFinding {
   id                  String              @id @default(cuid())
+  orgId           String?
   refNumber           String              @unique
   auditId             String
   auditRefNumber      String
@@ -564,6 +601,8 @@ model AeroAuditFinding {
   @@index([auditId])
   @@index([status])
   @@index([findingType])
+  @@index([orgId])
+
   @@map("aero_audit_findings")
 }
 
@@ -610,6 +649,7 @@ enum AeroFindingStatus {
 
 model AeroConfigBaseline {
   id                  String              @id @default(cuid())
+  orgId           String?
   tenantId            String              @default("default")
   refNumber           String              @unique
   title               String
@@ -633,6 +673,8 @@ model AeroConfigBaseline {
   @@index([tenantId, status])
   @@index([effectiveDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_config_baselines")
 }
 
@@ -659,6 +701,7 @@ enum AeroBaselineStatus {
 
 model AeroChangeRequest {
   id                    String              @id @default(cuid())
+  orgId           String?
   tenantId              String              @default("default")
   refNumber             String              @unique
   title                 String
@@ -696,6 +739,8 @@ model AeroChangeRequest {
   @@index([tenantId, status])
   @@index([priority])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_change_requests")
 }
 
@@ -744,6 +789,7 @@ enum AeroReviewDecision {
 
 model AeroComplianceItem {
   id                  String                  @id @default(cuid())
+  orgId           String?
   tenantId            String                  @default("default")
   refNumber           String                  @unique
   clause              String
@@ -765,6 +811,8 @@ model AeroComplianceItem {
   @@index([tenantId, complianceStatus])
   @@index([standard])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_compliance_items")
 }
 
@@ -783,6 +831,7 @@ enum AeroComplianceStatus {
 
 model AeroCounterfeitReport {
   id                      String                      @id @default(cuid())
+  orgId           String?
   tenantId                String                      @default("default")
   refNumber               String                      @unique
   title                   String
@@ -812,11 +861,14 @@ model AeroCounterfeitReport {
   @@index([tenantId, status])
   @@index([partNumber])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_counterfeit_reports")
 }
 
 model AeroSuspectPart {
   id              String                  @id @default(cuid())
+  orgId           String?
   tenantId        String                  @default("default")
   refNumber       String                  @unique
   partNumber      String
@@ -835,6 +887,8 @@ model AeroSuspectPart {
   @@index([tenantId, riskLevel])
   @@index([partNumber])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_suspect_parts")
 }
 
@@ -866,6 +920,7 @@ enum AeroSuspectRiskLevel {
 
 model AeroFodIncident {
   id                  String          @id @default(cuid())
+  orgId           String?
   tenantId            String          @default("default")
   refNumber           String          @unique
   title               String
@@ -896,11 +951,14 @@ model AeroFodIncident {
   @@index([fodType])
   @@index([severity])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_fod_incidents")
 }
 
 model AeroFodInspection {
   id              String                  @id @default(cuid())
+  orgId           String?
   tenantId        String                  @default("default")
   refNumber       String                  @unique
   title           String
@@ -926,6 +984,8 @@ model AeroFodInspection {
   @@index([inspectionType])
   @@index([scheduledDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_fod_inspections")
 }
 
@@ -976,6 +1036,7 @@ enum AeroFodInspectionStatus {
 
 model AeroProductSafetyItem {
   id                    String                      @id @default(cuid())
+  orgId           String?
   tenantId              String                      @default("default")
   refNumber             String                      @unique
   title                 String
@@ -1002,11 +1063,14 @@ model AeroProductSafetyItem {
   @@index([category])
   @@index([riskLevel])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_product_safety_items")
 }
 
 model AeroSafetyReview {
   id                      String                      @id @default(cuid())
+  orgId           String?
   tenantId                String                      @default("default")
   refNumber               String                      @unique
   title                   String
@@ -1033,6 +1097,8 @@ model AeroSafetyReview {
   @@index([reviewType])
   @@index([scheduledDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_safety_reviews")
 }
 
@@ -1095,6 +1161,7 @@ enum AeroSafetyReviewResult {
 
 model AeroSpecialProcess {
   id                        String                      @id @default(cuid())
+  orgId           String?
   tenantId                  String                      @default("default")
   refNumber                 String                      @unique
   title                     String
@@ -1120,11 +1187,14 @@ model AeroSpecialProcess {
   @@index([tenantId, status])
   @@index([processType])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("aero_special_processes")
 }
 
 model AeroNadcapApproval {
   id                  String                      @id @default(cuid())
+  orgId           String?
   tenantId            String                      @default("default")
   refNumber           String                      @unique
   specialProcessId    String
@@ -1149,6 +1219,8 @@ model AeroNadcapApproval {
   @@index([specialProcessId])
   @@index([approvalStatus])
   @@index([expiryDate])
+  @@index([orgId])
+
   @@map("aero_nadcap_approvals")
 }
 

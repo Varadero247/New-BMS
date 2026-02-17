@@ -37,7 +37,7 @@ campaignRouter.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -57,7 +57,7 @@ campaignRouter.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: campaign });
   } catch (error: unknown) {
     logger.error('Failed to create campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create campaign' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create campaign' } });
   }
 });
 
@@ -89,7 +89,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list campaigns', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list campaigns' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list campaigns' } });
   }
 });
 
@@ -101,7 +101,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ success: false, error: 'Campaign not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Campaign not found' } });
     }
 
     const memberCount = await prisma.crmCampaignMember.count({
@@ -114,7 +114,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get campaign' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get campaign' } });
   }
 });
 
@@ -126,7 +126,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ success: false, error: 'Campaign not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Campaign not found' } });
     }
 
     const members = await prisma.crmCampaignMember.findMany({
@@ -155,7 +155,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get campaign performance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get campaign performance' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get campaign performance' } });
   }
 });
 
@@ -167,14 +167,14 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ success: false, error: 'Campaign not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Campaign not found' } });
     }
 
     const validation = addContactsSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -205,7 +205,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: results });
   } catch (error: unknown) {
     logger.error('Failed to add contacts to campaign', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to add contacts to campaign' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add contacts to campaign' } });
   }
 });
 
@@ -236,7 +236,7 @@ emailSequenceRouter.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -254,7 +254,7 @@ emailSequenceRouter.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: sequence });
   } catch (error: unknown) {
     logger.error('Failed to create email sequence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create email sequence' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create email sequence' } });
   }
 });
 
@@ -284,7 +284,7 @@ emailSequenceRouter.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list email sequences', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list email sequences' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list email sequences' } });
   }
 });
 
@@ -296,14 +296,14 @@ emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Email sequence not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Email sequence not found' } });
     }
 
     const validation = updateSequenceSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -316,7 +316,7 @@ emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: sequence });
   } catch (error: unknown) {
     logger.error('Failed to update email sequence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update email sequence' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update email sequence' } });
   }
 });
 
@@ -328,14 +328,14 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Email sequence not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Email sequence not found' } });
     }
 
     const validation = enrollContactsSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -366,7 +366,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
     return res.json({ success: true, data: results });
   } catch (error: unknown) {
     logger.error('Failed to enroll contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to enroll contacts' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to enroll contacts' } });
   }
 });
 

@@ -30,7 +30,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
     next();
   }),
 }));
@@ -62,7 +62,7 @@ describe('GET /api/journal', () => {
   it('should return a list of journal entries', async () => {
     const entries = [
       {
-        id: 'je-1',
+        id: 'f2200000-0000-4000-a000-000000000001',
         reference: 'FIN-JE-2601-1234',
         date: '2026-01-15',
         status: 'POSTED',
@@ -136,21 +136,21 @@ describe('GET /api/journal', () => {
 describe('GET /api/journal/:id', () => {
   it('should return a single journal entry with lines', async () => {
     const entry = {
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       reference: 'FIN-JE-2601-1234',
       lines: [
-        { id: 'line-1', lineNumber: 1, debit: 1000, credit: 0, account: { id: ACC_UUID_1, code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
-        { id: 'line-2', lineNumber: 2, debit: 0, credit: 1000, account: { id: ACC_UUID_2, code: '4000', name: 'Revenue', type: 'INCOME', normalBalance: 'CREDIT' } },
+        { id: 'f6100000-0000-4000-a000-000000000001', lineNumber: 1, debit: 1000, credit: 0, account: { id: ACC_UUID_1, code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
+        { id: 'f6100000-0000-4000-a000-000000000002', lineNumber: 2, debit: 0, credit: 1000, account: { id: ACC_UUID_2, code: '4000', name: 'Revenue', type: 'INCOME', normalBalance: 'CREDIT' } },
       ],
       period: { id: PERIOD_UUID, name: 'Jan 2026', status: 'OPEN' },
     };
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(entry);
 
-    const res = await request(app).get('/api/journal/je-1');
+    const res = await request(app).get('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('je-1');
+    expect(res.body.data.id).toBe('f2200000-0000-4000-a000-000000000001');
     expect(res.body.data.lines).toHaveLength(2);
   });
 
@@ -167,7 +167,7 @@ describe('GET /api/journal/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).finJournalEntry.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/journal/je-1');
+    const res = await request(app).get('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -328,28 +328,28 @@ describe('POST /api/journal', () => {
 
 describe('PUT /api/journal/:id', () => {
   it('should update a DRAFT journal entry (no lines)', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finJournalEntry.update.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       description: 'Updated description',
       lines: [],
     });
 
-    const res = await request(app).put('/api/journal/je-1').send({ description: 'Updated description' });
+    const res = await request(app).put('/api/journal/f2200000-0000-4000-a000-000000000001').send({ description: 'Updated description' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should update a DRAFT entry with new lines via transaction', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finAccount.findMany.mockResolvedValue([{ id: ACC_UUID_1 }, { id: ACC_UUID_2 }]);
     (prisma as any).$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         finJournalLine: { deleteMany: jest.fn().mockResolvedValue({ count: 2 }) },
         finJournalEntry: {
           update: jest.fn().mockResolvedValue({
-            id: 'je-1',
+            id: 'f2200000-0000-4000-a000-000000000001',
             totalDebit: 500,
             totalCredit: 500,
             lines: [],
@@ -359,7 +359,7 @@ describe('PUT /api/journal/:id', () => {
       return fn(tx);
     });
 
-    const res = await request(app).put('/api/journal/je-1').send({
+    const res = await request(app).put('/api/journal/f2200000-0000-4000-a000-000000000001').send({
       lines: [
         { accountId: ACC_UUID_1, debit: 500, credit: 0 },
         { accountId: ACC_UUID_2, debit: 0, credit: 500 },
@@ -379,19 +379,19 @@ describe('PUT /api/journal/:id', () => {
   });
 
   it('should return 400 when entry is not DRAFT', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'POSTED' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'POSTED' });
 
-    const res = await request(app).put('/api/journal/je-1').send({ description: 'Test' });
+    const res = await request(app).put('/api/journal/f2200000-0000-4000-a000-000000000001').send({ description: 'Test' });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('Only DRAFT entries can be updated');
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finJournalEntry.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/journal/je-1').send({ description: 'Test' });
+    const res = await request(app).put('/api/journal/f2200000-0000-4000-a000-000000000001').send({ description: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -403,16 +403,16 @@ describe('PUT /api/journal/:id', () => {
 
 describe('DELETE /api/journal/:id', () => {
   it('should delete a DRAFT journal entry', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         finJournalLine: { deleteMany: jest.fn().mockResolvedValue({ count: 2 }) },
-        finJournalEntry: { delete: jest.fn().mockResolvedValue({ id: 'je-1' }) },
+        finJournalEntry: { delete: jest.fn().mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001' }) },
       };
       return fn(tx);
     });
 
-    const res = await request(app).delete('/api/journal/je-1');
+    const res = await request(app).delete('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -428,19 +428,19 @@ describe('DELETE /api/journal/:id', () => {
   });
 
   it('should return 409 when entry is not DRAFT (e.g. POSTED)', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'POSTED' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'POSTED' });
 
-    const res = await request(app).delete('/api/journal/je-1');
+    const res = await request(app).delete('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
     expect(res.body.error).toContain('DRAFT');
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).$transaction.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/journal/je-1');
+    const res = await request(app).delete('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -453,18 +453,18 @@ describe('DELETE /api/journal/:id', () => {
 describe('POST /api/journal/:id/post', () => {
   it('should post a DRAFT entry', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { id: PERIOD_UUID, status: 'OPEN' },
     });
     (prisma as any).finJournalEntry.update.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       lines: [],
       period: { id: PERIOD_UUID, name: 'Jan 2026' },
     });
 
-    const res = await request(app).post('/api/journal/je-1/post');
+    const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -481,12 +481,12 @@ describe('POST /api/journal/:id/post', () => {
 
   it('should return 400 when entry is already POSTED', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       period: { id: PERIOD_UUID, status: 'OPEN' },
     });
 
-    const res = await request(app).post('/api/journal/je-1/post');
+    const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('already POSTED');
@@ -494,12 +494,12 @@ describe('POST /api/journal/:id/post', () => {
 
   it('should return 400 when period is not OPEN', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { id: PERIOD_UUID, status: 'CLOSED' },
     });
 
-    const res = await request(app).post('/api/journal/je-1/post');
+    const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('CLOSED period');
@@ -507,13 +507,13 @@ describe('POST /api/journal/:id/post', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { id: PERIOD_UUID, status: 'OPEN' },
     });
     (prisma as any).finJournalEntry.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/journal/je-1/post');
+    const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(500);
   });

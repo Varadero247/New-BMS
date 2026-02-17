@@ -26,6 +26,9 @@ PATTERNS=(
   'rk_live_[a-zA-Z0-9]{24,}'            # Stripe Restricted Key
   'sq0csp-[a-zA-Z0-9_-]{43}'            # Square OAuth Secret
   'eyJ[a-zA-Z0-9_-]{20,}\.eyJ'          # JWT token (long form)
+  'pat-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}'  # HubSpot PAT
+  'hapi[a-zA-Z0-9_-]{20,}'              # HubSpot API Key (legacy)
+  'redis://:[^$]{8,}@'                  # Redis URL with password (excludes env var refs)
 )
 
 # Files to scan (staged files if in git hook context, or all tracked files)

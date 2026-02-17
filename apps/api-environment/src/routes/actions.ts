@@ -197,7 +197,7 @@ router.delete('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest,
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
-    await prisma.envAction.delete({ where: { id: req.params.id } });
+    await prisma.envAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete action error', { error: (error as Error).message });

@@ -208,7 +208,7 @@ router.delete('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, 
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
-    await prisma.envLegal.delete({ where: { id: req.params.id } });
+    await prisma.envLegal.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete legal obligation error', { error: (error as Error).message });

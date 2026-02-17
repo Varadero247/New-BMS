@@ -258,7 +258,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (~12,321 across 578 suites)
+pnpm test                                # All Jest tests (~12,326 across 578 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -270,6 +270,8 @@ pnpm test                                # All Jest tests (~12,321 across 578 su
 ./scripts/test-pm-modules.sh             # PM integration tests (~45)
 ./scripts/test-finance-modules.sh        # Finance integration tests (~40)
 ./scripts/check-services.sh              # Service health checks (86 services)
+./scripts/seed-all.sh                    # Seed all database schemas
+./scripts/backup-db.sh                   # Backup PostgreSQL database
 ```
 
 ## Database
@@ -301,7 +303,7 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~589 database models
 - 60 shared packages
-- Tests: ~12,321 Jest tests (578 suites) + 9 integration test scripts (~465+ assertions) -- all passing
+- Tests: ~12,326 Jest tests (578 suites) + 9 integration test scripts (~465+ assertions) -- all passing
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 44 web apps

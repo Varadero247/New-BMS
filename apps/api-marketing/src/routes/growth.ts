@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -6,7 +7,7 @@ const logger = createLogger('api-marketing:growth');
 const router = Router();
 
 // GET /api/growth/metrics
-router.get('/metrics', async (req: Request, res: Response) => {
+router.get('/metrics', authenticate, async (req: Request, res: Response) => {
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -95,7 +96,7 @@ router.get('/metrics', async (req: Request, res: Response) => {
 });
 
 // GET /api/growth/snapshot/:date
-router.get('/snapshot/:date', async (req: Request, res: Response) => {
+router.get('/snapshot/:date', authenticate, async (req: Request, res: Response) => {
   try {
     const date = new Date(req.params.date);
     if (isNaN(date.getTime())) {

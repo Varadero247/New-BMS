@@ -18,6 +18,7 @@ datasource db {
 
 model DesignProject {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // DC-YYMM-XXXX
   title           String
@@ -49,11 +50,14 @@ model DesignProject {
   @@index([currentStage])
   @@index([deviceClass])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("design_projects")
 }
 
 model DesignInput {
   id            String    @id @default(cuid())
+  orgId           String?
   projectId     String
   category      InputCategory
   requirement   String
@@ -71,11 +75,14 @@ model DesignInput {
 
   @@index([projectId])
   @@index([category])
+  @@index([orgId])
+
   @@map("design_inputs")
 }
 
 model DesignOutput {
   id            String    @id @default(cuid())
+  orgId           String?
   projectId     String
   category      OutputCategory
   description   String
@@ -92,11 +99,14 @@ model DesignOutput {
 
   @@index([projectId])
   @@index([category])
+  @@index([orgId])
+
   @@map("design_outputs")
 }
 
 model DesignReview {
   id          String    @id @default(cuid())
+  orgId           String?
   projectId   String
   stage       DesignStage
   reviewDate  DateTime
@@ -113,11 +123,14 @@ model DesignReview {
   @@index([projectId])
   @@index([stage])
   @@index([reviewDate])
+  @@index([orgId])
+
   @@map("design_reviews")
 }
 
 model DesignVerification {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   title           String
   protocol        String?
@@ -135,11 +148,14 @@ model DesignVerification {
   project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([orgId])
+
   @@map("design_verifications")
 }
 
 model DesignValidation {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   title           String
   protocol        String?
@@ -155,11 +171,14 @@ model DesignValidation {
   project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([orgId])
+
   @@map("design_validations")
 }
 
 model DesignTransfer {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   transferDate    DateTime?
   dhfComplete     Boolean   @default(false)
@@ -174,11 +193,14 @@ model DesignTransfer {
   project         DesignProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([orgId])
+
   @@map("design_transfers")
 }
 
 model DesignHistoryFile {
   id          String    @id @default(cuid())
+  orgId           String?
   projectId   String
   title       String
   category    DHFCategory
@@ -192,6 +214,8 @@ model DesignHistoryFile {
 
   @@index([projectId])
   @@index([category])
+  @@index([orgId])
+
   @@map("design_history_files")
 }
 
@@ -297,6 +321,7 @@ enum DHFCategory {
 
 model DeviceMasterRecord {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // DMR-YYMM-XXXX
   deviceName      String
@@ -324,11 +349,14 @@ model DeviceMasterRecord {
 
   @@index([tenantId, status])
   @@index([deviceName])
+  @@index([orgId])
+
   @@map("device_master_records")
 }
 
 model DeviceHistoryRecord {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // DHR-YYMM-XXXX
   dmrId           String
@@ -355,11 +383,14 @@ model DeviceHistoryRecord {
   @@index([tenantId, status])
   @@index([dmrId])
   @@index([batchNumber])
+  @@index([orgId])
+
   @@map("device_history_records")
 }
 
 model DHRRecord {
   id          String    @id @default(cuid())
+  orgId           String?
   dhrId       String
   recordType  DHRRecordType
   title       String
@@ -375,6 +406,8 @@ model DHRRecord {
   dhr         DeviceHistoryRecord @relation(fields: [dhrId], references: [id], onDelete: Cascade)
 
   @@index([dhrId])
+  @@index([orgId])
+
   @@map("dhr_records")
 }
 
@@ -384,6 +417,7 @@ model DHRRecord {
 
 model RiskManagementFile {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // RMF-YYMM-XXXX
   title           String
@@ -403,11 +437,14 @@ model RiskManagementFile {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("risk_management_files")
 }
 
 model Hazard {
   id              String    @id @default(cuid())
+  orgId           String?
   fileId          String
   hazardId        String?   // H-001, H-002 etc
   hazardCategory  HazardCategory
@@ -429,11 +466,14 @@ model Hazard {
   file            RiskManagementFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   @@index([fileId])
+  @@index([orgId])
+
   @@map("hazards")
 }
 
 model RiskControl {
   id              String    @id @default(cuid())
+  orgId           String?
   hazardId        String
   controlType     RiskControlType
   description     String
@@ -449,6 +489,8 @@ model RiskControl {
   hazard          Hazard @relation(fields: [hazardId], references: [id], onDelete: Cascade)
 
   @@index([hazardId])
+  @@index([orgId])
+
   @@map("risk_controls")
 }
 
@@ -458,6 +500,7 @@ model RiskControl {
 
 model Complaint {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // COMP-YYMM-XXXX
   deviceName      String
@@ -498,6 +541,8 @@ model Complaint {
   @@index([complaintDate])
   @@index([severity])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("complaints")
 }
 
@@ -604,6 +649,7 @@ enum ComplaintStatus {
 
 model UdiDevice {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // UDI-YYMM-XXXX
   deviceName      String
@@ -624,11 +670,14 @@ model UdiDevice {
 
   @@index([tenantId, status])
   @@index([modelNumber])
+  @@index([orgId])
+
   @@map("udi_devices")
 }
 
 model UdiDiRecord {
   id              String    @id @default(cuid())
+  orgId           String?
   deviceId        String
   issuingAgency   String    // GS1, HIBCC, ICCBBA
   diCode          String    @unique
@@ -639,11 +688,14 @@ model UdiDiRecord {
   device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
+  @@index([orgId])
+
   @@map("udi_di_records")
 }
 
 model UdiPiRecord {
   id              String    @id @default(cuid())
+  orgId           String?
   deviceId        String
   lotNumber       String?
   serialNumber    String?
@@ -655,11 +707,14 @@ model UdiPiRecord {
   device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
+  @@index([orgId])
+
   @@map("udi_pi_records")
 }
 
 model UdiSubmission {
   id              String    @id @default(cuid())
+  orgId           String?
   deviceId        String
   database        UdiDatabase
   submissionDate  DateTime?
@@ -672,6 +727,8 @@ model UdiSubmission {
   device          UdiDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
+  @@index([orgId])
+
   @@map("udi_submissions")
 }
 
@@ -702,6 +759,7 @@ enum UdiSubmissionStatus {
 
 model PmsPlan {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // PMS-YYMM-XXXX
   deviceName      String
@@ -718,11 +776,14 @@ model PmsPlan {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("pms_plans")
 }
 
 model PmsReport {
   id              String    @id @default(cuid())
+  orgId           String?
   planId          String
   reportType      PmsReportType
   refNumber       String?
@@ -745,6 +806,8 @@ model PmsReport {
   plan            PmsPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
+  @@index([orgId])
+
   @@map("pms_reports")
 }
 
@@ -775,6 +838,7 @@ enum PmsReportStatus {
 
 model SoftwareProject {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // SW-YYMM-XXXX
   title           String
@@ -791,11 +855,14 @@ model SoftwareProject {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("software_projects")
 }
 
 model SoupItem {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   title           String
   vendor          String?
@@ -810,11 +877,14 @@ model SoupItem {
   project         SoftwareProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([orgId])
+
   @@map("soup_items")
 }
 
 model SoftwareAnomaly {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   refNumber       String?
   title           String
@@ -833,11 +903,14 @@ model SoftwareAnomaly {
   @@index([status])
   @@index([severity])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("software_anomalies")
 }
 
 model SoftwarePhaseDoc {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   phase           SoftwarePhase
   documentRef     String?
@@ -852,6 +925,8 @@ model SoftwarePhaseDoc {
 
   @@unique([projectId, phase])
   @@index([projectId])
+  @@index([orgId])
+
   @@map("software_phase_docs")
 }
 
@@ -908,6 +983,7 @@ enum PhaseDocStatus {
 
 model RegulatorySubmission {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // REG-YYMM-XXXX
   deviceName      String
@@ -929,11 +1005,14 @@ model RegulatorySubmission {
   @@index([tenantId, market])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("regulatory_submissions")
 }
 
 model RegSubmissionChange {
   id              String    @id @default(cuid())
+  orgId           String?
   submissionId    String
   changeType      String    // e.g. "Label Change", "Design Modification"
   description     String
@@ -946,6 +1025,8 @@ model RegSubmissionChange {
   submission      RegulatorySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
+  @@index([orgId])
+
   @@map("reg_submission_changes")
 }
 
@@ -997,6 +1078,7 @@ enum ChangeNotificationStatus {
 
 model MedCapa {
   id              String          @id @default(cuid())
+  orgId           String?
   refNumber       String          @unique  // CAPA-YYMM-XXXX
   title           String
   capaType        MedCapaType     @default(CORRECTIVE)
@@ -1031,6 +1113,8 @@ model MedCapa {
   @@index([status])
   @@index([capaType])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("med_capas")
 }
 
@@ -1082,6 +1166,7 @@ enum MedCapaEffectiveness {
 
 model TraceabilityMatrix {
   id              String              @id @default(cuid())
+  orgId           String?
   refNumber       String              @unique  // TRC-YYMM-XXXX
   title           String
   deviceId        String?
@@ -1102,11 +1187,14 @@ model TraceabilityMatrix {
 
   @@index([status])
   @@index([deviceName])
+  @@index([orgId])
+
   @@map("traceability_matrices")
 }
 
 model TraceabilityLink {
   id              String              @id @default(cuid())
+  orgId           String?
   matrixId        String
   userNeedRef     String
   userNeedDesc    String
@@ -1127,6 +1215,8 @@ model TraceabilityLink {
   matrix          TraceabilityMatrix  @relation(fields: [matrixId], references: [id], onDelete: Cascade)
 
   @@index([matrixId])
+  @@index([orgId])
+
   @@map("traceability_links")
 }
 

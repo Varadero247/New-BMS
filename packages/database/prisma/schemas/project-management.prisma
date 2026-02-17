@@ -19,6 +19,7 @@ datasource db {
 model Project {
   id                       String    @id @default(cuid())
 
+  orgId           String?
   // Basic Information
   projectCode              String    @unique
   projectName              String
@@ -125,6 +126,8 @@ model Project {
   @@index([healthStatus])
   @@index([methodology])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("projects")
 }
 
@@ -135,6 +138,7 @@ model Project {
 model ProjectTask {
   id                 String    @id @default(cuid())
 
+  orgId           String?
   projectId          String
   project            Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -217,6 +221,8 @@ model ProjectTask {
   @@index([priority])
   @@index([plannedEndDate])
   @@index([isCriticalPath])
+  @@index([orgId])
+
   @@map("project_tasks")
 }
 
@@ -227,6 +233,7 @@ model ProjectTask {
 model ProjectMilestone {
   id                    String    @id @default(cuid())
 
+  orgId           String?
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -263,6 +270,8 @@ model ProjectMilestone {
   @@index([status])
   @@index([plannedDate])
   @@index([isCritical])
+  @@index([orgId])
+
   @@map("project_milestones")
 }
 
@@ -273,6 +282,7 @@ model ProjectMilestone {
 model ProjectRisk {
   id                    String    @id @default(cuid())
 
+  orgId           String?
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -326,6 +336,8 @@ model ProjectRisk {
   @@index([status])
   @@index([riskLevel])
   @@index([responseOwner])
+  @@index([orgId])
+
   @@map("project_risks")
 }
 
@@ -336,6 +348,7 @@ model ProjectRisk {
 model ProjectIssue {
   id                    String    @id @default(cuid())
 
+  orgId           String?
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -387,6 +400,8 @@ model ProjectIssue {
   @@index([severity])
   @@index([priority])
   @@index([assignedTo])
+  @@index([orgId])
+
   @@map("project_issues")
 }
 
@@ -397,6 +412,7 @@ model ProjectIssue {
 model ProjectChange {
   id                  String    @id @default(cuid())
 
+  orgId           String?
   projectId           String
   project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -450,6 +466,8 @@ model ProjectChange {
   @@index([status])
   @@index([priority])
   @@index([requestedBy])
+  @@index([orgId])
+
   @@map("project_changes")
 }
 
@@ -460,6 +478,7 @@ model ProjectChange {
 model ProjectResource {
   id                    String    @id @default(cuid())
 
+  orgId           String?
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -498,6 +517,8 @@ model ProjectResource {
   @@index([projectId])
   @@index([resourceType])
   @@index([status])
+  @@index([orgId])
+
   @@map("project_resources")
 }
 
@@ -508,6 +529,7 @@ model ProjectResource {
 model ProjectStakeholder {
   id                     String    @id @default(cuid())
 
+  orgId           String?
   projectId              String
   project                Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -548,6 +570,8 @@ model ProjectStakeholder {
   @@index([projectId])
   @@index([status])
   @@index([stakeholderType])
+  @@index([orgId])
+
   @@map("project_stakeholders")
 }
 
@@ -558,6 +582,7 @@ model ProjectStakeholder {
 model ProjectDocument {
   id                String    @id @default(cuid())
 
+  orgId           String?
   projectId         String
   project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -599,6 +624,8 @@ model ProjectDocument {
   @@index([projectId, status])
   @@index([status])
   @@index([documentType])
+  @@index([orgId])
+
   @@map("project_documents")
 }
 
@@ -609,6 +636,7 @@ model ProjectDocument {
 model ProjectSprint {
   id                    String    @id @default(cuid())
 
+  orgId           String?
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -648,6 +676,8 @@ model ProjectSprint {
   @@index([projectId, status])
   @@index([status])
   @@index([startDate, endDate])
+  @@index([orgId])
+
   @@map("project_sprints")
 }
 
@@ -658,6 +688,7 @@ model ProjectSprint {
 model ProjectUserStory {
   id                 String    @id @default(cuid())
 
+  orgId           String?
   projectId          String
   sprintId           String?
   sprint             ProjectSprint? @relation(fields: [sprintId], references: [id])
@@ -706,6 +737,8 @@ model ProjectUserStory {
   @@index([assignedTo])
   @@index([backlogPriority])
   @@index([epicId])
+  @@index([orgId])
+
   @@map("project_user_stories")
 }
 
@@ -716,6 +749,7 @@ model ProjectUserStory {
 model ProjectTimesheet {
   id             String    @id @default(cuid())
 
+  orgId           String?
   projectId      String
   project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   taskId         String?
@@ -753,6 +787,8 @@ model ProjectTimesheet {
   @@index([employeeId])
   @@index([status])
   @@index([workDate])
+  @@index([orgId])
+
   @@map("project_timesheets")
 }
 
@@ -763,6 +799,7 @@ model ProjectTimesheet {
 model ProjectExpense {
   id           String    @id @default(cuid())
 
+  orgId           String?
   projectId    String
   project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -794,6 +831,8 @@ model ProjectExpense {
   @@index([employeeId])
   @@index([status])
   @@index([expenseDate])
+  @@index([orgId])
+
   @@map("project_expenses")
 }
 
@@ -804,6 +843,7 @@ model ProjectExpense {
 model ProjectStatusReport {
   id                  String    @id @default(cuid())
 
+  orgId           String?
   projectId           String
   project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -853,6 +893,8 @@ model ProjectStatusReport {
   @@index([projectId])
   @@index([reportDate])
   @@index([reportType])
+  @@index([orgId])
+
   @@map("project_status_reports")
 }
 
@@ -862,6 +904,7 @@ model ProjectStatusReport {
 
 model Benefit {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // BEN-YYMM-XXXX
   title           String
@@ -886,11 +929,14 @@ model Benefit {
   @@index([status])
   @@index([projectId])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("benefits")
 }
 
 model BenefitMeasurement {
   id              String    @id @default(cuid())
+  orgId           String?
   benefitId       String
   measuredValue   Float
   measureDate     DateTime
@@ -902,6 +948,8 @@ model BenefitMeasurement {
 
   @@index([benefitId])
   @@index([measureDate])
+  @@index([orgId])
+
   @@map("benefit_measurements")
 }
 

@@ -17,7 +17,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -41,7 +41,7 @@ beforeEach(() => {
 
 describe('InfoSec Incidents API', () => {
   const mockIncident = {
-    id: 'inc-1',
+    id: 'a4000000-0000-4000-a000-000000000001',
     refNumber: 'ISI-2602-5678',
     title: 'Phishing attack on finance team',
     description: 'Multiple finance team members received targeted phishing emails',
@@ -65,7 +65,7 @@ describe('InfoSec Incidents API', () => {
     preventiveActions: null,
     closedAt: null,
     closedBy: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
@@ -285,7 +285,7 @@ describe('InfoSec Incidents API', () => {
     it('should return incident detail', async () => {
       (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(mockIncident);
 
-      const res = await request(app).get('/api/incidents/inc-1');
+      const res = await request(app).get('/api/incidents/a4000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -314,7 +314,7 @@ describe('InfoSec Incidents API', () => {
       });
 
       const res = await request(app)
-        .put('/api/incidents/inc-1/investigate')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/investigate')
         .send({ investigationNotes: 'Analyzed email headers' });
 
       expect(res.status).toBe(200);
@@ -325,7 +325,7 @@ describe('InfoSec Incidents API', () => {
 
     it('should return 400 for missing investigationNotes', async () => {
       const res = await request(app)
-        .put('/api/incidents/inc-1/investigate')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/investigate')
         .send({});
 
       expect(res.status).toBe(400);
@@ -348,7 +348,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app)
-        .put('/api/incidents/inc-1/investigate')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/investigate')
         .send({
           investigationNotes: 'Analyzed headers',
           rootCause: 'Spoofed sender',
@@ -372,7 +372,7 @@ describe('InfoSec Incidents API', () => {
       });
 
       const res = await request(app)
-        .put('/api/incidents/inc-1/close')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/close')
         .send({ lessonsLearned: 'Improve email filtering' });
 
       expect(res.status).toBe(200);
@@ -384,7 +384,7 @@ describe('InfoSec Incidents API', () => {
 
     it('should return 400 for missing lessonsLearned', async () => {
       const res = await request(app)
-        .put('/api/incidents/inc-1/close')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/close')
         .send({});
 
       expect(res.status).toBe(400);
@@ -407,7 +407,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.update as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const res = await request(app)
-        .put('/api/incidents/inc-1/close')
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/close')
         .send({
           lessonsLearned: 'Better training needed',
           correctiveActions: 'Updated SPF records',
@@ -430,7 +430,7 @@ describe('InfoSec Incidents API', () => {
       });
 
       const res = await request(app)
-        .post('/api/incidents/inc-1/notify')
+        .post('/api/incidents/a4000000-0000-4000-a000-000000000001/notify')
         .send({});
 
       expect(res.status).toBe(200);
@@ -457,7 +457,7 @@ describe('InfoSec Incidents API', () => {
       });
 
       const res = await request(app)
-        .post('/api/incidents/inc-1/notify')
+        .post('/api/incidents/a4000000-0000-4000-a000-000000000001/notify')
         .send({});
 
       expect(res.status).toBe(400);
@@ -470,7 +470,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .post('/api/incidents/inc-1/notify')
+        .post('/api/incidents/a4000000-0000-4000-a000-000000000001/notify')
         .send({});
 
       expect(res.status).toBe(500);

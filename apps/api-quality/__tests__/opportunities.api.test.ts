@@ -491,15 +491,16 @@ describe('Quality Opportunities API Routes', () => {
   describe('DELETE /api/opportunities/:id', () => {
     it('should delete an opportunity successfully', async () => {
       (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({ id: '23000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualOpportunity.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualOpportunity.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/opportunities/23000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualOpportunity.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualOpportunity.update).toHaveBeenCalledWith({
         where: { id: '23000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

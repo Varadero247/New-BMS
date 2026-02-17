@@ -36,6 +36,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -75,7 +85,7 @@ describe('HR Recruitment API Routes', () => {
         _count: { applicants: 10, interviews: 5 },
       },
       {
-        id: 'job-2',
+        id: '32000000-0000-4000-a000-000000000002',
         jobCode: 'JOB-2024-0002',
         title: 'Product Designer',
         status: 'DRAFT',
@@ -638,8 +648,8 @@ describe('HR Recruitment API Routes', () => {
       jobPostingId: '22222222-2222-2222-2222-222222222222',
       interviewType: 'TECHNICAL',
       scheduledAt: '2024-03-15T10:00:00Z',
-      interviewerIds: ['interviewer-1'],
-      organizerId: 'organizer-1',
+      interviewerIds: ['34100000-0000-4000-a000-000000000001'],
+      organizerId: '34200000-0000-4000-a000-000000000001',
     };
 
     it('should schedule an interview successfully', async () => {
@@ -735,7 +745,7 @@ describe('HR Recruitment API Routes', () => {
 
   describe('POST /api/recruitment/interviews/:id/evaluate', () => {
     const evalPayload = {
-      evaluatorId: 'eval-1',
+      evaluatorId: '34300000-0000-4000-a000-000000000001',
       overallRating: 4,
       recommendation: 'HIRE',
     };
@@ -745,7 +755,7 @@ describe('HR Recruitment API Routes', () => {
         applicantId: '33000000-0000-4000-a000-000000000001',
       });
       (mockPrisma.interviewEvaluation.create as jest.Mock).mockResolvedValueOnce({
-        id: 'eval-1',
+        id: '34300000-0000-4000-a000-000000000001',
         interviewId: '34000000-0000-4000-a000-000000000001',
         applicantId: '33000000-0000-4000-a000-000000000001',
         ...evalPayload,
@@ -776,7 +786,7 @@ describe('HR Recruitment API Routes', () => {
       const response = await request(app)
         .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
         .set('Authorization', 'Bearer token')
-        .send({ evaluatorId: 'eval-1' });
+        .send({ evaluatorId: '34300000-0000-4000-a000-000000000001' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');

@@ -27,7 +27,8 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
       OR?: Array<Record<string, { contains: string; mode: string }>>;
       role?: string;
       department?: string;
-    } = {};
+      deletedAt?: null;
+    } = { deletedAt: null };
 
     if (search) {
       where.OR = [
@@ -318,7 +319,7 @@ router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Respon
       });
     }
 
-    await prisma.user.delete({ where: { id } });
+    await prisma.user.update({ where: { id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

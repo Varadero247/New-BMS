@@ -343,15 +343,16 @@ describe('Inventory Categories API Routes', () => {
         children: [],
         products: [],
       });
-      (mockPrisma.productCategory.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.productCategory.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.productCategory.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.productCategory.update).toHaveBeenCalledWith({
         where: { id: '4d000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

@@ -40,7 +40,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -120,7 +120,7 @@ describe('GET /api/reports/dashboard', () => {
 describe('GET /api/reports/esos', () => {
   it('should return ESOS report data', async () => {
     (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([
-      { id: '1', type: 'EXTERNAL', title: 'ESOS Audit' },
+      { id: 'ec000000-0000-4000-a000-000000000001', type: 'EXTERNAL', title: 'ESOS Audit' },
     ]);
     (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([
       { name: 'HVAC', facility: 'HQ', annualConsumption: 100000, consumptionPercentage: 40, unit: 'kWh', status: 'ANALYZED' },

@@ -233,7 +233,7 @@ router.delete('/:id', checkOwnership(prisma.projectTask), async (req: AuthReques
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
     }
 
-    await prisma.projectTask.delete({ where: { id: req.params.id } });
+    await prisma.projectTask.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete task error', { error: (error as Error).message });

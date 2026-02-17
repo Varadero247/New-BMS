@@ -233,6 +233,7 @@ model FemFireRiskAssessment {
   @@index([premisesId])
   @@index([nextReviewDate])
   @@index([organisationId])
+  @@index([deletedAt])
 }
 
 // ── Assembly Points & Evacuation Routes ──────────────────────

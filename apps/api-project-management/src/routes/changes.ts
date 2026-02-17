@@ -194,7 +194,7 @@ router.delete('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    await prisma.projectChange.delete({ where: { id: req.params.id } });
+    await prisma.projectChange.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete change error', { error: (error as Error).message });

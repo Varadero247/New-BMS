@@ -42,6 +42,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -68,7 +78,7 @@ describe('HR Leave API Routes', () => {
   describe('GET /api/leave/types', () => {
     const mockLeaveTypes = [
       {
-        id: 'lt-1',
+        id: '14200000-0000-4000-a000-000000000001',
         code: 'AL',
         name: 'Annual Leave',
         category: 'ANNUAL',
@@ -77,7 +87,7 @@ describe('HR Leave API Routes', () => {
         isPaid: true,
       },
       {
-        id: 'lt-2',
+        id: '14200000-0000-4000-a000-000000000002',
         code: 'SL',
         name: 'Sick Leave',
         category: 'SICK',
@@ -201,13 +211,13 @@ describe('HR Leave API Routes', () => {
         id: '14100000-0000-4000-a000-000000000001',
         requestNumber: 'LR-2025-00001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
-        leaveTypeId: 'lt-1',
+        leaveTypeId: '14200000-0000-4000-a000-000000000001',
         startDate: new Date('2025-02-01'),
         endDate: new Date('2025-02-05'),
         days: 5,
         status: 'PENDING',
         employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
-        leaveType: { id: 'lt-1', name: 'Annual Leave' },
+        leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
         approvals: [],
       },
     ];
@@ -277,13 +287,13 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/leave/requests?leaveTypeId=lt-1');
+      await request(app).get('/api/leave/requests?leaveTypeId=14200000-0000-4000-a000-000000000001');
 
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             deletedAt: null,
-            leaveTypeId: 'lt-1',
+            leaveTypeId: '14200000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -331,7 +341,7 @@ describe('HR Leave API Routes', () => {
         department: { name: 'Engineering' },
         manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
-      leaveType: { id: 'lt-1', name: 'Annual Leave' },
+      leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
       approvals: [],
     };
 
@@ -375,7 +385,7 @@ describe('HR Leave API Routes', () => {
 
     it('should create leave request successfully', async () => {
       (mockPrisma.leaveBalance.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         balance: 25,
       });
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(10);
@@ -389,8 +399,8 @@ describe('HR Leave API Routes', () => {
         days: 5,
         status: 'PENDING',
         employee: { firstName: 'John', lastName: 'Doe' },
-        leaveType: { id: 'lt-1', name: 'Annual Leave' },
-        approvals: [{ id: 'appr-1', approverEmployeeId: '53000000-0000-4000-a000-000000000001', status: 'PENDING' }],
+        leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
+        approvals: [{ id: '14400000-0000-4000-a000-000000000001', approverEmployeeId: '53000000-0000-4000-a000-000000000001', status: 'PENDING' }],
       });
       (mockPrisma.leaveBalance.update as jest.Mock).mockResolvedValueOnce({});
 
@@ -405,7 +415,7 @@ describe('HR Leave API Routes', () => {
 
     it('should return 400 for insufficient balance', async () => {
       (mockPrisma.leaveBalance.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         balance: 2,
       });
 
@@ -437,7 +447,7 @@ describe('HR Leave API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.leaveBalance.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         balance: 25,
       });
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(0);
@@ -460,7 +470,7 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '14100000-0000-4000-a000-000000000001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
-        leaveTypeId: 'lt-1',
+        leaveTypeId: '14200000-0000-4000-a000-000000000001',
         startDate: new Date('2025-02-10'),
         days: 5,
         approvals: [],
@@ -510,7 +520,7 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '14100000-0000-4000-a000-000000000001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
-        leaveTypeId: 'lt-1',
+        leaveTypeId: '14200000-0000-4000-a000-000000000001',
         startDate: new Date('2025-02-10'),
         days: 5,
       });
@@ -555,15 +565,15 @@ describe('HR Leave API Routes', () => {
   describe('GET /api/leave/balances/:employeeId', () => {
     const mockBalances = [
       {
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
-        leaveTypeId: 'lt-1',
+        leaveTypeId: '14200000-0000-4000-a000-000000000001',
         year: 2025,
         entitled: 25,
         taken: 5,
         pending: 2,
         balance: 18,
-        leaveType: { id: 'lt-1', name: 'Annual Leave' },
+        leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
       },
     ];
 
@@ -627,7 +637,7 @@ describe('HR Leave API Routes', () => {
 
     it('should upsert leave balance successfully', async () => {
       (mockPrisma.leaveBalance.upsert as jest.Mock).mockResolvedValueOnce({
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         ...balancePayload,
         balance: 28,
         leaveType: { name: 'Annual Leave' },
@@ -643,7 +653,7 @@ describe('HR Leave API Routes', () => {
 
     it('should calculate balance from entitled + carryForward + adjustment', async () => {
       (mockPrisma.leaveBalance.upsert as jest.Mock).mockResolvedValueOnce({
-        id: 'bal-1',
+        id: '14300000-0000-4000-a000-000000000001',
         balance: 28,
       });
 
@@ -687,7 +697,7 @@ describe('HR Leave API Routes', () => {
   describe('GET /api/leave/holidays', () => {
     const mockHolidays = [
       {
-        id: 'hol-1',
+        id: '14500000-0000-4000-a000-000000000001',
         name: 'New Year',
         date: new Date('2025-01-01'),
         year: 2025,

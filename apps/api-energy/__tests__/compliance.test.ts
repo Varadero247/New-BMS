@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/compliance', () => {
   it('should return paginated obligations', async () => {
-    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([{ id: '1', title: 'ESOS' }]);
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([{ id: 'e5000000-0000-4000-a000-000000000001', title: 'ESOS' }]);
     (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/compliance');
@@ -98,12 +98,12 @@ describe('POST /api/compliance', () => {
 
 describe('GET /api/compliance/:id', () => {
   it('should return an obligation', async () => {
-    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1', title: 'ESOS' });
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001', title: 'ESOS' });
 
-    const res = await request(app).get('/api/compliance/1');
+    const res = await request(app).get('/api/compliance/e5000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('e5000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
@@ -117,10 +117,10 @@ describe('GET /api/compliance/:id', () => {
 
 describe('PUT /api/compliance/:id', () => {
   it('should update an obligation', async () => {
-    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '1', title: 'Updated' });
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001', title: 'Updated' });
 
-    const res = await request(app).put('/api/compliance/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/compliance/e5000000-0000-4000-a000-000000000001').send({ title: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.title).toBe('Updated');
@@ -137,10 +137,10 @@ describe('PUT /api/compliance/:id', () => {
 
 describe('DELETE /api/compliance/:id', () => {
   it('should soft delete an obligation', async () => {
-    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/compliance/1');
+    const res = await request(app).delete('/api/compliance/e5000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -157,25 +157,25 @@ describe('DELETE /api/compliance/:id', () => {
 
 describe('PUT /api/compliance/:id/assess', () => {
   it('should assess an obligation as COMPLIANT', async () => {
-    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '1', notes: null });
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: 'e5000000-0000-4000-a000-000000000001', notes: null });
     (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({
-      id: '1', status: 'COMPLIANT', assessedBy: 'user-123',
+      id: 'e5000000-0000-4000-a000-000000000001', status: 'COMPLIANT', assessedBy: '00000000-0000-4000-a000-000000000123',
     });
 
-    const res = await request(app).put('/api/compliance/1/assess').send({ status: 'COMPLIANT' });
+    const res = await request(app).put('/api/compliance/e5000000-0000-4000-a000-000000000001/assess').send({ status: 'COMPLIANT' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('COMPLIANT');
   });
 
   it('should reject invalid status', async () => {
-    const res = await request(app).put('/api/compliance/1/assess').send({ status: 'INVALID' });
+    const res = await request(app).put('/api/compliance/e5000000-0000-4000-a000-000000000001/assess').send({ status: 'INVALID' });
 
     expect(res.status).toBe(400);
   });
 
   it('should reject missing status', async () => {
-    const res = await request(app).put('/api/compliance/1/assess').send({});
+    const res = await request(app).put('/api/compliance/e5000000-0000-4000-a000-000000000001/assess').send({});
 
     expect(res.status).toBe(400);
   });
@@ -192,7 +192,7 @@ describe('PUT /api/compliance/:id/assess', () => {
 describe('GET /api/compliance/dashboard', () => {
   it('should return compliance dashboard data', async () => {
     const obligations = [
-      { id: '1', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
+      { id: 'e5000000-0000-4000-a000-000000000001', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
       { id: '2', status: 'NON_COMPLIANT', regulation: 'ESOS', dueDate: new Date('2020-01-01') },
       { id: '3', status: 'NOT_ASSESSED', regulation: 'SECR', dueDate: null },
       { id: '4', status: 'PARTIALLY_COMPLIANT', regulation: 'SECR', dueDate: new Date('2099-01-01') },

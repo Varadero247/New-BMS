@@ -282,7 +282,7 @@ router.delete('/:id', checkOwnership(prisma.qualNonconformance), async (req: Aut
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
     }
 
-    await prisma.qualNonConformance.delete({ where: { id: req.params.id } });
+    await prisma.qualNonConformance.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

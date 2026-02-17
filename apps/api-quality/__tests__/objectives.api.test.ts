@@ -495,15 +495,16 @@ describe('Quality Objectives API Routes', () => {
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
       (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualObjective.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualObjective.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualObjective.update).toHaveBeenCalledWith({
         where: { id: '15000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 
@@ -698,15 +699,16 @@ describe('Quality Objectives API Routes', () => {
   describe('DELETE /api/objectives/:id/milestones/:milestoneId', () => {
     it('should delete milestone successfully', async () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce({ id: '1b000000-0000-4000-a000-000000000001', objectiveId: '15000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualMilestone.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualMilestone.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualMilestone.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualMilestone.update).toHaveBeenCalledWith({
         where: { id: '1b000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

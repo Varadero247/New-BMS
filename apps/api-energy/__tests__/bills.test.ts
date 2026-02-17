@@ -20,7 +20,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -42,7 +42,7 @@ beforeEach(() => {
 
 describe('GET /api/bills', () => {
   it('should return paginated bills', async () => {
-    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([{ id: '1', provider: 'EDF' }]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([{ id: 'e9000000-0000-4000-a000-000000000001', provider: 'EDF' }]);
     (prisma.energyBill.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/bills');
@@ -123,12 +123,12 @@ describe('POST /api/bills', () => {
 
 describe('GET /api/bills/:id', () => {
   it('should return a bill', async () => {
-    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '1', provider: 'EDF' });
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001', provider: 'EDF' });
 
-    const res = await request(app).get('/api/bills/1');
+    const res = await request(app).get('/api/bills/e9000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('e9000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
@@ -142,10 +142,10 @@ describe('GET /api/bills/:id', () => {
 
 describe('PUT /api/bills/:id', () => {
   it('should update a bill', async () => {
-    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: '1', cost: 3000 });
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001' });
+    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001', cost: 3000 });
 
-    const res = await request(app).put('/api/bills/1').send({ cost: 3000 });
+    const res = await request(app).put('/api/bills/e9000000-0000-4000-a000-000000000001').send({ cost: 3000 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.cost).toBe(3000);
@@ -162,10 +162,10 @@ describe('PUT /api/bills/:id', () => {
 
 describe('DELETE /api/bills/:id', () => {
   it('should soft delete a bill', async () => {
-    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001' });
+    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/bills/1');
+    const res = await request(app).delete('/api/bills/e9000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -182,19 +182,19 @@ describe('DELETE /api/bills/:id', () => {
 
 describe('PUT /api/bills/:id/verify', () => {
   it('should verify a PENDING bill', async () => {
-    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'PENDING' });
-    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: '1', status: 'VERIFIED' });
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001', status: 'PENDING' });
+    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001', status: 'VERIFIED' });
 
-    const res = await request(app).put('/api/bills/1/verify');
+    const res = await request(app).put('/api/bills/e9000000-0000-4000-a000-000000000001/verify');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('VERIFIED');
   });
 
   it('should reject if not PENDING', async () => {
-    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'VERIFIED' });
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: 'e9000000-0000-4000-a000-000000000001', status: 'VERIFIED' });
 
-    const res = await request(app).put('/api/bills/1/verify');
+    const res = await request(app).put('/api/bills/e9000000-0000-4000-a000-000000000001/verify');
 
     expect(res.status).toBe(400);
   });

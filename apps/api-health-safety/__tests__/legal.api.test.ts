@@ -367,7 +367,7 @@ describe('Health & Safety Legal Requirements API', () => {
   describe('DELETE /api/legal/:id', () => {
     it('should delete requirement', async () => {
       (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
-      (mockPrisma.legalRequirement.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.legalRequirement.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/legal/14000000-0000-4000-a000-000000000001')

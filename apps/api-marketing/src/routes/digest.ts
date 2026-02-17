@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
@@ -7,7 +8,7 @@ const logger = createLogger('api-marketing:digest');
 const router = Router();
 
 // POST /api/digest/trigger
-router.post('/trigger', async (req: Request, res: Response) => {
+router.post('/trigger', authenticate, async (req: Request, res: Response) => {
   try {
     const now = new Date();
     const yesterday = new Date(now);
@@ -70,7 +71,7 @@ router.post('/trigger', async (req: Request, res: Response) => {
 });
 
 // GET /api/digest/history
-router.get('/history', async (req: Request, res: Response) => {
+router.get('/history', authenticate, async (req: Request, res: Response) => {
   try {
     const digests = await prisma.mktEmailLog.findMany({
       where: { template: 'daily_digest' },

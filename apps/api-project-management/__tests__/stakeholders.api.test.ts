@@ -303,15 +303,16 @@ describe('Stakeholders API Routes', () => {
   describe('DELETE /api/stakeholders/:id', () => {
     it('should delete a stakeholder successfully', async () => {
       (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
-      (mockPrisma.projectStakeholder.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/stakeholders/46000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.projectStakeholder.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.projectStakeholder.update).toHaveBeenCalledWith({
         where: { id: '46000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

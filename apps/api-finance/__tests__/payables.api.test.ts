@@ -50,7 +50,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -77,7 +77,7 @@ beforeEach(() => {
 describe('GET /api/payables/suppliers', () => {
   it('should return a list of suppliers', async () => {
     const suppliers = [
-      { id: 'sup-1', code: 'S001', name: 'Widget Co', _count: { bills: 3, purchaseOrders: 2, payments: 1 } },
+      { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co', _count: { bills: 3, purchaseOrders: 2, payments: 1 } },
     ];
     (prisma as any).finSupplier.findMany.mockResolvedValue(suppliers);
     (prisma as any).finSupplier.count.mockResolvedValue(1);
@@ -121,16 +121,16 @@ describe('GET /api/payables/suppliers', () => {
 describe('GET /api/payables/suppliers/:id', () => {
   it('should return a supplier when found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue({
-      id: 'sup-1',
+      id: 'f7000000-0000-4000-a000-000000000001',
       code: 'S001',
       name: 'Widget Co',
       _count: { bills: 3, purchaseOrders: 2, payments: 1 },
     });
 
-    const res = await request(app).get('/api/payables/suppliers/sup-1');
+    const res = await request(app).get('/api/payables/suppliers/f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('sup-1');
+    expect(res.body.data.id).toBe('f7000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
@@ -173,10 +173,10 @@ describe('POST /api/payables/suppliers', () => {
 
 describe('PUT /api/payables/suppliers/:id', () => {
   it('should update a supplier', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'sup-1', code: 'S001' });
-    (prisma as any).finSupplier.update.mockResolvedValue({ id: 'sup-1', name: 'Updated Widget Co' });
+    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001', code: 'S001' });
+    (prisma as any).finSupplier.update.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001', name: 'Updated Widget Co' });
 
-    const res = await request(app).put('/api/payables/suppliers/sup-1').send({ name: 'Updated Widget Co' });
+    const res = await request(app).put('/api/payables/suppliers/f7000000-0000-4000-a000-000000000001').send({ name: 'Updated Widget Co' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -191,10 +191,10 @@ describe('PUT /api/payables/suppliers/:id', () => {
   });
 
   it('should return 409 for duplicate code on update', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'sup-1', code: 'S001' });
-    (prisma as any).finSupplier.findUnique.mockResolvedValue({ id: 'sup-2', code: 'S002' });
+    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001', code: 'S001' });
+    (prisma as any).finSupplier.findUnique.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000002', code: 'S002' });
 
-    const res = await request(app).put('/api/payables/suppliers/sup-1').send({ code: 'S002' });
+    const res = await request(app).put('/api/payables/suppliers/f7000000-0000-4000-a000-000000000001').send({ code: 'S002' });
 
     expect(res.status).toBe(409);
   });
@@ -202,11 +202,11 @@ describe('PUT /api/payables/suppliers/:id', () => {
 
 describe('DELETE /api/payables/suppliers/:id', () => {
   it('should soft delete a supplier with no unpaid bills', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'sup-1' });
+    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001' });
     (prisma as any).finBill.count.mockResolvedValue(0);
-    (prisma as any).finSupplier.update.mockResolvedValue({ id: 'sup-1' });
+    (prisma as any).finSupplier.update.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/payables/suppliers/sup-1');
+    const res = await request(app).delete('/api/payables/suppliers/f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -221,10 +221,10 @@ describe('DELETE /api/payables/suppliers/:id', () => {
   });
 
   it('should return 409 when supplier has unpaid bills', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'sup-1' });
+    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: 'f7000000-0000-4000-a000-000000000001' });
     (prisma as any).finBill.count.mockResolvedValue(3);
 
-    const res = await request(app).delete('/api/payables/suppliers/sup-1');
+    const res = await request(app).delete('/api/payables/suppliers/f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe('HAS_UNPAID_BILLS');
@@ -238,7 +238,7 @@ describe('DELETE /api/payables/suppliers/:id', () => {
 describe('GET /api/payables/purchase-orders', () => {
   it('should return a list of purchase orders', async () => {
     const orders = [
-      { id: 'po-1', reference: 'FIN-PO-2601-1000', status: 'DRAFT', supplier: { id: 's-1', code: 'S001', name: 'Widget Co' }, _count: { lines: 2 } },
+      { id: 'f7100000-0000-4000-a000-000000000001', reference: 'FIN-PO-2601-1000', status: 'DRAFT', supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' }, _count: { lines: 2 } },
     ];
     (prisma as any).finPurchaseOrder.findMany.mockResolvedValue(orders);
     (prisma as any).finPurchaseOrder.count.mockResolvedValue(1);
@@ -262,7 +262,7 @@ describe('GET /api/payables/purchase-orders', () => {
     (prisma as any).finPurchaseOrder.findMany.mockResolvedValue([]);
     (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/payables/purchase-orders?supplierId=sup-1');
+    const res = await request(app).get('/api/payables/purchase-orders?supplierId=f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
   });
@@ -280,16 +280,16 @@ describe('GET /api/payables/purchase-orders', () => {
 describe('GET /api/payables/purchase-orders/:id', () => {
   it('should return a PO when found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
-      id: 'po-1',
+      id: 'f7100000-0000-4000-a000-000000000001',
       reference: 'FIN-PO-2601-1000',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co', email: 'info@widget.co', currency: 'USD' },
-      lines: [{ id: 'line-1', description: 'Bolts', quantity: 100, unitPrice: 0.5 }],
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co', email: 'info@widget.co', currency: 'USD' },
+      lines: [{ id: 'f6100000-0000-4000-a000-000000000001', description: 'Bolts', quantity: 100, unitPrice: 0.5 }],
     });
 
-    const res = await request(app).get('/api/payables/purchase-orders/po-1');
+    const res = await request(app).get('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('po-1');
+    expect(res.body.data.id).toBe('f7100000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
@@ -317,7 +317,7 @@ describe('POST /api/payables/purchase-orders', () => {
       reference: 'FIN-PO-2601-5678',
       status: 'DRAFT',
       total: 50,
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       lines: [{ description: 'Steel bolts', quantity: 100, unitPrice: 0.5 }],
     });
 
@@ -344,15 +344,15 @@ describe('POST /api/payables/purchase-orders', () => {
 
 describe('PUT /api/payables/purchase-orders/:id', () => {
   it('should update a draft PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'DRAFT' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finPurchaseOrder.update.mockResolvedValue({
-      id: 'po-1',
+      id: 'f7100000-0000-4000-a000-000000000001',
       notes: 'Updated notes',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       lines: [],
     });
 
-    const res = await request(app).put('/api/payables/purchase-orders/po-1').send({ notes: 'Updated notes' });
+    const res = await request(app).put('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'Updated notes' });
 
     expect(res.status).toBe(200);
   });
@@ -366,9 +366,9 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
   });
 
   it('should return 400 when PO is not DRAFT', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'APPROVED' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'APPROVED' });
 
-    const res = await request(app).put('/api/payables/purchase-orders/po-1').send({ notes: 'test' });
+    const res = await request(app).put('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'test' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('NOT_EDITABLE');
@@ -377,14 +377,14 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
 
 describe('POST /api/payables/purchase-orders/:id/approve', () => {
   it('should approve a DRAFT PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'DRAFT' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finPurchaseOrder.update.mockResolvedValue({
-      id: 'po-1',
+      id: 'f7100000-0000-4000-a000-000000000001',
       status: 'APPROVED',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
     });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/approve');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/approve');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('APPROVED');
@@ -399,9 +399,9 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
   });
 
   it('should return 400 when PO cannot be approved in current status', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'RECEIVED' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'RECEIVED' });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/approve');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/approve');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATUS');
@@ -410,14 +410,14 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
 
 describe('POST /api/payables/purchase-orders/:id/receive', () => {
   it('should mark an APPROVED PO as received', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'APPROVED' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'APPROVED' });
     (prisma as any).finPurchaseOrder.update.mockResolvedValue({
-      id: 'po-1',
+      id: 'f7100000-0000-4000-a000-000000000001',
       status: 'RECEIVED',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
     });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/receive');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/receive');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('RECEIVED');
@@ -432,9 +432,9 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
   });
 
   it('should return 400 when PO is DRAFT', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'DRAFT' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT' });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/receive');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/receive');
 
     expect(res.status).toBe(400);
   });
@@ -442,14 +442,14 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
 
 describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   it('should cancel a PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'DRAFT' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finPurchaseOrder.update.mockResolvedValue({
-      id: 'po-1',
+      id: 'f7100000-0000-4000-a000-000000000001',
       status: 'CANCELLED',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
     });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/cancel');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/cancel');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('CANCELLED');
@@ -464,17 +464,17 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   });
 
   it('should return 400 when already cancelled', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'CANCELLED' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'CANCELLED' });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/cancel');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/cancel');
 
     expect(res.status).toBe(400);
   });
 
   it('should return 400 when already closed', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'po-1', status: 'CLOSED' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'CLOSED' });
 
-    const res = await request(app).post('/api/payables/purchase-orders/po-1/cancel');
+    const res = await request(app).post('/api/payables/purchase-orders/f7100000-0000-4000-a000-000000000001/cancel');
 
     expect(res.status).toBe(400);
   });
@@ -487,7 +487,7 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
 describe('GET /api/payables (bills list)', () => {
   it('should return a list of bills', async () => {
     const bills = [
-      { id: 'bill-1', reference: 'FIN-BILL-2601-1000', status: 'DRAFT', supplier: { id: 's-1', code: 'S001', name: 'Widget Co' } },
+      { id: 'f7200000-0000-4000-a000-000000000001', reference: 'FIN-BILL-2601-1000', status: 'DRAFT', supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' } },
     ];
     (prisma as any).finBill.findMany.mockResolvedValue(bills);
     (prisma as any).finBill.count.mockResolvedValue(1);
@@ -511,7 +511,7 @@ describe('GET /api/payables (bills list)', () => {
     (prisma as any).finBill.findMany.mockResolvedValue([]);
     (prisma as any).finBill.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/payables?supplierId=sup-1');
+    const res = await request(app).get('/api/payables?supplierId=f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
   });
@@ -543,7 +543,7 @@ describe('POST /api/payables (create bill)', () => {
       reference: 'FIN-BILL-2601-5678',
       status: 'DRAFT',
       total: 250,
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       lines: [{ description: 'Office supplies', quantity: 10, unitPrice: 25 }],
     });
 
@@ -582,15 +582,15 @@ describe('POST /api/payables (create bill)', () => {
 
 describe('PUT /api/payables/:id (update bill)', () => {
   it('should update a draft bill', async () => {
-    (prisma as any).finBill.findFirst.mockResolvedValue({ id: 'bill-1', status: 'DRAFT', amountPaid: 0 });
+    (prisma as any).finBill.findFirst.mockResolvedValue({ id: 'f7200000-0000-4000-a000-000000000001', status: 'DRAFT', amountPaid: 0 });
     (prisma as any).finBill.update.mockResolvedValue({
-      id: 'bill-1',
+      id: 'f7200000-0000-4000-a000-000000000001',
       notes: 'Updated',
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       lines: [],
     });
 
-    const res = await request(app).put('/api/payables/bill-1').send({ notes: 'Updated' });
+    const res = await request(app).put('/api/payables/f7200000-0000-4000-a000-000000000001').send({ notes: 'Updated' });
 
     expect(res.status).toBe(200);
   });
@@ -604,9 +604,9 @@ describe('PUT /api/payables/:id (update bill)', () => {
   });
 
   it('should return 400 when bill is not DRAFT', async () => {
-    (prisma as any).finBill.findFirst.mockResolvedValue({ id: 'bill-1', status: 'PAID' });
+    (prisma as any).finBill.findFirst.mockResolvedValue({ id: 'f7200000-0000-4000-a000-000000000001', status: 'PAID' });
 
-    const res = await request(app).put('/api/payables/bill-1').send({ notes: 'test' });
+    const res = await request(app).put('/api/payables/f7200000-0000-4000-a000-000000000001').send({ notes: 'test' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('NOT_EDITABLE');
@@ -638,7 +638,7 @@ describe('POST /api/payables/payments', () => {
       id: 'pay-new',
       reference: 'FIN-PAY-2601-5678',
       amount: 250,
-      supplier: { id: 's-1', code: 'S001', name: 'Widget Co' },
+      supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       bill: { id: validPayment.billId, reference: 'FIN-BILL-2601-1000', total: 500, amountPaid: 0, amountDue: 500, status: 'RECEIVED' },
     });
     (prisma as any).finBill.update.mockResolvedValue({});
@@ -700,7 +700,7 @@ describe('POST /api/payables/payments', () => {
 describe('GET /api/payables/payments', () => {
   it('should return a list of payments made', async () => {
     const payments = [
-      { id: 'pay-1', reference: 'FIN-PAY-2601-1000', amount: 250, supplier: { id: 's-1', code: 'S001', name: 'Widget Co' }, bill: null },
+      { id: 'pay-1', reference: 'FIN-PAY-2601-1000', amount: 250, supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' }, bill: null },
     ];
     (prisma as any).finPaymentMade.findMany.mockResolvedValue(payments);
     (prisma as any).finPaymentMade.count.mockResolvedValue(1);
@@ -715,7 +715,7 @@ describe('GET /api/payables/payments', () => {
     (prisma as any).finPaymentMade.findMany.mockResolvedValue([]);
     (prisma as any).finPaymentMade.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/payables/payments?supplierId=sup-1');
+    const res = await request(app).get('/api/payables/payments?supplierId=f7000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
   });
@@ -741,7 +741,7 @@ describe('GET /api/payables/aging', () => {
     const overdue50 = new Date(now.getTime() - 50 * 24 * 60 * 60 * 1000);
 
     (prisma as any).finBill.findMany.mockResolvedValue([
-      { id: 'bill-1', amountDue: 500, dueDate: overdue15, supplier: { id: 's-1', code: 'S001', name: 'Widget Co' } },
+      { id: 'f7200000-0000-4000-a000-000000000001', amountDue: 500, dueDate: overdue15, supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' } },
       { id: 'bill-2', amountDue: 1000, dueDate: overdue50, supplier: { id: 's-2', code: 'S002', name: 'Gear Inc' } },
     ]);
 
@@ -766,12 +766,12 @@ describe('POST /api/payables/payment-run', () => {
   it('should generate a payment run', async () => {
     (prisma as any).finBill.findMany.mockResolvedValue([
       {
-        id: 'bill-1',
+        id: 'f7200000-0000-4000-a000-000000000001',
         reference: 'FIN-BILL-2601-1000',
-        supplierId: 's-1',
+        supplierId: 'f7000000-0000-4000-a000-000000000001',
         amountDue: 500,
         dueDate: new Date(),
-        supplier: { id: 's-1', code: 'S001', name: 'Widget Co', currency: 'USD', paymentTerms: 30 },
+        supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co', currency: 'USD', paymentTerms: 30 },
       },
     ]);
 

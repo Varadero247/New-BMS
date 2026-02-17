@@ -421,13 +421,14 @@ describe('Analyses CRUD API', () => {
 
       expect(response.status).toBe(204);
 
-      expect(mockPrisma.aIAnalysis.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.aIAnalysis.update).toHaveBeenCalledWith({
         where: { id: '52000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 
     it('returns 500 on database error', async () => {
-      mockPrisma.aIAnalysis.delete.mockRejectedValueOnce(new Error('DB error'));
+      mockPrisma.aIAnalysis.update.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .delete('/api/analyses/52000000-0000-4000-a000-000000000001')

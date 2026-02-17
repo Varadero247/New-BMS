@@ -180,7 +180,7 @@ describe('POST /api/partners', () => {
     });
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('already registered');
+    expect(res.body.error.message).toContain('already registered');
   });
 
   it('should return 500 on database error', async () => {

@@ -88,6 +88,16 @@ module.exports = {
   maxWorkers: '66%',
   testTimeout: 60000,
 
+  // Coverage thresholds (enforced when --coverage is passed)
+  coverageThreshold: {
+    global: {
+      statements: 70,
+      branches: 60,
+      functions: 65,
+      lines: 70,
+    },
+  },
+
   // Coverage (applied when --coverage is passed)
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [

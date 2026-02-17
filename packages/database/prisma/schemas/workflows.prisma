@@ -19,6 +19,7 @@ datasource db {
 
 model WorkflowDefinition {
   id                String   @id @default(cuid())
+  orgId           String?
   code              String   @unique
   name              String
   description       String?
@@ -59,6 +60,8 @@ model WorkflowDefinition {
   @@index([status])
   @@index([category])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("wf_definitions")
 }
 
@@ -99,6 +102,7 @@ enum WorkflowDefinitionStatus {
 
 model WorkflowInstance {
   id                String   @id @default(cuid())
+  orgId           String?
   definitionId      String
   referenceNumber   String   @unique
 
@@ -147,6 +151,8 @@ model WorkflowInstance {
   @@index([definitionId])
   @@index([entityType, entityId])
   @@index([initiatedById])
+  @@index([orgId])
+
   @@map("wf_instances")
 }
 
@@ -184,6 +190,7 @@ enum WorkflowOutcome {
 
 model WorkflowStep {
   id                String   @id @default(cuid())
+  orgId           String?
   instanceId        String
   stepDefinitionId  String   // References step in definition.steps
 
@@ -219,6 +226,8 @@ model WorkflowStep {
 
   @@index([instanceId])
   @@index([status])
+  @@index([orgId])
+
   @@map("wf_steps")
 }
 
@@ -260,6 +269,7 @@ enum AssigneeType {
 
 model WorkflowTask {
   id                String   @id @default(cuid())
+  orgId           String?
   instanceId        String
   stepId            String?
 
@@ -305,6 +315,8 @@ model WorkflowTask {
   @@index([instanceId])
   @@index([assignedToId])
   @@index([status])
+  @@index([orgId])
+
   @@map("wf_tasks")
 }
 
@@ -333,6 +345,7 @@ enum WorkflowTaskStatus {
 
 model WorkflowComment {
   id                String   @id @default(cuid())
+  orgId           String?
   instanceId        String
   stepId            String?
   taskId            String?
@@ -358,6 +371,8 @@ model WorkflowComment {
   instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
 
   @@index([instanceId])
+  @@index([orgId])
+
   @@map("wf_comments")
 }
 
@@ -444,6 +459,7 @@ enum ActorType {
 
 model WorkflowTemplate {
   id                String   @id @default(cuid())
+  orgId           String?
   code              String   @unique
   name              String
   description       String?
@@ -471,6 +487,8 @@ model WorkflowTemplate {
 
   @@index([category])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("wf_templates")
 }
 
@@ -498,6 +516,7 @@ enum IndustryType {
 
 model ApprovalChain {
   id                String   @id @default(cuid())
+  orgId           String?
   name              String
   description       String?
   chainType         ApprovalChainType
@@ -517,6 +536,9 @@ model ApprovalChain {
   deletedAt         DateTime?
   createdById       String?
 
+  @@index([orgId])
+
+
   @@map("wf_approval_chains")
 }
 
@@ -533,6 +555,7 @@ enum ApprovalChainType {
 
 model EscalationRule {
   id                String   @id @default(cuid())
+  orgId           String?
   name              String
   description       String?
 
@@ -553,6 +576,9 @@ model EscalationRule {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@index([orgId])
+
 
   @@map("wf_escalation_rules")
 }
@@ -580,6 +606,7 @@ enum EscalationActionType {
 
 model WorkflowNotification {
   id                String   @id @default(cuid())
+  orgId           String?
   instanceId        String?
   taskId            String?
 
@@ -610,6 +637,8 @@ model WorkflowNotification {
   @@index([recipientId])
   @@index([status])
   @@index([notificationType])
+  @@index([orgId])
+
   @@map("wf_notifications")
 }
 
@@ -647,6 +676,7 @@ enum NotificationStatus {
 
 model WorkflowStepApproval {
   id                String   @id @default(cuid())
+  orgId           String?
   stepId            String
   approverId        String
   approverName      String?
@@ -674,6 +704,8 @@ model WorkflowStepApproval {
   @@index([stepId])
   @@index([approverId])
   @@index([status])
+  @@index([orgId])
+
   @@map("wf_step_approvals")
 }
 
@@ -706,6 +738,7 @@ enum ApprovalDecision {
 
 model AutomationRule {
   id                String   @id @default(cuid())
+  orgId           String?
   name              String
   description       String?
   code              String   @unique
@@ -747,6 +780,8 @@ model AutomationRule {
   @@index([triggerType])
   @@index([isActive])
   @@index([entityType])
+  @@index([orgId])
+
   @@map("wf_automation_rules")
 }
 
@@ -778,6 +813,7 @@ enum AutomationActionType {
 
 model AutomationExecution {
   id                String   @id @default(cuid())
+  orgId           String?
   ruleId            String
 
   // Execution context
@@ -816,6 +852,8 @@ model AutomationExecution {
   @@index([status])
   @@index([entityType, entityId])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("wf_automation_executions")
 }
 
@@ -835,6 +873,7 @@ enum AutomationExecutionStatus {
 
 model ApprovalRequest {
   id                String   @id @default(cuid())
+  orgId           String?
   requestNumber     String   @unique
 
   // Request details
@@ -883,6 +922,8 @@ model ApprovalRequest {
   @@index([status])
   @@index([requestType])
   @@index([entityType, entityId])
+  @@index([orgId])
+
   @@map("wf_approval_requests")
 }
 
@@ -925,6 +966,7 @@ enum ApprovalOutcome {
 
 model Webhook {
   id          String   @id @default(cuid())
+  orgId           String?
   name        String
   url         String
   secret      String   // HMAC secret for signature verification
@@ -942,11 +984,14 @@ model Webhook {
 
   @@index([isActive])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("webhooks")
 }
 
 model WebhookDelivery {
   id          String   @id @default(cuid())
+  orgId           String?
   webhookId   String
   event       String   // e.g., "incident.created"
   payload     Json
@@ -964,6 +1009,8 @@ model WebhookDelivery {
   @@index([event])
   @@index([success])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("webhook_deliveries")
 }
 
@@ -973,6 +1020,7 @@ model WebhookDelivery {
 
 model ApprovalResponse {
   id                String   @id @default(cuid())
+  orgId           String?
   requestId         String
 
   // Approver
@@ -998,7 +1046,12 @@ model ApprovalResponse {
   // Relations
   request           ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   @@index([requestId])
   @@index([approverId])
+  @@index([orgId])
+
   @@map("wf_approval_responses")
 }

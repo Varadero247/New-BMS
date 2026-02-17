@@ -43,7 +43,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -69,8 +69,8 @@ beforeEach(() => {
 describe('GET /api/accounts', () => {
   it('should return a list of accounts with pagination', async () => {
     const accounts = [
-      { id: 'acc-1', code: '1000', name: 'Cash', type: 'ASSET', parent: null, _count: { children: 0, journalLines: 2 } },
-      { id: 'acc-2', code: '2000', name: 'AP', type: 'LIABILITY', parent: null, _count: { children: 0, journalLines: 5 } },
+      { id: 'f2000000-0000-4000-a000-000000000001', code: '1000', name: 'Cash', type: 'ASSET', parent: null, _count: { children: 0, journalLines: 2 } },
+      { id: 'f2000000-0000-4000-a000-000000000002', code: '2000', name: 'AP', type: 'LIABILITY', parent: null, _count: { children: 0, journalLines: 5 } },
     ];
     (prisma as any).finAccount.findMany.mockResolvedValue(accounts);
     (prisma as any).finAccount.count.mockResolvedValue(2);
@@ -157,8 +157,8 @@ describe('GET /api/accounts', () => {
 describe('GET /api/accounts/tree', () => {
   it('should return a hierarchical account tree', async () => {
     const accounts = [
-      { id: 'root-1', code: '1000', name: 'Assets', parentId: null, _count: { journalLines: 0 } },
-      { id: 'child-1', code: '1100', name: 'Cash', parentId: 'root-1', _count: { journalLines: 3 } },
+      { id: 'f2100000-0000-4000-a000-000000000001', code: '1000', name: 'Assets', parentId: null, _count: { journalLines: 0 } },
+      { id: 'f2100000-0000-4000-a000-000000000002', code: '1100', name: 'Cash', parentId: 'f2100000-0000-4000-a000-000000000001', _count: { journalLines: 3 } },
     ];
     (prisma as any).finAccount.findMany.mockResolvedValue(accounts);
 
@@ -184,7 +184,7 @@ describe('GET /api/accounts/tree', () => {
 describe('GET /api/accounts/:id', () => {
   it('should return an account when found', async () => {
     const account = {
-      id: 'acc-1',
+      id: 'f2000000-0000-4000-a000-000000000001',
       code: '1000',
       name: 'Cash',
       type: 'ASSET',
@@ -193,10 +193,10 @@ describe('GET /api/accounts/:id', () => {
     };
     (prisma as any).finAccount.findFirst.mockResolvedValue(account);
 
-    const res = await request(app).get('/api/accounts/acc-1');
+    const res = await request(app).get('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('acc-1');
+    expect(res.body.data.id).toBe('f2000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 when account not found', async () => {
@@ -211,7 +211,7 @@ describe('GET /api/accounts/:id', () => {
   it('should return 500 on error', async () => {
     (prisma as any).finAccount.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/accounts/acc-1');
+    const res = await request(app).get('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -287,10 +287,10 @@ describe('POST /api/accounts', () => {
 // ===================================================================
 describe('PUT /api/accounts/:id', () => {
   it('should update an account successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'acc-1', code: '1000' });
-    (prisma as any).finAccount.update.mockResolvedValue({ id: 'acc-1', name: 'Updated Cash', parent: null });
+    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' });
+    (prisma as any).finAccount.update.mockResolvedValue({ id: 'f2000000-0000-4000-a000-000000000001', name: 'Updated Cash', parent: null });
 
-    const res = await request(app).put('/api/accounts/acc-1').send({ name: 'Updated Cash' });
+    const res = await request(app).put('/api/accounts/f2000000-0000-4000-a000-000000000001').send({ name: 'Updated Cash' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -318,10 +318,10 @@ describe('PUT /api/accounts/:id', () => {
 
   it('should return 400 for non-existent parent', async () => {
     (prisma as any).finAccount.findFirst
-      .mockResolvedValueOnce({ id: 'acc-1', code: '1000' }) // account exists
+      .mockResolvedValueOnce({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' }) // account exists
       .mockResolvedValueOnce(null); // parent not found
 
-    const res = await request(app).put('/api/accounts/acc-1').send({
+    const res = await request(app).put('/api/accounts/f2000000-0000-4000-a000-000000000001').send({
       parentId: '550e8400-e29b-41d4-a716-446655440000',
     });
 
@@ -335,11 +335,11 @@ describe('PUT /api/accounts/:id', () => {
 // ===================================================================
 describe('DELETE /api/accounts/:id', () => {
   it('should soft delete an account successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'acc-1', code: '1000' });
+    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' });
     (prisma as any).finJournalLine.count.mockResolvedValue(0);
-    (prisma as any).finAccount.update.mockResolvedValue({ id: 'acc-1' });
+    (prisma as any).finAccount.update.mockResolvedValue({ id: 'f2000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/accounts/acc-1');
+    const res = await request(app).delete('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -354,10 +354,10 @@ describe('DELETE /api/accounts/:id', () => {
   });
 
   it('should return 409 when account has journal lines', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'acc-1', code: '1000' });
+    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' });
     (prisma as any).finJournalLine.count.mockResolvedValue(5);
 
-    const res = await request(app).delete('/api/accounts/acc-1');
+    const res = await request(app).delete('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
     expect(res.body.error).toContain('journal line(s)');
@@ -370,7 +370,7 @@ describe('DELETE /api/accounts/:id', () => {
 describe('GET /api/accounts/entries', () => {
   it('should return a list of journal entries', async () => {
     const entries = [
-      { id: 'je-1', reference: 'FIN-JE-2601-1234', status: 'DRAFT', lines: [], period: { id: 'p-1', name: 'Jan 2026', status: 'OPEN' } },
+      { id: 'f2200000-0000-4000-a000-000000000001', reference: 'FIN-JE-2601-1234', status: 'DRAFT', lines: [], period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026', status: 'OPEN' } },
     ];
     (prisma as any).finJournalEntry.findMany.mockResolvedValue(entries);
     (prisma as any).finJournalEntry.count.mockResolvedValue(1);
@@ -421,17 +421,17 @@ describe('GET /api/accounts/entries', () => {
 describe('GET /api/accounts/entries/:id', () => {
   it('should return a journal entry when found', async () => {
     const entry = {
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       reference: 'FIN-JE-2601-1234',
       lines: [],
-      period: { id: 'p-1', name: 'Jan 2026' },
+      period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' },
     };
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(entry);
 
-    const res = await request(app).get('/api/accounts/entries/je-1');
+    const res = await request(app).get('/api/accounts/entries/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('je-1');
+    expect(res.body.data.id).toBe('f2200000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
@@ -560,16 +560,16 @@ describe('POST /api/accounts/entries', () => {
 describe('PUT /api/accounts/entries/:id', () => {
   it('should update header-only fields of a DRAFT entry', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
     (prisma as any).finJournalEntry.update.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       description: 'Updated desc',
       lines: [],
     });
 
-    const res = await request(app).put('/api/accounts/entries/je-1').send({ description: 'Updated desc' });
+    const res = await request(app).put('/api/accounts/entries/f2200000-0000-4000-a000-000000000001').send({ description: 'Updated desc' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -585,18 +585,18 @@ describe('PUT /api/accounts/entries/:id', () => {
 
   it('should return 400 when entry is not DRAFT', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
     });
 
-    const res = await request(app).put('/api/accounts/entries/je-1').send({ description: 'Test' });
+    const res = await request(app).put('/api/accounts/entries/f2200000-0000-4000-a000-000000000001').send({ description: 'Test' });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('DRAFT');
   });
 
   it('should update lines when provided and validate double-entry', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
     (prisma as any).finAccount.findMany.mockResolvedValue([
       { id: '550e8400-e29b-41d4-a716-446655440001' },
       { id: '550e8400-e29b-41d4-a716-446655440002' },
@@ -605,13 +605,13 @@ describe('PUT /api/accounts/entries/:id', () => {
       const tx = {
         finJournalLine: { deleteMany: jest.fn() },
         finJournalEntry: {
-          update: jest.fn().mockResolvedValue({ id: 'je-1', lines: [] }),
+          update: jest.fn().mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', lines: [] }),
         },
       };
       return fn(tx);
     });
 
-    const res = await request(app).put('/api/accounts/entries/je-1').send({
+    const res = await request(app).put('/api/accounts/entries/f2200000-0000-4000-a000-000000000001').send({
       lines: [
         { accountId: '550e8400-e29b-41d4-a716-446655440001', debit: 200, credit: 0 },
         { accountId: '550e8400-e29b-41d4-a716-446655440002', debit: 0, credit: 200 },
@@ -622,9 +622,9 @@ describe('PUT /api/accounts/entries/:id', () => {
   });
 
   it('should return 400 when updated lines debits != credits', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'je-1', status: 'DRAFT' });
+    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'DRAFT' });
 
-    const res = await request(app).put('/api/accounts/entries/je-1').send({
+    const res = await request(app).put('/api/accounts/entries/f2200000-0000-4000-a000-000000000001').send({
       lines: [
         { accountId: '550e8400-e29b-41d4-a716-446655440001', debit: 200, credit: 0 },
         { accountId: '550e8400-e29b-41d4-a716-446655440002', debit: 0, credit: 100 },
@@ -641,18 +641,18 @@ describe('PUT /api/accounts/entries/:id', () => {
 describe('POST /api/accounts/entries/:id/post', () => {
   it('should post a DRAFT entry in an OPEN period', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { status: 'OPEN' },
     });
     (prisma as any).finJournalEntry.update.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       lines: [],
-      period: { id: 'p-1', name: 'Jan 2026' },
+      period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' },
     });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/post');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('POSTED');
@@ -668,12 +668,12 @@ describe('POST /api/accounts/entries/:id/post', () => {
 
   it('should return 400 when entry is already POSTED', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       period: { status: 'OPEN' },
     });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/post');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('already POSTED');
@@ -681,12 +681,12 @@ describe('POST /api/accounts/entries/:id/post', () => {
 
   it('should return 400 when period is CLOSED', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { status: 'CLOSED' },
     });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/post');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('CLOSED');
@@ -699,16 +699,16 @@ describe('POST /api/accounts/entries/:id/post', () => {
 describe('POST /api/accounts/entries/:id/reverse', () => {
   it('should reverse a POSTED entry', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       reference: 'FIN-JE-2601-1000',
       status: 'POSTED',
-      periodId: 'p-1',
+      periodId: 'f2300000-0000-4000-a000-000000000001',
       description: 'Test entry',
       totalDebit: 100,
       totalCredit: 100,
       lines: [
-        { accountId: 'acc-1', debit: 100, credit: 0, description: 'Debit line' },
-        { accountId: 'acc-2', debit: 0, credit: 100, description: 'Credit line' },
+        { accountId: 'f2000000-0000-4000-a000-000000000001', debit: 100, credit: 0, description: 'Debit line' },
+        { accountId: 'f2000000-0000-4000-a000-000000000002', debit: 0, credit: 100, description: 'Credit line' },
       ],
       period: { status: 'OPEN' },
     });
@@ -716,11 +716,11 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
       id: 'je-reversal',
       status: 'POSTED',
       lines: [],
-      period: { id: 'p-1', name: 'Jan 2026' },
+      period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' },
     });
-    (prisma as any).finJournalEntry.update.mockResolvedValue({ id: 'je-1', status: 'REVERSED' });
+    (prisma as any).finJournalEntry.update.mockResolvedValue({ id: 'f2200000-0000-4000-a000-000000000001', status: 'REVERSED' });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/reverse');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/reverse');
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -736,13 +736,13 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
 
   it('should return 400 when entry is not POSTED', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       lines: [],
       period: { status: 'OPEN' },
     });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/reverse');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/reverse');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('Only POSTED');
@@ -750,13 +750,13 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
 
   it('should return 400 when period is CLOSED', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
-      id: 'je-1',
+      id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       lines: [],
       period: { status: 'CLOSED' },
     });
 
-    const res = await request(app).post('/api/accounts/entries/je-1/reverse');
+    const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/reverse');
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('CLOSED');
@@ -768,10 +768,10 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
 // ===================================================================
 describe('GET /api/accounts/trial-balance', () => {
   it('should return trial balance for a valid period', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'p-1', name: 'Jan 2026' });
+    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' });
     (prisma as any).finJournalLine.findMany.mockResolvedValue([
-      { accountId: 'acc-1', debit: 500, credit: 0, account: { id: 'acc-1', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
-      { accountId: 'acc-2', debit: 0, credit: 500, account: { id: 'acc-2', code: '2000', name: 'AP', type: 'LIABILITY', normalBalance: 'CREDIT' } },
+      { accountId: 'f2000000-0000-4000-a000-000000000001', debit: 500, credit: 0, account: { id: 'f2000000-0000-4000-a000-000000000001', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
+      { accountId: 'f2000000-0000-4000-a000-000000000002', debit: 0, credit: 500, account: { id: 'f2000000-0000-4000-a000-000000000002', code: '2000', name: 'AP', type: 'LIABILITY', normalBalance: 'CREDIT' } },
     ]);
 
     const res = await request(app).get('/api/accounts/trial-balance?periodId=p-1');
@@ -828,10 +828,10 @@ describe('GET /api/accounts/profit-loss', () => {
 describe('GET /api/accounts/balance-sheet', () => {
   it('should return balance sheet', async () => {
     (prisma as any).finJournalLine.findMany.mockResolvedValue([
-      { accountId: 'acc-1', debit: 10000, credit: 0, account: { id: 'acc-1', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
+      { accountId: 'f2000000-0000-4000-a000-000000000001', debit: 10000, credit: 0, account: { id: 'f2000000-0000-4000-a000-000000000001', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT' } },
     ]);
     (prisma as any).finAccount.findMany.mockResolvedValue([
-      { id: 'acc-1', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT', openingBalance: 5000 },
+      { id: 'f2000000-0000-4000-a000-000000000001', code: '1000', name: 'Cash', type: 'ASSET', normalBalance: 'DEBIT', openingBalance: 5000 },
     ]);
 
     const res = await request(app).get('/api/accounts/balance-sheet?asOf=2026-01-31');
@@ -856,7 +856,7 @@ describe('GET /api/accounts/balance-sheet', () => {
 describe('GET /api/accounts/periods', () => {
   it('should return a list of periods', async () => {
     const periods = [
-      { id: 'p-1', name: 'Jan 2026', status: 'OPEN', _count: { journalEntries: 5 } },
+      { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026', status: 'OPEN', _count: { journalEntries: 5 } },
     ];
     (prisma as any).finPeriod.findMany.mockResolvedValue(periods);
     (prisma as any).finPeriod.count.mockResolvedValue(1);
@@ -934,9 +934,9 @@ describe('POST /api/accounts/periods', () => {
 // ===================================================================
 describe('PUT /api/accounts/periods/:id/close', () => {
   it('should close an OPEN period with no unposted entries', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'p-1', status: 'OPEN' });
+    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'OPEN' });
     (prisma as any).finJournalEntry.count.mockResolvedValue(0);
-    (prisma as any).finPeriod.update.mockResolvedValue({ id: 'p-1', status: 'CLOSED' });
+    (prisma as any).finPeriod.update.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'CLOSED' });
 
     const res = await request(app).put('/api/accounts/periods/p-1/close');
 
@@ -953,7 +953,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   });
 
   it('should return 400 when period is already CLOSED', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'p-1', status: 'CLOSED' });
+    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'CLOSED' });
 
     const res = await request(app).put('/api/accounts/periods/p-1/close');
 
@@ -962,7 +962,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   });
 
   it('should return 409 when unposted entries exist', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'p-1', status: 'OPEN' });
+    (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'OPEN' });
     (prisma as any).finJournalEntry.count.mockResolvedValue(3);
 
     const res = await request(app).put('/api/accounts/periods/p-1/close');

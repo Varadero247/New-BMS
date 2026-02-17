@@ -284,6 +284,7 @@ model RiskRegister {
   @@index([residualRiskLevel])
   @@index([nextReviewDate])
   @@index([sourceModule])
+  @@index([deletedAt])
 }
 
 // ── Risk Review (extended) ───────────────────────────────────
@@ -326,6 +327,7 @@ model RiskReview {
   @@index([orgId])
   @@index([riskId])
   @@index([scheduledDate])
+  @@index([deletedAt])
 }
 
 // ── Risk CAPA (preserved) ─────────────────────────────────────
@@ -367,6 +369,7 @@ model RiskCapa {
   @@index([orgId])
   @@index([riskId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 // ── Risk Controls (NEW) ──────────────────────────────────────

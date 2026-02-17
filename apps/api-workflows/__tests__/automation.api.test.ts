@@ -328,7 +328,7 @@ describe('Workflows Automation API Routes', () => {
 
   describe('DELETE /api/automation/rules/:id', () => {
     it('should delete automation rule successfully', async () => {
-      (mockPrisma.automationRule.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).delete('/api/automation/rules/42000000-0000-4000-a000-000000000001');
 
@@ -336,7 +336,7 @@ describe('Workflows Automation API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationRule.delete as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationRule.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).delete('/api/automation/rules/42000000-0000-4000-a000-000000000001');
 

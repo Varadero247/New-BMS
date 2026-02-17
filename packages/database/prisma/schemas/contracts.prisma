@@ -76,6 +76,7 @@ model ContContract {
   @@map("cont_contracts")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model ContApproval {
@@ -112,6 +113,7 @@ model ContNotice {
   contract     ContContract            @relation(fields: [contractId], references: [id])
   @@map("cont_notices")
   @@index([contractId])
+  @@index([deletedAt])
 }
 
 model ContClause {
@@ -130,4 +132,5 @@ model ContClause {
   contract     ContContract @relation(fields: [contractId], references: [id])
   @@map("cont_clauses")
   @@index([contractId])
+  @@index([deletedAt])
 }

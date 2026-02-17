@@ -562,15 +562,16 @@ describe('Health & Safety Incidents API Routes', () => {
   describe('DELETE /api/incidents/:id', () => {
     it('should delete incident successfully', async () => {
       (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({ id: '11000000-0000-4000-a000-000000000001' });
-      (mockPrisma.incident.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.incident.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/incidents/11000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.incident.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.incident.update).toHaveBeenCalledWith({
         where: { id: '11000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

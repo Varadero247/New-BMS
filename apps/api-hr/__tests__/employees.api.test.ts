@@ -27,6 +27,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -61,20 +71,20 @@ describe('HR Employees API Routes', () => {
         jobTitle: 'Developer',
         employmentStatus: 'ACTIVE',
         department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
-        position: { id: 'pos-1', title: 'Software Developer' },
+        position: { id: '2b100000-0000-4000-a000-000000000001', title: 'Software Developer' },
         manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager', employeeNumber: 'MGR001' },
         _count: { subordinates: 0 },
       },
       {
-        id: 'emp-2',
+        id: '2a000000-0000-4000-a000-000000000002',
         employeeNumber: 'EMP002',
         firstName: 'Alice',
         lastName: 'Smith',
         workEmail: 'alice@company.com',
         jobTitle: 'Designer',
         employmentStatus: 'ACTIVE',
-        department: { id: 'dept-2', name: 'Design' },
-        position: { id: 'pos-2', title: 'UI Designer' },
+        department: { id: '2b000000-0000-4000-a000-000000000002', name: 'Design' },
+        position: { id: '2b100000-0000-4000-a000-000000000002', title: 'UI Designer' },
         manager: null,
         _count: { subordinates: 2 },
       },
@@ -223,9 +233,9 @@ describe('HR Employees API Routes', () => {
 
   describe('GET /api/employees/org-chart', () => {
     const mockOrgEmployees = [
-      { id: 'ceo-1', firstName: 'CEO', lastName: 'Boss', jobTitle: 'CEO', departmentId: 'd1', managerId: null, department: { name: 'Executive' } },
-      { id: 'vp-1', firstName: 'VP', lastName: 'Sales', jobTitle: 'VP Sales', departmentId: 'd2', managerId: 'ceo-1', department: { name: 'Sales' } },
-      { id: '53000000-0000-4000-a000-000000000001', firstName: 'Manager', lastName: 'One', jobTitle: 'Sales Manager', departmentId: 'd2', managerId: 'vp-1', department: { name: 'Sales' } },
+      { id: '53000000-0000-4000-a000-000000000010', firstName: 'CEO', lastName: 'Boss', jobTitle: 'CEO', departmentId: '2b000000-0000-4000-a000-000000000010', managerId: null, department: { name: 'Executive' } },
+      { id: '53000000-0000-4000-a000-000000000011', firstName: 'VP', lastName: 'Sales', jobTitle: 'VP Sales', departmentId: '2b000000-0000-4000-a000-000000000011', managerId: '53000000-0000-4000-a000-000000000010', department: { name: 'Sales' } },
+      { id: '53000000-0000-4000-a000-000000000001', firstName: 'Manager', lastName: 'One', jobTitle: 'Sales Manager', departmentId: '2b000000-0000-4000-a000-000000000011', managerId: '53000000-0000-4000-a000-000000000011', department: { name: 'Sales' } },
     ];
 
     it('should return hierarchical org chart', async () => {
@@ -236,7 +246,7 @@ describe('HR Employees API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1); // Only CEO at root level
-      expect(response.body.data[0].id).toBe('ceo-1');
+      expect(response.body.data[0].id).toBe('53000000-0000-4000-a000-000000000010');
       expect(response.body.data[0].children).toHaveLength(1);
     });
 
@@ -307,7 +317,7 @@ describe('HR Employees API Routes', () => {
       lastName: 'Doe',
       workEmail: 'john@company.com',
       department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
-      position: { id: 'pos-1', title: 'Developer' },
+      position: { id: '2b100000-0000-4000-a000-000000000001', title: 'Developer' },
       manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       subordinates: [],
       leaveBalances: [],
@@ -526,7 +536,7 @@ describe('HR Employees API Routes', () => {
   describe('GET /api/employees/:id/subordinates', () => {
     const mockSubordinates = [
       {
-        id: 'sub-1',
+        id: '2a000000-0000-4000-a000-000000000003',
         firstName: 'Sub',
         lastName: 'One',
         department: { name: 'Engineering' },

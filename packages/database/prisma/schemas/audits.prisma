@@ -72,6 +72,7 @@ model AudAudit {
   @@map("aud_audits")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model AudFinding {
@@ -105,6 +106,7 @@ model AudFinding {
   @@index([orgId])
   @@index([auditId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model AudChecklist {
@@ -124,6 +126,7 @@ model AudChecklist {
   audit        AudAudit @relation(fields: [auditId], references: [id])
   @@map("aud_checklists")
   @@index([auditId])
+  @@index([deletedAt])
 }
 
 model AudProgramme {
@@ -140,4 +143,5 @@ model AudProgramme {
   deletedAt    DateTime?
   @@map("aud_programmes")
   @@index([orgId])
+  @@index([deletedAt])
 }

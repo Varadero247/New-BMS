@@ -377,7 +377,7 @@ describe('Tasks API Routes', () => {
   describe('DELETE /api/tasks/:id', () => {
     it('should delete a task successfully', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
-      (mockPrisma.projectTask.delete as jest.Mock).mockResolvedValueOnce(mockTask);
+      (mockPrisma.projectTask.update as jest.Mock).mockResolvedValueOnce(mockTask);
 
       const res = await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
@@ -396,7 +396,7 @@ describe('Tasks API Routes', () => {
 
     it('should return 500 on database error during delete', async () => {
       (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
-      (mockPrisma.projectTask.delete as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
+      (mockPrisma.projectTask.update as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
       const res = await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
 

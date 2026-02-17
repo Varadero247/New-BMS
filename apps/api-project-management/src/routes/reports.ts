@@ -144,7 +144,7 @@ router.delete('/:id', checkOwnership(prisma.projectStatusReport), async (req: Au
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
-    await prisma.projectStatusReport.delete({ where: { id: req.params.id } });
+    await prisma.projectStatusReport.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete report error', { error: (error as Error).message });

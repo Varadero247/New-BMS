@@ -153,7 +153,7 @@ router.delete('/:id', checkOwnership(prisma.projectSprint), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sprint not found' } });
     }
 
-    await prisma.projectSprint.delete({ where: { id: req.params.id } });
+    await prisma.projectSprint.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete sprint error', { error: (error as Error).message });

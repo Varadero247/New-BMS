@@ -26,6 +26,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -61,7 +71,7 @@ describe('HR Departments API Routes', () => {
         _count: { employees: 15, children: 2, positions: 5 },
       },
       {
-        id: 'dept-2',
+        id: '2b000000-0000-4000-a000-000000000002',
         code: 'MKT',
         name: 'Marketing',
         isActive: true,
@@ -108,7 +118,7 @@ describe('HR Departments API Routes', () => {
     it('should return tree structure when tree=true', async () => {
       const treeDepartments = [
         { id: '2b000000-0000-4000-a000-000000000001', name: 'Root', parentId: null, _count: { employees: 5, children: 1, positions: 2 }, parent: null },
-        { id: 'dept-2', name: 'Child', parentId: '2b000000-0000-4000-a000-000000000001', _count: { employees: 3, children: 0, positions: 1 }, parent: { id: '2b000000-0000-4000-a000-000000000001', name: 'Root', code: 'ROOT' } },
+        { id: '2b000000-0000-4000-a000-000000000002', name: 'Child', parentId: '2b000000-0000-4000-a000-000000000001', _count: { employees: 3, children: 0, positions: 1 }, parent: { id: '2b000000-0000-4000-a000-000000000001', name: 'Root', code: 'ROOT' } },
       ];
       (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce(treeDepartments);
 
@@ -353,7 +363,7 @@ describe('HR Departments API Routes', () => {
   describe('GET /api/departments/positions/all', () => {
     const mockPositions = [
       {
-        id: 'pos-1',
+        id: '2b100000-0000-4000-a000-000000000001',
         code: 'SWE',
         title: 'Software Engineer',
         isActive: true,

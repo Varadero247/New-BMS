@@ -19,6 +19,7 @@ datasource db {
 
 model PayrollRun {
   id                  String   @id @default(cuid())
+  orgId           String?
   runNumber           String   @unique
   companyId           String?
 
@@ -71,6 +72,8 @@ model PayrollRun {
   @@index([periodStart, periodEnd])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("payroll_runs")
 }
 
@@ -122,6 +125,7 @@ enum PaymentStatus {
 
 model Payslip {
   id                  String   @id @default(cuid())
+  orgId           String?
   payslipNumber       String   @unique
   payrollRunId        String
   employeeId          String   // Reference to Employee in HR database
@@ -187,6 +191,8 @@ model Payslip {
   @@unique([payrollRunId, employeeId])
   @@index([payrollRunId])
   @@index([employeeId])
+  @@index([orgId])
+
   @@map("payroll_payslips")
 }
 
@@ -215,6 +221,7 @@ enum PaymentMethod {
 
 model PayslipItem {
   id                  String   @id @default(cuid())
+  orgId           String?
   payslipId           String
   componentTypeId     String?
 
@@ -242,6 +249,8 @@ model PayslipItem {
 
   @@index([payslipId])
   @@index([componentTypeId])
+  @@index([orgId])
+
   @@map("payroll_payslip_items")
 }
 
@@ -272,6 +281,7 @@ enum ComponentType {
 
 model SalaryComponentType {
   id                  String   @id @default(cuid())
+  orgId           String?
   code                String   @unique
   name                String
   description         String?
@@ -300,6 +310,9 @@ model SalaryComponentType {
   payslipItems        PayslipItem[]
   salaryComponents    SalaryComponent[]
 
+  @@index([orgId])
+
+
   @@map("payroll_salary_component_types")
 }
 
@@ -319,6 +332,7 @@ enum ComponentCalculationType {
 
 model BenefitPlan {
   id                  String   @id @default(cuid())
+  orgId           String?
   code                String   @unique
   name                String
   description         String?
@@ -350,6 +364,9 @@ model BenefitPlan {
 
   // Relations
   employeeBenefits    EmployeeBenefit[]
+
+  @@index([orgId])
+
 
   @@map("payroll_benefit_plans")
 }
@@ -383,6 +400,7 @@ enum CoverageLevel {
 
 model EmployeeBenefit {
   id                  String   @id @default(cuid())
+  orgId           String?
   employeeId          String   // Reference to Employee in HR database
   benefitPlanId       String
 
@@ -414,6 +432,8 @@ model EmployeeBenefit {
 
   @@index([employeeId])
   @@index([benefitPlanId])
+  @@index([orgId])
+
   @@map("payroll_employee_benefits")
 }
 
@@ -430,6 +450,7 @@ enum BenefitStatus {
 
 model EmployeeLoan {
   id                  String   @id @default(cuid())
+  orgId           String?
   loanNumber          String   @unique
   employeeId          String   // Reference to Employee in HR database
   loanType            LoanType
@@ -469,6 +490,8 @@ model EmployeeLoan {
 
   @@index([employeeId])
   @@index([status])
+  @@index([orgId])
+
   @@map("payroll_employee_loans")
 }
 
@@ -500,6 +523,7 @@ enum LoanStatus {
 
 model LoanRepayment {
   id                  String   @id @default(cuid())
+  orgId           String?
   loanId              String
   payslipId           String?  // If deducted from payroll
 
@@ -529,6 +553,8 @@ model LoanRepayment {
   @@index([loanId])
   @@index([status])
   @@index([dueDate])
+  @@index([orgId])
+
   @@map("payroll_loan_repayments")
 }
 
@@ -546,6 +572,7 @@ enum RepaymentStatus {
 
 model TaxFiling {
   id                  String   @id @default(cuid())
+  orgId           String?
   payrollRunId        String?
   filingType          TaxFilingType
   taxPeriod           String   // e.g., "2024-Q1", "2024-01"
@@ -592,6 +619,8 @@ model TaxFiling {
   @@index([filingType, taxPeriod])
   @@index([status])
   @@index([taxYear])
+  @@index([orgId])
+
   @@map("payroll_tax_filings")
 }
 
@@ -624,6 +653,7 @@ enum TaxFilingStatus {
 
 model TaxBracket {
   id                  String   @id @default(cuid())
+  orgId           String?
   taxYear             Int
   country             String
   region              String?
@@ -638,6 +668,8 @@ model TaxBracket {
   updatedAt           DateTime @updatedAt
 
   @@index([taxYear, country])
+  @@index([orgId])
+
   @@map("payroll_tax_brackets")
 }
 
@@ -647,6 +679,7 @@ model TaxBracket {
 
 model EmployeeSalary {
   id                  String   @id @default(cuid())
+  orgId           String?
   employeeId          String
 
   // Salary details
@@ -673,6 +706,8 @@ model EmployeeSalary {
 
   @@index([employeeId])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("payroll_employee_salaries")
 }
 
@@ -682,6 +717,7 @@ model EmployeeSalary {
 
 model SalaryComponent {
   id                  String   @id @default(cuid())
+  orgId           String?
   employeeSalaryId    String
   componentTypeId     String
 
@@ -699,6 +735,8 @@ model SalaryComponent {
 
   @@index([employeeSalaryId])
   @@index([componentTypeId])
+  @@index([orgId])
+
   @@map("payroll_salary_components")
 }
 
@@ -708,6 +746,7 @@ model SalaryComponent {
 
 model Expense {
   id                    String   @id @default(cuid())
+  orgId           String?
   expenseNumber         String   @unique
   employeeId            String
 
@@ -755,6 +794,8 @@ model Expense {
   @@index([reportId])
   @@index([expenseDate])
   @@index([category])
+  @@index([orgId])
+
   @@map("payroll_expenses")
 }
 
@@ -786,6 +827,7 @@ enum ExpenseStatus {
 
 model ExpenseReport {
   id                    String   @id @default(cuid())
+  orgId           String?
   reportNumber          String   @unique
   employeeId            String
 
@@ -812,6 +854,8 @@ model ExpenseReport {
 
   @@index([employeeId])
   @@index([status])
+  @@index([orgId])
+
   @@map("payroll_expense_reports")
 }
 

@@ -444,15 +444,16 @@ describe('Environment Legal Obligations API Routes', () => {
   describe('DELETE /api/legal/:id', () => {
     it('should delete legal obligation successfully', async () => {
       (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
-      (mockPrisma.envLegal.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.envLegal.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/legal/14000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.envLegal.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.envLegal.update).toHaveBeenCalledWith({
         where: { id: '14000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

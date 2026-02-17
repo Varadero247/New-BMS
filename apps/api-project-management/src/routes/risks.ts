@@ -176,7 +176,7 @@ router.delete('/:id', checkOwnership(prisma.projectRisk), async (req: AuthReques
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project risk not found' } });
     }
 
-    await prisma.projectRisk.delete({ where: { id: req.params.id } });
+    await prisma.projectRisk.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete project risk error', { error: (error as Error).message });

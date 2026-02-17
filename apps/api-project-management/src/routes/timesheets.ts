@@ -169,7 +169,7 @@ router.delete('/:id', checkOwnership(prisma.projectTimesheet), async (req: AuthR
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
     }
 
-    await prisma.projectTimesheet.delete({ where: { id: req.params.id } });
+    await prisma.projectTimesheet.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete timesheet error', { error: (error as Error).message });

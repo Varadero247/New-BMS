@@ -153,7 +153,7 @@ router.delete('/:id', checkOwnership(prisma.projectStakeholder), async (req: Aut
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }
 
-    await prisma.projectStakeholder.delete({ where: { id: req.params.id } });
+    await prisma.projectStakeholder.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete stakeholder error', { error: (error as Error).message });

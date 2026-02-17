@@ -716,10 +716,95 @@ if (!healthy) {
 
 ---
 
+## Pre-Commit Secret Scanning
+
+A pre-commit hook is installed from `scripts/check-secrets.sh` that scans staged files for accidentally committed secrets before each commit.
+
+### What It Detects
+
+- AWS access keys and secret keys
+- API keys and tokens (generic patterns)
+- Private keys (`-----BEGIN RSA PRIVATE KEY-----`, etc.)
+- Database connection strings with embedded passwords
+- `.env` files that should not be committed
+
+### Installation
+
+The hook is automatically installed when running:
+
+```bash
+./scripts/check-secrets.sh
+```
+
+This copies the hook to `.git/hooks/pre-commit`. If secrets are detected in staged files, the commit is blocked with a descriptive error message. Use `git commit --no-verify` only if you are certain the detection is a false positive.
+
+---
+
+## Stripe Webhook Signature Verification
+
+The `api-marketing` service verifies Stripe webhook payloads using HMAC-SHA256 signature verification.
+
+### How It Works
+
+1. Stripe signs each webhook payload with the `STRIPE_WEBHOOK_SECRET` (a `whsec_...` key)
+2. The `stripe-webhooks` route reads the raw request body and the `Stripe-Signature` header
+3. The signature is verified using Stripe's HMAC-SHA256 scheme before any payload processing
+4. Requests with missing or invalid signatures are rejected with HTTP 400
+
+### Configuration
+
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_signing_secret
+```
+
+This must be set in the `api-marketing` service environment. Obtain the secret from the Stripe Dashboard under Developers > Webhooks.
+
+---
+
+## Soft Deletes
+
+Hard deletes have been replaced with soft deletes across 46 route files. Records are marked with a `deletedAt` timestamp instead of being permanently removed from the database.
+
+### Benefits
+
+- **Audit trail**: Deleted records remain queryable for compliance and forensics
+- **Recovery**: Accidental deletions can be reversed by clearing the `deletedAt` field
+- **Referential integrity**: Foreign key references to soft-deleted records remain valid
+
+### Implementation
+
+All list/get queries filter out soft-deleted records by default:
+```typescript
+where: { deletedAt: null, ...otherFilters }
+```
+
+Delete endpoints now set the timestamp rather than removing the row:
+```typescript
+await prisma.model.update({ where: { id }, data: { deletedAt: new Date() } });
+```
+
+Database indexes on `deletedAt` have been added across all 41 schemas (342 indexes total) to ensure soft-delete filtering does not degrade query performance.
+
+---
+
+## Container Scanning in CI
+
+Container image scanning has been expanded to cover all 42 API services in the CI/CD pipeline (previously 25). The GitHub Actions security workflow (`security.yml`) runs vulnerability scans on every Docker image built during the CI matrix.
+
+### Scope
+
+- All 42 API service Docker images are scanned
+- Scans detect known CVEs in OS packages, application dependencies, and base images
+- Critical and high-severity vulnerabilities block the pipeline
+
+---
+
 ## Future Improvements
 
 - [x] ~~API key authentication for service-to-service~~ (Implemented as JWT-based inter-service auth)
 - [x] ~~Secret rotation automation~~ (HashiCorp Vault integration provides this)
+- [x] ~~Pre-commit secret scanning~~ (Implemented via `scripts/check-secrets.sh`)
+- [x] ~~Soft deletes for data retention~~ (Implemented across 46 route files)
 - [ ] Multi-factor authentication (MFA)
 - [ ] IP allowlisting for admin endpoints
 - [ ] Penetration testing

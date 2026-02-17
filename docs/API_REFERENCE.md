@@ -2535,16 +2535,18 @@ Returns subscription with HMAC secret for payload verification.
 | `leads.ts` | Lead capture and qualification |
 | `chat.ts` | AI chatbot sessions and messages |
 | `onboarding.ts` | Customer onboarding email sequences |
-| `health-score.ts` | Customer health scoring |
-| `expansion.ts` | Expansion opportunity detection |
-| `prospect-research.ts` | Company research and enrichment |
-| `linkedin-tracker.ts` | LinkedIn outreach tracking |
-| `renewal.ts` | Renewal sequence management |
+| `health-score.ts` | Customer health scoring (auth required) |
+| `expansion.ts` | Expansion opportunity detection (auth required) |
+| `prospect-research.ts` | Company research and enrichment (auth required) |
+| `linkedin-tracker.ts` | LinkedIn outreach tracking (auth required) |
+| `renewal.ts` | Renewal sequence management (auth required) |
 | `winback.ts` | Win-back campaign automation |
-| `growth.ts` | Growth metrics and forecasting |
-| `digest.ts` | Weekly digest email generation |
+| `growth.ts` | Growth metrics and forecasting (auth required) |
+| `digest.ts` | Weekly digest email generation (auth required) |
 | `partner-onboarding.ts` | Partner onboarding sequence |
-| `stripe-webhooks.ts` | Stripe payment webhook handlers |
+| `stripe-webhooks.ts` | Stripe payment webhook handlers (signature verification enforced) |
+
+> **Note:** The `growth`, `health-score`, `expansion`, `prospect-research`, `linkedin-tracker`, `renewal`, and `digest` routes now require Bearer token authentication. The `stripe-webhooks` route enforces Stripe webhook signature verification (HMAC-SHA256 via `STRIPE_WEBHOOK_SECRET`); requests without a valid signature are rejected with 400.
 
 ---
 

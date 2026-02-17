@@ -247,7 +247,7 @@ router.delete('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthRe
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
     }
 
-    await prisma.qualOpportunity.delete({ where: { id: req.params.id } });
+    await prisma.qualOpportunity.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

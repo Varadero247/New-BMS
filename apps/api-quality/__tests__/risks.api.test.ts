@@ -483,15 +483,16 @@ describe('Quality Risks API Routes', () => {
   describe('DELETE /api/risks/:id', () => {
     it('should delete a risk successfully', async () => {
       (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualRisk.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualRisk.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualRisk.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualRisk.update).toHaveBeenCalledWith({
         where: { id: '10000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

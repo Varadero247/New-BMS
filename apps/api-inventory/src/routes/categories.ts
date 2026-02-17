@@ -234,7 +234,7 @@ router.delete('/:id', checkOwnership(prisma.productCategory), async (req: AuthRe
       });
     }
 
-    await prisma.productCategory.delete({ where: { id: req.params.id } });
+    await prisma.productCategory.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

@@ -325,7 +325,7 @@ router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
-    await prisma.qualCapa.delete({ where: { id: req.params.id } });
+    await prisma.qualCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {
@@ -432,7 +432,7 @@ router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
-    await prisma.qualCapaAction.delete({ where: { id: req.params.actionId } });
+    await prisma.qualCapaAction.update({ where: { id: req.params.actionId }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

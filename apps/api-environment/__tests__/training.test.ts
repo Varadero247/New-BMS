@@ -17,7 +17,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -66,7 +66,7 @@ const mockTraining = {
   certificate: null,
   feedback: null,
   tenantId: 'default',
-  createdBy: 'user-123',
+  createdBy: '00000000-0000-4000-a000-000000000123',
   deletedAt: null,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),

@@ -321,7 +321,7 @@ router.delete('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest,
       });
     }
 
-    await prisma.warehouse.delete({ where: { id: req.params.id } });
+    await prisma.warehouse.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

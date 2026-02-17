@@ -29,6 +29,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -65,14 +75,14 @@ describe('HR Documents API Routes', () => {
         employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
       },
       {
-        id: 'doc-2',
-        employeeId: 'emp-2',
+        id: '1e000000-0000-4000-a000-000000000002',
+        employeeId: '2a000000-0000-4000-a000-000000000002',
         documentType: 'NDA',
         title: 'Non-Disclosure Agreement',
         fileName: 'nda.pdf',
         fileUrl: 'https://files.example.com/nda.pdf',
         status: 'ACTIVE',
-        employee: { id: 'emp-2', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002' },
+        employee: { id: '2a000000-0000-4000-a000-000000000002', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002' },
       },
     ];
 
@@ -327,18 +337,18 @@ describe('HR Documents API Routes', () => {
     it('should set verifiedAt when verifiedById is provided', async () => {
       (mockPrisma.employeeDocument.update as jest.Mock).mockResolvedValueOnce({
         id: '1e000000-0000-4000-a000-000000000001',
-        verifiedById: 'admin-1',
+        verifiedById: '20000000-0000-4000-a000-000000000001',
         verifiedAt: new Date(),
       });
 
       await request(app)
         .put('/api/documents/1e000000-0000-4000-a000-000000000001')
-        .send({ verifiedById: 'admin-1' });
+        .send({ verifiedById: '20000000-0000-4000-a000-000000000001' });
 
       expect(mockPrisma.employeeDocument.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            verifiedById: 'admin-1',
+            verifiedById: '20000000-0000-4000-a000-000000000001',
             verifiedAt: expect.any(Date),
           }),
         })
@@ -423,7 +433,7 @@ describe('HR Documents API Routes', () => {
   describe('GET /api/documents/qualifications/:employeeId', () => {
     const mockQualifications = [
       {
-        id: 'qual-1',
+        id: '1f000000-0000-4000-a000-000000000001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
         qualificationType: 'BACHELOR',
         institution: 'MIT',

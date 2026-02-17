@@ -55,11 +55,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
 
+// Stripe webhooks need raw body for signature verification
+app.use('/api/webhooks', express.raw({ type: 'application/json' }), (req: Request, _res: Response, next: NextFunction) => {
+  if (Buffer.isBuffer(req.body)) {
+    (req as any).rawBody = req.body;
+    req.body = JSON.parse(req.body.toString());
+  }
+  next();
+}, stripeWebhooksRouter);
+
 // Public routes (no auth required)
 app.use('/api/roi', roiRouter);
 app.use('/api/chat', chatRouter);
 app.post('/api/leads/capture', express.json(), leadsRouter);
-app.use('/api/webhooks', stripeWebhooksRouter);
 app.get('/api/winback/reason/:reason', winbackRouter);
 
 // Auth middleware for protected routes

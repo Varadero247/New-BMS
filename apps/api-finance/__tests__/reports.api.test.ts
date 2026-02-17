@@ -33,7 +33,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -118,7 +118,7 @@ describe('GET /api/reports/dashboard', () => {
 describe('GET /api/reports/budgets', () => {
   it('should return a list of budgets', async () => {
     const budgets = [
-      { id: 'bud-1', name: 'Marketing Q1', fiscalYear: 2026, budgetAmount: 10000, account: { id: 'acc-1', code: '5100', name: 'Marketing', type: 'EXPENSE' } },
+      { id: 'f3000000-0000-4000-a000-000000000001', name: 'Marketing Q1', fiscalYear: 2026, budgetAmount: 10000, account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' } },
     ];
     (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
     (prisma as any).finBudget.count.mockResolvedValue(1);
@@ -163,12 +163,12 @@ describe('GET /api/reports/budgets', () => {
 describe('GET /api/reports/budgets/:id', () => {
   it('should return a budget when found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue({
-      id: 'bud-1',
+      id: 'f3000000-0000-4000-a000-000000000001',
       name: 'Marketing Q1',
       budgetAmount: 10000,
       actualAmount: 7500,
       variance: 2500,
-      account: { id: 'acc-1', code: '5100', name: 'Marketing' },
+      account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing' },
     });
 
     const res = await request(app).get('/api/reports/budgets/bud-1');
@@ -245,14 +245,14 @@ describe('POST /api/reports/budgets', () => {
 describe('PUT /api/reports/budgets/:id', () => {
   it('should update a budget', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue({
-      id: 'bud-1',
+      id: 'f3000000-0000-4000-a000-000000000001',
       actualAmount: 5000,
     });
     (prisma as any).finBudget.update.mockResolvedValue({
-      id: 'bud-1',
+      id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 15000,
       variance: 10000,
-      account: { id: 'acc-1', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+      account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
     });
 
     const res = await request(app).put('/api/reports/budgets/bud-1').send({ budgetAmount: 15000 });
@@ -272,8 +272,8 @@ describe('PUT /api/reports/budgets/:id', () => {
 
 describe('DELETE /api/reports/budgets/:id', () => {
   it('should soft delete a budget', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue({ id: 'bud-1' });
-    (prisma as any).finBudget.update.mockResolvedValue({ id: 'bud-1' });
+    (prisma as any).finBudget.findUnique.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
+    (prisma as any).finBudget.update.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
 
     const res = await request(app).delete('/api/reports/budgets/bud-1');
 
@@ -298,24 +298,24 @@ describe('GET /api/reports/budget-vs-actual', () => {
   it('should return budget vs actual grouped by account', async () => {
     const budgets = [
       {
-        id: 'bud-1',
-        accountId: 'acc-1',
+        id: 'f3000000-0000-4000-a000-000000000001',
+        accountId: 'f2000000-0000-4000-a000-000000000001',
         month: 1,
         quarter: 1,
         budgetAmount: 10000,
         actualAmount: 8000,
         variance: 2000,
-        account: { id: 'acc-1', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+        account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
       },
       {
-        id: 'bud-2',
-        accountId: 'acc-1',
+        id: 'f3000000-0000-4000-a000-000000000002',
+        accountId: 'f2000000-0000-4000-a000-000000000001',
         month: 2,
         quarter: 1,
         budgetAmount: 10000,
         actualAmount: 12000,
         variance: -2000,
-        account: { id: 'acc-1', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+        account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
       },
     ];
     (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
@@ -356,9 +356,9 @@ describe('GET /api/reports/budget-vs-actual', () => {
 describe('GET /api/reports/revenue-breakdown', () => {
   it('should return revenue grouped by customer', async () => {
     const invoices = [
-      { id: 'inv-1', customerId: 'c-1', amountPaid: 5000, customer: { id: 'c-1', name: 'Acme Corp', code: 'C001' } },
-      { id: 'inv-2', customerId: 'c-1', amountPaid: 3000, customer: { id: 'c-1', name: 'Acme Corp', code: 'C001' } },
-      { id: 'inv-3', customerId: 'c-2', amountPaid: 7000, customer: { id: 'c-2', name: 'Beta Inc', code: 'C002' } },
+      { id: 'f6000000-0000-4000-a000-000000000001', customerId: 'f4000000-0000-4000-a000-000000000001', amountPaid: 5000, customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' } },
+      { id: 'f6000000-0000-4000-a000-000000000002', customerId: 'f4000000-0000-4000-a000-000000000001', amountPaid: 3000, customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' } },
+      { id: 'f6000000-0000-4000-a000-000000000003', customerId: 'f4000000-0000-4000-a000-000000000002', amountPaid: 7000, customer: { id: 'f4000000-0000-4000-a000-000000000002', name: 'Beta Inc', code: 'C002' } },
     ];
     (prisma as any).finInvoice.findMany.mockResolvedValue(invoices);
 
@@ -397,8 +397,8 @@ describe('GET /api/reports/revenue-breakdown', () => {
 describe('GET /api/reports/expense-breakdown', () => {
   it('should return expenses grouped by supplier', async () => {
     const bills = [
-      { id: 'bill-1', supplierId: 's-1', amountPaid: 3000, supplier: { id: 's-1', name: 'Widget Co', code: 'S001' } },
-      { id: 'bill-2', supplierId: 's-2', amountPaid: 5000, supplier: { id: 's-2', name: 'Gear Inc', code: 'S002' } },
+      { id: 'f7200000-0000-4000-a000-000000000001', supplierId: 'f7000000-0000-4000-a000-000000000001', amountPaid: 3000, supplier: { id: 'f7000000-0000-4000-a000-000000000001', name: 'Widget Co', code: 'S001' } },
+      { id: 'f7200000-0000-4000-a000-000000000002', supplierId: 'f7000000-0000-4000-a000-000000000002', amountPaid: 5000, supplier: { id: 'f7000000-0000-4000-a000-000000000002', name: 'Gear Inc', code: 'S002' } },
     ];
     (prisma as any).finBill.findMany.mockResolvedValue(bills);
 

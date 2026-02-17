@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/projects', () => {
   it('should return paginated projects', async () => {
-    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([{ id: '1', title: 'LED Upgrade' }]);
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([{ id: 'eb000000-0000-4000-a000-000000000001', title: 'LED Upgrade' }]);
     (prisma.energyProject.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/projects');
@@ -110,12 +110,12 @@ describe('POST /api/projects', () => {
 
 describe('GET /api/projects/:id', () => {
   it('should return a project', async () => {
-    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: '1', title: 'Project 1' });
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001', title: 'Project 1' });
 
-    const res = await request(app).get('/api/projects/1');
+    const res = await request(app).get('/api/projects/eb000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('eb000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
@@ -129,10 +129,10 @@ describe('GET /api/projects/:id', () => {
 
 describe('PUT /api/projects/:id', () => {
   it('should update a project', async () => {
-    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: '1', title: 'Updated' });
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001' });
+    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001', title: 'Updated' });
 
-    const res = await request(app).put('/api/projects/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/projects/eb000000-0000-4000-a000-000000000001').send({ title: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.title).toBe('Updated');
@@ -149,10 +149,10 @@ describe('PUT /api/projects/:id', () => {
 
 describe('DELETE /api/projects/:id', () => {
   it('should soft delete a project', async () => {
-    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001' });
+    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/projects/1');
+    const res = await request(app).delete('/api/projects/eb000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -170,28 +170,28 @@ describe('DELETE /api/projects/:id', () => {
 describe('PUT /api/projects/:id/complete', () => {
   it('should complete a project', async () => {
     (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
-      id: '1', status: 'IN_PROGRESS', investmentCost: 25000, estimatedSavings: 30000,
+      id: 'eb000000-0000-4000-a000-000000000001', status: 'IN_PROGRESS', investmentCost: 25000, estimatedSavings: 30000,
     });
-    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: '1', status: 'COMPLETED' });
+    (prisma.energyProject.update as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001', status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/projects/1/complete').send({ actualSavings: 28000 });
+    const res = await request(app).put('/api/projects/eb000000-0000-4000-a000-000000000001/complete').send({ actualSavings: 28000 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('COMPLETED');
   });
 
   it('should reject if already completed', async () => {
-    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'COMPLETED' });
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001', status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/projects/1/complete');
+    const res = await request(app).put('/api/projects/eb000000-0000-4000-a000-000000000001/complete');
 
     expect(res.status).toBe(400);
   });
 
   it('should reject if cancelled', async () => {
-    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'CANCELLED' });
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({ id: 'eb000000-0000-4000-a000-000000000001', status: 'CANCELLED' });
 
-    const res = await request(app).put('/api/projects/1/complete');
+    const res = await request(app).put('/api/projects/eb000000-0000-4000-a000-000000000001/complete');
 
     expect(res.status).toBe(400);
   });
@@ -208,8 +208,8 @@ describe('PUT /api/projects/:id/complete', () => {
 describe('GET /api/projects/roi-summary', () => {
   it('should return ROI summary', async () => {
     (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
-      { id: '1', status: 'COMPLETED', investmentCost: 25000, estimatedSavings: 30000, actualSavings: 28000, paybackMonths: 24 },
-      { id: '2', status: 'IN_PROGRESS', investmentCost: 10000, estimatedSavings: 15000, actualSavings: 5000, paybackMonths: 12 },
+      { id: 'eb000000-0000-4000-a000-000000000001', status: 'COMPLETED', investmentCost: 25000, estimatedSavings: 30000, actualSavings: 28000, paybackMonths: 24 },
+      { id: 'eb000000-0000-4000-a000-000000000002', status: 'IN_PROGRESS', investmentCost: 10000, estimatedSavings: 15000, actualSavings: 5000, paybackMonths: 12 },
     ]);
 
     const res = await request(app).get('/api/projects/roi-summary');

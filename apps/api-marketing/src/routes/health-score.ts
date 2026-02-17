@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
@@ -46,7 +47,7 @@ export function determineTrend(currentScore: number, previousScore: number | nul
 }
 
 // GET /api/health-score/user/:userId
-router.get('/user/:userId', async (req: Request, res: Response) => {
+router.get('/user/:userId', authenticate, async (req: Request, res: Response) => {
   try {
     const latest = await prisma.mktHealthScore.findFirst({
       where: { userId: req.params.userId },
@@ -71,7 +72,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
 });
 
 // GET /api/health-score/org/:orgId
-router.get('/org/:orgId', async (req: Request, res: Response) => {
+router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
   try {
     const scores = await prisma.mktHealthScore.findMany({
       where: { orgId: req.params.orgId },
@@ -105,7 +106,7 @@ router.get('/org/:orgId', async (req: Request, res: Response) => {
 });
 
 // POST /api/health-score/recalculate
-router.post('/recalculate', async (req: Request, res: Response) => {
+router.post('/recalculate', authenticate, async (req: Request, res: Response) => {
   try {
     // In production, this would query actual activity data.
     // For now, return acknowledgement that recalculation was triggered.

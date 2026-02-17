@@ -627,15 +627,16 @@ describe('Health & Safety CAPA API Routes', () => {
   describe('DELETE /api/capa/:id', () => {
     it('should delete CAPA successfully', async () => {
       (mockPrisma.capa.findUnique as jest.Mock).mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
-      (mockPrisma.capa.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.capa.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/capa/12000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.capa.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.capa.update).toHaveBeenCalledWith({
         where: { id: '12000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

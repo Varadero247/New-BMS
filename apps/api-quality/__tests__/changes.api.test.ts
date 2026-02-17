@@ -490,15 +490,16 @@ describe('Quality Changes API Routes', () => {
   describe('DELETE /api/changes/:id', () => {
     it('should delete change successfully', async () => {
       (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: '26000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualChange.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualChange.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/changes/26000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualChange.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualChange.update).toHaveBeenCalledWith({
         where: { id: '26000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

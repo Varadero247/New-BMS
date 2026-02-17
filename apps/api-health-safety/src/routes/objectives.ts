@@ -253,7 +253,7 @@ router.delete('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthReque
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
-    await prisma.ohsObjective.delete({ where: { id: req.params.id } });
+    await prisma.ohsObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete objective error', { error: (error as Error).message });

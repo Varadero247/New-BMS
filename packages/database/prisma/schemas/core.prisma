@@ -41,6 +41,7 @@ model User {
   @@index([isActive])
   @@index([createdAt])
   @@map("users")
+  @@index([deletedAt])
 }
 
 model Session {
@@ -253,6 +254,7 @@ model Risk {
   @@index([createdAt])
   @@index([riskLevel])
   @@map("risks")
+  @@index([deletedAt])
 }
 
 enum IncidentType {
@@ -340,6 +342,7 @@ model Incident {
   @@index([reporterId])
   @@index([createdAt])
   @@map("incidents")
+  @@index([deletedAt])
 }
 
 enum ActionType {
@@ -404,6 +407,7 @@ model Action {
   @@index([createdById])
   @@index([createdAt])
   @@map("actions")
+  @@index([deletedAt])
 }
 
 enum AIProvider {
@@ -546,6 +550,7 @@ model ComplianceEvent {
   @@index([assigneeId])
   @@index([createdAt])
   @@map("compliance_events")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -693,6 +698,7 @@ model Template {
   @@index([usageCount])
   @@index([createdAt])
   @@map("templates")
+  @@index([deletedAt])
 }
 
 model TemplateVersion {

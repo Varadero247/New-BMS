@@ -32,7 +32,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -56,7 +56,7 @@ beforeEach(() => {
 
 describe('InfoSec Audits API', () => {
   const mockAudit = {
-    id: 'audit-1',
+    id: 'a2000000-0000-4000-a000-000000000001',
     refNumber: 'ISA-2602-4567',
     title: 'Annual ISMS Internal Audit',
     description: 'Comprehensive ISMS audit',
@@ -69,7 +69,7 @@ describe('InfoSec Audits API', () => {
     summary: null,
     overallConclusion: null,
     completedAt: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
@@ -77,21 +77,21 @@ describe('InfoSec Audits API', () => {
   };
 
   const mockFinding = {
-    id: 'finding-1',
-    auditId: 'audit-1',
+    id: 'a2100000-0000-4000-a000-000000000001',
+    auditId: 'a2000000-0000-4000-a000-000000000001',
     clause: '6.1',
     type: 'NONCONFORMITY_MINOR',
     description: 'Risk assessment not covering all assets',
     evidence: 'Asset register incomplete',
     recommendation: 'Complete asset register',
     status: 'OPEN',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   const mockScan = {
-    id: 'scan-1',
+    id: 'a2200000-0000-4000-a000-000000000001',
     refNumber: 'VS-2602-1234',
     scanName: 'Q1 2026 Vulnerability Scan',
     scanDate: '2026-01-15T00:00:00.000Z',
@@ -104,13 +104,13 @@ describe('InfoSec Audits API', () => {
     infoCount: 50,
     summary: 'Found 2 critical vulnerabilities',
     reportUrl: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   const mockPenTest = {
-    id: 'pt-1',
+    id: 'a2300000-0000-4000-a000-000000000001',
     refNumber: 'PT-2602-5678',
     testName: 'Annual Penetration Test',
     testDate: '2026-02-01T00:00:00.000Z',
@@ -123,7 +123,7 @@ describe('InfoSec Audits API', () => {
     summary: '1 critical finding in auth module',
     reportUrl: null,
     status: 'COMPLETED',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -272,7 +272,7 @@ describe('InfoSec Audits API', () => {
         findings: [mockFinding],
       });
 
-      const res = await request(app).get('/api/audits/audit-1');
+      const res = await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -291,7 +291,7 @@ describe('InfoSec Audits API', () => {
     it('should include findings ordered by createdAt', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      await request(app).get('/api/audits/audit-1');
+      await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001');
 
       const findCall = (mockPrisma.isAudit.findFirst as jest.Mock).mock.calls[0][0];
       expect(findCall.include.findings).toBeDefined();
@@ -304,7 +304,7 @@ describe('InfoSec Audits API', () => {
     it('should return clause checklist', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      const res = await request(app).get('/api/audits/audit-1/checklist');
+      const res = await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001/checklist');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -325,9 +325,9 @@ describe('InfoSec Audits API', () => {
     it('should include auditId in response', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      const res = await request(app).get('/api/audits/audit-1/checklist');
+      const res = await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001/checklist');
 
-      expect(res.body.data.auditId).toBe('audit-1');
+      expect(res.body.data.auditId).toBe('a2000000-0000-4000-a000-000000000001');
     });
   });
 
@@ -339,7 +339,7 @@ describe('InfoSec Audits API', () => {
       (mockPrisma.isAuditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
 
       const res = await request(app)
-        .post('/api/audits/audit-1/findings')
+        .post('/api/audits/a2000000-0000-4000-a000-000000000001/findings')
         .send({
           clause: '6.1',
           type: 'NONCONFORMITY_MINOR',
@@ -353,7 +353,7 @@ describe('InfoSec Audits API', () => {
 
     it('should return 400 for missing description', async () => {
       const res = await request(app)
-        .post('/api/audits/audit-1/findings')
+        .post('/api/audits/a2000000-0000-4000-a000-000000000001/findings')
         .send({ clause: '6.1', type: 'NONCONFORMITY_MINOR' });
 
       expect(res.status).toBe(400);
@@ -362,7 +362,7 @@ describe('InfoSec Audits API', () => {
 
     it('should return 400 for missing clause', async () => {
       const res = await request(app)
-        .post('/api/audits/audit-1/findings')
+        .post('/api/audits/a2000000-0000-4000-a000-000000000001/findings')
         .send({ type: 'NONCONFORMITY_MINOR', description: 'Test finding' });
 
       expect(res.status).toBe(400);
@@ -371,7 +371,7 @@ describe('InfoSec Audits API', () => {
 
     it('should return 400 for invalid finding type', async () => {
       const res = await request(app)
-        .post('/api/audits/audit-1/findings')
+        .post('/api/audits/a2000000-0000-4000-a000-000000000001/findings')
         .send({ clause: '6.1', type: 'INVALID', description: 'Test' });
 
       expect(res.status).toBe(400);
@@ -394,7 +394,7 @@ describe('InfoSec Audits API', () => {
       (mockPrisma.isAuditFinding.create as jest.Mock).mockResolvedValueOnce(mockFinding);
 
       await request(app)
-        .post('/api/audits/audit-1/findings')
+        .post('/api/audits/a2000000-0000-4000-a000-000000000001/findings')
         .send({ clause: '6.1', type: 'OBSERVATION', description: 'Minor observation' });
 
       const createCall = (mockPrisma.isAuditFinding.create as jest.Mock).mock.calls[0][0];
@@ -415,7 +415,7 @@ describe('InfoSec Audits API', () => {
       });
 
       const res = await request(app)
-        .put('/api/audits/audit-1/complete')
+        .put('/api/audits/a2000000-0000-4000-a000-000000000001/complete')
         .send({ summary: 'Audit completed successfully' });
 
       expect(res.status).toBe(200);
@@ -426,7 +426,7 @@ describe('InfoSec Audits API', () => {
 
     it('should return 400 for missing summary', async () => {
       const res = await request(app)
-        .put('/api/audits/audit-1/complete')
+        .put('/api/audits/a2000000-0000-4000-a000-000000000001/complete')
         .send({});
 
       expect(res.status).toBe(400);
@@ -449,7 +449,7 @@ describe('InfoSec Audits API', () => {
       (mockPrisma.isAudit.update as jest.Mock).mockResolvedValueOnce(mockAudit);
 
       await request(app)
-        .put('/api/audits/audit-1/complete')
+        .put('/api/audits/a2000000-0000-4000-a000-000000000001/complete')
         .send({ summary: 'Completed' });
 
       const updateCall = (mockPrisma.isAudit.update as jest.Mock).mock.calls[0][0];

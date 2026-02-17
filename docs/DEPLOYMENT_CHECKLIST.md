@@ -28,6 +28,8 @@ The gateway uses a hardcoded allowed-origins array in code. Setting `CORS_ORIGIN
 OPENAI_API_KEY=<your-key>     # For OpenAI AI features
 XAI_API_KEY=<your-key>        # For Grok AI features
 VAULT_TOKEN=<token>           # For HashiCorp Vault secrets management
+STRIPE_WEBHOOK_SECRET=<whsec_...>  # Required for api-marketing Stripe webhook verification
+ALLOWED_ORIGINS=https://app.example.com,https://admin.example.com  # Production CORS origins
 ```
 
 ### 2. Verify Docker Compose
@@ -241,7 +243,17 @@ npx prisma generate --schema=prisma/schemas/emergency.prisma
 npx prisma generate --schema=prisma/schemas/marketplace.prisma
 ```
 
-### Step 4: Seed Database (First Deploy Only)
+### Step 3b: Seed Demo Data (First Deploy Only)
+
+After pushing all schemas, run the unified seed script to populate demo data across all modules:
+
+```bash
+./scripts/seed-all.sh
+```
+
+This creates the default admin user (`admin@ims.local` / `admin123`) plus seed data for chemicals, emergency, risk, marketing, and other modules.
+
+### Step 4: Seed Database (First Deploy Only — Alternative)
 ```bash
 pnpm --filter @ims/database seed
 ```
@@ -381,6 +393,16 @@ for port in $(seq 3000 3045); do
   echo "Web port $port: $CODE"
 done
 ```
+
+---
+
+## Pre-Launch Checklist
+
+- [ ] Run `scripts/seed-all.sh` after initial schema push for demo data
+- [ ] Verify `STRIPE_WEBHOOK_SECRET` is set for api-marketing
+- [ ] Verify `ALLOWED_ORIGINS` is set for production CORS
+- [ ] Rotate Anthropic API key before launch (replace development key with production key)
+- [ ] Database backups: backup service runs daily via docker-compose; manual backup via `scripts/backup-db.sh`
 
 ---
 

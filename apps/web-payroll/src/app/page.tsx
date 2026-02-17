@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const [runsRes] = await Promise.all([
-        api.get('/payroll/runs'),
+        api.get('/runs'),
       ]);
 
       setRecentRuns(runsRes.data.data?.slice(0, 5) || []);

@@ -93,6 +93,40 @@ spec:
           port: 4023
         - protocol: TCP
           port: 4024
+        - protocol: TCP
+          port: 4025
+        - protocol: TCP
+          port: 4026
+        - protocol: TCP
+          port: 4027
+        - protocol: TCP
+          port: 4028
+        - protocol: TCP
+          port: 4029
+        - protocol: TCP
+          port: 4030
+        - protocol: TCP
+          port: 4031
+        - protocol: TCP
+          port: 4032
+        - protocol: TCP
+          port: 4033
+        - protocol: TCP
+          port: 4034
+        - protocol: TCP
+          port: 4035
+        - protocol: TCP
+          port: 4036
+        - protocol: TCP
+          port: 4037
+        - protocol: TCP
+          port: 4038
+        - protocol: TCP
+          port: 4039
+        - protocol: TCP
+          port: 4040
+        - protocol: TCP
+          port: 4041
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -208,3 +242,37 @@ spec:
           port: 4023
         - protocol: TCP
           port: 4024
+        - protocol: TCP
+          port: 4025
+        - protocol: TCP
+          port: 4026
+        - protocol: TCP
+          port: 4027
+        - protocol: TCP
+          port: 4028
+        - protocol: TCP
+          port: 4029
+        - protocol: TCP
+          port: 4030
+        - protocol: TCP
+          port: 4031
+        - protocol: TCP
+          port: 4032
+        - protocol: TCP
+          port: 4033
+        - protocol: TCP
+          port: 4034
+        - protocol: TCP
+          port: 4035
+        - protocol: TCP
+          port: 4036
+        - protocol: TCP
+          port: 4037
+        - protocol: TCP
+          port: 4038
+        - protocol: TCP
+          port: 4039
+        - protocol: TCP
+          port: 4040
+        - protocol: TCP
+          port: 4041

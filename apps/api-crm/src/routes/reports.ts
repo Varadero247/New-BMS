@@ -47,7 +47,7 @@ router.get('/sales-dashboard', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get sales dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get sales dashboard' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get sales dashboard' } });
   }
 });
 
@@ -90,7 +90,7 @@ router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get pipeline velocity', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get pipeline velocity' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get pipeline velocity' } });
   }
 });
 
@@ -149,7 +149,7 @@ router.get('/win-loss', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get win/loss report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get win/loss report' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get win/loss report' } });
   }
 });
 
@@ -200,7 +200,7 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get forecast' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' } });
   }
 });
 
@@ -251,7 +251,7 @@ router.get('/partner-performance', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get partner performance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get partner performance' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner performance' } });
   }
 });
 
@@ -307,7 +307,7 @@ router.get('/customer-health', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get customer health', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get customer health' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer health' } });
   }
 });
 

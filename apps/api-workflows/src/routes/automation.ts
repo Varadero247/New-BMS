@@ -190,8 +190,9 @@ router.put('/rules/:id', checkOwnership(prisma.automationRule), async (req: Auth
 // DELETE /api/automation/rules/:id - Delete automation rule
 router.delete('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
   try {
-    await prisma.automationRule.delete({
+    await prisma.automationRule.update({
       where: { id: req.params.id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   title: 'Customer Portal — Nexara IMS',
   description: 'Customer self-service portal',
   themeColor: '#080B12',
+  openGraph: {
+    title: 'Customer Portal — Nexara IMS',
+    description: 'Customer self-service portal',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

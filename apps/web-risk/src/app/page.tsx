@@ -376,7 +376,7 @@ export default function DashboardPage() {
           )}
 
           {/* KPI Cards — 8 in a row (2 rows of 4 on xl, 4 cols on md) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+          <div aria-live="polite" className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
             {kpis.map((kpi) => {
               const Icon = kpi.icon;
               return (

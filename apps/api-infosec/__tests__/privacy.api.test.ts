@@ -41,7 +41,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -69,7 +69,7 @@ describe('InfoSec Privacy API', () => {
   // ===================================================================
 
   const mockRopa = {
-    id: 'ropa-1',
+    id: 'a5000000-0000-4000-a000-000000000001',
     refNumber: 'ROPA-1234',
     name: 'Customer Data Processing',
     purpose: 'Order fulfillment',
@@ -84,14 +84,14 @@ describe('InfoSec Privacy API', () => {
     processor: null,
     description: 'Processing customer orders',
     status: 'ACTIVE',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
   };
 
   const mockDpia = {
-    id: 'dpia-1',
+    id: 'a5100000-0000-4000-a000-000000000001',
     refNumber: 'DPIA-2602-1234',
     title: 'New CRM System DPIA',
     description: 'DPIA for new customer relationship management system',
@@ -104,14 +104,14 @@ describe('InfoSec Privacy API', () => {
     approvedBy: null,
     approvedAt: null,
     approvalNotes: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
   };
 
   const mockDsar = {
-    id: 'dsar-1',
+    id: 'a5200000-0000-4000-a000-000000000001',
     refNumber: 'DSAR-2602-5678',
     subjectName: 'John Doe',
     subjectEmail: 'john.doe@example.com',
@@ -124,33 +124,33 @@ describe('InfoSec Privacy API', () => {
     responseNotes: null,
     actionTaken: null,
     respondedAt: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   const mockConsent = {
-    id: 'consent-1',
+    id: 'a5300000-0000-4000-a000-000000000001',
     subjectName: 'Jane Doe',
     subjectEmail: 'jane@example.com',
     purpose: 'Marketing emails',
     consentGiven: true,
     consentedAt: new Date().toISOString(),
     withdrawnAt: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   const mockRetention = {
-    id: 'ret-1',
+    id: 'a5400000-0000-4000-a000-000000000001',
     dataCategory: 'Financial records',
     retentionPeriod: '7',
     unit: 'YEARS',
     legalBasis: 'Tax legislation',
     reviewDate: null,
     notes: null,
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -310,7 +310,7 @@ describe('InfoSec Privacy API', () => {
     it('should return ROPA detail', async () => {
       (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(mockRopa);
 
-      const res = await request(app).get('/api/privacy/ropa/ropa-1');
+      const res = await request(app).get('/api/privacy/ropa/a5000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -333,7 +333,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isRopa.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, name: 'Updated' });
 
       const res = await request(app)
-        .put('/api/privacy/ropa/ropa-1')
+        .put('/api/privacy/ropa/a5000000-0000-4000-a000-000000000001')
         .send({ name: 'Updated' });
 
       expect(res.status).toBe(200);
@@ -356,7 +356,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isRopa.update as jest.Mock).mockResolvedValueOnce({ ...mockRopa, status: 'ARCHIVED' });
 
       const res = await request(app)
-        .put('/api/privacy/ropa/ropa-1')
+        .put('/api/privacy/ropa/a5000000-0000-4000-a000-000000000001')
         .send({ status: 'ARCHIVED' });
 
       expect(res.status).toBe(200);
@@ -460,19 +460,19 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce({
         ...mockDpia,
         status: 'APPROVED',
-        approvedBy: 'user-123',
+        approvedBy: '00000000-0000-4000-a000-000000000123',
         approvedAt: new Date().toISOString(),
       });
 
       const res = await request(app)
-        .put('/api/privacy/dpia/dpia-1/approve')
+        .put('/api/privacy/dpia/a5100000-0000-4000-a000-000000000001/approve')
         .send({});
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       const updateCall = (mockPrisma.isDpia.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.status).toBe('APPROVED');
-      expect(updateCall.data.approvedBy).toBe('user-123');
+      expect(updateCall.data.approvedBy).toBe('00000000-0000-4000-a000-000000000123');
     });
 
     it('should return 404 when DPIA not found', async () => {
@@ -491,7 +491,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       await request(app)
-        .put('/api/privacy/dpia/dpia-1/approve')
+        .put('/api/privacy/dpia/a5100000-0000-4000-a000-000000000001/approve')
         .send({ approvalNotes: 'Looks good' });
 
       const updateCall = (mockPrisma.isDpia.update as jest.Mock).mock.calls[0][0];
@@ -503,7 +503,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDpia.update as jest.Mock).mockResolvedValueOnce(mockDpia);
 
       const res = await request(app)
-        .put('/api/privacy/dpia/dpia-1/approve')
+        .put('/api/privacy/dpia/a5100000-0000-4000-a000-000000000001/approve')
         .send({ approvalNotes: 'DPO sign-off complete' });
 
       expect(res.status).toBe(200);
@@ -636,7 +636,7 @@ describe('InfoSec Privacy API', () => {
       });
 
       const res = await request(app)
-        .put('/api/privacy/dsar/dsar-1/respond')
+        .put('/api/privacy/dsar/a5200000-0000-4000-a000-000000000001/respond')
         .send({ responseNotes: 'Data exported and sent' });
 
       expect(res.status).toBe(200);
@@ -648,7 +648,7 @@ describe('InfoSec Privacy API', () => {
 
     it('should return 400 for missing responseNotes', async () => {
       const res = await request(app)
-        .put('/api/privacy/dsar/dsar-1/respond')
+        .put('/api/privacy/dsar/a5200000-0000-4000-a000-000000000001/respond')
         .send({});
 
       expect(res.status).toBe(400);
@@ -671,7 +671,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDsar.update as jest.Mock).mockResolvedValueOnce(mockDsar);
 
       const res = await request(app)
-        .put('/api/privacy/dsar/dsar-1/respond')
+        .put('/api/privacy/dsar/a5200000-0000-4000-a000-000000000001/respond')
         .send({
           responseNotes: 'Data exported',
           actionTaken: 'Exported all records to CSV',

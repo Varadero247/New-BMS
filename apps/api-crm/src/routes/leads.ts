@@ -53,7 +53,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -74,7 +74,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: lead });
   } catch (error: unknown) {
     logger.error('Failed to create lead', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create lead' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create lead' } });
   }
 });
 
@@ -117,7 +117,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list leads', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list leads' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list leads' } });
   }
 });
 
@@ -129,13 +129,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!lead) {
-      return res.status(404).json({ success: false, error: 'Lead not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     }
 
     return res.json({ success: true, data: lead });
   } catch (error: unknown) {
     logger.error('Failed to get lead', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get lead' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get lead' } });
   }
 });
 
@@ -147,14 +147,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Lead not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     }
 
     const validation = updateLeadSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -175,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: lead });
   } catch (error: unknown) {
     logger.error('Failed to update lead', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update lead' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update lead' } });
   }
 });
 
@@ -187,15 +187,15 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
     });
 
     if (!lead) {
-      return res.status(404).json({ success: false, error: 'Lead not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     }
 
     if (lead.status === 'QUALIFIED') {
-      return res.status(400).json({ success: false, error: 'Lead is already qualified' });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Lead is already qualified' } });
     }
 
     if (lead.status === 'DISQUALIFIED') {
-      return res.status(400).json({ success: false, error: 'Cannot qualify a disqualified lead' });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Cannot qualify a disqualified lead' } });
     }
 
     const userId = (req as any).user?.id || 'system';
@@ -281,7 +281,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to qualify lead', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to qualify lead' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to qualify lead' } });
   }
 });
 
@@ -293,18 +293,18 @@ router.put('/:id/disqualify', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Lead not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     }
 
     if (existing.status === 'DISQUALIFIED') {
-      return res.status(400).json({ success: false, error: 'Lead is already disqualified' });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Lead is already disqualified' } });
     }
 
     const validation = disqualifySchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -321,7 +321,7 @@ router.put('/:id/disqualify', async (req: Request, res: Response) => {
     return res.json({ success: true, data: lead });
   } catch (error: unknown) {
     logger.error('Failed to disqualify lead', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to disqualify lead' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to disqualify lead' } });
   }
 });
 

@@ -402,6 +402,56 @@ ISO37001_DATABASE_URL=postgresql://ims_iso37001:pass@db-iso37001.prod:5432/ims_i
 3. **Core First** - Always split core (auth/users) first
 4. **Gradual Migration** - Migrate one service at a time
 
+## Soft Delete Indexes
+
+All 41 domain schemas include `@@index([deletedAt])` on every model that supports soft deletes. There are 342 such indexes in total. These indexes ensure that the default query filter `WHERE "deletedAt" IS NULL` remains performant even on large tables.
+
+Example from a schema:
+```prisma
+model RiskRegister {
+  // ... fields ...
+  deletedAt DateTime?
+
+  @@index([deletedAt])
+}
+```
+
+## Multi-Tenant Isolation (orgId)
+
+301 models across all domain schemas now include an `orgId String?` field for multi-tenant isolation. When MSP mode is enabled, all queries are scoped by `orgId` to ensure tenants cannot access each other's data.
+
+- The `orgId` field is nullable to maintain backward compatibility with single-tenant deployments
+- Gateway middleware injects the tenant's `orgId` from the JWT token into request context
+- Each downstream API service filters queries by `orgId` when present
+- Indexes on `orgId` are included where necessary for query performance
+
+## Database Backup Strategy
+
+### Automated Daily Backups
+
+The `docker-compose.yml` includes a `backup` service that runs `pg_dump` daily and stores compressed backups:
+
+- **Schedule**: Daily at 02:00 UTC
+- **Retention**: 30 days (older backups are automatically pruned)
+- **Storage**: `/var/backups/ims/` on the Docker host (mounted volume)
+- **Format**: Custom compressed format (`pg_dump -Fc`) for efficient storage and selective restore
+
+### Manual Backup
+
+```bash
+./scripts/backup-db.sh
+```
+
+This creates an on-demand backup in the same location as automated backups. Useful before schema migrations or major deployments.
+
+### Restore
+
+```bash
+pg_restore -h localhost -U postgres -d ims --clean --if-exists backup_file.dump
+```
+
+---
+
 ## Database Tables
 
 ### Project Management

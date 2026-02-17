@@ -252,7 +252,7 @@ router.delete('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     }
 
-    await prisma.qualAction.delete({ where: { id: req.params.id } });
+    await prisma.qualAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

@@ -352,7 +352,7 @@ router.delete('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthReque
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
-    await prisma.qualSupplier.delete({ where: { id: req.params.id } });
+    await prisma.qualSupplier.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

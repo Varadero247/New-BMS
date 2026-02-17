@@ -318,15 +318,16 @@ describe('Project Risks API Routes', () => {
   describe('DELETE /api/risks/:id', () => {
     it('should delete risk successfully', async () => {
       (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
-      (mockPrisma.projectRisk.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/risks/10000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.projectRisk.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
         where: { id: '10000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

@@ -133,7 +133,7 @@ router.delete('/:id', checkOwnership(prisma.projectDocument), async (req: AuthRe
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
-    await prisma.projectDocument.delete({ where: { id: req.params.id } });
+    await prisma.projectDocument.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete document error', { error: (error as Error).message });

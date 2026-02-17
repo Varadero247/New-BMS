@@ -18,6 +18,7 @@ datasource db {
 
 model FsHazard {
   id             String        @id @default(uuid())
+  orgId           String?
   name           String
   type           FsHazardType
   description    String?
@@ -39,6 +40,8 @@ model FsHazard {
   @@index([severity])
   @@index([isSignificant])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_hazards")
 }
 
@@ -48,6 +51,7 @@ model FsHazard {
 
 model FsCcp {
   id                  String              @id @default(uuid())
+  orgId           String?
   name                String
   number              String              @unique
   processStep         String
@@ -69,6 +73,8 @@ model FsCcp {
   @@index([hazardId])
   @@index([isActive])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_ccps")
 }
 
@@ -78,6 +84,7 @@ model FsCcp {
 
 model FsMonitoringRecord {
   id                    String    @id @default(uuid())
+  orgId           String?
   ccpId                 String
   ccp                   FsCcp     @relation(fields: [ccpId], references: [id])
   monitoredBy           String?
@@ -97,6 +104,8 @@ model FsMonitoringRecord {
   @@index([ccpId])
   @@index([monitoredAt])
   @@index([withinLimits])
+  @@index([orgId])
+
   @@map("fs_monitoring_records")
 }
 
@@ -106,6 +115,7 @@ model FsMonitoringRecord {
 
 model FsAudit {
   id            String        @id @default(uuid())
+  orgId           String?
   title         String
   type          FsAuditType
   auditor       String
@@ -125,6 +135,8 @@ model FsAudit {
   @@index([scheduledDate])
   @@index([type])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_audits")
 }
 
@@ -134,6 +146,7 @@ model FsAudit {
 
 model FsSupplier {
   id             String             @id @default(uuid())
+  orgId           String?
   name           String
   code           String             @unique
   contactName    String?
@@ -155,6 +168,8 @@ model FsSupplier {
   @@index([category])
   @@index([nextAuditDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_suppliers")
 }
 
@@ -164,6 +179,7 @@ model FsSupplier {
 
 model FsRecall {
   id                 String         @id @default(uuid())
+  orgId           String?
   number             String         @unique
   productName        String
   batchNumber        String
@@ -189,6 +205,8 @@ model FsRecall {
   @@index([productName])
   @@index([batchNumber])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_recalls")
 }
 
@@ -198,6 +216,7 @@ model FsRecall {
 
 model FsTraceability {
   id                  String         @id @default(uuid())
+  orgId           String?
   productName         String
   batchNumber         String         @unique
   productionDate      DateTime
@@ -217,6 +236,8 @@ model FsTraceability {
   @@index([status])
   @@index([productionDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_traceability")
 }
 
@@ -226,6 +247,7 @@ model FsTraceability {
 
 model FsSanitation {
   id            String             @id @default(uuid())
+  orgId           String?
   area          String
   procedure     String
   frequency     FsFrequency
@@ -245,6 +267,8 @@ model FsSanitation {
   @@index([scheduledDate])
   @@index([area])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_sanitation")
 }
 
@@ -254,6 +278,7 @@ model FsSanitation {
 
 model FsAllergen {
   id               String        @id @default(uuid())
+  orgId           String?
   name             String
   code             String        @unique
   type             FsAllergenType
@@ -269,6 +294,8 @@ model FsAllergen {
   @@index([type])
   @@index([isActive])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_allergens")
 }
 
@@ -278,6 +305,7 @@ model FsAllergen {
 
 model FsProduct {
   id                  String          @id @default(uuid())
+  orgId           String?
   name                String
   code                String          @unique
   description         String?
@@ -296,6 +324,8 @@ model FsProduct {
   @@index([status])
   @@index([category])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_products")
 }
 
@@ -305,6 +335,7 @@ model FsProduct {
 
 model FsNcr {
   id               String        @id @default(uuid())
+  orgId           String?
   number           String        @unique
   title            String
   description      String?
@@ -328,6 +359,8 @@ model FsNcr {
   @@index([category])
   @@index([dueDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_ncrs")
 }
 
@@ -337,6 +370,7 @@ model FsNcr {
 
 model FsTraining {
   id            String           @id @default(uuid())
+  orgId           String?
   title         String
   description   String?
   type          FsTrainingType
@@ -356,6 +390,8 @@ model FsTraining {
   @@index([scheduledDate])
   @@index([type])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_training")
 }
 
@@ -365,6 +401,7 @@ model FsTraining {
 
 model FsEnvironmentalMonitoring {
   id         String     @id @default(uuid())
+  orgId           String?
   location   String
   testType   FsTestType
   parameter  String
@@ -385,6 +422,8 @@ model FsEnvironmentalMonitoring {
   @@index([testedAt])
   @@index([location])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_environmental_monitoring")
 }
 
@@ -394,6 +433,7 @@ model FsEnvironmentalMonitoring {
 
 model FsFoodDefense {
   id                      String          @id @default(uuid())
+  orgId           String?
   title                   String
   description             String?
   threatType              FsThreatType
@@ -413,6 +453,8 @@ model FsFoodDefense {
   @@index([threatType])
   @@index([reviewDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fs_food_defense")
 }
 

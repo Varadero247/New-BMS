@@ -15,7 +15,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -39,7 +39,7 @@ beforeEach(() => {
 
 describe('InfoSec Scope API', () => {
   const mockScope = {
-    id: 'scope-1',
+    id: 'a7000000-0000-4000-a000-000000000001',
     name: 'ISMS Scope',
     description: 'Full organizational ISMS scope',
     boundaries: 'All UK offices',
@@ -50,7 +50,7 @@ describe('InfoSec Scope API', () => {
     applicableRequirements: ['ISO 27001', 'GDPR'],
     interfaces: ['Cloud providers'],
     status: 'DRAFT',
-    createdBy: 'user-123',
+    createdBy: '00000000-0000-4000-a000-000000000123',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -192,7 +192,7 @@ describe('InfoSec Scope API', () => {
         .send({ description: 'New desc' });
 
       const updateCall = (mockPrisma.isScope.update as jest.Mock).mock.calls[0][0];
-      expect(updateCall.data.updatedBy).toBe('user-123');
+      expect(updateCall.data.updatedBy).toBe('00000000-0000-4000-a000-000000000123');
     });
 
     it('should pass createdBy from authenticated user when creating', async () => {
@@ -204,7 +204,7 @@ describe('InfoSec Scope API', () => {
         .send({ name: 'New Scope' });
 
       const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
-      expect(createCall.data.createdBy).toBe('user-123');
+      expect(createCall.data.createdBy).toBe('00000000-0000-4000-a000-000000000123');
     });
   });
 });

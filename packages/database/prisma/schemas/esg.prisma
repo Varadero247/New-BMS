@@ -170,6 +170,7 @@ model EsgFramework {
   metrics EsgMetric[]
 
   @@map("esg_frameworks")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -201,6 +202,7 @@ model EsgMetric {
   @@index([category])
   @@index([code])
   @@map("esg_metrics")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -230,6 +232,7 @@ model EsgDataPoint {
   @@index([status])
   @@index([periodStart, periodEnd])
   @@map("esg_data_points")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -256,6 +259,7 @@ model EsgTarget {
   @@index([year])
   @@index([status])
   @@map("esg_targets")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -281,6 +285,7 @@ model EsgReport {
   @@index([year])
   @@index([status])
   @@map("esg_reports")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -307,6 +312,7 @@ model EsgInitiative {
   @@index([category])
   @@index([status])
   @@map("esg_initiatives")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -333,6 +339,7 @@ model EsgEmission {
   @@index([scope])
   @@index([periodStart, periodEnd])
   @@map("esg_emissions")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -356,6 +363,7 @@ model EsgWaste {
   @@index([wasteType])
   @@index([periodStart, periodEnd])
   @@map("esg_waste")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -379,6 +387,7 @@ model EsgWater {
   @@index([usageType])
   @@index([periodStart, periodEnd])
   @@map("esg_water")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -403,6 +412,7 @@ model EsgEnergy {
   @@index([energyType])
   @@index([periodStart, periodEnd])
   @@map("esg_energy")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -426,6 +436,7 @@ model EsgSocialMetric {
   @@index([category])
   @@index([periodStart, periodEnd])
   @@map("esg_social_metrics")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -448,6 +459,7 @@ model EsgGovernanceMetric {
   @@index([category])
   @@index([periodStart, periodEnd])
   @@map("esg_governance_metrics")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -473,6 +485,7 @@ model EsgAudit {
   @@index([auditType])
   @@index([status])
   @@map("esg_audits")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -495,6 +508,7 @@ model EsgStakeholder {
   @@index([type])
   @@index([engagementLevel])
   @@map("esg_stakeholders")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -516,6 +530,7 @@ model EsgMateriality {
 
   @@index([category])
   @@map("esg_materiality")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -540,6 +555,7 @@ model EsgDefraFactor {
   @@map("esg_defra_factors")
   @@index([orgId])
   @@index([category])
+  @@index([deletedAt])
 }
 
 model EsgScopeEmission {
@@ -567,4 +583,5 @@ model EsgScopeEmission {
   @@map("esg_scope_emissions")
   @@index([orgId])
   @@index([scope])
+  @@index([deletedAt])
 }

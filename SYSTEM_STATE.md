@@ -11,8 +11,8 @@
 | Shared Packages | 60 |
 | Prisma Schemas | 44 |
 | Database Tables (models) | ~590 |
-| Scripts | 20 |
-| Unit Tests | 12,321 across 578 suites (all passing) |
+| Scripts | 22 |
+| Unit Tests | 12,326 across 578 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -305,7 +305,7 @@ All routes also available under `/api/v1/` prefix.
 
 ---
 
-## Scripts (20)
+## Scripts (22)
 
 | Script | Description |
 |--------|-------------|
@@ -329,6 +329,8 @@ All routes also available under `/api/v1/` prefix.
 | `scripts/test-workflows-modules.sh` | Workflows integration tests (~40) |
 | `scripts/test-pm-modules.sh` | PM integration tests (~45) |
 | `scripts/test-finance-modules.sh` | Finance integration tests |
+| `scripts/seed-all.sh` | Unified seed runner (all domain schemas) |
+| `scripts/backup-db.sh` | Manual database backup |
 
 ---
 
@@ -381,7 +383,7 @@ All routes also available under `/api/v1/` prefix.
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~1,109 |
-| **Total** | **578** | **12,321** |
+| **Total** | **578** | **12,326** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -435,3 +437,7 @@ All routes also available under `/api/v1/` prefix.
 - Password: `${POSTGRES_PASSWORD}`
 - Port: `5432`
 - Database: `ims`
+
+### Database Hardening
+- 342 `deletedAt` indexes added across all schemas for soft-delete query performance
+- 301 `orgId` fields added across schemas for multi-tenant data isolation

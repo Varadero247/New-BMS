@@ -1725,3 +1725,1227 @@ spec:
       targetPort: 4024
   selector:
     app: api-iso37001
+---
+# Marketing Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-marketing
+  namespace: ims
+  labels:
+    app: api-marketing
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-marketing
+  template:
+    metadata:
+      labels:
+        app: api-marketing
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4025"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-marketing
+          image: ims/api-marketing:latest
+          ports:
+            - containerPort: 4025
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4025"
+            - name: OTEL_SERVICE_NAME
+              value: "api-marketing"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4025
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4025
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-marketing
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4025
+      targetPort: 4025
+  selector:
+    app: api-marketing
+---
+# Partners Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-partners
+  namespace: ims
+  labels:
+    app: api-partners
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-partners
+  template:
+    metadata:
+      labels:
+        app: api-partners
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4026"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-partners
+          image: ims/api-partners:latest
+          ports:
+            - containerPort: 4026
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4026"
+            - name: OTEL_SERVICE_NAME
+              value: "api-partners"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4026
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4026
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-partners
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4026
+      targetPort: 4026
+  selector:
+    app: api-partners
+---
+# Risk Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-risk
+  namespace: ims
+  labels:
+    app: api-risk
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-risk
+  template:
+    metadata:
+      labels:
+        app: api-risk
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4027"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-risk
+          image: ims/api-risk:latest
+          ports:
+            - containerPort: 4027
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4027"
+            - name: OTEL_SERVICE_NAME
+              value: "api-risk"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4027
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4027
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-risk
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4027
+      targetPort: 4027
+  selector:
+    app: api-risk
+---
+# Training Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-training
+  namespace: ims
+  labels:
+    app: api-training
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-training
+  template:
+    metadata:
+      labels:
+        app: api-training
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4028"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-training
+          image: ims/api-training:latest
+          ports:
+            - containerPort: 4028
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4028"
+            - name: OTEL_SERVICE_NAME
+              value: "api-training"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4028
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4028
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-training
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4028
+      targetPort: 4028
+  selector:
+    app: api-training
+---
+# Suppliers Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-suppliers
+  namespace: ims
+  labels:
+    app: api-suppliers
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-suppliers
+  template:
+    metadata:
+      labels:
+        app: api-suppliers
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4029"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-suppliers
+          image: ims/api-suppliers:latest
+          ports:
+            - containerPort: 4029
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4029"
+            - name: OTEL_SERVICE_NAME
+              value: "api-suppliers"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4029
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4029
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-suppliers
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4029
+      targetPort: 4029
+  selector:
+    app: api-suppliers
+---
+# Assets Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-assets
+  namespace: ims
+  labels:
+    app: api-assets
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-assets
+  template:
+    metadata:
+      labels:
+        app: api-assets
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4030"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-assets
+          image: ims/api-assets:latest
+          ports:
+            - containerPort: 4030
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4030"
+            - name: OTEL_SERVICE_NAME
+              value: "api-assets"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4030
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4030
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-assets
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4030
+      targetPort: 4030
+  selector:
+    app: api-assets
+---
+# Documents Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-documents
+  namespace: ims
+  labels:
+    app: api-documents
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-documents
+  template:
+    metadata:
+      labels:
+        app: api-documents
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4031"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-documents
+          image: ims/api-documents:latest
+          ports:
+            - containerPort: 4031
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4031"
+            - name: OTEL_SERVICE_NAME
+              value: "api-documents"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4031
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4031
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-documents
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4031
+      targetPort: 4031
+  selector:
+    app: api-documents
+---
+# Complaints Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-complaints
+  namespace: ims
+  labels:
+    app: api-complaints
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-complaints
+  template:
+    metadata:
+      labels:
+        app: api-complaints
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4032"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-complaints
+          image: ims/api-complaints:latest
+          ports:
+            - containerPort: 4032
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4032"
+            - name: OTEL_SERVICE_NAME
+              value: "api-complaints"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4032
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4032
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-complaints
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4032
+      targetPort: 4032
+  selector:
+    app: api-complaints
+---
+# Contracts Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-contracts
+  namespace: ims
+  labels:
+    app: api-contracts
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-contracts
+  template:
+    metadata:
+      labels:
+        app: api-contracts
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4033"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-contracts
+          image: ims/api-contracts:latest
+          ports:
+            - containerPort: 4033
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4033"
+            - name: OTEL_SERVICE_NAME
+              value: "api-contracts"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4033
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4033
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-contracts
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4033
+      targetPort: 4033
+  selector:
+    app: api-contracts
+---
+# Permit to Work Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-ptw
+  namespace: ims
+  labels:
+    app: api-ptw
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-ptw
+  template:
+    metadata:
+      labels:
+        app: api-ptw
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4034"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-ptw
+          image: ims/api-ptw:latest
+          ports:
+            - containerPort: 4034
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4034"
+            - name: OTEL_SERVICE_NAME
+              value: "api-ptw"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4034
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4034
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-ptw
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4034
+      targetPort: 4034
+  selector:
+    app: api-ptw
+---
+# Regulatory Monitor Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-reg-monitor
+  namespace: ims
+  labels:
+    app: api-reg-monitor
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-reg-monitor
+  template:
+    metadata:
+      labels:
+        app: api-reg-monitor
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4035"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-reg-monitor
+          image: ims/api-reg-monitor:latest
+          ports:
+            - containerPort: 4035
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4035"
+            - name: OTEL_SERVICE_NAME
+              value: "api-reg-monitor"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4035
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4035
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-reg-monitor
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4035
+      targetPort: 4035
+  selector:
+    app: api-reg-monitor
+---
+# Incidents Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-incidents
+  namespace: ims
+  labels:
+    app: api-incidents
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-incidents
+  template:
+    metadata:
+      labels:
+        app: api-incidents
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4036"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-incidents
+          image: ims/api-incidents:latest
+          ports:
+            - containerPort: 4036
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4036"
+            - name: OTEL_SERVICE_NAME
+              value: "api-incidents"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4036
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4036
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-incidents
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4036
+      targetPort: 4036
+  selector:
+    app: api-incidents
+---
+# Audits Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-audits
+  namespace: ims
+  labels:
+    app: api-audits
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-audits
+  template:
+    metadata:
+      labels:
+        app: api-audits
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4037"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-audits
+          image: ims/api-audits:latest
+          ports:
+            - containerPort: 4037
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4037"
+            - name: OTEL_SERVICE_NAME
+              value: "api-audits"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4037
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4037
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-audits
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4037
+      targetPort: 4037
+  selector:
+    app: api-audits
+---
+# Management Review Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-mgmt-review
+  namespace: ims
+  labels:
+    app: api-mgmt-review
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-mgmt-review
+  template:
+    metadata:
+      labels:
+        app: api-mgmt-review
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4038"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-mgmt-review
+          image: ims/api-mgmt-review:latest
+          ports:
+            - containerPort: 4038
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4038"
+            - name: OTEL_SERVICE_NAME
+              value: "api-mgmt-review"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4038
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4038
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-mgmt-review
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4038
+      targetPort: 4038
+  selector:
+    app: api-mgmt-review
+---
+# Setup Wizard Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-setup-wizard
+  namespace: ims
+  labels:
+    app: api-setup-wizard
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-setup-wizard
+  template:
+    metadata:
+      labels:
+        app: api-setup-wizard
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4039"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-setup-wizard
+          image: ims/api-setup-wizard:latest
+          ports:
+            - containerPort: 4039
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4039"
+            - name: OTEL_SERVICE_NAME
+              value: "api-setup-wizard"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4039
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4039
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-setup-wizard
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4039
+      targetPort: 4039
+  selector:
+    app: api-setup-wizard
+---
+# Chemicals Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-chemicals
+  namespace: ims
+  labels:
+    app: api-chemicals
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-chemicals
+  template:
+    metadata:
+      labels:
+        app: api-chemicals
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4040"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-chemicals
+          image: ims/api-chemicals:latest
+          ports:
+            - containerPort: 4040
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4040"
+            - name: OTEL_SERVICE_NAME
+              value: "api-chemicals"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4040
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4040
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-chemicals
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4040
+      targetPort: 4040
+  selector:
+    app: api-chemicals
+---
+# Emergency Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-emergency
+  namespace: ims
+  labels:
+    app: api-emergency
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-emergency
+  template:
+    metadata:
+      labels:
+        app: api-emergency
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4041"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api-emergency
+          image: ims/api-emergency:latest
+          ports:
+            - containerPort: 4041
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secrets
+          env:
+            - name: PORT
+              value: "4041"
+            - name: OTEL_SERVICE_NAME
+              value: "api-emergency"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4041
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4041
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-emergency
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4041
+      targetPort: 4041
+  selector:
+    app: api-emergency

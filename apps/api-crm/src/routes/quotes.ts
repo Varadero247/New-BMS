@@ -61,7 +61,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -111,7 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: quote });
   } catch (error: unknown) {
     logger.error('Failed to create quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create quote' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create quote' } });
   }
 });
 
@@ -147,7 +147,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list quotes', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list quotes' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list quotes' } });
   }
 });
 
@@ -160,13 +160,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!quote) {
-      return res.status(404).json({ success: false, error: 'Quote not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
     logger.error('Failed to get quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get quote' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get quote' } });
   }
 });
 
@@ -178,13 +178,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Quote not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
       return res.status(400).json({
         success: false,
-        error: 'Only DRAFT quotes can be updated',
+        error: { code: 'VALIDATION_ERROR', message: 'Only DRAFT quotes can be updated' },
       });
     }
 
@@ -192,7 +192,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -248,7 +248,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
     logger.error('Failed to update quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update quote' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update quote' } });
   }
 });
 
@@ -260,13 +260,13 @@ router.post('/:id/send', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Quote not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
       return res.status(400).json({
         success: false,
-        error: 'Only DRAFT quotes can be sent',
+        error: { code: 'VALIDATION_ERROR', message: 'Only DRAFT quotes can be sent' },
       });
     }
 
@@ -279,7 +279,7 @@ router.post('/:id/send', async (req: Request, res: Response) => {
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
     logger.error('Failed to send quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to send quote' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send quote' } });
   }
 });
 
@@ -291,13 +291,13 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Quote not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'SENT') {
       return res.status(400).json({
         success: false,
-        error: 'Only SENT quotes can be accepted',
+        error: { code: 'VALIDATION_ERROR', message: 'Only SENT quotes can be accepted' },
       });
     }
 
@@ -310,7 +310,7 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
     logger.error('Failed to accept quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to accept quote' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to accept quote' } });
   }
 });
 
@@ -322,7 +322,7 @@ router.get('/:id/pdf', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Quote not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     return res.json({
@@ -336,7 +336,7 @@ router.get('/:id/pdf', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate quote PDF', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to generate quote PDF' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate quote PDF' } });
   }
 });
 

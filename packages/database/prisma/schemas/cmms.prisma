@@ -149,6 +149,7 @@ enum CmmsKpiType {
 
 model CmmsAsset {
   id              String          @id @default(uuid())
+  orgId           String?
   name            String
   code            String          @unique
   description     String?
@@ -185,6 +186,8 @@ model CmmsAsset {
   @@index([assetType])
   @@index([criticality])
   @@index([parentAssetId])
+  @@index([orgId])
+
   @@map("cmms_assets")
 }
 
@@ -194,6 +197,7 @@ model CmmsAsset {
 
 model CmmsWorkOrder {
   id              String              @id @default(uuid())
+  orgId           String?
   number          String              @unique
   title           String
   description     String?
@@ -229,6 +233,8 @@ model CmmsWorkOrder {
   @@index([scheduledStart])
   @@index([assignedTo])
   @@index([type])
+  @@index([orgId])
+
   @@map("cmms_work_orders")
 }
 
@@ -238,6 +244,7 @@ model CmmsWorkOrder {
 
 model CmmsPreventivePlan {
   id                String        @id @default(uuid())
+  orgId           String?
   name              String
   assetId           String
   description       String?
@@ -260,6 +267,8 @@ model CmmsPreventivePlan {
   @@index([assetId])
   @@index([nextDue])
   @@index([isActive])
+  @@index([orgId])
+
   @@map("cmms_preventive_plans")
 }
 
@@ -269,6 +278,7 @@ model CmmsPreventivePlan {
 
 model CmmsPart {
   id            String    @id @default(uuid())
+  orgId           String?
   name          String
   partNumber    String    @unique
   description   String?
@@ -292,6 +302,8 @@ model CmmsPart {
 
   @@index([partNumber])
   @@index([category])
+  @@index([orgId])
+
   @@map("cmms_parts")
 }
 
@@ -301,6 +313,7 @@ model CmmsPart {
 
 model CmmsPartUsage {
   id          String   @id @default(uuid())
+  orgId           String?
   workOrderId String
   partId      String
   quantity    Int
@@ -318,6 +331,8 @@ model CmmsPartUsage {
 
   @@index([workOrderId])
   @@index([partId])
+  @@index([orgId])
+
   @@map("cmms_part_usages")
 }
 
@@ -327,6 +342,7 @@ model CmmsPartUsage {
 
 model CmmsInspection {
   id                 String               @id @default(uuid())
+  orgId           String?
   assetId            String
   inspectionType     String
   inspector          String
@@ -347,6 +363,8 @@ model CmmsInspection {
   @@index([assetId])
   @@index([status])
   @@index([scheduledDate])
+  @@index([orgId])
+
   @@map("cmms_inspections")
 }
 
@@ -356,6 +374,7 @@ model CmmsInspection {
 
 model CmmsMeterReading {
   id              String        @id @default(uuid())
+  orgId           String?
   assetId         String
   meterType       CmmsMeterType
   reading         Decimal
@@ -372,6 +391,8 @@ model CmmsMeterReading {
 
   @@index([assetId])
   @@index([readingDate])
+  @@index([orgId])
+
   @@map("cmms_meter_readings")
 }
 
@@ -381,6 +402,7 @@ model CmmsMeterReading {
 
 model CmmsDowntime {
   id            String             @id @default(uuid())
+  orgId           String?
   assetId       String
   workOrderId   String?
   startTime     DateTime
@@ -401,6 +423,8 @@ model CmmsDowntime {
   @@index([assetId])
   @@index([workOrderId])
   @@index([startTime])
+  @@index([orgId])
+
   @@map("cmms_downtimes")
 }
 
@@ -410,6 +434,7 @@ model CmmsDowntime {
 
 model CmmsVendor {
   id              String    @id @default(uuid())
+  orgId           String?
   name            String
   code            String    @unique
   contactName     String?
@@ -429,6 +454,8 @@ model CmmsVendor {
   serviceContracts CmmsServiceContract[]
 
   @@index([code])
+  @@index([orgId])
+
   @@map("cmms_vendors")
 }
 
@@ -438,6 +465,7 @@ model CmmsVendor {
 
 model CmmsServiceContract {
   id                 String             @id @default(uuid())
+  orgId           String?
   vendorId           String
   assetId            String?
   contractNumber     String             @unique
@@ -462,6 +490,8 @@ model CmmsServiceContract {
   @@index([vendorId])
   @@index([assetId])
   @@index([status])
+  @@index([orgId])
+
   @@map("cmms_service_contracts")
 }
 
@@ -471,6 +501,7 @@ model CmmsServiceContract {
 
 model CmmsFailureCode {
   id            String   @id @default(uuid())
+  orgId           String?
   code          String   @unique
   description   String
   category      String?
@@ -484,6 +515,8 @@ model CmmsFailureCode {
 
   @@index([code])
   @@index([category])
+  @@index([orgId])
+
   @@map("cmms_failure_codes")
 }
 
@@ -493,6 +526,7 @@ model CmmsFailureCode {
 
 model CmmsChecklist {
   id        String         @id @default(uuid())
+  orgId           String?
   name      String
   description String?
   assetType CmmsAssetType?
@@ -507,6 +541,8 @@ model CmmsChecklist {
   results   CmmsChecklistResult[]
 
   @@index([assetType])
+  @@index([orgId])
+
   @@map("cmms_checklists")
 }
 
@@ -516,6 +552,7 @@ model CmmsChecklist {
 
 model CmmsChecklistResult {
   id            String              @id @default(uuid())
+  orgId           String?
   checklistId   String
   workOrderId   String?
   assetId       String
@@ -537,6 +574,8 @@ model CmmsChecklistResult {
   @@index([checklistId])
   @@index([workOrderId])
   @@index([assetId])
+  @@index([orgId])
+
   @@map("cmms_checklist_results")
 }
 
@@ -546,6 +585,7 @@ model CmmsChecklistResult {
 
 model CmmsLocation {
   id               String           @id @default(uuid())
+  orgId           String?
   name             String
   code             String           @unique
   description      String?
@@ -564,6 +604,8 @@ model CmmsLocation {
   @@index([code])
   @@index([parentLocationId])
   @@index([type])
+  @@index([orgId])
+
   @@map("cmms_locations")
 }
 
@@ -573,6 +615,7 @@ model CmmsLocation {
 
 model CmmsRequest {
   id          String            @id @default(uuid())
+  orgId           String?
   number      String            @unique
   title       String
   description String?
@@ -596,6 +639,8 @@ model CmmsRequest {
   @@index([locationId])
   @@index([status])
   @@index([requestedBy])
+  @@index([orgId])
+
   @@map("cmms_requests")
 }
 
@@ -605,6 +650,7 @@ model CmmsRequest {
 
 model CmmsKpi {
   id          String      @id @default(uuid())
+  orgId           String?
   name        String
   metricType  CmmsKpiType
   assetId     String?
@@ -624,5 +670,7 @@ model CmmsKpi {
   @@index([assetId])
   @@index([metricType])
   @@index([periodStart])
+  @@index([orgId])
+
   @@map("cmms_kpis")
 }

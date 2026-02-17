@@ -248,7 +248,7 @@ router.delete('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, 
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });
-    await prisma.envEvent.delete({ where: { id: req.params.id } });
+    await prisma.envEvent.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete event error', { error: (error as Error).message });

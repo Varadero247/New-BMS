@@ -469,15 +469,16 @@ describe('Quality Processes API Routes', () => {
   describe('DELETE /api/processes/:id', () => {
     it('should delete a process successfully', async () => {
       (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1d000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualProcess.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualProcess.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/processes/1d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualProcess.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualProcess.update).toHaveBeenCalledWith({
         where: { id: '1d000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

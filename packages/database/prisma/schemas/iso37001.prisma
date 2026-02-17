@@ -146,6 +146,7 @@ model AbPolicy {
   @@index([organisationId, status])
   @@index([organisationId, policyType])
   @@map("ab_policies")
+  @@index([deletedAt])
 }
 
 /// Third-party due diligence register — risk-based screening of business partners
@@ -176,6 +177,7 @@ model AbDueDiligence {
   @@index([organisationId, thirdPartyType])
   @@index([organisationId, riskLevel])
   @@map("ab_due_diligence")
+  @@index([deletedAt])
 }
 
 /// Gifts, hospitality, and facilitation payments register
@@ -207,6 +209,7 @@ model AbGiftRegister {
   @@index([organisationId, direction])
   @@index([organisationId, date])
   @@map("ab_gift_register")
+  @@index([deletedAt])
 }
 
 /// Anti-bribery awareness and compliance training records
@@ -236,6 +239,7 @@ model AbTrainingRecord {
   @@index([organisationId, employeeId])
   @@index([organisationId, dueDate])
   @@map("ab_training_records")
+  @@index([deletedAt])
 }
 
 /// Bribery risk assessment — identifies, scores, and tracks mitigation of bribery risks
@@ -267,6 +271,7 @@ model AbRiskAssessment {
   @@index([organisationId, category])
   @@index([organisationId, riskLevel])
   @@map("ab_risk_assessments")
+  @@index([deletedAt])
 }
 
 /// Investigation log — tracks reports, investigations, outcomes, and lessons learned
@@ -298,6 +303,7 @@ model AbInvestigation {
   @@index([organisationId, reportedDate])
   @@index([referenceNumber])
   @@map("ab_investigations")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -360,4 +366,5 @@ model AbCompliance {
   @@index([organisationId, status])
   @@index([referenceNumber])
   @@map("ab_compliance")
+  @@index([deletedAt])
 }

@@ -125,6 +125,7 @@ model AnalyticsDashboard {
   @@index([isPublic])
   @@index([isDefault])
   @@map("analytics_dashboards")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -153,6 +154,7 @@ model AnalyticsWidget {
   @@index([dataSource])
   @@index([isActive])
   @@map("analytics_widgets")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -181,6 +183,7 @@ model AnalyticsReport {
   @@index([isActive])
   @@index([type])
   @@map("analytics_reports")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -207,6 +210,7 @@ model AnalyticsReportRun {
   @@index([reportId])
   @@index([status])
   @@map("analytics_report_runs")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -232,6 +236,7 @@ model AnalyticsDataset {
   @@index([source])
   @@index([isActive])
   @@map("analytics_datasets")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -258,6 +263,7 @@ model AnalyticsAlert {
   @@index([status])
   @@index([metric])
   @@map("analytics_alerts")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -285,6 +291,7 @@ model AnalyticsKpi {
   @@index([module])
   @@index([frequency])
   @@map("analytics_kpis")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -311,6 +318,7 @@ model AnalyticsExport {
   @@index([status])
   @@index([requestedBy])
   @@map("analytics_exports")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -335,6 +343,7 @@ model AnalyticsQuery {
   @@index([ownerId])
   @@index([isPublic])
   @@map("analytics_queries")
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -361,6 +370,7 @@ model AnalyticsSchedule {
   @@index([referenceId])
   @@index([nextRun])
   @@map("analytics_schedules")
+  @@index([deletedAt])
 }
 
 // ============================================

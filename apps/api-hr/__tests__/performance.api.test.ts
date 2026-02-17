@@ -33,6 +33,16 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
 }));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
@@ -63,7 +73,7 @@ describe('HR Performance API Routes', () => {
   describe('GET /api/performance/cycles', () => {
     const mockCycles = [
       {
-        id: 'cycle-1',
+        id: '30100000-0000-4000-a000-000000000001',
         name: '2024 Annual Review',
         year: 2024,
         cycleType: 'ANNUAL',
@@ -71,7 +81,7 @@ describe('HR Performance API Routes', () => {
         _count: { reviews: 10, goals: 25 },
       },
       {
-        id: 'cycle-2',
+        id: '30100000-0000-4000-a000-000000000002',
         name: '2023 Annual Review',
         year: 2023,
         cycleType: 'ANNUAL',
@@ -214,7 +224,7 @@ describe('HR Performance API Routes', () => {
     const mockReviews = [
       {
         id: '2f000000-0000-4000-a000-000000000001',
-        cycleId: 'cycle-1',
+        cycleId: '30100000-0000-4000-a000-000000000001',
         employeeId: '2a000000-0000-4000-a000-000000000001',
         reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'DRAFT',
@@ -223,13 +233,13 @@ describe('HR Performance API Routes', () => {
         reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
       {
-        id: 'review-2',
-        cycleId: 'cycle-1',
-        employeeId: 'emp-2',
+        id: '2f000000-0000-4000-a000-000000000002',
+        cycleId: '30100000-0000-4000-a000-000000000001',
+        employeeId: '2a000000-0000-4000-a000-000000000002',
         reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: 'emp-2', firstName: 'Alice', lastName: 'Smith', employeeNumber: 'EMP002', jobTitle: 'Designer' },
+        employee: { id: '2a000000-0000-4000-a000-000000000002', firstName: 'Alice', lastName: 'Smith', employeeNumber: 'EMP002', jobTitle: 'Designer' },
         reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       },
     ];
@@ -272,13 +282,13 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceReview.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
-        .get('/api/performance/reviews?cycleId=cycle-1')
+        .get('/api/performance/reviews?cycleId=30100000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceReview.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            cycleId: 'cycle-1',
+            cycleId: '30100000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -348,11 +358,11 @@ describe('HR Performance API Routes', () => {
   describe('GET /api/performance/reviews/:id', () => {
     const mockReview = {
       id: '2f000000-0000-4000-a000-000000000001',
-      cycleId: 'cycle-1',
+      cycleId: '30100000-0000-4000-a000-000000000001',
       employeeId: '2a000000-0000-4000-a000-000000000001',
       reviewerId: '53000000-0000-4000-a000-000000000001',
       status: 'DRAFT',
-      cycle: { id: 'cycle-1', name: '2024 Review' },
+      cycle: { id: '30100000-0000-4000-a000-000000000001', name: '2024 Review' },
       employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer', department: { name: 'Engineering' } },
       reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
       feedbacks: [],
@@ -550,13 +560,13 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
-        .get('/api/performance/goals?cycleId=cycle-1')
+        .get('/api/performance/goals?cycleId=30100000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceGoal.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            cycleId: 'cycle-1',
+            cycleId: '30100000-0000-4000-a000-000000000001',
           }),
         })
       );
@@ -724,7 +734,7 @@ describe('HR Performance API Routes', () => {
         progress: 50,
       });
       (mockPrisma.goalUpdate.create as jest.Mock).mockResolvedValueOnce({
-        id: 'update-1',
+        id: '30200000-0000-4000-a000-000000000001',
         goalId: '31000000-0000-4000-a000-000000000001',
         progressBefore: 50,
         progressAfter: 75,

@@ -433,15 +433,16 @@ describe('Quality Interested Parties API Routes', () => {
   describe('DELETE /api/parties/:id', () => {
     it('should delete an interested party successfully', async () => {
       (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: '24000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualInterestedParty.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualInterestedParty.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/parties/24000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualInterestedParty.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualInterestedParty.update).toHaveBeenCalledWith({
         where: { id: '24000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

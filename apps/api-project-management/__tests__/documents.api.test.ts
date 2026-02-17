@@ -264,15 +264,16 @@ describe('Documents API Routes', () => {
   describe('DELETE /api/documents/:id', () => {
     it('should delete a document successfully', async () => {
       (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(mockDocument);
-      (mockPrisma.projectDocument.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.projectDocument.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.projectDocument.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.projectDocument.update).toHaveBeenCalledWith({
         where: { id: '1e000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

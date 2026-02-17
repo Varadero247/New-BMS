@@ -56,4 +56,5 @@ model MgmtReview {
   @@map("mgmt_reviews")
   @@index([orgId])
   @@index([status])
+  @@index([deletedAt])
 }

@@ -68,7 +68,7 @@ router.get('/pipelines', async (_req: Request, res: Response) => {
     return res.json({ success: true, data: pipelines });
   } catch (error: unknown) {
     logger.error('Failed to list pipelines', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list pipelines' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list pipelines' } });
   }
 });
 
@@ -79,7 +79,7 @@ router.post('/pipelines', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -104,7 +104,7 @@ router.post('/pipelines', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: pipeline });
   } catch (error: unknown) {
     logger.error('Failed to create pipeline', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create pipeline' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create pipeline' } });
   }
 });
 
@@ -115,7 +115,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -124,7 +124,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     });
 
     if (!pipeline) {
-      return res.status(404).json({ success: false, error: 'Pipeline not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Pipeline not found' } });
     }
 
     // Delete existing stages and recreate
@@ -151,7 +151,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
     logger.error('Failed to update pipeline stages', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update pipeline stages' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update pipeline stages' } });
   }
 });
 
@@ -177,7 +177,7 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     return res.json({ success: true, data: forecast });
   } catch (error: unknown) {
     logger.error('Failed to get forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get forecast' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' } });
   }
 });
 
@@ -209,7 +209,7 @@ router.get('/board', async (req: Request, res: Response) => {
     return res.json({ success: true, data: board });
   } catch (error: unknown) {
     logger.error('Failed to get board data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get board data' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get board data' } });
   }
 });
 
@@ -220,7 +220,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -242,7 +242,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: deal });
   } catch (error: unknown) {
     logger.error('Failed to create deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to create deal' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create deal' } });
   }
 });
 
@@ -286,7 +286,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list deals', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to list deals' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list deals' } });
   }
 });
 
@@ -299,7 +299,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!deal) {
-      return res.status(404).json({ success: false, error: 'Deal not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     // Fetch related activities and contacts
@@ -322,7 +322,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to get deal' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get deal' } });
   }
 });
 
@@ -333,7 +333,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: validation.error.errors.map((e) => e.message).join(', '),
+        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
       });
     }
 
@@ -342,7 +342,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Deal not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as any).user?.id || 'system' };
@@ -359,7 +359,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
     logger.error('Failed to update deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update deal' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal' } });
   }
 });
 
@@ -368,7 +368,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
   try {
     const { stageId } = req.body;
     if (!stageId) {
-      return res.status(400).json({ success: false, error: 'stageId is required' });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'stageId is required' } });
     }
 
     const existing = await prisma.crmDeal.findFirst({
@@ -376,7 +376,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Deal not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -404,7 +404,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
     logger.error('Failed to update deal stage', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to update deal stage' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal stage' } });
   }
 });
 
@@ -416,7 +416,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Deal not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -444,7 +444,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
     logger.error('Failed to close deal as won', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to close deal as won' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as won' } });
   }
 });
 
@@ -453,7 +453,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
   try {
     const { lostReason } = req.body;
     if (!lostReason) {
-      return res.status(400).json({ success: false, error: 'lostReason is required' });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'lostReason is required' } });
     }
 
     const existing = await prisma.crmDeal.findFirst({
@@ -461,7 +461,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Deal not found' });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -490,7 +490,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
     logger.error('Failed to close deal as lost', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: 'Failed to close deal as lost' });
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as lost' } });
   }
 });
 

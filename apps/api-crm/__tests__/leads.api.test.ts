@@ -452,7 +452,7 @@ describe('PUT /api/leads/:id/qualify', () => {
     const res = await request(app).put('/api/leads/lead-1/qualify');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('already qualified');
+    expect(res.body.error.message).toContain('already qualified');
   });
 
   it('should return 400 if lead is disqualified', async () => {
@@ -461,7 +461,7 @@ describe('PUT /api/leads/:id/qualify', () => {
     const res = await request(app).put('/api/leads/lead-1/qualify');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('disqualified');
+    expect(res.body.error.message).toContain('disqualified');
   });
 
   it('should return 404 when lead not found', async () => {
@@ -532,7 +532,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('already disqualified');
+    expect(res.body.error.message).toContain('already disqualified');
   });
 
   it('should return 404 when not found', async () => {

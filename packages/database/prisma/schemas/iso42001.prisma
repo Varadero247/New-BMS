@@ -163,6 +163,7 @@ model AiSystem {
   @@index([status])
   @@index([riskTier])
   @@index([category])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -197,6 +198,7 @@ model AiRiskAssessment {
   @@index([status])
   @@index([category])
   @@index([riskScore])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -226,6 +228,7 @@ model AiPolicy {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([policyType])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -259,6 +262,7 @@ model AiIncident {
   @@index([severity])
   @@index([status])
   @@index([incidentDate])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -289,6 +293,7 @@ model AiControl {
   @@index([domain])
   @@index([status])
   @@index([code])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -323,6 +328,7 @@ model AiImpactAssessment {
   @@index([systemId])
   @@index([status])
   @@index([impactLevel])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -350,6 +356,7 @@ model AiSelfDeclaration {
   @@index([organisationId, deletedAt])
   @@index([status])
   @@index([standard])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -431,6 +438,7 @@ model AiHumanReview {
   @@index([status])
   @@index([reviewerUserId])
   @@index([expiresAt])
+  @@index([deletedAt])
 }
 
 // ============================================
@@ -492,4 +500,5 @@ model AiMonitoring {
   @@index([status])
   @@index([metricType])
   @@index([measurementDate])
+  @@index([deletedAt])
 }

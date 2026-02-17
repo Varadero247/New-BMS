@@ -217,7 +217,7 @@ router.delete('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthR
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
     }
 
-    await prisma.legalRequirement.delete({ where: { id: req.params.id } });
+    await prisma.legalRequirement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete legal requirement error', { error: (error as Error).message });

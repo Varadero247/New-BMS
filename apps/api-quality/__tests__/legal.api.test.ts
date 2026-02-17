@@ -436,8 +436,9 @@ describe('Quality Legal Obligations API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualLegal.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualLegal.update).toHaveBeenCalledWith({
         where: { id: '18000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

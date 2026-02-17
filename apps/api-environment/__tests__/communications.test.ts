@@ -21,7 +21,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000099', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -71,7 +71,7 @@ const mockCommunication = {
   content: 'Annual update on waste reduction targets and progress',
   recipients: 'Local community board, EPA regional office',
   sender: 'test@test.com',
-  relatedAspectId: 'aspect-001',
+  relatedAspectId: 'env00000-0000-4000-a000-000000000001',
   scheduledDate: new Date('2026-04-15'),
   attendees: null,
   location: null,
@@ -81,7 +81,7 @@ const mockCommunication = {
   respondedBy: null,
   respondedAt: null,
   outcome: null,
-  createdBy: 'user-1',
+  createdBy: '00000000-0000-4000-a000-000000000099',
   deletedAt: null,
   deletedBy: null,
   createdAt: new Date('2026-02-01'),
@@ -107,7 +107,7 @@ const mockCommunication2 = {
   respondedBy: null,
   respondedAt: null,
   outcome: null,
-  createdBy: 'user-1',
+  createdBy: '00000000-0000-4000-a000-000000000099',
   deletedAt: null,
   deletedBy: null,
   createdAt: new Date('2026-02-05'),

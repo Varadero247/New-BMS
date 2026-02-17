@@ -41,6 +41,7 @@ model MktPlugin {
   installs    MktPluginInstall[]
 
   @@map("mkt_plugins")
+  @@index([deletedAt])
 }
 
 model MktPluginVersion {

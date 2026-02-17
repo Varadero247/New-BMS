@@ -247,6 +247,7 @@ model ChemRegister {
   @@index([casNumber])
   @@index([orgId])
   @@index([isActive])
+  @@index([deletedAt])
 }
 
 // ── Safety Data Sheet (ISO 11014 — 16 sections) ──────────
@@ -482,6 +483,7 @@ model ChemCoshh {
   @@index([referenceNumber])
   @@index([reviewDate])
   @@index([orgId])
+  @@index([deletedAt])
 }
 
 // ── Chemical Inventory Location ───────────────────────────

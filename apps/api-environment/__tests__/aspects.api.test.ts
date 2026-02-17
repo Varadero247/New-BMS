@@ -61,7 +61,7 @@ describe('Environment Aspects API Routes', () => {
         status: 'ACTIVE',
       },
       {
-        id: 'aspect-2',
+        id: 'env00000-0000-4000-a000-000000000002',
         referenceNumber: 'ENV-ASP-2026-002',
         activityProcess: 'Waste disposal',
         aspect: 'Waste generation',
@@ -447,15 +447,16 @@ describe('Environment Aspects API Routes', () => {
   describe('DELETE /api/aspects/:id', () => {
     it('should delete aspect successfully', async () => {
       (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({ id: '16000000-0000-4000-a000-000000000001' });
-      (mockPrisma.envAspect.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.envAspect.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.envAspect.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.envAspect.update).toHaveBeenCalledWith({
         where: { id: '16000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -13,7 +14,7 @@ const logger = createLogger('api-marketing:renewal');
 const router = Router();
 
 // GET /api/renewal/upcoming
-router.get('/upcoming', async (req: Request, res: Response) => {
+router.get('/upcoming', authenticate, async (req: Request, res: Response) => {
   try {
     const daysAhead = parseInt(req.query.days as string, 10) || 90;
     const futureDate = new Date();
@@ -38,7 +39,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
 });
 
 // POST /api/renewal/:orgId/send-reminder
-router.post('/:orgId/send-reminder', async (req: Request, res: Response) => {
+router.post('/:orgId/send-reminder', authenticate, async (req: Request, res: Response) => {
   try {
     const { orgId } = req.params;
     const parsed = sendReminderSchema.safeParse(req.body);

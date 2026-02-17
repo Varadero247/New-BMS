@@ -510,8 +510,9 @@ describe('Quality Actions API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualAction.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualAction.update).toHaveBeenCalledWith({
         where: { id: '19000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

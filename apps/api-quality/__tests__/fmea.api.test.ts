@@ -587,15 +587,16 @@ describe('Quality FMEA API Routes', () => {
   describe('DELETE /api/fmea/:id', () => {
     it('should delete FMEA successfully', async () => {
       (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualFmea.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualFmea.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/fmea/1f000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualFmea.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualFmea.update).toHaveBeenCalledWith({
         where: { id: '1f000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 
@@ -818,15 +819,16 @@ describe('Quality FMEA API Routes', () => {
   describe('DELETE /api/fmea/:id/rows/:rowId', () => {
     it('should delete row successfully', async () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce({ id: '4e000000-0000-4000-a000-000000000001', fmeaId: '1f000000-0000-4000-a000-000000000001' });
-      (mockPrisma.qualFmeaRow.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualFmeaRow.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualFmeaRow.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.qualFmeaRow.update).toHaveBeenCalledWith({
         where: { id: '4e000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
       });
     });
 

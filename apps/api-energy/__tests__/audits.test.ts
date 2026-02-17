@@ -16,7 +16,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
 }));
@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/audits', () => {
   it('should return paginated audits', async () => {
-    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([{ id: '1', title: 'Q1 Audit' }]);
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([{ id: 'e8000000-0000-4000-a000-000000000001', title: 'Q1 Audit' }]);
     (prisma.energyAudit.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/audits');
@@ -110,12 +110,12 @@ describe('POST /api/audits', () => {
 
 describe('GET /api/audits/:id', () => {
   it('should return an audit', async () => {
-    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: '1', title: 'Audit 1' });
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001', title: 'Audit 1' });
 
-    const res = await request(app).get('/api/audits/1');
+    const res = await request(app).get('/api/audits/e8000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('e8000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
@@ -129,10 +129,10 @@ describe('GET /api/audits/:id', () => {
 
 describe('PUT /api/audits/:id', () => {
   it('should update an audit', async () => {
-    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: '1', title: 'Updated Audit' });
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001' });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001', title: 'Updated Audit' });
 
-    const res = await request(app).put('/api/audits/1').send({ title: 'Updated Audit' });
+    const res = await request(app).put('/api/audits/e8000000-0000-4000-a000-000000000001').send({ title: 'Updated Audit' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.title).toBe('Updated Audit');
@@ -149,10 +149,10 @@ describe('PUT /api/audits/:id', () => {
 
 describe('DELETE /api/audits/:id', () => {
   it('should soft delete an audit', async () => {
-    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: '1' });
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001' });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/audits/1');
+    const res = await request(app).delete('/api/audits/e8000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.deleted).toBe(true);
@@ -169,19 +169,19 @@ describe('DELETE /api/audits/:id', () => {
 
 describe('PUT /api/audits/:id/complete', () => {
   it('should complete an audit', async () => {
-    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'IN_PROGRESS', score: null, findings: null, recommendations: null });
-    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: '1', status: 'COMPLETED', score: 85 });
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001', status: 'IN_PROGRESS', score: null, findings: null, recommendations: null });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001', status: 'COMPLETED', score: 85 });
 
-    const res = await request(app).put('/api/audits/1/complete').send({ score: 85, findings: ['Finding 1'] });
+    const res = await request(app).put('/api/audits/e8000000-0000-4000-a000-000000000001/complete').send({ score: 85, findings: ['Finding 1'] });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('COMPLETED');
   });
 
   it('should reject if already completed', async () => {
-    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: '1', status: 'COMPLETED' });
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: 'e8000000-0000-4000-a000-000000000001', status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/audits/1/complete');
+    const res = await request(app).put('/api/audits/e8000000-0000-4000-a000-000000000001/complete');
 
     expect(res.status).toBe(400);
   });

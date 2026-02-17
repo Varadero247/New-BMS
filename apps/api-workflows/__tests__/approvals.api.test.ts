@@ -265,7 +265,7 @@ describe('Workflows Approvals API Routes', () => {
 
   describe('DELETE /api/approvals/chains/:id', () => {
     it('should delete approval chain successfully', async () => {
-      (mockPrisma.approvalChain.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.approvalChain.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).delete('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 
@@ -273,7 +273,7 @@ describe('Workflows Approvals API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.approvalChain.delete as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.approvalChain.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).delete('/api/approvals/chains/3e000000-0000-4000-a000-000000000001');
 

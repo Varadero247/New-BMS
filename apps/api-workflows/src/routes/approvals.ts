@@ -149,8 +149,9 @@ router.put('/chains/:id', checkOwnership(prisma.approvalChain), async (req: Auth
 // DELETE /api/approvals/chains/:id - Delete approval chain
 router.delete('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
-    await prisma.approvalChain.delete({
+    await prisma.approvalChain.update({
       where: { id: req.params.id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

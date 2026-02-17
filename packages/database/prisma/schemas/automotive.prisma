@@ -18,6 +18,7 @@ datasource db {
 
 model ApqpProject {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // APQP-YYMM-XXXX
   title           String
@@ -42,11 +43,14 @@ model ApqpProject {
   @@index([customer])
   @@index([partNumber])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("apqp_projects")
 }
 
 model ApqpPhase {
   id            String    @id @default(cuid())
+  orgId           String?
   projectId     String
   phaseNumber   Int       // 1-5
   phaseName     String
@@ -63,11 +67,14 @@ model ApqpPhase {
   @@unique([projectId, phaseNumber])
   @@index([projectId])
   @@index([status])
+  @@index([orgId])
+
   @@map("apqp_phases")
 }
 
 model ApqpDeliverable {
   id          String    @id @default(cuid())
+  orgId           String?
   phaseId     String
   name        String
   description String?
@@ -85,11 +92,14 @@ model ApqpDeliverable {
 
   @@index([phaseId])
   @@index([status])
+  @@index([orgId])
+
   @@map("apqp_deliverables")
 }
 
 model ApqpGateReview {
   id            String    @id @default(cuid())
+  orgId           String?
   phaseId       String    @unique
   reviewDate    DateTime
   reviewers     String[]
@@ -104,6 +114,8 @@ model ApqpGateReview {
 
   @@index([decision])
   @@index([reviewDate])
+  @@index([orgId])
+
   @@map("apqp_gate_reviews")
 }
 
@@ -147,6 +159,7 @@ enum GateDecision {
 
 model PpapProject {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // PPAP-YYMM-XXXX
   partNumber      String
@@ -165,11 +178,14 @@ model PpapProject {
   @@index([tenantId, status])
   @@index([partNumber])
   @@index([customer])
+  @@index([orgId])
+
   @@map("ppap_projects")
 }
 
 model PpapElement {
   id            String    @id @default(cuid())
+  orgId           String?
   projectId     String
   elementNumber Int       // 1-18
   elementName   String
@@ -187,11 +203,14 @@ model PpapElement {
   @@unique([projectId, elementNumber])
   @@index([projectId])
   @@index([status])
+  @@index([orgId])
+
   @@map("ppap_elements")
 }
 
 model PpapSubmission {
   id              String    @id @default(cuid())
+  orgId           String?
   projectId       String
   submissionLevel Int
   pswNumber       String?   @unique  // Part Submission Warrant number
@@ -209,6 +228,8 @@ model PpapSubmission {
   @@index([projectId])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("ppap_submissions")
 }
 
@@ -218,6 +239,7 @@ model PpapSubmission {
 
 model SpcChart {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // SPC-YYMM-XXXX
   title           String
@@ -242,11 +264,14 @@ model SpcChart {
 
   @@index([tenantId, status])
   @@index([partNumber])
+  @@index([orgId])
+
   @@map("spc_charts")
 }
 
 model SpcDataPoint {
   id            String    @id @default(cuid())
+  orgId           String?
   chartId       String
   value         Float
   subgroup      Int?
@@ -263,6 +288,8 @@ model SpcDataPoint {
 
   @@index([chartId])
   @@index([timestamp])
+  @@index([orgId])
+
   @@map("spc_data_points")
 }
 
@@ -272,6 +299,7 @@ model SpcDataPoint {
 
 model ControlPlan {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // CP-YYMM-XXXX
   title           String
@@ -290,11 +318,14 @@ model ControlPlan {
 
   @@index([tenantId, status])
   @@index([partNumber])
+  @@index([orgId])
+
   @@map("control_plans")
 }
 
 model ControlPlanChar {
   id                String    @id @default(cuid())
+  orgId           String?
   planId            String
   processNumber     String
   processName       String
@@ -318,6 +349,8 @@ model ControlPlanChar {
   plan              ControlPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
+  @@index([orgId])
+
   @@map("control_plan_chars")
 }
 
@@ -327,6 +360,7 @@ model ControlPlanChar {
 
 model MsaStudy {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // MSA-YYMM-XXXX
   title           String
@@ -360,11 +394,14 @@ model MsaStudy {
   deletedAt       DateTime?
 
   @@index([tenantId, status])
+  @@index([orgId])
+
   @@map("msa_studies")
 }
 
 model MsaMeasurement {
   id          String    @id @default(cuid())
+  orgId           String?
   studyId     String
   operator    String
   partNumber  Int
@@ -375,6 +412,8 @@ model MsaMeasurement {
   study       MsaStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
   @@index([studyId])
+  @@index([orgId])
+
   @@map("msa_measurements")
 }
 
@@ -479,6 +518,7 @@ enum MsaResult {
 
 model CsrRequirement {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   oem             String    // e.g. "GM", "Ford", "Stellantis"
   oemVersion      String?
@@ -499,6 +539,8 @@ model CsrRequirement {
   @@index([complianceStatus])
   @@index([dueDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("csr_requirements")
 }
 
@@ -517,6 +559,7 @@ enum CsrComplianceStatus {
 
 model LpaSchedule {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   processArea     String
   layer           Int       // 1-4
@@ -529,11 +572,14 @@ model LpaSchedule {
   updatedAt       DateTime  @updatedAt
 
   @@index([tenantId, layer])
+  @@index([orgId])
+
   @@map("lpa_schedules")
 }
 
 model LpaQuestion {
   id              String    @id @default(cuid())
+  orgId           String?
   scheduleId      String
   questionText    String
   category        String?
@@ -544,11 +590,14 @@ model LpaQuestion {
   schedule        LpaSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
   @@index([scheduleId])
+  @@index([orgId])
+
   @@map("lpa_questions")
 }
 
 model LpaAudit {
   id              String    @id @default(cuid())
+  orgId           String?
   tenantId        String    @default("default")
   refNumber       String    @unique  // LPA-YYMM-XXXX
   scheduleId      String
@@ -572,11 +621,14 @@ model LpaAudit {
 
   @@index([tenantId, status])
   @@index([scheduleId])
+  @@index([orgId])
+
   @@map("lpa_audits")
 }
 
 model LpaResponse {
   id              String    @id @default(cuid())
+  orgId           String?
   auditId         String
   questionId      String
   questionText    String
@@ -588,6 +640,8 @@ model LpaResponse {
   audit           LpaAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
 
   @@index([auditId])
+  @@index([orgId])
+
   @@map("lpa_responses")
 }
 
@@ -617,6 +671,7 @@ enum LpaResult {
 
 model EightDReport {
   id              String          @id @default(cuid())
+  orgId           String?
   refNumber       String          @unique  // 8D-YYMM-XXXX
   title           String
   problemStatement String
@@ -663,6 +718,8 @@ model EightDReport {
   @@index([status])
   @@index([customer])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("eight_d_reports")
 }
 
@@ -691,6 +748,7 @@ enum ProblemSeverity {
 
 model FmeaStudy {
   id              String      @id @default(cuid())
+  orgId           String?
   refNumber       String      @unique  // FMEA-YYMM-XXXX
   title           String
   fmeaType        FmeaType    @default(PFMEA)
@@ -714,11 +772,14 @@ model FmeaStudy {
   @@index([fmeaType])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("fmea_studies")
 }
 
 model FmeaItem {
   id              String      @id @default(cuid())
+  orgId           String?
   studyId         String
   itemNumber      Int
   processStep     String
@@ -747,6 +808,8 @@ model FmeaItem {
 
   @@index([studyId])
   @@index([rpn])
+  @@index([orgId])
+
   @@map("fmea_items")
 }
 
@@ -777,6 +840,7 @@ enum FmeaItemStatus {
 
 model CustomerReq {
   id              String      @id @default(cuid())
+  orgId           String?
   refNumber       String      @unique  // CSR-YYMM-XXXX
   customer        String
   requirementTitle String
@@ -798,6 +862,8 @@ model CustomerReq {
   @@index([customer])
   @@index([complianceStatus])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("customer_reqs")
 }
 

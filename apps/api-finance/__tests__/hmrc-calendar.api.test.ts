@@ -12,7 +12,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-1' };
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
     next();
   }),
 }));
@@ -44,7 +44,7 @@ describe('GET /api/hmrc-calendar', () => {
         dueDate: '2026-01-07',
         deadlineType: 'VAT',
         status: 'PENDING',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
       {
         id: '00000000-0000-0000-0000-000000000002',
@@ -52,7 +52,7 @@ describe('GET /api/hmrc-calendar', () => {
         dueDate: '2026-01-19',
         deadlineType: 'PAYE',
         status: 'PENDING',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
     (prisma as any).finHmrcDeadline.findMany.mockResolvedValue(deadlines);
@@ -84,7 +84,7 @@ describe('GET /api/hmrc-calendar', () => {
 
     expect((prisma as any).finHmrcDeadline.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ orgId: 'org-1', deletedAt: null }),
+        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100', deletedAt: null }),
       })
     );
   });
@@ -126,7 +126,7 @@ describe('POST /api/hmrc-calendar', () => {
     (prisma as any).finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
       createdBy: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -141,7 +141,7 @@ describe('POST /api/hmrc-calendar', () => {
     (prisma as any).finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     await request(app).post('/api/hmrc-calendar').send(validDeadline);
@@ -149,7 +149,7 @@ describe('POST /api/hmrc-calendar', () => {
     expect((prisma as any).finHmrcDeadline.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          orgId: 'org-1',
+          orgId: '00000000-0000-4000-a000-000000000100',
           createdBy: '00000000-0000-0000-0000-000000000001',
         }),
       })
@@ -170,7 +170,7 @@ describe('POST /api/hmrc-calendar', () => {
     (prisma as any).finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);

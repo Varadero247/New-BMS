@@ -356,12 +356,12 @@ describe('Timesheets API Routes', () => {
   describe('DELETE /api/timesheets/:id', () => {
     it('should delete an existing timesheet', async () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
-      (mockPrisma.projectTimesheet.delete as jest.Mock).mockResolvedValue(mockTimesheet);
+      (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValue(mockTimesheet);
 
       const res = await request(app).delete('/api/timesheets/48000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectTimesheet.delete).toHaveBeenCalledWith({ where: { id: '48000000-0000-4000-a000-000000000001' } });
+      expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith({ where: { id: '48000000-0000-4000-a000-000000000001' }, data: { deletedAt: expect.any(Date) } });
     });
 
     it('should return 404 when timesheet does not exist', async () => {
@@ -372,12 +372,12 @@ describe('Timesheets API Routes', () => {
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(res.body.error.code).toBe('NOT_FOUND');
-      expect(mockPrisma.projectTimesheet.delete).not.toHaveBeenCalled();
+      expect(mockPrisma.projectTimesheet.update).not.toHaveBeenCalled();
     });
 
     it('should return 500 on internal error', async () => {
       (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValue(mockTimesheet);
-      (mockPrisma.projectTimesheet.delete as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.projectTimesheet.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app).delete('/api/timesheets/48000000-0000-4000-a000-000000000001');
 

@@ -336,7 +336,7 @@ describe('PUT /api/quotes/:id', () => {
     const res = await request(app).put('/api/quotes/quote-1').send({ notes: 'Updated' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('DRAFT');
+    expect(res.body.error.message).toContain('DRAFT');
   });
 
   it('should return 404 when not found', async () => {
@@ -396,7 +396,7 @@ describe('POST /api/quotes/:id/send', () => {
     const res = await request(app).post('/api/quotes/quote-1/send');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('DRAFT');
+    expect(res.body.error.message).toContain('DRAFT');
   });
 
   it('should return 404 when not found', async () => {
@@ -443,7 +443,7 @@ describe('POST /api/quotes/:id/accept', () => {
     const res = await request(app).post('/api/quotes/quote-1/accept');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('SENT');
+    expect(res.body.error.message).toContain('SENT');
   });
 
   it('should return 404 when not found', async () => {

@@ -316,7 +316,7 @@ describe('Health & Safety Objectives API', () => {
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective (cascades milestones)', async () => {
       (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
-      (mockPrisma.ohsObjective.delete as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001')

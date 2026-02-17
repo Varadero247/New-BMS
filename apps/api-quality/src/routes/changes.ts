@@ -327,7 +327,7 @@ router.delete('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
     }
 
-    await prisma.qualChange.delete({ where: { id: req.params.id } });
+    await prisma.qualChange.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

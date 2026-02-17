@@ -249,7 +249,7 @@ router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
-    await prisma.qualFmea.delete({ where: { id: req.params.id } });
+    await prisma.qualFmea.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {
@@ -421,7 +421,7 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
     }
 
-    await prisma.qualFmeaRow.delete({ where: { id: req.params.rowId } });
+    await prisma.qualFmeaRow.update({ where: { id: req.params.rowId }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

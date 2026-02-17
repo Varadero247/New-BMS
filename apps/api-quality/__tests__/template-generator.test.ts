@@ -7,6 +7,7 @@ const mockFindMany = jest.fn();
 const mockFindUnique = jest.fn();
 const mockCount = jest.fn();
 const mockDelete = jest.fn();
+const mockUpdate = jest.fn();
 
 jest.mock('../src/prisma', () => ({
   prisma: {
@@ -16,6 +17,7 @@ jest.mock('../src/prisma', () => ({
       findUnique: (...args: any[]) => mockFindUnique(...args),
       count: (...args: any[]) => mockCount(...args),
       delete: (...args: any[]) => mockDelete(...args),
+      update: (...args: any[]) => mockUpdate(...args),
     },
   },
 }));
@@ -347,7 +349,7 @@ describe('GET /api/template-generator/:id', () => {
 
 describe('DELETE /api/template-generator/:id', () => {
   it('should delete a template', async () => {
-    mockDelete.mockResolvedValue({ id: 'tpl-1' });
+    mockUpdate.mockResolvedValue({ id: 'tpl-1' });
 
     const res = await request(app).delete('/api/template-generator/tpl-1');
 

@@ -18,6 +18,7 @@ datasource db {
 
 model EnergyBaseline {
   id                String               @id @default(uuid())
+  orgId           String?
   name              String
   year              Int
   description       String?
@@ -38,6 +39,8 @@ model EnergyBaseline {
   @@index([year])
   @@index([status])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_baselines")
 }
 
@@ -47,6 +50,7 @@ model EnergyBaseline {
 
 model EnergyMeter {
   id            String            @id @default(uuid())
+  orgId           String?
   name          String
   code          String            @unique
   type          EnergyMeterType
@@ -73,6 +77,8 @@ model EnergyMeter {
   @@index([status])
   @@index([parentMeterId])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_meters")
 }
 
@@ -82,6 +88,7 @@ model EnergyMeter {
 
 model EnergyReading {
   id          String              @id @default(uuid())
+  orgId           String?
   meterId     String
   value       Decimal
   readingDate DateTime
@@ -100,6 +107,8 @@ model EnergyReading {
   @@index([readingDate])
   @@index([source])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_readings")
 }
 
@@ -109,6 +118,7 @@ model EnergyReading {
 
 model EnergySeu {
   id                      String           @id @default(uuid())
+  orgId           String?
   name                    String
   description             String?
   facility                String?
@@ -128,6 +138,8 @@ model EnergySeu {
   @@index([status])
   @@index([priority])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_seus")
 }
 
@@ -137,6 +149,7 @@ model EnergySeu {
 
 model EnergyTarget {
   id          String             @id @default(uuid())
+  orgId           String?
   name        String
   metricType  EnergyMetricType
   baselineId  String?
@@ -157,6 +170,8 @@ model EnergyTarget {
   @@index([metricType])
   @@index([baselineId])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_targets")
 }
 
@@ -166,6 +181,7 @@ model EnergyTarget {
 
 model EnergyProject {
   id               String              @id @default(uuid())
+  orgId           String?
   title            String
   description      String?
   type             EnergyProjectType
@@ -187,6 +203,8 @@ model EnergyProject {
   @@index([status])
   @@index([startDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_projects")
 }
 
@@ -196,6 +214,7 @@ model EnergyProject {
 
 model EnergyAudit {
   id              String            @id @default(uuid())
+  orgId           String?
   title           String
   type            EnergyAuditType
   auditor         String
@@ -216,6 +235,8 @@ model EnergyAudit {
   @@index([status])
   @@index([scheduledDate])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_audits")
 }
 
@@ -225,6 +246,7 @@ model EnergyAudit {
 
 model EnergyBill {
   id            String           @id @default(uuid())
+  orgId           String?
   meterId       String?
   provider      String
   accountNumber String?
@@ -248,6 +270,8 @@ model EnergyBill {
   @@index([periodStart])
   @@index([periodEnd])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_bills")
 }
 
@@ -257,6 +281,7 @@ model EnergyBill {
 
 model EnergyEnpi {
   id            String             @id @default(uuid())
+  orgId           String?
   name          String
   description   String?
   formula       String
@@ -275,6 +300,8 @@ model EnergyEnpi {
 
   @@index([frequency])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_enpis")
 }
 
@@ -284,6 +311,7 @@ model EnergyEnpi {
 
 model EnergyEnpiData {
   id          String   @id @default(uuid())
+  orgId           String?
   enpiId      String
   value       Decimal
   periodStart DateTime
@@ -300,6 +328,8 @@ model EnergyEnpiData {
   @@index([periodStart])
   @@index([periodEnd])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_enpi_data")
 }
 
@@ -309,6 +339,7 @@ model EnergyEnpiData {
 
 model EnergyAlert {
   id             String              @id @default(uuid())
+  orgId           String?
   meterId        String?
   type           EnergyAlertType
   severity       EnergyAlertSeverity @default(MEDIUM)
@@ -330,6 +361,8 @@ model EnergyAlert {
   @@index([severity])
   @@index([acknowledged])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_alerts")
 }
 
@@ -339,6 +372,7 @@ model EnergyAlert {
 
 model EnergyComplianceObligation {
   id               String                 @id @default(uuid())
+  orgId           String?
   title            String
   description      String?
   regulation       String
@@ -359,6 +393,8 @@ model EnergyComplianceObligation {
   @@index([dueDate])
   @@index([regulation])
   @@index([createdAt])
+  @@index([orgId])
+
   @@map("energy_compliance_obligations")
 }
 

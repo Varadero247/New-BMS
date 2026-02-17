@@ -314,12 +314,12 @@ describe('Sprints API Routes', () => {
   describe('DELETE /api/sprints/:id', () => {
     it('should delete an existing sprint', async () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(mockSprint);
-      (mockPrisma.projectSprint.delete as jest.Mock).mockResolvedValue(mockSprint);
+      (mockPrisma.projectSprint.update as jest.Mock).mockResolvedValue(mockSprint);
 
       const res = await request(app).delete('/api/sprints/45000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectSprint.delete).toHaveBeenCalledWith({ where: { id: '45000000-0000-4000-a000-000000000001' } });
+      expect(mockPrisma.projectSprint.update).toHaveBeenCalledWith({ where: { id: '45000000-0000-4000-a000-000000000001' }, data: { deletedAt: expect.any(Date) } });
     });
 
     it('should return 404 when sprint does not exist', async () => {
@@ -330,12 +330,12 @@ describe('Sprints API Routes', () => {
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(res.body.error.code).toBe('NOT_FOUND');
-      expect(mockPrisma.projectSprint.delete).not.toHaveBeenCalled();
+      expect(mockPrisma.projectSprint.update).not.toHaveBeenCalled();
     });
 
     it('should return 500 on internal error', async () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(mockSprint);
-      (mockPrisma.projectSprint.delete as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.projectSprint.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app).delete('/api/sprints/45000000-0000-4000-a000-000000000001');
 

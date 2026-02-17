@@ -12,7 +12,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-1' };
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
     next();
   }),
 }));
@@ -43,14 +43,14 @@ describe('GET /api/sod-matrix', () => {
         roleA: 'Accounts Payable',
         roleB: 'Payment Approval',
         conflictLevel: 'HIGH',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
       {
         id: '00000000-0000-0000-0000-000000000002',
         roleA: 'Purchase Order Creation',
         roleB: 'Goods Receipt',
         conflictLevel: 'MEDIUM',
-        orgId: 'org-1',
+        orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
     (prisma as any).finSodRule.findMany.mockResolvedValue(rules);
@@ -70,7 +70,7 @@ describe('GET /api/sod-matrix', () => {
     expect(res.status).toBe(200);
     expect((prisma as any).finSodRule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ orgId: 'org-1', deletedAt: null }),
+        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100', deletedAt: null }),
       })
     );
   });
@@ -112,7 +112,7 @@ describe('POST /api/sod-matrix', () => {
     (prisma as any).finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
       createdBy: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -127,7 +127,7 @@ describe('POST /api/sod-matrix', () => {
     (prisma as any).finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     await request(app).post('/api/sod-matrix').send(validRule);
@@ -135,7 +135,7 @@ describe('POST /api/sod-matrix', () => {
     expect((prisma as any).finSodRule.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          orgId: 'org-1',
+          orgId: '00000000-0000-4000-a000-000000000100',
           createdBy: '00000000-0000-0000-0000-000000000001',
         }),
       })
@@ -156,7 +156,7 @@ describe('POST /api/sod-matrix', () => {
     (prisma as any).finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
-      orgId: 'org-1',
+      orgId: '00000000-0000-4000-a000-000000000100',
     });
 
     const res = await request(app).post('/api/sod-matrix').send(validRule);

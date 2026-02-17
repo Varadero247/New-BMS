@@ -209,7 +209,7 @@ router.delete('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest,
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
     }
 
-    await prisma.qualLegal.delete({ where: { id: req.params.id } });
+    await prisma.qualLegal.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
 
     res.status(204).send();
   } catch (error) {

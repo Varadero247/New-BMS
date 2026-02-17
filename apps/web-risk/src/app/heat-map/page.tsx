@@ -74,6 +74,8 @@ export default function HeatMapPage() {
                             const lScore = L_SCORES[l]; const cScore = C_SCORES[c];
                             return (
                               <div key={`${l}-${c}`} className={`${getCellColor(lScore, cScore)} rounded-lg p-2 min-h-[60px] flex flex-col items-center justify-center text-center relative`}
+                                role="button" tabIndex={0}
+                                aria-label={`${l.replace(/_/g, ' ')} likelihood x ${c.replace(/_/g, ' ')} consequence - Risk score ${lScore * cScore}${cellRisks.length > 0 ? ` - ${cellRisks.length} risk${cellRisks.length > 1 ? 's' : ''}` : ''}`}
                                 title={cellRisks.map(r => r.title).join(', ')}>
                                 <span className="text-xs font-bold">{lScore * cScore}</span>
                                 {cellRisks.length > 0 && (

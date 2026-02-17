@@ -22,7 +22,7 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
     next();
   }),
 }));
@@ -49,8 +49,8 @@ beforeEach(() => {
 describe('GET /api/customers', () => {
   it('should return a list of customers', async () => {
     const customers = [
-      { id: 'cust-1', code: 'CUST-ACME-1234', name: 'Acme Corp', _count: { invoices: 5 } },
-      { id: 'cust-2', code: 'CUST-BETA-5678', name: 'Beta Inc', _count: { invoices: 2 } },
+      { id: 'f4000000-0000-4000-a000-000000000001', code: 'CUST-ACME-1234', name: 'Acme Corp', _count: { invoices: 5 } },
+      { id: 'f4000000-0000-4000-a000-000000000002', code: 'CUST-BETA-5678', name: 'Beta Inc', _count: { invoices: 2 } },
     ];
     (prisma as any).finCustomer.findMany.mockResolvedValue(customers);
     (prisma as any).finCustomer.count.mockResolvedValue(2);
@@ -132,22 +132,22 @@ describe('GET /api/customers', () => {
 describe('GET /api/customers/:id', () => {
   it('should return a customer with invoice summary', async () => {
     const customer = {
-      id: 'cust-1',
+      id: 'f4000000-0000-4000-a000-000000000001',
       code: 'CUST-ACME-1234',
       name: 'Acme Corp',
       deletedAt: null,
       invoices: [
-        { id: 'inv-1', reference: 'FIN-INV-001', issueDate: '2026-01-15', dueDate: '2026-02-15', status: 'SENT', total: 1000, amountDue: 1000 },
+        { id: 'f4100000-0000-4000-a000-000000000001', reference: 'FIN-INV-001', issueDate: '2026-01-15', dueDate: '2026-02-15', status: 'SENT', total: 1000, amountDue: 1000 },
       ],
       _count: { invoices: 1 },
     };
     (prisma as any).finCustomer.findFirst.mockResolvedValue(customer);
 
-    const res = await request(app).get('/api/customers/cust-1');
+    const res = await request(app).get('/api/customers/f4000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('cust-1');
+    expect(res.body.data.id).toBe('f4000000-0000-4000-a000-000000000001');
   });
 
   it('should return 404 when customer not found', async () => {
@@ -163,7 +163,7 @@ describe('GET /api/customers/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).finCustomer.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/customers/cust-1');
+    const res = await request(app).get('/api/customers/f4000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -242,23 +242,23 @@ describe('POST /api/customers', () => {
 
 describe('PUT /api/customers/:id', () => {
   it('should update a customer successfully', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
     (prisma as any).finCustomer.update.mockResolvedValue({
-      id: 'cust-1',
+      id: 'f4000000-0000-4000-a000-000000000001',
       name: 'Updated Acme Corp',
     });
 
-    const res = await request(app).put('/api/customers/cust-1').send({ name: 'Updated Acme Corp' });
+    const res = await request(app).put('/api/customers/f4000000-0000-4000-a000-000000000001').send({ name: 'Updated Acme Corp' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should update isActive flag', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
-    (prisma as any).finCustomer.update.mockResolvedValue({ id: 'cust-1', isActive: false });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
+    (prisma as any).finCustomer.update.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', isActive: false });
 
-    const res = await request(app).put('/api/customers/cust-1').send({ isActive: false });
+    const res = await request(app).put('/api/customers/f4000000-0000-4000-a000-000000000001').send({ isActive: false });
 
     expect(res.status).toBe(200);
   });
@@ -273,18 +273,18 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
 
-    const res = await request(app).put('/api/customers/cust-1').send({ email: 'invalid-email' });
+    const res = await request(app).put('/api/customers/f4000000-0000-4000-a000-000000000001').send({ email: 'invalid-email' });
 
     expect(res.status).toBe(400);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
     (prisma as any).finCustomer.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/customers/cust-1').send({ name: 'Test' });
+    const res = await request(app).put('/api/customers/f4000000-0000-4000-a000-000000000001').send({ name: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -296,11 +296,11 @@ describe('PUT /api/customers/:id', () => {
 
 describe('DELETE /api/customers/:id', () => {
   it('should soft delete a customer with no invoices', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
     (prisma as any).finInvoice.count.mockResolvedValue(0);
-    (prisma as any).finCustomer.update.mockResolvedValue({ id: 'cust-1' });
+    (prisma as any).finCustomer.update.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/customers/cust-1');
+    const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -317,10 +317,10 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 409 when customer has existing invoices', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
     (prisma as any).finInvoice.count.mockResolvedValue(3);
 
-    const res = await request(app).delete('/api/customers/cust-1');
+    const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
@@ -328,10 +328,10 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'cust-1', deletedAt: null });
+    (prisma as any).finCustomer.findFirst.mockResolvedValue({ id: 'f4000000-0000-4000-a000-000000000001', deletedAt: null });
     (prisma as any).finInvoice.count.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/customers/cust-1');
+    const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(500);
   });
