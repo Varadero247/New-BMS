@@ -207,8 +207,10 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/coshh/:id/sign-off — assessor/supervisor sign-off
 router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) => {
   try {
-    const { role, name } = req.body;
-    if (!role || !name) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'role and name are required' } });
+    const signOffSchema = z.object({ role: z.enum(['assessor', 'supervisor']), name: z.string().min(1, 'name is required') });
+    const parsed = signOffSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const { role, name } = parsed.data;
     const existing = await (prisma as any).chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
 
@@ -216,11 +218,9 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     if (role === 'assessor') {
       updates.assessorName = name;
       updates.assessorSignedAt = new Date();
-    } else if (role === 'supervisor') {
+    } else {
       updates.supervisorName = name;
       updates.supervisorSignedAt = new Date();
-    } else {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'role must be assessor or supervisor' } });
     }
 
     const data = await (prisma as any).chemCoshh.update({ where: { id: req.params.id }, data: updates });

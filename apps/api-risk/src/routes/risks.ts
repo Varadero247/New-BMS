@@ -234,8 +234,10 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
 router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const coshhData = req.body;
-    if (!coshhData || !coshhData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'COSHH assessment data required in body' } });
+    const crossModuleSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
+    const parsed = crossModuleSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const coshhData = parsed.data;
     const mapped = mapCoshhToRisk(coshhData);
     const referenceNumber = await generateRef(orgId);
     const data = await (prisma as any).riskRegister.create({
@@ -249,8 +251,10 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
 router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const fraData = req.body;
-    if (!fraData || !fraData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'FRA data required in body' } });
+    const fraSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
+    const parsedFra = fraSchema.safeParse(req.body);
+    if (!parsedFra.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedFra.error.errors[0].message } });
+    const fraData = parsedFra.data;
     const mapped = mapFraToRisk(fraData);
     const referenceNumber = await generateRef(orgId);
     const data = await (prisma as any).riskRegister.create({
@@ -264,8 +268,10 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
 router.post('/from-incident/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const incidentData = req.body;
-    if (!incidentData || !incidentData.id) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Incident data required in body' } });
+    const incidentSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
+    const parsedInc = incidentSchema.safeParse(req.body);
+    if (!parsedInc.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedInc.error.errors[0].message } });
+    const incidentData = parsedInc.data;
     const mapped = mapIncidentToRisk(incidentData);
     const referenceNumber = await generateRef(orgId);
     const data = await (prisma as any).riskRegister.create({
@@ -279,8 +285,10 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
 router.post('/from-audit/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const auditData = req.body;
-    if (!auditData) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Audit finding data required in body' } });
+    const auditSchema = z.object({ id: z.string().optional(), title: z.string().optional() }).passthrough();
+    const parsedAudit = auditSchema.safeParse(req.body);
+    if (!parsedAudit.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedAudit.error.errors[0].message } });
+    const auditData = parsedAudit.data;
     const referenceNumber = await generateRef(orgId);
     const data = await (prisma as any).riskRegister.create({
       data: {

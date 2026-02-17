@@ -20,6 +20,7 @@ import {
   createHealthCheck,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
+import { optionalServiceAuth } from '@ims/service-auth';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 import { startScheduler } from './scheduler';
@@ -62,6 +63,7 @@ app.use('/api/webhooks', stripeWebhooksRouter);
 app.get('/api/winback/reason/:reason', winbackRouter);
 
 // Auth middleware for protected routes
+app.use(optionalServiceAuth);
 app.use(attachPermissions());
 
 // Protected routes

@@ -74,7 +74,10 @@ router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: R
 // POST /api/risks/:riskId/controls/:id/test
 router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res: Response) => {
   try {
-    const { testingNotes, effectiveness } = req.body;
+    const testSchema = z.object({ testingNotes: z.string().optional(), effectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional() });
+    const parsed = testSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const { testingNotes, effectiveness } = parsed.data;
     const existing = await (prisma as any).riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     const data: any = { lastTestedDate: new Date(), testingNotes };

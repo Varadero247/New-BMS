@@ -71,8 +71,10 @@ router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response)
 // POST /api/risks/:riskId/kri/:id/reading
 router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: Response) => {
   try {
-    const { value, notes } = req.body;
-    if (value == null) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'value is required' } });
+    const readingSchema = z.object({ value: z.number({ required_error: 'value is required' }), notes: z.string().optional() });
+    const parsed = readingSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const { value, notes } = parsed.data;
     const kri = await (prisma as any).riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!kri) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
     const status = evaluateKriStatus(kri, value);
