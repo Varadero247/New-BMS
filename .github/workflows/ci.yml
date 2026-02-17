@@ -134,6 +134,7 @@ jobs:
       CHEMICALS_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       EMERGENCY_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       WIZARD_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
+      PARTNER_PORTAL_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       MARKETPLACE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test?schema=public
       REDIS_URL: redis://localhost:6379

@@ -19,7 +19,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@ims/types build
 RUN pnpm --filter=@ims/ui build
 RUN pnpm --filter=@ims/charts build
-RUN pnpm --filter=web-mgmt-review build
+RUN pnpm --filter=@ims/web-mgmt-review build
 
 FROM base AS runner
 WORKDIR /app

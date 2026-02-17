@@ -19,7 +19,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@ims/types build
 RUN pnpm --filter=@ims/ui build
 RUN pnpm --filter=@ims/charts build
-RUN pnpm --filter=web-reg-monitor build
+RUN pnpm --filter=@ims/web-reg-monitor build
 
 FROM base AS runner
 WORKDIR /app
