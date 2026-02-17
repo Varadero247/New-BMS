@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ims/ui": "workspace:*",
+    "@ims/theming": "workspace:*",
     "@ims/types": "workspace:*",
     "@ims/i18n": "workspace:*",
     "@ims/charts": "workspace:*",

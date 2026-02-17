@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ims/ui": "workspace:*",
+    "@ims/theming": "workspace:*",
     "@ims/types": "workspace:*",
     "lucide-react": "^0.474.0",
     "next": "15.5.12",

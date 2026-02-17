@@ -110,10 +110,101 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build-and-push-web:
+    name: Build and Push Web Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - web-dashboard
+          - web-health-safety
+          - web-environment
+          - web-quality
+          - web-settings
+          - web-inventory
+          - web-hr
+          - web-payroll
+          - web-workflows
+          - web-project-management
+          - web-automotive
+          - web-medical
+          - web-aerospace
+          - web-finance
+          - web-crm
+          - web-infosec
+          - web-esg
+          - web-cmms
+          - web-customer-portal
+          - web-supplier-portal
+          - web-food-safety
+          - web-energy
+          - web-analytics
+          - web-field-service
+          - web-iso42001
+          - web-iso37001
+          - web-marketing
+          - web-partners
+          - web-admin
+          - web-risk
+          - web-training
+          - web-suppliers
+          - web-assets
+          - web-documents
+          - web-complaints
+          - web-contracts
+          - web-finance-compliance
+          - web-ptw
+          - web-reg-monitor
+          - web-incidents
+          - web-audits
+          - web-mgmt-review
+          - web-chemicals
+          - web-emergency
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: [build-and-push, build-and-push-web]
     if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
     environment: staging
 

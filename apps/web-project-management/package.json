@@ -11,6 +11,7 @@
   "dependencies": {
     "@ims/i18n": "workspace:*",
     "@ims/ui": "workspace:*",
+    "@ims/theming": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
     "axios": "^1.6.2",
     "chart.js": "^4.5.1",

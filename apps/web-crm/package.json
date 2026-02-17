@@ -11,6 +11,7 @@
   "dependencies": {
     "@ims/i18n": "workspace:*",
     "@ims/types": "workspace:*",
+    "@ims/theming": "workspace:*",
     "@ims/ui": "workspace:*",
     "axios": "^1.6.0",
     "next": "15.1.0",

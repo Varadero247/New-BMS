@@ -3614,6 +3614,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3684,6 +3687,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3757,6 +3763,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3824,6 +3833,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3876,6 +3888,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3928,6 +3943,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4001,6 +4019,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4053,6 +4074,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4120,6 +4144,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4172,6 +4199,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4221,6 +4251,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4270,6 +4303,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4337,9 +4373,15 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/pwa':
+        specifier: workspace:*
+        version: link:../../packages/pwa
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4410,6 +4452,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4462,6 +4507,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4514,6 +4562,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4581,6 +4632,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4651,6 +4705,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4718,6 +4775,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4770,6 +4830,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4837,6 +4900,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4889,6 +4955,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -4956,6 +5025,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5026,6 +5098,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5093,6 +5168,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5142,6 +5220,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5191,6 +5272,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5258,6 +5342,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5304,6 +5391,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5347,6 +5437,9 @@ importers:
 
   apps/web-marketing:
     dependencies:
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5402,6 +5495,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5475,6 +5571,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5527,6 +5626,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5591,6 +5693,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -5643,6 +5748,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -5710,6 +5818,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5762,6 +5873,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5835,6 +5949,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5887,6 +6004,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -5936,6 +6056,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -6000,6 +6123,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -6067,6 +6193,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -6119,6 +6248,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -6168,6 +6300,9 @@ importers:
       '@ims/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@ims/theming':
+        specifier: workspace:*
+        version: link:../../packages/theming
       '@ims/ui':
         specifier: workspace:*
         version: link:../../packages/ui

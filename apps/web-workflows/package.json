@@ -11,6 +11,7 @@
   "dependencies": {
     "@ims/i18n": "workspace:*",
     "@ims/ui": "workspace:*",
+    "@ims/theming": "workspace:*",
     "axios": "^1.6.2",
     "chart.js": "^4.4.1",
     "lucide-react": "^0.474.0",

@@ -14,6 +14,8 @@
     "@ims/i18n": "workspace:*",
     "@ims/rbac": "workspace:*",
     "@ims/types": "workspace:*",
+    "@ims/theming": "workspace:*",
+    "@ims/pwa": "workspace:*",
     "@ims/ui": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
     "axios": "^1.6.0",
