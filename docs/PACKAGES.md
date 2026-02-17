@@ -42,7 +42,7 @@
 
 | Package | Purpose | Key Exports |
 |---------|---------|-------------|
-| `@ims/ui` | React component library (shadcn/ui) | `Modal`, `Button`, `Table`, etc. |
+| `@ims/ui` | React component library (76 components, 76 Storybook stories) | `Modal`, `Button`, `Table`, `DataTable`, `SignatureCapture`, etc. |
 | `@ims/charts` | Recharts wrapper components | Chart configurations |
 | `@ims/i18n` | Internationalisation | `I18nProvider`, `useTranslation` |
 | `@ims/pwa` | Progressive Web App utilities | Service worker, offline sync |

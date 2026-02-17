@@ -261,7 +261,7 @@ export const PerformanceScores: Story = {
           <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">SEO Score</h3>
           <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">Fair</span>
         </div>
-        <Gauge value={58} color="orange" size="lg" showValue={true} />
+        <Gauge value={58} color="auto" size="lg" showValue={true} />
       </div>
     </div>
   ),

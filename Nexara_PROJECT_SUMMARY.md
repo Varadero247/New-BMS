@@ -911,7 +911,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 - API documentation (inline JSDoc comments)
 - Prisma schema documentation (schema.prisma)
 - TypeScript types (self-documenting)
-- Component Storybook (planned)
+- Component Storybook — 76 stories with full coverage (`pnpm storybook` at http://localhost:6006)
 
 ---
 

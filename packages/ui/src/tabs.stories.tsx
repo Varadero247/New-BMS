@@ -131,7 +131,7 @@ export const ControlledTab: Story = {
         <p style={{ marginBottom: '16px', fontSize: '14px', color: '#666' }}>
           Current tab: <strong>{activeTab}</strong>
         </p>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="tab2" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="tab1">Tab A</TabsTrigger>
             <TabsTrigger value="tab2">Tab B (Default)</TabsTrigger>

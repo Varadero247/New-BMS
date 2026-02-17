@@ -179,7 +179,7 @@
 | `@ims/testing` | `packages/testing/` | Shared test utilities |
 | `@ims/theming` | `packages/theming/` | White-label theming (CSS var overrides, MSP branding) |
 | `@ims/types` | `packages/types/` | Shared TypeScript types |
-| `@ims/ui` | `packages/ui/` | React component library |
+| `@ims/ui` | `packages/ui/` | React component library (76 components, 76 Storybook stories) |
 | `@ims/validation` | `packages/validation/` | Zod validation schemas |
 | `@ims/webhooks` | `packages/webhooks/` | Webhook delivery & management |
 

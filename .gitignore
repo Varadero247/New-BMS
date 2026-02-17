@@ -7,6 +7,7 @@ dist
 .next
 out
 build
+storybook-static
 
 # Environment files
 .env
@@ -52,6 +53,10 @@ apps/mobile/.capacitor
 
 # Next.js auto-generated
 next-env.d.ts
+
+# Kubernetes secrets (use external secret management in production)
+deploy/k8s/base/secrets.yaml
+deploy/k8s/overlays/*/secrets*.yaml
 
 # Misc
 *.tsbuildinfo

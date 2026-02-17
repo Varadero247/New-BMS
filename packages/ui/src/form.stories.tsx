@@ -76,7 +76,7 @@ export const FormFieldOptional: Story = {
   ),
 };
 
-export const FormError: Story = {
+export const ErrorMessages: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <FormError message="This field is required" />
@@ -86,7 +86,7 @@ export const FormError: Story = {
   ),
 };
 
-export const FormActions: Story = {
+export const ActionButtons: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>

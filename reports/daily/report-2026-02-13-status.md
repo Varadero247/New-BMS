@@ -119,9 +119,10 @@ The Integrated Management System (IMS) is a fully-built enterprise SaaS platform
 
 ### 4.2 UI Component Library (`@ims/ui`)
 
-- **40 React components** (Card, Modal, Badge, Gauge, Button, Input, Select, Table, Tabs, Sidebar, PageHeader, Spinner, ExportDropdown, Toast, Breadcrumbs, ProgressBar, Stepper, GlobalSearch, DataTable, NotificationCentre, Avatar, Tooltip, Skeleton, Alert, DropdownMenu, StatCard, Timeline, etc.)
-- **38 Storybook stories** for component documentation
+- **76 React components** (Card, Modal, Badge, Gauge, Button, Input, Select, Table, Tabs, Sidebar, PageHeader, Spinner, ExportDropdown, Toast, Breadcrumbs, ProgressBar, Stepper, GlobalSearch, DataTable, NotificationCentre, Avatar, Tooltip, Skeleton, Alert, DropdownMenu, StatCard, Timeline, SignatureCapture, PhotoCapture, GhsPictogram, CommandPalette, HumanReviewGate, OfflineInspectionForm, etc.)
+- **76 Storybook stories** with full component coverage, autodocs, dark/light theme toggle
 - Built with CVA + clsx + tailwind-merge
+- Storybook v8.6 with Tailwind CSS v3 integration and Nexara theme presets
 
 ---
 
