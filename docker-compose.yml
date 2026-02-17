@@ -101,6 +101,7 @@ services:
       SERVICE_MGMT_REVIEW_URL: http://host.docker.internal:4038
       SERVICE_SETUP_WIZARD_URL: http://host.docker.internal:4039
       SERVICE_CHEMICALS_URL: http://host.docker.internal:4040
+      SERVICE_EMERGENCY_URL: http://host.docker.internal:4041
       CSRF_ENABLED: "false"
     extra_hosts:
       - "host.docker.internal:host-gateway"

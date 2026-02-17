@@ -159,6 +159,7 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3040', 'http://localhost:3041', 'http://localhost:3042',
   'http://localhost:3043',
   'http://localhost:3044',
+  'http://localhost:3045',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
