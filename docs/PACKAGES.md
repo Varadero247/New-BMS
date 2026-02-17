@@ -1,6 +1,6 @@
 # Shared Packages Reference — Nexara IMS
 
-59 shared packages in `packages/`. All use `@ims/*` scope except the public SDK (`@nexara/sdk`).
+60 shared packages in `packages/`. All use `@ims/*` scope.
 
 ---
 
@@ -123,7 +123,7 @@
 
 | Package | Purpose | Key Exports |
 |---------|---------|-------------|
-| `@nexara/sdk` | Public SDK for external integrations | `NexaraClient`, `NexaraConfig` |
+| `@ims/sdk` | Public SDK for external integrations | `NexaraClient`, `NexaraConfig` |
 
 ---
 

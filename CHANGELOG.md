@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mobile offline scaffold (React Native + OfflineSyncEngine)
 - GDPR compliance (data export, erasure, retention policies)
 - Auto-generated reports (management review, audit, KPI pack, compliance summary)
-- Webhooks engine + @nexara/sdk NPM package
+- Webhooks engine + @ims/sdk NPM package
 - @ims/a11y WCAG 2.2 AA accessibility package
 - AI automotive APQP + PPAP analysis types
 - 90 UAT scenarios + demo seed data

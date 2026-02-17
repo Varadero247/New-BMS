@@ -165,7 +165,7 @@
 | `@ims/regulatory-feed` | `packages/regulatory-feed/` | Live regulatory change feed |
 | `@ims/resilience` | `packages/resilience/` | Circuit breakers, retry logic |
 | `@ims/scheduled-reports` | `packages/scheduled-reports/` | Scheduled report generation |
-| `@ims/sdk` | `packages/sdk/` | @nexara/sdk external SDK |
+| `@ims/sdk` | `packages/sdk/` | @ims/sdk external SDK |
 | `@ims/secrets` | `packages/secrets/` | HashiCorp Vault integration |
 | `@ims/service-auth` | `packages/service-auth/` | Service-to-service JWT auth |
 | `@ims/shared` | `packages/shared/` | Shared utilities |

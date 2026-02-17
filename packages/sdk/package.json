@@ -1,5 +1,5 @@
 {
-  "name": "@nexara/sdk",
+  "name": "@ims/sdk",
   "version": "2.0.0",
   "description": "Nexara Enterprise IMS — Developer SDK",
   "keywords": ["nexara", "ims", "iso", "compliance", "sdk"],

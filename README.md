@@ -89,8 +89,23 @@ Default login credentials after seeding:
 | api-iso37001 | 4024 | ISO 37001 — Anti-Bribery |
 | api-marketing | 4025 | Marketing Automation |
 | api-partners | 4026 | Partner Management |
+| api-risk | 4027 | ISO 31000 — Enterprise Risk Management |
+| api-training | 4028 | Training & Competency Management |
+| api-suppliers | 4029 | Supplier Management |
+| api-assets | 4030 | Asset Management |
+| api-documents | 4031 | Document Management |
+| api-complaints | 4032 | Complaints Management |
+| api-contracts | 4033 | Contract Management |
+| api-ptw | 4034 | Permit to Work |
+| api-reg-monitor | 4035 | Regulatory Monitor |
+| api-incidents | 4036 | Incident Management |
+| api-audits | 4037 | Audit Management |
+| api-mgmt-review | 4038 | Management Review |
+| api-setup-wizard | 4039 | Setup Wizard |
+| api-chemicals | 4040 | Chemical Management (COSHH/GHS) |
+| api-emergency | 4041 | Fire, Emergency & Disaster Management |
 
-### Web Applications (Next.js 14)
+### Web Applications (Next.js 15)
 
 | App | Port | Domain |
 |---|---|---|
@@ -123,6 +138,21 @@ Default login credentials after seeding:
 | web-partners | 3026 | Partner Portal |
 | web-admin | 3027 | Admin Dashboard |
 | web-marketing | 3030 | Marketing Site |
+| web-risk | 3031 | Enterprise Risk Management |
+| web-training | 3032 | Training & Competency |
+| web-suppliers | 3033 | Supplier Management |
+| web-assets | 3034 | Asset Management |
+| web-documents | 3035 | Document Management |
+| web-complaints | 3036 | Complaints Management |
+| web-contracts | 3037 | Contract Management |
+| web-finance-compliance | 3038 | Financial Compliance |
+| web-ptw | 3039 | Permit to Work |
+| web-reg-monitor | 3040 | Regulatory Monitor |
+| web-incidents | 3041 | Incident Management |
+| web-audits | 3042 | Audit Management |
+| web-mgmt-review | 3043 | Management Review |
+| web-chemicals | 3044 | Chemical Management |
+| web-emergency | 3045 | Fire, Emergency & Disaster Management |
 
 ## ISO Standards Coverage
 
@@ -152,10 +182,10 @@ New-BMS/
 │   ├── api-health-safety/    # H&S API service (port 4001)
 │   ├── api-environment/      # Environment API (port 4002)
 │   ├── api-quality/          # Quality API (port 4003)
-│   ├── api-*/                # ... 23 more API services
+│   ├── api-*/                # ... 38 more API services
 │   ├── web-dashboard/        # Main dashboard (port 3000)
 │   ├── web-health-safety/    # H&S frontend (port 3001)
-│   ├── web-*/                # ... 27 more web apps
+│   ├── web-*/                # ... 42 more web apps
 │   └── mobile/               # Mobile app (excluded from dev)
 ├── packages/
 │   ├── database/             # Prisma schemas + generated clients
@@ -165,11 +195,11 @@ New-BMS/
 │   ├── monitoring/           # Health checks, metrics, logging
 │   ├── email/                # Email templates + sending
 │   ├── event-bus/            # Cross-service event system
-│   ├── sdk/                  # @nexara/sdk public SDK
+│   ├── sdk/                  # @ims/sdk public SDK
 │   └── .../                  # 50 more shared packages
 ├── scripts/
 │   ├── startup.sh            # Full system startup
-│   ├── start-all-services.sh # Start all 51 services
+│   ├── start-all-services.sh # Start all 86 services
 │   ├── stop-all-services.sh  # Stop all services
 │   └── check-services.sh     # Health check all services
 ├── docs/                     # Documentation

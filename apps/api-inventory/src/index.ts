@@ -42,8 +42,8 @@ const app: Express = express();
 const PORT = process.env.PORT || 4005;
 
 // Middleware
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-inventory'));
 app.use(express.json({ limit: '1mb' }));

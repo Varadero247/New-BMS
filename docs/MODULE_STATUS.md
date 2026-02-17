@@ -77,7 +77,7 @@ Last updated: 2026-02-16
 | @ims/types | Shared TypeScript types | - |
 | @ims/ui | Shared UI components | - |
 | @ims/charts | Chart components | - |
-| @ims/sdk | @nexara/sdk NPM package | - |
+| @ims/sdk | @ims/sdk NPM package | - |
 | @ims/testing | Test utilities | - |
 
 | @ims/rbac | Role-based access control (39 roles, 17 modules) | 65 |

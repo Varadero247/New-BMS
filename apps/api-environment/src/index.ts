@@ -46,8 +46,8 @@ const app: Express = express();
 const PORT = process.env.PORT || 4002;
 
 // Middleware
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-environment'));
 app.use(express.json({ limit: '1mb' }));
@@ -84,8 +84,13 @@ app.use('/api/esg', esgRouter);
 app.use('/api/communications', communicationsRouter);
 app.use('/api/training', trainingRouter);
 
+// 404 handler
+app.use((_req: express.Request, res: express.Response) => {
+  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
+});
+
 // Error handling
-app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error & { statusCode?: number; code?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(err.statusCode || 500).json({
     success: false,
