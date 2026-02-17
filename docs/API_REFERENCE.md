@@ -1456,6 +1456,8 @@ GET|PUT|DELETE  /api/portal/performance/:id
 
 GET|POST       /api/portal/notifications
 GET|PUT|DELETE  /api/portal/notifications/:id
+PUT            /api/portal/notifications/read-all     # Zod validated
+PUT            /api/portal/notifications/:id/read     # Zod validated
 
 GET|POST       /api/portal/announcements
 GET|PUT|DELETE  /api/portal/announcements/:id
@@ -2506,7 +2508,7 @@ Returns subscription with HMAC secret for payload verification.
 | Route File | Endpoints |
 |------------|-----------|
 | `reviews.ts` | Management review CRUD, minutes, actions |
-| `agenda.ts` | Review agenda item management |
+| `agenda.ts` | Review agenda item management (Zod validation on POST /:id/generate) |
 | `dashboard.ts` | Review schedule and action tracking |
 
 ---
@@ -2548,6 +2550,8 @@ Returns subscription with HMAC secret for payload verification.
 
 > **Note:** The `growth`, `health-score`, `expansion`, `prospect-research`, `linkedin-tracker`, `renewal`, and `digest` routes now require Bearer token authentication. The `stripe-webhooks` route enforces Stripe webhook signature verification (HMAC-SHA256 via `STRIPE_WEBHOOK_SECRET`); requests without a valid signature are rejected with 400.
 
+> **Validation (v3):** The following marketing routes now enforce Zod request body validation (400 on invalid input): `POST /digest/trigger`, `POST /expansion/check`, `POST /health-score/recalculate`, `POST /winback/start/:orgId`.
+
 ---
 
 ## Partner Portal API (Port 4026)
@@ -2559,7 +2563,7 @@ Returns subscription with HMAC secret for payload verification.
 | `auth.ts` | Partner authentication (register, login, refresh) |
 | `profile.ts` | Partner profile management |
 | `deals.ts` | Deal registration and tracking |
-| `payouts.ts` | Commission payout management |
+| `payouts.ts` | Commission payout management (Zod validation on POST /request) |
 | `referrals.ts` | Referral link generation and tracking |
 | `commission.ts` | Commission tier configuration |
 | `support.ts` | Partner support ticket management |

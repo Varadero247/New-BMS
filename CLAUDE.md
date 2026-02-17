@@ -172,6 +172,7 @@ pnpm test                        # 12,326 Jest unit tests (578 suites)
 ./scripts/check-services.sh      # Service health checks (56 services)
 ./scripts/seed-all.sh            # Seed all database schemas
 ./scripts/backup-db.sh           # Backup PostgreSQL database
+./scripts/generate-review-report.ts # Generate Full System Review Word report
 ```
 
 ## Environment Module (ISO 14001:2015)
@@ -226,3 +227,4 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `docs/DATABASE_ARCHITECTURE.md` — Database design (25 schemas)
 - `docs/DATABASE_SCHEMA_NOTES.md` — Schema recreation, missing columns, OpenSSL issues
 - `docs/TEMPLATES.md` — Template library developer guide
+- `docs/Full_System_Review_v3_Report.docx` — 10-page Word report from Full System Review v3 (Feb 17, 2026)
