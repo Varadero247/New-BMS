@@ -5,14 +5,14 @@
 [![Node 20](https://img.shields.io/badge/Node-20.x-339933?logo=node.js)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-workspace-F69220?logo=pnpm)](https://pnpm.io/)
 [![Turborepo](https://img.shields.io/badge/Turborepo-2.7.5-0099FF?logo=turborepo)](https://turbo.build/)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14-000000?logo=next.js)](https://nextjs.org/)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=next.js)](https://nextjs.org/)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express)](https://expressjs.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2D3748?logo=prisma)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-6+-DC382D?logo=redis)](https://redis.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 57 apps · 59 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
+Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 86 apps · 60 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
 
 ---
 

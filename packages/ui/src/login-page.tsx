@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './card';
 import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
@@ -99,118 +98,176 @@ export function LoginPage({
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-600" />
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--ink, #080B12)' }}>
+        <div className="h-8 w-8 animate-spin rounded-full border-4" style={{ borderColor: 'var(--border, #1E2E48)', borderTopColor: 'var(--blue-hi, #5B94FF)' }} />
       </div>
     );
   }
 
-  const colorMap: Record<string, { bg: string; text: string; iconBg: string; checkbox: string; link: string; gradient: string }> = {
-    red: { bg: 'bg-red-600', text: 'text-red-600', iconBg: 'bg-red-100', checkbox: 'text-red-600 focus:ring-red-500', link: 'text-red-600', gradient: 'from-red-50 to-gray-100' },
-    green: { bg: 'bg-green-600', text: 'text-green-600', iconBg: 'bg-green-100', checkbox: 'text-green-600 focus:ring-green-500', link: 'text-green-600', gradient: 'from-green-50 to-gray-100' },
-    blue: { bg: 'bg-blue-600', text: 'text-blue-600', iconBg: 'bg-blue-100', checkbox: 'text-blue-600 focus:ring-blue-500', link: 'text-blue-600', gradient: 'from-blue-50 to-gray-100' },
-    purple: { bg: 'bg-purple-600', text: 'text-purple-600', iconBg: 'bg-purple-100', checkbox: 'text-purple-600 focus:ring-purple-500', link: 'text-purple-600', gradient: 'from-purple-50 to-gray-100' },
-    orange: { bg: 'bg-orange-600', text: 'text-orange-600', iconBg: 'bg-orange-100', checkbox: 'text-orange-600 focus:ring-orange-500', link: 'text-orange-600', gradient: 'from-orange-50 to-gray-100' },
-    indigo: { bg: 'bg-indigo-600', text: 'text-indigo-600', iconBg: 'bg-indigo-100', checkbox: 'text-indigo-600 focus:ring-indigo-500', link: 'text-indigo-600', gradient: 'from-indigo-50 to-gray-100' },
-    teal: { bg: 'bg-teal-600', text: 'text-teal-600', iconBg: 'bg-teal-100', checkbox: 'text-teal-600 focus:ring-teal-500', link: 'text-teal-600', gradient: 'from-teal-50 to-gray-100' },
-    amber: { bg: 'bg-amber-600', text: 'text-amber-600', iconBg: 'bg-amber-100', checkbox: 'text-amber-600 focus:ring-amber-500', link: 'text-amber-600', gradient: 'from-amber-50 to-gray-100' },
+  const accentMap: Record<string, { accent: string; glow: string }> = {
+    red:    { accent: 'var(--m-safety, #F04B5A)',  glow: 'rgba(240,75,90,0.15)' },
+    green:  { accent: 'var(--m-env, #00C4A8)',     glow: 'rgba(0,196,168,0.15)' },
+    blue:   { accent: 'var(--m-quality, #3B78F5)', glow: 'rgba(59,120,245,0.15)' },
+    purple: { accent: 'var(--m-hr, #9B6FEA)',      glow: 'rgba(155,111,234,0.15)' },
+    orange: { accent: 'var(--m-crm, #FB923C)',     glow: 'rgba(251,146,60,0.15)' },
+    indigo: { accent: 'var(--blue-core, #2660D8)', glow: 'rgba(38,96,216,0.15)' },
+    teal:   { accent: 'var(--teal-core, #00C4A8)', glow: 'rgba(0,196,168,0.15)' },
+    amber:  { accent: 'var(--m-payroll, #F59E0B)', glow: 'rgba(245,158,11,0.15)' },
   };
 
-  const colors = colorMap[themeColor] || colorMap.blue;
+  const accent = accentMap[themeColor] || accentMap.blue;
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br ${colors.gradient} p-4`}>
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: 'var(--ink, #080B12)' }}
+    >
       <div className="w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
           {icon && (
-            <div className={`inline-flex items-center justify-center p-4 ${colors.iconBg} rounded-full mb-4`}>
+            <div
+              className="inline-flex items-center justify-center p-4 rounded-full mb-4"
+              style={{ backgroundColor: accent.glow }}
+            >
               {icon}
             </div>
           )}
-          <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-          {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
+          <h1
+            className="text-3xl font-bold font-display"
+            style={{ color: 'var(--white, #EDF3FC)' }}
+          >
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-1" style={{ color: 'var(--steel, #5A7099)' }}>
+              {subtitle}
+            </p>
+          )}
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
+        {/* Card */}
+        <div
+          className="rounded-xl p-6 shadow-2xl"
+          style={{
+            backgroundColor: 'var(--surface, #162032)',
+            border: '1px solid var(--border, #1E2E48)',
+          }}
+        >
+          <div className="space-y-1 mb-6 text-center">
+            <h2
+              className="text-2xl font-semibold font-display"
+              style={{ color: 'var(--white, #EDF3FC)' }}
+            >
+              Sign In
+            </h2>
+            <p style={{ color: 'var(--steel, #5A7099)', fontSize: '0.875rem' }}>
               Enter your credentials to access {title}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 rounded-md bg-red-50 border border-red-200">
-                  <p className="text-sm text-red-600">{error}</p>
-                </div>
-              )}
+            </p>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div
+                className="p-3 rounded-md"
+                style={{
+                  backgroundColor: 'rgba(240,75,90,0.1)',
+                  border: '1px solid rgba(240,75,90,0.3)',
+                }}
+              >
+                <p className="text-sm" style={{ color: '#F04B5A' }}>{error}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email" style={{ color: 'var(--silver, #8EA8CC)' }}>Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                disabled={loading}
+                required
+                autoComplete="email"
+                className="h-11"
+                style={{
+                  backgroundColor: 'var(--raised, #1C2940)',
+                  borderColor: 'var(--border, #1E2E48)',
+                  color: 'var(--white, #EDF3FC)',
+                }}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" style={{ color: 'var(--silver, #8EA8CC)' }}>Password</Label>
+              <div className="relative">
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   disabled={loading}
                   required
-                  autoComplete="email"
-                  className="h-11"
+                  autoComplete="current-password"
+                  className="h-11 pr-10"
+                  style={{
+                    backgroundColor: 'var(--raised, #1C2940)',
+                    borderColor: 'var(--border, #1E2E48)',
+                    color: 'var(--white, #EDF3FC)',
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{ color: 'var(--steel, #5A7099)' }}
+                  tabIndex={-1}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                    disabled={loading}
-                    required
-                    autoComplete="current-password"
-                    className="h-11 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded"
+                  style={{ borderColor: 'var(--border, #1E2E48)' }}
+                  disabled={loading}
+                />
+                <span className="text-sm" style={{ color: 'var(--steel, #5A7099)' }}>Remember me</span>
+              </label>
+              <a
+                href="#"
+                className="text-sm hover:underline"
+                style={{ color: accent.accent }}
+                onClick={(e) => e.preventDefault()}
+              >
+                Forgot password?
+              </a>
+            </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className={`h-4 w-4 rounded border-gray-300 ${colors.checkbox}`}
-                    disabled={loading}
-                  />
-                  <span className="text-sm text-gray-600">Remember me</span>
-                </label>
-                <a href="#" className={`text-sm ${colors.link} hover:underline`} onClick={(e) => e.preventDefault()}>
-                  Forgot password?
-                </a>
-              </div>
+            <Button
+              type="submit"
+              className="w-full h-11 font-semibold"
+              disabled={loading}
+              style={{
+                background: `linear-gradient(135deg, ${accent.accent}, ${accent.accent}dd)`,
+                color: '#ffffff',
+              }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+        </div>
 
-              <Button type="submit" className="w-full h-11" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-sm text-gray-400 mt-6">
-          IMS - Integrated Management System
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--muted, #344D72)' }}>
+          Nexara — Integrated Management System
         </p>
       </div>
     </div>

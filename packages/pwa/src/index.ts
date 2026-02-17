@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @ims/pwa — PWA offline infrastructure for the IMS platform
  */

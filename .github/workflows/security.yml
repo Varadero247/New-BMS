@@ -37,15 +37,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run audit
+      - name: Audit for critical vulnerabilities (must pass)
+        run: pnpm audit --audit-level=critical
+
+      - name: Audit for high vulnerabilities (advisory)
         run: pnpm audit --audit-level=high
         continue-on-error: true
 
-      - name: Check for known vulnerabilities
+      - name: Generate audit report
+        if: always()
         run: |
-          echo "Checking for critical vulnerabilities..."
           pnpm audit --json > audit-results.json 2>&1 || true
-          cat audit-results.json
+          echo "## Audit Summary"
+          pnpm audit --audit-level=moderate 2>&1 | tail -5 || true
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: audit-results.json
+          retention-days: 30
 
   codeql:
     name: CodeQL Analysis

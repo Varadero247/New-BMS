@@ -124,7 +124,7 @@ function getServiceToken(): string {
         } catch (error) {
           logger.error('Failed to refresh service token', { error });
         }
-      }, 50 * 60 * 1000);
+      }, 50 * 60 * 1000).unref();
     } catch (error) {
       logger.warn('Service token generation failed - inter-service auth disabled', { error });
     }
@@ -160,6 +160,10 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3043',
   'http://localhost:3044',
   'http://localhost:3045',
+  // Alternative ports for when Docker orphans block standard ports
+  'http://localhost:3051', 'http://localhost:3052', 'http://localhost:3053',
+  'http://localhost:3054', 'http://localhost:3055', 'http://localhost:3056',
+  'http://localhost:3057', 'http://localhost:3058', 'http://localhost:3059',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -502,6 +506,15 @@ process.on('SIGINT', () => {
   sessionCleanupJob.stop();
   stopOrgRateLimitCleanup();
   process.exit(0);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled rejection', { reason: String(reason) });
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception', { error: error.message });
+  process.exit(1);
 });
 
 export default app;

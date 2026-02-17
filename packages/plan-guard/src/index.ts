@@ -1,5 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 
+interface PlanGuardRequest extends Request {
+  user?: { id: string; orgId?: string; organisationId?: string };
+}
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type PlanTier = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
@@ -73,7 +77,7 @@ export function checkLimit(_orgId: string, _resource: string): LimitCheck {
  */
 export function planGuard(resource: string) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as PlanGuardRequest).user?.orgId || 'default';
     const result = checkLimit(orgId, resource);
 
     if (!result.allowed) {

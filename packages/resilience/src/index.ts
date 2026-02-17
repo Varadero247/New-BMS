@@ -390,8 +390,8 @@ export function createServiceClient(options: ServiceClientOptions) {
     });
 
     if (!response.ok) {
-      const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      (error as any).status = response.status;
+      const error: Error & { status?: number } = new Error(`HTTP ${response.status}: ${response.statusText}`);
+      error.status = response.status;
       throw error;
     }
 

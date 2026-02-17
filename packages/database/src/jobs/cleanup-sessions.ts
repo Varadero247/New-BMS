@@ -92,6 +92,9 @@ export class SessionCleanupJob {
 
     // Then run periodically
     this.intervalId = setInterval(() => this.runCleanup(), intervalMs);
+    if (this.intervalId && typeof this.intervalId === 'object' && 'unref' in this.intervalId) {
+      (this.intervalId as NodeJS.Timeout).unref();
+    }
   }
 
   /**

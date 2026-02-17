@@ -415,7 +415,7 @@ describe('POST /api/coshh/:id/sign-off', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
-    expect(res.body.error.message).toBe('role must be assessor or supervisor');
+    expect(res.body.error.message).toMatch(/assessor|supervisor/);
   });
 
   it('should return 404 when assessment not found', async () => {

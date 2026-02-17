@@ -31,8 +31,22 @@ export interface PrismaModelDelegate {
 // Helpers
 // ---------------------------------------------------------------------------
 
+interface AuthenticatedRequest extends Request {
+  user?: { id: string; role: UserRole };
+  ownerFilter?: Record<string, string>;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: string; role: string; roles?: string[] };
+      ownerFilter?: Record<string, string>;
+    }
+  }
+}
+
 function getUser(req: Request): { id: string; role: UserRole } | undefined {
-  return (req as any).user as { id: string; role: UserRole } | undefined;
+  return (req as AuthenticatedRequest).user;
 }
 
 function roleValue(role: string): number {
@@ -188,7 +202,7 @@ export function checkOwnership(model: PrismaModelDelegate, ownerField: string = 
  *
  * ```ts
  * const items = await prisma.item.findMany({
- *   where: { ...(req as any).ownerFilter },
+ *   where: { ...req.ownerFilter },
  * });
  * ```
  *
@@ -212,9 +226,9 @@ export function scopeToUser(req: Request, res: Response, next: NextFunction): vo
   }
 
   if (user.role === 'ADMIN' || user.role === 'MANAGER') {
-    (req as any).ownerFilter = {};
+    req.ownerFilter = {};
   } else {
-    (req as any).ownerFilter = { createdBy: user.id };
+    req.ownerFilter = { createdBy: user.id };
   }
 
   next();

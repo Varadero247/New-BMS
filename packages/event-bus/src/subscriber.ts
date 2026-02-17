@@ -50,7 +50,7 @@ export class EventSubscriber {
           );
 
           if (results) {
-            for (const [, messages] of results as any) {
+            for (const [, messages] of results as Array<[string, Array<[string, string[]]>]>) {
               for (const [id, fields] of messages) {
                 const payload: EventPayload = JSON.parse(fields[1]);
                 await sub.handler(payload);

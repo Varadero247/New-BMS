@@ -19,6 +19,7 @@ import {
   correlationIdMiddleware,
   createHealthCheck,
 } from '@ims/monitoring';
+import { optionalServiceAuth } from '@ims/service-auth';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 import { authenticatePartner } from './middleware/partner-auth';

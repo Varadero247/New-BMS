@@ -51,8 +51,8 @@ export class AuditService {
           action: entry.action,
           entity: entry.entity,
           entityId: entry.entityId,
-          oldData: oldData as any,
-          newData: newData as any,
+          oldData: oldData as object | undefined,
+          newData: newData as object | undefined,
           ipAddress: entry.ipAddress,
           userAgent: entry.userAgent,
         },
@@ -167,7 +167,7 @@ export class AuditService {
       sortOrder = 'desc',
     } = options;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (userId) where.userId = userId;
     if (action) where.action = action;
@@ -175,9 +175,10 @@ export class AuditService {
     if (entityId) where.entityId = entityId;
 
     if (startDate || endDate) {
-      where.createdAt = {};
-      if (startDate) where.createdAt.gte = startDate;
-      if (endDate) where.createdAt.lte = endDate;
+      const createdAt: Record<string, Date> = {};
+      if (startDate) createdAt.gte = startDate;
+      if (endDate) createdAt.lte = endDate;
+      where.createdAt = createdAt;
     }
 
     const skip = (page - 1) * limit;

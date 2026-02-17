@@ -178,7 +178,7 @@ export function createMockFile(overrides: Partial<Express.Multer.File> = {}): Ex
     filename: 'abc123.txt',
     path: '/tmp/uploads/abc123.txt',
     buffer: Buffer.from('test file content'),
-    stream: {} as any,
+    stream: {} as unknown as NodeJS.ReadableStream,
     ...overrides,
   };
 }

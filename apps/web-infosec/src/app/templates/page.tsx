@@ -5,6 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFo
 import { FileText, Download, Eye, Copy, Search } from 'lucide-react';
 import { gatewayApi } from '@/lib/gateway';
 
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/javascript\s*:/gi, '');
+}
+
 interface Template {
   id: string;
   code: string;
@@ -190,7 +197,7 @@ export default function TemplatesPage() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Content Preview</p>
                 <div className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800 max-h-96 overflow-y-auto">
-                  <div dangerouslySetInnerHTML={{ __html: templateContent }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(templateContent) }} />
                 </div>
               </div>
             )}

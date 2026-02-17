@@ -14,6 +14,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { createLogger, metricsMiddleware, metricsHandler, correlationIdMiddleware, createHealthCheck } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
+import { optionalServiceAuth } from '@ims/service-auth';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { prisma } from './prisma';
 
@@ -39,6 +40,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
+app.use(optionalServiceAuth);
 app.use(attachPermissions());
 
 // Health check, readiness, and metrics

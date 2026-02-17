@@ -80,7 +80,7 @@ export class EnhancedAuditService {
           resourceType: params.resourceType,
           resourceId: params.resourceId,
           resourceRef: params.resourceRef,
-          changes: params.changes as unknown as any,
+          changes: params.changes as unknown as object,
           ipAddress: params.ipAddress,
           userAgent: params.userAgent,
           sessionId: params.sessionId || '',
@@ -214,13 +214,13 @@ export class EnhancedAuditService {
 
     const [entries, total] = await Promise.all([
       this.prisma.enhancedAuditTrail.findMany({
-        where: where as any,
+        where: where as Record<string, unknown>,
         skip,
         take,
         orderBy: { createdAt: 'desc' },
         include: { esignature: true },
       }),
-      this.prisma.enhancedAuditTrail.count({ where: where as any }),
+      this.prisma.enhancedAuditTrail.count({ where: where as Record<string, unknown> }),
     ]);
 
     return {

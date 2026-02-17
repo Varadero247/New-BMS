@@ -15,7 +15,7 @@
     "@ims/theming": "workspace:*",
     "@ims/ui": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
-    "axios": "^1.6.2",
+    "axios": "^1.7.9",
     "chart.js": "^4.5.1",
     "chartjs-plugin-annotation": "^3.1.0",
     "class-variance-authority": "^0.7.0",

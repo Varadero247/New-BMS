@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * useOfflineStatus — React hook for monitoring online/offline state and sync queue
  */

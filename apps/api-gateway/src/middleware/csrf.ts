@@ -103,7 +103,7 @@ class CsrfTokenStore {
 const tokenStore = new CsrfTokenStore();
 
 // Cleanup expired tokens every 10 minutes
-setInterval(() => tokenStore.cleanup(), 10 * 60 * 1000);
+setInterval(() => tokenStore.cleanup(), 10 * 60 * 1000).unref();
 
 /**
  * CSRF protection middleware

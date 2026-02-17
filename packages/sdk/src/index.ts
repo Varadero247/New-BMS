@@ -140,9 +140,19 @@ export class NexaraClient {
   }
 
   // Health & Safety
+  private toSearchParams(params?: Record<string, string | number | undefined>): URLSearchParams {
+    const entries: Record<string, string> = {};
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined) entries[k] = String(v);
+      }
+    }
+    return new URLSearchParams(entries);
+  }
+
   risks = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Risk[]>>('GET', `/api/health-safety/risks?${new URLSearchParams(params as any)}`),
+      this.request<ApiResponse<Risk[]>>('GET', `/api/health-safety/risks?${this.toSearchParams(params)}`),
     get: (id: string) =>
       this.request<ApiResponse<Risk>>('GET', `/api/health-safety/risks/${id}`),
     create: (data: Partial<Risk>) =>
@@ -151,7 +161,7 @@ export class NexaraClient {
 
   incidents = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Incident[]>>('GET', `/api/health-safety/incidents?${new URLSearchParams(params as any)}`),
+      this.request<ApiResponse<Incident[]>>('GET', `/api/health-safety/incidents?${this.toSearchParams(params)}`),
     get: (id: string) =>
       this.request<ApiResponse<Incident>>('GET', `/api/health-safety/incidents/${id}`),
     create: (data: Partial<Incident>) =>
@@ -160,7 +170,7 @@ export class NexaraClient {
 
   actions = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Action[]>>('GET', `/api/health-safety/actions?${new URLSearchParams(params as any)}`),
+      this.request<ApiResponse<Action[]>>('GET', `/api/health-safety/actions?${this.toSearchParams(params)}`),
     get: (id: string) =>
       this.request<ApiResponse<Action>>('GET', `/api/health-safety/actions/${id}`),
     create: (data: Partial<Action>) =>
@@ -170,7 +180,7 @@ export class NexaraClient {
   // Webhooks
   webhooks = {
     list: (params?: { page?: number; isActive?: string }) =>
-      this.request<ApiResponse<Webhook[]>>('GET', `/api/workflows/webhooks?${new URLSearchParams(params as any)}`),
+      this.request<ApiResponse<Webhook[]>>('GET', `/api/workflows/webhooks?${this.toSearchParams(params)}`),
     create: (data: { name: string; url: string; events: WebhookEventType[]; headers?: Record<string, string>; retryCount?: number; timeout?: number }) =>
       this.request<ApiResponse<Webhook>>('POST', '/api/workflows/webhooks', data),
     get: (id: string) =>
@@ -182,7 +192,7 @@ export class NexaraClient {
     test: (id: string) =>
       this.request<ApiResponse<WebhookDelivery>>('POST', `/api/workflows/webhooks/${id}/test`),
     deliveries: (id: string, params?: { page?: number; event?: string; success?: string }) =>
-      this.request<ApiResponse<WebhookDelivery[]>>('GET', `/api/workflows/webhooks/${id}/deliveries?${new URLSearchParams(params as any)}`),
+      this.request<ApiResponse<WebhookDelivery[]>>('GET', `/api/workflows/webhooks/${id}/deliveries?${this.toSearchParams(params)}`),
   };
 
   // AI Analysis

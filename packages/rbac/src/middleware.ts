@@ -2,16 +2,23 @@ import type { Request, Response, NextFunction } from 'express';
 import { PermissionLevel, ImsModule, ResolvedPermissions } from './types';
 import { resolvePermissions, hasPermission, mapLegacyRole } from './permissions';
 
+interface ImsRequest extends Request {
+  user?: { id: string; role: string; roles?: string[]; email?: string };
+  permissions?: ResolvedPermissions;
+  ownershipCheck?: { field: string; userId: string };
+}
+
 declare global {
   namespace Express {
     interface Request {
       permissions?: ResolvedPermissions;
+      ownershipCheck?: { field: string; userId: string };
     }
   }
 }
 
 function getUserFromRequest(req: Request): { id: string; role: string; roles?: string[] } | undefined {
-  return (req as any).user;
+  return (req as ImsRequest).user;
 }
 
 export function attachPermissions() {
@@ -102,7 +109,7 @@ export function requireOwnership(ownerField: string = 'createdBy') {
     }
 
     // Store ownership context for route handlers to check
-    (req as any).ownershipCheck = { field: ownerField, userId: user.id };
+    req.ownershipCheck = { field: ownerField, userId: user.id };
     next();
   };
 }

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * useCamera — React hook for camera capture (inspection photos, evidence collection)
  * Uses the MediaDevices API to access the camera and capture images.

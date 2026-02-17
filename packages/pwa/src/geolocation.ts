@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * useGeolocation — React hook for GPS location tracking (field service, inspections)
  * Provides current position, continuous tracking, and distance calculation.

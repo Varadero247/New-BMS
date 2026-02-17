@@ -43,6 +43,8 @@ module.exports = {
     '<rootDir>/apps/api-suppliers',
     '<rootDir>/apps/api-training',
     '<rootDir>/apps/api-workflows',
+    '<rootDir>/apps/api-chemicals',
+    '<rootDir>/apps/api-emergency',
     // Web apps
     '<rootDir>/apps/web-dashboard',
     // Shared packages
@@ -75,6 +77,8 @@ module.exports = {
     '<rootDir>/packages/tax-engine',
     '<rootDir>/packages/validation',
     '<rootDir>/packages/pwa',
+    '<rootDir>/packages/theming',
+    '<rootDir>/packages/i18n',
     '<rootDir>/packages/webhooks',
   ],
 

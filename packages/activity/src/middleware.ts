@@ -4,6 +4,19 @@ import { logActivity, type ActivityAction } from './index';
 
 const logger = createLogger('activity:middleware');
 
+interface ActivityUser {
+  id: string;
+  name?: string;
+  email?: string;
+  avatar?: string;
+  organisationId?: string;
+  orgId?: string;
+}
+
+interface ActivityRequest extends Request {
+  user?: ActivityUser;
+}
+
 /**
  * Express middleware that automatically logs activity for create/update/delete operations.
  *
@@ -18,7 +31,7 @@ export function activityLogger(recordType: string) {
 
     res.json = function (body: unknown): Response {
       try {
-        const user = (req as any).user;
+        const user = (req as ActivityRequest).user;
         if (!user?.id) {
           return originalJson(body);
         }
@@ -74,12 +87,13 @@ export function activityLogger(recordType: string) {
  */
 function extractIdFromBody(body: unknown): string | undefined {
   if (!body || typeof body !== 'object') return undefined;
-  const data = (body as any).data;
-  if (data && typeof data === 'object' && data.id) {
-    return String(data.id);
+  const bodyObj = body as Record<string, unknown>;
+  const data = bodyObj.data;
+  if (data && typeof data === 'object' && (data as Record<string, unknown>).id) {
+    return String((data as Record<string, unknown>).id);
   }
-  if ((body as any).id) {
-    return String((body as any).id);
+  if (bodyObj.id) {
+    return String(bodyObj.id);
   }
   return undefined;
 }

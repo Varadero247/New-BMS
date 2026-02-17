@@ -12,7 +12,7 @@
   "dependencies": {
     "@ims/shared": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
-    "axios": "^1.6.0",
+    "axios": "^1.7.9",
     "chart.js": "^4.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
