@@ -55,6 +55,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // API Routes — named routes BEFORE /:id patterns
+app.use('/api/register', chemicalsRouter);
 app.use('/api/chemicals', chemicalsRouter);
 app.use('/api/sds', sdsRouter);
 app.use('/api/coshh', coshhRouter);
