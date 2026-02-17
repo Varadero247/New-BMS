@@ -7,7 +7,7 @@ export interface SyncQueueItem {
   id: string;
   endpoint: string;
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body: any;
+  body: unknown;
   createdAt: string;
   retryCount: number;
   maxRetries: number;
@@ -33,7 +33,7 @@ export class OfflineSyncEngine {
     if (online) this.processQueue();
   }
 
-  async enqueue(endpoint: string, method: SyncQueueItem['method'], body: any): Promise<string> {
+  async enqueue(endpoint: string, method: SyncQueueItem['method'], body: unknown): Promise<string> {
     const item: SyncQueueItem = {
       id: `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       endpoint,

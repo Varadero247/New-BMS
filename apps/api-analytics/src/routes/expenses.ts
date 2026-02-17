@@ -30,7 +30,7 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const category = req.query.category as string | undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (category) where.category = category;
 

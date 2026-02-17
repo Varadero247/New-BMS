@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const type = req.query.type as string | undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (type) where.type = type;
 
     const [meetings, total] = await Promise.all([

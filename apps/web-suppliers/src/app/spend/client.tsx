@@ -88,7 +88,7 @@ export default function SpendClient() {
     if (!form.supplierId || !form.period || !form.amount) return;
     setSaving(true);
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         ...form,
         amount: parseFloat(form.amount),
       };

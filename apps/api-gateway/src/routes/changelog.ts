@@ -103,7 +103,7 @@ router.get('/all', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.get('/unread-count', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const count = getUnreadCount(user.id);
 
     res.json({
@@ -124,7 +124,7 @@ router.get('/unread-count', authenticate, async (req: Request, res: Response) =>
 // ============================================
 router.post('/mark-read', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     markAsRead(user.id);
 
     res.json({
@@ -145,7 +145,7 @@ router.post('/mark-read', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     // Admin check
     if (user.role !== 'admin' && user.role !== 'ADMIN') {

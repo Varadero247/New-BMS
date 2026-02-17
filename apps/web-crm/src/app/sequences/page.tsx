@@ -202,7 +202,7 @@ export default function SequencesPage() {
       });
       setCreateModalOpen(false);
       loadSequences();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create sequence.');
     } finally {
       setSubmitting(false);
@@ -228,7 +228,7 @@ export default function SequencesPage() {
       });
       setEditModalOpen(false);
       loadSequences();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to update sequence.');
     } finally {
       setSubmitting(false);

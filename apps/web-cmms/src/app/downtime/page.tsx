@@ -93,19 +93,19 @@ export default function DowntimePage() {
     try {
       await api.post('/downtime', { ...form, duration: parseFloat(form.duration) || 0 });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
   }
   async function handleEdit() {
     setSaving(true); setError('');
     try {
       await api.put(`/downtime/${selected!.id}`, { ...form, duration: parseFloat(form.duration) || 0 });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
   }
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/downtime/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

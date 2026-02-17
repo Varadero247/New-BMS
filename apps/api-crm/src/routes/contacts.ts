@@ -55,8 +55,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         ...validation.data,
-        createdBy: (req as any).user?.id || 'system',
-        updatedBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -168,7 +168,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...validation.data,
-        updatedBy: (req as any).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -229,7 +229,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
         contactId: req.params.id,
         ...validation.data,
         dueDate: validation.data.dueDate ? new Date(validation.data.dueDate) : undefined,
-        createdBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 

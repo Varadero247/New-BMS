@@ -28,7 +28,7 @@ router.post('/research', authenticate, async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     // Step 1: Companies House lookup (fire and forget on failure)
     let companiesHouseData = null;

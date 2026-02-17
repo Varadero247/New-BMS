@@ -257,7 +257,7 @@ router.put('/:id', authenticate, validate(updateActionSchema), async (req, res, 
       });
     }
 
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.dueDate) {
       updateData.dueDate = new Date(req.body.dueDate);
     }

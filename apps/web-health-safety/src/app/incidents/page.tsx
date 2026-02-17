@@ -142,7 +142,7 @@ export default function IncidentsPage() {
 
   const loadIncidents = useCallback(async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (severityFilter !== 'all') params.severity = severityFilter;
@@ -159,7 +159,7 @@ export default function IncidentsPage() {
 
   function openModal() { setForm({ ...emptyForm }); setSection(0); setModalOpen(true); }
 
-  function updateForm(field: keyof IncidentForm, value: any) {
+  function updateForm(field: keyof IncidentForm, value: unknown) {
     setForm(prev => {
       const updated = { ...prev, [field]: value };
       if (field === 'severity') {

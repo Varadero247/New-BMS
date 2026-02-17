@@ -74,7 +74,7 @@ export default function ProspectResearchPage() {
       setResult(data);
       setEditedEmail(data.generatedEmail || '');
       fetchHistory();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Research failed. Please try again.');
     } finally {
       setLoading(false);

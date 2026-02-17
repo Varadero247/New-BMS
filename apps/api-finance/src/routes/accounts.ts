@@ -689,7 +689,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: account });
   } catch (error: unknown) {
     logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Account code must be unique' });
     }
     res.status(500).json({ success: false, error: 'Failed to create account' });

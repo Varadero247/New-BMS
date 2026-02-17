@@ -151,7 +151,7 @@ export default function AdjustmentsPage() {
         lotNumber: '',
         unitCost: 0,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.error?.message || 'Operation failed');
     } finally {
       setLoading(false);

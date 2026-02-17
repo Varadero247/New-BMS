@@ -128,9 +128,9 @@ function buildTitle(prompt: string, category: string): string {
   return `${title} ${categoryLabel}`.trim();
 }
 
-function buildSections(prompt: string, category: string, iso: { standard: string; owner: string }): any[] {
+function buildSections(prompt: string, category: string, iso: { standard: string; owner: string }): unknown[] {
   const catDef = TEMPLATE_CATEGORIES[category];
-  const sections: any[] = [];
+  const sections: unknown[] = [];
   const lower = prompt.toLowerCase();
 
   if (category === 'POLICY') {
@@ -262,34 +262,34 @@ function extractTopic(prompt: string): string {
 // GET /api/template-generator — List all generated templates
 router.get('/', authenticate as any, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const { category, isoStandard, page = '1', limit = '20' } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = { organisationId: user.organisationId || 'default' };
+    const where: Record<string, unknown> = { organisationId: user.organisationId || 'default' };
     if (category) where.category = category;
     if (isoStandard) where.isoStandard = { contains: String(isoStandard) };
 
     const [templates, total] = await Promise.all([
-      (prisma as any).qualGeneratedTemplate.findMany({
+      prisma.qualGeneratedTemplate.findMany({
         where,
         skip,
         take: Number(limit),
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).qualGeneratedTemplate.count({ where }),
+      prisma.qualGeneratedTemplate.count({ where }),
     ]);
 
     res.json({ success: true, data: templates, pagination: { page: Number(page), limit: Number(limit), total } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: (error as Error).message } });
   }
 });
 
 // POST /api/template-generator — Generate a new template from a prompt
 router.post('/', authenticate as any, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = generateTemplateSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -313,7 +313,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
     }
 
     // Get next sequence number
-    const existingCount = await (prisma as any).qualGeneratedTemplate.count({
+    const existingCount = await prisma.qualGeneratedTemplate.count({
       where: { category, organisationId: user.organisationId || 'default' },
     });
     const sequence = existingCount + 100; // Start AI-generated at 100 to avoid conflicts
@@ -334,7 +334,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
     };
 
     // Save to database
-    const template = await (prisma as any).qualGeneratedTemplate.create({
+    const template = await prisma.qualGeneratedTemplate.create({
       data: {
         docNumber,
         title,
@@ -361,8 +361,8 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
         message: 'Template generated successfully. Use the configJson to produce a DOCX file.',
       },
     });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'GENERATION_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'GENERATION_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -378,7 +378,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
         defaultSections: val.defaultSections,
       })),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' } });
   }
 });
@@ -386,7 +386,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
 // GET /api/template-generator/:id — Get a specific generated template
 router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
   try {
-    const template = await (prisma as any).qualGeneratedTemplate.findUnique({
+    const template = await prisma.qualGeneratedTemplate.findUnique({
       where: { id: req.params.id },
     });
 
@@ -395,18 +395,18 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, data: { ...template, configJson: JSON.parse(template.configJson) } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: (error as Error).message } });
   }
 });
 
 // DELETE /api/template-generator/:id — Delete a generated template
 router.delete('/:id', authenticate as any, requirePermission('quality', PermissionLevel.MANAGE) as any, async (req: Request, res: Response) => {
   try {
-    await (prisma as any).qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Template deleted' } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
   }
 });
 

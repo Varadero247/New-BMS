@@ -2,47 +2,47 @@ interface MonthlyReportVars {
   month: string;
   monthNumber: number;
   snapshot: {
-    mrr: any;
-    arr: any;
+    mrr: number | string | null;
+    arr: number | string | null;
     customers: number;
     newCustomers: number;
     churnedCustomers: number;
-    mrrGrowthPct: any;
-    revenueChurnPct: any;
-    pipelineValue: any;
+    mrrGrowthPct: number | string | null;
+    revenueChurnPct: number | string | null;
+    pipelineValue: number | string | null;
     wonDeals: number;
-    winRate: any;
+    winRate: number | string | null;
     newLeads: number;
-    founderSalary: any;
-    founderLoanPayment: any;
-    founderDividend: any;
-    founderTotalIncome: any;
-    founderDirLoanPayment?: any;
-    founderDirLoanInterest?: any;
-    founderDirLoanPrincipal?: any;
-    founderDirLoanBalance?: any;
-    founderStarterLoanPayment?: any;
-    founderStarterLoanInterest?: any;
-    founderStarterLoanPrincipal?: any;
-    founderStarterLoanBalance?: any;
+    founderSalary: number | string | null;
+    founderLoanPayment: number | string | null;
+    founderDividend: number | string | null;
+    founderTotalIncome: number | string | null;
+    founderDirLoanPayment?: number | string | null;
+    founderDirLoanInterest?: number | string | null;
+    founderDirLoanPrincipal?: number | string | null;
+    founderDirLoanBalance?: number | string | null;
+    founderStarterLoanPayment?: number | string | null;
+    founderStarterLoanInterest?: number | string | null;
+    founderStarterLoanPrincipal?: number | string | null;
+    founderStarterLoanBalance?: number | string | null;
     aiSummary?: string | null;
-    aiAlerts?: any;
-    aiRecommendations?: any;
+    aiAlerts?: number | string | null;
+    aiRecommendations?: number | string | null;
     trajectory?: string | null;
   };
   planTarget?: {
-    plannedMrr: any;
+    plannedMrr: number | string | null;
     plannedCustomers: number;
     plannedNewCustomers: number;
-    plannedChurnPct: any;
+    plannedChurnPct: number | string | null;
   };
 }
 
-function fmt(value: any): string {
+function fmt(value: unknown): string {
   return `£${Number(value || 0).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-function pct(value: any): string {
+function pct(value: unknown): string {
   return `${Number(value || 0).toFixed(1)}%`;
 }
 
@@ -68,7 +68,7 @@ export function monthlyReportEmail(vars: MonthlyReportVars) {
   const { month, monthNumber, snapshot, planTarget } = vars;
   const monthLabel = new Date(month + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   const alerts: string[] = Array.isArray(snapshot.aiAlerts) ? snapshot.aiAlerts : [];
-  const recommendations: any[] = Array.isArray(snapshot.aiRecommendations) ? snapshot.aiRecommendations : [];
+  const recommendations: unknown[] = Array.isArray(snapshot.aiRecommendations) ? snapshot.aiRecommendations : [];
   const greenFlags: string[] = [];
   const redFlags: string[] = [];
 
@@ -121,7 +121,7 @@ export function monthlyReportEmail(vars: MonthlyReportVars) {
           <th style="padding:8px 12px;text-align:right;font-size:12px;color:#6b7280;">Suggested</th>
           <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6b7280;">Rationale</th>
         </tr></thead>
-        <tbody>${recommendations.map((r: any) =>
+        <tbody>${recommendations.map((r: Record<string, unknown>) =>
           `<tr>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${r.metric}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(r.current)}</td>

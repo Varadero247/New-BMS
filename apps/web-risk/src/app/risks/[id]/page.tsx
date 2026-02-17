@@ -225,7 +225,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
     try {
       const r = await api.get(`/risks/${id}`);
       setRisk(r.data.data || null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e.response?.status === 404) setError('Risk not found.');
       else if (e.response?.status === 401) setError('Session expired. Please log in.');
       else setError('Failed to load risk details.');

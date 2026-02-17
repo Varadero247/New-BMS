@@ -135,7 +135,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
     });
 
     // Create 5x5 matrix
-    const matrix: { [key: string]: any[] } = {};
+    const matrix: Record<string, unknown[]> = {};
     for (let l = 1; l <= 5; l++) {
       for (let s = 1; s <= 5; s++) {
         matrix[`${l}-${s}`] = [];

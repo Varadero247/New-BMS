@@ -36,7 +36,7 @@ export interface PortalRequest {
 
 export interface PortalResponse {
   status: (code: number) => PortalResponse;
-  json: (body: any) => void;
+  json: (body: unknown) => void;
 }
 
-export type NextFunction = (err?: any) => void;
+export type NextFunction = (err?: unknown) => void;

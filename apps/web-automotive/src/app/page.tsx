@@ -19,8 +19,8 @@ interface DashboardStats {
   ppapSubmissions: { total: number; pending: number };
   open8dReports: number;
   spcAlerts: number;
-  recentProjects: any[];
-  recentPpap: any[];
+  recentProjects: Record<string, unknown>[];
+  recentPpap: Record<string, unknown>[];
 }
 
 export default function AutomotiveDashboard() {
@@ -45,11 +45,11 @@ export default function AutomotiveDashboard() {
       setStats({
         apqpProjects: {
           total: projects.length,
-          active: projects.filter((p: any) => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE').length,
+          active: projects.filter((p: Record<string, unknown>) => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE').length,
         },
         ppapSubmissions: {
           total: ppap.length,
-          pending: ppap.filter((s: any) => s.status === 'PENDING' || s.status === 'SUBMITTED').length,
+          pending: ppap.filter((s: Record<string, unknown>) => s.status === 'PENDING' || s.status === 'SUBMITTED').length,
         },
         open8dReports: 0,
         spcAlerts: 0,
@@ -235,7 +235,7 @@ export default function AutomotiveDashboard() {
             <CardContent>
               {stats?.recentProjects && stats.recentProjects.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.recentProjects.map((project: any) => (
+                  {stats.recentProjects.map((project: Record<string, unknown>) => (
                     <div key={project.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{project.name}</p>
@@ -286,7 +286,7 @@ export default function AutomotiveDashboard() {
             <CardContent>
               {stats?.recentPpap && stats.recentPpap.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.recentPpap.map((submission: any) => (
+                  {stats.recentPpap.map((submission: Record<string, unknown>) => (
                     <div key={submission.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{submission.partName || submission.title}</p>

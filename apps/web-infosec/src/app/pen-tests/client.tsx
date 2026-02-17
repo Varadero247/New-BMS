@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ElementType } from 'react';
 import { Search, Shield, AlertCircle, AlertTriangle, CheckCircle2, Zap, Calendar, BarChart3, ChevronRight } from 'lucide-react';
 
 type PenTestType = 'external' | 'internal' | 'web-app' | 'social-engineering' | 'wireless';
@@ -114,7 +114,7 @@ const typeConfig: Record<PenTestType, { bg: string; text: string; label: string 
   wireless: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Wireless' },
 };
 
-const statusConfig: Record<PenTestStatus, { bg: string; text: string; icon: any; label: string }> = {
+const statusConfig: Record<PenTestStatus, { bg: string; text: string; icon: ElementType; label: string }> = {
   completed: { bg: 'bg-green-50', text: 'text-green-700', icon: CheckCircle2, label: 'Completed' },
   'in-progress': { bg: 'bg-blue-50', text: 'text-blue-700', icon: Zap, label: 'In Progress' },
   scheduled: { bg: 'bg-purple-50', text: 'text-purple-700', icon: Calendar, label: 'Scheduled' },

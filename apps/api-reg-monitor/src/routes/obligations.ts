@@ -23,35 +23,35 @@ const updateSchema = createSchema.partial();
 
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
-  const c = await (prisma as any).regObligation.count({ where: { orgId, referenceNumber: { startsWith: `ROB-${y}` } } });
+  const c = await prisma.regObligation.count({ where: { orgId, referenceNumber: { startsWith: `ROB-${y}` } } });
   return `ROB-${y}-${String(c + 1).padStart(4, '0')}`;
 }
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { orgId, deletedAt: null };
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
     if (search) where.title = { contains: search, mode: 'insensitive' };
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).regObligation.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
-      (prisma as any).regObligation.count({ where }),
+      prisma.regObligation.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
+      prisma.regObligation.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Fetch failed', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Fetch failed', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch obligations' } });
   }
 });
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'obligation not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch obligation' } });
   }
 });
@@ -62,33 +62,33 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const { title, description, source, dueDate, frequency, responsible, status, evidence, notes } = parsed.data;
-    const data = await (prisma as any).regObligation.create({
+    const data = await prisma.regObligation.create({
       data: {
         title, description, source,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         frequency, responsible, status, evidence, notes,
-        orgId, referenceNumber, createdBy: (req as any).user?.id,
+        orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id,
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'obligation not found' } });
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
     const { title, description, source, dueDate, frequency, responsible, status, evidence, notes } = parsed.data;
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (source !== undefined) updateData.source = source;
@@ -98,21 +98,21 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (status !== undefined) updateData.status = status;
     if (evidence !== undefined) updateData.evidence = evidence;
     if (notes !== undefined) updateData.notes = notes;
-    const data = await (prisma as any).regObligation.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.regObligation.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.regObligation.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'obligation not found' } });
-    await (prisma as any).regObligation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.regObligation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'obligation deleted successfully' } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
   }
 });
 

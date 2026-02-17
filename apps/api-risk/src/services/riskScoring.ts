@@ -86,7 +86,7 @@ export function calculateResidualScores(
   };
 }
 
-export function mapCoshhToRisk(coshh: any): Record<string, any> {
+export function mapCoshhToRisk(coshh: Record<string, unknown>): Record<string, unknown> {
   const inherentL = coshh.inherentLikelihood || 3;
   const inherentC = coshh.inherentSeverity || 3;
   const residualL = coshh.residualLikelihood || inherentL;
@@ -115,7 +115,7 @@ export function mapCoshhToRisk(coshh: any): Record<string, any> {
   };
 }
 
-export function mapFraToRisk(fra: any): Record<string, any> {
+export function mapFraToRisk(fra: Record<string, unknown>): Record<string, unknown> {
   const inherentL = fra.likelihoodRating || 3;
   const inherentC = fra.consequenceRating || 3;
   const inherentScore = inherentL * inherentC;
@@ -134,7 +134,7 @@ export function mapFraToRisk(fra: any): Record<string, any> {
   };
 }
 
-export function mapIncidentToRisk(incident: any): Record<string, any> {
+export function mapIncidentToRisk(incident: Record<string, unknown>): Record<string, unknown> {
   const severityMap: Record<string, number> = { MINOR: 2, MODERATE: 3, MAJOR: 4, CRITICAL: 5, CATASTROPHIC: 5 };
   const consequenceVal = severityMap[incident.severity] || 3;
   const inherentScore = 3 * consequenceVal;

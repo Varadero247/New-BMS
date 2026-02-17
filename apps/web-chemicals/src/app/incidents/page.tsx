@@ -66,7 +66,7 @@ export default function IncidentsPage() {
       if (search) params.search = search;
       const res = await api.get('/incidents', { params });
       setIncidents(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load incidents.');
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ export default function IncidentsPage() {
       setModalOpen(false);
       setForm({ title: '', type: 'SPILL', severity: 'MODERATE', chemicalId: '', dateOccurred: new Date().toISOString().split('T')[0], location: '', description: '', riddor: false, reportedBy: '', immediateActions: '' });
       fetchIncidents();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to report incident.');
     } finally {
       setSaving(false);

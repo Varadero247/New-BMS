@@ -122,7 +122,7 @@ export default function QuotesPage() {
       });
       setCreateModalOpen(false);
       loadQuotes();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create quote.');
     } finally {
       setSubmitting(false);

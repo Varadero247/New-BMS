@@ -48,13 +48,13 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     if ((authReq.user as any)?.organisationId) where.organisationId = (authReq.user as any).organisationId;
 
     const [total, normal, warning, alert, critical, byMetricType, recent] = await Promise.all([
-      (prisma as any).aiMonitoring.count({ where }),
-      (prisma as any).aiMonitoring.count({ where: { ...where, status: 'NORMAL' } }),
-      (prisma as any).aiMonitoring.count({ where: { ...where, status: 'WARNING' } }),
-      (prisma as any).aiMonitoring.count({ where: { ...where, status: 'ALERT' } }),
-      (prisma as any).aiMonitoring.count({ where: { ...where, status: 'CRITICAL' } }),
-      (prisma as any).aiMonitoring.groupBy({ by: ['metricType'], where, _count: { id: true } }),
-      (prisma as any).aiMonitoring.findMany({
+      prisma.aiMonitoring.count({ where }),
+      prisma.aiMonitoring.count({ where: { ...where, status: 'NORMAL' } }),
+      prisma.aiMonitoring.count({ where: { ...where, status: 'WARNING' } }),
+      prisma.aiMonitoring.count({ where: { ...where, status: 'ALERT' } }),
+      prisma.aiMonitoring.count({ where: { ...where, status: 'CRITICAL' } }),
+      prisma.aiMonitoring.groupBy({ by: ['metricType'], where, _count: { id: true } }),
+      prisma.aiMonitoring.findMany({
         where: { ...where, status: { not: 'NORMAL' } },
         take: 10,
         orderBy: { measurementDate: 'desc' },
@@ -66,7 +66,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       success: true,
       data: {
         total, normal, warning, alert, critical,
-        byMetricType: byMetricType.map((m: any) => ({ metricType: m.metricType, count: m._count.id })),
+        byMetricType: byMetricType.map((m: Record<string, unknown>) => ({ metricType: m.metricType, count: m._count.id })),
         recentAlerts: recent,
       },
     });
@@ -88,8 +88,8 @@ router.get('/system/:systemId', async (req: Request, res: Response) => {
     if (req.query.metricType) where.metricType = req.query.metricType;
 
     const [items, total] = await Promise.all([
-      (prisma as any).aiMonitoring.findMany({ where, skip, take: limit, orderBy: { measurementDate: 'desc' } }),
-      (prisma as any).aiMonitoring.count({ where }),
+      prisma.aiMonitoring.findMany({ where, skip, take: limit, orderBy: { measurementDate: 'desc' } }),
+      prisma.aiMonitoring.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -120,8 +120,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).aiMonitoring.findMany({ where, skip, take: limit, orderBy: { measurementDate: 'desc' } }),
-      (prisma as any).aiMonitoring.count({ where }),
+      prisma.aiMonitoring.findMany({ where, skip, take: limit, orderBy: { measurementDate: 'desc' } }),
+      prisma.aiMonitoring.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -152,7 +152,7 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
-    const record = await (prisma as any).aiMonitoring.create({
+    const record = await prisma.aiMonitoring.create({
       data: {
         ...parsed.data,
         measurementDate: parsed.data.measurementDate ? new Date(parsed.data.measurementDate) : new Date(),
@@ -173,7 +173,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get monitoring record by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const record = await (prisma as any).aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const record = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!record) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
@@ -190,14 +190,14 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.measurementDate) data.measurementDate = new Date(parsed.data.measurementDate);
     if ((parsed.data as any).resolvedAt) data.resolvedAt = new Date((parsed.data as any).resolvedAt);
 
-    const record = await (prisma as any).aiMonitoring.update({ where: { id: req.params.id }, data });
+    const record = await prisma.aiMonitoring.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to update monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -208,10 +208,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
 
-    await (prisma as any).aiMonitoring.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.aiMonitoring.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });

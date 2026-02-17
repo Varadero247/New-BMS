@@ -170,7 +170,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: budget });
   } catch (error: unknown) {
     logger.error('Failed to create budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Budget entry already exists for this account/year/month combination' });
     }
     res.status(500).json({ success: false, error: 'Failed to create budget' });

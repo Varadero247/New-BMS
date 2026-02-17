@@ -20,7 +20,7 @@ const stepDataSchema = z.object({
 // GET /api/wizard/status — check wizard status for current user's org
 router.get('/status', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -63,7 +63,7 @@ router.get('/status', async (req: Request, res: Response) => {
 // POST /api/wizard/init — initialize a new wizard
 router.post('/init', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -112,7 +112,7 @@ router.post('/init', async (req: Request, res: Response) => {
 // PATCH /api/wizard/step/:stepIndex — update a wizard step
 router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -186,7 +186,7 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
 // POST /api/wizard/complete — mark the wizard as completed
 router.post('/complete', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -237,7 +237,7 @@ router.post('/complete', async (req: Request, res: Response) => {
 // POST /api/wizard/skip — skip the wizard entirely
 router.post('/skip', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     if (!user) {
       return res.status(401).json({
         success: false,

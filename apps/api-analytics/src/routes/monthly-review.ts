@@ -107,7 +107,7 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
     if (action === 'approve') {
       // Apply AI-recommended targets to next 3 months
       const recommendations = (snapshot.aiRecommendations as any[]) || [];
-      const mrrRecs = recommendations.filter((r: any) => r.metric === 'MRR');
+      const mrrRecs = recommendations.filter((r: Record<string, unknown>) => r.metric === 'MRR');
 
       const nextTargets = await prisma.planTarget.findMany({
         where: { monthNumber: { gt: snapshot.monthNumber, lte: snapshot.monthNumber + 3 } },

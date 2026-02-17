@@ -8,7 +8,7 @@ const router = Router();
 // GET /api/commission/summary — commission overview
 router.get('/summary', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -63,7 +63,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 // GET /api/commission/history — full commission history
 router.get('/history', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -103,7 +103,7 @@ router.get('/history', async (req: Request, res: Response) => {
 // GET /api/commission/pending — deals with unpaid commission
 router.get('/pending', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

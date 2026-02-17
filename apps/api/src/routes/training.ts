@@ -284,7 +284,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
     const { standard, department } = req.query;
 
     // Get all active courses
-    const courseWhere: any = { isActive: true };
+    const courseWhere: Record<string, unknown> = { isActive: true };
     if (standard) courseWhere.standard = standard;
 
     const courses = await prisma.trainingCourse.findMany({
@@ -293,7 +293,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
     });
 
     // Get all users
-    const userWhere: any = { isActive: true };
+    const userWhere: Record<string, unknown> = { isActive: true };
     if (department) userWhere.department = department;
 
     const users = await prisma.user.findMany({
@@ -440,7 +440,7 @@ router.put('/records/:id', authenticate, validate(updateRecordSchema), async (re
       });
     }
 
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.completedAt) {
       updateData.completedAt = new Date(req.body.completedAt);
       updateData.status = 'COMPLETED';

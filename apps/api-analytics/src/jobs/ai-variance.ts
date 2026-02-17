@@ -7,28 +7,28 @@ interface SnapshotData {
   id: string;
   month: string;
   monthNumber: number;
-  mrr: any;
-  arr: any;
+  mrr: number | null;
+  arr: number | null;
   customers: number;
   newCustomers: number;
   churnedCustomers: number;
-  mrrGrowthPct: any;
-  revenueChurnPct: any;
-  pipelineValue: any;
+  mrrGrowthPct: number | null;
+  revenueChurnPct: number | null;
+  pipelineValue: number | null;
   wonDeals: number;
-  winRate: any;
+  winRate: number | null;
   newLeads: number;
   activeTrials: number;
-  trialConversionPct: any;
-  avgHealthScore: any;
+  trialConversionPct: number | null;
+  avgHealthScore: number | null;
 }
 
 interface PlanTargetData {
-  plannedMrr: any;
+  plannedMrr: number | null;
   plannedCustomers: number;
   plannedNewCustomers: number;
-  plannedChurnPct: any;
-  plannedArpu: any;
+  plannedChurnPct: number | null;
+  plannedArpu: number | null;
 }
 
 interface AIAnalysisResult {
@@ -126,7 +126,7 @@ export async function runVarianceAnalysis(snapshot: SnapshotData, planTarget: Pl
       throw new Error(`Anthropic API error: ${response.status} ${response.statusText}`);
     }
 
-    const data: any = await response.json();
+    const data = await response.json() as Record<string, unknown>;
     const text: string = data.content?.[0]?.text || '';
     const result = parseAIResponse(text);
 
@@ -173,7 +173,7 @@ export function parseAIResponse(text: string): AIAnalysisResult {
     return {
       summary: String(parsed.summary),
       alerts: parsed.alerts.map(String),
-      recommendations: parsed.recommendations.map((r: any) => ({
+      recommendations: parsed.recommendations.map((r: Record<string, unknown>) => ({
         metric: String(r.metric || ''),
         current: Number(r.current || 0),
         suggested: Number(r.suggested || 0),

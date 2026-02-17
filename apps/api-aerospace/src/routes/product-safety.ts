@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateProductSafetyItemRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroProductSafetyItem.count({
+  const count = await prisma.aeroProductSafetyItem.count({
     where: { refNumber: { startsWith: `AERO-PSI-${yyyy}` } },
   });
   return `AERO-PSI-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -29,7 +29,7 @@ async function generateProductSafetyItemRefNumber(): Promise<string> {
 async function generateSafetyReviewRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroSafetyReview.count({
+  const count = await prisma.aeroSafetyReview.count({
     where: { refNumber: { startsWith: `AERO-PSR-${yyyy}` } },
   });
   return `AERO-PSR-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -105,7 +105,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (category) where.category = category;
     if (riskLevel) where.riskLevel = riskLevel;
     if (complianceStatus) where.complianceStatus = complianceStatus;
@@ -119,13 +119,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).aeroProductSafetyItem.findMany({
+      prisma.aeroProductSafetyItem.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: [{ riskLevel: 'asc' }, { createdAt: 'desc' }],
       }),
-      (prisma as any).aeroProductSafetyItem.count({ where }),
+      prisma.aeroProductSafetyItem.count({ where }),
     ]);
 
     res.json({
@@ -142,7 +142,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get product safety item
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const item = await (prisma as any).aeroProductSafetyItem.findUnique({
+    const item = await prisma.aeroProductSafetyItem.findUnique({
       where: { id: req.params.id },
     });
 
@@ -163,7 +163,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createProductSafetyItemSchema.parse(req.body);
     const refNumber = await generateProductSafetyItemRefNumber();
 
-    const item = await (prisma as any).aeroProductSafetyItem.create({
+    const item = await prisma.aeroProductSafetyItem.create({
       data: {
         refNumber,
         title: data.title,
@@ -200,14 +200,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update product safety item
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product safety item not found' } });
     }
 
     const data = updateProductSafetyItemSchema.parse(req.body);
 
-    const item = await (prisma as any).aeroProductSafetyItem.update({
+    const item = await prisma.aeroProductSafetyItem.update({
       where: { id: req.params.id },
       data: {
         ...data,
@@ -232,12 +232,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete product safety item
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product safety item not found' } });
     }
 
-    await (prisma as any).aeroProductSafetyItem.update({
+    await prisma.aeroProductSafetyItem.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -261,7 +261,7 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (reviewType) where.reviewType = reviewType;
     if (result) where.result = result;
     if (search) {
@@ -273,13 +273,13 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [reviews, total] = await Promise.all([
-      (prisma as any).aeroSafetyReview.findMany({
+      prisma.aeroSafetyReview.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { scheduledDate: 'desc' },
       }),
-      (prisma as any).aeroSafetyReview.count({ where }),
+      prisma.aeroSafetyReview.count({ where }),
     ]);
 
     res.json({
@@ -299,7 +299,7 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
     const data = createSafetyReviewSchema.parse(req.body);
     const refNumber = await generateSafetyReviewRefNumber();
 
-    const review = await (prisma as any).aeroSafetyReview.create({
+    const review = await prisma.aeroSafetyReview.create({
       data: {
         refNumber,
         title: data.title,
@@ -331,14 +331,14 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
 // PUT /reviews/:id/complete - Complete safety review
 router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroSafetyReview.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroSafetyReview.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety review not found' } });
     }
 
     const data = completeSafetyReviewSchema.parse(req.body);
 
-    const review = await (prisma as any).aeroSafetyReview.update({
+    const review = await prisma.aeroSafetyReview.update({
       where: { id: req.params.id },
       data: {
         findings: data.findings,

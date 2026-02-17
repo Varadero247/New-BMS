@@ -9,7 +9,7 @@ const logger = createLogger('chem-analytics');
 // GET /api/analytics/dashboard — comprehensive dashboard data
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const baseWhere = { orgId, isActive: true, deletedAt: null };
 
     const [
@@ -25,33 +25,33 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       riskLevels,
       recentIncidents,
     ] = await Promise.all([
-      (prisma as any).chemRegister.count({ where: baseWhere }),
-      (prisma as any).chemRegister.count({ where: { ...baseWhere, isCmr: true } }),
-      (prisma as any).chemCoshh.count({ where: { orgId, deletedAt: null, residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } } }),
-      (prisma as any).chemSds.count({ where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
-      (prisma as any).chemCoshh.count({
+      prisma.chemRegister.count({ where: baseWhere }),
+      prisma.chemRegister.count({ where: { ...baseWhere, isCmr: true } }),
+      prisma.chemCoshh.count({ where: { orgId, deletedAt: null, residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } } }),
+      prisma.chemSds.count({ where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
+      prisma.chemCoshh.count({
         where: {
           orgId, status: 'ACTIVE', deletedAt: null,
           reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
         },
       }),
-      (prisma as any).chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } } }),
-      (prisma as any).chemInventory.count({
+      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } } }),
+      prisma.chemInventory.count({
         where: {
           isActive: true,
           expiryDate: { lte: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), not: null },
           chemical: { orgId, deletedAt: null },
         },
       }),
-      (prisma as any).chemIncident.count({ where: { orgId } }),
-      (prisma as any).chemIncompatAlert.count({ where: { isActive: true, chemical: { orgId, deletedAt: null } } }),
+      prisma.chemIncident.count({ where: { orgId } }),
+      prisma.chemIncompatAlert.count({ where: { isActive: true, chemical: { orgId, deletedAt: null } } }),
       // Risk level breakdown from COSHH assessments
-      (prisma as any).chemCoshh.groupBy({
+      prisma.chemCoshh.groupBy({
         by: ['residualRiskLevel'],
         where: { orgId, status: 'ACTIVE', deletedAt: null },
         _count: true,
       }),
-      (prisma as any).chemIncident.findMany({
+      prisma.chemIncident.findMany({
         where: { orgId },
         orderBy: { dateTime: 'desc' },
         take: 10,
@@ -80,8 +80,8 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         recentIncidents,
       },
     });
-  } catch (error: any) {
-    logger.error('Failed to fetch analytics dashboard', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch analytics dashboard', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch analytics dashboard' } });
   }
 });

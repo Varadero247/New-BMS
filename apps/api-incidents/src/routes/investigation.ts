@@ -33,12 +33,12 @@ router.post('/:id/assign', authenticate, async (req: Request, res: Response) => 
         investigator: parsed.data.investigator,
         investigatorName: parsed.data.investigatorName,
         status: 'INVESTIGATING',
-        updatedBy: (req as any).user?.id,
+        updatedBy: (req as AuthRequest).user?.id,
       },
     });
     res.json({ success: true, data });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -61,12 +61,12 @@ router.put('/:id/report', authenticate, async (req: Request, res: Response) => {
         investigationReport: parsed.data.report,
         investigationDate: new Date(),
         status: 'ROOT_CAUSE_ANALYSIS',
-        updatedBy: (req as any).user?.id,
+        updatedBy: (req as AuthRequest).user?.id,
       },
     });
     res.json({ success: true, data });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 

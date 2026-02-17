@@ -109,7 +109,7 @@ export default function NewCoshhPage() {
       const res = await api.post('/coshh', payload);
       const created = res.data.data;
       router.push(`/coshh/${created?.id || ''}`);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to create COSHH assessment.');
     } finally {
       setSaving(false);

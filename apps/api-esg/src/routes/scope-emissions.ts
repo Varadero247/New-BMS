@@ -23,13 +23,13 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { scope } = req.query as Record<string, string>;
-    const where: any = { orgId, deletedAt: null };
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (scope) where.scope = parseInt(scope);
-    const data = await (prisma as any).esgScopeEmission.findMany({ where, orderBy: { period: 'desc' } });
+    const data = await prisma.esgScopeEmission.findMany({ where, orderBy: { period: 'desc' } });
     res.json({ success: true, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
   }
 });
@@ -40,21 +40,21 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const y = new Date().getFullYear();
-    const c = await (prisma as any).esgScopeEmission.count({ where: { orgId } });
+    const c = await prisma.esgScopeEmission.count({ where: { orgId } });
     const { scope, category, source, activity, quantity, unit, emissionFactor, co2e, period, location, verifiedBy, verifiedDate, notes } = parsed.data;
-    const data = await (prisma as any).esgScopeEmission.create({
+    const data = await prisma.esgScopeEmission.create({
       data: {
         scope, category, source, activity, quantity, unit, emissionFactor, co2e, period, location, verifiedBy,
         verifiedDate: verifiedDate ? new Date(verifiedDate) : undefined,
         notes,
-        orgId, referenceNumber: `EMI-${y}-${String(c + 1).padStart(4, '0')}`, createdBy: (req as any).user?.id,
+        orgId, referenceNumber: `EMI-${y}-${String(c + 1).padStart(4, '0')}`, createdBy: (req as AuthRequest).user?.id,
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 

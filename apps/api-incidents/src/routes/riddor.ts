@@ -12,14 +12,14 @@ const assessSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const data = await prisma.incIncident.findMany({
       where: { orgId, deletedAt: null, riddorReportable: 'YES' },
       orderBy: { dateOccurred: 'desc' },
       take: 500,
     });
     res.json({ success: true, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
   }
 });
@@ -38,12 +38,12 @@ router.post('/:id/assess', authenticate, async (req: Request, res: Response) => 
       data: {
         riddorReportable: parsed.data.reportable ? 'YES' : 'NO',
         riddorRef: parsed.data.riddorRef,
-        updatedBy: (req as any).user?.id,
+        updatedBy: (req as AuthRequest).user?.id,
       },
     });
     res.json({ success: true, data });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 

@@ -33,9 +33,9 @@ const updateIncidentSchema = createIncidentSchema.partial();
 // GET /api/incidents — all chemical incidents
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { type, severity, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { chemical: { orgId, deletedAt: null } };
+    const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (type) where.incidentType = type;
     if (severity) where.severity = severity;
     if (search) {
@@ -46,16 +46,16 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).chemIncident.findMany({
+      prisma.chemIncident.findMany({
         where, skip, take: parseInt(limit),
         orderBy: { dateTime: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true, signalWord: true, pictograms: true } } },
       }),
-      (prisma as any).chemIncident.count({ where }),
+      prisma.chemIncident.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Failed to fetch incidents', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch incidents', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incidents' } });
   }
 });
@@ -63,14 +63,14 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/incidents/:id — single incident
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).chemIncident.findFirst({
+    const item = await prisma.chemIncident.findFirst({
       where: { id: req.params.id },
       include: { chemical: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) {
-    logger.error('Failed to fetch incident', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch incident', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incident' } });
   }
 });
@@ -80,19 +80,19 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createIncidentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const d = parsed.data;
 
-    const chemical = await (prisma as any).chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
-    const data = await (prisma as any).chemIncident.create({
-      data: { ...d, orgId, createdBy: (req as any).user?.id },
+    const data = await prisma.chemIncident.create({
+      data: { ...d, orgId, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create incident', { error: error.message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to create incident', { error: (error as Error).message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -101,13 +101,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateIncidentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).chemIncident.findFirst({ where: { id: req.params.id } });
+    const existing = await prisma.chemIncident.findFirst({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
-    const data = await (prisma as any).chemIncident.update({ where: { id: req.params.id }, data: parsed.data });
+    const data = await prisma.chemIncident.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update incident', { error: error.message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to update incident', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 

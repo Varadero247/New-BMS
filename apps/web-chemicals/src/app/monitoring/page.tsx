@@ -50,7 +50,7 @@ export default function MonitoringPage() {
       if (search) params.search = search;
       const res = await api.get('/monitoring', { params });
       setRecords(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load monitoring data.');
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export default function MonitoringPage() {
       setModalOpen(false);
       setForm({ chemicalId: '', date: new Date().toISOString().split('T')[0], location: '', measuredValue: '', method: 'PERSONAL_SAMPLING', sampler: '', notes: '' });
       fetchRecords();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to create monitoring record.');
     } finally {
       setSaving(false);

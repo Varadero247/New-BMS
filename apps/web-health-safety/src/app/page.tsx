@@ -18,8 +18,8 @@ interface DashboardStats {
     trir: number;
     severityRate: number;
   };
-  topRisks: any[];
-  recentIncidents: any[];
+  topRisks: Record<string, unknown>[];
+  recentIncidents: Record<string, unknown>[];
 }
 
 export default function HealthSafetyDashboard() {
@@ -51,12 +51,12 @@ export default function HealthSafetyDashboard() {
 
       // Calculate CAPA overdue count
       const now = new Date();
-      const overdueCapas = capas.filter((c: any) =>
+      const overdueCapas = capas.filter((c: Record<string, unknown>) =>
         c.status !== 'CLOSED' && c.targetCompletionDate && new Date(c.targetCompletionDate) < now
       ).length;
 
       const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      const dueThisWeek = capas.filter((c: any) =>
+      const dueThisWeek = capas.filter((c: Record<string, unknown>) =>
         c.status !== 'CLOSED' && c.targetCompletionDate &&
         new Date(c.targetCompletionDate) >= now &&
         new Date(c.targetCompletionDate) <= oneWeekFromNow
@@ -64,20 +64,20 @@ export default function HealthSafetyDashboard() {
 
       // Calculate legal compliance percentage
       const legalTotal = legal.length;
-      const legalCompliant = legal.filter((l: any) => l.complianceStatus === 'COMPLIANT').length;
+      const legalCompliant = legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'COMPLIANT').length;
       const compliancePercent = legalTotal > 0 ? Math.round((legalCompliant / legalTotal) * 100) : 0;
 
       setStats({
         compliance: compliancePercent,
         risks: {
           total: risks.length,
-          high: risks.filter((r: any) => r.riskLevel === 'HIGH').length,
-          critical: risks.filter((r: any) => r.riskLevel === 'CRITICAL').length,
+          high: risks.filter((r: Record<string, unknown>) => r.riskLevel === 'HIGH').length,
+          critical: risks.filter((r: Record<string, unknown>) => r.riskLevel === 'CRITICAL').length,
         },
         incidents: {
           total: incidents.length,
-          open: incidents.filter((i: any) => i.status === 'OPEN' || i.status === 'UNDER_INVESTIGATION').length,
-          thisMonth: incidents.filter((i: any) => {
+          open: incidents.filter((i: Record<string, unknown>) => i.status === 'OPEN' || i.status === 'UNDER_INVESTIGATION').length,
+          thisMonth: incidents.filter((i: Record<string, unknown>) => {
             const date = new Date(i.createdAt);
             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
           }).length,
@@ -90,14 +90,14 @@ export default function HealthSafetyDashboard() {
         legal: {
           total: legalTotal,
           compliant: legalCompliant,
-          partial: legal.filter((l: any) => l.complianceStatus === 'PARTIAL').length,
-          nonCompliant: legal.filter((l: any) => l.complianceStatus === 'NON_COMPLIANT').length,
+          partial: legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'PARTIAL').length,
+          nonCompliant: legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'NON_COMPLIANT').length,
         },
         objectives: {
           total: objectives.length,
-          achieved: objectives.filter((o: any) => o.status === 'ACHIEVED').length,
-          onTrack: objectives.filter((o: any) => o.status === 'ON_TRACK' || o.status === 'ACTIVE').length,
-          atRisk: objectives.filter((o: any) => o.status === 'AT_RISK' || o.status === 'BEHIND').length,
+          achieved: objectives.filter((o: Record<string, unknown>) => o.status === 'ACHIEVED').length,
+          onTrack: objectives.filter((o: Record<string, unknown>) => o.status === 'ON_TRACK' || o.status === 'ACTIVE').length,
+          atRisk: objectives.filter((o: Record<string, unknown>) => o.status === 'AT_RISK' || o.status === 'BEHIND').length,
         },
         metrics: metrics || { ltifr: 0, trir: 0, severityRate: 0 },
         topRisks: risks.slice(0, 5),
@@ -361,7 +361,7 @@ export default function HealthSafetyDashboard() {
             <CardContent>
               {stats?.topRisks && stats.topRisks.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.topRisks.map((risk: any) => (
+                  {stats.topRisks.map((risk: Record<string, unknown>) => (
                     <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{risk.title}</p>
@@ -394,7 +394,7 @@ export default function HealthSafetyDashboard() {
             <CardContent>
               {stats?.recentIncidents && stats.recentIncidents.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.recentIncidents.map((incident: any) => (
+                  {stats.recentIncidents.map((incident: Record<string, unknown>) => (
                     <div key={incident.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{incident.title}</p>

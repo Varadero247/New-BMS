@@ -278,7 +278,7 @@ export default function NewRiskPage() {
       }
 
       router.push(newRiskId ? `/risks/${newRiskId}` : '/risks');
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.error?.message || 'Failed to create risk. Please try again.');
       setSaving(false);
     }

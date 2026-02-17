@@ -79,7 +79,7 @@ export default function RegisterPage() {
       if (cmrFilter) params.cmr = 'true';
       const res = await api.get('/register', { params });
       setChemicals(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load chemicals.');
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function RegisterPage() {
         description: '',
       });
       fetchChemicals();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to create chemical.');
     } finally {
       setSaving(false);

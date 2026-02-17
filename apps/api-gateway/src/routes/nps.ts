@@ -26,7 +26,7 @@ const listSchema = z.object({
 // ============================================
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = submitSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -64,7 +64,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.get('/analytics', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const orgId = user.organisationId || 'default';
     const analytics = getAnalytics(orgId);
 
@@ -86,7 +86,7 @@ router.get('/analytics', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.get('/responses', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = listSchema.safeParse(req.query);
 
     if (!parsed.success) {

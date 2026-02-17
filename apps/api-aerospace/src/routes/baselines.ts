@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateBaselineRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroConfigBaseline.count({
+  const count = await prisma.aeroConfigBaseline.count({
     where: { refNumber: { startsWith: `AERO-BL-${yyyy}` } },
   });
   return `AERO-BL-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -72,7 +72,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (baselineType) where.baselineType = baselineType;
     if (program) where.program = { contains: program as string, mode: 'insensitive' };
@@ -86,13 +86,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [baselines, total] = await Promise.all([
-      (prisma as any).aeroConfigBaseline.findMany({
+      prisma.aeroConfigBaseline.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).aeroConfigBaseline.count({ where }),
+      prisma.aeroConfigBaseline.count({ where }),
     ]);
 
     res.json({
@@ -109,7 +109,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get baseline
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const baseline = await (prisma as any).aeroConfigBaseline.findUnique({
+    const baseline = await prisma.aeroConfigBaseline.findUnique({
       where: { id: req.params.id },
     });
 
@@ -130,7 +130,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createBaselineSchema.parse(req.body);
     const refNumber = await generateBaselineRefNumber();
 
-    const baseline = await (prisma as any).aeroConfigBaseline.create({
+    const baseline = await prisma.aeroConfigBaseline.create({
       data: {
         refNumber,
         title: data.title,
@@ -165,14 +165,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update baseline
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const data = updateBaselineSchema.parse(req.body);
 
-    const baseline = await (prisma as any).aeroConfigBaseline.update({
+    const baseline = await prisma.aeroConfigBaseline.update({
       where: { id: req.params.id },
       data: {
         ...data,
@@ -197,12 +197,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete baseline
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
-    await (prisma as any).aeroConfigBaseline.update({
+    await prisma.aeroConfigBaseline.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -217,7 +217,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // PUT /:id/approve - Approve baseline
 router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
@@ -229,7 +229,7 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const baseline = await (prisma as any).aeroConfigBaseline.update({
+    const baseline = await prisma.aeroConfigBaseline.update({
       where: { id: req.params.id },
       data: {
         status: 'APPROVED',

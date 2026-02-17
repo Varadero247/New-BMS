@@ -42,7 +42,7 @@ campaignRouter.post('/', async (req: Request, res: Response) => {
     }
 
     const { startDate, endDate, ...data } = validation.data;
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     const campaign = await prisma.crmCampaign.create({
       data: {
@@ -178,7 +178,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
       });
     }
 
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
     const results = [];
 
     for (const contactId of validation.data.contactIds) {
@@ -193,7 +193,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
         results.push(member);
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err != null && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && (err as Error).code === 'P2002') {
           logger.warn('Contact already in campaign', { campaignId: req.params.id, contactId });
         } else {
           throw err;
@@ -240,7 +240,7 @@ emailSequenceRouter.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     const sequence = await prisma.crmEmailSequence.create({
       data: {
@@ -339,7 +339,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
       });
     }
 
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
     const results = [];
 
     for (const contactId of validation.data.contactIds) {
@@ -354,7 +354,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
         results.push(enrollment);
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err != null && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && (err as Error).code === 'P2002') {
           logger.warn('Contact already enrolled in sequence', { sequenceId: req.params.id, contactId });
         } else {
           throw err;

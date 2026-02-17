@@ -118,7 +118,7 @@ export default function ChemicalDetailPage() {
       try {
         const res = await api.get(`/register/${id}`);
         setChemical(res.data.data);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e.response?.status === 404 ? 'Chemical not found.' : 'Failed to load chemical details.');
       } finally {
         setLoading(false);

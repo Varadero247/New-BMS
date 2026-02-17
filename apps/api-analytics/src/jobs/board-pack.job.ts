@@ -26,10 +26,10 @@ export async function runBoardPackJob(): Promise<string> {
     // Aggregate metrics from snapshots
     const latestSnapshot = snapshots[0] || null;
     const avgMrr = snapshots.length > 0
-      ? snapshots.reduce((sum: number, s: any) => sum + Number(s.mrr || 0), 0) / snapshots.length
+      ? snapshots.reduce((sum: number, s: Record<string, unknown>) => sum + Number(s.mrr || 0), 0) / snapshots.length
       : 0;
     const avgCustomers = snapshots.length > 0
-      ? Math.round(snapshots.reduce((sum: number, s: any) => sum + Number(s.customers || 0), 0) / snapshots.length)
+      ? Math.round(snapshots.reduce((sum: number, s: Record<string, unknown>) => sum + Number(s.customers || 0), 0) / snapshots.length)
       : 0;
 
     const sections = {

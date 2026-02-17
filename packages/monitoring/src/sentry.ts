@@ -50,13 +50,13 @@ export function initSentry(serviceName: string): void {
  * Returns an Express error-handling middleware for Sentry.
  * If Sentry is not initialized, returns a passthrough middleware.
  */
-export function sentryErrorHandler(): (err: any, req: any, res: any, next: any) => void {
+export function sentryErrorHandler(): (err: unknown, req: unknown, res: unknown, next: (err?: unknown) => void) => void {
   if (sentryInitialized && SentryModule?.Handlers?.errorHandler) {
     return SentryModule.Handlers.errorHandler();
   }
 
   // No-op middleware — just forwards the error
-  return (err: any, _req: any, _res: any, next: any) => {
+  return (err: unknown, _req: unknown, _res: unknown, next: (err?: unknown) => void) => {
     next(err);
   };
 }

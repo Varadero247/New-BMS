@@ -70,7 +70,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
     if (warehouseId) where.warehouseId = warehouseId;
 
     const [byType, dailyMovement, topMovingProducts] = await Promise.all([
-      (prisma as any).inventoryTransaction.groupBy({
+      prisma.inventoryTransaction.groupBy({
         by: ['transactionType'],
         where,
         _count: { id: true },
@@ -87,7 +87,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
         GROUP BY DATE("transactionDate")
         ORDER BY date ASC
       `,
-      (prisma as any).inventoryTransaction.groupBy({
+      prisma.inventoryTransaction.groupBy({
         by: ['productId'],
         where,
         _count: { id: true },
@@ -101,7 +101,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        byType: byType.map((t: any) => ({
+        byType: byType.map((t: Record<string, unknown>) => ({
           transactionType: t.transactionType,
           count: t._count.id,
           quantityChange: t._sum?.quantityChange,
@@ -176,7 +176,7 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
     const end = endDate ? new Date(endDate as string) : new Date();
 
     // Outbound transactions for COGS approximation
-    const outbound = await (prisma as any).inventoryTransaction.groupBy({
+    const outbound = await prisma.inventoryTransaction.groupBy({
       by: ['productId'],
       where: {
         transactionDate: { gte: start, lte: end },
@@ -189,7 +189,7 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        products: outbound.map((o: any) => ({
+        products: outbound.map((o: Record<string, unknown>) => ({
           productId: o.productId,
           totalOutbound: Math.abs(o._sum?.quantityChange ?? 0),
           totalCost: Math.abs(Number(o._sum?.totalCost ?? 0)),

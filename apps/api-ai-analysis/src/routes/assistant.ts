@@ -108,7 +108,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
         const systemPrompt = `You are the Nexara IMS assistant. Answer questions about the Integrated Management System. Be concise (2-4 sentences max). Here are the available modules:\n\n${moduleList}\n\nKey facts:\n- 42+ modules, 192 templates, 35+ AI analysis types\n- All modules share data through a unified platform\n- RBAC with 39 roles and 7 permission levels\n- Supports 10+ ISO standards`;
 
-        const payload: any = {
+        const payload: Record<string, unknown> = {
           model: settings.model || 'gpt-4o-mini',
           messages: [
             { role: 'system', content: systemPrompt },

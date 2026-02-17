@@ -26,7 +26,7 @@ export default function LoginPage() {
       } else {
         setError('Invalid response from server');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);

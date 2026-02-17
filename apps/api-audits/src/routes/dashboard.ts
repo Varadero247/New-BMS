@@ -5,12 +5,12 @@ import { prisma } from '../prisma';
 const router = Router();
 const logger = createLogger('audits-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
-  try { const orgId = (req as any).user?.orgId || 'default'; const where = { orgId, deletedAt: null };
+  try { const orgId = (req as AuthRequest).user?.orgId || 'default'; const where = { orgId, deletedAt: null };
     const [totalAudits, totalFindings, totalChecklists, ] = await Promise.all([
-      (prisma as any).audAudit.count({ where }),
-      (prisma as any).audFinding.count({ where }),
-      (prisma as any).audChecklist.count({ where }),    ]);
+      prisma.audAudit.count({ where }),
+      prisma.audFinding.count({ where }),
+      prisma.audChecklist.count({ where }),    ]);
     res.json({ success: true, data: { totalAudits, totalFindings, totalChecklists,  } });
-  } catch (error: any) { logger.error('Stats error', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch stats' } }); }
+  } catch (error: unknown) { logger.error('Stats error', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch stats' } }); }
 });
 export default router;

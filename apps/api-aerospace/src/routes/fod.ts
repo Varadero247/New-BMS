@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateFodIncidentRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroFodIncident.count({
+  const count = await prisma.aeroFodIncident.count({
     where: { refNumber: { startsWith: `AERO-FOD-${yyyy}` } },
   });
   return `AERO-FOD-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -29,7 +29,7 @@ async function generateFodIncidentRefNumber(): Promise<string> {
 async function generateFodInspectionRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroFodInspection.count({
+  const count = await prisma.aeroFodInspection.count({
     where: { refNumber: { startsWith: `AERO-FODI-${yyyy}` } },
   });
   return `AERO-FODI-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -109,7 +109,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (severity) where.severity = severity;
     if (fodType) where.fodType = fodType;
@@ -123,13 +123,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [incidents, total] = await Promise.all([
-      (prisma as any).aeroFodIncident.findMany({
+      prisma.aeroFodIncident.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: [{ severity: 'asc' }, { createdAt: 'desc' }],
       }),
-      (prisma as any).aeroFodIncident.count({ where }),
+      prisma.aeroFodIncident.count({ where }),
     ]);
 
     res.json({
@@ -146,7 +146,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get FOD incident
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const incident = await (prisma as any).aeroFodIncident.findUnique({
+    const incident = await prisma.aeroFodIncident.findUnique({
       where: { id: req.params.id },
     });
 
@@ -167,7 +167,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createFodIncidentSchema.parse(req.body);
     const refNumber = await generateFodIncidentRefNumber();
 
-    const incident = await (prisma as any).aeroFodIncident.create({
+    const incident = await prisma.aeroFodIncident.create({
       data: {
         refNumber,
         title: data.title,
@@ -207,14 +207,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update FOD incident
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroFodIncident.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
     }
 
     const data = updateFodIncidentSchema.parse(req.body);
 
-    const incident = await (prisma as any).aeroFodIncident.update({
+    const incident = await prisma.aeroFodIncident.update({
       where: { id: req.params.id },
       data: {
         ...data,
@@ -238,12 +238,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete FOD incident
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroFodIncident.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
     }
 
-    await (prisma as any).aeroFodIncident.update({
+    await prisma.aeroFodIncident.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -267,7 +267,7 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (result) where.result = result;
     if (inspectionType) where.inspectionType = inspectionType;
     if (search) {
@@ -280,13 +280,13 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
     }
 
     const [inspections, total] = await Promise.all([
-      (prisma as any).aeroFodInspection.findMany({
+      prisma.aeroFodInspection.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { scheduledDate: 'desc' },
       }),
-      (prisma as any).aeroFodInspection.count({ where }),
+      prisma.aeroFodInspection.count({ where }),
     ]);
 
     res.json({
@@ -306,7 +306,7 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
     const data = createFodInspectionSchema.parse(req.body);
     const refNumber = await generateFodInspectionRefNumber();
 
-    const inspection = await (prisma as any).aeroFodInspection.create({
+    const inspection = await prisma.aeroFodInspection.create({
       data: {
         refNumber,
         title: data.title,
@@ -337,14 +337,14 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
 // PUT /inspections/:id/complete - Complete FOD inspection
 router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroFodInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroFodInspection.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD inspection not found' } });
     }
 
     const data = completeFodInspectionSchema.parse(req.body);
 
-    const inspection = await (prisma as any).aeroFodInspection.update({
+    const inspection = await prisma.aeroFodInspection.update({
       where: { id: req.params.id },
       data: {
         result: data.result,

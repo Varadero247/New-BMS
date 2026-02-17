@@ -26,7 +26,7 @@ export default function LoginPage() {
       } else {
         setError('No token received');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);

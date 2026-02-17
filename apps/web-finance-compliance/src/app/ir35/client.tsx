@@ -69,8 +69,8 @@ export default function Ir35Client() {
       const res = await api.get('/ir35');
       setItems(res.data.data || []);
       setError('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to load IR35 assessments');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to load IR35 assessments');
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ export default function Ir35Client() {
       await api.post('/ir35', payload);
       setModalOpen(false);
       fetchData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.response?.data?.error?.message || 'Save failed');
     } finally {
       setSaving(false);

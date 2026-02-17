@@ -159,7 +159,7 @@ export default function TrainingPage() {
       await api.post('/training/courses', payload);
       setCourseModalOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error.response?.data?.error?.message;
       setCourseError(typeof msg === 'string' ? msg : 'Failed to create course.');
     } finally {
@@ -200,7 +200,7 @@ export default function TrainingPage() {
       await api.post('/training/sessions', payload);
       setSessionModalOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error.response?.data?.error?.message;
       setSessionError(typeof msg === 'string' ? msg : 'Failed to create session.');
     } finally {

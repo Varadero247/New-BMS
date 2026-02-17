@@ -143,13 +143,13 @@ function scimAuth(req: Request, res: Response, next: NextFunction): void {
   }
 
   // Attach orgId to request for downstream use
-  (req as any).scimOrgId = validToken.orgId;
+  (req as AuthRequest).scimOrgId = validToken.orgId;
   next();
 }
 
 // ─── SCIM Response Helpers ──────────────────────────────────────────────────
 
-function scimListResponse(resources: any[], totalResults: number, startIndex: number, itemsPerPage: number) {
+function scimListResponse(resources: unknown[], totalResults: number, startIndex: number, itemsPerPage: number) {
   return {
     schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
     totalResults,

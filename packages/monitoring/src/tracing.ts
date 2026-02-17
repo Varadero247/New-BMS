@@ -176,7 +176,7 @@ export function getTraceContext(): { traceId: string; spanId: string } | null {
  * Express middleware to extract trace info and add to request
  */
 export function traceMiddleware() {
-  return (req: any, res: any, next: () => void) => {
+  return (req: { traceId?: string; spanId?: string }, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
     const span = trace.getActiveSpan();
     if (span) {
       const spanContext = span.spanContext();

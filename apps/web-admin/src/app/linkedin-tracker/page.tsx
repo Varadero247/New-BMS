@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ElementType } from 'react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 import { Linkedin, Send, Loader2, TrendingUp, Users, MessageSquare, Calendar } from 'lucide-react';
@@ -131,7 +131,7 @@ export default function LinkedInTrackerPage() {
       setProspectName('');
       setCompany('');
       setCustomContext('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create outreach');
     } finally {
       setSubmitting(false);
@@ -352,7 +352,7 @@ export default function LinkedInTrackerPage() {
   );
 }
 
-function FunnelCard({ label, count, icon: Icon, color }: { label: string; count: number; icon: any; color: string }) {
+function FunnelCard({ label, count, icon: Icon, color }: { label: string; count: number; icon: ElementType; color: string }) {
   return (
     <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-4 text-center">
       <Icon className={`w-5 h-5 mx-auto mb-2 ${color}`} />

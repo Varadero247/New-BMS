@@ -148,7 +148,7 @@ export default function IncidentRegisterClient() {
 
   const loadIncidents = useCallback(async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (severityFilter !== 'all') params.severity = severityFilter;
@@ -169,7 +169,7 @@ export default function IncidentRegisterClient() {
     setModalOpen(true);
   }
 
-  function updateForm(field: keyof IncidentForm, value: any) {
+  function updateForm(field: keyof IncidentForm, value: unknown) {
     setForm(prev => {
       const updated = { ...prev, [field]: value };
       // Auto-set RIDDOR and investigation for Critical/Major

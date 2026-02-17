@@ -65,7 +65,7 @@ router.get('/', requirePermission('quality', 'read'), async (req: Request, res: 
     ]);
 
     // Map QualIssue fields to context factor shape for frontend consumption
-    const data = items.map((item: any) => ({
+    const data = items.map((item: Record<string, unknown>) => ({
       id: item.id,
       referenceNumber: item.referenceNumber,
       factorName: item.issueOfConcern,

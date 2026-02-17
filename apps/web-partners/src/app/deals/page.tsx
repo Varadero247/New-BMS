@@ -73,7 +73,7 @@ export default function DealsPage() {
       setShowForm(false);
       setForm({ companyName: '', contactName: '', contactEmail: '', value: '', notes: '' });
       fetchDeals();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to submit deal');
     } finally {
       setSubmitting(false);

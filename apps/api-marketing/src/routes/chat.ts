@@ -145,7 +145,7 @@ router.post('/message', async (req: Request, res: Response) => {
             isoCount: capturedData.isoStandards ? capturedData.isoStandards.split(',').length : null,
             employeeCount: capturedData.companySize || null,
           },
-        }).catch((err: any) => logger.error('Failed to save chatbot lead', { error: String(err) }));
+        }).catch((err: unknown) => logger.error('Failed to save chatbot lead', { error: String(err) }));
       } catch {
         logger.warn('Failed to parse CAPTURE JSON');
       }

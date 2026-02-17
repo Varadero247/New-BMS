@@ -1,241 +1,241 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
-
-interface ComplianceDataPoint {
-  period: string;
-  compliance: number; // Percentage 0-100
-  auditsCompleted?: number;
-  findings?: number;
-  majorFindings?: number;
-}
-
-interface AuditComplianceTrendProps {
-  data: ComplianceDataPoint[];
-  title?: string;
-  target?: number;
-  showFindings?: boolean;
-}
-
-export function AuditComplianceTrend({
-  data,
-  title = 'Audit Compliance Trend',
-  target = 95,
-  showFindings = true,
-}: AuditComplianceTrendProps) {
-  const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstance = useRef<Chart | null>(null);
-
-  useEffect(() => {
-    if (!chartRef.current || data.length === 0) return;
-
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
-
-    const ctx = chartRef.current.getContext('2d');
-    if (!ctx) return;
-
-    const datasets: any[] = [
-      {
-        type: 'line',
-        label: 'Compliance %',
-        data: data.map(d => d.compliance),
-        borderColor: 'rgba(34, 197, 94, 1)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.3,
-        yAxisID: 'y',
-        pointBackgroundColor: data.map(d =>
-          d.compliance >= target ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
-        ),
-        pointRadius: 6,
-        pointHoverRadius: 8,
-      },
-    ];
-
-    if (showFindings) {
-      datasets.push({
-        type: 'bar',
-        label: 'Total Findings',
-        data: data.map(d => d.findings || 0),
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1,
-        yAxisID: 'y1',
-      });
-
-      if (data.some(d => d.majorFindings !== undefined)) {
-        datasets.push({
-          type: 'bar',
-          label: 'Major Findings',
-          data: data.map(d => d.majorFindings || 0),
-          backgroundColor: 'rgba(239, 68, 68, 0.5)',
-          borderColor: 'rgba(239, 68, 68, 1)',
-          borderWidth: 1,
-          yAxisID: 'y1',
-        });
-      }
-    }
-
-    chartInstance.current = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.map(d => d.period),
-        datasets,
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
-        plugins: {
-          title: {
-            display: !!title,
-            text: title,
-            font: { size: 16, weight: 'bold' },
-          },
-          legend: {
-            position: 'top',
-          },
-          annotation: {
-            annotations: {
-              targetLine: {
-                type: 'line',
-                yMin: target,
-                yMax: target,
-                yScaleID: 'y',
-                borderColor: 'rgba(34, 197, 94, 0.5)',
-                borderWidth: 2,
-                borderDash: [5, 5],
-                label: {
-                  display: true,
-                  content: `Target: ${target}%`,
-                  position: 'end',
-                },
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Period',
-            },
-          },
-          y: {
-            type: 'linear',
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Compliance %',
-            },
-            min: 0,
-            max: 100,
-          },
-          ...(showFindings && {
-            y1: {
-              type: 'linear',
-              position: 'right',
-              title: {
-                display: true,
-                text: 'Findings Count',
-              },
-              min: 0,
-              grid: {
-                drawOnChartArea: false,
-              },
-            },
-          }),
-        },
-      },
-    });
-
-    return () => {
-      if (chartInstance.current) {
-        chartInstance.current.destroy();
-      }
-    };
-  }, [data, title, target, showFindings]);
-
-  if (data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-        No audit compliance data available
-      </div>
-    );
-  }
-
-  // Calculate summary stats
-  const latestCompliance = data[data.length - 1]?.compliance || 0;
-  const avgCompliance = data.reduce((sum, d) => sum + d.compliance, 0) / data.length;
-  const trend = data.length >= 2
-    ? data[data.length - 1].compliance - data[data.length - 2].compliance
-    : 0;
-  const totalFindings = data.reduce((sum, d) => sum + (d.findings || 0), 0);
-  const totalMajor = data.reduce((sum, d) => sum + (d.majorFindings || 0), 0);
-
-  return (
-    <div className="w-full">
-      <div className="h-80">
-        <canvas ref={chartRef} />
-      </div>
-
-      {/* Summary statistics */}
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className={`text-2xl font-bold ${latestCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
-            {latestCompliance.toFixed(1)}%
-          </p>
-          <p className="text-xs text-gray-600">Current</p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgCompliance.toFixed(1)}%</p>
-          <p className="text-xs text-gray-600">Average</p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {trend >= 0 ? '+' : ''}{trend.toFixed(1)}%
-          </p>
-          <p className="text-xs text-gray-600">Trend</p>
-        </div>
-        <div className="bg-blue-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-blue-600">{totalFindings}</p>
-          <p className="text-xs text-gray-600">Total Findings</p>
-        </div>
-        <div className="bg-red-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-red-600">{totalMajor}</p>
-          <p className="text-xs text-gray-600">Major Findings</p>
-        </div>
-      </div>
-
-      {/* Performance indicator */}
-      <div className="mt-4 p-4 rounded-lg border">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Performance</span>
-          <span className={`text-sm font-bold ${avgCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
-            {avgCompliance >= target ? 'Meeting Target' : 'Below Target'}
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-4">
-          <div
-            className={`h-4 rounded-full transition-all ${avgCompliance >= target ? 'bg-green-500' : 'bg-red-500'}`}
-            style={{ width: `${Math.min(avgCompliance, 100)}%` }}
-          />
-        </div>
-        <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
-          <span>0%</span>
-          <span>Target: {target}%</span>
-          <span>100%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+: unknown |': unknown |u: unknown |s: unknown |e: unknown | : unknown |c: unknown |l: unknown |i: unknown |e: unknown |n: unknown |t: unknown |': unknown |;: unknown |
+: unknown |
+: unknown |i: unknown |m: unknown |p: unknown |o: unknown |r: unknown |t: unknown | : unknown |{: unknown | : unknown |u: unknown |s: unknown |e: unknown |E: unknown |f: unknown |f: unknown |e: unknown |c: unknown |t: unknown |,: unknown | : unknown |u: unknown |s: unknown |e: unknown |R: unknown |e: unknown |f: unknown | : unknown |}: unknown | : unknown |f: unknown |r: unknown |o: unknown |m: unknown | : unknown |': unknown |r: unknown |e: unknown |a: unknown |c: unknown |t: unknown |': unknown |;: unknown |
+: unknown |i: unknown |m: unknown |p: unknown |o: unknown |r: unknown |t: unknown | : unknown |{: unknown | : unknown |C: unknown |h: unknown |a: unknown |r: unknown |t: unknown |,: unknown | : unknown |r: unknown |e: unknown |g: unknown |i: unknown |s: unknown |t: unknown |e: unknown |r: unknown |a: unknown |b: unknown |l: unknown |e: unknown |s: unknown | : unknown |}: unknown | : unknown |f: unknown |r: unknown |o: unknown |m: unknown | : unknown |': unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |.: unknown |j: unknown |s: unknown |': unknown |;: unknown |
+: unknown |
+: unknown |C: unknown |h: unknown |a: unknown |r: unknown |t: unknown |.: unknown |r: unknown |e: unknown |g: unknown |i: unknown |s: unknown |t: unknown |e: unknown |r: unknown |(: unknown |.: unknown |.: unknown |.: unknown |r: unknown |e: unknown |g: unknown |i: unknown |s: unknown |t: unknown |e: unknown |r: unknown |a: unknown |b: unknown |l: unknown |e: unknown |s: unknown |): unknown |;: unknown |
+: unknown |
+: unknown |i: unknown |n: unknown |t: unknown |e: unknown |r: unknown |f: unknown |a: unknown |c: unknown |e: unknown | : unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |D: unknown |a: unknown |t: unknown |a: unknown |P: unknown |o: unknown |i: unknown |n: unknown |t: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown |p: unknown |e: unknown |r: unknown |i: unknown |o: unknown |d: unknown |:: unknown | : unknown |s: unknown |t: unknown |r: unknown |i: unknown |n: unknown |g: unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |:: unknown | : unknown |n: unknown |u: unknown |m: unknown |b: unknown |e: unknown |r: unknown |;: unknown | : unknown |/: unknown |/: unknown | : unknown |P: unknown |e: unknown |r: unknown |c: unknown |e: unknown |n: unknown |t: unknown |a: unknown |g: unknown |e: unknown | : unknown |0: unknown |-: unknown |1: unknown |0: unknown |0: unknown |
+: unknown | : unknown | : unknown |a: unknown |u: unknown |d: unknown |i: unknown |t: unknown |s: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |e: unknown |t: unknown |e: unknown |d: unknown |?: unknown |:: unknown | : unknown |n: unknown |u: unknown |m: unknown |b: unknown |e: unknown |r: unknown |;: unknown |
+: unknown | : unknown | : unknown |f: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |?: unknown |:: unknown | : unknown |n: unknown |u: unknown |m: unknown |b: unknown |e: unknown |r: unknown |;: unknown |
+: unknown | : unknown | : unknown |m: unknown |a: unknown |j: unknown |o: unknown |r: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |?: unknown |:: unknown | : unknown |n: unknown |u: unknown |m: unknown |b: unknown |e: unknown |r: unknown |;: unknown |
+: unknown |}: unknown |
+: unknown |
+: unknown |i: unknown |n: unknown |t: unknown |e: unknown |r: unknown |f: unknown |a: unknown |c: unknown |e: unknown | : unknown |A: unknown |u: unknown |d: unknown |i: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |T: unknown |r: unknown |e: unknown |n: unknown |d: unknown |P: unknown |r: unknown |o: unknown |p: unknown |s: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |:: unknown | : unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |D: unknown |a: unknown |t: unknown |a: unknown |P: unknown |o: unknown |i: unknown |n: unknown |t: unknown |[: unknown |]: unknown |;: unknown |
+: unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |?: unknown |:: unknown | : unknown |s: unknown |t: unknown |r: unknown |i: unknown |n: unknown |g: unknown |;: unknown |
+: unknown | : unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |?: unknown |:: unknown | : unknown |n: unknown |u: unknown |m: unknown |b: unknown |e: unknown |r: unknown |;: unknown |
+: unknown | : unknown | : unknown |s: unknown |h: unknown |o: unknown |w: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |?: unknown |:: unknown | : unknown |b: unknown |o: unknown |o: unknown |l: unknown |e: unknown |a: unknown |n: unknown |;: unknown |
+: unknown |}: unknown |
+: unknown |
+: unknown |e: unknown |x: unknown |p: unknown |o: unknown |r: unknown |t: unknown | : unknown |f: unknown |u: unknown |n: unknown |c: unknown |t: unknown |i: unknown |o: unknown |n: unknown | : unknown |A: unknown |u: unknown |d: unknown |i: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |T: unknown |r: unknown |e: unknown |n: unknown |d: unknown |(: unknown |{: unknown |
+: unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |,: unknown |
+: unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown | : unknown |=: unknown | : unknown |': unknown |A: unknown |u: unknown |d: unknown |i: unknown |t: unknown | : unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |T: unknown |r: unknown |e: unknown |n: unknown |d: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |=: unknown | : unknown |9: unknown |5: unknown |,: unknown |
+: unknown | : unknown | : unknown |s: unknown |h: unknown |o: unknown |w: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown |=: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown |}: unknown |:: unknown | : unknown |A: unknown |u: unknown |d: unknown |i: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |T: unknown |r: unknown |e: unknown |n: unknown |d: unknown |P: unknown |r: unknown |o: unknown |p: unknown |s: unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |R: unknown |e: unknown |f: unknown | : unknown |=: unknown | : unknown |u: unknown |s: unknown |e: unknown |R: unknown |e: unknown |f: unknown |<: unknown |H: unknown |T: unknown |M: unknown |L: unknown |C: unknown |a: unknown |n: unknown |v: unknown |a: unknown |s: unknown |E: unknown |l: unknown |e: unknown |m: unknown |e: unknown |n: unknown |t: unknown |>: unknown |(: unknown |n: unknown |u: unknown |l: unknown |l: unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |=: unknown | : unknown |u: unknown |s: unknown |e: unknown |R: unknown |e: unknown |f: unknown |<: unknown |C: unknown |h: unknown |a: unknown |r: unknown |t: unknown | : unknown ||: unknown | : unknown |n: unknown |u: unknown |l: unknown |l: unknown |>: unknown |(: unknown |n: unknown |u: unknown |l: unknown |l: unknown |): unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown |u: unknown |s: unknown |e: unknown |E: unknown |f: unknown |f: unknown |e: unknown |c: unknown |t: unknown |(: unknown |(: unknown |): unknown | : unknown |=: unknown |>: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |!: unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |R: unknown |e: unknown |f: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown | : unknown ||: unknown ||: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |=: unknown |=: unknown |=: unknown | : unknown |0: unknown |): unknown | : unknown |r: unknown |e: unknown |t: unknown |u: unknown |r: unknown |n: unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |.: unknown |d: unknown |e: unknown |s: unknown |t: unknown |r: unknown |o: unknown |y: unknown |(: unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |c: unknown |t: unknown |x: unknown | : unknown |=: unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |R: unknown |e: unknown |f: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |.: unknown |g: unknown |e: unknown |t: unknown |C: unknown |o: unknown |n: unknown |t: unknown |e: unknown |x: unknown |t: unknown |(: unknown |': unknown |2: unknown |d: unknown |': unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |!: unknown |c: unknown |t: unknown |x: unknown |): unknown | : unknown |r: unknown |e: unknown |t: unknown |u: unknown |r: unknown |n: unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |s: unknown |e: unknown |t: unknown |s: unknown |:: unknown | : unknown |R: unknown |e: unknown |c: unknown |o: unknown |r: unknown |d: unknown |<: unknown |s: unknown |t: unknown |r: unknown |i: unknown |n: unknown |g: unknown |,: unknown | : unknown |u: unknown |n: unknown |k: unknown |n: unknown |o: unknown |w: unknown |n: unknown |>: unknown |[: unknown |]: unknown | : unknown |=: unknown | : unknown |[: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |l: unknown |i: unknown |n: unknown |e: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |a: unknown |b: unknown |e: unknown |l: unknown |:: unknown | : unknown |': unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |%: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |:: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |m: unknown |a: unknown |p: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown | : unknown |d: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |3: unknown |4: unknown |,: unknown | : unknown |1: unknown |9: unknown |7: unknown |,: unknown | : unknown |9: unknown |4: unknown |,: unknown | : unknown |1: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |a: unknown |c: unknown |k: unknown |g: unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |3: unknown |4: unknown |,: unknown | : unknown |1: unknown |9: unknown |7: unknown |,: unknown | : unknown |9: unknown |4: unknown |,: unknown | : unknown |0: unknown |.: unknown |1: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |W: unknown |i: unknown |d: unknown |t: unknown |h: unknown |:: unknown | : unknown |3: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |f: unknown |i: unknown |l: unknown |l: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |e: unknown |n: unknown |s: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |0: unknown |.: unknown |3: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |A: unknown |x: unknown |i: unknown |s: unknown |I: unknown |D: unknown |:: unknown | : unknown |': unknown |y: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |i: unknown |n: unknown |t: unknown |B: unknown |a: unknown |c: unknown |k: unknown |g: unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |m: unknown |a: unknown |p: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |>: unknown |=: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |?: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |3: unknown |4: unknown |,: unknown | : unknown |1: unknown |9: unknown |7: unknown |,: unknown | : unknown |9: unknown |4: unknown |,: unknown | : unknown |1: unknown |): unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |2: unknown |3: unknown |9: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |1: unknown |): unknown |': unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |i: unknown |n: unknown |t: unknown |R: unknown |a: unknown |d: unknown |i: unknown |u: unknown |s: unknown |:: unknown | : unknown |6: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |i: unknown |n: unknown |t: unknown |H: unknown |o: unknown |v: unknown |e: unknown |r: unknown |R: unknown |a: unknown |d: unknown |i: unknown |u: unknown |s: unknown |:: unknown | : unknown |8: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |]: unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |s: unknown |h: unknown |o: unknown |w: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |s: unknown |e: unknown |t: unknown |s: unknown |.: unknown |p: unknown |u: unknown |s: unknown |h: unknown |(: unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |b: unknown |a: unknown |r: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |a: unknown |b: unknown |e: unknown |l: unknown |:: unknown | : unknown |': unknown |T: unknown |o: unknown |t: unknown |a: unknown |l: unknown | : unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |:: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |m: unknown |a: unknown |p: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown | : unknown |d: unknown |.: unknown |f: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown ||: unknown ||: unknown | : unknown |0: unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |a: unknown |c: unknown |k: unknown |g: unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |5: unknown |9: unknown |,: unknown | : unknown |1: unknown |3: unknown |0: unknown |,: unknown | : unknown |2: unknown |4: unknown |6: unknown |,: unknown | : unknown |0: unknown |.: unknown |5: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |5: unknown |9: unknown |,: unknown | : unknown |1: unknown |3: unknown |0: unknown |,: unknown | : unknown |2: unknown |4: unknown |6: unknown |,: unknown | : unknown |1: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |W: unknown |i: unknown |d: unknown |t: unknown |h: unknown |:: unknown | : unknown |1: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |A: unknown |x: unknown |i: unknown |s: unknown |I: unknown |D: unknown |:: unknown | : unknown |': unknown |y: unknown |1: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |): unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |s: unknown |o: unknown |m: unknown |e: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown | : unknown |d: unknown |.: unknown |m: unknown |a: unknown |j: unknown |o: unknown |r: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown |!: unknown |=: unknown |=: unknown | : unknown |u: unknown |n: unknown |d: unknown |e: unknown |f: unknown |i: unknown |n: unknown |e: unknown |d: unknown |): unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |s: unknown |e: unknown |t: unknown |s: unknown |.: unknown |p: unknown |u: unknown |s: unknown |h: unknown |(: unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |b: unknown |a: unknown |r: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |a: unknown |b: unknown |e: unknown |l: unknown |:: unknown | : unknown |': unknown |M: unknown |a: unknown |j: unknown |o: unknown |r: unknown | : unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |:: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |m: unknown |a: unknown |p: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown | : unknown |d: unknown |.: unknown |m: unknown |a: unknown |j: unknown |o: unknown |r: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown ||: unknown ||: unknown | : unknown |0: unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |a: unknown |c: unknown |k: unknown |g: unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |2: unknown |3: unknown |9: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |0: unknown |.: unknown |5: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |2: unknown |3: unknown |9: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |6: unknown |8: unknown |,: unknown | : unknown |1: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |W: unknown |i: unknown |d: unknown |t: unknown |h: unknown |:: unknown | : unknown |1: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |A: unknown |x: unknown |i: unknown |s: unknown |I: unknown |D: unknown |:: unknown | : unknown |': unknown |y: unknown |1: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown | : unknown |=: unknown | : unknown |n: unknown |e: unknown |w: unknown | : unknown |C: unknown |h: unknown |a: unknown |r: unknown |t: unknown |(: unknown |c: unknown |t: unknown |x: unknown |,: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |b: unknown |a: unknown |r: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |a: unknown |b: unknown |e: unknown |l: unknown |s: unknown |:: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |m: unknown |a: unknown |p: unknown |(: unknown |d: unknown | : unknown |=: unknown |>: unknown | : unknown |d: unknown |.: unknown |p: unknown |e: unknown |r: unknown |i: unknown |o: unknown |d: unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |s: unknown |e: unknown |t: unknown |s: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |o: unknown |p: unknown |t: unknown |i: unknown |o: unknown |n: unknown |s: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |r: unknown |e: unknown |s: unknown |p: unknown |o: unknown |n: unknown |s: unknown |i: unknown |v: unknown |e: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |m: unknown |a: unknown |i: unknown |n: unknown |t: unknown |a: unknown |i: unknown |n: unknown |A: unknown |s: unknown |p: unknown |e: unknown |c: unknown |t: unknown |R: unknown |a: unknown |t: unknown |i: unknown |o: unknown |:: unknown | : unknown |f: unknown |a: unknown |l: unknown |s: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |n: unknown |t: unknown |e: unknown |r: unknown |a: unknown |c: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |m: unknown |o: unknown |d: unknown |e: unknown |:: unknown | : unknown |': unknown |i: unknown |n: unknown |d: unknown |e: unknown |x: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |n: unknown |t: unknown |e: unknown |r: unknown |s: unknown |e: unknown |c: unknown |t: unknown |:: unknown | : unknown |f: unknown |a: unknown |l: unknown |s: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |l: unknown |u: unknown |g: unknown |i: unknown |n: unknown |s: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |i: unknown |s: unknown |p: unknown |l: unknown |a: unknown |y: unknown |:: unknown | : unknown |!: unknown |!: unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |:: unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |:: unknown | : unknown |{: unknown | : unknown |s: unknown |i: unknown |z: unknown |e: unknown |:: unknown | : unknown |1: unknown |6: unknown |,: unknown | : unknown |w: unknown |e: unknown |i: unknown |g: unknown |h: unknown |t: unknown |:: unknown | : unknown |': unknown |b: unknown |o: unknown |l: unknown |d: unknown |': unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |e: unknown |g: unknown |e: unknown |n: unknown |d: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |s: unknown |i: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |': unknown |t: unknown |o: unknown |p: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |a: unknown |n: unknown |n: unknown |o: unknown |t: unknown |a: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |a: unknown |n: unknown |n: unknown |o: unknown |t: unknown |a: unknown |t: unknown |i: unknown |o: unknown |n: unknown |s: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |L: unknown |i: unknown |n: unknown |e: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |l: unknown |i: unknown |n: unknown |e: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |M: unknown |i: unknown |n: unknown |:: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |M: unknown |a: unknown |x: unknown |:: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |S: unknown |c: unknown |a: unknown |l: unknown |e: unknown |I: unknown |D: unknown |:: unknown | : unknown |': unknown |y: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |C: unknown |o: unknown |l: unknown |o: unknown |r: unknown |:: unknown | : unknown |': unknown |r: unknown |g: unknown |b: unknown |a: unknown |(: unknown |3: unknown |4: unknown |,: unknown | : unknown |1: unknown |9: unknown |7: unknown |,: unknown | : unknown |9: unknown |4: unknown |,: unknown | : unknown |0: unknown |.: unknown |5: unknown |): unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |W: unknown |i: unknown |d: unknown |t: unknown |h: unknown |:: unknown | : unknown |2: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |D: unknown |a: unknown |s: unknown |h: unknown |:: unknown | : unknown |[: unknown |5: unknown |,: unknown | : unknown |5: unknown |]: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |l: unknown |a: unknown |b: unknown |e: unknown |l: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |i: unknown |s: unknown |p: unknown |l: unknown |a: unknown |y: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |t: unknown |e: unknown |n: unknown |t: unknown |:: unknown | : unknown |`: unknown |T: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |:: unknown | : unknown |$: unknown |{: unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |}: unknown |%: unknown |`: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |s: unknown |i: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |': unknown |e: unknown |n: unknown |d: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |s: unknown |c: unknown |a: unknown |l: unknown |e: unknown |s: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |x: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |i: unknown |s: unknown |p: unknown |l: unknown |a: unknown |y: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |:: unknown | : unknown |': unknown |P: unknown |e: unknown |r: unknown |i: unknown |o: unknown |d: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |l: unknown |i: unknown |n: unknown |e: unknown |a: unknown |r: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |s: unknown |i: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |': unknown |l: unknown |e: unknown |f: unknown |t: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |i: unknown |s: unknown |p: unknown |l: unknown |a: unknown |y: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |:: unknown | : unknown |': unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |%: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |m: unknown |i: unknown |n: unknown |:: unknown | : unknown |0: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |m: unknown |a: unknown |x: unknown |:: unknown | : unknown |1: unknown |0: unknown |0: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |.: unknown |.: unknown |.: unknown |(: unknown |s: unknown |h: unknown |o: unknown |w: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown |&: unknown |&: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |y: unknown |1: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |y: unknown |p: unknown |e: unknown |:: unknown | : unknown |': unknown |l: unknown |i: unknown |n: unknown |e: unknown |a: unknown |r: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |p: unknown |o: unknown |s: unknown |i: unknown |t: unknown |i: unknown |o: unknown |n: unknown |:: unknown | : unknown |': unknown |r: unknown |i: unknown |g: unknown |h: unknown |t: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |i: unknown |s: unknown |p: unknown |l: unknown |a: unknown |y: unknown |:: unknown | : unknown |t: unknown |r: unknown |u: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |:: unknown | : unknown |': unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown |C: unknown |o: unknown |u: unknown |n: unknown |t: unknown |': unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |m: unknown |i: unknown |n: unknown |:: unknown | : unknown |0: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |g: unknown |r: unknown |i: unknown |d: unknown |:: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |d: unknown |r: unknown |a: unknown |w: unknown |O: unknown |n: unknown |C: unknown |h: unknown |a: unknown |r: unknown |t: unknown |A: unknown |r: unknown |e: unknown |a: unknown |:: unknown | : unknown |f: unknown |a: unknown |l: unknown |s: unknown |e: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |): unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |,: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |): unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |r: unknown |e: unknown |t: unknown |u: unknown |r: unknown |n: unknown | : unknown |(: unknown |): unknown | : unknown |=: unknown |>: unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |I: unknown |n: unknown |s: unknown |t: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |c: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |.: unknown |d: unknown |e: unknown |s: unknown |t: unknown |r: unknown |o: unknown |y: unknown |(: unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |}: unknown |;: unknown |
+: unknown | : unknown | : unknown |}: unknown |,: unknown | : unknown |[: unknown |d: unknown |a: unknown |t: unknown |a: unknown |,: unknown | : unknown |t: unknown |i: unknown |t: unknown |l: unknown |e: unknown |,: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |,: unknown | : unknown |s: unknown |h: unknown |o: unknown |w: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |]: unknown |): unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown |i: unknown |f: unknown | : unknown |(: unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |=: unknown |=: unknown |=: unknown | : unknown |0: unknown |): unknown | : unknown |{: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |r: unknown |e: unknown |t: unknown |u: unknown |r: unknown |n: unknown | : unknown |(: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |f: unknown |l: unknown |e: unknown |x: unknown | : unknown |i: unknown |t: unknown |e: unknown |m: unknown |s: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown | : unknown |j: unknown |u: unknown |s: unknown |t: unknown |i: unknown |f: unknown |y: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown | : unknown |h: unknown |-: unknown |6: unknown |4: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |5: unknown |0: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |4: unknown |0: unknown |0: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |N: unknown |o: unknown | : unknown |a: unknown |u: unknown |d: unknown |i: unknown |t: unknown | : unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown | : unknown |a: unknown |v: unknown |a: unknown |i: unknown |l: unknown |a: unknown |b: unknown |l: unknown |e: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown |}: unknown |
+: unknown |
+: unknown | : unknown | : unknown |/: unknown |/: unknown | : unknown |C: unknown |a: unknown |l: unknown |c: unknown |u: unknown |l: unknown |a: unknown |t: unknown |e: unknown | : unknown |s: unknown |u: unknown |m: unknown |m: unknown |a: unknown |r: unknown |y: unknown | : unknown |s: unknown |t: unknown |a: unknown |t: unknown |s: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |l: unknown |a: unknown |t: unknown |e: unknown |s: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |=: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |[: unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |-: unknown | : unknown |1: unknown |]: unknown |?: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown ||: unknown ||: unknown | : unknown |0: unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |=: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |r: unknown |e: unknown |d: unknown |u: unknown |c: unknown |e: unknown |(: unknown |(: unknown |s: unknown |u: unknown |m: unknown |,: unknown | : unknown |d: unknown |): unknown | : unknown |=: unknown |>: unknown | : unknown |s: unknown |u: unknown |m: unknown | : unknown |+: unknown | : unknown |d: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |,: unknown | : unknown |0: unknown |): unknown | : unknown |/: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |t: unknown |r: unknown |e: unknown |n: unknown |d: unknown | : unknown |=: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |>: unknown |=: unknown | : unknown |2: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |?: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |[: unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |-: unknown | : unknown |1: unknown |]: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |-: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |[: unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |l: unknown |e: unknown |n: unknown |g: unknown |t: unknown |h: unknown | : unknown |-: unknown | : unknown |2: unknown |]: unknown |.: unknown |c: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |:: unknown | : unknown |0: unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |t: unknown |o: unknown |t: unknown |a: unknown |l: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown |=: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |r: unknown |e: unknown |d: unknown |u: unknown |c: unknown |e: unknown |(: unknown |(: unknown |s: unknown |u: unknown |m: unknown |,: unknown | : unknown |d: unknown |): unknown | : unknown |=: unknown |>: unknown | : unknown |s: unknown |u: unknown |m: unknown | : unknown |+: unknown | : unknown |(: unknown |d: unknown |.: unknown |f: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown ||: unknown ||: unknown | : unknown |0: unknown |): unknown |,: unknown | : unknown |0: unknown |): unknown |;: unknown |
+: unknown | : unknown | : unknown |c: unknown |o: unknown |n: unknown |s: unknown |t: unknown | : unknown |t: unknown |o: unknown |t: unknown |a: unknown |l: unknown |M: unknown |a: unknown |j: unknown |o: unknown |r: unknown | : unknown |=: unknown | : unknown |d: unknown |a: unknown |t: unknown |a: unknown |.: unknown |r: unknown |e: unknown |d: unknown |u: unknown |c: unknown |e: unknown |(: unknown |(: unknown |s: unknown |u: unknown |m: unknown |,: unknown | : unknown |d: unknown |): unknown | : unknown |=: unknown |>: unknown | : unknown |s: unknown |u: unknown |m: unknown | : unknown |+: unknown | : unknown |(: unknown |d: unknown |.: unknown |m: unknown |a: unknown |j: unknown |o: unknown |r: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown | : unknown ||: unknown ||: unknown | : unknown |0: unknown |): unknown |,: unknown | : unknown |0: unknown |): unknown |;: unknown |
+: unknown |
+: unknown | : unknown | : unknown |r: unknown |e: unknown |t: unknown |u: unknown |r: unknown |n: unknown | : unknown |(: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |w: unknown |-: unknown |f: unknown |u: unknown |l: unknown |l: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |h: unknown |-: unknown |8: unknown |0: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |c: unknown |a: unknown |n: unknown |v: unknown |a: unknown |s: unknown | : unknown |r: unknown |e: unknown |f: unknown |=: unknown |{: unknown |c: unknown |h: unknown |a: unknown |r: unknown |t: unknown |R: unknown |e: unknown |f: unknown |}: unknown | : unknown |/: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |/: unknown |*: unknown | : unknown |S: unknown |u: unknown |m: unknown |m: unknown |a: unknown |r: unknown |y: unknown | : unknown |s: unknown |t: unknown |a: unknown |t: unknown |i: unknown |s: unknown |t: unknown |i: unknown |c: unknown |s: unknown | : unknown |*: unknown |/: unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |m: unknown |t: unknown |-: unknown |4: unknown | : unknown |g: unknown |r: unknown |i: unknown |d: unknown | : unknown |g: unknown |r: unknown |i: unknown |d: unknown |-: unknown |c: unknown |o: unknown |l: unknown |s: unknown |-: unknown |2: unknown | : unknown |m: unknown |d: unknown |:: unknown |g: unknown |r: unknown |i: unknown |d: unknown |-: unknown |c: unknown |o: unknown |l: unknown |s: unknown |-: unknown |5: unknown | : unknown |g: unknown |a: unknown |p: unknown |-: unknown |4: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |5: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |8: unknown |0: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |p: unknown |-: unknown |3: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |{: unknown |`: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |2: unknown |x: unknown |l: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |$: unknown |{: unknown |l: unknown |a: unknown |t: unknown |e: unknown |s: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |>: unknown |=: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |?: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |e: unknown |e: unknown |n: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown |}: unknown |`: unknown |}: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |l: unknown |a: unknown |t: unknown |e: unknown |s: unknown |t: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |t: unknown |o: unknown |F: unknown |i: unknown |x: unknown |e: unknown |d: unknown |(: unknown |1: unknown |): unknown |}: unknown |%: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |C: unknown |u: unknown |r: unknown |r: unknown |e: unknown |n: unknown |t: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |5: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |8: unknown |0: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |p: unknown |-: unknown |3: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |2: unknown |x: unknown |l: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |9: unknown |0: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |1: unknown |0: unknown |0: unknown |": unknown |>: unknown |{: unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |.: unknown |t: unknown |o: unknown |F: unknown |i: unknown |x: unknown |e: unknown |d: unknown |(: unknown |1: unknown |): unknown |}: unknown |%: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |A: unknown |v: unknown |e: unknown |r: unknown |a: unknown |g: unknown |e: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |5: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |8: unknown |0: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |p: unknown |-: unknown |3: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |{: unknown |`: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |2: unknown |x: unknown |l: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |$: unknown |{: unknown |t: unknown |r: unknown |e: unknown |n: unknown |d: unknown | : unknown |>: unknown |=: unknown | : unknown |0: unknown | : unknown |?: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |e: unknown |e: unknown |n: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown |}: unknown |`: unknown |}: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |t: unknown |r: unknown |e: unknown |n: unknown |d: unknown | : unknown |>: unknown |=: unknown | : unknown |0: unknown | : unknown |?: unknown | : unknown |': unknown |+: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |': unknown |}: unknown |{: unknown |t: unknown |r: unknown |e: unknown |n: unknown |d: unknown |.: unknown |t: unknown |o: unknown |F: unknown |i: unknown |x: unknown |e: unknown |d: unknown |(: unknown |1: unknown |): unknown |}: unknown |%: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |T: unknown |r: unknown |e: unknown |n: unknown |d: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |b: unknown |g: unknown |-: unknown |b: unknown |l: unknown |u: unknown |e: unknown |-: unknown |5: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |p: unknown |-: unknown |3: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |2: unknown |x: unknown |l: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |b: unknown |l: unknown |u: unknown |e: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |{: unknown |t: unknown |o: unknown |t: unknown |a: unknown |l: unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |}: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |T: unknown |o: unknown |t: unknown |a: unknown |l: unknown | : unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |b: unknown |g: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |5: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |p: unknown |-: unknown |3: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |2: unknown |x: unknown |l: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |{: unknown |t: unknown |o: unknown |t: unknown |a: unknown |l: unknown |M: unknown |a: unknown |j: unknown |o: unknown |r: unknown |}: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |p: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |6: unknown |0: unknown |0: unknown |": unknown |>: unknown |M: unknown |a: unknown |j: unknown |o: unknown |r: unknown | : unknown |F: unknown |i: unknown |n: unknown |d: unknown |i: unknown |n: unknown |g: unknown |s: unknown |<: unknown |/: unknown |p: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |/: unknown |*: unknown | : unknown |P: unknown |e: unknown |r: unknown |f: unknown |o: unknown |r: unknown |m: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |i: unknown |n: unknown |d: unknown |i: unknown |c: unknown |a: unknown |t: unknown |o: unknown |r: unknown | : unknown |*: unknown |/: unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |m: unknown |t: unknown |-: unknown |4: unknown | : unknown |p: unknown |-: unknown |4: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |l: unknown |g: unknown | : unknown |b: unknown |o: unknown |r: unknown |d: unknown |e: unknown |r: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |f: unknown |l: unknown |e: unknown |x: unknown | : unknown |i: unknown |t: unknown |e: unknown |m: unknown |s: unknown |-: unknown |c: unknown |e: unknown |n: unknown |t: unknown |e: unknown |r: unknown | : unknown |j: unknown |u: unknown |s: unknown |t: unknown |i: unknown |f: unknown |y: unknown |-: unknown |b: unknown |e: unknown |t: unknown |w: unknown |e: unknown |e: unknown |n: unknown | : unknown |m: unknown |b: unknown |-: unknown |2: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |s: unknown |p: unknown |a: unknown |n: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |s: unknown |m: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |m: unknown |e: unknown |d: unknown |i: unknown |u: unknown |m: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |7: unknown |0: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |3: unknown |0: unknown |0: unknown |": unknown |>: unknown |O: unknown |v: unknown |e: unknown |r: unknown |a: unknown |l: unknown |l: unknown | : unknown |P: unknown |e: unknown |r: unknown |f: unknown |o: unknown |r: unknown |m: unknown |a: unknown |n: unknown |c: unknown |e: unknown |<: unknown |/: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |s: unknown |p: unknown |a: unknown |n: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |{: unknown |`: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |s: unknown |m: unknown | : unknown |f: unknown |o: unknown |n: unknown |t: unknown |-: unknown |b: unknown |o: unknown |l: unknown |d: unknown | : unknown |$: unknown |{: unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |>: unknown |=: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |?: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |e: unknown |e: unknown |n: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |6: unknown |0: unknown |0: unknown |': unknown |}: unknown |`: unknown |}: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |{: unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |>: unknown |=: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |?: unknown | : unknown |': unknown |M: unknown |e: unknown |e: unknown |t: unknown |i: unknown |n: unknown |g: unknown | : unknown |T: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |B: unknown |e: unknown |l: unknown |o: unknown |w: unknown | : unknown |T: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |': unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |w: unknown |-: unknown |f: unknown |u: unknown |l: unknown |l: unknown | : unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |2: unknown |0: unknown |0: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |f: unknown |u: unknown |l: unknown |l: unknown | : unknown |h: unknown |-: unknown |4: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |{: unknown |`: unknown |h: unknown |-: unknown |4: unknown | : unknown |r: unknown |o: unknown |u: unknown |n: unknown |d: unknown |e: unknown |d: unknown |-: unknown |f: unknown |u: unknown |l: unknown |l: unknown | : unknown |t: unknown |r: unknown |a: unknown |n: unknown |s: unknown |i: unknown |t: unknown |i: unknown |o: unknown |n: unknown |-: unknown |a: unknown |l: unknown |l: unknown | : unknown |$: unknown |{: unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown | : unknown |>: unknown |=: unknown | : unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown | : unknown |?: unknown | : unknown |': unknown |b: unknown |g: unknown |-: unknown |g: unknown |r: unknown |e: unknown |e: unknown |n: unknown |-: unknown |5: unknown |0: unknown |0: unknown |': unknown | : unknown |:: unknown | : unknown |': unknown |b: unknown |g: unknown |-: unknown |r: unknown |e: unknown |d: unknown |-: unknown |5: unknown |0: unknown |0: unknown |': unknown |}: unknown |`: unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |s: unknown |t: unknown |y: unknown |l: unknown |e: unknown |=: unknown |{: unknown |{: unknown | : unknown |w: unknown |i: unknown |d: unknown |t: unknown |h: unknown |:: unknown | : unknown |`: unknown |$: unknown |{: unknown |M: unknown |a: unknown |t: unknown |h: unknown |.: unknown |m: unknown |i: unknown |n: unknown |(: unknown |a: unknown |v: unknown |g: unknown |C: unknown |o: unknown |m: unknown |p: unknown |l: unknown |i: unknown |a: unknown |n: unknown |c: unknown |e: unknown |,: unknown | : unknown |1: unknown |0: unknown |0: unknown |): unknown |}: unknown |%: unknown |`: unknown | : unknown |}: unknown |}: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |/: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |d: unknown |i: unknown |v: unknown | : unknown |c: unknown |l: unknown |a: unknown |s: unknown |s: unknown |N: unknown |a: unknown |m: unknown |e: unknown |=: unknown |": unknown |f: unknown |l: unknown |e: unknown |x: unknown | : unknown |j: unknown |u: unknown |s: unknown |t: unknown |i: unknown |f: unknown |y: unknown |-: unknown |b: unknown |e: unknown |t: unknown |w: unknown |e: unknown |e: unknown |n: unknown | : unknown |m: unknown |t: unknown |-: unknown |1: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |x: unknown |s: unknown | : unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |5: unknown |0: unknown |0: unknown | : unknown |d: unknown |a: unknown |r: unknown |k: unknown |:: unknown |t: unknown |e: unknown |x: unknown |t: unknown |-: unknown |g: unknown |r: unknown |a: unknown |y: unknown |-: unknown |4: unknown |0: unknown |0: unknown |": unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |0: unknown |%: unknown |<: unknown |/: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |T: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |:: unknown | : unknown |{: unknown |t: unknown |a: unknown |r: unknown |g: unknown |e: unknown |t: unknown |}: unknown |%: unknown |<: unknown |/: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |1: unknown |0: unknown |0: unknown |%: unknown |<: unknown |/: unknown |s: unknown |p: unknown |a: unknown |n: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown | : unknown | : unknown |<: unknown |/: unknown |d: unknown |i: unknown |v: unknown |>: unknown |
+: unknown | : unknown | : unknown |): unknown |;: unknown |
+: unknown |}: unknown |

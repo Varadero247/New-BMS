@@ -102,7 +102,7 @@ export default function TaxPage() {
       });
       setCreateRateOpen(false);
       loadData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create tax rate.');
     } finally {
       setSubmitting(false);
@@ -125,7 +125,7 @@ export default function TaxPage() {
       });
       setCreateReturnOpen(false);
       loadData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create tax return.');
     } finally {
       setSubmitting(false);

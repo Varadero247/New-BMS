@@ -133,7 +133,7 @@ export default function SettingsPage() {
 
       setTestResult({ success: true, message: 'AI settings saved successfully!' });
       fetchAISettings();
-    } catch (error: any) {
+    } catch (error: unknown) {
       setTestResult({
         success: false,
         message: error.response?.data?.error || 'Failed to save AI settings',
@@ -154,7 +154,7 @@ export default function SettingsPage() {
         context: 'Test connection - please respond with OK',
       });
       setTestResult({ success: true, message: 'Connection successful! AI provider is working.' });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setTestResult({
         success: false,
         message: error.response?.data?.error || 'Connection failed. Check your API key.',

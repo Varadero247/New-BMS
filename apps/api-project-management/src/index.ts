@@ -61,7 +61,7 @@ app.use(attachPermissions());
 app.get('/health', createHealthCheck('api-project-management', prisma as any, '1.0.0'));
 app.get('/ready', async (_req, res) => {
   try {
-    await (prisma as any).$queryRaw`SELECT 1`;
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ready' });
   } catch {
     res.status(503).json({ status: 'not ready' });

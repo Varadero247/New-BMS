@@ -27,24 +27,24 @@ const updateEquipmentSchema = createEquipmentSchema.partial();
 router.get('/service-due', authenticate, async (_req: Request, res: Response) => {
   try {
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    const data = await (prisma as any).femEmergencyEquipment.findMany({
+    const data = await prisma.femEmergencyEquipment.findMany({
       where: { nextServiceDue: { lt: thirtyDaysFromNow } },
       include: { premises: { select: { name: true } } },
       orderBy: { nextServiceDue: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to fetch service-due equipment', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch service-due equipment' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch service-due equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch service-due equipment' } }); }
 });
 
 // GET /api/equipment/premises/:id — all equipment for premises
 router.get('/premises/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const data = await (prisma as any).femEmergencyEquipment.findMany({
+    const data = await prisma.femEmergencyEquipment.findMany({
       where: { premisesId: req.params.id },
       orderBy: { location: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to fetch equipment', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch equipment' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch equipment' } }); }
 });
 
 // POST /api/equipment/premises/:id — add equipment
@@ -53,7 +53,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
     const parsed = createEquipmentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { nextServiceDue, installDate, lastServiceDate, ...rest } = parsed.data;
-    const data = await (prisma as any).femEmergencyEquipment.create({
+    const data = await prisma.femEmergencyEquipment.create({
       data: {
         ...rest,
         premisesId: req.params.id,
@@ -63,7 +63,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to create equipment', { error: error.message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to create equipment', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // PUT /api/equipment/:id — update
@@ -71,15 +71,15 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateEquipmentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Equipment not found' } });
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.nextServiceDue) updateData.nextServiceDue = new Date(parsed.data.nextServiceDue);
     if (parsed.data.installDate) updateData.installDate = new Date(parsed.data.installDate);
     if (parsed.data.lastServiceDate) updateData.lastServiceDate = new Date(parsed.data.lastServiceDate);
-    const data = await (prisma as any).femEmergencyEquipment.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.femEmergencyEquipment.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to update equipment', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to update equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 // POST /api/equipment/:id/inspect — record inspection
@@ -92,20 +92,20 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Equipment not found' } });
-    const data = await (prisma as any).femEmergencyEquipment.update({
+    const data = await prisma.femEmergencyEquipment.update({
       where: { id: req.params.id },
       data: {
         lastInspectedAt: new Date(),
-        inspectedBy: (req as any).user?.id,
+        inspectedBy: (req as AuthRequest).user?.id,
         inspectionResult: parsed.data.inspectionResult,
         defects: parsed.data.defects || null,
         isOperational: parsed.data.isOperational !== undefined ? parsed.data.isOperational : existing.isOperational,
       },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to record inspection', { error: error.message }); res.status(500).json({ success: false, error: { code: 'INSPECT_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to record inspection', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INSPECT_ERROR', message: (error as Error).message } }); }
 });
 
 export default router;

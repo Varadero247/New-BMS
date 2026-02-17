@@ -85,8 +85,8 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
     if (search) (where as any).name = { contains: search, mode: 'insensitive' };
 
     const [plugins, total] = await Promise.all([
-      (prisma as any).mktPlugin.findMany({ where, skip, take, orderBy: { downloads: 'desc' }, include: { versions: { where: { isLatest: true }, take: 1 } } }),
-      (prisma as any).mktPlugin.count({ where }),
+      prisma.mktPlugin.findMany({ where, skip, take, orderBy: { downloads: 'desc' }, include: { versions: { where: { isLatest: true }, take: 1 } } }),
+      prisma.mktPlugin.count({ where }),
     ]);
 
     res.json({ success: true, data: plugins, meta: { total, page: parseInt(page), limit: take } });
@@ -116,7 +116,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
     };
     if (category) (where as any).category = category;
 
-    const plugins = await (prisma as any).mktPlugin.findMany({ where, take: 50, orderBy: { downloads: 'desc' } });
+    const plugins = await prisma.mktPlugin.findMany({ where, take: 50, orderBy: { downloads: 'desc' } });
     res.json({ success: true, data: plugins });
   } catch (error) {
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Search failed' } });
@@ -128,7 +128,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const plugin = await (prisma as any).mktPlugin.findUnique({
+    const plugin = await prisma.mktPlugin.findUnique({
       where: { id: req.params.id },
       include: { versions: { orderBy: { publishedAt: 'desc' }, take: 10 }, installs: { where: { orgId: req.user?.organisationId } } },
     });
@@ -150,19 +150,19 @@ router.post('/plugins', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthReq
   try {
     const data = registerPluginSchema.parse(req.body);
 
-    const existing = await (prisma as any).mktPlugin.findUnique({ where: { slug: data.slug } });
+    const existing = await prisma.mktPlugin.findUnique({ where: { slug: data.slug } });
     if (existing) {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Plugin slug already exists' } });
     }
 
-    const plugin = await (prisma as any).mktPlugin.create({
+    const plugin = await prisma.mktPlugin.create({
       data: { ...data, orgId: req.user?.organisationId },
     });
 
     res.status(201).json({ success: true, data: plugin });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: Record<string, unknown>) => e.path.join('.')) } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register plugin' } });
   }
@@ -174,14 +174,14 @@ router.post('/plugins', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthReq
 router.patch('/plugins/:id', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const data = updatePluginSchema.parse(req.body);
-    const plugin = await (prisma as any).mktPlugin.update({
+    const plugin = await prisma.mktPlugin.update({
       where: { id: req.params.id },
       data: { ...data, updatedAt: new Date() },
     });
     res.json({ success: true, data: plugin });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: Record<string, unknown>) => e.path.join('.')) } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update plugin' } });
   }
@@ -195,19 +195,19 @@ router.post('/plugins/:id/versions', requireRole('ADMIN', 'SUPER_ADMIN'), async 
     const data = publishVersionSchema.parse(req.body);
 
     // Mark all previous versions as not latest
-    await (prisma as any).mktPluginVersion.updateMany({
+    await prisma.mktPluginVersion.updateMany({
       where: { pluginId: req.params.id, isLatest: true },
       data: { isLatest: false },
     });
 
-    const version = await (prisma as any).mktPluginVersion.create({
+    const version = await prisma.mktPluginVersion.create({
       data: { ...data, pluginId: req.params.id, isLatest: true },
     });
 
     res.status(201).json({ success: true, data: version });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: Record<string, unknown>) => e.path.join('.')) } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to publish version' } });
   }
@@ -218,7 +218,7 @@ router.post('/plugins/:id/versions', requireRole('ADMIN', 'SUPER_ADMIN'), async 
 // ---------------------------------------------------------------------------
 router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
   try {
-    const versions = await (prisma as any).mktPluginVersion.findMany({
+    const versions = await prisma.mktPluginVersion.findMany({
       where: { pluginId: req.params.id },
       orderBy: { publishedAt: 'desc' },
     });
@@ -236,19 +236,19 @@ router.post('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async (
     const data = installSchema.parse(req.body);
     const orgId = req.user?.organisationId;
 
-    const plugin = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });
+    const plugin = await prisma.mktPlugin.findUnique({ where: { id: req.params.id } });
     if (!plugin || plugin.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Plugin not found' } });
     }
 
-    const install = await (prisma as any).mktPluginInstall.upsert({
+    const install = await prisma.mktPluginInstall.upsert({
       where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
       create: { pluginId: req.params.id, orgId, installedBy: req.user?.id, config: data.config },
       update: { status: 'ACTIVE', config: data.config, uninstalledAt: null },
     });
 
     // Increment download count
-    await (prisma as any).mktPlugin.update({
+    await prisma.mktPlugin.update({
       where: { id: req.params.id },
       data: { downloads: { increment: 1 } },
     });
@@ -265,7 +265,7 @@ router.post('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async (
 router.delete('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const orgId = req.user?.organisationId;
-    await (prisma as any).mktPluginInstall.update({
+    await prisma.mktPluginInstall.update({
       where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
       data: { status: 'UNINSTALLED', uninstalledAt: new Date() },
     });
@@ -284,14 +284,14 @@ router.post('/plugins/:id/webhooks', requireRole('ADMIN', 'SUPER_ADMIN'), async 
     const orgId = req.user?.organisationId;
     const secret = 'whsec_' + crypto.randomBytes(32).toString('hex');
 
-    const subscription = await (prisma as any).mktWebhookSubscription.create({
+    const subscription = await prisma.mktWebhookSubscription.create({
       data: { pluginId: req.params.id, orgId, event: data.event, targetUrl: data.targetUrl, secret },
     });
 
     res.status(201).json({ success: true, data: { ...subscription, secret } });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: Record<string, unknown>) => e.path.join('.')) } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register webhook' } });
   }
@@ -303,10 +303,10 @@ router.post('/plugins/:id/webhooks', requireRole('ADMIN', 'SUPER_ADMIN'), async 
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [totalPlugins, publishedPlugins, totalInstalls, totalDownloads] = await Promise.all([
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null } }),
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
-      (prisma as any).mktPluginInstall.count({ where: { status: 'ACTIVE' } }),
-      (prisma as any).mktPlugin.aggregate({ _sum: { downloads: true }, where: { deletedAt: null } }),
+      prisma.mktPlugin.count({ where: { deletedAt: null } }),
+      prisma.mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
+      prisma.mktPluginInstall.count({ where: { status: 'ACTIVE' } }),
+      prisma.mktPlugin.aggregate({ _sum: { downloads: true }, where: { deletedAt: null } }),
     ]);
 
     res.json({

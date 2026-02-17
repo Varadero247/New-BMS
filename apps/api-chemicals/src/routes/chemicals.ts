@@ -69,26 +69,26 @@ const updateChemicalSchema = createChemicalSchema.partial();
 // GET /api/chemicals/alerts/expiry — SDS and stock expiry alerts
 router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const days = parseInt(req.query.days as string) || 60;
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
 
     const [sdsExpiring, stockExpiring] = await Promise.all([
-      (prisma as any).chemSds.findMany({
+      prisma.chemSds.findMany({
         where: { status: 'CURRENT', nextReviewDate: { lte: futureDate }, chemical: { orgId, isActive: true, deletedAt: null } },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
         orderBy: { nextReviewDate: 'asc' },
       }),
-      (prisma as any).chemInventory.findMany({
+      prisma.chemInventory.findMany({
         where: { isActive: true, expiryDate: { lte: futureDate, not: null }, chemical: { orgId, isActive: true, deletedAt: null } },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
         orderBy: { expiryDate: 'asc' },
       }),
     ]);
     res.json({ success: true, data: { sdsExpiring, stockExpiring } });
-  } catch (error: any) {
-    logger.error('Failed to fetch expiry alerts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch expiry alerts', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch expiry alerts' } });
   }
 });
@@ -96,15 +96,15 @@ router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) =
 // GET /api/chemicals/alerts/incompatible — incompatibility conflicts by location
 router.get('/alerts/incompatible', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const alerts = await (prisma as any).chemIncompatAlert.findMany({
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const alerts = await prisma.chemIncompatAlert.findMany({
       where: { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { createdAt: 'desc' },
     });
     res.json({ success: true, data: alerts });
-  } catch (error: any) {
-    logger.error('Failed to fetch incompatibility alerts', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch incompatibility alerts', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incompatibility alerts' } });
   }
 });
@@ -112,9 +112,9 @@ router.get('/alerts/incompatible', authenticate, async (req: Request, res: Respo
 // GET /api/chemicals — list all chemicals
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { search, riskLevel, pictogram, cmr, storageClass: sc, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { orgId, isActive: true, deletedAt: null };
+    const where: Record<string, unknown> = { orgId, isActive: true, deletedAt: null };
     if (search) {
       where.OR = [
         { productName: { contains: search, mode: 'insensitive' } },
@@ -128,18 +128,18 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).chemRegister.findMany({
+      prisma.chemRegister.findMany({
         where, skip, take: parseInt(limit),
         orderBy: { createdAt: 'desc' },
         include: {
           _count: { select: { safetyDataSheets: true, coshhAssessments: true, inventoryLocations: true } },
         },
       }),
-      (prisma as any).chemRegister.count({ where }),
+      prisma.chemRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Failed to fetch chemicals', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch chemicals', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch chemicals' } });
   }
 });
@@ -147,7 +147,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/chemicals/:id — get single chemical
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).chemRegister.findFirst({
+    const item = await prisma.chemRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
       include: {
         _count: { select: { safetyDataSheets: true, coshhAssessments: true, inventoryLocations: true, incidents: true, exposureMonitoring: true } },
@@ -155,8 +155,8 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) {
-    logger.error('Failed to fetch chemical', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch chemical', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch chemical' } });
   }
 });
@@ -166,26 +166,26 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createChemicalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const d = parsed.data;
 
     // Auto-set CMR and health surveillance flags
     const isCmr = d.isCarcinogen || d.isMutagen || d.isReprotoxic || false;
     const healthSurveillanceReq = isCmr;
 
-    const data = await (prisma as any).chemRegister.create({
+    const data = await prisma.chemRegister.create({
       data: {
         ...d,
         isCmr,
         healthSurveillanceReq,
         orgId,
-        createdBy: (req as any).user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create chemical', { error: error.message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to create chemical', { error: (error as Error).message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -194,7 +194,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateChemicalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).chemRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.chemRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     const d = parsed.data;
@@ -204,27 +204,27 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const isCmr = isCarcinogen || isMutagen || isReprotoxic;
     const healthSurveillanceReq = isCmr;
 
-    const data = await (prisma as any).chemRegister.update({
+    const data = await prisma.chemRegister.update({
       where: { id: req.params.id },
       data: { ...d, isCmr, healthSurveillanceReq },
     });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update chemical', { error: error.message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to update chemical', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 
 // DELETE /api/chemicals/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).chemRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.chemRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
-    await (prisma as any).chemRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), isActive: false } });
+    await prisma.chemRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), isActive: false } });
     res.json({ success: true, data: { message: 'Chemical deleted successfully' } });
-  } catch (error: any) {
-    logger.error('Failed to delete chemical', { error: error.message });
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to delete chemical', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
   }
 });
 

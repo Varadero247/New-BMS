@@ -193,7 +193,7 @@ export default function PMSClient() {
       setForm(emptyPlanForm);
       fetchPlans();
       fetchDashboard();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create plan');
     } finally {
       setSubmitting(false);
@@ -212,7 +212,7 @@ export default function PMSClient() {
       setShowReportModal(false);
       setReportForm(emptyReportForm);
       fetchDashboard();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create report');
     } finally {
       setSubmitting(false);

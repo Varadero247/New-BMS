@@ -128,7 +128,7 @@ export function isIpAllowed(orgId: string, clientIp: string): boolean {
  * If the org has no allowlist, all IPs are allowed (opt-in).
  */
 export function ipAllowlistMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const user = (req as any).user;
+  const user = (req as Request & { user?: Record<string, unknown> }).user;
   if (!user || !user.orgId) {
     // No authenticated user yet — skip (auth middleware will handle)
     next();

@@ -192,7 +192,7 @@ export default function WorkOrdersClient() {
       setShowCreateModal(false);
       setForm(emptyWOForm);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create work order');
       console.error('Failed to create work order:', err);
     } finally {
@@ -210,7 +210,7 @@ export default function WorkOrdersClient() {
       setShowAddTaskModal(false);
       setTaskForm(emptyTaskForm);
       await fetchDetail(selectedItem.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to add task');
       console.error('Failed to add task:', err);
     } finally {
@@ -223,7 +223,7 @@ export default function WorkOrdersClient() {
     try {
       await api.put(`/workorders/${selectedItem.id}/tasks/${taskId}/complete`);
       await fetchDetail(selectedItem.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to complete task:', err);
       alert(err.response?.data?.message || 'Failed to complete task');
     }
@@ -236,7 +236,7 @@ export default function WorkOrdersClient() {
       await api.post(`/workorders/${selectedItem.id}/inspect`);
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to inspect work order:', err);
       alert(err.response?.data?.message || 'Failed to inspect work order');
     }
@@ -249,7 +249,7 @@ export default function WorkOrdersClient() {
       await api.post(`/workorders/${selectedItem.id}/release`);
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to release work order:', err);
       alert(err.response?.data?.message || 'Failed to release work order');
     }
@@ -262,7 +262,7 @@ export default function WorkOrdersClient() {
       await api.post(`/workorders/${selectedItem.id}/defer`);
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to defer work order:', err);
       alert(err.response?.data?.message || 'Failed to defer work order');
     }

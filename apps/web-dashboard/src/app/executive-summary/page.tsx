@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   TrendingUp, TrendingDown, Minus, Shield, Leaf, Award, ShieldCheck,
@@ -16,7 +16,7 @@ interface ModuleScore {
   trend: 'up' | 'down' | 'stable';
   change: number;
   color: string;
-  icon: any;
+  icon: ElementType;
   openItems: number;
   criticalItems: number;
 }

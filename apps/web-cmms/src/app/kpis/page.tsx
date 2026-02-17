@@ -82,7 +82,7 @@ export default function KPIsPage() {
     try {
       await api.post('/kpis', { ...form, value: parseFloat(form.value) || 0, target: parseFloat(form.target) || 0 });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
   }
   async function handleEdit() {
     if (!form.name.trim()) { setError('Name is required'); return; }
@@ -90,12 +90,12 @@ export default function KPIsPage() {
     try {
       await api.put(`/kpis/${selected!.id}`, { ...form, value: parseFloat(form.value) || 0, target: parseFloat(form.target) || 0 });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
   }
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/kpis/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

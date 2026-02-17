@@ -240,7 +240,7 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (req as any).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return (req as AuthRequest).next('route');
 
     const report = await prisma.analyticsReport.findFirst({
       where: { id: req.params.id, deletedAt: null },

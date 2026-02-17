@@ -89,7 +89,7 @@ router.post('/pipelines', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         ...pipelineData,
-        createdBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
         stages: {
           create: stages.map((stage) => ({
             id: uuidv4(),
@@ -233,8 +233,8 @@ router.post('/', async (req: Request, res: Response) => {
         expectedCloseDate: validation.data.expectedCloseDate
           ? new Date(validation.data.expectedCloseDate)
           : undefined,
-        createdBy: (req as any).user?.id || 'system',
-        updatedBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -345,7 +345,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
-    const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as any).user?.id || 'system' };
+    const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as AuthRequest).user?.id || 'system' };
     if (data.expectedCloseDate) {
       data.expectedCloseDate = new Date(data.expectedCloseDate);
     }
@@ -383,7 +383,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         stageId,
-        updatedBy: (req as any).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -396,7 +396,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
         type: 'NOTE',
         subject: `Deal moved to new stage`,
         description: `Stage changed to ${stageId}`,
-        createdBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -425,7 +425,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
         status: 'WON',
         actualCloseDate: new Date(),
         probability: 100,
-        updatedBy: (req as any).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -436,7 +436,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
         contactId: deal.contactId || undefined,
         type: 'NOTE',
         subject: 'Deal closed — Won',
-        createdBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -471,7 +471,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
         actualCloseDate: new Date(),
         lostReason,
         probability: 0,
-        updatedBy: (req as any).user?.id || 'system',
+        updatedBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 
@@ -482,7 +482,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
         contactId: deal.contactId || undefined,
         type: 'NOTE',
         subject: `Deal closed — Lost: ${lostReason}`,
-        createdBy: (req as any).user?.id || 'system',
+        createdBy: (req as AuthRequest).user?.id || 'system',
       },
     });
 

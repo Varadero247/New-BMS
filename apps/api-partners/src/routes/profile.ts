@@ -16,7 +16,7 @@ const updateSchema = z.object({
 // GET /api/profile
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -61,7 +61,7 @@ router.get('/', async (req: Request, res: Response) => {
 // PUT /api/profile
 router.put('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

@@ -65,7 +65,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createIntegrationSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const integration = await prisma.finIntegration.create({
       data: {

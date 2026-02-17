@@ -89,8 +89,8 @@ export default function HmrcCalendarClient() {
       const res = await api.get('/hmrc-calendar');
       setItems(res.data.data || []);
       setError('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to load deadlines');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to load deadlines');
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function HmrcCalendarClient() {
       await api.post('/hmrc-calendar', payload);
       setModalOpen(false);
       fetchData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.response?.data?.error?.message || 'Save failed');
     } finally {
       setSaving(false);

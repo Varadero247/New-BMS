@@ -61,7 +61,7 @@ export default function DashboardPage() {
         if (incidentsRes.status === 'fulfilled') {
           setRecentIncidents(incidentsRes.value.data.data || []);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(
           e.response?.status === 401
             ? 'Session expired. Please log in again.'

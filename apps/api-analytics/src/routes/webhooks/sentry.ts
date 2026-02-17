@@ -45,7 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const { event, data } = parsed.data;
 
-    const sentryEvent: any = data?.event || event || {};
+    const sentryEvent: Record<string, unknown> = data?.event || event || {};
     const sentryEventId = sentryEvent.event_id || sentryEvent.id || null;
     const title = sentryEvent.title || sentryEvent.message || 'Unknown error';
     const level = sentryEvent.level || 'error';

@@ -61,19 +61,19 @@ export default function MetersPage() {
     try {
       await api.post('/meters', { ...form, value: parseFloat(form.value)||0, previousValue: parseFloat(form.previousValue)||0 });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
   }
   async function handleEdit() {
     setSaving(true); setError('');
     try {
       await api.put(`/meters/${selected!.id}`, { ...form, value: parseFloat(form.value)||0, previousValue: parseFloat(form.previousValue)||0 });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
   }
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/meters/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

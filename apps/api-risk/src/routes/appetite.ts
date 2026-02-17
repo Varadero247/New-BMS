@@ -45,13 +45,13 @@ const frameworkSchema = z.object({
 // GET /api/risks/appetite
 router.get('/appetite', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const statements = await (prisma as any).riskAppetiteStatement.findMany({
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const statements = await prisma.riskAppetiteStatement.findMany({
       where: { isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
       orderBy: { category: 'asc' },
     });
     res.json({ success: true, data: statements });
-  } catch (error: any) { logger.error('Failed to fetch appetite', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch appetite statements' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch appetite statements' } }); }
 });
 
 // POST /api/risks/appetite
@@ -59,32 +59,32 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = appetiteSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = parsed.data.organisationId || (req as any).user?.orgId || 'default';
-    const existing = await (prisma as any).riskAppetiteStatement.findFirst({
+    const orgId = parsed.data.organisationId || (req as AuthRequest).user?.orgId || 'default';
+    const existing = await prisma.riskAppetiteStatement.findFirst({
       where: { category: parsed.data.category, organisationId: orgId },
     });
     let statement;
     if (existing) {
-      statement = await (prisma as any).riskAppetiteStatement.update({
+      statement = await prisma.riskAppetiteStatement.update({
         where: { id: existing.id },
         data: { ...parsed.data, organisationId: orgId, approvedAt: parsed.data.approvedBy ? new Date() : undefined },
       });
     } else {
-      statement = await (prisma as any).riskAppetiteStatement.create({
+      statement = await prisma.riskAppetiteStatement.create({
         data: { ...parsed.data, organisationId: orgId, approvedAt: parsed.data.approvedBy ? new Date() : undefined },
       });
     }
     res.status(existing ? 200 : 201).json({ success: true, data: statement });
-  } catch (error: any) { logger.error('Failed to save appetite', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to save appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // GET /api/risks/framework
 router.get('/framework', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const framework = await (prisma as any).riskFramework.findUnique({ where: { organisationId: orgId } });
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const framework = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     res.json({ success: true, data: framework });
-  } catch (error: any) { logger.error('Failed to fetch framework', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch framework' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch framework' } }); }
 });
 
 // PUT /api/risks/framework
@@ -92,13 +92,13 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = frameworkSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as any).user?.orgId || 'default';
-    const existing = await (prisma as any).riskFramework.findUnique({ where: { organisationId: orgId } });
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const existing = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     let framework;
     if (existing) {
-      framework = await (prisma as any).riskFramework.update({ where: { organisationId: orgId }, data: parsed.data });
+      framework = await prisma.riskFramework.update({ where: { organisationId: orgId }, data: parsed.data });
     } else {
-      framework = await (prisma as any).riskFramework.create({
+      framework = await prisma.riskFramework.create({
         data: {
           ...parsed.data,
           organisationId: orgId,
@@ -127,7 +127,7 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
       });
     }
     res.json({ success: true, data: framework });
-  } catch (error: any) { logger.error('Failed to save framework', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to save framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 export default router;

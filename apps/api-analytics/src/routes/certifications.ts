@@ -33,7 +33,7 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const category = req.query.category as string | undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (category) where.category = category;
 
@@ -150,7 +150,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     }
 
     const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes, lastCompletedAt } = parsed.data;
-    const data: any = {};
+    const data: Record<string, unknown> = {};
     if (name !== undefined) data.name = name;
     if (category !== undefined) data.category = category;
     if (dueDate !== undefined) data.dueDate = new Date(dueDate);

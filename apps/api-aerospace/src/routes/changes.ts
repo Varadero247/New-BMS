@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateChangeRequestRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroChangeRequest.count({
+  const count = await prisma.aeroChangeRequest.count({
     where: { refNumber: { startsWith: `AERO-CR-${yyyy}` } },
   });
   return `AERO-CR-${yyyy}-${String(count + 1).padStart(4, '0')}`;
@@ -90,7 +90,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (changeType) where.changeType = changeType;
     if (priority) where.priority = priority;
@@ -104,13 +104,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [changeRequests, total] = await Promise.all([
-      (prisma as any).aeroChangeRequest.findMany({
+      prisma.aeroChangeRequest.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
       }),
-      (prisma as any).aeroChangeRequest.count({ where }),
+      prisma.aeroChangeRequest.count({ where }),
     ]);
 
     res.json({
@@ -127,7 +127,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get change request
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const changeRequest = await (prisma as any).aeroChangeRequest.findUnique({
+    const changeRequest = await prisma.aeroChangeRequest.findUnique({
       where: { id: req.params.id },
     });
 
@@ -148,7 +148,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createChangeRequestSchema.parse(req.body);
     const refNumber = await generateChangeRequestRefNumber();
 
-    const changeRequest = await (prisma as any).aeroChangeRequest.create({
+    const changeRequest = await prisma.aeroChangeRequest.create({
       data: {
         refNumber,
         title: data.title,
@@ -187,14 +187,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update change request
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroChangeRequest.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
     const data = updateChangeRequestSchema.parse(req.body);
 
-    const changeRequest = await (prisma as any).aeroChangeRequest.update({
+    const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data,
     });
@@ -215,12 +215,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete change request
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroChangeRequest.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    await (prisma as any).aeroChangeRequest.update({
+    await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -239,12 +239,12 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // PUT /:id/submit - Submit for review
 router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroChangeRequest.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    const changeRequest = await (prisma as any).aeroChangeRequest.update({
+    const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data: { status: 'SUBMITTED', submittedDate: new Date(), submittedBy: req.user?.id },
     });
@@ -259,7 +259,7 @@ router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
 // PUT /:id/review - Review decision
 router.put('/:id/review', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroChangeRequest.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
@@ -275,7 +275,7 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
       default: newStatus = existing.status;
     }
 
-    const changeRequest = await (prisma as any).aeroChangeRequest.update({
+    const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data: {
         status: newStatus,
@@ -303,14 +303,14 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
 // PUT /:id/implement - Mark as implemented
 router.put('/:id/implement', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroChangeRequest.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
     const data = implementChangeRequestSchema.parse(req.body);
 
-    const changeRequest = await (prisma as any).aeroChangeRequest.update({
+    const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data: {
         status: 'IMPLEMENTED',

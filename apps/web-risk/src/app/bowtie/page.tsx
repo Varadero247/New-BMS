@@ -59,7 +59,7 @@ export default function BowtiePage() {
       try {
         const r = await api.get('/risks/bowtie/all');
         setBowties(r.data.data || []);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load bow-tie library.');
       } finally {
         setLoading(false);

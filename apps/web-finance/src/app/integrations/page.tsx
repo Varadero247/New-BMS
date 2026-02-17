@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
 import { Link as Link, RefreshCw, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -45,7 +45,7 @@ const providerInfo: Record<string, { color: string; bgColor: string; description
   },
 };
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: ElementType }> = {
   CONNECTED: { label: 'Connected', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   DISCONNECTED: { label: 'Disconnected', color: 'bg-gray-100 dark:bg-gray-800 text-gray-700', icon: XCircle },
   SYNCING: { label: 'Syncing', color: 'bg-blue-100 text-blue-700', icon: RefreshCw },

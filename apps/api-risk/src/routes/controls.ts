@@ -25,25 +25,25 @@ const controlSchema = z.object({
 // POST /api/risks/:id/controls
 router.post('/:id/controls', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await (prisma as any).riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     const parsed = controlSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const control = await (prisma as any).riskControl.create({ data: { ...parsed.data, riskId: req.params.id } });
+    const control = await prisma.riskControl.create({ data: { ...parsed.data, riskId: req.params.id } });
     // Update overall control effectiveness on parent risk
-    const allControls = await (prisma as any).riskControl.findMany({ where: { riskId: req.params.id, isActive: true } });
+    const allControls = await prisma.riskControl.findMany({ where: { riskId: req.params.id, isActive: true } });
     const overall = getControlEffectivenessOverall(allControls);
-    await (prisma as any).riskRegister.update({ where: { id: req.params.id }, data: { controlEffectiveness: overall } });
+    await prisma.riskRegister.update({ where: { id: req.params.id }, data: { controlEffectiveness: overall } });
     res.status(201).json({ success: true, data: control });
-  } catch (error: any) { logger.error('Failed to add control', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to add control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // GET /api/risks/:id/controls
 router.get('/:id/controls', authenticate, async (req: Request, res: Response) => {
   try {
-    const controls = await (prisma as any).riskControl.findMany({ where: { riskId: req.params.id, isActive: true }, orderBy: { createdAt: 'desc' } });
+    const controls = await prisma.riskControl.findMany({ where: { riskId: req.params.id, isActive: true }, orderBy: { createdAt: 'desc' } });
     res.json({ success: true, data: controls });
-  } catch (error: any) { logger.error('Failed to fetch controls', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch controls' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch controls', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch controls' } }); }
 });
 
 // PUT /api/risks/:riskId/controls/:id
@@ -51,24 +51,24 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
   try {
     const parsed = controlSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
-    const control = await (prisma as any).riskControl.update({ where: { id: req.params.id }, data: parsed.data });
-    const allControls = await (prisma as any).riskControl.findMany({ where: { riskId: req.params.riskId, isActive: true } });
+    const control = await prisma.riskControl.update({ where: { id: req.params.id }, data: parsed.data });
+    const allControls = await prisma.riskControl.findMany({ where: { riskId: req.params.riskId, isActive: true } });
     const overall = getControlEffectivenessOverall(allControls);
-    await (prisma as any).riskRegister.update({ where: { id: req.params.riskId }, data: { controlEffectiveness: overall } });
+    await prisma.riskRegister.update({ where: { id: req.params.riskId }, data: { controlEffectiveness: overall } });
     res.json({ success: true, data: control });
-  } catch (error: any) { logger.error('Failed to update control', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to update control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 // DELETE /api/risks/:riskId/controls/:id
 router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
-    await (prisma as any).riskControl.update({ where: { id: req.params.id }, data: { isActive: false } });
+    await prisma.riskControl.update({ where: { id: req.params.id }, data: { isActive: false } });
     res.json({ success: true, data: { message: 'Control removed' } });
-  } catch (error: any) { logger.error('Failed to delete control', { error: error.message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to delete control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } }); }
 });
 
 // POST /api/risks/:riskId/controls/:id/test
@@ -78,13 +78,13 @@ router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res
     const parsed = testSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { testingNotes, effectiveness } = parsed.data;
-    const existing = await (prisma as any).riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
-    const data: any = { lastTestedDate: new Date(), testingNotes };
+    const data: Record<string, unknown> = { lastTestedDate: new Date(), testingNotes };
     if (effectiveness) data.effectiveness = effectiveness;
-    const control = await (prisma as any).riskControl.update({ where: { id: req.params.id }, data });
+    const control = await prisma.riskControl.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: control });
-  } catch (error: any) { logger.error('Failed to test control', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to test control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 export default router;

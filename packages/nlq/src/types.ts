@@ -2,7 +2,7 @@ export interface NLQQuery {
   original: string;
   sanitized: string;
   sql: string;
-  params: any[];
+  params: unknown[];
   modules: string[];
   confidence: number;
 }

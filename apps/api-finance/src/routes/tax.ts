@@ -78,7 +78,7 @@ router.get('/rates/:id', async (req: Request, res: Response) => {
 router.post('/rates', async (req: Request, res: Response) => {
   try {
     const data = createTaxRateSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     // If this is set as default, unset other defaults in same jurisdiction
     if (data.isDefault) {
@@ -102,7 +102,7 @@ router.post('/rates', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Tax rate code already exists' } });
     }
     logger.error('Error creating tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -225,7 +225,7 @@ router.get('/returns/:id', async (req: Request, res: Response) => {
 router.post('/returns', async (req: Request, res: Response) => {
   try {
     const data = createTaxReturnSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const taxRate = await prisma.finTaxRate.findUnique({ where: { id: data.taxRateId } });
     if (!taxRate) {
@@ -291,7 +291,7 @@ router.put('/returns/:id', async (req: Request, res: Response) => {
 // POST /api/tax/returns/:id/submit - Submit tax return
 router.post('/returns/:id/submit', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const existing = await prisma.finTaxReturn.findUnique({ where: { id: req.params.id } });
     if (!existing) {

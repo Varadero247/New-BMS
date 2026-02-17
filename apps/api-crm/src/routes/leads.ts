@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const refNumber = await generateRefNumber();
     const score = calculateLeadScore(validation.data.source, validation.data.company);
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     const lead = await prisma.crmLead.create({
       data: {
@@ -198,7 +198,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Cannot qualify a disqualified lead' } });
     }
 
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     // Create contact from lead data
     const contact = await prisma.crmContact.create({

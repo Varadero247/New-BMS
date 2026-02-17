@@ -105,7 +105,7 @@ export default function CampaignsPage() {
       await api.post('/campaigns', payload);
       setCreateModalOpen(false);
       loadCampaigns();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create campaign.');
     } finally {
       setSubmitting(false);

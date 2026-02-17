@@ -49,7 +49,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { source, page = '1', limit = '25' } = req.query;
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (source) where.source = source;
 
     const [leads, total] = await Promise.all([

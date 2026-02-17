@@ -115,7 +115,7 @@ export default function WorkOrdersPage() {
       });
       setCreateOpen(false);
       await loadOrders();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to create work order');
     } finally { setSaving(false); }
   }
@@ -131,7 +131,7 @@ export default function WorkOrdersPage() {
       });
       setEditOpen(false);
       await loadOrders();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to update work order');
     } finally { setSaving(false); }
   }
@@ -142,7 +142,7 @@ export default function WorkOrdersPage() {
       await api.delete(`/work-orders/${selected!.id}`);
       setDeleteOpen(false);
       await loadOrders();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to delete work order');
     } finally { setSaving(false); }
   }

@@ -16,7 +16,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 async function generateRefNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = 'QMS-RR';
-  const count = await (prisma as any).qualRiskRegister.count({
+  const count = await prisma.qualRiskRegister.count({
     where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
   });
   return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
@@ -59,7 +59,7 @@ const updateSchema = createSchema.partial().extend({
 router.get('/heatmap', async (req: Request, res: Response) => {
   try {
     const where: Record<string, unknown> = { deletedAt: null };
-    const items = await (prisma as any).qualRiskRegister.findMany({
+    const items = await prisma.qualRiskRegister.findMany({
       where,
       select: { id: true, referenceNumber: true, title: true, likelihood: true, impact: true, riskScore: true, status: true },
     });
@@ -75,17 +75,17 @@ router.get('/heatmap', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, mitigated, byStatus] = await Promise.all([
-      (prisma as any).qualRiskRegister.count({ where: { deletedAt: null } }),
-      (prisma as any).qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } }),
-      (prisma as any).qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } }),
-      (prisma as any).qualRiskRegister.groupBy({ by: ['status'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } }),
+      prisma.qualRiskRegister.groupBy({ by: ['status'], where: { deletedAt: null }, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, open, mitigated,
-        byStatus: byStatus.map((s: any) => ({ status: s.status, count: s._count.id })),
+        byStatus: byStatus.map((s: Record<string, unknown>) => ({ status: s.status, count: s._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -116,8 +116,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).qualRiskRegister.findMany({ where, skip, take: limit, orderBy: { riskScore: 'desc' } }),
-      (prisma as any).qualRiskRegister.count({ where }),
+      prisma.qualRiskRegister.findMany({ where, skip, take: limit, orderBy: { riskScore: 'desc' } }),
+      prisma.qualRiskRegister.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -142,7 +142,7 @@ router.post('/', async (req: Request, res: Response) => {
       ? calcRiskScore(parsed.data.residualLikelihood, parsed.data.residualImpact)
       : null;
 
-    const item = await (prisma as any).qualRiskRegister.create({
+    const item = await prisma.qualRiskRegister.create({
       data: {
         referenceNumber,
         ...parsed.data,
@@ -166,7 +166,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get risk by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -183,7 +183,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -203,7 +203,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (parsed.data.nextReviewDate) data.nextReviewDate = new Date(parsed.data.nextReviewDate);
     if ((parsed.data as any).lastReviewDate) data.lastReviewDate = new Date((parsed.data as any).lastReviewDate);
 
-    const item = await (prisma as any).qualRiskRegister.update({ where: { id: req.params.id }, data });
+    const item = await prisma.qualRiskRegister.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to update risk', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -214,10 +214,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
 
-    await (prisma as any).qualRiskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualRiskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete risk', { error: error instanceof Error ? error.message : 'Unknown error' });

@@ -180,7 +180,7 @@ router.get('/budgets/:id', async (req: Request, res: Response) => {
 router.post('/budgets', async (req: Request, res: Response) => {
   try {
     const data = createBudgetSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const account = await prisma.finAccount.findUnique({ where: { id: data.accountId } });
     if (!account) {
@@ -200,7 +200,7 @@ router.post('/budgets', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Budget already exists for this account/year/month' } });
     }
     logger.error('Error creating budget', { error: error instanceof Error ? error.message : 'Unknown error' });

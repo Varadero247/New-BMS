@@ -382,7 +382,7 @@ export default function RisksClient() {
       setShowPartyModal(false);
       setPartyForm(emptyPartyForm);
       fetchParties();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create interested party');
       console.error('Failed to create party:', err);
     } finally {
@@ -399,7 +399,7 @@ export default function RisksClient() {
       setShowIssueModal(false);
       setIssueForm(emptyIssueForm);
       fetchIssues();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create issue');
       console.error('Failed to create issue:', err);
     } finally {
@@ -435,7 +435,7 @@ export default function RisksClient() {
       setRiskAiAnalysis('');
       setRiskAiExpanded(false);
       fetchRisks();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create risk');
       console.error('Failed to create risk:', err);
     } finally {
@@ -468,7 +468,7 @@ export default function RisksClient() {
       setOpportunityAiAnalysis('');
       setOpportunityAiExpanded(false);
       fetchOpportunities();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create opportunity');
       console.error('Failed to create opportunity:', err);
     } finally {

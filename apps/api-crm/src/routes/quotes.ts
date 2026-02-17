@@ -67,7 +67,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const { lines, validUntil, ...quoteData } = validation.data;
     const refNumber = await generateRefNumber();
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     // Calculate line totals
     const calculatedLines = (lines || []).map((line, index) => {
@@ -197,7 +197,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const { lines, validUntil, ...quoteData } = validation.data;
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     let updateData: Record<string, unknown> = {
       ...quoteData,

@@ -32,7 +32,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 // POST /api/deals
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -79,7 +79,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/deals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -88,7 +88,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const { status } = req.query;
-    const where: any = { partnerId };
+    const where: Record<string, unknown> = { partnerId };
     if (status) where.status = status;
 
     const deals = await prisma.mktPartnerDeal.findMany({
@@ -126,7 +126,7 @@ router.get('/', async (req: Request, res: Response) => {
 // PATCH /api/deals/:id/status
 router.patch('/:id/status', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as AuthRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -165,7 +165,7 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       });
     }
 
-    const updateData: any = { status: parsed.data.status };
+    const updateData: Record<string, unknown> = { status: parsed.data.status };
 
     if (parsed.data.status === 'CLOSED_WON') {
       updateData.closedAt = new Date();

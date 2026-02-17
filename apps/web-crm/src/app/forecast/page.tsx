@@ -187,7 +187,7 @@ export default function ForecastPage() {
       await api.post('/forecast', payload);
       setCreateModalOpen(false);
       loadAll();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create forecast entry.');
     } finally {
       setSubmitting(false);
@@ -211,7 +211,7 @@ export default function ForecastPage() {
       await api.put(`/forecast/${editingId}`, payload);
       setEditModalOpen(false);
       loadAll();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to update forecast entry.');
     } finally {
       setSubmitting(false);

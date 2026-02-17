@@ -62,7 +62,7 @@ export function apiKeyAuth(req: Request, _res: Response, next: NextFunction): vo
       }
 
       // Inject context into request
-      (req as any).user = {
+      (req as Request & { user?: Record<string, unknown> }).user = {
         id: matchedRecord!.createdById,
         orgId: matchedRecord!.orgId,
         role: 'ADMIN', // API keys get admin-level access within their scopes

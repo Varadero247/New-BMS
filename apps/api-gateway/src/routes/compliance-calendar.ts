@@ -185,7 +185,7 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
     // Group by standard for summary
     const byStandard: Record<string, number> = {};
     const byType: Record<string, number> = {};
-    enriched.forEach((e: any) => {
+    enriched.forEach((e: Record<string, unknown>) => {
       byStandard[e.standard] = (byStandard[e.standard] || 0) + 1;
       byType[e.type] = (byType[e.type] || 0) + 1;
     });
@@ -196,7 +196,7 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
         events: enriched,
         summary: {
           total: enriched.length,
-          dueSoon: enriched.filter((e: any) => e.computedStatus === 'DUE_SOON').length,
+          dueSoon: enriched.filter((e: Record<string, unknown>) => e.computedStatus === 'DUE_SOON').length,
           byStandard,
           byType,
         },

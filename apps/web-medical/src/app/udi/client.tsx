@@ -194,7 +194,7 @@ export default function UDIClient() {
       setShowCreateModal(false);
       setForm(emptyDeviceForm);
       fetchDevices();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create device');
     } finally {
       setSubmitting(false);
@@ -211,7 +211,7 @@ export default function UDIClient() {
       setShowDIModal(false);
       setDIForm(emptyDIForm);
       fetchDeviceDetail(selectedDevice.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to add DI record');
     } finally {
       setSubmitting(false);
@@ -228,7 +228,7 @@ export default function UDIClient() {
       setShowPIModal(false);
       setPIForm(emptyPIForm);
       fetchDeviceDetail(selectedDevice.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to add PI record');
     } finally {
       setSubmitting(false);

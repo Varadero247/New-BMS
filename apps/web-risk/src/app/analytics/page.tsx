@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
     try {
       const r = await api.get('/risks/analytics/dashboard');
       setData(r.data.data || null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load analytics data.');
     } finally {
       setLoading(false);

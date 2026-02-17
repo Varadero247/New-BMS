@@ -46,7 +46,7 @@ const updateTaskSchema = z.object({
 // ============================================
 router.get('/my-tasks', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const orgId = user.organisationId || user.orgId || 'default';
 
     const grouped = await getMyTasks(orgId, user.id);
@@ -69,7 +69,7 @@ router.get('/my-tasks', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = createTaskSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -119,7 +119,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const orgId = user.organisationId || user.orgId || 'default';
 
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
@@ -194,7 +194,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     }
 
-    const updates: any = { ...parsed.data };
+    const updates: Record<string, unknown> = { ...parsed.data };
     if (updates.dueDate) {
       updates.dueDate = new Date(updates.dueDate);
     }

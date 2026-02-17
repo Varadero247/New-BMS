@@ -233,7 +233,7 @@ export default function DesignControlsClient() {
       setShowCreateModal(false);
       setForm(emptyForm);
       fetchDesignControls();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create design control record');
       console.error('Failed to create design control:', err);
     } finally {
@@ -256,7 +256,7 @@ export default function DesignControlsClient() {
       setEditingRecord(null);
       setForm(emptyForm);
       fetchDesignControls();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to update design control record');
       console.error('Failed to update design control:', err);
     } finally {

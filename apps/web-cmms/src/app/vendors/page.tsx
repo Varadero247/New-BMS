@@ -82,7 +82,7 @@ export default function VendorsPage() {
     try {
       await api.post('/vendors', { ...form, rating: parseInt(form.rating) || 3 });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create vendor'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create vendor'); } finally { setSaving(false); }
   }
 
   async function handleEdit() {
@@ -91,13 +91,13 @@ export default function VendorsPage() {
     try {
       await api.put(`/vendors/${selected!.id}`, { ...form, rating: parseInt(form.rating) || 3 });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update vendor'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update vendor'); } finally { setSaving(false); }
   }
 
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/vendors/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

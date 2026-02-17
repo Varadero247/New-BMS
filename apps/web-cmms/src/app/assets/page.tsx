@@ -118,7 +118,7 @@ export default function AssetsPage() {
       await api.post('/assets', form);
       setCreateOpen(false);
       await loadAssets();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to create asset');
     } finally { setSaving(false); }
   }
@@ -130,7 +130,7 @@ export default function AssetsPage() {
       await api.put(`/assets/${selected!.id}`, form);
       setEditOpen(false);
       await loadAssets();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to update asset');
     } finally { setSaving(false); }
   }
@@ -141,7 +141,7 @@ export default function AssetsPage() {
       await api.delete(`/assets/${selected!.id}`);
       setDeleteOpen(false);
       await loadAssets();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.response?.data?.error || 'Failed to delete asset');
     } finally { setSaving(false); }
   }

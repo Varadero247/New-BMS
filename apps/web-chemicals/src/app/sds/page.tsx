@@ -57,7 +57,7 @@ export default function SdsLibraryPage() {
       if (search) params.search = search;
       const res = await api.get('/sds', { params });
       setRecords(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load SDS records.');
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ export default function SdsLibraryPage() {
       setModalOpen(false);
       setForm({ chemicalId: '', version: '', supplier: '', issueDate: '', reviewDate: '', fileUrl: '', language: 'en' });
       fetchRecords();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to create SDS record.');
     } finally {
       setSaving(false);

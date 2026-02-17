@@ -36,7 +36,7 @@ const EXAMPLE_QUERIES = [
 // Seed results for demonstration
 // ---------------------------------------------------------------------------
 
-const SEED_RESULTS: Record<string, { columns: string[]; rows: any[]; totalCount: number }> = {
+const SEED_RESULTS: Record<string, { columns: string[]; rows: unknown[]; totalCount: number }> = {
   'open capas': {
     columns: ['refNumber', 'title', 'status', 'assignee', 'dueDate', 'module'],
     rows: [
@@ -69,7 +69,7 @@ const SEED_RESULTS: Record<string, { columns: string[]; rows: any[]; totalCount:
   },
 };
 
-function findSeedResults(query: string): { columns: string[]; rows: any[]; totalCount: number } | null {
+function findSeedResults(query: string): { columns: string[]; rows: unknown[]; totalCount: number } | null {
   const lower = query.toLowerCase();
   if (lower.includes('capa') && (lower.includes('open') || lower.includes('all'))) return SEED_RESULTS['open capas'];
   if (lower.includes('ncr') && lower.includes('month')) return SEED_RESULTS['ncrs this month'];
@@ -157,8 +157,8 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
         executionTimeMs: 0,
       },
     });
-  } catch (err: any) {
-    logger.error('NLQ query failed', { error: err.message });
+  } catch (err: unknown) {
+    logger.error('NLQ query failed', { error: (err as Error).message });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Query execution failed' } });
   }
 });

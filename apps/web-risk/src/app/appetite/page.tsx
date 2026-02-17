@@ -115,7 +115,7 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
       });
       onSave();
       onClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSaving(false);
@@ -224,7 +224,7 @@ export default function AppetitePage() {
       ]);
       setStatements(appRes.data.data || []);
       setFramework(fwRes.data.data || null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load appetite data.');
     } finally {
       setLoading(false);

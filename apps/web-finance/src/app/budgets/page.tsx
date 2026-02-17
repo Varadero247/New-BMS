@@ -92,7 +92,7 @@ export default function BudgetsPage() {
       });
       setCreateModalOpen(false);
       loadBudgets();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create budget entry.');
     } finally {
       setSubmitting(false);

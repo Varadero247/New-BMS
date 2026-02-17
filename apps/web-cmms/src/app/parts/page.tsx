@@ -80,7 +80,7 @@ export default function PartsPage() {
     try {
       await api.post('/parts', { ...form, quantity: parseInt(form.quantity) || 0, minStock: parseInt(form.minStock) || 0, maxStock: parseInt(form.maxStock) || 100, unitCost: parseFloat(form.unitCost) || 0 });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create part'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create part'); } finally { setSaving(false); }
   }
 
   async function handleEdit() {
@@ -89,13 +89,13 @@ export default function PartsPage() {
     try {
       await api.put(`/parts/${selected!.id}`, { ...form, quantity: parseInt(form.quantity) || 0, minStock: parseInt(form.minStock) || 0, maxStock: parseInt(form.maxStock) || 100, unitCost: parseFloat(form.unitCost) || 0 });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update part'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update part'); } finally { setSaving(false); }
   }
 
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/parts/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

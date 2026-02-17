@@ -56,7 +56,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).inventoryTransaction.findMany({
+      prisma.inventoryTransaction.findMany({
         where,
         skip,
         take: limit,
@@ -66,7 +66,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           warehouse: { select: { id: true, code: true, name: true } },
         },
       }),
-      (prisma as any).inventoryTransaction.count({ where }),
+      prisma.inventoryTransaction.count({ where }),
     ]);
 
     res.json({ success: true, data: items, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -139,7 +139,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET /:id — Get single adjustment
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const item = await (prisma as any).inventoryTransaction.findFirst({
+    const item = await prisma.inventoryTransaction.findFirst({
       where: { id: req.params.id },
       include: {
         product: { select: { id: true, sku: true, name: true } },

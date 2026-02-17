@@ -355,7 +355,7 @@ export default function CertificationsPage() {
                 {complianceResult.expiringCerts?.length > 0 && (
                   <div>
                     <h4 className="font-medium text-amber-700 mb-2">Expiring Certifications</h4>
-                    {complianceResult.expiringCerts.map((c: any, i: number) => (
+                    {complianceResult.expiringCerts.map((c: Record<string, unknown>, i: number) => (
                       <div key={i} className="text-sm mb-2 p-2 bg-amber-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">Expires: {c.expiryDate} | Urgency: {c.urgency}</p>
@@ -367,7 +367,7 @@ export default function CertificationsPage() {
                 {complianceResult.missingCerts?.length > 0 && (
                   <div>
                     <h4 className="font-medium text-red-700 mb-2">Missing Certifications</h4>
-                    {complianceResult.missingCerts.map((c: any, i: number) => (
+                    {complianceResult.missingCerts.map((c: Record<string, unknown>, i: number) => (
                       <div key={i} className="text-sm mb-2 p-2 bg-red-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">Priority: {c.priority} | {c.reason}</p>

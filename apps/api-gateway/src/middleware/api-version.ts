@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { createLogger } from '@ims/monitoring';
 
+interface VersionedRequest extends Request {
+  apiVersion?: string;
+}
+
 const logger = createLogger('api-version');
 
 /**
@@ -59,14 +63,15 @@ export function deprecatedRoute(
  * Middleware to extract API version from URL or header
  */
 export function extractApiVersion(req: Request, res: Response, next: NextFunction): void {
+  const vReq = req as VersionedRequest;
   // Check URL path first (e.g., /api/v1/...)
   const pathMatch = req.path.match(/^\/api\/(v\d+)\//);
   if (pathMatch) {
-    (req as any).apiVersion = pathMatch[1];
+    vReq.apiVersion = pathMatch[1];
   } else {
     // Fall back to header
     const headerVersion = req.headers['x-api-version'] as string;
-    (req as any).apiVersion = headerVersion || API_VERSION.CURRENT;
+    vReq.apiVersion = headerVersion || API_VERSION.CURRENT;
   }
 
   next();
@@ -76,7 +81,7 @@ export function extractApiVersion(req: Request, res: Response, next: NextFunctio
  * Middleware to reject unsupported API versions
  */
 export function validateApiVersion(req: Request, res: Response, next: NextFunction): void {
-  const version = (req as any).apiVersion;
+  const version = (req as VersionedRequest).apiVersion;
 
   if (!API_VERSION.SUPPORTED.includes(version)) {
     res.status(400).json({

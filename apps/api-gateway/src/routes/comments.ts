@@ -39,7 +39,7 @@ const reactionSchema = z.object({
 // ============================================
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = createCommentSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -140,7 +140,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const commentId = req.params.id;
     const parsed = updateCommentSchema.safeParse(req.body);
 
@@ -188,7 +188,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const commentId = req.params.id;
     const roles: string[] = user.roles || [];
     const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
@@ -230,7 +230,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.post('/:id/reactions', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const commentId = req.params.id;
     const parsed = reactionSchema.safeParse(req.body);
 
@@ -270,7 +270,7 @@ router.post('/:id/reactions', authenticate, async (req: Request, res: Response) 
 // ============================================
 router.delete('/:id/reactions/:emoji', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const commentId = req.params.id;
     const emoji = decodeURIComponent(req.params.emoji);
 

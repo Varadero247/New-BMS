@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateSpecialProcessRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroSpecialProcess.count({
+  const count = await prisma.aeroSpecialProcess.count({
     where: { refNumber: { startsWith: `AERO-SP-${yyyy}` } },
   });
   return `AERO-SP-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -29,7 +29,7 @@ async function generateSpecialProcessRefNumber(): Promise<string> {
 async function generateNadcapApprovalRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroNadcapApproval.count({
+  const count = await prisma.aeroNadcapApproval.count({
     where: { refNumber: { startsWith: `AERO-NADCAP-${yyyy}` } },
   });
   return `AERO-NADCAP-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -131,7 +131,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (processType) where.processType = processType;
     if (status) where.status = status;
     if (approvalBody) where.approvalBody = approvalBody;
@@ -145,7 +145,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [processes, total] = await Promise.all([
-      (prisma as any).aeroSpecialProcess.findMany({
+      prisma.aeroSpecialProcess.findMany({
         where,
         skip,
         take: limitNum,
@@ -156,7 +156,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
           },
         },
       }),
-      (prisma as any).aeroSpecialProcess.count({ where }),
+      prisma.aeroSpecialProcess.count({ where }),
     ]);
 
     res.json({
@@ -173,7 +173,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get special process
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const process = await (prisma as any).aeroSpecialProcess.findUnique({
+    const process = await prisma.aeroSpecialProcess.findUnique({
       where: { id: req.params.id },
       include: { nadcapApprovals: true },
     });
@@ -195,7 +195,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createSpecialProcessSchema.parse(req.body);
     const refNumber = await generateSpecialProcessRefNumber();
 
-    const process = await (prisma as any).aeroSpecialProcess.create({
+    const process = await prisma.aeroSpecialProcess.create({
       data: {
         refNumber,
         title: data.title,
@@ -231,14 +231,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update special process
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
     }
 
     const data = updateSpecialProcessSchema.parse(req.body);
 
-    const process = await (prisma as any).aeroSpecialProcess.update({
+    const process = await prisma.aeroSpecialProcess.update({
       where: { id: req.params.id },
       data,
     });
@@ -259,12 +259,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete special process
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
     }
 
-    await (prisma as any).aeroSpecialProcess.update({
+    await prisma.aeroSpecialProcess.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -288,7 +288,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (approvalStatus) where.approvalStatus = approvalStatus;
     if (search) {
       where.OR = [
@@ -300,13 +300,13 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [approvals, total] = await Promise.all([
-      (prisma as any).aeroNadcapApproval.findMany({
+      prisma.aeroNadcapApproval.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { expiryDate: 'asc' },
       }),
-      (prisma as any).aeroNadcapApproval.count({ where }),
+      prisma.aeroNadcapApproval.count({ where }),
     ]);
 
     // Flag approvals expiring within 90 days
@@ -337,12 +337,12 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
     const data = createNadcapApprovalSchema.parse(req.body);
     const refNumber = await generateNadcapApprovalRefNumber();
 
-    const process = await (prisma as any).aeroSpecialProcess.findUnique({ where: { id: data.specialProcessId } });
+    const process = await prisma.aeroSpecialProcess.findUnique({ where: { id: data.specialProcessId } });
     if (!process || process.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
     }
 
-    const approval = await (prisma as any).aeroNadcapApproval.create({
+    const approval = await prisma.aeroNadcapApproval.create({
       data: {
         refNumber,
         specialProcessId: data.specialProcessId,
@@ -377,14 +377,14 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
 // PUT /nadcap/:id - Update Nadcap approval
 router.put('/nadcap/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroNadcapApproval.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroNadcapApproval.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Nadcap approval not found' } });
     }
 
     const data = updateNadcapApprovalSchema.parse(req.body);
 
-    const approval = await (prisma as any).aeroNadcapApproval.update({
+    const approval = await prisma.aeroNadcapApproval.update({
       where: { id: req.params.id },
       data: {
         ...data,

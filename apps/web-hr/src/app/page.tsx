@@ -59,9 +59,9 @@ export default function HRDashboard() {
           newHires: employeeStats.data.data.recentHires || 0,
         },
         attendance: {
-          presentToday: attendanceStats.data.data.byStatus?.find((s: any) => s.status === 'PRESENT')?._count || 0,
-          lateToday: attendanceStats.data.data.byStatus?.find((s: any) => s.status === 'LATE')?._count || 0,
-          absentToday: attendanceStats.data.data.byStatus?.find((s: any) => s.status === 'ABSENT')?._count || 0,
+          presentToday: attendanceStats.data.data.byStatus?.find((s: Record<string, unknown>) => s.status === 'PRESENT')?._count || 0,
+          lateToday: attendanceStats.data.data.byStatus?.find((s: Record<string, unknown>) => s.status === 'LATE')?._count || 0,
+          absentToday: attendanceStats.data.data.byStatus?.find((s: Record<string, unknown>) => s.status === 'ABSENT')?._count || 0,
         },
         leave: {
           pendingRequests: 0,

@@ -169,7 +169,7 @@ const RBAC_MATRIX = {
  * GET / — ISO 27001 control domains summary
  */
 router.get('/', authenticate, requireRole('ADMIN', 'MANAGER', 'AUDITOR'), (req, res) => {
-  logger.info('Security controls summary requested', { userId: (req as any).user?.id });
+  logger.info('Security controls summary requested', { userId: (req as AuthRequest).user?.id });
 
   const summary = CONTROL_DOMAINS.map((domain) => ({
     id: domain.id,
@@ -199,7 +199,7 @@ router.get('/', authenticate, requireRole('ADMIN', 'MANAGER', 'AUDITOR'), (req, 
  * GET /rbac-matrix — Role-Based Access Control matrix
  */
 router.get('/rbac-matrix', authenticate, requireRole('ADMIN', 'MANAGER', 'AUDITOR'), (req, res) => {
-  logger.info('RBAC matrix requested', { userId: (req as any).user?.id });
+  logger.info('RBAC matrix requested', { userId: (req as AuthRequest).user?.id });
 
   res.json({
     success: true,
@@ -211,7 +211,7 @@ router.get('/rbac-matrix', authenticate, requireRole('ADMIN', 'MANAGER', 'AUDITO
  * GET /status — Live security control status
  */
 router.get('/status', authenticate, requireRole('ADMIN', 'MANAGER', 'AUDITOR'), (req, res) => {
-  logger.info('Security status requested', { userId: (req as any).user?.id });
+  logger.info('Security status requested', { userId: (req as AuthRequest).user?.id });
 
   const status = {
     authentication: {

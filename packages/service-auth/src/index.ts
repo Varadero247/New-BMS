@@ -224,7 +224,7 @@ export function createServiceHeaders(serviceName: string): Record<string, string
 export function addServiceTokenToProxy(serviceName: string) {
   const token = generateServiceToken(serviceName);
 
-  return (proxyReq: any): void => {
+  return (proxyReq: { setHeader: (name: string, value: string) => void }): void => {
     proxyReq.setHeader('X-Service-Token', token);
   };
 }

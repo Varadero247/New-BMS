@@ -121,7 +121,7 @@ export default function TemplatesClient() {
     }
   };
 
-  const handleFieldChange = (name: string, value: any) => {
+  const handleFieldChange = (name: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 

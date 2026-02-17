@@ -151,7 +151,7 @@ export default function LeavePage() {
       await api.post('/leave/requests', payload);
       setCreateModalOpen(false);
       loadRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error.response?.data?.error?.message;
       setCreateError(typeof msg === 'string' ? msg : 'Failed to create leave request.');
     } finally {
@@ -181,7 +181,7 @@ export default function LeavePage() {
       });
       setActionModalOpen(false);
       loadRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error.response?.data?.error?.message;
       setActionError(typeof msg === 'string' ? msg : `Failed to ${actionType === 'APPROVED' ? 'approve' : 'reject'} request.`);
     } finally {

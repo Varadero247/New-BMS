@@ -55,7 +55,7 @@ export default function ProductsPage() {
     try {
       await inventoryApi.deleteProduct(id);
       loadProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       alert(error.response?.data?.error?.message || 'Failed to delete product');
     }
   }
@@ -301,7 +301,7 @@ function ProductModal({
         await inventoryApi.createProduct(formData);
       }
       onSave();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.error?.message || 'Failed to save product');
     } finally {
       setLoading(false);

@@ -60,7 +60,7 @@ export default function DisposalPage() {
       if (search) params.search = search;
       const res = await api.get('/disposal', { params });
       setRecords(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load disposal records.');
     } finally {
       setLoading(false);
@@ -85,7 +85,7 @@ export default function DisposalPage() {
       setModalOpen(false);
       setForm({ chemicalId: '', quantity: '', unit: 'litres', disposalMethod: 'INCINERATION', wasteClassification: 'HAZARDOUS', ewcCode: '', contractor: '', collectionDate: '', consignmentNote: '', destination: '', authorisedBy: '', notes: '' });
       fetchRecords();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to create disposal record.');
     } finally {
       setSaving(false);

@@ -34,7 +34,7 @@ router.post('/outreach', authenticate, async (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     // Check daily limit
     const today = new Date();
@@ -126,7 +126,7 @@ Return only the message text, nothing else.`;
 router.get('/outreach', authenticate, async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
 
     const outreach = await prisma.mktLinkedInOutreach.findMany({
@@ -183,7 +183,7 @@ router.patch('/outreach/:id', authenticate, async (req: Request, res: Response) 
       });
     }
 
-    const updateData: any = { status: parsed.data.status };
+    const updateData: Record<string, unknown> = { status: parsed.data.status };
     if (parsed.data.notes) updateData.notes = parsed.data.notes;
 
     // Set timestamp fields based on status

@@ -71,7 +71,7 @@ export default function DashboardPage() {
       try {
         const r = await api.get('/analytics/dashboard');
         setData(r.data.data);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(
           e.response?.status === 401
             ? 'Session expired. Please log in again.'

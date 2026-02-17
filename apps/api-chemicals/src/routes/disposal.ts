@@ -27,22 +27,22 @@ const updateDisposalSchema = createDisposalSchema.partial();
 // GET /api/disposal — all disposal records
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { chemical: { orgId, deletedAt: null } };
+    const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).chemDisposal.findMany({
+      prisma.chemDisposal.findMany({
         where, skip, take: parseInt(limit),
         orderBy: { disposalDate: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true, wasteClassification: true } } },
       }),
-      (prisma as any).chemDisposal.count({ where }),
+      prisma.chemDisposal.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Failed to fetch disposal records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch disposal records', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch disposal records' } });
   }
 });
@@ -53,15 +53,15 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createDisposalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const d = parsed.data;
-    const chemical = await (prisma as any).chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
-    const data = await (prisma as any).chemDisposal.create({
-      data: { ...d, disposedBy: (req as any).user?.id, createdBy: (req as any).user?.id },
+    const data = await prisma.chemDisposal.create({
+      data: { ...d, disposedBy: (req as AuthRequest).user?.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create disposal record', { error: error.message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to create disposal record', { error: (error as Error).message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -70,13 +70,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateDisposalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).chemDisposal.findFirst({ where: { id: req.params.id } });
+    const existing = await prisma.chemDisposal.findFirst({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Disposal record not found' } });
-    const data = await (prisma as any).chemDisposal.update({ where: { id: req.params.id }, data: parsed.data });
+    const data = await prisma.chemDisposal.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update disposal record', { error: error.message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to update disposal record', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 

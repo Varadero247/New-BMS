@@ -158,7 +158,7 @@ export default function DashboardPage() {
         if (catRes.status === 'fulfilled') {
           setCategories(catRes.value.data.data || []);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(
           e.response?.status === 401
             ? 'Session expired. Please log in again.'

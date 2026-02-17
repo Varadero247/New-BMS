@@ -47,7 +47,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const tierConfig = TIER_CONFIG[validation.data.tier];
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     const partner = await prisma.crmPartner.create({
       data: {
@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Partner registered', { partnerId: partner.id, tier: partner.tier });
     return res.status(201).json({ success: true, data: partner });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Account is already registered as a partner' } });
     }
     logger.error('Failed to register partner', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -213,7 +213,7 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
-    const userId = (req as any).user?.id || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
 
     // Calculate commission amount based on deal value and partner commission rate
     const dealValue = Number(deal.value);

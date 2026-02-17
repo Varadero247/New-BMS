@@ -17,8 +17,8 @@ interface DashboardStats {
     wasteGenerated: number;
     carbonEmissions: number;
   };
-  topAspects: any[];
-  recentEvents: any[];
+  topAspects: Record<string, unknown>[];
+  recentEvents: Record<string, unknown>[];
 }
 
 export default function EnvironmentalDashboard() {
@@ -44,11 +44,11 @@ export default function EnvironmentalDashboard() {
         compliance: 82,
         aspects: {
           total: aspects.length,
-          significant: aspects.filter((a: any) => a.isSignificant).length,
+          significant: aspects.filter((a: Record<string, unknown>) => a.isSignificant).length,
         },
         events: {
           total: events.length,
-          open: events.filter((e: any) => e.status === 'REPORTED' || e.status === 'UNDER_INVESTIGATION' || e.status === 'CONTAINED').length,
+          open: events.filter((e: Record<string, unknown>) => e.status === 'REPORTED' || e.status === 'UNDER_INVESTIGATION' || e.status === 'CONTAINED').length,
         },
         actions: { overdue: 2, dueThisWeek: 4 },
         indicators: {
@@ -57,7 +57,7 @@ export default function EnvironmentalDashboard() {
           wasteGenerated: 2340,
           carbonEmissions: 156,
         },
-        topAspects: aspects.filter((a: any) => a.isSignificant).slice(0, 5),
+        topAspects: aspects.filter((a: Record<string, unknown>) => a.isSignificant).slice(0, 5),
         recentEvents: events.slice(0, 5),
       });
     } catch (error) {
@@ -254,7 +254,7 @@ export default function EnvironmentalDashboard() {
             <CardContent>
               {stats?.topAspects && stats.topAspects.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.topAspects.map((aspect: any) => (
+                  {stats.topAspects.map((aspect: Record<string, unknown>) => (
                     <div key={aspect.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{aspect.activityProcess}</p>
@@ -281,7 +281,7 @@ export default function EnvironmentalDashboard() {
             <CardContent>
               {stats?.recentEvents && stats.recentEvents.length > 0 ? (
                 <div className="space-y-3">
-                  {stats.recentEvents.map((event: any) => (
+                  {stats.recentEvents.map((event: Record<string, unknown>) => (
                     <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{event.description?.slice(0, 80)}{event.description?.length > 80 ? '...' : ''}</p>

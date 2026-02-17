@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Express } from 'express';
+import type { Express, Request } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -346,7 +346,7 @@ const createServiceProxy = (
   onProxyReq: (proxyReq, req) => {
     addServiceToken(proxyReq);
     // Forward correlation ID to downstream services
-    const correlationId = (req as any).correlationId || req.headers['x-correlation-id'];
+    const correlationId = (req as Request & { correlationId?: string }).correlationId || req.headers['x-correlation-id'];
     if (correlationId) {
       proxyReq.setHeader('x-correlation-id', correlationId);
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ElementType } from 'react';
 import { Search, AlertCircle, AlertTriangle, Info, Activity, ZapOff, Clock, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 
 type ScanStatus = 'completed' | 'running' | 'scheduled' | 'failed';
@@ -135,14 +135,14 @@ const MOCK_SCANS: VulnerabilityScan[] = [
   },
 ];
 
-const statusConfig: Record<ScanStatus, { bg: string; text: string; icon: any; label: string }> = {
+const statusConfig: Record<ScanStatus, { bg: string; text: string; icon: ElementType; label: string }> = {
   completed: { bg: 'bg-green-50', text: 'text-green-700', icon: CheckCircle2, label: 'Completed' },
   running: { bg: 'bg-blue-50', text: 'text-blue-700', icon: Activity, label: 'Running' },
   scheduled: { bg: 'bg-purple-50', text: 'text-purple-700', icon: Clock, label: 'Scheduled' },
   failed: { bg: 'bg-red-50', text: 'text-red-700', icon: XCircle, label: 'Failed' },
 };
 
-const severityConfig: Record<string, { bg: string; text: string; icon: any }> = {
+const severityConfig: Record<string, { bg: string; text: string; icon: ElementType }> = {
   critical: { bg: 'bg-red-100', text: 'text-red-700', icon: AlertCircle },
   high: { bg: 'bg-orange-100', text: 'text-orange-700', icon: AlertTriangle },
   medium: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: AlertTriangle },

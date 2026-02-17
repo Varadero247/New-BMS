@@ -94,7 +94,7 @@ export default function PreventivePlansPage() {
     try {
       await api.post('/preventive-plans', { ...form, frequency: parseInt(form.frequency) || 1, estimatedHours: form.estimatedHours ? parseFloat(form.estimatedHours) : undefined });
       setCreateOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to create plan'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create plan'); } finally { setSaving(false); }
   }
 
   async function handleEdit() {
@@ -103,7 +103,7 @@ export default function PreventivePlansPage() {
     try {
       await api.put(`/preventive-plans/${selected!.id}`, { ...form, frequency: parseInt(form.frequency) || 1, estimatedHours: form.estimatedHours ? parseFloat(form.estimatedHours) : undefined });
       setEditOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to update plan'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update plan'); } finally { setSaving(false); }
   }
 
   async function handleDelete() {
@@ -111,7 +111,7 @@ export default function PreventivePlansPage() {
     try {
       await api.delete(`/preventive-plans/${selected!.id}`);
       setDeleteOpen(false); await load();
-    } catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    } catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

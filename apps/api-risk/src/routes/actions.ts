@@ -22,26 +22,26 @@ const actionSchema = z.object({
 // GET /api/risks/:id/actions
 router.get('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const actions = await (prisma as any).riskAction.findMany({
+    const actions = await prisma.riskAction.findMany({
       where: { riskId: req.params.id },
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: any) { logger.error('Failed to fetch actions', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch actions' } }); }
 });
 
 // POST /api/risks/:id/actions
 router.post('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await (prisma as any).riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     const parsed = actionSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const action = await (prisma as any).riskAction.create({
-      data: { ...parsed.data, riskId: req.params.id, createdBy: (req as any).user?.id },
+    const action = await prisma.riskAction.create({
+      data: { ...parsed.data, riskId: req.params.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data: action });
-  } catch (error: any) { logger.error('Failed to create action', { error: error.message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to create action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // PUT /api/risks/:riskId/actions/:id
@@ -49,11 +49,11 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
   try {
     const parsed = actionSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
-    const action = await (prisma as any).riskAction.update({ where: { id: req.params.id }, data: parsed.data });
+    const action = await prisma.riskAction.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: action });
-  } catch (error: any) { logger.error('Failed to update action', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to update action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 // POST /api/risks/:riskId/actions/:id/complete
@@ -63,26 +63,26 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
     const parsed = completeSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { evidenceOfCompletion, effectiveness } = parsed.data;
-    const existing = await (prisma as any).riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
-    const action = await (prisma as any).riskAction.update({
+    const action = await prisma.riskAction.update({
       where: { id: req.params.id },
       data: { status: 'COMPLETED', completedDate: new Date(), evidenceOfCompletion, effectiveness },
     });
     res.json({ success: true, data: action });
-  } catch (error: any) { logger.error('Failed to complete action', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to complete action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 // GET /api/risks/actions/overdue
 router.get('/actions/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const actions = await (prisma as any).riskAction.findMany({
+    const actions = await prisma.riskAction.findMany({
       where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lt: new Date() } },
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } } },
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: any) { logger.error('Failed to fetch overdue actions', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch overdue actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue actions' } }); }
 });
 
 // GET /api/risks/actions/due-soon
@@ -90,13 +90,13 @@ router.get('/actions/due-soon', authenticate, async (req: Request, res: Response
   try {
     const twoWeeks = new Date();
     twoWeeks.setDate(twoWeeks.getDate() + 14);
-    const actions = await (prisma as any).riskAction.findMany({
+    const actions = await prisma.riskAction.findMany({
       where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lte: twoWeeks, gte: new Date() } },
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: any) { logger.error('Failed to fetch due-soon actions', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch due-soon actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch due-soon actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch due-soon actions' } }); }
 });
 
 export default router;

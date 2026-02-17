@@ -266,7 +266,7 @@ router.put('/:id', authenticate, validate(updateIncidentSchema), async (req, res
       });
     }
 
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.dateOccurred) {
       updateData.dateOccurred = new Date(req.body.dateOccurred);
     }

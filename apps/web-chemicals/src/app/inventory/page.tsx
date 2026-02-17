@@ -51,7 +51,7 @@ export default function InventoryPage() {
       if (search) params.search = search;
       const res = await api.get('/inventory', { params });
       setRecords(res.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load inventory.');
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export default function InventoryPage() {
       setModalOpen(false);
       setForm({ chemicalId: '', location: '', quantity: '', unit: 'litres', minStock: '', maxStock: '', expiryDate: '', batchNumber: '', storageCondition: '' });
       fetchRecords();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to add stock.');
     } finally {
       setSaving(false);

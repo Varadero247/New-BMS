@@ -246,7 +246,7 @@ router.put('/:id', authenticate, validate(updateObjectiveSchema), async (req, re
       });
     }
 
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.startDate) updateData.startDate = new Date(req.body.startDate);
     if (req.body.targetDate) updateData.targetDate = new Date(req.body.targetDate);
 

@@ -20,14 +20,14 @@ router.param('id', validateIdParam());
 async function generateAuditRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroAudit.count({
+  const count = await prisma.aeroAudit.count({
     where: { refNumber: { startsWith: `AERO-AUD-${yyyy}` } },
   });
   return `AERO-AUD-${yyyy}-${String(count + 1).padStart(3, '0')}`;
 }
 
 async function generateFindingRefNumber(auditRef: string): Promise<string> {
-  const count = await (prisma as any).aeroAuditFinding.count({
+  const count = await prisma.aeroAuditFinding.count({
     where: { auditRefNumber: auditRef },
   });
   return `${auditRef}-F${String(count + 1).padStart(2, '0')}`;
@@ -100,7 +100,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (auditType) where.auditType = auditType;
     if (search) {
@@ -113,7 +113,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [audits, total] = await Promise.all([
-      (prisma as any).aeroAudit.findMany({
+      prisma.aeroAudit.findMany({
         where,
         skip,
         take: limitNum,
@@ -124,7 +124,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
           },
         },
       }),
-      (prisma as any).aeroAudit.count({ where }),
+      prisma.aeroAudit.count({ where }),
     ]);
 
     res.json({
@@ -141,7 +141,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get audit with findings
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const audit = await (prisma as any).aeroAudit.findUnique({
+    const audit = await prisma.aeroAudit.findUnique({
       where: { id: req.params.id },
       include: { findings: true },
     });
@@ -163,7 +163,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createAuditSchema.parse(req.body);
     const refNumber = await generateAuditRefNumber();
 
-    const audit = await (prisma as any).aeroAudit.create({
+    const audit = await prisma.aeroAudit.create({
       data: {
         refNumber,
         title: data.title,
@@ -199,14 +199,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update audit
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroAudit.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const data = updateAuditSchema.parse(req.body);
 
-    const audit = await (prisma as any).aeroAudit.update({
+    const audit = await prisma.aeroAudit.update({
       where: { id: req.params.id },
       data: {
         ...data,
@@ -231,12 +231,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete audit
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroAudit.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
-    await (prisma as any).aeroAudit.update({
+    await prisma.aeroAudit.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -257,14 +257,14 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
   try {
     const data = createFindingSchema.parse(req.body);
 
-    const audit = await (prisma as any).aeroAudit.findUnique({ where: { id: data.auditId } });
+    const audit = await prisma.aeroAudit.findUnique({ where: { id: data.auditId } });
     if (!audit || audit.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const refNumber = await generateFindingRefNumber(audit.refNumber);
 
-    const finding = await (prisma as any).aeroAuditFinding.create({
+    const finding = await prisma.aeroAuditFinding.create({
       data: {
         refNumber,
         auditId: data.auditId,
@@ -298,14 +298,14 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
 // PUT /findings/:id/close - Close a finding
 router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroAuditFinding.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroAuditFinding.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Finding not found' } });
     }
 
     const data = closeFindingSchema.parse(req.body);
 
-    const finding = await (prisma as any).aeroAuditFinding.update({
+    const finding = await prisma.aeroAuditFinding.update({
       where: { id: req.params.id },
       data: {
         correctiveAction: data.correctiveAction,
@@ -341,14 +341,14 @@ router.get('/schedule/upcoming', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 50, 200);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       status: 'SCHEDULED',
       scheduledDate: { lte: cutoff },
     };
 
     const [audits, total] = await Promise.all([
-      (prisma as any).aeroAudit.findMany({
+      prisma.aeroAudit.findMany({
         where,
         skip,
         take: limitNum,
@@ -357,7 +357,7 @@ router.get('/schedule/upcoming', async (req: AuthRequest, res: Response) => {
           findings: { select: { id: true, findingType: true, status: true } },
         },
       }),
-      (prisma as any).aeroAudit.count({ where }),
+      prisma.aeroAudit.count({ where }),
     ]);
 
     res.json({ success: true, data: audits, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });

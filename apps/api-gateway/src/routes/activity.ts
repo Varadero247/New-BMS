@@ -79,7 +79,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.get('/recent', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = getRecentSchema.safeParse(req.query);
 
     if (!parsed.success) {
@@ -116,7 +116,7 @@ router.get('/recent', authenticate, async (req: Request, res: Response) => {
 // ============================================
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = postActivitySchema.safeParse(req.body);
 
     if (!parsed.success) {

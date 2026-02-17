@@ -18,10 +18,10 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const data = await (prisma as any).esgDefraFactor.findMany({ where: { orgId, deletedAt: null } });
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } });
     res.json({ success: true, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
   }
 });
@@ -32,14 +32,14 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { category, subcategory, activity, unit, factor, year, source, notes } = parsed.data;
-    const data = await (prisma as any).esgDefraFactor.create({
-      data: { category, subcategory, activity, unit, factor, year, source, notes, orgId, createdBy: (req as any).user?.id },
+    const data = await prisma.esgDefraFactor.create({
+      data: { category, subcategory, activity, unit, factor, year, source, notes, orgId, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 

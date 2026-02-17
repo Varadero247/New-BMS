@@ -252,7 +252,7 @@ export default function EventsClient() {
     setShowModal(true);
   }
 
-  function updateForm(field: keyof EventForm, value: any) {
+  function updateForm(field: keyof EventForm, value: unknown) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 

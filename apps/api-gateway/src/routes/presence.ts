@@ -57,7 +57,7 @@ router.get('/', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.post('/lock', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = lockSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -103,7 +103,7 @@ router.post('/lock', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.delete('/lock', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = recordRefSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -135,7 +135,7 @@ router.delete('/lock', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.put('/refresh', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const parsed = recordRefSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({

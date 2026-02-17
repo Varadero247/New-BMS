@@ -26,9 +26,9 @@ const router: Router = Router();
 // ---------------------------------------------------------------------------
 // AI Summary (mock) — concatenate commit messages
 // ---------------------------------------------------------------------------
-function generateChangeSummary(commits: any[]): string {
+function generateChangeSummary(commits: unknown[]): string {
   if (!commits || commits.length === 0) return 'No commit messages available.';
-  return commits.map((c: any) => c.message || c.title || '').join('; ');
+  return commits.map((c: Record<string, unknown>) => c.message || c.title || '').join('; ');
 }
 
 // ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ router.post('/', async (req: Request, res: Response) => {
         details: {
           commitCount: commitList.length,
           repository: repository?.full_name || repository?.name || 'unknown',
-          shas: commitList.map((c: any) => c.id || c.sha || '').filter(Boolean),
+          shas: commitList.map((c: Record<string, unknown>) => c.id || c.sha || '').filter(Boolean),
         },
         publishedAt: now,
       },

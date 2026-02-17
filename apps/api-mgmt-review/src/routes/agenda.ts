@@ -41,8 +41,8 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
 
     await prisma.mgmtReview.update({ where: { id: req.params.id }, data: { aiGeneratedAgenda: JSON.stringify(agenda) } });
     res.json({ success: true, data: agenda });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'GENERATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'GENERATE_ERROR', message: (error as Error).message } });
   }
 });
 

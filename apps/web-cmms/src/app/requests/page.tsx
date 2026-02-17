@@ -72,18 +72,18 @@ export default function RequestsPage() {
     if (!form.title.trim()) { setError('Title is required'); return; }
     setSaving(true); setError('');
     try { await api.post('/requests', form); setCreateOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to create'); } finally { setSaving(false); }
   }
   async function handleEdit() {
     if (!form.title.trim()) { setError('Title is required'); return; }
     setSaving(true); setError('');
     try { await api.put(`/requests/${selected!.id}`, form); setEditOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to update'); } finally { setSaving(false); }
   }
   async function handleDelete() {
     setSaving(true);
     try { await api.delete(`/requests/${selected!.id}`); setDeleteOpen(false); await load(); }
-    catch (e: any) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
+    catch (e: unknown) { setError(e?.response?.data?.error || 'Failed to delete'); } finally { setSaving(false); }
   }
 
   const FormFields = () => (

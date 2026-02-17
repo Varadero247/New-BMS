@@ -128,7 +128,7 @@ export default function CapaClient() {
 
   const loadCapas = useCallback(async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (typeFilter !== 'all') params.capaType = typeFilter;
@@ -150,7 +150,7 @@ export default function CapaClient() {
     setModalOpen(true);
   }
 
-  function updateForm(field: keyof CapaForm, value: any) {
+  function updateForm(field: keyof CapaForm, value: unknown) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
@@ -190,12 +190,12 @@ export default function CapaClient() {
         const data = await res.json();
         const allActions: CapaForm['actions'] = [];
         if (data.correctiveActions) {
-          data.correctiveActions.forEach((a: any) => {
+          data.correctiveActions.forEach((a: Record<string, unknown>) => {
             allActions.push({ title: a.title, description: '', type: 'CORRECTIVE', owner: a.owner || '', dueDate: '' });
           });
         }
         if (data.preventiveActions) {
-          data.preventiveActions.forEach((a: any) => {
+          data.preventiveActions.forEach((a: Record<string, unknown>) => {
             allActions.push({ title: a.title, description: '', type: 'PREVENTIVE', owner: a.owner || '', dueDate: '' });
           });
         }

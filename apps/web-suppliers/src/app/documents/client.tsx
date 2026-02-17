@@ -98,7 +98,7 @@ export default function DocumentsClient() {
     if (!form.supplierId || !form.title) return;
     setSaving(true);
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         ...form,
         expiryDate: form.expiryDate ? new Date(form.expiryDate).toISOString() : undefined,
       };

@@ -85,7 +85,7 @@ export default function ActionsPage() {
       ]);
       setOverdue(overdueRes.data.data || []);
       setDueSoon(dueSoonRes.data.data || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load actions data.');
     } finally {
       setLoading(false);

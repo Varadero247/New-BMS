@@ -112,7 +112,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already exists' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create technician' } });

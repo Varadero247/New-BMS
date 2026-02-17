@@ -85,9 +85,9 @@ const updateSdsSchema = createSdsSchema.partial();
 // GET /api/sds — all SDS records (org-wide)
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { chemical: { orgId, deletedAt: null } };
+    const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (status) where.status = status;
     if (search) {
       where.chemical = { ...where.chemical, OR: [
@@ -97,16 +97,16 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).chemSds.findMany({
+      prisma.chemSds.findMany({
         where, skip, take: parseInt(limit),
         orderBy: { issueDate: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true, signalWord: true, pictograms: true } } },
       }),
-      (prisma as any).chemSds.count({ where }),
+      prisma.chemSds.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Failed to fetch SDS records', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch SDS records', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS records' } });
   }
 });
@@ -114,15 +114,15 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/sds/overdue — SDS past review date
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const data = await (prisma as any).chemSds.findMany({
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const data = await prisma.chemSds.findMany({
       where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { nextReviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to fetch overdue SDS', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch overdue SDS', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue SDS' } });
   }
 });
@@ -130,14 +130,14 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
 // GET /api/sds/:id — get single SDS
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).chemSds.findFirst({
+    const item = await prisma.chemSds.findFirst({
       where: { id: req.params.id },
       include: { chemical: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) {
-    logger.error('Failed to fetch SDS', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch SDS', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS' } });
   }
 });
@@ -150,19 +150,19 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createSdsSchema.safeParse(rest);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
 
-    const chemical = await (prisma as any).chemRegister.findFirst({ where: { id: chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: chemicalId, deletedAt: null } });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Supersede existing current SDS
-    await (prisma as any).chemSds.updateMany({ where: { chemicalId, status: 'CURRENT' }, data: { status: 'SUPERSEDED' } });
+    await prisma.chemSds.updateMany({ where: { chemicalId, status: 'CURRENT' }, data: { status: 'SUPERSEDED' } });
 
-    const data = await (prisma as any).chemSds.create({
-      data: { ...parsed.data, chemicalId, createdBy: (req as any).user?.id },
+    const data = await prisma.chemSds.create({
+      data: { ...parsed.data, chemicalId, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to create SDS', { error: error.message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to create SDS', { error: (error as Error).message });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
@@ -171,13 +171,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateSdsSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).chemSds.findFirst({ where: { id: req.params.id } });
+    const existing = await prisma.chemSds.findFirst({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
-    const data = await (prisma as any).chemSds.update({ where: { id: req.params.id }, data: parsed.data });
+    const data = await prisma.chemSds.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
-  } catch (error: any) {
-    logger.error('Failed to update SDS', { error: error.message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    logger.error('Failed to update SDS', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 

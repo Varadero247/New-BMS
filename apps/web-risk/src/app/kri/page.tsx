@@ -95,7 +95,7 @@ export default function KriPage() {
         amber: stats.kriAmber ?? breachData.filter(k => k.currentStatus === 'AMBER').length,
         green: stats.kriGreen ?? 0,
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load KRI data.');
     } finally {
       setLoading(false);

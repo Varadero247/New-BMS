@@ -51,13 +51,13 @@ export default function CCPsPage() {
       if (editing) { await api.put(`/ccps/${editing.id}`, form); }
       else { await api.post('/ccps', form); }
       setModalOpen(false); load();
-    } catch (e: any) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
+    } catch (e: unknown) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
     finally { setSubmitting(false); }
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this CCP?')) return;
-    try { await api.delete(`/ccps/${id}`); load(); } catch (e: any) { alert(e?.response?.data?.error?.message || 'Failed'); }
+    try { await api.delete(`/ccps/${id}`); load(); } catch (e: unknown) { alert(e?.response?.data?.error?.message || 'Failed'); }
   }
 
   const filtered = items.filter(i => JSON.stringify(i).toLowerCase().includes(search.toLowerCase()));

@@ -41,18 +41,18 @@ export const inventoryApi = {
   getProduct: (id: string) => api.get(`/products/${id}`),
   searchProduct: (query: string) => api.get('/products/search', { params: { q: query } }),
   getLowStockProducts: () => api.get('/products/low-stock'),
-  createProduct: (data: any) => api.post('/products', data),
-  updateProduct: (id: string, data: any) => api.patch(`/products/${id}`, data),
+  createProduct: (data: unknown) => api.post('/products', data),
+  updateProduct: (id: string, data: unknown) => api.patch(`/products/${id}`, data),
   deleteProduct: (id: string) => api.delete(`/products/${id}`),
 
   // Inventory
   getInventory: (params?: Record<string, any>) => api.get('/inventory', { params }),
   getInventorySummary: (warehouseId?: string) => api.get('/inventory/summary', { params: { warehouseId } }),
   getAvailability: (productId: string) => api.get(`/inventory/availability/${productId}`),
-  adjustStock: (data: any) => api.post('/inventory/adjust', data),
-  transferStock: (data: any) => api.post('/inventory/transfer', data),
-  receiveGoods: (data: any) => api.post('/inventory/receive', data),
-  issueGoods: (data: any) => api.post('/inventory/issue', data),
+  adjustStock: (data: unknown) => api.post('/inventory/adjust', data),
+  transferStock: (data: unknown) => api.post('/inventory/transfer', data),
+  receiveGoods: (data: unknown) => api.post('/inventory/receive', data),
+  issueGoods: (data: unknown) => api.post('/inventory/issue', data),
 
   // Transactions
   getTransactions: (params?: Record<string, any>) => api.get('/transactions', { params }),
@@ -65,21 +65,21 @@ export const inventoryApi = {
   getWarehouse: (id: string) => api.get(`/warehouses/${id}`),
   getWarehouseInventory: (id: string, params?: Record<string, any>) =>
     api.get(`/warehouses/${id}/inventory`, { params }),
-  createWarehouse: (data: any) => api.post('/warehouses', data),
-  updateWarehouse: (id: string, data: any) => api.patch(`/warehouses/${id}`, data),
+  createWarehouse: (data: unknown) => api.post('/warehouses', data),
+  updateWarehouse: (id: string, data: unknown) => api.patch(`/warehouses/${id}`, data),
   deleteWarehouse: (id: string) => api.delete(`/warehouses/${id}`),
 
   // Categories
   getCategories: (params?: Record<string, any>) => api.get('/categories', { params }),
   getCategory: (id: string) => api.get(`/categories/${id}`),
-  createCategory: (data: any) => api.post('/categories', data),
-  updateCategory: (id: string, data: any) => api.patch(`/categories/${id}`, data),
+  createCategory: (data: unknown) => api.post('/categories', data),
+  updateCategory: (id: string, data: unknown) => api.patch(`/categories/${id}`, data),
   deleteCategory: (id: string) => api.delete(`/categories/${id}`),
 
   // Suppliers
   getSuppliers: (params?: Record<string, any>) => api.get('/suppliers', { params }),
   getSupplier: (id: string) => api.get(`/suppliers/${id}`),
-  createSupplier: (data: any) => api.post('/suppliers', data),
-  updateSupplier: (id: string, data: any) => api.patch(`/suppliers/${id}`, data),
+  createSupplier: (data: unknown) => api.post('/suppliers', data),
+  updateSupplier: (id: string, data: unknown) => api.patch(`/suppliers/${id}`, data),
   deleteSupplier: (id: string) => api.delete(`/suppliers/${id}`),
 };

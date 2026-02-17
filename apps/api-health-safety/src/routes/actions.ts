@@ -62,8 +62,8 @@ router.get('/overdue', async (req: Request, res: Response) => {
     };
 
     const [items, total] = await Promise.all([
-      (prisma as any).hSAction.findMany({ where, skip, take: limit, orderBy: { dueDate: 'asc' } }),
-      (prisma as any).hSAction.count({ where }),
+      prisma.hSAction.findMany({ where, skip, take: limit, orderBy: { dueDate: 'asc' } }),
+      prisma.hSAction.count({ where }),
     ]);
 
     res.json({ success: true, data: items, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -77,19 +77,19 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, inProgress, completed, overdue, byType] = await Promise.all([
-      (prisma as any).hSAction.count({ where: { deletedAt: null } }),
-      (prisma as any).hSAction.count({ where: { deletedAt: null, status: 'OPEN' } }),
-      (prisma as any).hSAction.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
-      (prisma as any).hSAction.count({ where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } } }),
-      (prisma as any).hSAction.count({ where: { deletedAt: null, dueDate: { lt: new Date() }, status: { notIn: ['COMPLETED', 'VERIFIED', 'CANCELLED'] } } }),
-      (prisma as any).hSAction.groupBy({ by: ['type'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.hSAction.count({ where: { deletedAt: null } }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: 'OPEN' } }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } } }),
+      prisma.hSAction.count({ where: { deletedAt: null, dueDate: { lt: new Date() }, status: { notIn: ['COMPLETED', 'VERIFIED', 'CANCELLED'] } } }),
+      prisma.hSAction.groupBy({ by: ['type'], where: { deletedAt: null }, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, open, inProgress, completed, overdue,
-        byType: byType.map((t: any) => ({ type: t.type, count: t._count.id })),
+        byType: byType.map((t: Record<string, unknown>) => ({ type: t.type, count: t._count.id })),
       },
     });
   } catch (error) {
@@ -119,8 +119,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).hSAction.findMany({ where, skip, take: limit, orderBy: { dueDate: 'asc' } }),
-      (prisma as any).hSAction.count({ where }),
+      prisma.hSAction.findMany({ where, skip, take: limit, orderBy: { dueDate: 'asc' } }),
+      prisma.hSAction.count({ where }),
     ]);
 
     res.json({ success: true, data: items, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const action = await (prisma as any).hSAction.create({
+    const action = await prisma.hSAction.create({
       data: {
         referenceNumber: generateRefNumber(),
         ...parsed.data,
@@ -159,7 +159,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get single action
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const action = await (prisma as any).hSAction.findFirst({
+    const action = await prisma.hSAction.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!action) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -186,7 +186,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if ((parsed.data as any).completedAt) data.completedAt = new Date((parsed.data as any).completedAt);
     if ((parsed.data as any).verifiedAt) data.verifiedAt = new Date((parsed.data as any).verifiedAt);
 
-    const action = await (prisma as any).hSAction.update({ where: { id: req.params.id }, data });
+    const action = await prisma.hSAction.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: action });
   } catch (error) {
     logger.error('Update action error', { error: (error as Error).message });
@@ -197,10 +197,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
-    await (prisma as any).hSAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.hSAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error) {
     logger.error('Delete action error', { error: (error as Error).message });

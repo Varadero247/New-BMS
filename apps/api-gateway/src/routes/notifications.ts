@@ -16,7 +16,7 @@ export const bellState = new NotificationBellState();
 // ============================================
 router.get('/', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
 
@@ -40,7 +40,7 @@ router.get('/', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.get('/unread', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const count = bellState.getUnreadCount(user.id);
 
     res.json({
@@ -61,7 +61,7 @@ router.get('/unread', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.put('/read-all', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const count = bellState.markAllRead(user.id);
 
     res.json({
@@ -82,7 +82,7 @@ router.put('/read-all', authenticate, (req: Request, res: Response) => {
 // ============================================
 router.put('/:id/read', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const notificationId = req.params.id;
 
     if (!notificationId || notificationId.trim() === '') {
@@ -128,7 +128,7 @@ const testNotificationSchema = z.object({
 
 router.post('/test', authenticate, (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
     const roles: string[] = user.roles || [];
 
     // Admin only

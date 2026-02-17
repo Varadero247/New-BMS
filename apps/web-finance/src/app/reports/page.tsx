@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Label } from '@ims/ui';
 import { BarChart3, TrendingUp, TrendingDown, DollarSign, Download } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -69,7 +69,7 @@ export default function ReportsPage() {
     }
   }
 
-  function ReportSection({ title, data, icon: Icon, iconColor }: { title: string; data: ReportData | null; icon: any; iconColor: string }) {
+  function ReportSection({ title, data, icon: Icon, iconColor }: { title: string; data: ReportData | null; icon: ElementType; iconColor: string }) {
     if (!data) return null;
     return (
       <Card className="mb-4">

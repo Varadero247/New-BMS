@@ -34,24 +34,24 @@ const updatePeepSchema = createPeepSchema.partial();
 // GET /api/peep/due-review — PEEPs needing review (before /:id)
 router.get('/due-review', authenticate, async (_req: Request, res: Response) => {
   try {
-    const data = await (prisma as any).femPeep.findMany({
+    const data = await prisma.femPeep.findMany({
       where: { isActive: true, reviewDate: { lt: new Date() } },
       include: { premises: { select: { name: true } } },
       orderBy: { reviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to fetch PEEPs due review', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs due review' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch PEEPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs due review' } }); }
 });
 
 // GET /api/peep/premises/:id — all PEEPs for premises
 router.get('/premises/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const data = await (prisma as any).femPeep.findMany({
+    const data = await prisma.femPeep.findMany({
       where: { premisesId: req.params.id },
       orderBy: { personName: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to fetch PEEPs', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch PEEPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs' } }); }
 });
 
 // POST /api/peep/premises/:id — create PEEP
@@ -60,11 +60,11 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
     const parsed = createPeepSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { reviewDate, ...rest } = parsed.data;
-    const data = await (prisma as any).femPeep.create({
-      data: { ...rest, premisesId: req.params.id, reviewDate: new Date(reviewDate), createdBy: (req as any).user?.id },
+    const data = await prisma.femPeep.create({
+      data: { ...rest, premisesId: req.params.id, reviewDate: new Date(reviewDate), createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to create PEEP', { error: error.message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to create PEEP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // PUT /api/peep/:id — update PEEP
@@ -72,13 +72,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updatePeepSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).femPeep.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.femPeep.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PEEP not found' } });
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.reviewDate) updateData.reviewDate = new Date(parsed.data.reviewDate);
-    const data = await (prisma as any).femPeep.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.femPeep.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to update PEEP', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to update PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 export default router;

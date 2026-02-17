@@ -111,7 +111,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createBankAccountSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const account = await prisma.finBankAccount.create({
       data: {
@@ -232,7 +232,7 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
 router.post('/transactions', async (req: Request, res: Response) => {
   try {
     const data = createTransactionSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const bankAccount = await prisma.finBankAccount.findUnique({ where: { id: data.bankAccountId } });
     if (!bankAccount) {
@@ -269,7 +269,7 @@ router.post('/transactions', async (req: Request, res: Response) => {
 router.post('/import', async (req: Request, res: Response) => {
   try {
     const data = importTransactionsSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const bankAccount = await prisma.finBankAccount.findUnique({ where: { id: data.bankAccountId } });
     if (!bankAccount) {
@@ -331,7 +331,7 @@ router.get('/reconciliations/list', async (req: Request, res: Response) => {
 router.post('/reconciliations', async (req: Request, res: Response) => {
   try {
     const data = startReconciliationSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const reconciliation = await prisma.finReconciliation.create({
       data: {
@@ -358,7 +358,7 @@ router.post('/reconciliations', async (req: Request, res: Response) => {
 router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response) => {
   try {
     const data = reconcileTransactionsSchema.parse(req.body);
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const reconciliation = await prisma.finReconciliation.findUnique({ where: { id: req.params.id } });
     if (!reconciliation) {
@@ -388,7 +388,7 @@ router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response
 // POST /api/banking/reconciliations/:id/complete - Complete reconciliation
 router.post('/reconciliations/:id/complete', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = (req as AuthRequest).user;
 
     const reconciliation = await prisma.finReconciliation.findUnique({ where: { id: req.params.id } });
     if (!reconciliation) {

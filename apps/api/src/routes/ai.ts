@@ -171,7 +171,7 @@ router.put('/settings', authenticate, requireRole(['ADMIN']), validate(settingsS
       });
     } else {
       // Only update API key if provided and not masked
-      const updateData: any = { ...req.body };
+      const updateData: Record<string, unknown> = { ...req.body };
       if (!req.body.apiKey || req.body.apiKey.startsWith('••••')) {
         delete updateData.apiKey;
       }
@@ -209,7 +209,7 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
     }
 
     // Get source data
-    let sourceData: any;
+    let sourceData: unknown;
     let standardContext = '';
 
     if (sourceType === 'risk' || sourceType === 'aspect') {
@@ -268,7 +268,7 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
       );
 
       // Parse response
-      let parsedResponse: any;
+      let parsedResponse: unknown;
       try {
         parsedResponse = JSON.parse(aiResponse.content);
       } catch {
@@ -311,12 +311,12 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
       }
 
       res.json({ success: true, data: updatedAnalysis });
-    } catch (aiError: any) {
+    } catch (aiError: unknown) {
       // Update analysis with error
       await prisma.aIAnalysis.update({
         where: { id: analysis.id },
         data: {
-          response: { error: aiError.message },
+          response: { error: (aiError as Error).message },
           status: 'ERROR',
         },
       });

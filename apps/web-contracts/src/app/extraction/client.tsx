@@ -32,7 +32,7 @@ export default function ExtractionClient() {
     try {
       const response = await api.post('/extraction/analyze', { text });
       setResult(response.data.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.error?.message || 'Failed to analyze text');
     } finally {
       setLoading(false);

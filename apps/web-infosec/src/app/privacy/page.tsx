@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
 import { FileText, Eye, UserCheck, Clock, Shield, Plus } from 'lucide-react';
@@ -205,7 +205,7 @@ export default function PrivacyPage() {
     }
   }
 
-  const tabs: { key: Tab; label: string; icon: any }[] = [
+  const tabs: { key: Tab; label: string; icon: ElementType }[] = [
     { key: 'ropa', label: 'ROPA', icon: FileText },
     { key: 'dpia', label: 'DPIA', icon: Eye },
     { key: 'dsar', label: 'DSAR', icon: UserCheck },

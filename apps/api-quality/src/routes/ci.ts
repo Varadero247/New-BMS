@@ -16,7 +16,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 async function generateRefNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = 'QMS-CI';
-  const count = await (prisma as any).qualContinuousImprovement.count({
+  const count = await prisma.qualContinuousImprovement.count({
     where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
   });
   return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
@@ -52,19 +52,19 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, ideas, approved, inProgress, completed, byPriority] = await Promise.all([
-      (prisma as any).qualContinuousImprovement.count({ where: { deletedAt: null } }),
-      (prisma as any).qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IDEA' } }),
-      (prisma as any).qualContinuousImprovement.count({ where: { deletedAt: null, status: 'APPROVED' } }),
-      (prisma as any).qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
-      (prisma as any).qualContinuousImprovement.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
-      (prisma as any).qualContinuousImprovement.groupBy({ by: ['priority'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IDEA' } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'APPROVED' } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
+      prisma.qualContinuousImprovement.groupBy({ by: ['priority'], where: { deletedAt: null }, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, ideas, approved, inProgress, completed,
-        byPriority: byPriority.map((p: any) => ({ priority: p.priority, count: p._count.id })),
+        byPriority: byPriority.map((p: Record<string, unknown>) => ({ priority: p.priority, count: p._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -94,8 +94,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).qualContinuousImprovement.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
-      (prisma as any).qualContinuousImprovement.count({ where }),
+      prisma.qualContinuousImprovement.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.qualContinuousImprovement.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -116,7 +116,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const referenceNumber = await generateRefNumber();
 
-    const item = await (prisma as any).qualContinuousImprovement.create({
+    const item = await prisma.qualContinuousImprovement.create({
       data: {
         referenceNumber,
         ...parsed.data,
@@ -137,7 +137,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -154,7 +154,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -162,7 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if ((parsed.data as any).completedDate) data.completedDate = new Date((parsed.data as any).completedDate);
     if ((parsed.data as any).approvedDate) data.approvedDate = new Date((parsed.data as any).approvedDate);
 
-    const item = await (prisma as any).qualContinuousImprovement.update({ where: { id: req.params.id }, data });
+    const item = await prisma.qualContinuousImprovement.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to update continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -173,10 +173,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
 
-    await (prisma as any).qualContinuousImprovement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualContinuousImprovement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });

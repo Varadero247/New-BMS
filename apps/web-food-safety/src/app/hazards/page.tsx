@@ -60,13 +60,13 @@ export default function HazardsPage() {
       if (editing) { await api.put(`/hazards/${editing.id}`, form); }
       else { await api.post('/hazards', form); }
       setModalOpen(false); load();
-    } catch (e: any) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
+    } catch (e: unknown) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
     finally { setSubmitting(false); }
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this hazard?')) return;
-    try { await api.delete(`/hazards/${id}`); load(); } catch (e: any) { alert(e?.response?.data?.error?.message || 'Failed'); }
+    try { await api.delete(`/hazards/${id}`); load(); } catch (e: unknown) { alert(e?.response?.data?.error?.message || 'Failed'); }
   }
 
   const filtered = items.filter(i =>

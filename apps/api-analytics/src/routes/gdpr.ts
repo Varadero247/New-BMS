@@ -68,15 +68,15 @@ router.get('/report', async (_req: Request, res: Response) => {
 
     const requestStats = {
       total: dataRequests.length,
-      received: dataRequests.filter((r: any) => r.status === 'RECEIVED').length,
-      verified: dataRequests.filter((r: any) => r.status === 'VERIFIED').length,
-      processing: dataRequests.filter((r: any) => r.status === 'PROCESSING').length,
-      completed: dataRequests.filter((r: any) => r.status === 'COMPLETED').length,
-      rejected: dataRequests.filter((r: any) => r.status === 'REJECTED').length,
+      received: dataRequests.filter((r: Record<string, unknown>) => r.status === 'RECEIVED').length,
+      verified: dataRequests.filter((r: Record<string, unknown>) => r.status === 'VERIFIED').length,
+      processing: dataRequests.filter((r: Record<string, unknown>) => r.status === 'PROCESSING').length,
+      completed: dataRequests.filter((r: Record<string, unknown>) => r.status === 'COMPLETED').length,
+      rejected: dataRequests.filter((r: Record<string, unknown>) => r.status === 'REJECTED').length,
     };
 
-    const atRiskCategories = categories.filter((c: any) => c.complianceStatus === 'AT_RISK');
-    const activeDpas = dpas.filter((d: any) => d.isActive);
+    const atRiskCategories = categories.filter((c: Record<string, unknown>) => c.complianceStatus === 'AT_RISK');
+    const activeDpas = dpas.filter((d: Record<string, unknown>) => d.isActive);
 
     res.json({
       success: true,

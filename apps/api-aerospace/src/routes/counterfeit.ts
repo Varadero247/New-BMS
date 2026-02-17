@@ -20,7 +20,7 @@ router.param('id', validateIdParam());
 async function generateCounterfeitReportRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroCounterfeitReport.count({
+  const count = await prisma.aeroCounterfeitReport.count({
     where: { refNumber: { startsWith: `AERO-CF-${yyyy}` } },
   });
   return `AERO-CF-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -29,7 +29,7 @@ async function generateCounterfeitReportRefNumber(): Promise<string> {
 async function generateSuspectPartRefNumber(): Promise<string> {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const count = await (prisma as any).aeroSuspectPart.count({
+  const count = await prisma.aeroSuspectPart.count({
     where: { refNumber: { startsWith: `AERO-SPT-${yyyy}` } },
   });
   return `AERO-SPT-${yyyy}-${String(count + 1).padStart(3, '0')}`;
@@ -94,7 +94,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (disposition) where.disposition = disposition;
     if (search) {
@@ -108,13 +108,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [reports, total] = await Promise.all([
-      (prisma as any).aeroCounterfeitReport.findMany({
+      prisma.aeroCounterfeitReport.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).aeroCounterfeitReport.count({ where }),
+      prisma.aeroCounterfeitReport.count({ where }),
     ]);
 
     res.json({
@@ -131,7 +131,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id - Get counterfeit report
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const report = await (prisma as any).aeroCounterfeitReport.findUnique({
+    const report = await prisma.aeroCounterfeitReport.findUnique({
       where: { id: req.params.id },
     });
 
@@ -152,7 +152,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = createCounterfeitReportSchema.parse(req.body);
     const refNumber = await generateCounterfeitReportRefNumber();
 
-    const report = await (prisma as any).aeroCounterfeitReport.create({
+    const report = await prisma.aeroCounterfeitReport.create({
       data: {
         refNumber,
         title: data.title,
@@ -191,14 +191,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // PUT /:id - Update counterfeit report
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' } });
     }
 
     const data = updateCounterfeitReportSchema.parse(req.body);
 
-    const report = await (prisma as any).aeroCounterfeitReport.update({
+    const report = await prisma.aeroCounterfeitReport.update({
       where: { id: req.params.id },
       data,
     });
@@ -219,12 +219,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 // DELETE /:id - Soft delete counterfeit report
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' } });
     }
 
-    await (prisma as any).aeroCounterfeitReport.update({
+    await prisma.aeroCounterfeitReport.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -248,7 +248,7 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (riskLevel) where.riskLevel = riskLevel;
     if (search) {
       where.OR = [
@@ -260,13 +260,13 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
     }
 
     const [parts, total] = await Promise.all([
-      (prisma as any).aeroSuspectPart.findMany({
+      prisma.aeroSuspectPart.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: [{ riskLevel: 'asc' }, { createdAt: 'desc' }],
       }),
-      (prisma as any).aeroSuspectPart.count({ where }),
+      prisma.aeroSuspectPart.count({ where }),
     ]);
 
     res.json({
@@ -286,7 +286,7 @@ router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
     const data = createSuspectPartSchema.parse(req.body);
     const refNumber = await generateSuspectPartRefNumber();
 
-    const part = await (prisma as any).aeroSuspectPart.create({
+    const part = await prisma.aeroSuspectPart.create({
       data: {
         refNumber,
         partNumber: data.partNumber,

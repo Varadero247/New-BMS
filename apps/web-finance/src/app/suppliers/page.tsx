@@ -102,7 +102,7 @@ export default function SuppliersPage() {
       await api.post('/suppliers', formData);
       setCreateModalOpen(false);
       loadSuppliers();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create supplier.');
     } finally {
       setSubmitting(false);
@@ -119,7 +119,7 @@ export default function SuppliersPage() {
       await api.put(`/suppliers/${editingId}`, formData);
       setEditModalOpen(false);
       loadSuppliers();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to update supplier.');
     } finally {
       setSubmitting(false);

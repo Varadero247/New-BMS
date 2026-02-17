@@ -35,35 +35,35 @@ const updateSchema = createSchema.partial();
 
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
-  const c = await (prisma as any).ptwPermit.count({ where: { orgId, referenceNumber: { startsWith: `PTW-${y}` } } });
+  const c = await prisma.ptwPermit.count({ where: { orgId, referenceNumber: { startsWith: `PTW-${y}` } } });
   return `PTW-${y}-${String(c + 1).padStart(4, '0')}`;
 }
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { orgId, deletedAt: null };
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
     if (search) where.title = { contains: search, mode: 'insensitive' };
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).ptwPermit.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
-      (prisma as any).ptwPermit.count({ where }),
+      prisma.ptwPermit.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
+      prisma.ptwPermit.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) {
-    logger.error('Fetch failed', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('Fetch failed', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch permits' } });
   }
 });
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch permit' } });
   }
 });
@@ -74,34 +74,34 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const { title, description, type, status, priority, location, area, requestedBy, requestedByName, approvedBy, approvedByName, startDate, endDate, hazards, precautions, ppe, emergencyProcedure, isolations, gasTestRequired, gasTestResult, notes } = parsed.data;
-    const data = await (prisma as any).ptwPermit.create({
+    const data = await prisma.ptwPermit.create({
       data: {
         title, description, type, status, priority, location, area, requestedBy, requestedByName, approvedBy, approvedByName,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
         hazards, precautions, ppe, emergencyProcedure, isolations, gasTestRequired, gasTestResult, notes,
-        orgId, referenceNumber, createdBy: (req as any).user?.id, updatedBy: (req as any).user?.id,
+        orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id,
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
   }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
     const { title, description, type, status, priority, location, area, requestedBy, requestedByName, approvedBy, approvedByName, startDate, endDate, hazards, precautions, ppe, emergencyProcedure, isolations, gasTestRequired, gasTestResult, notes } = parsed.data;
-    const updateData: any = { updatedBy: (req as any).user?.id };
+    const updateData: Record<string, unknown> = { updatedBy: (req as AuthRequest).user?.id };
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (type !== undefined) updateData.type = type;
@@ -123,21 +123,21 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (gasTestRequired !== undefined) updateData.gasTestRequired = gasTestRequired;
     if (gasTestResult !== undefined) updateData.gasTestResult = gasTestResult;
     if (notes !== undefined) updateData.notes = notes;
-    const data = await (prisma as any).ptwPermit.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.ptwPermit.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
   }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
-    await (prisma as any).ptwPermit.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as any).user?.id } });
+    await prisma.ptwPermit.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'permit deleted successfully' } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: error.message } });
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
   }
 });
 

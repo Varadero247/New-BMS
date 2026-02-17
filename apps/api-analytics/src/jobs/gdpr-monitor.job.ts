@@ -31,8 +31,8 @@ export async function runGdprMonitorJob(): Promise<void> {
       }
     }
 
-    const compliant = categories.filter((c: any) => c.complianceStatus === 'COMPLIANT').length;
-    const atRisk = categories.filter((c: any) => c.complianceStatus === 'AT_RISK').length + flaggedCount;
+    const compliant = categories.filter((c: Record<string, unknown>) => c.complianceStatus === 'COMPLIANT').length;
+    const atRisk = categories.filter((c: Record<string, unknown>) => c.complianceStatus === 'AT_RISK').length + flaggedCount;
 
     logger.info('GDPR monitor job completed', {
       totalCategories: categories.length,

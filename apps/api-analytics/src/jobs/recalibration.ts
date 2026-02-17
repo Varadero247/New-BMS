@@ -20,7 +20,7 @@ type Trajectory = 'BEHIND' | 'ON_TRACK' | 'AHEAD';
 // Rolling averages over the last N snapshots
 // ---------------------------------------------------------------------------
 export function calculateRollingAverages(
-  snapshots: { mrrGrowthPct: any; revenueChurnPct: any; newCustomers: number }[],
+  snapshots: { mrrGrowthPct: number | null; revenueChurnPct: number | null; newCustomers: number }[],
   windowSize: number = 3
 ): RollingAverages {
   if (snapshots.length === 0) {
@@ -131,11 +131,11 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
     orderBy: { monthNumber: 'asc' },
   });
 
-  const plannedMrr = nextTargets.map((t: any) => Number(t.plannedMrr));
+  const plannedMrr = nextTargets.map((t: Record<string, unknown>) => Number(t.plannedMrr));
   const trajectory = classifyTrajectory(projectedMrr, plannedMrr);
 
   // Generate blended target recommendations
-  const recommendations = nextTargets.map((target: any, i: number) => ({
+  const recommendations = nextTargets.map((target: Record<string, unknown>, i: number) => ({
     metric: 'MRR',
     current: projectedMrr[i] || currentMrr,
     suggested: blendTargets(projectedMrr[i] || currentMrr, Number(target.plannedMrr)),

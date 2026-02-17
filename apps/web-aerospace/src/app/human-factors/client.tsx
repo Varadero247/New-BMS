@@ -235,7 +235,7 @@ export default function HumanFactorsClient() {
       setIncidentForm(emptyIncidentForm);
       fetchIncidents();
       fetchDashboard();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create incident');
       console.error('Failed to create HF incident:', err);
     } finally {
@@ -257,7 +257,7 @@ export default function HumanFactorsClient() {
       setShowFatigueModal(false);
       setFatigueForm(emptyFatigueForm);
       fetchFatigue();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create fatigue assessment');
       console.error('Failed to create fatigue assessment:', err);
     } finally {

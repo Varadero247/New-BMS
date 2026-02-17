@@ -64,7 +64,7 @@ export default function CoshhDetailPage() {
       try {
         const res = await api.get(`/coshh/${id}`);
         setCoshh(res.data.data);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e.response?.status === 404 ? 'COSHH assessment not found.' : 'Failed to load assessment.');
       } finally {
         setLoading(false);
@@ -78,7 +78,7 @@ export default function CoshhDetailPage() {
       const res = await api.post(`/coshh/${id}/supersede`);
       const newId = res.data.data?.id;
       if (newId) router.push(`/coshh/${newId}`);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to supersede.');
     } finally {
       setActionLoading('');
@@ -91,7 +91,7 @@ export default function CoshhDetailPage() {
       await api.patch(`/coshh/${id}`, { status: 'APPROVED', reviewDate: new Date().toISOString() });
       const res = await api.get(`/coshh/${id}`);
       setCoshh(res.data.data);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.response?.data?.message || 'Failed to mark as reviewed.');
     } finally {
       setActionLoading('');

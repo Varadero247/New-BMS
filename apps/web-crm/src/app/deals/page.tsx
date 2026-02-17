@@ -110,7 +110,7 @@ export default function DealsPage() {
       await api.post('/deals', payload);
       setCreateModalOpen(false);
       loadDeals();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create deal.');
     } finally {
       setSubmitting(false);

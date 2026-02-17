@@ -38,7 +38,7 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const type = req.query.type as string | undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (type) where.type = type;
 
@@ -143,7 +143,7 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       });
     }
 
-    const data: any = { status };
+    const data: Record<string, unknown> = { status };
     if (status === 'COMPLETED') {
       data.completedAt = new Date();
     }

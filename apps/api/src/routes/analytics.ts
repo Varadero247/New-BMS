@@ -349,7 +349,7 @@ router.post('/pareto', authenticate, validate(paretoSchema), async (req, res, ne
 // PUT /api/analytics/pareto/:id
 router.put('/pareto/:id', authenticate, validate(paretoSchema.partial()), async (req, res, next) => {
   try {
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.periodStart) updateData.periodStart = new Date(req.body.periodStart);
     if (req.body.periodEnd) updateData.periodEnd = new Date(req.body.periodEnd);
 
@@ -468,11 +468,11 @@ router.get('/bow-tie/:id', authenticate, async (req, res, next) => {
 router.post('/bow-tie', authenticate, validate(bowTieSchema), async (req, res, next) => {
   try {
     // Add IDs to items if not provided
-    const threats = req.body.threats.map((t: any) => ({ ...t, id: t.id || uuidv4() }));
-    const consequences = req.body.consequences.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
-    const preventiveControls = req.body.preventiveControls.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
-    const mitigatingControls = req.body.mitigatingControls.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
-    const escalationFactors = req.body.escalationFactors?.map((e: any) => ({ ...e, id: e.id || uuidv4() })) || [];
+    const threats = req.body.threats.map((t: Record<string, unknown>) => ({ ...t, id: t.id || uuidv4() }));
+    const consequences = req.body.consequences.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
+    const preventiveControls = req.body.preventiveControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
+    const mitigatingControls = req.body.mitigatingControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
+    const escalationFactors = req.body.escalationFactors?.map((e: Record<string, unknown>) => ({ ...e, id: e.id || uuidv4() })) || [];
 
     const analysis = await prisma.bowTieAnalysis.create({
       data: {
@@ -497,23 +497,23 @@ router.post('/bow-tie', authenticate, validate(bowTieSchema), async (req, res, n
 // PUT /api/analytics/bow-tie/:id
 router.put('/bow-tie/:id', authenticate, validate(bowTieSchema.partial()), async (req, res, next) => {
   try {
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
 
     // Add IDs to new items
     if (req.body.threats) {
-      updateData.threats = req.body.threats.map((t: any) => ({ ...t, id: t.id || uuidv4() }));
+      updateData.threats = req.body.threats.map((t: Record<string, unknown>) => ({ ...t, id: t.id || uuidv4() }));
     }
     if (req.body.consequences) {
-      updateData.consequences = req.body.consequences.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
+      updateData.consequences = req.body.consequences.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
     }
     if (req.body.preventiveControls) {
-      updateData.preventiveControls = req.body.preventiveControls.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
+      updateData.preventiveControls = req.body.preventiveControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
     }
     if (req.body.mitigatingControls) {
-      updateData.mitigatingControls = req.body.mitigatingControls.map((c: any) => ({ ...c, id: c.id || uuidv4() }));
+      updateData.mitigatingControls = req.body.mitigatingControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
     }
     if (req.body.escalationFactors) {
-      updateData.escalationFactors = req.body.escalationFactors.map((e: any) => ({ ...e, id: e.id || uuidv4() }));
+      updateData.escalationFactors = req.body.escalationFactors.map((e: Record<string, unknown>) => ({ ...e, id: e.id || uuidv4() }));
     }
 
     const analysis = await prisma.bowTieAnalysis.update({
@@ -734,7 +734,7 @@ router.post('/trends/calculate', authenticate, async (req, res, next) => {
       metrics.push({ metric: 'incidents', value: incidentCount, month });
 
       // Actions closed
-      const actionsWhere: any = {
+      const actionsWhere: Record<string, unknown> = {
         completedAt: { gte: startDate, lte: endDate },
       };
       if (standard) actionsWhere.standard = standard;

@@ -63,8 +63,8 @@ async function seedTemplates() {
         });
         created++;
       }
-    } catch (err: any) {
-      console.error(`  ERROR seeding ${tpl.code}: ${err.message}`);
+    } catch (err: unknown) {
+      console.error(`  ERROR seeding ${tpl.code}: ${(err as Error).message}`);
     }
   }
 

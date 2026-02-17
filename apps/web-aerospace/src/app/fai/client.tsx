@@ -243,7 +243,7 @@ export default function FAIClient() {
       setShowCreateModal(false);
       setForm(emptyForm);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create FAI');
       console.error('Failed to create FAI:', err);
     } finally {
@@ -257,7 +257,7 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part1`, { characteristics: part1Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save Part 1:', err);
       alert(err.response?.data?.message || 'Failed to save Part 1 data');
     } finally {
@@ -271,7 +271,7 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part2`, { documents: part2Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save Part 2:', err);
       alert(err.response?.data?.message || 'Failed to save Part 2 data');
     } finally {
@@ -285,7 +285,7 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part3`, { tests: part3Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save Part 3:', err);
       alert(err.response?.data?.message || 'Failed to save Part 3 data');
     } finally {
@@ -300,7 +300,7 @@ export default function FAIClient() {
       await api.post(`/fai/${selectedItem.id}/approve`);
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to approve FAI:', err);
       alert(err.response?.data?.message || 'Failed to approve FAI');
     }
@@ -314,7 +314,7 @@ export default function FAIClient() {
       setPartialOpenItems('');
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to mark partial approval:', err);
       alert(err.response?.data?.message || 'Failed to mark partial approval');
     }

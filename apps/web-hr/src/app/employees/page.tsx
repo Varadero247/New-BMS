@@ -215,10 +215,10 @@ export default function EmployeesPage() {
       setCreateModalOpen(false);
       setFormData(initialFormState);
       loadEmployees();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error?.response?.data?.error?.message;
       if (Array.isArray(msg)) {
-        setFormError(msg.map((e: any) => e.message).join(', '));
+        setFormError(msg.map((e: Record<string, unknown>) => e.message).join(', '));
       } else if (typeof msg === 'string') {
         setFormError(msg);
       } else {
@@ -628,7 +628,7 @@ export default function EmployeesPage() {
                     className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="">Select manager</option>
-                    {allEmployees.map((emp: any) => (
+                    {allEmployees.map((emp: Record<string, unknown>) => (
                       <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName}</option>
                     ))}
                   </select>

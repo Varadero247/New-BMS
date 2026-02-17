@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ElementType } from 'react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 import {
@@ -814,7 +814,7 @@ function PlanVsActualTab({ snapshots, planTargets }: { snapshots: SnapshotRow[];
 }
 
 function StatCard({ label, value, icon: Icon, color, bgColor, subtitle }: {
-  label: string; value: string; icon: any; color: string; bgColor: string; subtitle?: string;
+  label: string; value: string; icon: ElementType; color: string; bgColor: string; subtitle?: string;
 }) {
   return (
     <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6">

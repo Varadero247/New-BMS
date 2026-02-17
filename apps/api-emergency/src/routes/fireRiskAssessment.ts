@@ -46,7 +46,7 @@ const updateFraSchema = createFraSchema.partial();
 
 async function generateFraRef(orgId: string): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await (prisma as any).femFireRiskAssessment.count({
+  const count = await prisma.femFireRiskAssessment.count({
     where: { organisationId: orgId, referenceNumber: { startsWith: `FRA-${year}` } },
   });
   return `FRA-${year}-${String(count + 1).padStart(4, '0')}`;
@@ -55,31 +55,31 @@ async function generateFraRef(orgId: string): Promise<string> {
 // GET /api/fra — all FRAs with filter
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const { status, premisesId, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const where: any = { organisationId: orgId, deletedAt: null };
+    const where: Record<string, unknown> = { organisationId: orgId, deletedAt: null };
     if (status) where.assessmentStatus = status;
     if (premisesId) where.premisesId = premisesId;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      (prisma as any).femFireRiskAssessment.findMany({ where, skip, take: parseInt(limit), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
-      (prisma as any).femFireRiskAssessment.count({ where }),
+      prisma.femFireRiskAssessment.findMany({ where, skip, take: parseInt(limit), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
+      prisma.femFireRiskAssessment.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: any) { logger.error('Failed to fetch FRAs', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch fire risk assessments' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch fire risk assessments' } }); }
 });
 
 // GET /api/fra/overdue — FRAs past review date (MUST be before /:id)
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
-    const data = await (prisma as any).femFireRiskAssessment.findMany({
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const data = await prisma.femFireRiskAssessment.findMany({
       where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } },
       include: { premises: { select: { name: true } } },
       orderBy: { nextReviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to fetch overdue FRAs', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue FRAs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch overdue FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue FRAs' } }); }
 });
 
 // POST /api/fra — create FRA
@@ -87,12 +87,12 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createFraSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = (req as AuthRequest).user?.orgId || 'default';
     const referenceNumber = await generateFraRef(orgId);
     const overallRiskScore = calculateRiskScore(parsed.data.likelihoodRating, parsed.data.consequenceRating);
     const overallRiskLevel = calculateFireRiskLevel(parsed.data.likelihoodRating, parsed.data.consequenceRating);
     const { premisesId, assessmentDate, nextReviewDate, staffInformedDate, ...rest } = parsed.data;
-    const data = await (prisma as any).femFireRiskAssessment.create({
+    const data = await prisma.femFireRiskAssessment.create({
       data: {
         ...rest,
         premisesId,
@@ -102,24 +102,24 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         overallRiskScore,
         overallRiskLevel,
         referenceNumber,
-        createdBy: (req as any).user?.id,
+        createdBy: (req as AuthRequest).user?.id,
         organisationId: orgId,
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to create FRA', { error: error.message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to create FRA', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
 });
 
 // GET /api/fra/:id — get full FRA
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).femFireRiskAssessment.findFirst({
+    const item = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, deletedAt: null },
       include: { premises: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) { logger.error('Failed to fetch FRA', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch FRA' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch FRA' } }); }
 });
 
 // PUT /api/fra/:id — update
@@ -127,9 +127,9 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateFraSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await (prisma as any).femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
-    const updateData: any = { ...parsed.data };
+    const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.assessmentDate) updateData.assessmentDate = new Date(parsed.data.assessmentDate);
     if (parsed.data.nextReviewDate) updateData.nextReviewDate = new Date(parsed.data.nextReviewDate);
     if (parsed.data.staffInformedDate) updateData.staffInformedDate = new Date(parsed.data.staffInformedDate);
@@ -137,34 +137,34 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       updateData.overallRiskScore = calculateRiskScore(parsed.data.likelihoodRating, parsed.data.consequenceRating);
       updateData.overallRiskLevel = calculateFireRiskLevel(parsed.data.likelihoodRating, parsed.data.consequenceRating);
     }
-    const data = await (prisma as any).femFireRiskAssessment.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.femFireRiskAssessment.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to update FRA', { error: error.message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to update FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
 });
 
 // POST /api/fra/:id/approve — approve and sign off
 router.post('/:id/approve', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
-    const data = await (prisma as any).femFireRiskAssessment.update({
+    const data = await prisma.femFireRiskAssessment.update({
       where: { id: req.params.id },
-      data: { approvedBy: (req as any).user?.id, approvedAt: new Date(), assessmentStatus: 'CURRENT', writtenRecordComplete: true },
+      data: { approvedBy: (req as AuthRequest).user?.id, approvedAt: new Date(), assessmentStatus: 'CURRENT', writtenRecordComplete: true },
     });
     res.json({ success: true, data });
-  } catch (error: any) { logger.error('Failed to approve FRA', { error: error.message }); res.status(500).json({ success: false, error: { code: 'APPROVE_ERROR', message: error.message } }); }
+  } catch (error: unknown) { logger.error('Failed to approve FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'APPROVE_ERROR', message: (error as Error).message } }); }
 });
 
 // GET /api/fra/:id/action-plan — just the action plan items
 router.get('/:id/action-plan', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).femFireRiskAssessment.findFirst({
+    const item = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, deletedAt: null },
       select: { id: true, referenceNumber: true, actionPlan: true, overallRiskLevel: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     res.json({ success: true, data: item });
-  } catch (error: any) { logger.error('Failed to fetch action plan', { error: error.message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch action plan' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch action plan', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch action plan' } }); }
 });
 
 export default router;

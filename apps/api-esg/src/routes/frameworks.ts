@@ -104,7 +104,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: framework });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Framework code already exists' } });
     }
     logger.error('Error creating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -165,7 +165,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Metric code already exists' } });
     }
     logger.error('Error creating metric', { error: error instanceof Error ? error.message : 'Unknown error' });

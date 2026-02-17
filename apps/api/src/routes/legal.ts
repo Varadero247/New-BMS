@@ -206,7 +206,7 @@ router.put('/:id', authenticate, validate(updateLegalSchema), async (req, res, n
       });
     }
 
-    const updateData: any = { ...req.body };
+    const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.effectiveDate) updateData.effectiveDate = new Date(req.body.effectiveDate);
     if (req.body.expiryDate) updateData.expiryDate = new Date(req.body.expiryDate);
     if (req.body.nextAssessmentDate) updateData.nextAssessmentDate = new Date(req.body.nextAssessmentDate);

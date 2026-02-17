@@ -108,7 +108,7 @@ export default function ContactsPage() {
       await api.post('/contacts', payload);
       setCreateModalOpen(false);
       loadContacts();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to create contact.');
     } finally {
       setSubmitting(false);
@@ -127,7 +127,7 @@ export default function ContactsPage() {
       await api.put(`/contacts/${editingId}`, payload);
       setEditModalOpen(false);
       loadContacts();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(err?.response?.data?.error?.message || 'Failed to update contact.');
     } finally {
       setSubmitting(false);

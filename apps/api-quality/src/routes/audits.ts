@@ -16,7 +16,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 async function generateRefNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = 'QMS-AUD';
-  const count = await (prisma as any).qualAudit.count({
+  const count = await prisma.qualAudit.count({
     where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
   });
   return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
@@ -66,8 +66,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).qualAudit.findMany({ where, skip, take: limit, orderBy: { scheduledDate: 'desc' } }),
-      (prisma as any).qualAudit.count({ where }),
+      prisma.qualAudit.findMany({ where, skip, take: limit, orderBy: { scheduledDate: 'desc' } }),
+      prisma.qualAudit.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -88,7 +88,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const referenceNumber = await generateRefNumber();
 
-    const item = await (prisma as any).qualAudit.create({
+    const item = await prisma.qualAudit.create({
       data: {
         referenceNumber,
         ...parsed.data,
@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get audit by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -127,7 +127,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -136,7 +136,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if ((parsed.data as any).completedDate) data.completedDate = new Date((parsed.data as any).completedDate);
     if ((parsed.data as any).nextAuditDate) data.nextAuditDate = new Date((parsed.data as any).nextAuditDate);
 
-    const item = await (prisma as any).qualAudit.update({ where: { id: req.params.id }, data });
+    const item = await prisma.qualAudit.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to update audit', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -147,10 +147,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
-    await (prisma as any).qualAudit.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualAudit.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete audit', { error: error instanceof Error ? error.message : 'Unknown error' });

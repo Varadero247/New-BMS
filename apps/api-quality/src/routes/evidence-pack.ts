@@ -611,7 +611,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const pack: EvidencePack = {
       id,
       referenceNumber,
-      organisationId: (req as any).organisationId || 'default',
+      organisationId: (req as AuthRequest).organisationId || 'default',
       standard: data.standard,
       status: 'GENERATING',
       format: data.format,

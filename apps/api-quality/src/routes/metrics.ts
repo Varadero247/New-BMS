@@ -16,7 +16,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 async function generateRefNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = 'QMS-MET';
-  const count = await (prisma as any).qualMetric.count({
+  const count = await prisma.qualMetric.count({
     where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
   });
   return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
@@ -51,18 +51,18 @@ router.get('/summary', async (req: Request, res: Response) => {
     if (req.query.organisationId) where.organisationId = req.query.organisationId;
 
     const [total, onTrack, atRisk, offTrack, byCategory] = await Promise.all([
-      (prisma as any).qualMetric.count({ where }),
-      (prisma as any).qualMetric.count({ where: { ...where, status: 'ON_TRACK' } }),
-      (prisma as any).qualMetric.count({ where: { ...where, status: 'AT_RISK' } }),
-      (prisma as any).qualMetric.count({ where: { ...where, status: 'OFF_TRACK' } }),
-      (prisma as any).qualMetric.groupBy({ by: ['category'], where, _count: { id: true } }),
+      prisma.qualMetric.count({ where }),
+      prisma.qualMetric.count({ where: { ...where, status: 'ON_TRACK' } }),
+      prisma.qualMetric.count({ where: { ...where, status: 'AT_RISK' } }),
+      prisma.qualMetric.count({ where: { ...where, status: 'OFF_TRACK' } }),
+      prisma.qualMetric.groupBy({ by: ['category'], where, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, onTrack, atRisk, offTrack,
-        byCategory: byCategory.map((c: any) => ({ category: c.category, count: c._count.id })),
+        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: c._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -91,8 +91,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).qualMetric.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
-      (prisma as any).qualMetric.count({ where }),
+      prisma.qualMetric.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.qualMetric.count({ where }),
     ]);
 
     res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
@@ -113,7 +113,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const referenceNumber = await generateRefNumber();
 
-    const item = await (prisma as any).qualMetric.create({
+    const item = await prisma.qualMetric.create({
       data: {
         referenceNumber,
         ...parsed.data,
@@ -134,7 +134,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get metric by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await (prisma as any).qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -151,13 +151,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await (prisma as any).qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.measurementDate) data.measurementDate = new Date(parsed.data.measurementDate);
 
-    const item = await (prisma as any).qualMetric.update({ where: { id: req.params.id }, data });
+    const item = await prisma.qualMetric.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to update metric', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -168,10 +168,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
-    await (prisma as any).qualMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete metric', { error: error instanceof Error ? error.message : 'Unknown error' });

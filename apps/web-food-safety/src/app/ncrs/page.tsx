@@ -69,7 +69,7 @@ export default function NCRsPage() {
       if (editing) { await api.put(`/ncrs/${editing.id}`, form); }
       else { await api.post('/ncrs', form); }
       setModalOpen(false); load();
-    } catch (e: any) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
+    } catch (e: unknown) { setFormError(e?.response?.data?.error?.message || 'Failed to save'); }
     finally { setSubmitting(false); }
   }
 

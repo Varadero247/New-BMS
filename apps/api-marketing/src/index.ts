@@ -58,7 +58,7 @@ app.use(sanitizeQueryMiddleware());
 // Stripe webhooks need raw body for signature verification
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), (req: Request, _res: Response, next: NextFunction) => {
   if (Buffer.isBuffer(req.body)) {
-    (req as any).rawBody = req.body;
+    (req as Request & { rawBody?: Buffer }).rawBody = req.body;
     req.body = JSON.parse(req.body.toString());
   }
   next();

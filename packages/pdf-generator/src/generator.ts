@@ -198,7 +198,7 @@ export function generateEvidencePackPDF(evidence: EvidencePackData): Buffer {
 function interpolateString(str: string, data: Record<string, any>): string {
   return str.replace(/\{\{(\w+(?:\.\w+)*)\}\}/g, (_, key) => {
     const keys = key.split('.');
-    let value: any = data;
+    let value: unknown = data;
     for (const k of keys) {
       value = value?.[k];
     }
