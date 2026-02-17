@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Service-to-service authentication for IMS microservices",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts",
-    "dev": "tsup src/index.ts --format cjs --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --watch",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },

@@ -1,8 +1,10 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
+import { authenticate, type AuthRequest } from '@ims/auth';
 
 const router = Router();
+router.use(authenticate);
 
 const assistantSchema = z.object({
   question: z.string().min(1).max(1000),
@@ -81,7 +83,7 @@ function findRelevantModules(question: string): string[] {
   return matches.slice(0, 5);
 }
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const body = assistantSchema.parse(req.body);
 
