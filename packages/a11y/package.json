@@ -2,5 +2,8 @@
   "name": "@ims/a11y",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'"
+  }
 }

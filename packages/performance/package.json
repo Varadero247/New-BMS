@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'",
     "test:load": "k6 run src/load-tests/api-gateway.js",
     "test:load:all": "bash scripts/run-all-load-tests.sh",
     "test:lighthouse": "node src/lighthouse/run.js",

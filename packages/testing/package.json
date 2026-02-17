@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'",
     "test": "jest --passWithNoTests",
     "typecheck": "tsc --noEmit"
   },

@@ -8,6 +8,9 @@
     ".": "./src/index.ts",
     "./provider": "./src/provider.tsx"
   },
+  "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'"
+  },
   "dependencies": {},
   "devDependencies": {
     "typescript": "^5.3.0"

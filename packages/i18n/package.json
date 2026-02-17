@@ -11,6 +11,9 @@
     "./locale-switcher": "./src/locale-switcher.tsx",
     "./use-t": "./src/use-t.ts"
   },
+  "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'"
+  },
   "devDependencies": {
     "jest-environment-jsdom": "^30.2.0"
   }
