@@ -6,9 +6,9 @@
 **Version**: 1.0.0  
 **Architecture**: Microservices Monorepo  
 **Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  
-**Technology Stack**: Next.js 15, React 19, TypeScript, Express.js, PostgreSQL, Prisma ORM  
-**Total Codebase**: 800+ TypeScript files across 51 applications (25 APIs + 26 web apps) and 39 shared packages
-**Last Updated**: February 10, 2026
+**Technology Stack**: Next.js 15, React 18, TypeScript, Express.js, PostgreSQL, Prisma ORM
+**Total Codebase**: 2,000+ TypeScript files across 86 applications (42 APIs + 44 web apps) and 60 shared packages
+**Last Updated**: February 17, 2026
 
 ---
 
@@ -511,6 +511,7 @@ Dashboard (instance stats, task stats), Templates, Instances, Tasks, Approvals, 
 - `DELETE /api/analyses/:id` — Delete analysis
 - `GET /api/settings` — Get AI provider configuration
 - `POST /api/settings` — Configure AI provider (admin only)
+- `POST /api/assistant` — AI Q&A assistant for Welcome Discovery Wizard (FAQ + AI provider + module KB fallback)
 - Extracts: root cause, suggested actions, compliance gaps, highlights
 
 **Supported AI Providers**:
@@ -765,7 +766,7 @@ pnpm dev:health-safety      # H&S module
 | `pnpm dev` | Start all 30+ processes concurrently |
 | `pnpm build` | Build all apps and packages |
 | `pnpm build:packages` | Build shared packages only |
-| `pnpm test` | Run Jest tests (117+ tests) |
+| `pnpm test` | Run Jest tests (12,321 across 578 suites) |
 | `pnpm lint` | Run ESLint across codebase |
 | `pnpm db:generate` | Generate Prisma client |
 | `pnpm db:push` | Push schema to database |
@@ -847,7 +848,7 @@ docker-compose restart <service>  # Restart one
 
 ### Current Test Coverage
 
-**Jest Unit Tests**: 117 tests across 5 suites
+**Jest Unit Tests**: 12,321 tests across 578 suites (all passing)
 - `risks.api.test.ts` — 24 tests (CRUD, matrix, filters, validation, error handling)
 - `incidents.api.test.ts` — 27 tests (CRUD, auto RIDDOR, investigation dates, AI fields)
 - `legal.api.test.ts` — 15 tests (CRUD, auto ref#, compliance filters, AI fields)

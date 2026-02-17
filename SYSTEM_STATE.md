@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-16
+> Last updated: 2026-02-17
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas | 44 |
 | Database Tables (models) | ~590 |
 | Scripts | 20 |
-| Unit Tests | 11,808 across 556 suites (all passing) |
+| Unit Tests | 12,321 across 578 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -26,7 +26,7 @@
 | Health & Safety | `apps/api-health-safety/` | 4001 | ISO 45001:2018 | `health-safety.prisma` |
 | Environment | `apps/api-environment/` | 4002 | ISO 14001:2015 | `environment.prisma` |
 | Quality | `apps/api-quality/` | 4003 | ISO 9001:2015 | `quality.prisma` |
-| AI Analysis | `apps/api-ai-analysis/` | 4004 | Multi-provider AI | `ai.prisma` |
+| AI Analysis | `apps/api-ai-analysis/` | 4004 | Multi-provider AI, assistant Q&A | `ai.prisma` |
 | Inventory | `apps/api-inventory/` | 4005 | Stock management | `inventory.prisma` |
 | HR | `apps/api-hr/` | 4006 | Human Resources | `hr.prisma` |
 | Payroll | `apps/api-payroll/` | 4007 | Payroll & tax | `payroll.prisma` |
@@ -71,7 +71,7 @@
 
 | Application | Directory | Port | Domain |
 |-------------|-----------|------|--------|
-| Dashboard | `apps/web-dashboard/` | 3000 | Main dashboard, ROI calculator |
+| Dashboard | `apps/web-dashboard/` | 3000 | Main dashboard, ROI calculator, Welcome Discovery Wizard |
 | Health & Safety | `apps/web-health-safety/` | 3001 | ISO 45001 |
 | Environment | `apps/web-environment/` | 3002 | ISO 14001 |
 | Quality | `apps/web-quality/` | 3003 | ISO 9001 |
@@ -339,7 +339,7 @@ All routes also available under `/api/v1/` prefix.
 | Service | Test Files | Tests (approx) |
 |---------|-----------|----------------|
 | api-aerospace | 16 | ~553 |
-| api-ai-analysis | 5 | ~75 |
+| api-ai-analysis | 8 | ~141 |
 | api-analytics | 45 | ~262 |
 | api-assets | 7 | ~120 |
 | api-audits | 6 | ~115 |
@@ -381,7 +381,7 @@ All routes also available under `/api/v1/` prefix.
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~1,109 |
-| **Total** | **556** | **11,808** |
+| **Total** | **578** | **12,321** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -418,6 +418,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 11 | Unique Differentiators | Evidence packs, headstart tool, MSP mode, regulatory feed, ISO 42001, ISO 37001 |
 | Phase 12 | Sales & Marketing Automation | api-marketing, api-partners, web-partners, web-admin, ROI calculator, chatbot, partner portal, growth dashboard |
 | Phase 13 | Fire, Emergency & Disaster Management | api-emergency, web-emergency, emergency.prisma (16 models), 9 route files, 216 tests, 26 DOCX templates, FSO 2005 FRA wizard |
+| Phase 14 | Welcome Discovery Wizard | 7-step onboarding modal in web-dashboard, AI assistant endpoint (/api/ai/assistant), TourManager integration, OnboardingChecklist, sidebar re-entry, 12 new tests |
 
 ---
 

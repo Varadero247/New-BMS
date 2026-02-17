@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, TourManager, useTour } from '@ims/ui';
 import { ComplianceGauge, RiskMatrix } from '@ims/charts';
 import { useRBACContext } from '@ims/rbac/react';
 import { PermissionLevel } from '@ims/rbac';
+import { useWelcomeWizard } from '@/hooks/use-welcome-wizard';
+import { WelcomeWizardModal } from '@/components/welcome-wizard/welcome-wizard-modal';
+import { WizardChecklist } from '@/components/welcome-wizard/wizard-checklist';
+import { WizardFab } from '@/components/welcome-wizard/wizard-fab';
 import {
   Shield,
   Leaf,
@@ -161,6 +165,19 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const { config, openCustomize, hydrate, hydrated } = useDashboardStore();
   const { hasPermission, permissions } = useRBACContext();
+  const wizard = useWelcomeWizard();
+  const tour = useTour('home-dashboard');
+
+  const handleStartTour = useCallback(() => {
+    tour.startTour();
+  }, [tour]);
+
+  // Listen for sidebar "Help & Discovery" event
+  useEffect(() => {
+    const handler = () => wizard.reopen();
+    window.addEventListener('nexara:open-discovery-guide', handler);
+    return () => window.removeEventListener('nexara:open-discovery-guide', handler);
+  }, [wizard.reopen]);
 
   useEffect(() => {
     // Check if setup wizard needs to be shown
@@ -299,7 +316,7 @@ export default function DashboardPage() {
 
           {/* Compliance Gauges */}
           {isWidgetVisible('compliance-gauges') && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div data-tour="dashboard-stats" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card>
                 <CardContent className="pt-6 flex justify-center">
                   <ComplianceGauge
@@ -420,7 +437,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions + Activity Feed */}
           {(isWidgetVisible('quick-actions') || isWidgetVisible('activity-feed')) && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div data-tour="dashboard-actions" className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               {/* Quick Actions */}
               {isWidgetVisible('quick-actions') && (
                 <Card>
@@ -489,7 +506,7 @@ export default function DashboardPage() {
 
           {/* Main Content Grid */}
           {(isWidgetVisible('top-risks') || isWidgetVisible('overdue-capa') || isWidgetVisible('ai-insights')) && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div data-tour="dashboard-charts" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Top Risks */}
               {isWidgetVisible('top-risks') && (
                 <Card>
@@ -634,6 +651,38 @@ export default function DashboardPage() {
 
       {/* Customize Modal */}
       <CustomizeModal />
+
+      {/* Welcome Discovery Wizard */}
+      <WelcomeWizardModal
+        isOpen={wizard.isOpen}
+        step={wizard.state.lastSeenStep}
+        onStepChange={wizard.setStep}
+        onMinimize={wizard.minimize}
+        onDismiss={wizard.dismiss}
+        onComplete={wizard.complete}
+        onStartTour={handleStartTour}
+      />
+      <WizardFab show={wizard.showFab} onClick={wizard.expand} />
+      <WizardChecklist
+        show={wizard.showChecklist}
+        completedItems={wizard.state.checklistItems}
+        onDismiss={wizard.dismissChecklist}
+        onItemClick={wizard.completeChecklistItem}
+      />
+
+      {/* Dashboard Tour */}
+      {tour.isActive && (
+        <TourManager
+          tourId="home-dashboard"
+          isActive={tour.isActive}
+          currentStep={tour.currentStep}
+          onNext={tour.nextStep}
+          onBack={tour.prevStep}
+          onSkip={tour.skipTour}
+        >
+          <span />
+        </TourManager>
+      )}
     </div>
   );
 }

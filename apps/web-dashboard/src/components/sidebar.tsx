@@ -50,6 +50,7 @@ import {
   Flame,
   Handshake,
   Store,
+  HelpCircle,
 } from 'lucide-react';
 import { LocaleSwitcher } from '@ims/i18n';
 
@@ -63,6 +64,7 @@ interface NavItem {
   color: string;
   bgColor: string;
   external?: boolean;
+  onClick?: () => void;
 }
 
 interface NavSection {
@@ -192,13 +194,30 @@ const sections: NavSection[] = [
 
 function NavLink({ item }: { item: NavItem }) {
   const Icon = item.icon;
+  const className = "flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group w-full text-left";
+
+  if (item.onClick) {
+    return (
+      <li>
+        <button onClick={item.onClick} className={className}>
+          <div className={`p-1.5 rounded-lg ${item.bgColor}`}>
+            <Icon className={`h-4 w-4 ${item.color}`} />
+          </div>
+          <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:text-gray-100 dark:group-hover:text-gray-100">
+            {item.name}
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   const Component = item.external ? 'a' : Link;
   return (
     <li>
       <Component
         href={item.href}
         {...(item.external && { target: '_blank', rel: 'noopener noreferrer' })}
-        className="flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+        className={className}
       >
         <div className={`p-1.5 rounded-lg ${item.bgColor}`}>
           <Icon className={`h-4 w-4 ${item.color}`} />
@@ -254,10 +273,22 @@ export function Sidebar() {
         {sections.map((section) => (
           <CollapsibleSection key={section.title} section={section} />
         ))}
-        {/* Settings */}
+        {/* Settings & Help */}
         <div className="mt-3 border-t border-border pt-3">
           <ul>
             <NavLink item={{ name: 'Settings', href: moduleUrl(3004), icon: Settings, color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800', external: true }} />
+            <NavLink item={{
+              name: 'Help & Discovery',
+              href: '#',
+              icon: HelpCircle,
+              color: 'text-blue-600',
+              bgColor: 'bg-blue-100 dark:bg-blue-900',
+              onClick: () => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('nexara:open-discovery-guide'));
+                }
+              },
+            }} />
           </ul>
         </div>
       </nav>

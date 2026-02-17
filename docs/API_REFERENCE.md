@@ -2206,6 +2206,21 @@ Content-Type: application/json
 ```
 Returns interpreted search terms, relevant modules with endpoints, suggested filters, and related ISO clauses.
 
+### AI Assistant (Welcome Discovery Wizard Q&A)
+```http
+POST /api/ai/assistant
+Content-Type: application/json
+
+{
+  "question": "How do incidents connect to risk?",
+  "context": "User is on wizard step 4 of 7"
+}
+```
+Returns `{ answer, suggestedModules, relatedFeatures }`. Uses a 3-tier response strategy:
+1. **FAQ lookup** — matches against hardcoded knowledge base (ISO standards, CAPA, modules, getting started)
+2. **AI provider** — calls configured OpenAI/Anthropic/Grok provider with IMS system prompt and module knowledge
+3. **Module KB fallback** — keyword-matches question against 33 module descriptions and returns relevant modules
+
 ## Marketplace Plugin API (gateway local routes)
 
 ### List Plugins
@@ -2258,3 +2273,327 @@ Content-Type: application/json
 }
 ```
 Returns subscription with HMAC secret for payload verification.
+
+---
+
+## Inventory Management (Port 4005)
+
+**Base path:** `/api/inventory`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `inventory.ts` | CRUD for inventory items |
+| `products.ts` | Product catalogue management |
+| `categories.ts` | Product categories |
+| `warehouses.ts` | Warehouse/location management |
+| `stock-levels.ts` | Real-time stock levels and alerts |
+| `transactions.ts` | Stock movements (in/out/transfer) |
+| `adjustments.ts` | Stock count adjustments |
+| `suppliers.ts` | Inventory supplier links |
+| `reports.ts` | Inventory reports and analytics |
+
+---
+
+## Human Resources (Port 4006)
+
+**Base path:** `/api/hr`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `employees.ts` | Employee CRUD, profiles, status management |
+| `departments.ts` | Department structure and hierarchy |
+| `leave.ts` | Leave requests, approvals, balances |
+| `attendance.ts` | Clock in/out, timesheets |
+| `recruitment.ts` | Job postings, applications, pipeline |
+| `training.ts` | Training records and assignments |
+| `certifications.ts` | Professional certifications tracking |
+| `performance.ts` | Performance reviews and ratings |
+| `goals.ts` | Goal setting and tracking |
+| `documents.ts` | Employee document management |
+| `org-chart.ts` | Organisation chart data |
+
+---
+
+## Payroll (Port 4007)
+
+**Base path:** `/api/payroll`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `payroll.ts` | Pay run CRUD, processing, approval |
+| `salary.ts` | Salary structures and grades |
+| `benefits.ts` | Employee benefits management |
+| `tax.ts` | Tax configuration and calculations |
+| `tax-calculator.ts` | Multi-jurisdiction tax calculator |
+| `jurisdictions.ts` | Tax jurisdiction definitions (UK, US, EU, AU) |
+| `expenses.ts` | Expense claims and reimbursements |
+| `loans.ts` | Employee loan management |
+
+---
+
+## Workflows (Port 4008)
+
+**Base path:** `/api/workflows`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `definitions.ts` | Workflow definition CRUD (visual builder) |
+| `instances.ts` | Running workflow instances |
+| `tasks.ts` | Task assignment and completion |
+| `approvals.ts` | Approval chain management |
+| `automation.ts` | Automated trigger configuration |
+| `templates.ts` | Pre-built workflow templates (6 ISO templates) |
+| `webhooks.ts` | External webhook integrations |
+
+---
+
+## Training & Development (Port 4028)
+
+**Base path:** `/api/training`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `courses.ts` | Training course CRUD |
+| `records.ts` | Individual training records |
+| `matrix.ts` | Training needs matrix (role × competency) |
+| `competencies.ts` | Competency framework definitions |
+| `tna.ts` | Training needs analysis |
+| `inductions.ts` | New starter induction tracking |
+| `dashboard.ts` | Training KPIs and compliance metrics |
+
+---
+
+## Supplier Management (Port 4029)
+
+**Base path:** `/api/suppliers`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `suppliers.ts` | Supplier CRUD, status management |
+| `categories.ts` | Supplier categories and segmentation |
+| `approval.ts` | Supplier approval workflow |
+| `scorecards.ts` | Supplier performance scorecards |
+| `documents.ts` | Supplier document management |
+| `spend.ts` | Spend analytics and tracking |
+| `portal.ts` | Supplier self-service portal endpoints |
+| `dashboard.ts` | Supplier KPIs and risk indicators |
+
+---
+
+## Asset Management (Port 4030)
+
+**Base path:** `/api/assets`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `assets.ts` | Asset register CRUD, lifecycle management |
+| `locations.ts` | Asset location tracking |
+| `inspections.ts` | Asset inspection scheduling and records |
+| `calibrations.ts` | Calibration scheduling and certificates |
+| `depreciation.ts` | Depreciation calculations and reporting |
+| `work-orders.ts` | Maintenance work order management |
+| `dashboard.ts` | Asset KPIs, upcoming maintenance |
+
+---
+
+## Document Management (Port 4031)
+
+**Base path:** `/api/documents`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `documents.ts` | Document CRUD, upload, metadata |
+| `versions.ts` | Version control (check-in/check-out) |
+| `approvals.ts` | Document approval workflows |
+| `read-receipts.ts` | Mandatory read tracking |
+| `search.ts` | Full-text document search |
+| `dashboard.ts` | Document compliance metrics |
+
+---
+
+## Complaints Management (Port 4032)
+
+**Base path:** `/api/complaints`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `complaints.ts` | Complaint CRUD, status tracking |
+| `actions.ts` | Corrective/preventive actions |
+| `communications.ts` | Customer communication log |
+| `sla.ts` | SLA monitoring and escalation |
+| `regulatory.ts` | Regulatory reporting requirements |
+| `public.ts` | Public complaint submission (unauthenticated) |
+| `dashboard.ts` | Complaint KPIs and trends |
+
+---
+
+## Contract Management (Port 4033)
+
+**Base path:** `/api/contracts`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `contracts.ts` | Contract CRUD, status lifecycle |
+| `clauses.ts` | Contract clause library |
+| `approvals.ts` | Contract approval chain |
+| `renewals.ts` | Renewal tracking and alerts |
+| `extraction.ts` | AI-powered clause extraction |
+| `notices.ts` | Notice period management |
+| `dashboard.ts` | Contract value and expiry metrics |
+
+---
+
+## Permit to Work (Port 4034)
+
+**Base path:** `/api/ptw`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `permits.ts` | PTW CRUD, issue/close workflow |
+| `method-statements.ts` | Method statement management |
+| `toolbox-talks.ts` | Toolbox talk records |
+| `conflicts.ts` | Permit conflict detection (overlapping work) |
+| `dashboard.ts` | Active permits, upcoming expiry |
+
+---
+
+## Regulatory Monitoring (Port 4035)
+
+**Base path:** `/api/reg-monitor`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `legal-register.ts` | Legal register CRUD |
+| `obligations.ts` | Compliance obligation tracking |
+| `changes.ts` | Regulatory change monitoring feed |
+| `dashboard.ts` | Compliance status overview |
+
+---
+
+## Incident Management (Port 4036)
+
+**Base path:** `/api/incidents`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `incidents.ts` | Incident CRUD, severity classification |
+| `investigation.ts` | Root cause investigation management |
+| `riddor.ts` | RIDDOR reportable incident handling |
+| `timeline.ts` | Incident timeline and event log |
+| `dashboard.ts` | Incident KPIs, trends, heatmap |
+
+---
+
+## Audit Management (Port 4037)
+
+**Base path:** `/api/audits`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `audits.ts` | Audit CRUD, scheduling, assignment |
+| `programmes.ts` | Annual audit programme management |
+| `checklists.ts` | Audit checklist templates |
+| `findings.ts` | Audit finding CRUD, severity, actions |
+| `pre-audit.ts` | Pre-audit self-assessment |
+| `dashboard.ts` | Audit programme KPIs |
+
+---
+
+## Management Review (Port 4038)
+
+**Base path:** `/api/mgmt-review`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `reviews.ts` | Management review CRUD, minutes, actions |
+| `agenda.ts` | Review agenda item management |
+| `dashboard.ts` | Review schedule and action tracking |
+
+---
+
+## Setup Wizard (Port 4039)
+
+**Base path:** `/api/setup-wizard`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `wizard.ts` | `GET /status` — Check setup progress |
+| | `POST /init` — Initialize new organisation |
+| | `POST /step` — Complete a setup step |
+| | `POST /complete` — Finish setup |
+| | `POST /skip` — Skip optional step |
+
+---
+
+## Marketing Automation (Port 4025)
+
+**Base path:** `/api/marketing`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `roi.ts` | ROI calculator for ISO implementation |
+| `leads.ts` | Lead capture and qualification |
+| `chat.ts` | AI chatbot sessions and messages |
+| `onboarding.ts` | Customer onboarding email sequences |
+| `health-score.ts` | Customer health scoring |
+| `expansion.ts` | Expansion opportunity detection |
+| `prospect-research.ts` | Company research and enrichment |
+| `linkedin-tracker.ts` | LinkedIn outreach tracking |
+| `renewal.ts` | Renewal sequence management |
+| `winback.ts` | Win-back campaign automation |
+| `growth.ts` | Growth metrics and forecasting |
+| `digest.ts` | Weekly digest email generation |
+| `partner-onboarding.ts` | Partner onboarding sequence |
+| `stripe-webhooks.ts` | Stripe payment webhook handlers |
+
+---
+
+## Partner Portal API (Port 4026)
+
+**Base path:** `/api/partners`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `auth.ts` | Partner authentication (register, login, refresh) |
+| `profile.ts` | Partner profile management |
+| `deals.ts` | Deal registration and tracking |
+| `payouts.ts` | Commission payout management |
+| `referrals.ts` | Referral link generation and tracking |
+| `commission.ts` | Commission tier configuration |
+| `support.ts` | Partner support ticket management |
+| `collateral.ts` | Marketing collateral downloads |
+
+---
+
+## Chemical Management (Port 4040)
+
+**Base path:** `/api/chemicals`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `chemicals.ts` | Chemical register CRUD (GHS classification, hazards) |
+| `sds.ts` | Safety Data Sheet management (ISO 11014) |
+| `coshh.ts` | COSHH assessment CRUD (risk rating, controls) |
+| `inventory.ts` | Chemical inventory and stock tracking |
+| `monitoring.ts` | Exposure monitoring records (WEL/OEL) |
+| `incidents.ts` | Chemical incident reporting |
+| `disposal.ts` | Waste disposal records and manifests |
+| `analytics.ts` | Chemical risk analytics and dashboards |
+
+---
+
+## Emergency & Fire Safety (Port 4041)
+
+**Base path:** `/api/emergency`
+
+| Route File | Endpoints |
+|------------|-----------|
+| `premises.ts` | Premises register, assembly points, evacuation routes |
+| `fireRiskAssessment.ts` | Fire risk assessment CRUD (FSO 2005 compliant) |
+| `incidents.ts` | Emergency incident declaration, decision log, timeline |
+| `bcp.ts` | Business continuity plan CRUD and exercises |
+| `wardens.ts` | Fire warden assignment and management |
+| `peep.ts` | Personal Emergency Evacuation Plans |
+| `equipment.ts` | Emergency equipment register (extinguishers, alarms, etc.) |
+| `drills.ts` | Evacuation drill scheduling and records |
+| `analytics.ts` | Emergency preparedness metrics |

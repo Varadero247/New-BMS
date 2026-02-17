@@ -258,7 +258,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 
 ## Run Tests
 ```bash
-pnpm test                                # All Jest tests (~11,808 across 556 suites)
+pnpm test                                # All Jest tests (~12,321 across 578 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -289,18 +289,19 @@ npx prisma generate --schema=prisma/schemas/<domain>.prisma
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
-## Current Status (Feb 16, 2026)
+## Current Status (Feb 17, 2026)
 - 42 API services + 44 web apps + PostgreSQL + Redis + main API
-- **All 42 modules fully implemented** across Phases 0-13:
+- **All 42 modules fully implemented** across Phases 0-14:
   - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
   - **Phase 2-11**: Finance, CRM, InfoSec, ESG, CMMS, Portals (Customer + Supplier), Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001
   - **Phase 12**: Marketing, Partners, Admin Dashboard, Setup Wizard
   - **Phase 13**: Risk (ERM), Training, Suppliers, Assets, Documents, Complaints, Contracts, PTW, Reg Monitor, Incidents, Audits, Mgmt Review, Chemicals, Emergency
+  - **Phase 14**: Welcome Discovery Wizard (7-step onboarding, AI assistant, dashboard tour, onboarding checklist)
   - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~589 database models
 - 60 shared packages
-- Tests: ~11,808 Jest tests (556 suites) + 9 integration test scripts (~465+ assertions) -- all passing
+- Tests: ~12,321 Jest tests (578 suites) + 9 integration test scripts (~465+ assertions) -- all passing
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 44 web apps

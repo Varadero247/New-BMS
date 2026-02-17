@@ -50,7 +50,7 @@ Last updated: 2026-02-16
 | Emergency | ISO 22320 / ISO 22301 | api-emergency | 4041 | Active | 45 | 216 | 2026-02-16 |
 | Setup Wizard | Guided Setup | api-setup-wizard | 4039 | Active | 5 | 15 | 2026-02-16 |
 
-**Total: 43 services | ~1,726 endpoints | ~11,808 tests**
+**Total: 43 services | ~1,727 endpoints | ~12,321 tests**
 
 ## Shared Packages
 
