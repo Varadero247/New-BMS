@@ -23,7 +23,7 @@ import {
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
-import { attachPermissions, requirePermission, PermissionLevel } from '@ims/rbac';
+import { attachPermissions } from '@ims/rbac';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-health-safety');
@@ -48,6 +48,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-health-safety'));
 app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
 app.use(optionalServiceAuth);

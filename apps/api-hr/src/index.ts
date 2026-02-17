@@ -22,7 +22,7 @@ import {
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
-import { attachPermissions, requirePermission, PermissionLevel } from '@ims/rbac';
+import { attachPermissions } from '@ims/rbac';
 import { prisma } from './prisma';
 
 const logger = createLogger('api-hr');
