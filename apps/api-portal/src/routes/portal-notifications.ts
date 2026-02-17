@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -6,6 +7,10 @@ import { createLogger } from '@ims/monitoring';
 const logger = createLogger('api-portal');
 const router: Router = Router();
 router.use(authenticate);
+
+const markReadSchema = z.object({
+  isRead: z.boolean().optional(),
+});
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,6 +62,11 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.put('/read-all', async (req: Request, res: Response) => {
   try {
+    const parsed = markReadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     const auth = req as AuthRequest;
 
     const result = await prisma.portalNotification.updateMany({
@@ -78,6 +88,11 @@ router.put('/read-all', async (req: Request, res: Response) => {
 
 router.put('/:id/read', async (req: Request, res: Response) => {
   try {
+    const parsed = markReadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     const auth = req as AuthRequest;
 
     const notification = await prisma.portalNotification.findFirst({

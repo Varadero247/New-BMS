@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -6,6 +7,11 @@ const logger = createLogger('api-partners:payouts');
 const router = Router();
 
 const MIN_PAYOUT_AMOUNT = 100; // £100
+
+const requestPayoutSchema = z.object({
+  paymentMethod: z.enum(['BANK_TRANSFER', 'PAYPAL', 'STRIPE']).optional(),
+  notes: z.string().max(1000).optional(),
+});
 
 // GET /api/payouts
 router.get('/', async (req: Request, res: Response) => {
@@ -56,6 +62,11 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/payouts/request
 router.post('/request', async (req: Request, res: Response) => {
   try {
+    const parsed = requestPayoutSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({

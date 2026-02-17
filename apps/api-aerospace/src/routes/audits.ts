@@ -332,24 +332,35 @@ router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
 // GET /schedule/upcoming - Upcoming scheduled audits
 router.get('/schedule/upcoming', async (req: AuthRequest, res: Response) => {
   try {
-    const { days = '90' } = req.query;
+    const { days = '90', page = '1', limit = '50' } = req.query;
     const daysNum = parseInt(days as string, 10) || 90;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() + daysNum);
 
-    const audits = await (prisma as any).aeroAudit.findMany({
-      where: {
-        deletedAt: null,
-        status: 'SCHEDULED',
-        scheduledDate: { lte: cutoff },
-      },
-      orderBy: { scheduledDate: 'asc' },
-      include: {
-        findings: { select: { id: true, findingType: true, status: true } },
-      },
-    });
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 50, 200);
+    const skip = (pageNum - 1) * limitNum;
 
-    res.json({ success: true, data: audits });
+    const where: any = {
+      deletedAt: null,
+      status: 'SCHEDULED',
+      scheduledDate: { lte: cutoff },
+    };
+
+    const [audits, total] = await Promise.all([
+      (prisma as any).aeroAudit.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { scheduledDate: 'asc' },
+        include: {
+          findings: { select: { id: true, findingType: true, status: true } },
+        },
+      }),
+      (prisma as any).aeroAudit.count({ where }),
+    ]);
+
+    res.json({ success: true, data: audits, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
   } catch (error) {
     logger.error('Upcoming schedule error', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get upcoming audits' } });

@@ -8,9 +8,18 @@ const router = Router();
 
 const VALID_REASONS = ['price', 'features', 'time', 'competitor', 'business'];
 
+const startWinbackSchema = z.object({
+  email: z.string().email().optional(),
+});
+
 // POST /api/winback/start/:orgId
 router.post('/start/:orgId', async (req: Request, res: Response) => {
   try {
+    const parsed = startWinbackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     const { orgId } = req.params;
 
     // Check if already exists
@@ -35,7 +44,7 @@ router.post('/start/:orgId', async (req: Request, res: Response) => {
     // Schedule Day 3 email
     await prisma.mktEmailJob.create({
       data: {
-        email: req.body.email || '',
+        email: parsed.data.email || '',
         template: 'winback_day3_reason',
         subject: 'We\'d love to understand — what made you cancel?',
         scheduledFor: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),

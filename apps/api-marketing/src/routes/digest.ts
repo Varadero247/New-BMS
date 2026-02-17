@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
@@ -7,9 +8,17 @@ import { AutomationConfig } from '../config';
 const logger = createLogger('api-marketing:digest');
 const router = Router();
 
+const triggerDigestSchema = z.object({
+  date: z.string().optional(),
+});
+
 // POST /api/digest/trigger
 router.post('/trigger', authenticate, async (req: Request, res: Response) => {
   try {
+    const parsed = triggerDigestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
     const now = new Date();
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);

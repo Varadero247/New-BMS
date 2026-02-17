@@ -1,10 +1,19 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
 const logger = createLogger('api-marketing:expansion');
 const router = Router();
+
+const expansionCheckSchema = z.object({
+  orgId: z.string().optional(),
+  thresholds: z.object({
+    userLimit: z.number().optional(),
+    moduleLimit: z.number().optional(),
+  }).optional(),
+});
 
 // GET /api/expansion/triggers
 router.get('/triggers', authenticate, async (req: Request, res: Response) => {
@@ -31,6 +40,11 @@ router.get('/triggers', authenticate, async (req: Request, res: Response) => {
 // POST /api/expansion/check
 router.post('/check', authenticate, async (req: Request, res: Response) => {
   try {
+    const parsed = expansionCheckSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     // Manual expansion trigger check
     // In production, this queries actual usage data against thresholds
     const checks = {

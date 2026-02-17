@@ -673,16 +673,21 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 // GET /standards — List available standards and their template info
 router.get('/standards', async (_req, res: Response) => {
-  const standards = Object.entries(STANDARD_TEMPLATES).map(([key, template]) => ({
-    code: key,
-    name: template.name,
-    clauseCount: template.clauses.length,
-    documentCount: template.documents.length,
-    riskCount: template.risks.length,
-    objectiveCount: template.objectives.length,
-  }));
+  try {
+    const standards = Object.entries(STANDARD_TEMPLATES).map(([key, template]) => ({
+      code: key,
+      name: template.name,
+      clauseCount: template.clauses.length,
+      documentCount: template.documents.length,
+      riskCount: template.risks.length,
+      objectiveCount: template.objectives.length,
+    }));
 
-  res.json({ success: true, data: standards });
+    res.json({ success: true, data: standards });
+  } catch (error) {
+    console.error('Failed to list headstart standards:', error);
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list available standards' } });
+  }
 });
 
 // GET /:id — Get headstart assessment detail

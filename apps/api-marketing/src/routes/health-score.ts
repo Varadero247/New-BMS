@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
@@ -6,6 +7,11 @@ import { AutomationConfig } from '../config';
 
 const logger = createLogger('api-marketing:health-score');
 const router = Router();
+
+const recalculateSchema = z.object({
+  userId: z.string().optional(),
+  orgId: z.string().optional(),
+});
 
 export function calculateHealthScore(metrics: {
   loginsLast7Days: number;
@@ -108,6 +114,11 @@ router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
 // POST /api/health-score/recalculate
 router.post('/recalculate', authenticate, async (req: Request, res: Response) => {
   try {
+    const parsed = recalculateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+    }
+
     // In production, this would query actual activity data.
     // For now, return acknowledgement that recalculation was triggered.
     res.json({
