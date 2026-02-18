@@ -246,7 +246,11 @@ router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const data = installSchema.parse(req.body);
+    const parsedInstall = installSchema.safeParse(req.body);
+    if (!parsedInstall.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedInstall.error.errors[0].message } });
+    }
+    const data = parsedInstall.data;
     const orgId = (req.user as any)?.organisationId;
 
     const plugin = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });

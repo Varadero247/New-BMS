@@ -136,7 +136,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const query = listQuerySchema.parse(req.query);
+    const parsedQuery = listQuerySchema.safeParse(req.query);
+    if (!parsedQuery.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedQuery.error.errors[0].message } });
+    }
+    const query = parsedQuery.data;
     const pageNum = Math.max(1, parseInt(query.page, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(query.limit, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
