@@ -167,8 +167,8 @@ router.post('/reviews', async (req: Request, res: Response) => {
       employeeId: z.string().uuid(),
       reviewerId: z.string().uuid(),
       reviewType: z.enum(['ANNUAL', 'MID_YEAR', 'QUARTERLY', 'PROBATION', 'PROJECT_END', 'AD_HOC']),
-      periodStart: z.string(),
-      periodEnd: z.string(),
+      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);

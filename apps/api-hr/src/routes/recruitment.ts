@@ -317,7 +317,7 @@ router.post('/interviews', async (req: Request, res: Response) => {
       jobPostingId: z.string().uuid(),
       round: z.number().default(1),
       interviewType: z.enum(['PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'BEHAVIORAL', 'PANEL', 'CASE_STUDY']),
-      scheduledAt: z.string(),
+      scheduledAt: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       duration: z.number().default(60),
       location: z.string().optional(),
       meetingUrl: z.string().url().optional(),

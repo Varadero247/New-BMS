@@ -22,8 +22,8 @@ const waterCreateSchema = z.object({
   source: z.string().max(200).optional().nullable(),
   quantity: z.number().positive(),
   unit: z.string().trim().min(1).max(50),
-  periodStart: z.string(),
-  periodEnd: z.string(),
+  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   facility: z.string().max(200).optional().nullable(),
 });
 

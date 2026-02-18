@@ -9,8 +9,8 @@ const router: Router = Router();
 router.use(authenticate);
 
 const dataPointCreateSchema = z.object({
-  periodStart: z.string(),
-  periodEnd: z.string(),
+  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
   source: z.string().max(200).optional().nullable(),

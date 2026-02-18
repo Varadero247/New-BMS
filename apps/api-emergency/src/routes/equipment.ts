@@ -17,7 +17,7 @@ const createEquipmentSchema = z.object({
   capacityKg: z.number().nonnegative().optional(),
   installDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   lastServiceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextServiceDue: z.string(),
+  nextServiceDue: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   serviceProvider: z.string().optional(),
 });
 

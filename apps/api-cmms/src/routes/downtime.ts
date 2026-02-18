@@ -15,7 +15,7 @@ router.use(authenticate);
 const downtimeCreateSchema = z.object({
   assetId: z.string().uuid(),
   workOrderId: z.string().uuid().optional().nullable(),
-  startTime: z.string(),
+  startTime: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   endTime: z.string().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500),

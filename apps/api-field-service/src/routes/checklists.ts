@@ -28,7 +28,7 @@ const checklistUpdateSchema = z.object({
 
 const checklistResultCreateSchema = z.object({
   jobId: z.string().uuid(),
-  completedAt: z.string(),
+  completedAt: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   results: z.array(z.any()),
   overallResult: z.enum(['PASS', 'FAIL', 'PARTIAL']),
   notes: z.string().max(2000).optional().nullable(),

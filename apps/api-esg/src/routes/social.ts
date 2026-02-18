@@ -22,8 +22,8 @@ const socialCreateSchema = z.object({
   metric: z.string().trim().min(1).max(200),
   value: z.number(),
   unit: z.string().max(50).optional().nullable(),
-  periodStart: z.string(),
-  periodEnd: z.string(),
+  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   notes: z.string().max(2000).optional().nullable(),
 });
 

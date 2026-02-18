@@ -18,8 +18,8 @@ const kpiCreateSchema = z.object({
   assetId: z.string().uuid().optional().nullable(),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
-  periodStart: z.string(),
-  periodEnd: z.string(),
+  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   target: z.number().optional().nullable(),
 });
 

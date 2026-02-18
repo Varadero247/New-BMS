@@ -17,8 +17,8 @@ const kpiCreateSchema = z.object({
   metricType: z.enum(['FIRST_TIME_FIX', 'RESPONSE_TIME', 'RESOLUTION_TIME', 'CUSTOMER_SATISFACTION', 'UTILIZATION', 'JOBS_COMPLETED']),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
-  periodStart: z.string(),
-  periodEnd: z.string(),
+  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   target: z.number().optional().nullable(),
 });
 

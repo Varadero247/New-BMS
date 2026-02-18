@@ -16,7 +16,7 @@ const timeEntryCreateSchema = z.object({
   jobId: z.string().uuid(),
   technicianId: z.string().uuid(),
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']),
-  startTime: z.string(),
+  startTime: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   endTime: z.string().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),

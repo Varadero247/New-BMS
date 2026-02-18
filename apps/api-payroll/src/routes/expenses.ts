@@ -216,8 +216,8 @@ router.post('/reports', async (req: Request, res: Response) => {
       employeeId: z.string(),
       title: z.string(),
       description: z.string().optional(),
-      periodStart: z.string(),
-      periodEnd: z.string(),
+      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       expenseIds: z.array(z.string().uuid()).default([]),
     });
 

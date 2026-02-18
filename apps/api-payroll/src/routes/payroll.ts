@@ -143,8 +143,8 @@ router.get('/runs/:id', checkOwnership(prisma.payrollRun), async (req: Request, 
 router.post('/runs', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      periodStart: z.string(),
-      periodEnd: z.string(),
+      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       payDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
     });
