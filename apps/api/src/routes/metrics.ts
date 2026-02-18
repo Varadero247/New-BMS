@@ -54,8 +54,8 @@ router.get('/safety', authenticate, async (req, res, next) => {
   try {
     const { year, page = '1', limit = '12' } = req.query;
 
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
@@ -263,8 +263,8 @@ router.get('/quality', authenticate, async (req, res, next) => {
   try {
     const { year, page = '1', limit = '12' } = req.query;
 
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};

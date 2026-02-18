@@ -170,7 +170,7 @@ router.get('/returns', async (req: Request, res: Response) => {
     const { status, taxRateId, year, page = '1', limit = '20' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };

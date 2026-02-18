@@ -138,7 +138,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const query = listQuerySchema.parse(req.query);
     const pageNum = Math.max(1, parseInt(query.page, 10) || 1);
-    const limitNum = Math.min(parseInt(query.limit, 10) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(query.limit, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };

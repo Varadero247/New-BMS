@@ -128,7 +128,7 @@ router.get('/budgets', async (req: Request, res: Response) => {
     const { fiscalYear, accountId, page = '1', limit = '50' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(parseInt(limit as string) || 50, 200);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 50), 200);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };

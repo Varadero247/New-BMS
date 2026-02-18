@@ -25,8 +25,8 @@ const fiveWhySchema = z.object({
 router.get('/five-why', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
@@ -133,8 +133,8 @@ const fishboneSchema = z.object({
 router.get('/fishbone', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
@@ -247,8 +247,8 @@ const paretoSchema = z.object({
 router.get('/pareto', authenticate, async (req, res, next) => {
   try {
     const { incidentId, standard, page = '1', limit = '20' } = req.query;
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
@@ -413,8 +413,8 @@ const bowTieSchema = z.object({
 router.get('/bow-tie', authenticate, async (req, res, next) => {
   try {
     const { riskId, page = '1', limit = '20' } = req.query;
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
@@ -564,8 +564,8 @@ const leanWasteSchema = z.object({
 router.get('/lean-waste', authenticate, async (req, res, next) => {
   try {
     const { page = '1', limit = '20' } = req.query;
-    const pageNum = parseInt(page as string);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [analyses, total] = await Promise.all([
