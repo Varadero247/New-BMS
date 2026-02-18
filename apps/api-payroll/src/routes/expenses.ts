@@ -118,7 +118,10 @@ router.post('/', async (req: Request, res: Response) => {
 // PUT /api/expenses/:id/approve - Approve expense
 router.put('/:id/approve', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
-    const { approvedById, approvalNotes } = req.body;
+    const _schema = z.object({ approvedById: z.string().trim().optional(), approvalNotes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approvedById, approvalNotes } = _parsed.data;
 
     const expense = await prisma.expense.update({
       where: { id: req.params.id },
@@ -141,7 +144,10 @@ router.put('/:id/approve', checkOwnership(prisma.expense), async (req: Request, 
 // PUT /api/expenses/:id/reject - Reject expense
 router.put('/:id/reject', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
-    const { approvedById, approvalNotes } = req.body;
+    const _schema = z.object({ approvedById: z.string().trim().optional(), approvalNotes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approvedById, approvalNotes } = _parsed.data;
 
     const expense = await prisma.expense.update({
       where: { id: req.params.id },
@@ -164,7 +170,10 @@ router.put('/:id/reject', checkOwnership(prisma.expense), async (req: Request, r
 // PUT /api/expenses/:id/reimburse - Mark as reimbursed
 router.put('/:id/reimburse', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
-    const { paymentMethod } = req.body;
+    const _schema = z.object({ paymentMethod: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { paymentMethod } = _parsed.data;
 
     const expense = await prisma.expense.update({
       where: { id: req.params.id },

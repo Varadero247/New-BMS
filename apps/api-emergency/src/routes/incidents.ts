@@ -174,7 +174,10 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/incidents/:id/close — close incident and trigger review
 router.post('/:id/close', authenticate, async (req: Request, res: Response) => {
   try {
-    const { lessonsLearned, rootCauseCategory, riddorReportable, riddorCategory } = req.body;
+    const _schema = z.object({ lessonsLearned: z.string().trim().optional(), rootCauseCategory: z.string().trim().optional(), riddorReportable: z.boolean().optional(), riddorCategory: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { lessonsLearned, rootCauseCategory, riddorReportable, riddorCategory } = _parsed.data;
     const orgId = (req as any).user?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: orgId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });

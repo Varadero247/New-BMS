@@ -321,7 +321,10 @@ router.post('/runs/:id/calculate', checkOwnership(prisma.payrollRun), async (req
 // PUT /api/payroll/runs/:id/approve - Approve payroll run
 router.put('/runs/:id/approve', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
   try {
-    const { approvedById } = req.body;
+    const _schema = z.object({ approvedById: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approvedById } = _parsed.data;
 
     const run = await prisma.$transaction(async (tx) => {
       const updatedRun = await tx.payrollRun.update({

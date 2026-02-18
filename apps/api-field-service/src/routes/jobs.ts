@@ -265,7 +265,10 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job not found' } });
     }
 
-    const { technicianId } = req.body;
+    const _schema = z.object({ technicianId: z.string().trim().min(1) });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { technicianId } = _parsed.data;
     if (!technicianId) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'technicianId is required' } });
     }
@@ -367,7 +370,10 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job not found' } });
     }
 
-    const { notes } = req.body;
+    const _schema = z.object({ notes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { notes } = _parsed.data;
 
     const data = await prisma.fsSvcJob.update({
       where: { id: req.params.id },
@@ -395,7 +401,10 @@ router.put('/:id/cancel', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Job not found' } });
     }
 
-    const { reason } = req.body;
+    const _schema = z.object({ reason: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { reason } = _parsed.data;
 
     const data = await prisma.fsSvcJob.update({
       where: { id: req.params.id },

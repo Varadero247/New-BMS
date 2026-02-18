@@ -267,7 +267,10 @@ router.put('/returns/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'INVALID_STATUS', message: 'Can only update draft or calculated tax returns' } });
     }
 
-    const { salesTax, purchaseTax, notes } = req.body;
+    const _schema = z.object({ salesTax: z.number().nonnegative().optional(), purchaseTax: z.number().nonnegative().optional(), notes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { salesTax, purchaseTax, notes } = _parsed.data;
     const netTax = (salesTax ?? Number(existing.salesTax)) - (purchaseTax ?? Number(existing.purchaseTax));
 
     const taxReturn = await prisma.finTaxReturn.update({

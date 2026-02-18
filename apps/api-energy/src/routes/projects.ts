@@ -281,7 +281,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { actualSavings } = req.body;
+    const _schema = z.object({ actualSavings: z.number().nonnegative().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { actualSavings } = _parsed.data;
 
     const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {

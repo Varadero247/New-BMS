@@ -138,7 +138,10 @@ router.put('/:id/resolve', checkOwnership(prisma.projectIssue), async (req: Auth
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
     }
 
-    const { resolutionDescription, rootCause, preventiveAction } = req.body;
+    const _schema = z.object({ resolutionDescription: z.string().trim().min(1), rootCause: z.string().trim().optional(), preventiveAction: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { resolutionDescription, rootCause, preventiveAction } = _parsed.data;
 
     const issue = await prisma.projectIssue.update({
       where: { id: req.params.id },

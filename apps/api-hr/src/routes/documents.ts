@@ -160,7 +160,10 @@ router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
 // POST /api/documents/:id/sign - E-sign document
 router.post('/:id/sign', async (req: Request, res: Response) => {
   try {
-    const { signatureUrl } = req.body;
+    const _schema = z.object({ signatureUrl: z.string().trim().url() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { signatureUrl } = _parsed.data;
 
     const document = await prisma.employeeDocument.update({
       where: { id: req.params.id },
@@ -302,7 +305,10 @@ router.post('/assets', async (req: Request, res: Response) => {
 // PUT /api/documents/assets/:id/return - Return asset
 router.put('/assets/:id/return', async (req: Request, res: Response) => {
   try {
-    const { returnCondition, notes } = req.body;
+    const _schema = z.object({ returnCondition: z.string().trim().optional(), notes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { returnCondition, notes } = _parsed.data;
 
     const asset = await prisma.employeeAsset.update({
       where: { id: req.params.id },

@@ -78,7 +78,10 @@ router.post('/filings', async (req: Request, res: Response) => {
 // PUT /api/tax/filings/:id/file - Submit tax filing
 router.put('/filings/:id/file', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
   try {
-    const { filedById, confirmationNumber, filingDocumentUrl } = req.body;
+    const _schema = z.object({ filedById: z.string().trim().optional(), confirmationNumber: z.string().trim().optional(), filingDocumentUrl: z.string().trim().url().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { filedById, confirmationNumber, filingDocumentUrl } = _parsed.data;
 
     const filing = await prisma.taxFiling.update({
       where: { id: req.params.id },
@@ -101,7 +104,10 @@ router.put('/filings/:id/file', checkOwnership(prisma.taxFiling), async (req: Re
 // PUT /api/tax/filings/:id/pay - Record tax payment
 router.put('/filings/:id/pay', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
   try {
-    const { paymentReference } = req.body;
+    const _schema = z.object({ paymentReference: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { paymentReference } = _parsed.data;
 
     const filing = await prisma.taxFiling.update({
       where: { id: req.params.id },

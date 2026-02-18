@@ -368,7 +368,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 // PUT /:id/stage — Move to stage
 router.put('/:id/stage', async (req: Request, res: Response) => {
   try {
-    const { stageId } = req.body;
+    const _schema = z.object({ stageId: z.string({ required_error: 'stageId is required' }).trim().min(1, { message: 'stageId is required' }) });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { stageId } = _parsed.data;
     if (!stageId) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'stageId is required' } });
     }
@@ -453,7 +456,10 @@ router.put('/:id/won', async (req: Request, res: Response) => {
 // PUT /:id/lost — Close lost
 router.put('/:id/lost', async (req: Request, res: Response) => {
   try {
-    const { lostReason } = req.body;
+    const _schema = z.object({ lostReason: z.string({ required_error: 'lostReason is required' }).trim().min(1, { message: 'lostReason is required' }).max(2000) });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { lostReason } = _parsed.data;
     if (!lostReason) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'lostReason is required' } });
     }

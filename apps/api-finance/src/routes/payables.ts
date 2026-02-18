@@ -1036,7 +1036,10 @@ router.get('/aging', async (_req: Request, res: Response) => {
 // POST /payment-run — Payment run stub
 router.post('/payment-run', async (req: Request, res: Response) => {
   try {
-    const { asOfDate } = req.body;
+    const _schema = z.object({ asOfDate: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { asOfDate } = _parsed.data;
     const cutoffDate = asOfDate ? new Date(asOfDate) : new Date();
 
     const dueBills = await prisma.finBill.findMany({

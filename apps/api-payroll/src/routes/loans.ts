@@ -127,7 +127,10 @@ router.post('/', async (req: Request, res: Response) => {
 // PUT /api/loans/:id/approve - Approve loan
 router.put('/:id/approve', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
-    const { approvedById } = req.body;
+    const _schema = z.object({ approvedById: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approvedById } = _parsed.data;
 
     const loanData = await prisma.employeeLoan.findUnique({ where: { id: req.params.id } });
     if (!loanData) {
@@ -202,7 +205,10 @@ router.put('/:id/disburse', checkOwnership(prisma.employeeLoan), async (req: Req
 // POST /api/loans/:id/repayments/:repaymentId/pay - Record repayment
 router.post('/:id/repayments/:repaymentId/pay', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
-    const { paidAmount, paymentMethod } = req.body;
+    const _schema = z.object({ paidAmount: z.number().positive(), paymentMethod: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { paidAmount, paymentMethod } = _parsed.data;
     if (typeof paidAmount !== 'number' || paidAmount <= 0) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'paidAmount must be a positive number' } });
     }

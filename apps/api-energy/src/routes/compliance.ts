@@ -274,7 +274,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.put('/:id/assess', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status, notes } = req.body;
+    const _schema = z.object({ status: z.string().trim().min(1), notes: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { status, notes } = _parsed.data;
     const authReq = req as AuthRequest;
 
     if (!status || !['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT'].includes(status)) {

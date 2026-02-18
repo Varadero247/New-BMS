@@ -274,7 +274,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // PUT /:id/assign — Assign work order to technician
 router.put('/:id/assign', async (req: Request, res: Response) => {
   try {
-    const { assignedTo } = req.body;
+    const _schema = z.object({ assignedTo: z.string().trim().min(1) });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { assignedTo } = _parsed.data;
     if (!assignedTo) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'assignedTo is required' } });
     }
@@ -319,7 +322,10 @@ router.put('/:id/start', async (req: Request, res: Response) => {
 // PUT /:id/complete — Complete work order
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const { completionNotes, laborHours, partsCost } = req.body;
+    const _schema = z.object({ completionNotes: z.string().trim().optional(), laborHours: z.number().nonnegative().optional(), partsCost: z.number().nonnegative().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { completionNotes, laborHours, partsCost } = _parsed.data;
 
     const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {

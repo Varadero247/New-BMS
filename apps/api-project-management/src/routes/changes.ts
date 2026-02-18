@@ -140,7 +140,10 @@ router.put('/:id/review', checkOwnership(prisma.projectChange), async (req: Auth
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    const { status, reviewerComments } = req.body;
+    const _schema = z.object({ status: z.string().trim().optional(), reviewerComments: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { status, reviewerComments } = _parsed.data;
 
     const change = await prisma.projectChange.update({
       where: { id: req.params.id },
@@ -167,7 +170,10 @@ router.put('/:id/approve', checkOwnership(prisma.projectChange), async (req: Aut
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    const { status, approvalComments } = req.body;
+    const _schema = z.object({ status: z.string().trim().optional(), approvalComments: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { status, approvalComments } = _parsed.data;
 
     const change = await prisma.projectChange.update({
       where: { id: req.params.id },

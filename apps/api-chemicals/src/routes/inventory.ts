@@ -169,7 +169,10 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const existing = await prisma.chemInventory.findFirst({ where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inventory record not found' } });
-    const { meetsStorageReqs, storageIssues } = req.body;
+    const _schema = z.object({ meetsStorageReqs: z.boolean().optional(), storageIssues: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { meetsStorageReqs, storageIssues } = _parsed.data;
     const data = await prisma.chemInventory.update({
       where: { id: req.params.id },
       data: {

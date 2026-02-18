@@ -246,7 +246,10 @@ router.post('/requests', async (req: Request, res: Response) => {
 // PUT /api/leave/requests/:id/approve - Approve leave request
 router.put('/requests/:id/approve', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
   try {
-    const { approverId, comments } = req.body;
+    const _schema = z.object({ approverId: z.string().trim().optional(), comments: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approverId, comments } = _parsed.data;
 
     const request = await prisma.leaveRequest.findUnique({
       where: { id: req.params.id },
@@ -301,7 +304,10 @@ router.put('/requests/:id/approve', checkOwnership(prisma.leaveRequest), async (
 // PUT /api/leave/requests/:id/reject - Reject leave request
 router.put('/requests/:id/reject', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
   try {
-    const { approverId, comments } = req.body;
+    const _schema = z.object({ approverId: z.string().trim().optional(), comments: z.string().trim().optional() });
+    const _parsed = _schema.safeParse(req.body);
+    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    const { approverId, comments } = _parsed.data;
 
     const request = await prisma.leaveRequest.findUnique({ where: { id: req.params.id } });
 

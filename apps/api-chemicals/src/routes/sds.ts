@@ -146,8 +146,11 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/sds — create SDS for a chemical
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
+    const _schema = z.object({ chemicalId: z.string({ required_error: 'chemicalId is required' }).trim().uuid({ message: 'chemicalId must be a valid UUID' }) });
+    const _parsedId = _schema.safeParse(req.body);
+    if (!_parsedId.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsedId.error.errors[0].message } });
     const { chemicalId, ...rest } = req.body;
-    if (!chemicalId) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'chemicalId is required' } });
+    // chemicalId validated above
     const parsed = createSdsSchema.safeParse(rest);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
 
