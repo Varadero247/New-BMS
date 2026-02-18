@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '@ims/auth';
 import { prisma } from '../prisma';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-audits');
 
 const router = Router();
 
@@ -144,6 +146,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
 
     res.json({ success: true, data: report });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
       error: { code: 'GENERATE_ERROR', message: 'Internal server error' },

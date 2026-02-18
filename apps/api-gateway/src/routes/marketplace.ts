@@ -3,6 +3,8 @@ import { prisma } from '@ims/database';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-gateway');
 
 const router = Router();
 router.use(authenticate);
@@ -91,6 +93,7 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: plugins, meta: { total, page: parseInt(page), limit: take } });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list plugins' } });
   }
 });
@@ -119,6 +122,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
     const plugins = await (prisma as any).mktPlugin.findMany({ where, take: 50, orderBy: { downloads: 'desc' } });
     res.json({ success: true, data: plugins });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Search failed' } });
   }
 });
@@ -139,6 +143,7 @@ router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: { ...plugin, isInstalled: plugin.installs.length > 0 } });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get plugin' } });
   }
 });
@@ -164,6 +169,7 @@ router.post('/plugins', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthReq
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
     }
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register plugin' } });
   }
 });
@@ -183,6 +189,7 @@ router.patch('/plugins/:id', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: Au
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
     }
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update plugin' } });
   }
 });
@@ -209,6 +216,7 @@ router.post('/plugins/:id/versions', requireRole('ADMIN', 'SUPER_ADMIN'), async 
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
     }
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to publish version' } });
   }
 });
@@ -224,6 +232,7 @@ router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
     });
     res.json({ success: true, data: versions });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list versions' } });
   }
 });
@@ -255,6 +264,7 @@ router.post('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async (
 
     res.status(201).json({ success: true, data: install });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to install plugin' } });
   }
 });
@@ -271,6 +281,7 @@ router.delete('/plugins/:id/install', requireRole('ADMIN', 'SUPER_ADMIN'), async
     });
     res.json({ success: true, data: { message: 'Plugin uninstalled' } });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to uninstall plugin' } });
   }
 });
@@ -293,6 +304,7 @@ router.post('/plugins/:id/webhooks', requireRole('ADMIN', 'SUPER_ADMIN'), async 
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: any) => e.path.join('.')) } });
     }
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register webhook' } });
   }
 });
@@ -319,6 +331,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get stats' } });
   }
 });

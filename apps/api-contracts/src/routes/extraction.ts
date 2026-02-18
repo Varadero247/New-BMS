@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '@ims/auth';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-contracts');
 
 const router = Router();
 
@@ -137,6 +139,7 @@ router.post('/analyze', authenticate, async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { extracted, wordCount: text.split(/\s+/).length } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'EXTRACT_ERROR', message: 'Internal server error' } });
   }
 });

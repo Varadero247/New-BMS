@@ -3,6 +3,8 @@ import { prisma } from '@ims/database';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { renderTemplateToHtml } from '@ims/templates';
 import { z } from 'zod';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-gateway');
 
 const router = Router();
 
@@ -148,6 +150,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       pagination: { page: parseInt(page), limit: take, total, pages: Math.ceil(total / take) },
     });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -193,6 +196,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -228,6 +232,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: templates });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -246,6 +251,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     }
     res.json({ success: true, data: template });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -281,6 +287,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 
     res.status(201).json({ success: true, data: template });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -325,6 +332,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -354,6 +362,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
 
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -393,6 +402,7 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
 
     res.status(201).json({ success: true, data: cloned });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -435,6 +445,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 
     res.status(201).json({ success: true, data: instance });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -460,6 +471,7 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: versions });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });
@@ -511,6 +523,7 @@ router.post(
 
       res.json({ success: true, data: restored });
     } catch (error: unknown) {
+      logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
       res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
     }
   },
@@ -563,6 +576,7 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename="${slug}.html"`);
     res.send(html);
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
 });

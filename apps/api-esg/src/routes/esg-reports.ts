@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-esg');
 
 const router = Router();
 
@@ -17,6 +19,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.esgReport.findMany({ where: { orgId, deletedAt: null } as any as any, orderBy: { createdAt: 'desc' } });
     res.json({ success: true, data });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
   }
 });

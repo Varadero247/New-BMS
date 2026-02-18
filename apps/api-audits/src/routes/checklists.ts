@@ -57,6 +57,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'checklist not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch checklist' } });
   }
 });
@@ -104,6 +105,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
@@ -119,6 +121,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: { message: 'checklist deleted successfully' } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });

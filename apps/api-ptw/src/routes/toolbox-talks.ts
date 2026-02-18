@@ -54,6 +54,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'toolbox talk not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch toolbox talk' } });
   }
 });
@@ -106,6 +107,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.ptwToolboxTalk.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
@@ -118,6 +120,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     await prisma.ptwToolboxTalk.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'toolbox talk deleted successfully' } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });

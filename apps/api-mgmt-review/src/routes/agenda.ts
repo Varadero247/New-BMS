@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { prisma } from '../prisma';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-mgmt-review');
 
 const router = Router();
 
@@ -53,6 +55,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
     await prisma.mgmtReview.update({ where: { id: req.params.id }, data: { aiGeneratedAgenda: JSON.stringify(agenda) } });
     res.json({ success: true, data: agenda });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'GENERATE_ERROR', message: 'Failed to generate resource' } });
   }
 });

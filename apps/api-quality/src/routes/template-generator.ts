@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { requirePermission, PermissionLevel } from '@ims/rbac';
 import { prisma } from '../prisma';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-quality');
 
 const generateTemplateSchema = z.object({
   prompt: z.string().min(5, 'Please provide a descriptive prompt (at least 5 characters)'),
@@ -282,6 +284,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
 
     res.json({ success: true, data: templates, pagination: { page: Number(page), limit: Number(limit), total } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
   }
 });
@@ -362,6 +365,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'GENERATION_ERROR', message: 'Internal server error' } });
   }
 });
@@ -379,6 +383,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
       })),
     });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' } });
   }
 });
@@ -396,6 +401,7 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { ...template, configJson: JSON.parse(template.configJson) } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
   }
 });
@@ -406,6 +412,7 @@ router.delete('/:id', authenticate as any, requirePermission('quality', (Permiss
     await prisma.qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });

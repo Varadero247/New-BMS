@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
+import { createLogger } from '@ims/monitoring';
+const logger = createLogger('api-incidents');
 
 const router = Router();
 
@@ -38,6 +40,7 @@ router.post('/:id/assign', authenticate, async (req: Request, res: Response) => 
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
@@ -66,6 +69,7 @@ router.put('/:id/report', authenticate, async (req: Request, res: Response) => {
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
+    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
